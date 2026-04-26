@@ -1,0 +1,13 @@
+{
+  "metrics": {
+    "parameter_supported_ratio": 0.6,
+    "causal_supported_ratio": 0.5,
+    "causal_supported_plus_mixed_ratio": 0.75,
+    "scholar_query_coverage_ratio": 0.7,
+    "non_default_transport_evidence_ratio": 0.65
+  },
+  "readiness": {
+    "passed": false,
+    "failed_checks": ["parameter_utility_ready"]
+  }
+}

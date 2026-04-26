@@ -14,7 +14,11 @@ from polisyos.core.contracts.feedback import (
     DecisionMonitoringReport,
     DecisionReissuePlan,
 )
-from polisyos.core.contracts.runtime import RunCompareView, RunFeedbackView
+from polisyos.core.contracts.foundry import (
+    EquilibriumMultiplicityReport,
+    FeedbackSolveResult,
+)
+from polisyos.core.contracts.runtime import RunCompareView, RunEquilibriaView, RunFeedbackView
 from polisyos.core.run.context import new_run_id
 from polisyos.scientist.feedback import DecisionFeedbackService
 from polisyos.scientist.nodes.builtins.state_keys import INPUT_PARAMETER_OVERRIDE_BUNDLE_REF
@@ -103,6 +107,49 @@ class FeedbackService:
             ),
             decision_validity=self._feedback_state_summary(packet_ref, packet_payload),
             notes=[],
+        )
+
+    def get_run_equilibria(self, run: IndexedRunRecord) -> RunEquilibriaView:
+        """Return the Foundry multiplicity report attached to one run, when present."""
+
+        report_ref = self._find_ref_by_kind(
+            run.details.root_artifacts,
+            "foundry.equilibrium_multiplicity_report",
+        )
+        notes: list[str] = []
+        if report_ref is None:
+            feedback_result_ref = self._find_ref_by_kind(
+                run.details.root_artifacts,
+                "foundry.feedback_result",
+            )
+            if feedback_result_ref is not None:
+                feedback_result = self._load_optional_model(
+                    str(feedback_result_ref.artifact_id),
+                    FeedbackSolveResult,
+                )
+                if (
+                    feedback_result is not None
+                    and feedback_result.multiplicity_report_ref is not None
+                ):
+                    report_ref = feedback_result.multiplicity_report_ref
+
+        report = None
+        if report_ref is None:
+            notes.append("equilibrium_multiplicity_report_missing")
+        else:
+            report = self._load_optional_model(
+                str(report_ref.artifact_id),
+                EquilibriumMultiplicityReport,
+            )
+            if report is None:
+                notes.append("equilibrium_multiplicity_report_load_failed")
+
+        return RunEquilibriaView(
+            run_id=run.run_id,
+            source_kind=run.source_kind,
+            report_ref=report_ref,
+            report=report,
+            notes=notes,
         )
 
     def evaluate_run_feedback(
@@ -254,6 +301,13 @@ class FeedbackService:
             return artifact_id if isinstance(artifact_id, str) else None
         if isinstance(value, str):
             return value
+        return None
+
+    @staticmethod
+    def _find_ref_by_kind(refs: list[Any], kind: str) -> Any | None:
+        for ref in refs:
+            if getattr(ref, "kind", None) == kind:
+                return ref
         return None
 
 

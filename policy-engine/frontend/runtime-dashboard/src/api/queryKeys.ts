@@ -1,15 +1,122 @@
+import {
+  temporalScopeKey,
+  type TemporalScope,
+} from "@/app/providers/temporal-scope";
+import {
+  scenarioScopeKey,
+  type ScenarioScope,
+} from "@/app/providers/scenario-scope";
+
 export const queryKeys = {
   authMe: () => ["auth", "me"] as const,
   health: () => ["runtime", "health"] as const,
   capabilities: () => ["control", "capabilities"] as const,
+  temporalCapabilities: (runId: string | null | undefined) =>
+    ["runtime", "temporal", "capabilities", { runId: runId ?? null }] as const,
   runsRoot: () => ["runtime", "runs"] as const,
   runs: (filters: Record<string, unknown>) =>
     ["runtime", "runs", filters] as const,
-  run: (runId: string) => ["runtime", "run", runId] as const,
-  runTimeline: (runId: string) =>
-    ["runtime", "run", runId, "timeline"] as const,
+  run: (runId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  runTimeline: (runId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "timeline",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
   runNodes: (runId: string) => ["runtime", "run", runId, "nodes"] as const,
-  runLineage: (runId: string) => ["runtime", "run", runId, "lineage"] as const,
+  runLineage: (runId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "lineage",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  runQuantities: (runId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "quantities",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  runCompare: (
+    runAId: string,
+    runBId: string,
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "runs",
+      "compare",
+      { a: runAId, b: runBId },
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  runCompareCandidates: (runId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "compare-candidates",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  runScenarios: (
+    runId: string,
+    temporalScope?: TemporalScope | null,
+    scenarioScope?: ScenarioScope | null,
+  ) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "scenarios",
+      { temporal: temporalScopeKey(temporalScope) },
+      { scenario: scenarioScopeKey(scenarioScope) },
+    ] as const,
+  scenarioManifest: (
+    scenarioId: string,
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "scenario",
+      scenarioId,
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  scenarioCapabilities: (
+    scenarioId: string,
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "scenario",
+      scenarioId,
+      "capabilities",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  counterfactualMetrics: (
+    runId: string,
+    scenarioId: string,
+    temporalScope?: TemporalScope | null,
+    scenarioScope?: ScenarioScope | null,
+  ) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "counterfactual-metrics",
+      { scenarioId },
+      { temporal: temporalScopeKey(temporalScope) },
+      { scenario: scenarioScopeKey(scenarioScope) },
+    ] as const,
   runEvidenceContext: (runId: string) =>
     ["runtime", "run", runId, "evidence-context"] as const,
   runAgents: (runId: string) => ["runtime", "run", runId, "agents"] as const,
@@ -29,6 +136,54 @@ export const queryKeys = {
     ["runtime", "artifact", artifactId, "schema"] as const,
   artifactLineage: (artifactId: string) =>
     ["runtime", "artifact", artifactId, "lineage"] as const,
+  bureaucraticRender: (
+    artifactId: string,
+    request: {
+      genre: string;
+      jurisdiction?: string;
+      templateVersion?: string | null;
+      trustView?: boolean;
+      temporalScope?: unknown;
+    },
+  ) =>
+    [
+      "runtime",
+      "artifact",
+      artifactId,
+      "bureaucratic-render",
+      request,
+    ] as const,
+  lineage: (lineageId: string, temporalScope?: TemporalScope | null) =>
+    [
+      "runtime",
+      "lineage",
+      lineageId,
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  lineageBatch: (
+    lineageIds: readonly string[],
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "lineage",
+      "batch",
+      { lineageIds: [...lineageIds] },
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
+  lineageExport: (
+    lineageId: string,
+    format: "openlineage" | "prov",
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "lineage",
+      lineageId,
+      "export",
+      format,
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
 
   // Control-plane keys
   connectors: () => ["control", "connectors"] as const,

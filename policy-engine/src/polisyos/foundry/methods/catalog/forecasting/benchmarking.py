@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
@@ -14,6 +14,9 @@ from polisyos.foundry.methods.catalog.forecasting.advanced import (
     STLDecompositionEstimator,
     VECForecastEstimator,
 )
+from polisyos.foundry.methods.catalog.forecasting.regime_shift import (
+    RegimeShiftForecastEstimator,
+)
 from polisyos.foundry.methods.catalog.forecasting.univariate import (
     BottomUpReconciliationEstimator,
     ExponentialSmoothingEstimator,
@@ -22,7 +25,7 @@ from polisyos.foundry.methods.catalog.forecasting.univariate import (
 )
 
 
-class ForecastBenchmarkRegime(str, Enum):
+class ForecastBenchmarkRegime(StrEnum):
     """Synthetic data regimes used by the Phase 0 benchmark harness."""
 
     STABLE_SMALL = "stable_small"
@@ -30,7 +33,7 @@ class ForecastBenchmarkRegime(str, Enum):
     POLICY_BREAKS = "policy_breaks"
 
 
-class ForecastResearchStrategy(str, Enum):
+class ForecastResearchStrategy(StrEnum):
     """Research recommendation vocabulary for interval construction."""
 
     PARAMETRIC = "parametric_state_space"
@@ -43,6 +46,7 @@ class ForecastResearchStrategy(str, Enum):
     GAUSSIAN_RECONCILIATION = "gaussian_reconciliation"
     COHERENT_BOOTSTRAP = "coherent_bootstrap"
     DECOMPOSE_RECOMPOSE_CONFORMAL = "decompose_forecast_recompose_conformal"
+    REGIME_SWITCHING_ADAPTIVE_CONFORMAL = "regime_switching_adaptive_conformal"
 
 
 @dataclass(frozen=True)
@@ -70,6 +74,33 @@ class ForecastBenchmarkResult:
     truthfulness_tier: str
     truthfulness_scope: str
     research_recommendation_by_horizon: dict[int, tuple[str, ...]]
+    notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class RegimeShiftCalibrationBenchmarkResult:
+    """One factorial acceptance cell for regime-shift forecasting."""
+
+    case_id: str
+    method_fqn: str
+    status: str
+    n_obs: int
+    horizon: int
+    regime_count: int
+    min_dwell: int
+    separation: float
+    recurring: bool
+    shift_type: str
+    true_breakpoints: tuple[int, ...]
+    detected_breakpoints: tuple[int, ...]
+    benchmark_status: str | None
+    identifiability_status: str | None
+    regime_status: str | None
+    observed_coverage_by_horizon: dict[int, float | None]
+    mean_interval_score_by_horizon: dict[int, float | None]
+    break_localization_error: float | None
+    detection_delay: float | None
+    accepted: bool
     notes: tuple[str, ...] = ()
 
 
@@ -328,6 +359,30 @@ _RECOMMENDATIONS: tuple[ForecastRecommendationCell, ...] = (
         (ForecastResearchStrategy.CONFORMAL,),
         "Break regimes should never expose raw Prophet bands as calibrated.",
     ),
+    ForecastRecommendationCell(
+        "forecasting.regime_shift.hybrid@1.0.0",
+        ForecastBenchmarkRegime.STABLE_SMALL,
+        1,
+        24,
+        (ForecastResearchStrategy.REGIME_SWITCHING_ADAPTIVE_CONFORMAL,),
+        "Stable series should accept a one-regime certificate only when the no-break posterior and coverage gates pass.",
+    ),
+    ForecastRecommendationCell(
+        "forecasting.regime_shift.hybrid@1.0.0",
+        ForecastBenchmarkRegime.STABLE_MEDIUM,
+        1,
+        24,
+        (ForecastResearchStrategy.REGIME_SWITCHING_ADAPTIVE_CONFORMAL,),
+        "Medium stable regimes use the same bundle shape so regime uncertainty remains comparable across benchmarks.",
+    ),
+    ForecastRecommendationCell(
+        "forecasting.regime_shift.hybrid@1.0.0",
+        ForecastBenchmarkRegime.POLICY_BREAKS,
+        1,
+        24,
+        (ForecastResearchStrategy.REGIME_SWITCHING_ADAPTIVE_CONFORMAL,),
+        "Policy-break regimes require assignment, break-date, recovery-curve, and regime-conditional coverage artifacts.",
+    ),
 )
 
 
@@ -339,6 +394,7 @@ _ALL_METHOD_FQNS = (
     "forecasting.decomposition.stl@1.0.0",
     "forecasting.multivariate.vec_forecast@1.0.0",
     "forecasting.advanced.prophet@1.0.0",
+    "forecasting.regime_shift.hybrid@1.0.0",
 )
 
 
@@ -393,6 +449,78 @@ def _generate_base_signal(
         shock_index = min(n_obs + max(horizon // 3, 1), total - 1)
         signal[shock_index:] = signal[shock_index:] - 3.0
     return signal
+
+
+def _regime_state_pattern(regime_count: int, *, recurring: bool) -> tuple[int, ...]:
+    if regime_count <= 1:
+        return (0,)
+    if recurring and regime_count >= 3:
+        return (*range(regime_count - 1), 0)
+    return tuple(range(regime_count))
+
+
+def _build_regime_factorial_signal(
+    *,
+    n_obs: int,
+    horizon: int,
+    regime_count: int,
+    min_dwell: int,
+    separation: float,
+    recurring: bool,
+    shift_type: str,
+    seed: int,
+) -> tuple[np.ndarray, np.ndarray, tuple[int, ...]]:
+    if regime_count < 1:
+        raise ValueError("regime_count must be >= 1")
+    if n_obs < regime_count * min_dwell:
+        raise ValueError("n_obs must allow every regime to satisfy min_dwell")
+
+    rng = np.random.default_rng(seed)
+    state_pattern = _regime_state_pattern(regime_count, recurring=recurring)
+    segment_count = len(state_pattern)
+    base_length = n_obs // segment_count
+    lengths = [base_length] * segment_count
+    lengths[-1] += n_obs - sum(lengths)
+    breakpoints = tuple(int(sum(lengths[:idx])) for idx in range(1, segment_count))
+
+    history = np.zeros(n_obs, dtype=float)
+    cursor = 0
+    for segment_index, (state, length) in enumerate(zip(state_pattern, lengths, strict=True)):
+        local_t = np.arange(length, dtype=float)
+        has_level_shift = shift_type in {"level", "mixed"}
+        has_slope_shift = shift_type in {"slope", "mixed"}
+        has_variance_shift = shift_type in {"variance", "mixed"}
+        mean = 40.0 + (separation * 3.0 * state if has_level_shift else 0.0)
+        slope = 0.04 + (0.08 * state if has_slope_shift else 0.0)
+        noise_scale = 0.25 * (1.0 + state if has_variance_shift else 1.0)
+        history[cursor : cursor + length] = (
+            mean
+            + slope * local_t
+            + 0.3 * np.sin((2.0 * math.pi * (cursor + local_t)) / 12.0)
+            + rng.normal(0.0, noise_scale, size=length)
+        )
+        if segment_index > 0 and not has_level_shift and has_slope_shift:
+            history[cursor : cursor + length] += history[cursor - 1] - history[cursor]
+        cursor += length
+
+    last_state = state_pattern[-1]
+    future_t = np.arange(1, horizon + 1, dtype=float)
+    has_level_shift = shift_type in {"level", "mixed"}
+    has_slope_shift = shift_type in {"slope", "mixed"}
+    has_variance_shift = shift_type in {"variance", "mixed"}
+    future_mean = 40.0 + (separation * 3.0 * last_state if has_level_shift else 0.0)
+    future_slope = 0.04 + (0.08 * last_state if has_slope_shift else 0.0)
+    noise_scale = 0.25 * (1.0 + last_state if has_variance_shift else 1.0)
+    anchor = float(history[-1])
+    future = (
+        anchor
+        + future_slope * future_t
+        + 0.3 * np.sin((2.0 * math.pi * (n_obs + future_t)) / 12.0)
+        + rng.normal(0.0, noise_scale, size=horizon)
+    )
+    if has_level_shift:
+        future += future_mean - float(np.mean(history[-min_dwell:]))
+    return history, future, breakpoints
 
 
 def _build_scenario(
@@ -583,6 +711,24 @@ def _evaluate_method_once(
         )
         actual = {h: float(scenario.future_univariate[h - 1]) for h in horizons}
         return result["forecasting_uncertainty_bundle"], actual, ()
+    if method_fqn == "forecasting.regime_shift.hybrid@1.0.0":
+        result = RegimeShiftForecastEstimator.pure_step(
+            {"series": scenario.history_univariate},
+            {
+                "horizon": horizon_max,
+                "max_breaks": 3,
+                "min_dwell": 8,
+                "break_window": 4,
+                "coverage_tolerance": 0.10,
+                "shift_type_assessment": "structural",
+            },
+        )
+        actual = {h: float(scenario.future_univariate[h - 1]) for h in horizons}
+        notes = (
+            f"benchmark_status={result['result']['benchmark_status']}",
+            f"regime_status={result['result']['regime_status']}",
+        )
+        return result["forecasting_uncertainty_bundle"], actual, notes
     raise KeyError(f"Unsupported forecasting method for Phase 0 benchmark: {method_fqn}")
 
 
@@ -694,12 +840,187 @@ def run_phase0_forecasting_benchmark(
     return results
 
 
+def _break_localization_metrics(
+    true_breakpoints: tuple[int, ...],
+    detected_breakpoints: tuple[int, ...],
+) -> tuple[float | None, float | None]:
+    if not true_breakpoints:
+        return None, None
+    if not detected_breakpoints:
+        return math.inf, math.inf
+    errors: list[float] = []
+    delays: list[float] = []
+    for true_break in true_breakpoints:
+        nearest = min(detected_breakpoints, key=lambda candidate: abs(candidate - true_break))
+        errors.append(float(abs(nearest - true_break)))
+        delays.append(float(max(0, nearest - true_break)))
+    return float(np.mean(errors)), float(np.mean(delays))
+
+
+def run_regime_shift_calibration_benchmark(
+    *,
+    series_lengths: tuple[int, ...] = (72,),
+    regime_counts: tuple[int, ...] = (1, 2, 3),
+    min_dwells: tuple[int, ...] = (8,),
+    separations: tuple[float, ...] = (1.0, 2.0),
+    recurring_modes: tuple[bool, ...] = (False, True),
+    shift_types: tuple[str, ...] = ("level", "slope", "variance", "mixed"),
+    horizon: int = 6,
+    n_trials: int = 1,
+    base_seed: int = 2026,
+    nominal_coverage: float = 0.90,
+    coverage_tolerance: float = 0.10,
+) -> list[RegimeShiftCalibrationBenchmarkResult]:
+    """Run the Phase 4 factorial acceptance benchmark for regime-shift forecasting."""
+
+    results: list[RegimeShiftCalibrationBenchmarkResult] = []
+    case_index = 0
+    for n_obs in series_lengths:
+        for regime_count in regime_counts:
+            for min_dwell in min_dwells:
+                for separation in separations:
+                    for recurring in recurring_modes:
+                        for shift_type in shift_types:
+                            if n_obs < max(regime_count, 1) * min_dwell:
+                                continue
+                            for trial in range(n_trials):
+                                seed = base_seed + 1000 * trial + case_index
+                                case_id = (
+                                    f"n{n_obs}-k{regime_count}-d{min_dwell}-"
+                                    f"s{separation:g}-r{int(recurring)}-{shift_type}-t{trial}"
+                                )
+                                case_index += 1
+                                history, future, true_breakpoints = _build_regime_factorial_signal(
+                                    n_obs=n_obs,
+                                    horizon=horizon,
+                                    regime_count=regime_count,
+                                    min_dwell=min_dwell,
+                                    separation=separation,
+                                    recurring=recurring,
+                                    shift_type=shift_type,
+                                    seed=seed,
+                                )
+                                try:
+                                    result = RegimeShiftForecastEstimator.pure_step(
+                                        {"series": history},
+                                        {
+                                            "horizon": horizon,
+                                            "min_dwell": min_dwell,
+                                            "max_breaks": max(regime_count + 1, 1),
+                                            "nominal_coverage": nominal_coverage,
+                                            "coverage_tolerance": coverage_tolerance,
+                                            "shift_type_assessment": "structural",
+                                        },
+                                    )
+                                except ValueError as exc:
+                                    results.append(
+                                        RegimeShiftCalibrationBenchmarkResult(
+                                            case_id=case_id,
+                                            method_fqn="forecasting.regime_shift.hybrid@1.0.0",
+                                            status="rejected",
+                                            n_obs=n_obs,
+                                            horizon=horizon,
+                                            regime_count=regime_count,
+                                            min_dwell=min_dwell,
+                                            separation=float(separation),
+                                            recurring=recurring,
+                                            shift_type=shift_type,
+                                            true_breakpoints=true_breakpoints,
+                                            detected_breakpoints=(),
+                                            benchmark_status=None,
+                                            identifiability_status=None,
+                                            regime_status=None,
+                                            observed_coverage_by_horizon=dict.fromkeys(
+                                                range(1, horizon + 1)
+                                            ),
+                                            mean_interval_score_by_horizon=dict.fromkeys(
+                                                range(1, horizon + 1)
+                                            ),
+                                            break_localization_error=None,
+                                            detection_delay=None,
+                                            accepted=False,
+                                            notes=(str(exc),),
+                                        )
+                                    )
+                                    continue
+
+                                bundle = result["regime_shift_forecast_bundle"]
+                                detected = tuple(int(value) for value in result["result"]["breakpoints"])
+                                lookup = _interval_lookup(bundle)
+                                observed_coverage: dict[int, float | None] = {}
+                                interval_score: dict[int, float | None] = {}
+                                for h in range(1, horizon + 1):
+                                    interval = lookup.get(h)
+                                    if interval is None:
+                                        observed_coverage[h] = None
+                                        interval_score[h] = None
+                                        continue
+                                    actual = float(future[h - 1])
+                                    observed_coverage[h] = (
+                                        1.0
+                                        if _actual_is_covered(actual, interval.lower, interval.upper)
+                                        else 0.0
+                                    )
+                                    interval_score[h] = _interval_score(
+                                        actual,
+                                        interval.lower,
+                                        interval.upper,
+                                        1.0 - float(interval.coverage_target or nominal_coverage),
+                                    )
+                                localization_error, detection_delay = _break_localization_metrics(
+                                    true_breakpoints,
+                                    detected,
+                                )
+                                coverage_values = [
+                                    value for value in observed_coverage.values() if value is not None
+                                ]
+                                future_coverage_ok = (
+                                    len(coverage_values) < 10
+                                    or float(np.mean(coverage_values))
+                                    >= nominal_coverage - coverage_tolerance
+                                )
+                                accepted = (
+                                    result["result"]["benchmark_status"] == "green"
+                                    and result["result"]["regime_status"] == "calibrated"
+                                    and future_coverage_ok
+                                )
+                                results.append(
+                                    RegimeShiftCalibrationBenchmarkResult(
+                                        case_id=case_id,
+                                        method_fqn="forecasting.regime_shift.hybrid@1.0.0",
+                                        status="evaluated",
+                                        n_obs=n_obs,
+                                        horizon=horizon,
+                                        regime_count=regime_count,
+                                        min_dwell=min_dwell,
+                                        separation=float(separation),
+                                        recurring=recurring,
+                                        shift_type=shift_type,
+                                        true_breakpoints=true_breakpoints,
+                                        detected_breakpoints=detected,
+                                        benchmark_status=result["result"]["benchmark_status"],
+                                        identifiability_status=result["result"][
+                                            "identifiability_status"
+                                        ],
+                                        regime_status=result["result"]["regime_status"],
+                                        observed_coverage_by_horizon=observed_coverage,
+                                        mean_interval_score_by_horizon=interval_score,
+                                        break_localization_error=localization_error,
+                                        detection_delay=detection_delay,
+                                        accepted=accepted,
+                                    )
+                                )
+    return results
+
+
 __all__ = [
     "ForecastBenchmarkRegime",
     "ForecastBenchmarkResult",
     "ForecastRecommendationCell",
     "ForecastResearchStrategy",
+    "RegimeShiftCalibrationBenchmarkResult",
     "lookup_phase0_forecasting_recommendation",
     "phase0_forecasting_recommendation_matrix",
     "run_phase0_forecasting_benchmark",
+    "run_regime_shift_calibration_benchmark",
 ]

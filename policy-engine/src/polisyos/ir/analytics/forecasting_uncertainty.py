@@ -5,7 +5,7 @@ from __future__ import annotations
 import itertools
 import math
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -120,6 +120,60 @@ class ForecastCalibrationMethod(str, Enum):
     BAYESIAN_PLUS_CONFORMAL = "bayesian_plus_conformal"
     GAUSSIAN_RECONCILIATION = "gaussian_reconciliation"
     COHERENT_BOOTSTRAP = "coherent_bootstrap"
+    CONFORMAL_AFTER_RECONCILIATION = "conformal_after_reconciliation"
+
+
+class ReconciliationStatus(str, Enum):
+    """Certification status for hierarchical or grouped forecast reconciliation."""
+
+    CERTIFIED = "certified"
+    FALLBACK = "fallback"
+
+
+class ReconciliationMethod(str, Enum):
+    """Reconciliation family used before uncertainty calibration."""
+
+    NONE = "none"
+    BOTTOM_UP = "bottom_up"
+    OLS = "ols"
+    MINT_SHRINK = "mint_shrink"
+    GAUSSIAN_PROJECTION = "gaussian_projection"
+    GENERAL_LINEAR_PROJECTION = "general_linear_projection"
+    CONDITIONING_BUIS = "conditioning_buis"
+
+
+class ReconciliationCertificate(BaseModel):
+    """Typed evidence surface for forecast reconciliation coverage claims."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: ReconciliationStatus
+    method: ReconciliationMethod
+    constraints_kind: Literal["hierarchical", "grouped", "general_linear"]
+    coherent_points: bool
+    coherent_paths: bool
+    coverage_scope: Literal[
+        "per_series_marginal",
+        "per_series_marginal_with_beta_mixing_penalty",
+        "uncertified",
+    ]
+    preconditions_passed: bool
+    preconditions: dict[str, bool | str | int | float | None] = Field(default_factory=dict)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    coherent_sample_paths_ref: ArtifactRefModel | None = None
+    node_level_diagnostics_ref: ArtifactRefModel | None = None
+    fallback_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_certificate(self) -> ReconciliationCertificate:
+        if self.status is ReconciliationStatus.CERTIFIED:
+            if not self.preconditions_passed:
+                raise ValueError("certified reconciliation requires passed preconditions")
+            if self.coverage_scope == "uncertified":
+                raise ValueError("certified reconciliation requires a coverage scope")
+        if self.status is ReconciliationStatus.FALLBACK and not self.fallback_reason:
+            raise ValueError("fallback reconciliation requires fallback_reason")
+        return self
 
 
 class HorizonDiagnosticState(str, Enum):
@@ -323,6 +377,7 @@ class ForecastingUncertaintyBundle(BaseModel):
     numeric_policy: NumericPolicySpec = Field(default_factory=NumericPolicySpec)
 
     method_fqn: str
+    source_method: str | None = None
     target_id: str
     generated_at: datetime
 
@@ -347,6 +402,8 @@ class ForecastingUncertaintyBundle(BaseModel):
         if not isinstance(value, dict):
             return value
         payload = dict(value)
+        if payload.get("source_method") is None and payload.get("method_fqn") is not None:
+            payload["source_method"] = str(payload["method_fqn"])
         policy = NumericPolicySpec.model_validate(payload.get("numeric_policy", {}))
         payload["numeric_policy"] = policy.model_dump(mode="python")
         payload["nominal_coverage"] = policy.canonicalize(float(payload["nominal_coverage"]))
@@ -462,6 +519,8 @@ class ForecastingUncertaintyBundle(BaseModel):
         diagnostics = {
             "interval_semantics": self.interval_semantics.value,
             "calibration_method": self.calibration_method.value,
+            "method_fqn": self.method_fqn,
+            "source_method": self.source_method,
             "nominal_coverage": self.nominal_coverage,
             "bundle_gate_eligible": self.horizon_policy.gate_eligible,
             "red_horizon_count": red_count,
@@ -491,6 +550,74 @@ class ForecastingUncertaintyBundle(BaseModel):
         )
 
 
+class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
+    """Forecasting uncertainty bundle with reconciliation certification metadata."""
+
+    contract_id: ClassVar[str] = "ir.forecasting_uncertainty_bundle.v2"
+
+    schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
+    reconciliation_certificate: ReconciliationCertificate | None = None
+
+    @model_validator(mode="after")
+    def _validate_v2_bundle(self) -> ForecastingUncertaintyBundleV2:
+        super()._validate_bundle()
+        if self.calibration_method is ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION:
+            if self.reconciliation_certificate is None:
+                raise ValueError(
+                    "conformal-after-reconciliation bundles require a reconciliation certificate"
+                )
+            if self.reconciliation_certificate.status is not ReconciliationStatus.CERTIFIED:
+                raise ValueError(
+                    "conformal-after-reconciliation requires a certified reconciliation certificate"
+                )
+        return self
+
+    def to_truthfulness_receipt(self) -> TruthfulnessReceipt:
+        """Map v2 reconciliation evidence into the shared truthfulness surface."""
+
+        receipt = super().to_truthfulness_receipt()
+        certificate = self.reconciliation_certificate
+        if certificate is None:
+            return receipt
+
+        diagnostics = dict(receipt.diagnostics)
+        diagnostics["reconciliation_certificate"] = certificate.model_dump(mode="json")
+        degradation_reasons = list(receipt.degradation_reasons)
+        runtime_tier = receipt.runtime_truthfulness_tier
+        scope = receipt.truthfulness_scope
+
+        red_count = int(diagnostics.get("red_horizon_count", 0))
+        if certificate.status is ReconciliationStatus.CERTIFIED:
+            if (
+                self.calibration_method
+                is ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+                and certificate.coverage_scope in {
+                    "per_series_marginal",
+                    "per_series_marginal_with_beta_mixing_penalty",
+                }
+                and red_count == 0
+                and self.horizon_policy.gate_eligible
+            ):
+                runtime_tier = TruthfulnessTier.APPROXIMATE_CALIBRATED
+                scope = TruthfulnessScope.MARGINAL_COVERAGE
+            else:
+                degradation_reasons.append("reconciliation_certificate_not_gate_eligible")
+        else:
+            runtime_tier = TruthfulnessTier.UNVERIFIED
+            scope = TruthfulnessScope.PREDICTIVE_CALIBRATION
+            degradation_reasons.append("reconciliation_coverage_certificate_missing")
+
+        return receipt.model_copy(
+            update={
+                "runtime_truthfulness_tier": runtime_tier,
+                "truthfulness_scope": scope,
+                "diagnostics": diagnostics,
+                "degradation_reasons": tuple(dict.fromkeys(degradation_reasons)),
+                "certificate_version": "2.0",
+            }
+        )
+
+
 def persist_forecasting_uncertainty_bundle(
     store: ArtifactStore,
     bundle: ForecastingUncertaintyBundle,
@@ -500,6 +627,9 @@ def persist_forecasting_uncertainty_bundle(
     schema_version: str = "1.0",
 ) -> ForecastingUncertaintyBundleRef:
     """Persist a forecasting uncertainty bundle as a typed JSON artifact."""
+
+    if isinstance(bundle, ForecastingUncertaintyBundleV2) and schema_version == "1.0":
+        schema_version = "2.0"
 
     ref = put_json_artifact(
         store,
@@ -516,10 +646,18 @@ def persist_forecasting_uncertainty_bundle(
 def load_forecasting_uncertainty_bundle(
     store: ArtifactStore,
     ref: ForecastingUncertaintyBundleRef,
-) -> ForecastingUncertaintyBundle:
+) -> ForecastingUncertaintyBundle | ForecastingUncertaintyBundleV2:
     """Load a forecasting uncertainty bundle from artifact storage."""
 
     payload = get_json_artifact(store, ref.artifact_id)
+    if (
+        isinstance(payload, dict)
+        and (
+            payload.get("schema_version") == "2.0"
+            or payload.get("reconciliation_certificate") is not None
+        )
+    ):
+        return ForecastingUncertaintyBundleV2.model_validate(payload)
     return ForecastingUncertaintyBundle.model_validate(payload)
 
 
@@ -529,11 +667,15 @@ __all__ = [
     "ForecastCoverageDiagnostic",
     "ForecastIntervalSemantics",
     "ForecastingUncertaintyBundle",
+    "ForecastingUncertaintyBundleV2",
     "HorizonDiagnosticState",
     "HorizonInterval",
     "HorizonPolicyRule",
     "HorizonPolicySpec",
     "HorizonQuantileSet",
+    "ReconciliationCertificate",
+    "ReconciliationMethod",
+    "ReconciliationStatus",
     "load_forecasting_uncertainty_bundle",
     "persist_forecasting_uncertainty_bundle",
 ]

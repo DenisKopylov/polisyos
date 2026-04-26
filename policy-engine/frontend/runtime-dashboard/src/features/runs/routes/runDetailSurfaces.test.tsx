@@ -1,15 +1,20 @@
 import type { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { FALLBACK_CAPABILITY_MANIFEST } from "@/lib/capabilities";
+import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 
 const {
   renderArtifactViewerMock,
   useArtifactContentMock,
   useAuthzMock,
   useCapabilitiesMock,
+  useCompareCandidatesMock,
+  useCompareRunsMock,
+  useCounterfactualMetricsMock,
   useGovernanceDebugMock,
   useNodeDebugMock,
   usePermissionMock,
@@ -21,6 +26,7 @@ const {
   useRunInspectorMock,
   useRunLineageMock,
   useRunNodesMock,
+  useRunScenariosMock,
   useRunTimelineMock,
   useRunWorkflowMock,
   useTelemetryReadyMarkMock,
@@ -29,6 +35,9 @@ const {
   useArtifactContentMock: vi.fn(),
   useAuthzMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
+  useCompareCandidatesMock: vi.fn(),
+  useCompareRunsMock: vi.fn(),
+  useCounterfactualMetricsMock: vi.fn(),
   useGovernanceDebugMock: vi.fn(),
   useNodeDebugMock: vi.fn(),
   usePermissionMock: vi.fn(),
@@ -40,6 +49,7 @@ const {
   useRunInspectorMock: vi.fn(),
   useRunLineageMock: vi.fn(),
   useRunNodesMock: vi.fn(),
+  useRunScenariosMock: vi.fn(),
   useRunTimelineMock: vi.fn(),
   useRunWorkflowMock: vi.fn(),
   useTelemetryReadyMarkMock: vi.fn(),
@@ -83,6 +93,22 @@ vi.mock("@/features/runs/context/RunInspectorContext", () => ({
 
 vi.mock("@/api/hooks/useCapabilities", () => ({
   useCapabilities: (...args: unknown[]) => useCapabilitiesMock(...args),
+}));
+
+vi.mock("@/api/hooks/useCompareRuns", () => ({
+  useCompareCandidates: (...args: unknown[]) =>
+    useCompareCandidatesMock(...args),
+  useCompareRuns: (...args: unknown[]) => useCompareRunsMock(...args),
+}));
+
+vi.mock("@/api/hooks/useCounterfactualMetrics", () => ({
+  useCounterfactualMetrics: (...args: unknown[]) =>
+    useCounterfactualMetricsMock(...args),
+}));
+
+vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
+  useRunScenarios: (...args: unknown[]) => useRunScenariosMock(...args),
+  useScenarioCapabilities: vi.fn(),
 }));
 
 vi.mock("@/api/hooks/useArtifactContent", () => ({
@@ -383,12 +409,17 @@ function renderRoute(
   routePath: string,
   element: React.ReactNode,
 ) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path={routePath} element={element} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path={routePath} element={element} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -430,6 +461,30 @@ describe("run detail surfaces", () => {
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
       data: FALLBACK_CAPABILITY_MANIFEST,
+    });
+    useCompareCandidatesMock.mockReturnValue({
+      data: { candidates: [] },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useCompareRunsMock.mockReturnValue({
+      data: policyDiffFixture,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useRunScenariosMock.mockReturnValue({
+      data: { scenarios: [] },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useCounterfactualMetricsMock.mockReturnValue({
+      data: { metrics: {} },
+      error: null,
+      isError: false,
+      isLoading: false,
     });
     useRunInspectorMock.mockReturnValue(summary);
     useGovernanceDebugMock.mockReturnValue({
@@ -668,8 +723,8 @@ describe("run detail surfaces", () => {
       "/runs/compare",
       <RunComparePage />,
     );
-    expect(screen.getAllByText("Decision score").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Artifact refs").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("policy-diff-view")).toBeInTheDocument();
+    expect(screen.getAllByText("Employment rate").length).toBeGreaterThan(0);
 
     renderRoute("/report", "/report", <RunReportPage />);
     expect(
@@ -711,6 +766,9 @@ describe("run detail surfaces", () => {
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getByText("Inflation")).toBeInTheDocument();
     expect(screen.getByText("start")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-scenario-workbench"),
+    ).toBeInTheDocument();
   });
 
   it("renders EvidenceTab with deep links and warnings", () => {

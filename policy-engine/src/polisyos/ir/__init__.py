@@ -17,6 +17,10 @@ from typing import Any
 
 __all__ = [
     "AccessTier",
+    "ABMBifurcationReport",
+    "ABMIdentifiabilityCertificate",
+    "ABMResult",
+    "ABMResultRef",
     "AdministrativeMissingnessClass",
     "AdministrativeMissingnessDirection",
     "AdministrativeMissingnessMetadata",
@@ -87,7 +91,9 @@ __all__ = [
     "ForecastCoverageDiagnostic",
     "ForecastIntervalSemantics",
     "ForecastingUncertaintyBundle",
+    "ForecastingUncertaintyBundleV2",
     "ForecastingUncertaintyBundleRef",
+    "ForecastShiftTypeAssessment",
     "GEUncertaintyBundle",
     "GEUncertaintyBundleRef",
     "GEUncertaintyRepresentation",
@@ -107,6 +113,9 @@ __all__ = [
     "HTEResult",
     "HorizonInterval",
     "HorizonPolicySpec",
+    "ReconciliationCertificate",
+    "ReconciliationMethod",
+    "ReconciliationStatus",
     "IRExportInfo",
     "IRFieldInfo",
     "IRPublicStatus",
@@ -144,6 +153,8 @@ __all__ = [
     "MetricUnit",
     "MicrosimCalibrationReport",
     "MicrosimCalibrationReportRef",
+    "DynamicMicrosimValidationReport",
+    "DynamicMicrosimValidationReportRef",
     "MicrosimSurveyContractBundle",
     "MissingnessAssessmentProvenance",
     "MissingnessAssessmentReport",
@@ -188,7 +199,16 @@ __all__ = [
     "QueryType",
     "RefutationResult",
     "RefutationTestType",
+    "RegimeBenchmarkStatus",
     "RegimeCalendar",
+    "RegimeForecastCalibrationStatus",
+    "RegimeIdentifiabilityStatus",
+    "RegimeModelFamily",
+    "RegimeShiftForecastBundle",
+    "RegimeShiftForecastBundleRef",
+    "Phase4DynamicsGate",
+    "Phase4GateStatus",
+    "Phase4TemporalPolicyGateVerdict",
     "RegionSectorPanels",
     "RuleType",
     "SchemaChangepoint",
@@ -198,6 +218,8 @@ __all__ = [
     "SourceConfidenceTier",
     "SparseDenseBridge",
     "SpatialResult",
+    "SpaceTimeCausalCertificate",
+    "SpaceTimeCausalCertificateRef",
     "SpecificationCurveBundle",
     "SpecificationCurveInput",
     "StakeholderSpec",
@@ -217,6 +239,8 @@ __all__ = [
     "SurvivalDataBundleManifest",
     "SystematicBias",
     "TargetingRule",
+    "TemporalGraphCausalCertificate",
+    "TemporalGraphCausalCertificateRef",
     "TemporalDTRExecutionEntry",
     "TemporalDTRTask",
     "TemporalInterventionSequence",
@@ -227,6 +251,7 @@ __all__ = [
     "TrustLevel",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "EquilibriumMultiplicityWelfareAnnotation",
     "WelfareBundle",
     "WelfareBundleRef",
     "WelfareIntervalSemantics",
@@ -247,6 +272,16 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ABMBifurcationReport": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "ABMBifurcationReport",
+    ),
+    "ABMIdentifiabilityCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "ABMIdentifiabilityCertificate",
+    ),
+    "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
+    "ABMResultRef": ("polisyos.ir.refs", "ABMResultRef"),
     "CalibrationConfig": ("polisyos.ir.analytics.calibration", "CalibrationConfig"),
     "CalibrationTarget": ("polisyos.ir.analytics.calibration", "CalibrationTarget"),
     "ConnectorCapability": ("polisyos.ir.connectors", "ConnectorCapability"),
@@ -329,6 +364,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SuccessCriterion": ("polisyos.ir.governance.problem_frame", "SuccessCriterion"),
     "UncertaintyEnvelope": ("polisyos.ir.analytics.uncertainty", "UncertaintyEnvelope"),
     "UncertaintySource": ("polisyos.ir.analytics.uncertainty", "UncertaintySource"),
+    "EquilibriumMultiplicityWelfareAnnotation": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "EquilibriumMultiplicityWelfareAnnotation",
+    ),
     "WelfareBundle": ("polisyos.ir.analytics.welfare", "WelfareBundle"),
     "WelfareBundleRef": ("polisyos.ir.refs", "WelfareBundleRef"),
     "WelfareIntervalSemantics": (
@@ -421,9 +460,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "ForecastingUncertaintyBundle",
     ),
+    "ForecastingUncertaintyBundleV2": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastingUncertaintyBundleV2",
+    ),
     "ForecastingUncertaintyBundleRef": (
         "polisyos.ir.refs",
         "ForecastingUncertaintyBundleRef",
+    ),
+    "ForecastShiftTypeAssessment": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "ForecastShiftTypeAssessment",
     ),
     "GEUncertaintyBundle": (
         "polisyos.ir.analytics.welfare",
@@ -438,6 +485,18 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "FanChartSpec",
     ),
+    "ReconciliationCertificate": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationCertificate",
+    ),
+    "ReconciliationMethod": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationMethod",
+    ),
+    "ReconciliationStatus": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationStatus",
+    ),
     "HorizonInterval": (
         "polisyos.ir.analytics.forecasting_uncertainty",
         "HorizonInterval",
@@ -445,6 +504,58 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "HorizonPolicySpec": (
         "polisyos.ir.analytics.forecasting_uncertainty",
         "HorizonPolicySpec",
+    ),
+    "RegimeBenchmarkStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeBenchmarkStatus",
+    ),
+    "RegimeForecastCalibrationStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeForecastCalibrationStatus",
+    ),
+    "RegimeIdentifiabilityStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeIdentifiabilityStatus",
+    ),
+    "RegimeModelFamily": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeModelFamily",
+    ),
+    "RegimeShiftForecastBundle": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeShiftForecastBundle",
+    ),
+    "RegimeShiftForecastBundleRef": (
+        "polisyos.ir.refs",
+        "RegimeShiftForecastBundleRef",
+    ),
+    "Phase4DynamicsGate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4DynamicsGate",
+    ),
+    "Phase4GateStatus": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4GateStatus",
+    ),
+    "Phase4TemporalPolicyGateVerdict": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4TemporalPolicyGateVerdict",
+    ),
+    "TemporalGraphCausalCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "TemporalGraphCausalCertificate",
+    ),
+    "TemporalGraphCausalCertificateRef": (
+        "polisyos.ir.refs",
+        "TemporalGraphCausalCertificateRef",
+    ),
+    "SpaceTimeCausalCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "SpaceTimeCausalCertificate",
+    ),
+    "SpaceTimeCausalCertificateRef": (
+        "polisyos.ir.refs",
+        "SpaceTimeCausalCertificateRef",
     ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
@@ -577,6 +688,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "MicrosimCalibrationReportRef": (
         "polisyos.ir.refs",
         "MicrosimCalibrationReportRef",
+    ),
+    "DynamicMicrosimValidationReport": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "DynamicMicrosimValidationReport",
+    ),
+    "DynamicMicrosimValidationReportRef": (
+        "polisyos.ir.refs",
+        "DynamicMicrosimValidationReportRef",
     ),
     "DependenceStructure": (
         "polisyos.ir.analytics.dependence_structure",

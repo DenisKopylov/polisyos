@@ -92,6 +92,7 @@
         "x_learner",
         "policy_tree",
         "g_computation",
+        "st_dscm_spde",
         "ice_g_formula",
         "ltmle",
         "g_estimation",

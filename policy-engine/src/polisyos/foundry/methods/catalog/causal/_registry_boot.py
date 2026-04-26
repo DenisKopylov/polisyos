@@ -64,6 +64,7 @@ from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCa
 from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
     DistributionalBoundsEngineMethod,
 )
+from polisyos.foundry.methods.catalog.causal.dynamic_graph_dscm import DynamicGraphDSCM
 from polisyos.foundry.methods.catalog.causal.eif_bounds import (
     SemiparametricEfficiencyBoundMethod,
 )
@@ -175,6 +176,7 @@ from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     TanBoundsEstimator,
 )
 from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
+from polisyos.foundry.methods.catalog.causal.space_time_dscm import SpaceTimeSPDEGComputation
 from polisyos.foundry.methods.catalog.causal.stochastic_policies import (
     PolicyAIPWEstimator,
     PolicyPluginEstimator,
@@ -332,6 +334,7 @@ def register_causal_methods() -> Sequence[type]:
         NetworkAIPWEstimator,
         SpatialInterferenceEstimator,
         BipartiteInterferenceEstimator,
+        DynamicGraphDSCM,
         # Phase 5: Extended identification theory
         MeasurementErrorEstimator,
         # Phase 6: Advanced estimation — continuous & multi-valued treatments
@@ -371,6 +374,8 @@ def register_causal_methods() -> Sequence[type]:
         OperatorApplyProbeMethod,
         OperatorExportBasisMethod,
         OperatorUnsupportedTargetMethod,
+        # Stage 14.5 space-time DSCM controlled SPDE g-computation
+        SpaceTimeSPDEGComputation,
         # Stage 14.1 kernel causal operators
         KernelSemanticsDiagnostics,
         KernelRegularizationDiagnostics,

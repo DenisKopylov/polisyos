@@ -12,6 +12,7 @@ ROOT_PUBLIC_MODULES = {
     "scientist": ["polisyos.scientist"],
     "lex": ["polisyos.lex"],
     "scholar": ["polisyos.scholar"],
+    "data_forge": ["polisyos.data_forge", "polisyos.data_forge.read_api"],
 }
 
 

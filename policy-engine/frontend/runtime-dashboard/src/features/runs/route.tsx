@@ -177,6 +177,16 @@ export const runsRoutes: RouteObject[] = [
     ),
   },
   {
+    path: "compare/:runA/:runB",
+    loader: runsCompareLoader,
+    handle: runsCompareRouteHandle,
+    element: (
+      <WorkspaceBoundary workspaceKey="runsDecisions">
+        <RunComparePage />
+      </WorkspaceBoundary>
+    ),
+  },
+  {
     path: "runs/:runId/report",
     loader: runReportLoader,
     handle: runReportRouteHandle,

@@ -525,7 +525,7 @@ and Phase 1 fiscal microsim calibration. Must precede Phase 4 because
 dynamic forecasting + fiscal feedback depend on a static welfare contract
 that knows how to compose ambiguity.
 
-**Parallel research problems (13 concurrent):**
+**Parallel research problems (14 concurrent):**
 
 - `P3.01` **Track 6.4** — decomposition of inequality under endogenous group composition → [§7.4](#7-research-track-6)
 - `P3.02` **Track 7.1** — welfare aggregation under general-equilibrium uncertainty → [§8.1](#8-research-track-7)
@@ -579,7 +579,7 @@ identification + Phase-3 fiscal-feedback primitive. Must precede Phase 5
 drift detection because drift semantics depend on the regime-switching
 baseline.
 
-**Parallel research problems (13 concurrent):**
+**Parallel research problems (14 concurrent):**
 
 - `P4.01` **Track 1.5** — simulation-based inference for intractable policy models → [§2.5](#2-research-track-1)
 - `P4.02` **Track 3.2** — hierarchical and grouped forecast reconciliation → [§4.2](#4-research-track-3)

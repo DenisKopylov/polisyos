@@ -38,6 +38,7 @@ import {
   EmptyState,
   exportJson,
 } from "@/shared/ui";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 function RunDeckContent({ runId }: { runId: string }) {
   const { t } = useI18n();
@@ -62,6 +63,19 @@ function RunDeckContent({ runId }: { runId: string }) {
     () => buildRunReportSnapshot(summary, auditTrail),
     [auditTrail, summary],
   );
+  const decisionScoreQuantity = untracedDecisionQuantity({
+    point: report.decisionScore,
+    metricId: "deck_decision_score",
+    label: t("pages.runs.report.decisionScore"),
+    time: { valid_at: summary.decisionView?.generatedAt },
+  });
+  const blockerCountQuantity = untracedDecisionQuantity({
+    point: report.blockerCount,
+    metricId: "deck_blocker_count",
+    label: t("pages.runs.report.blockers"),
+    unit: { code: "{blocker}", system: "ucum", display: "blockers" },
+    time: { valid_at: summary.decisionView?.generatedAt },
+  });
   const deck = useMemo(
     () => buildRunDeckSnapshot(summary, report),
     [report, summary],
@@ -208,9 +222,11 @@ function RunDeckContent({ runId }: { runId: string }) {
               {t("pages.runs.report.decisionScore")}
             </p>
             <p className="mt-2 text-2xl font-semibold">
-              {formatNumber(report.decisionScore, {
-                maximumFractionDigits: 2,
-              })}
+              <Quantity
+                value={decisionScoreQuantity}
+                precision={2}
+                variant="hero"
+              />
             </p>
           </div>
           <div className="bg-surface/75 border-line rounded-2xl border p-4">
@@ -218,7 +234,7 @@ function RunDeckContent({ runId }: { runId: string }) {
               {t("pages.runs.report.blockers")}
             </p>
             <p className="mt-2 text-2xl font-semibold">
-              {formatNumber(report.blockerCount)}
+              <Quantity value={blockerCountQuantity} variant="hero" />
             </p>
           </div>
           <div className="bg-surface/75 border-line rounded-2xl border p-4">

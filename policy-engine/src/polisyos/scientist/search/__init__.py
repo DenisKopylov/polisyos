@@ -133,6 +133,9 @@ __all__ = [
     "ComputeEconomicsDecision",
     "CorrelationRecord",
     "CorrelationRecordSnapshot",
+    "CPBASISConfig",
+    "CPBASISPlan",
+    "CPBASISScore",
     "CorrelationTracker",
     "CorrelationTrackerSnapshot",
     "DiscoveryHypothesisRegistryContract",
@@ -179,10 +182,17 @@ __all__ = [
     "PredictiveVOIScheduler",
     "PromotionEvidenceBundle",
     "PromotionObservation",
+    "ProofAwareSBIScheduler",
+    "ProofGateReceipt",
+    "ProofGateStatus",
     "SchedulingDecision",
     "SearchService",
     "SearchStage",
     "SensitivityAwareCandidateGenerator",
+    "SBICalibrationPolicy",
+    "SBICalibrationSummary",
+    "SBIDesignCandidate",
+    "SBIInferenceFamily",
     "SentinelCandidate",
     "SentinelInjector",
     "SentinelKind",
@@ -204,6 +214,7 @@ __all__ = [
     "VOITrainingConfig",
     "VulnerabilityFound",
     "assess_latent_governance",
+    "build_cp_basis_design_plan",
     "enrich_context_with_diversity",
     "extract_sentinel_metadata",
     "latent_governance_metadata",
@@ -218,6 +229,7 @@ __all__ = [
     "persist_platform_meta_evaluation_report",
     "persist_promotion_evidence_bundle",
     "persist_sentinel_set",
+    "proof_gate_from_bridge",
     "resolve_actionable_store",
     "run_stress_test",
     "scientist_blueprint_compliance_audit",
@@ -372,5 +384,21 @@ def __getattr__(name: str) -> Any:
         "VOITrainingConfig",
     }:
         module = importlib.import_module("polisyos.scientist.search.voi_scheduler")
+        return getattr(module, name)
+    if name in {
+        "CPBASISConfig",
+        "CPBASISPlan",
+        "CPBASISScore",
+        "ProofAwareSBIScheduler",
+        "ProofGateReceipt",
+        "ProofGateStatus",
+        "SBICalibrationPolicy",
+        "SBICalibrationSummary",
+        "SBIDesignCandidate",
+        "SBIInferenceFamily",
+        "build_cp_basis_design_plan",
+        "proof_gate_from_bridge",
+    }:
+        module = importlib.import_module("polisyos.scientist.search.sbi_scheduler")
         return getattr(module, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

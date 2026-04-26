@@ -243,7 +243,11 @@ class RuntimeServiceContainer:
                     "debug",
                     "feedback",
                     "lineage",
+                    "compare",
+                    "temporal",
+                    "scenarios",
                     "artifacts",
+                    "analysis",
                 ],
                 "control_plane_service": ["runtime_metrics", "runtime_tracer"],
                 "mutation_policy": [

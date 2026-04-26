@@ -8,6 +8,7 @@ from polisyos.core.contracts.runtime import (
     GovernanceDebugResponse,
     NodeDebugResponse,
     RunCompareResponse,
+    RunEquilibriaResponse,
     RunErrorsResponse,
     RunFeedbackResponse,
 )
@@ -130,6 +131,29 @@ if router is not None:
         return RunFeedbackResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             feedback=feedback,
+        )
+
+    @router.get(
+        "/{run_id}/equilibria",
+        response_model=RunEquilibriaResponse,
+        operation_id="get_run_equilibria",
+    )
+    def get_run_equilibria(
+        run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunEquilibriaResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_equilibria",
+        )
+        equilibria = ctx.feedback.get_run_equilibria(run)
+        return RunEquilibriaResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            equilibria=equilibria,
         )
 
     @router.get(

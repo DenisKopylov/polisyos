@@ -4,6 +4,8 @@ import {
   buildRunDetailHref,
   buildRunReportHref,
   buildRunsListHref,
+  buildPolicyDiffHref,
+  preservePolicyDiffSearchParams,
   parseRunCompareSearchParams,
   parseRunDetailLegacySearchParams,
   parseRunsListSearchParams,
@@ -41,6 +43,21 @@ describe("runs search params", () => {
     expect(buildRunCompareHref({ base: "run-1", target: "run-2" })).toBe(
       "/runs/compare?base=run-1&target=run-2",
     );
+    expect(buildPolicyDiffHref("run-1", "run-2")).toBe("/compare/run-1/run-2");
+    expect(
+      buildPolicyDiffHref(
+        "run-a",
+        "run-b",
+        "valid_at=2026-04-15T12%3A00%3A00Z&metric=policy_cost&q=ignored",
+      ),
+    ).toBe(
+      "/compare/run-a/run-b?valid_at=2026-04-15T12%3A00%3A00Z&metric=policy_cost",
+    );
+    expect(
+      preservePolicyDiffSearchParams(
+        "tx_at=2026-04-16T09%3A20%3A00Z&scenario_id=s1&base=ignored",
+      ).toString(),
+    ).toBe("tx_at=2026-04-16T09%3A20%3A00Z&scenario_id=s1");
     expect(buildRunDetailHref("run-1", "debug")).toBe("/runs/run-1/debug");
     expect(buildRunReportHref("run-1")).toBe("/runs/run-1/report");
     expect(buildRunDeckHref("run-1")).toBe("/runs/run-1/deck");

@@ -1,5 +1,13 @@
 """Public contracts uncertainty module API."""
 
-from polisyos.ir.refs import ForecastingUncertaintyBundleRef, UncertaintyEnvelopeRef
+from polisyos.ir.refs import (
+    ForecastingUncertaintyBundleRef,
+    RegimeShiftForecastBundleRef,
+    UncertaintyEnvelopeRef,
+)
 
-__all__ = ["ForecastingUncertaintyBundleRef", "UncertaintyEnvelopeRef"]
+__all__ = [
+    "ForecastingUncertaintyBundleRef",
+    "RegimeShiftForecastBundleRef",
+    "UncertaintyEnvelopeRef",
+]

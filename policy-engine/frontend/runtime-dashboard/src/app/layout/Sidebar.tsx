@@ -59,7 +59,7 @@ export default function Sidebar() {
     >
       <div>
         {atlasEnabled ? (
-          <div className="atlas-sidebar-brand">
+          <div className="atlas-sidebar-brand" data-testid="atlas-logo-lockup">
             <div className="flex items-center gap-3">
               <JanusGlyph decorative inverted size={32} variant="mark" />
               <div className="grid gap-1">

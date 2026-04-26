@@ -19,6 +19,7 @@ import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { formatTime } from "@/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { Badge, Button } from "@/shared/ui";
+import { TrustViewToggle } from "@/shared/ui/trust-view";
 
 function resolveHealthBadge(
   status: string | undefined,
@@ -72,6 +73,7 @@ export default function Header() {
           <div className="topbar-brand-chip">
             <JanusGlyph
               decorative
+              data-testid="atlas-logo-mark-24"
               inverted={theme === "dark"}
               size={24}
               variant="mark"
@@ -129,6 +131,7 @@ export default function Header() {
         >
           {t(`shell.header.themeMode.${theme}`)}
         </Button>
+        <TrustViewToggle />
         {SUPPORTED_LOCALES.map((value) => (
           <Button
             key={value}

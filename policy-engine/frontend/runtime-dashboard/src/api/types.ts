@@ -4,6 +4,125 @@
  */
 
 export interface paths {
+  "/api/v1/analysis/attractors": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Analyze Attractors */
+    post: operations["analyze_attractors"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/basin-map": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Persist Basin Map */
+    post: operations["persist_basin_map"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/continuation": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Persist Continuation Branch */
+    post: operations["persist_continuation_branch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/lyapunov": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Analyze Lyapunov Diagnostics */
+    post: operations["analyze_lyapunov_diagnostics"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/{analysis_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Attractor Analysis */
+    get: operations["get_attractor_analysis"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/{analysis_id}/basin/{basin_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Analysis Basin Map */
+    get: operations["get_analysis_basin_map"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/analysis/{analysis_id}/branch/{branch_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Analysis Continuation Branch */
+    get: operations["get_analysis_continuation_branch"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/artifacts/batch": {
     parameters: {
       query?: never;
@@ -100,6 +219,40 @@ export interface paths {
     get: operations["get_artifact_schema"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/artifacts/{packet_id}/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export Bureaucratic Artifact */
+    get: operations["export_bureaucratic_artifact"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/artifacts/{packet_id}/render": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Render Bureaucratic Artifact */
+    post: operations["render_bureaucratic_artifact"];
     delete?: never;
     options?: never;
     head?: never;
@@ -650,6 +803,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/debug/runs/{run_id}/equilibria": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Equilibria */
+    get: operations["get_run_equilibria"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/debug/runs/{run_id}/errors": {
     parameters: {
       query?: never;
@@ -727,6 +897,74 @@ export interface paths {
     };
     /** Api Health */
     get: operations["runtime_api_health"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/lineage/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Lineage Batch */
+    post: operations["get_lineage_batch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/lineage/{lineage_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Lineage */
+    get: operations["get_lineage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/lineage/{lineage_id}/export/openlineage": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export Lineage Openlineage */
+    get: operations["export_lineage_openlineage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/lineage/{lineage_id}/export/prov": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export Lineage Prov */
+    get: operations["export_lineage_prov"];
     put?: never;
     post?: never;
     delete?: never;
@@ -854,6 +1092,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/compare": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Compare Runs */
+    get: operations["compare_runs"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}": {
     parameters: {
       query?: never;
@@ -880,6 +1135,23 @@ export interface paths {
     };
     /** Get Run Agents */
     get: operations["get_run_agents"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/compare-candidates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Compare Candidates */
+    get: operations["get_run_compare_candidates"];
     put?: never;
     post?: never;
     delete?: never;
@@ -922,6 +1194,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Counterfactual Metrics */
+    get: operations["get_run_counterfactual_metrics"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/nodes": {
     parameters: {
       query?: never;
@@ -933,6 +1222,41 @@ export interface paths {
     get: operations["get_run_nodes"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/quantities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Quantities */
+    get: operations["get_run_quantities"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/scenarios": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Run Scenarios */
+    get: operations["list_run_scenarios"];
+    put?: never;
+    /** Create Run Scenario */
+    post: operations["create_run_scenario"];
     delete?: never;
     options?: never;
     head?: never;
@@ -965,6 +1289,57 @@ export interface paths {
     };
     /** Get Run Workflow */
     get: operations["get_run_workflow"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/scenarios/{scenario_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Scenario Manifest */
+    get: operations["get_scenario_manifest"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/scenarios/{scenario_id}/capabilities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Scenario Capabilities */
+    get: operations["get_scenario_capabilities"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/temporal/capabilities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Temporal Capabilities */
+    get: operations["get_temporal_capabilities"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1364,6 +1739,395 @@ export interface components {
       top_level_keys?: string[];
     };
     /**
+     * AttractorAnalysisProvenance
+     * @description Toolchain and upstream artifacts used to produce an attractor report.
+     */
+    AttractorAnalysisProvenance: {
+      /** Derived From */
+      derived_from?: string[];
+      /** Notes */
+      notes?: string[];
+      /** Toolchain */
+      toolchain?: string[];
+    };
+    /**
+     * AttractorAnalysisRequest
+     * @description Input contract for Foundry attractor-analysis endpoints.
+     */
+    AttractorAnalysisRequest: {
+      /** Analysis Modes */
+      analysis_modes?: (
+        | "attractors"
+        | "continuation"
+        | "basin_map"
+        | "lyapunov"
+      )[];
+      exec_plan_ref?: components["schemas"]["ExecPlanRef"] | null;
+      feedback_jacobian_diagnostics_ref?:
+        | components["schemas"]["FeedbackJacobianDiagnosticsRef"]
+        | null;
+      feedback_result_ref?: components["schemas"]["FeedbackResultRef"] | null;
+      /** Initial States */
+      initial_states?: {
+        [key: string]: number;
+      }[];
+      /** Largest Lyapunov Exponent */
+      largest_lyapunov_exponent?: number | null;
+      /**
+       * Max Period
+       * @default 12
+       */
+      max_period: number;
+      model_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Notes */
+      notes?: string[];
+      parameter_point?: components["schemas"]["AttractorParameterPoint"];
+      /**
+       * Persist Artifact
+       * @default true
+       */
+      persist_artifact: boolean;
+      /**
+       * Rtol
+       * @default 0.00001
+       */
+      rtol: number;
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      /** Seeds */
+      seeds?: number[];
+      simulation_result_ref?:
+        | components["schemas"]["SimulationResultRef"]
+        | null;
+      state_projection?:
+        | components["schemas"]["AttractorStateProjection"]
+        | null;
+      /**
+       * Stochastic Model
+       * @default false
+       */
+      stochastic_model: boolean;
+      /**
+       * Tolerance
+       * @default 0.000001
+       */
+      tolerance: number;
+      /** Trajectories */
+      trajectories?: number[][][];
+      /** Trajectory */
+      trajectory?: number[][] | null;
+      /** Variable Ids */
+      variable_ids?: string[];
+      /**
+       * Window
+       * @default 32
+       */
+      window: number;
+    };
+    /**
+     * AttractorAnalysisResponse
+     * @description Response contract for Foundry attractor-analysis endpoints.
+     */
+    AttractorAnalysisResponse: {
+      analysis_result?: components["schemas"]["AttractorAnalysisResult"] | null;
+      analysis_result_ref?:
+        | components["schemas"]["AttractorAnalysisResultRef"]
+        | null;
+      /** Derived Refs */
+      derived_refs?: components["schemas"]["DerivedArtifact"][];
+      /** Notes */
+      notes?: string[];
+      /** Ok */
+      ok: boolean;
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+    };
+    /**
+     * AttractorAnalysisResult
+     * @description Top-level Foundry artifact for attractors, bifurcations, and certificates.
+     */
+    AttractorAnalysisResult: {
+      /** Analysis Id */
+      analysis_id: string;
+      /** Attractors */
+      attractors?: components["schemas"]["AttractorSummary"][];
+      /** Bifurcations */
+      bifurcations?: components["schemas"]["BifurcationEvent"][];
+      exec_plan_ref?: components["schemas"]["ExecPlanRef"] | null;
+      feedback_result_ref?: components["schemas"]["FeedbackResultRef"] | null;
+      /**
+       * Kind
+       * @default foundry.attractor_analysis_result
+       * @constant
+       */
+      kind: "foundry.attractor_analysis_result";
+      model_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Notes */
+      notes?: string[];
+      parameter_point?: components["schemas"]["AttractorParameterPoint"];
+      provenance?: components["schemas"]["AttractorAnalysisProvenance"];
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      simulation_result_ref?:
+        | components["schemas"]["SimulationResultRef"]
+        | null;
+      state_projection: components["schemas"]["AttractorStateProjection"];
+      uncertainty_summary?: components["schemas"]["AttractorUncertaintySummary"];
+    };
+    /**
+     * AttractorAnalysisResultRef
+     * @description Artifact reference for a multi-attractor analysis summary.
+     */
+    AttractorAnalysisResultRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.attractor_analysis_result
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * AttractorBasinEstimate
+     * @description Basin-of-attraction estimate for one attractor.
+     */
+    AttractorBasinEstimate: {
+      basin_map_ref?: components["schemas"]["BasinMapRef"] | null;
+      /** Basin Measure Estimate */
+      basin_measure_estimate?: number | null;
+      /** Boundary Complexity */
+      boundary_complexity?: string | null;
+      /** Confidence Interval */
+      confidence_interval?: [number, number] | null;
+      /** Estimation Method */
+      estimation_method?: string | null;
+      /** Notes */
+      notes?: string[];
+    };
+    /**
+     * AttractorCertificate
+     * @description Declare the certificate or evidence supporting an attractor claim.
+     */
+    AttractorCertificate: {
+      /** V Description */
+      V_description?: string | null;
+      /** Evidence Strength */
+      evidence_strength?: number | null;
+      /** Notes */
+      notes?: string[];
+      proof_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      /**
+       * Status
+       * @default not_attempted
+       * @enum {string}
+       */
+      status:
+        | "not_attempted"
+        | "not_applicable"
+        | "numerically_supported"
+        | "proved_local"
+        | "proved_global"
+        | "failed";
+      /**
+       * Type
+       * @default none
+       */
+      type: string;
+    };
+    /**
+     * AttractorObservableSummary
+     * @description Human-scale observable properties of one attractor.
+     */
+    AttractorObservableSummary: {
+      /** Max Amplitude */
+      max_amplitude?: number | null;
+      /** Period */
+      period?: number | null;
+      /** Summary */
+      summary?: {
+        [key: string]: unknown;
+      };
+      /** Terminal Residual Norm */
+      terminal_residual_norm?: number | null;
+    };
+    /**
+     * AttractorParameterPoint
+     * @description Parameter coordinate associated with an attractor-analysis result.
+     */
+    AttractorParameterPoint: {
+      /** Names */
+      names?: string[];
+      /** Values */
+      values?: number[];
+    };
+    /**
+     * AttractorSpectralValue
+     * @description JSON-safe representation of a real or complex spectral value.
+     */
+    AttractorSpectralValue: {
+      /**
+       * Imag
+       * @default 0
+       */
+      imag: number;
+      /** Real */
+      real: number;
+    };
+    /**
+     * AttractorStability
+     * @description Local or finite-time stability diagnostics for an attractor candidate.
+     */
+    AttractorStability: {
+      /** Diagnostics */
+      diagnostics?: {
+        [key: string]: unknown;
+      };
+      /** Floquet Multipliers */
+      floquet_multipliers?:
+        | components["schemas"]["AttractorSpectralValue"][]
+        | null;
+      /** Jacobian Eigenvalues */
+      jacobian_eigenvalues?: components["schemas"]["AttractorSpectralValue"][];
+      /** Largest Lyapunov Exponent */
+      largest_lyapunov_exponent?: number | null;
+      /**
+       * Local Class
+       * @default unknown
+       * @enum {string}
+       */
+      local_class:
+        | "asymptotically_stable"
+        | "orbitally_stable"
+        | "neutral"
+        | "unstable"
+        | "mixed"
+        | "unknown";
+      /** Lyapunov Spectrum */
+      lyapunov_spectrum?: number[] | null;
+      /** Notes */
+      notes?: string[];
+      /** Spectral Radius */
+      spectral_radius?: number | null;
+    };
+    /**
+     * AttractorStateProjection
+     * @description Reduced observable state on which attractor claims are made.
+     */
+    AttractorStateProjection: {
+      /** Quotient Notes */
+      quotient_notes?: string[];
+      /** Reduced Dimension */
+      reduced_dimension: number;
+      /** Variables */
+      variables?: string[];
+    };
+    /**
+     * AttractorStateRepresentation
+     * @description Compact state, orbit, or invariant-set representation for one attractor.
+     */
+    AttractorStateRepresentation: {
+      /** Equilibrium */
+      equilibrium?: {
+        [key: string]: number;
+      } | null;
+      invariant_set_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      orbit_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Orbit Points */
+      orbit_points?: {
+        [key: string]: number;
+      }[];
+      /** Section Definition */
+      section_definition?: string | null;
+      /** Summary */
+      summary?: {
+        [key: string]: unknown;
+      };
+    };
+    /**
+     * AttractorSummary
+     * @description One attractor, invariant set, or rejected divergent regime.
+     */
+    AttractorSummary: {
+      /** Attractor Id */
+      attractor_id: string;
+      basin?: components["schemas"]["AttractorBasinEstimate"];
+      certificate?: components["schemas"]["AttractorCertificate"];
+      /**
+       * Existence Status
+       * @default candidate
+       * @enum {string}
+       */
+      existence_status:
+        | "candidate"
+        | "numerically_confirmed"
+        | "analytically_confirmed"
+        | "rejected"
+        | "unknown";
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind:
+        | "fixed_point"
+        | "limit_cycle"
+        | "chaotic"
+        | "torus"
+        | "invariant_set"
+        | "divergent";
+      /** Notes */
+      notes?: string[];
+      observables?: components["schemas"]["AttractorObservableSummary"];
+      stability?: components["schemas"]["AttractorStability"];
+      state_representation?: components["schemas"]["AttractorStateRepresentation"];
+      uncertainty?: components["schemas"]["AttractorUncertainty"];
+    };
+    /**
+     * AttractorUncertainty
+     * @description Numerical and stochastic uncertainty attached to one attractor claim.
+     */
+    AttractorUncertainty: {
+      /** Continuation Step */
+      continuation_step?: number | null;
+      /** Finite Time Horizon */
+      finite_time_horizon?: number | null;
+      /** Notes */
+      notes?: string[];
+      /** Numerical Tolerance */
+      numerical_tolerance?: number | null;
+      /** Seeds Used */
+      seeds_used?: number | null;
+    };
+    /**
+     * AttractorUncertaintySummary
+     * @description Top-level uncertainty summary for an attractor-analysis run.
+     */
+    AttractorUncertaintySummary: {
+      /** Notes */
+      notes?: string[];
+      /** Seed Ensemble Size */
+      seed_ensemble_size?: number | null;
+      /**
+       * Stochastic Model
+       * @default false
+       */
+      stochastic_model: boolean;
+      /** Unresolved Items */
+      unresolved_items?: string[];
+    };
+    /**
      * AuthMeResponse
      * @description Authenticated principal payload returned by the runtime ``/auth/me`` endpoint.
      */
@@ -1396,6 +2160,161 @@ export interface components {
       tenant_id: string;
       /** User Id */
       user_id: string;
+    };
+    /**
+     * BasinEstimate
+     * @description Estimated basin share for one clustered fixed point.
+     */
+    BasinEstimate: {
+      ci_95?: components["schemas"]["EquilibriumBasinInterval"] | null;
+      /** Draws */
+      draws: number;
+      /** Equilibrium Id */
+      equilibrium_id: string;
+      /** Hits */
+      hits: number;
+      /** Notes */
+      notes?: string[];
+      /** Share Hat */
+      share_hat?: number | null;
+    };
+    /**
+     * BasinMap
+     * @description Dense basin-map sidecar for attractor analysis.
+     */
+    BasinMap: {
+      /** Analysis Id */
+      analysis_id?: string | null;
+      /** Basin Id */
+      basin_id: string;
+      /** Basin Measure Estimates */
+      basin_measure_estimates?: {
+        [key: string]: number;
+      };
+      /**
+       * Kind
+       * @default foundry.basin_map
+       * @constant
+       */
+      kind: "foundry.basin_map";
+      /** Notes */
+      notes?: string[];
+      /** Samples */
+      samples?: components["schemas"]["BasinMapSample"][];
+      /** Sampling Method */
+      sampling_method: string;
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      state_projection: components["schemas"]["AttractorStateProjection"];
+    };
+    /**
+     * BasinMapRef
+     * @description Artifact reference for dense basin membership samples.
+     */
+    BasinMapRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.basin_map
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * BasinMapSample
+     * @description One initial-condition sample and its assigned attractor label.
+     */
+    BasinMapSample: {
+      /** Attractor Id */
+      attractor_id?: string | null;
+      /** Confidence */
+      confidence?: number | null;
+      /** Initial State */
+      initial_state: {
+        [key: string]: number;
+      };
+      /** Notes */
+      notes?: string[];
+      /** Sample Id */
+      sample_id: string;
+      /** Seed */
+      seed?: number | null;
+      /** Terminal Residual Norm */
+      terminal_residual_norm?: number | null;
+    };
+    /**
+     * BifurcationCandidate
+     * @description Potential bifurcation event detected from local diagnostics.
+     */
+    BifurcationCandidate: {
+      /**
+       * Confidence
+       * @default low
+       * @enum {string}
+       */
+      confidence: "low" | "medium" | "high";
+      /** Diagnostics */
+      diagnostics?: {
+        [key: string]: unknown;
+      };
+      /** Equilibrium Id */
+      equilibrium_id: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "fold" | "flip" | "loss_of_stability";
+      /** Lambda */
+      lambda?: number | null;
+      /** Notes */
+      notes?: string[];
+    };
+    /**
+     * BifurcationEvent
+     * @description Detected local or global bifurcation event on a branch or sweep.
+     */
+    BifurcationEvent: {
+      /** Bifurcation Id */
+      bifurcation_id: string;
+      /** Branch From */
+      branch_from?: string | null;
+      /** Branch To */
+      branch_to?: string | null;
+      /** Confidence */
+      confidence?: number | null;
+      /** Detection Method */
+      detection_method: string;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind:
+        | "saddle_node"
+        | "hopf"
+        | "period_doubling"
+        | "neimark_sacker"
+        | "torus"
+        | "branch_point"
+        | "homoclinic"
+        | "regime_change"
+        | "unknown";
+      /** Normal Form */
+      normal_form?: {
+        [key: string]: unknown;
+      };
+      /** Notes */
+      notes?: string[];
+      /** Parameter Values */
+      parameter_values?: {
+        [key: string]: number;
+      };
     };
     /**
      * BindingProfileInfo
@@ -1436,6 +2355,278 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /** Profiles */
       profiles?: components["schemas"]["BindingProfileInfo"][];
+    };
+    /**
+     * BureaucraticAuthorship
+     * @description Authorship, agent and review attribution for one document block.
+     */
+    BureaucraticAuthorship: {
+      /** Agent Version */
+      agent_version?: string | null;
+      /**
+       * Author
+       * @default PolicyOS
+       */
+      author: string;
+      /**
+       * Author Role
+       * @default system
+       */
+      author_role: string;
+      /**
+       * Reviewed By Human
+       * @default false
+       */
+      reviewed_by_human: boolean;
+      /** Timestamp */
+      timestamp?: string | null;
+    };
+    /**
+     * BureaucraticBlock
+     * @description Canonical document AST block independent of HTML/PDF/DOCX renderers.
+     */
+    BureaucraticBlock: {
+      authorship?: components["schemas"]["BureaucraticAuthorship"];
+      /** Children */
+      children?: components["schemas"]["BureaucraticBlock"][];
+      /**
+       * Epistemic Origin
+       * @enum {string}
+       */
+      epistemic_origin:
+        | "evidence_filled"
+        | "model_generated"
+        | "operator_filled"
+        | "imported";
+      /** Id */
+      id: string;
+      /** Items */
+      items?: string[];
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind:
+        | "header"
+        | "requisites"
+        | "preamble"
+        | "legal_basis"
+        | "section"
+        | "article"
+        | "clause"
+        | "subclause"
+        | "paragraph"
+        | "list"
+        | "table"
+        | "quantity"
+        | "annex"
+        | "signature"
+        | "appendix";
+      /**
+       * Level
+       * @default 1
+       */
+      level: number;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Number */
+      number?: string | null;
+      /** Provenance */
+      provenance?: components["schemas"]["LineageCompactSummaryItem"][];
+      quantity?: components["schemas"]["QuantityValue-Output"] | null;
+      /** Raw Source Refs */
+      raw_source_refs?: string[];
+      /** Text */
+      text?: string | null;
+      /** Title */
+      title?: string | null;
+    };
+    /**
+     * BureaucraticDocument
+     * @description Machine-checkable bureaucratic document AST rendered from a decision packet.
+     */
+    BureaucraticDocument: {
+      /** Annexes */
+      annexes?: components["schemas"]["BureaucraticBlock"][];
+      /** Blocks */
+      blocks?: components["schemas"]["BureaucraticBlock"][];
+      epistemic_summary?: components["schemas"]["BureaucraticEpistemicSummary"];
+      /**
+       * Genre
+       * @enum {string}
+       */
+      genre:
+        | "postanova_kmu"
+        | "zakonoproekt"
+        | "expert_vysnovok"
+        | "analitichna_zapyska";
+      /** Id */
+      id: string;
+      /**
+       * Jurisdiction
+       * @default ua
+       */
+      jurisdiction: string;
+      /**
+       * Language
+       * @default uk
+       */
+      language: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Packet Hash */
+      packet_hash: string;
+      /** Packet Id */
+      packet_id: string;
+      /**
+       * Render Timestamp
+       * Format: date-time
+       */
+      render_timestamp?: string;
+      /**
+       * Status
+       * @default draft
+       * @enum {string}
+       */
+      status: "draft" | "signed_external" | "archived";
+      template: components["schemas"]["BureaucraticTemplateRef"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      /** Title */
+      title: string;
+      /**
+       * Trust View
+       * @default false
+       */
+      trust_view: boolean;
+      /** Watermark */
+      watermark: string;
+    };
+    /**
+     * BureaucraticEpistemicSummary
+     * @description Document-level block-origin proportions shown in the epistemic legend.
+     */
+    BureaucraticEpistemicSummary: {
+      /**
+       * Evidence Filled
+       * @default 0
+       */
+      evidence_filled: number;
+      /**
+       * Imported
+       * @default 0
+       */
+      imported: number;
+      /**
+       * Model Generated
+       * @default 0
+       */
+      model_generated: number;
+      /**
+       * Operator Filled
+       * @default 0
+       */
+      operator_filled: number;
+    };
+    /**
+     * BureaucraticExportResponse
+     * @description Deterministic export packet for HTML/PDF/DOCX generation.
+     */
+    BureaucraticExportResponse: {
+      /** Content */
+      content: string;
+      /** Content Type */
+      content_type: string;
+      /** Document Id */
+      document_id: string;
+      /** Filename */
+      filename: string;
+      /**
+       * Format
+       * @enum {string}
+       */
+      format: "html" | "pdf" | "docx";
+      meta: components["schemas"]["ApiMeta"];
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Packet Id */
+      packet_id: string;
+    };
+    /**
+     * BureaucraticRenderRequest
+     * @description Request body for rendering one packet into a jurisdictional document AST.
+     */
+    BureaucraticRenderRequest: {
+      /**
+       * Genre
+       * @enum {string}
+       */
+      genre:
+        | "postanova_kmu"
+        | "zakonoproekt"
+        | "expert_vysnovok"
+        | "analitichna_zapyska";
+      /**
+       * Jurisdiction
+       * @default ua
+       */
+      jurisdiction: string;
+      /** Template Version */
+      template_version?: string | null;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      /**
+       * Trust View
+       * @default false
+       */
+      trust_view: boolean;
+    };
+    /**
+     * BureaucraticRenderResponse
+     * @description Response envelope for bureaucratic document AST rendering.
+     */
+    BureaucraticRenderResponse: {
+      document: components["schemas"]["BureaucraticDocument"];
+      meta: components["schemas"]["ApiMeta"];
+    };
+    /**
+     * BureaucraticTemplateRef
+     * @description Versioned jurisdictional template identity used by bureaucratic renderers.
+     */
+    BureaucraticTemplateRef: {
+      /**
+       * Genre
+       * @enum {string}
+       */
+      genre:
+        | "postanova_kmu"
+        | "zakonoproekt"
+        | "expert_vysnovok"
+        | "analitichna_zapyska";
+      /** Id */
+      id: string;
+      /**
+       * Jurisdiction
+       * @default ua
+       */
+      jurisdiction: string;
+      /**
+       * Legal Review Status
+       * @default pending_external_review
+       * @enum {string}
+       */
+      legal_review_status: "pending_external_review" | "approved" | "rejected";
+      /**
+       * Locale
+       * @default uk-UA
+       */
+      locale: string;
+      /** Version */
+      version: string;
     };
     /**
      * CacheEntryInfo
@@ -1769,6 +2960,55 @@ export interface components {
       };
     };
     /**
+     * ComparabilityReport
+     * @description Pre-flight report that prevents misleading run comparisons.
+     */
+    ComparabilityReport: {
+      /** Blocked Reasons */
+      blocked_reasons?: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "compatible" | "warning" | "blocked";
+      /** Warnings */
+      warnings?: string[];
+    };
+    /**
+     * CompareCandidate
+     * @description One candidate run suggested as a meaningful comparator.
+     */
+    CompareCandidate: {
+      comparability: components["schemas"]["ComparabilityReport"];
+      /** Finished At */
+      finished_at?: string | null;
+      /** Label */
+      label?: string | null;
+      /**
+       * Relation
+       * @default recommended
+       * @enum {string}
+       */
+      relation: "baseline" | "previous" | "selected" | "recommended";
+      /** Run Id */
+      run_id: string;
+      /** Started At */
+      started_at?: string | null;
+      /** Status */
+      status?: string | null;
+    };
+    /**
+     * CompareCandidatesResponse
+     * @description Response envelope for compare-candidate discovery.
+     */
+    CompareCandidatesResponse: {
+      /** Candidates */
+      candidates?: components["schemas"]["CompareCandidate"][];
+      meta: components["schemas"]["ApiMeta"];
+      /** Run Id */
+      run_id: string;
+    };
+    /**
      * CompareDeltaSection
      * @description Compare delta section public type.
      */
@@ -1790,6 +3030,51 @@ export interface components {
       summary?: {
         [key: string]: unknown;
       };
+    };
+    /**
+     * CompareRunResponse
+     * @description Response envelope for the best-in-class policy diff endpoint.
+     */
+    CompareRunResponse: {
+      comparability: components["schemas"]["ComparabilityReport"];
+      comparison_frame: components["schemas"]["ComparisonFrame"];
+      /** Deltas */
+      deltas?: components["schemas"]["DeltaQuantity"][];
+      meta: components["schemas"]["ApiMeta"];
+      /**
+       * Status
+       * @default computed
+       * @enum {string}
+       */
+      status: "computed" | "client_computable";
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * ComparisonFrame
+     * @description Canonical scope that makes two run payloads comparable.
+     */
+    ComparisonFrame: {
+      /** Assumption Set */
+      assumption_set?: string[];
+      /** Metric Set */
+      metric_set?: string[];
+      /** Population */
+      population?: string | null;
+      /** Run A */
+      run_a: string;
+      /** Run B */
+      run_b: string;
+      /** Scenario Scope */
+      scenario_scope?: {
+        [key: string]: unknown;
+      };
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      /**
+       * Unit Policy
+       * @default canonical
+       * @enum {string}
+       */
+      unit_policy: "canonical" | "source" | "mixed";
     };
     /**
      * ConnectorInfo
@@ -1822,6 +3107,149 @@ export interface components {
       /** Connectors */
       connectors?: components["schemas"]["ConnectorInfo"][];
       meta: components["schemas"]["ApiMeta"];
+    };
+    /**
+     * ContinuationBranch
+     * @description Continuation sidecar for equilibria, periodic orbits, or bifurcation curves.
+     */
+    "ContinuationBranch-Input": {
+      /** Analysis Id */
+      analysis_id?: string | null;
+      /** Bifurcations */
+      bifurcations?: components["schemas"]["BifurcationEvent"][];
+      /** Branch Id */
+      branch_id: string;
+      /**
+       * Branch Kind
+       * @enum {string}
+       */
+      branch_kind:
+        | "equilibrium"
+        | "periodic_orbit"
+        | "bifurcation_curve"
+        | "parameter_sweep";
+      /**
+       * Kind
+       * @default foundry.continuation_branch
+       * @constant
+       */
+      kind: "foundry.continuation_branch";
+      /** Notes */
+      notes?: string[];
+      /** Parameters */
+      parameters?: string[];
+      /** Points */
+      points?: components["schemas"]["ContinuationBranchPoint-Input"][];
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      /** Toolchain */
+      toolchain?: string[];
+    };
+    /**
+     * ContinuationBranch
+     * @description Continuation sidecar for equilibria, periodic orbits, or bifurcation curves.
+     */
+    "ContinuationBranch-Output": {
+      /** Analysis Id */
+      analysis_id?: string | null;
+      /** Bifurcations */
+      bifurcations?: components["schemas"]["BifurcationEvent"][];
+      /** Branch Id */
+      branch_id: string;
+      /**
+       * Branch Kind
+       * @enum {string}
+       */
+      branch_kind:
+        | "equilibrium"
+        | "periodic_orbit"
+        | "bifurcation_curve"
+        | "parameter_sweep";
+      /**
+       * Kind
+       * @default foundry.continuation_branch
+       * @constant
+       */
+      kind: "foundry.continuation_branch";
+      /** Notes */
+      notes?: string[];
+      /** Parameters */
+      parameters?: string[];
+      /** Points */
+      points?: components["schemas"]["ContinuationBranchPoint-Output"][];
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      /** Toolchain */
+      toolchain?: string[];
+    };
+    /**
+     * ContinuationBranchPoint
+     * @description One continuation branch point with optional stability summaries.
+     */
+    "ContinuationBranchPoint-Input": {
+      /** Bifurcation Id */
+      bifurcation_id?: string | null;
+      /** Notes */
+      notes?: string[];
+      /** Parameter Values */
+      parameter_values?: {
+        [key: string]: number;
+      };
+      /** Period */
+      period?: number | null;
+      /** Point Id */
+      point_id: string;
+      stability?: components["schemas"]["AttractorStability"];
+      /** State */
+      state?: {
+        [key: string]: number;
+      };
+    };
+    /**
+     * ContinuationBranchPoint
+     * @description One continuation branch point with optional stability summaries.
+     */
+    "ContinuationBranchPoint-Output": {
+      /** Bifurcation Id */
+      bifurcation_id?: string | null;
+      /** Notes */
+      notes?: string[];
+      /** Parameter Values */
+      parameter_values?: {
+        [key: string]: number;
+      };
+      /** Period */
+      period?: number | null;
+      /** Point Id */
+      point_id: string;
+      stability?: components["schemas"]["AttractorStability"];
+      /** State */
+      state?: {
+        [key: string]: number;
+      };
+    };
+    /**
+     * ContinuationBranchRef
+     * @description Artifact reference for an equilibrium, cycle, or bifurcation continuation branch.
+     */
+    ContinuationBranchRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.continuation_branch
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
     };
     /**
      * ControlJobResponse
@@ -1975,6 +3403,37 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /** Workers */
       workers?: components["schemas"]["ControlWorkerLeaseInfo"][];
+    };
+    /**
+     * CounterfactualMetric
+     * @description Actual, scenario and delta values for one metric.
+     */
+    CounterfactualMetric: {
+      actual: components["schemas"]["QuantityValue-Output"];
+      /** Assumption Ids */
+      assumption_ids: string[];
+      counterfactual: components["schemas"]["QuantityValue-Output"];
+      delta: components["schemas"]["QuantityValue-Output"];
+      /** Label */
+      label: string;
+      /** Metric Id */
+      metric_id: string;
+      scenario_ref: components["schemas"]["ScenarioRef"];
+    };
+    /**
+     * CounterfactualMetricsResponse
+     * @description Response envelope for normalized actual + scenario metrics.
+     */
+    CounterfactualMetricsResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      /** Metrics */
+      metrics?: {
+        [key: string]: components["schemas"]["CounterfactualMetric"];
+      };
+      /** Run Id */
+      run_id: string;
+      scenario: components["schemas"]["ScenarioManifest"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
     };
     /**
      * CursorPage
@@ -2753,6 +4212,69 @@ export interface components {
       triggered_by_event_id?: string | null;
     };
     /**
+     * DeltaDistribution
+     * @description Distributional summary of a metric delta.
+     */
+    DeltaDistribution: {
+      /** Ci Overlap */
+      ci_overlap?: boolean | null;
+      /** Mean Shift */
+      mean_shift?: number | null;
+      /** Median Shift */
+      median_shift?: number | null;
+      /** Quantiles */
+      quantiles?: {
+        [key: string]: number;
+      };
+    };
+    /**
+     * DeltaQuantity
+     * @description One decision-bearing metric comparison with quantity-law envelopes.
+     */
+    DeltaQuantity: {
+      a?: components["schemas"]["QuantityValue-Output"] | null;
+      b?: components["schemas"]["QuantityValue-Output"] | null;
+      /**
+       * Decision Salience
+       * @default 0
+       */
+      decision_salience: number;
+      delta_absolute?: components["schemas"]["QuantityValue-Output"] | null;
+      delta_distribution?: components["schemas"]["DeltaDistribution"];
+      delta_relative?: components["schemas"]["QuantityValue-Output"] | null;
+      /**
+       * Dominance
+       * @default unknown
+       * @enum {string}
+       */
+      dominance: "a" | "b" | "none" | "mixed" | "unknown";
+      /** Label */
+      label: string;
+      lineage_delta?: components["schemas"]["LineageDelta"];
+      /** Metric Id */
+      metric_id: string;
+      /**
+       * Significance
+       * @default uncertain
+       * @enum {string}
+       */
+      significance:
+        | "improved"
+        | "worsened"
+        | "mixed"
+        | "uncertain"
+        | "not_comparable";
+    };
+    /**
+     * DerivedArtifact
+     * @description Derived artifact public type.
+     */
+    DerivedArtifact: {
+      ref: components["schemas"]["ArtifactRef"];
+      /** Role */
+      role: string;
+    };
+    /**
      * DiscoveryCandidate
      * @description Represent one explore-lane candidate discovered from source metadata search.
      */
@@ -2799,6 +4321,243 @@ export interface components {
        * @enum {string}
        */
       source_lane: "fastlane" | "explorelane" | "catalog";
+    };
+    /**
+     * EquilibriumBasinInterval
+     * @description Confidence interval for a basin-share estimate.
+     */
+    EquilibriumBasinInterval: {
+      /** Lower */
+      lower: number;
+      /** Upper */
+      upper: number;
+    };
+    /**
+     * EquilibriumBranch
+     * @description A continuation branch through discovered equilibria.
+     */
+    EquilibriumBranch: {
+      /** Branch Id */
+      branch_id: string;
+      /** Notes */
+      notes?: string[];
+      /** Points */
+      points?: components["schemas"]["EquilibriumBranchPoint"][];
+    };
+    /**
+     * EquilibriumBranchPoint
+     * @description One point on a continuation branch.
+     */
+    EquilibriumBranchPoint: {
+      /** Equilibrium Id */
+      equilibrium_id: string;
+      /** Lambda */
+      lambda: number;
+    };
+    /**
+     * EquilibriumCandidate
+     * @description One clustered fixed-point candidate in a multiplicity report.
+     */
+    EquilibriumCandidate: {
+      basin_ci_95?: components["schemas"]["EquilibriumBasinInterval"] | null;
+      /** Basin Share Hat */
+      basin_share_hat?: number | null;
+      /** Branch Id */
+      branch_id?: string | null;
+      /** Diagnostics */
+      diagnostics?: {
+        [key: string]: unknown;
+      };
+      /**
+       * Discovered From Starts
+       * @default 1
+       */
+      discovered_from_starts: number;
+      /** Equilibrium Id */
+      equilibrium_id: string;
+      jacobian?: components["schemas"]["EquilibriumCandidateJacobian"] | null;
+      /**
+       * Local Stability
+       * @default unknown
+       * @enum {string}
+       */
+      local_stability:
+        | "attractive"
+        | "unstable"
+        | "neutral_or_near_bifurcation"
+        | "unknown";
+      /** Notes */
+      notes?: string[];
+      /** Residual Norm */
+      residual_norm?: number | null;
+      state: components["schemas"]["FeedbackStateSnapshot"];
+      /** Step Norm */
+      step_norm?: number | null;
+    };
+    /**
+     * EquilibriumCandidateJacobian
+     * @description Jacobian summaries attached to one equilibrium candidate.
+     */
+    EquilibriumCandidateJacobian: {
+      /** Condition Number */
+      condition_number?: number | null;
+      /**
+       * Near Bifurcation
+       * @default false
+       */
+      near_bifurcation: boolean;
+      /**
+       * Near Flip
+       * @default false
+       */
+      near_flip: boolean;
+      /**
+       * Near Fold
+       * @default false
+       */
+      near_fold: boolean;
+      /**
+       * Near Loss Of Stability
+       * @default false
+       */
+      near_loss_of_stability: boolean;
+      /** Operator Norm Inf */
+      operator_norm_inf?: number | null;
+      /** Smallest Singular Value I Minus J */
+      smallest_singular_value_i_minus_j?: number | null;
+      /** Spectral Radius */
+      spectral_radius?: number | null;
+    };
+    /**
+     * EquilibriumMultiplicityDiagnostics
+     * @description Search-level diagnostics for a multiplicity report.
+     */
+    EquilibriumMultiplicityDiagnostics: {
+      /**
+       * Branch Switch Events
+       * @default 0
+       */
+      branch_switch_events: number;
+      /**
+       * Continuation Failures
+       * @default 0
+       */
+      continuation_failures: number;
+      /**
+       * Divergence Failures
+       * @default 0
+       */
+      divergence_failures: number;
+      /** False Merge Risk */
+      false_merge_risk?: number | null;
+      /** Max Pairwise Cluster Overlap */
+      max_pairwise_cluster_overlap?: number | null;
+      /** Notes */
+      notes?: string[];
+      /** Num Attempts */
+      num_attempts: number;
+      /** Num Converged */
+      num_converged: number;
+      /** Num Equilibria */
+      num_equilibria: number;
+      /**
+       * Num Unresolved
+       * @default 0
+       */
+      num_unresolved: number;
+      /**
+       * Stagnation Failures
+       * @default 0
+       */
+      stagnation_failures: number;
+      /**
+       * Two Cycle Failures
+       * @default 0
+       */
+      two_cycle_failures: number;
+      /** Unresolved Starts Share */
+      unresolved_starts_share?: number | null;
+    };
+    /**
+     * EquilibriumMultiplicityProvenance
+     * @description Reproducibility metadata for a multiplicity report.
+     */
+    EquilibriumMultiplicityProvenance: {
+      /**
+       * Git Sha
+       * @default unknown
+       */
+      git_sha: string;
+      /** Random Seed */
+      random_seed?: number | null;
+      /** Runtime Refs */
+      runtime_refs?: string[];
+      /**
+       * Solver Version
+       * @default polisyos-foundry-feedback-1.0
+       */
+      solver_version: string;
+    };
+    /**
+     * EquilibriumMultiplicityReport
+     * @description Structured report for discovered fixed-point multiplicity.
+     */
+    EquilibriumMultiplicityReport: {
+      /** Basin Estimates */
+      basin_estimates?: components["schemas"]["BasinEstimate"][];
+      /** Bifurcation Candidates */
+      bifurcation_candidates?: components["schemas"]["BifurcationCandidate"][];
+      /** Branches */
+      branches?: components["schemas"]["EquilibriumBranch"][];
+      /** Equilibria */
+      equilibria?: components["schemas"]["EquilibriumCandidate"][];
+      global_diagnostics: components["schemas"]["EquilibriumMultiplicityDiagnostics"];
+      /** Model Id */
+      model_id: string;
+      /** Notes */
+      notes?: string[];
+      /** Parameter Hash */
+      parameter_hash?: string | null;
+      provenance?: components["schemas"]["EquilibriumMultiplicityProvenance"];
+      /**
+       * Schema Version
+       * @default 1.0
+       */
+      schema_version: string;
+      search_protocol: components["schemas"]["EquilibriumSearchProtocol"];
+      /** Unresolved Starts */
+      unresolved_starts?: components["schemas"]["UnresolvedEquilibriumStart"][];
+    };
+    /**
+     * EquilibriumSearchProtocol
+     * @description Protocol metadata for a fixed-point multiplicity search.
+     */
+    EquilibriumSearchProtocol: {
+      /**
+       * Basin Draws
+       * @default 0
+       */
+      basin_draws: number;
+      /** Continuation Grid */
+      continuation_grid?: number[];
+      /** Continuation Parameter */
+      continuation_parameter?: string | null;
+      /** Merge Tol */
+      merge_tol?: number | null;
+      /**
+       * Mode
+       * @default baseline
+       * @enum {string}
+       */
+      mode: "baseline" | "research" | "continuation";
+      /** N Attempts */
+      n_attempts: number;
+      /** Residual Tol */
+      residual_tol?: number | null;
+      /** Start Domain */
+      start_domain?: {
+        [key: string]: unknown;
+      };
     };
     /**
      * EvaluatorReportView
@@ -2863,6 +4622,23 @@ export interface components {
       uncertainty_score: number;
     };
     /**
+     * ExecPlanRef
+     * @description Artifact reference for the resolved Foundry execution plan and runtime posture.
+     */
+    ExecPlanRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.exec_plan
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * FeedbackActionResponse
      * @description Outcome payload returned after evaluating feedback or reissuing a decision.
      */
@@ -2888,6 +4664,60 @@ export interface components {
        * @enum {string}
        */
       status: "completed" | "accepted";
+    };
+    /**
+     * FeedbackJacobianDiagnosticsRef
+     * @description Artifact reference for Jacobian diagnostics around the solved fixed point.
+     */
+    FeedbackJacobianDiagnosticsRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.feedback_jacobian_diagnostics
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * FeedbackResultRef
+     * @description Artifact reference for the top-level feedback solve result.
+     */
+    FeedbackResultRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.feedback_result
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * FeedbackStateSnapshot
+     * @description Compact feedback vector plus solver scaling metadata.
+     */
+    FeedbackStateSnapshot: {
+      /** Lower Bounds */
+      lower_bounds: (number | null)[];
+      /** Notes */
+      notes?: string[];
+      /** Scales */
+      scales: number[];
+      /** Upper Bounds */
+      upper_bounds: (number | null)[];
+      /** Values */
+      values: number[];
+      /** Variable Ids */
+      variable_ids: string[];
+      /** Weights */
+      weights: number[];
     };
     /**
      * FetchPlan
@@ -3502,6 +5332,254 @@ export interface components {
        * @enum {string}
        */
       status: "accepted" | "rejected";
+    };
+    /**
+     * LineageBatchRequest
+     * @description Batch lineage lookup request used to avoid client-side N+1 fetches.
+     */
+    LineageBatchRequest: {
+      /** Lineage Ids */
+      lineage_ids?: string[];
+    };
+    /**
+     * LineageBatchResponse
+     * @description Response envelope returned by runtime lineage batch lookup.
+     */
+    LineageBatchResponse: {
+      /** Lineages */
+      lineages?: components["schemas"]["LineageGraphView"][];
+      meta: components["schemas"]["ApiMeta"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * LineageCompactSummaryItem
+     * @description One compact lineage crumb suitable for inline and hover surfaces.
+     */
+    LineageCompactSummaryItem: {
+      /** Id */
+      id?: string | null;
+      /**
+       * Kind
+       * @default unknown
+       * @enum {string}
+       */
+      kind:
+        | "source"
+        | "transform"
+        | "model"
+        | "agent"
+        | "result"
+        | "artifact"
+        | "dataset"
+        | "method"
+        | "unknown";
+      /** Label */
+      label: string;
+    };
+    /**
+     * LineageDelta
+     * @description Compact provenance drift summary for one compared metric.
+     */
+    LineageDelta: {
+      /**
+       * Freshness Changed
+       * @default false
+       */
+      freshness_changed: boolean;
+      /**
+       * Hash Changed
+       * @default false
+       */
+      hash_changed: boolean;
+      /**
+       * Model Changed
+       * @default false
+       */
+      model_changed: boolean;
+      /** Notes */
+      notes?: string[];
+      /**
+       * Source Changed
+       * @default false
+       */
+      source_changed: boolean;
+      /** Verification Changed */
+      verification_changed?: string | null;
+    };
+    /**
+     * LineageExportLinks
+     * @description Stable export links for external lineage interoperability formats.
+     */
+    LineageExportLinks: {
+      /** Openlineage */
+      openlineage: string;
+      /** Prov */
+      prov: string;
+    };
+    /**
+     * LineageExportResponse
+     * @description Response envelope returned by runtime lineage export endpoints.
+     */
+    LineageExportResponse: {
+      /**
+       * Format
+       * @enum {string}
+       */
+      format: "openlineage" | "prov";
+      /** Lineage Id */
+      lineage_id: string;
+      meta: components["schemas"]["ApiMeta"];
+      /** Payload */
+      payload: {
+        [key: string]: unknown;
+      };
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * LineageGraphEdge
+     * @description Runtime lineage graph edge projected from artifact or Fabric provenance.
+     */
+    LineageGraphEdge: {
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Relation */
+      relation: string;
+      /** Source Id */
+      source_id: string;
+      /** Target Id */
+      target_id: string;
+    };
+    /**
+     * LineageGraphNode
+     * @description Runtime lineage graph node projected from artifact or Fabric provenance.
+     */
+    LineageGraphNode: {
+      /** Id */
+      id: string;
+      /**
+       * Kind
+       * @default unknown
+       */
+      kind: string;
+      /** Label */
+      label: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Timestamp */
+      timestamp?: string | null;
+    };
+    /**
+     * LineageGraphView
+     * @description Compact plus full runtime lineage graph view.
+     */
+    LineageGraphView: {
+      /** Compact Summary */
+      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
+      /** Edges */
+      edges?: components["schemas"]["LineageGraphEdge"][];
+      exports: components["schemas"]["LineageExportLinks"];
+      /**
+       * Freshness
+       * @default unknown
+       * @enum {string}
+       */
+      freshness: "current" | "stale" | "unknown";
+      /** Hash */
+      hash?: string | null;
+      /** Id */
+      id: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Nodes */
+      nodes?: components["schemas"]["LineageGraphNode"][];
+      /**
+       * Status
+       * @default untraced
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
+    };
+    /**
+     * LineageRef
+     * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
+     */
+    "LineageRef-Input": {
+      /** Compact Summary */
+      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
+      /**
+       * Freshness
+       * @default unknown
+       * @enum {string}
+       */
+      freshness: "current" | "stale" | "unknown";
+      /** Hash */
+      hash?: string | null;
+      /** Id */
+      id: string;
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Status
+       * @default untraced
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      /** Summary */
+      summary?: {
+        [key: string]: string;
+      };
+      /** Tracking Issue */
+      tracking_issue?: string | null;
+      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
+    };
+    /**
+     * LineageRef
+     * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
+     */
+    "LineageRef-Output": {
+      /** Compact Summary */
+      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
+      /**
+       * Freshness
+       * @default unknown
+       * @enum {string}
+       */
+      freshness: "current" | "stale" | "unknown";
+      /** Hash */
+      hash?: string | null;
+      /** Id */
+      id: string;
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Status
+       * @default untraced
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      /** Summary */
+      summary?: {
+        [key: string]: string;
+      };
+      /** Tracking Issue */
+      tracking_issue?: string | null;
+      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
+    };
+    /**
+     * LineageResponse
+     * @description Response envelope returned by one runtime lineage lookup.
+     */
+    LineageResponse: {
+      lineage: components["schemas"]["LineageGraphView"];
+      meta: components["schemas"]["ApiMeta"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
     };
     /**
      * MetricCandidate
@@ -4119,6 +6197,147 @@ export interface components {
       status: "approved" | "rejected";
     };
     /**
+     * QuantityCoverageEntry
+     * @description One numeric field discovered by the quantity coverage inventory.
+     */
+    QuantityCoverageEntry: {
+      /** Lineage Id */
+      lineage_id?: string | null;
+      /** Metric Id */
+      metric_id?: string | null;
+      /** Path */
+      path: string;
+      /**
+       * Quantity Class
+       * @enum {string}
+       */
+      quantity_class: "decision" | "telemetry" | "layout" | "debug";
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      /** Tracking Issue */
+      tracking_issue?: string | null;
+    };
+    /**
+     * QuantityCoverageSummary
+     * @description Class-aware coverage counts for quantity law migration.
+     */
+    QuantityCoverageSummary: {
+      /**
+       * Debug
+       * @default 0
+       */
+      debug: number;
+      /**
+       * Decision
+       * @default 0
+       */
+      decision: number;
+      /**
+       * Layout
+       * @default 0
+       */
+      layout: number;
+      /**
+       * Telemetry
+       * @default 0
+       */
+      telemetry: number;
+      /**
+       * Total
+       * @default 0
+       */
+      total: number;
+      /**
+       * Traced
+       * @default 0
+       */
+      traced: number;
+      /**
+       * Untraced
+       * @default 0
+       */
+      untraced: number;
+    };
+    /**
+     * QuantityUncertainty
+     * @description Uncertainty envelope for a decision-bearing quantity.
+     */
+    QuantityUncertainty: {
+      /** Ci 80 */
+      ci_80?: [number, number] | null;
+      /** Ci 95 */
+      ci_95?: [number, number] | null;
+      /**
+       * Disputed
+       * @default false
+       */
+      disputed: boolean;
+      /**
+       * Identifiability
+       * @default unknown
+       * @enum {string}
+       */
+      identifiability: "identified" | "estimated" | "assumed" | "unknown";
+      /** Method */
+      method?:
+        | ("bootstrap" | "bayesian" | "analytic" | "simulation" | "none")
+        | string
+        | null;
+      /** Quantiles */
+      quantiles?: {
+        [key: string]: number;
+      };
+    };
+    /**
+     * QuantityValue
+     * @description Canonical envelope for every numeric value that can influence a decision.
+     */
+    "QuantityValue-Input": {
+      /** Label */
+      label?: string | null;
+      lineage: components["schemas"]["LineageRef-Input"];
+      /** Metric Id */
+      metric_id?: string | null;
+      /** Point */
+      point?: number | null;
+      /**
+       * Quantity Class
+       * @default decision
+       * @enum {string}
+       */
+      quantity_class: "decision" | "telemetry" | "layout" | "debug";
+      time?: components["schemas"]["TemporalRef"] | null;
+      uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
+      unit: components["schemas"]["UnitRef"];
+    };
+    /**
+     * QuantityValue
+     * @description Canonical envelope for every numeric value that can influence a decision.
+     */
+    "QuantityValue-Output": {
+      /** Label */
+      label?: string | null;
+      lineage: components["schemas"]["LineageRef-Output"];
+      /** Metric Id */
+      metric_id?: string | null;
+      /** Point */
+      point?: number | null;
+      /**
+       * Quantity Class
+       * @default decision
+       * @enum {string}
+       */
+      quantity_class: "decision" | "telemetry" | "layout" | "debug";
+      time?: components["schemas"]["TemporalRef"] | null;
+      uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
+      unit: components["schemas"]["UnitRef"];
+    };
+    /**
      * ReproducibilityView
      * @description Hashes, seeds, and missing refs used to assess whether a run can be replayed.
      */
@@ -4313,6 +6532,32 @@ export interface components {
     RunDetailsResponse: {
       meta: components["schemas"]["ApiMeta"];
       run: components["schemas"]["RunDetails"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * RunEquilibriaResponse
+     * @description Response envelope returned by the run equilibria endpoint.
+     */
+    RunEquilibriaResponse: {
+      equilibria: components["schemas"]["RunEquilibriaView"];
+      meta: components["schemas"]["ApiMeta"];
+    };
+    /**
+     * RunEquilibriaView
+     * @description Runtime view of a Foundry equilibrium multiplicity report.
+     */
+    RunEquilibriaView: {
+      /** Notes */
+      notes?: string[];
+      report?: components["schemas"]["EquilibriumMultiplicityReport"] | null;
+      report_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Source Kind
+       * @constant
+       */
+      source_kind: "core_run";
     };
     /**
      * RunErrorView
@@ -4580,6 +6825,7 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /** Run Id */
       run_id: string;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
     };
     /**
      * RunNodeRecord
@@ -4633,6 +6879,26 @@ export interface components {
        * @constant
        */
       source_kind: "core_run";
+    };
+    /**
+     * RunQuantitiesResponse
+     * @description Response envelope returned by the run quantity inventory endpoint.
+     */
+    RunQuantitiesResponse: {
+      coverage?: components["schemas"]["QuantityCoverageSummary"];
+      /** Entries */
+      entries?: components["schemas"]["QuantityCoverageEntry"][];
+      meta: components["schemas"]["ApiMeta"];
+      /** Quantities */
+      quantities?: components["schemas"]["QuantityValue-Output"][];
+      /** Run Id */
+      run_id: string;
+      /**
+       * Source Kind
+       * @constant
+       */
+      source_kind: "core_run";
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
     };
     /**
      * RunSummary
@@ -4736,6 +7002,7 @@ export interface components {
      */
     RunTimelineResponse: {
       meta: components["schemas"]["ApiMeta"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
       timeline: components["schemas"]["RunTimelineView"];
     };
     /**
@@ -4991,6 +7258,326 @@ export interface components {
       type: string;
     };
     /**
+     * ScenarioAssumption
+     * @description Named scenario assumption with provenance.
+     */
+    "ScenarioAssumption-Input": {
+      /** Description */
+      description?: string | null;
+      /** Id */
+      id: string;
+      /** Label */
+      label: string;
+      lineage: components["schemas"]["LineageRef-Input"];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "operator_assumption"
+        | "model_assumption"
+        | "observed_evidence"
+        | "disputed";
+    };
+    /**
+     * ScenarioAssumption
+     * @description Named scenario assumption with provenance.
+     */
+    "ScenarioAssumption-Output": {
+      /** Description */
+      description?: string | null;
+      /** Id */
+      id: string;
+      /** Label */
+      label: string;
+      lineage: components["schemas"]["LineageRef-Output"];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "operator_assumption"
+        | "model_assumption"
+        | "observed_evidence"
+        | "disputed";
+    };
+    /**
+     * ScenarioCapabilitiesResponse
+     * @description Response envelope for scenario support and unsupported surfaces.
+     */
+    ScenarioCapabilitiesResponse: {
+      /** Capabilities */
+      capabilities?: components["schemas"]["ScenarioCapability"][];
+      meta: components["schemas"]["ApiMeta"];
+      /** Run Id */
+      run_id?: string | null;
+      /** Scenario Id */
+      scenario_id?: string | null;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * ScenarioCapability
+     * @description Support declaration for one counterfactual runtime surface or metric.
+     */
+    ScenarioCapability: {
+      /** Limitations */
+      limitations?: string[];
+      /** Metric Id */
+      metric_id?: string | null;
+      /** Reason Code */
+      reason_code?: string | null;
+      /** Supported */
+      supported: boolean;
+      /** Supported Modes */
+      supported_modes?: ("actual" | "actual_vs_scenario" | "scenario_only")[];
+      /**
+       * Surface
+       * @enum {string}
+       */
+      surface: "run_metrics" | "quantities" | "lineage" | "charts" | "whatif";
+    };
+    /**
+     * ScenarioConstraint
+     * @description One explicit constraint that bounds a scenario intervention.
+     */
+    "ScenarioConstraint-Input": {
+      /** Field */
+      field?: string | null;
+      /** Id */
+      id: string;
+      /** Label */
+      label: string;
+      /** Message */
+      message?: string | null;
+      /** Operator */
+      operator?: string | null;
+      /**
+       * Severity
+       * @default warning
+       * @enum {string}
+       */
+      severity: "error" | "warning";
+      value?: components["schemas"]["QuantityValue-Input"] | null;
+    };
+    /**
+     * ScenarioConstraint
+     * @description One explicit constraint that bounds a scenario intervention.
+     */
+    "ScenarioConstraint-Output": {
+      /** Field */
+      field?: string | null;
+      /** Id */
+      id: string;
+      /** Label */
+      label: string;
+      /** Message */
+      message?: string | null;
+      /** Operator */
+      operator?: string | null;
+      /**
+       * Severity
+       * @default warning
+       * @enum {string}
+       */
+      severity: "error" | "warning";
+      value?: components["schemas"]["QuantityValue-Output"] | null;
+    };
+    /**
+     * ScenarioCreateRequest
+     * @description Request body for saving a scenario draft under a baseline run.
+     */
+    ScenarioCreateRequest: {
+      /** Affected Population */
+      affected_population?: string | null;
+      /** Assumptions */
+      assumptions: components["schemas"]["ScenarioAssumption-Input"][];
+      /**
+       * Author
+       * @default operator
+       */
+      author: string;
+      /** Constraints */
+      constraints?: components["schemas"]["ScenarioConstraint-Input"][];
+      /** Id */
+      id?: string | null;
+      /** Interventions */
+      interventions: components["schemas"]["ScenarioIntervention-Input"][];
+      /** Known Limitations */
+      known_limitations?: string[];
+      /**
+       * Model Family
+       * @default operator-specified
+       */
+      model_family: string;
+      /** Model Version */
+      model_version?: string | null;
+      /** Policy Question */
+      policy_question: string;
+      /** Regime Shift Forecast Bundle Ref */
+      regime_shift_forecast_bundle_ref?: string | null;
+    };
+    /**
+     * ScenarioIntervention
+     * @description One operator-visible policy intervention inside a scenario manifest.
+     */
+    "ScenarioIntervention-Input": {
+      baseline_value?: components["schemas"]["QuantityValue-Input"] | null;
+      /** Constraint Ids */
+      constraint_ids?: string[];
+      /** Field */
+      field: string;
+      /**
+       * Operator
+       * @enum {string}
+       */
+      operator: "set" | "add" | "multiply" | "remove";
+      value: components["schemas"]["QuantityValue-Input"];
+    };
+    /**
+     * ScenarioIntervention
+     * @description One operator-visible policy intervention inside a scenario manifest.
+     */
+    "ScenarioIntervention-Output": {
+      baseline_value?: components["schemas"]["QuantityValue-Output"] | null;
+      /** Constraint Ids */
+      constraint_ids?: string[];
+      /** Field */
+      field: string;
+      /**
+       * Operator
+       * @enum {string}
+       */
+      operator: "set" | "add" | "multiply" | "remove";
+      value: components["schemas"]["QuantityValue-Output"];
+    };
+    /**
+     * ScenarioListResponse
+     * @description Response envelope for scenarios available on a run.
+     */
+    ScenarioListResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      /** Run Id */
+      run_id: string;
+      /** Scenarios */
+      scenarios?: components["schemas"]["ScenarioManifest"][];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * ScenarioManifest
+     * @description Manifest that makes a counterfactual named, reproducible and auditable.
+     */
+    ScenarioManifest: {
+      /** Affected Population */
+      affected_population?: string | null;
+      /** Assumptions */
+      assumptions: components["schemas"]["ScenarioAssumption-Output"][];
+      /** Author */
+      author: string;
+      /** Baseline Hash */
+      baseline_hash?: string | null;
+      baseline_lineage?: components["schemas"]["LineageRef-Output"] | null;
+      /** Baseline Run Id */
+      baseline_run_id: string;
+      /** Computed At */
+      computed_at?: string | null;
+      /** Constraints */
+      constraints?: components["schemas"]["ScenarioConstraint-Output"][];
+      /** Id */
+      id: string;
+      /** Interventions */
+      interventions: components["schemas"]["ScenarioIntervention-Output"][];
+      /** Known Limitations */
+      known_limitations?: string[];
+      /**
+       * Lifecycle Status
+       * @default generated
+       * @enum {string}
+       */
+      lifecycle_status: "generated" | "draft" | "saved" | "promoted";
+      /**
+       * Manifest Hash
+       * @default
+       */
+      manifest_hash: string;
+      /** Model Family */
+      model_family: string;
+      model_lineage: components["schemas"]["LineageRef-Output"];
+      /** Model Version */
+      model_version?: string | null;
+      /** Phase4 Gate Verdict */
+      phase4_gate_verdict?: {
+        [key: string]: unknown;
+      } | null;
+      /** Policy Question */
+      policy_question: string;
+      /** Promoted At */
+      promoted_at?: string | null;
+      /**
+       * Revision
+       * @default 1
+       */
+      revision: number;
+      /** Saved At */
+      saved_at?: string | null;
+      /** Stale Reasons */
+      stale_reasons?: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "draft" | "computed" | "stale" | "failed";
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      temporal_window?: components["schemas"]["TemporalRange"] | null;
+      validity_window?: components["schemas"]["TemporalRange"] | null;
+    };
+    /**
+     * ScenarioManifestResponse
+     * @description Response envelope for one scenario manifest.
+     */
+    ScenarioManifestResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      scenario: components["schemas"]["ScenarioManifest"];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * ScenarioRef
+     * @description Stable reference carried by every counterfactual value.
+     */
+    ScenarioRef: {
+      /** Assumption Ids */
+      assumption_ids: string[];
+      /** Baseline Run Id */
+      baseline_run_id: string;
+      /** Id */
+      id: string;
+      lineage: components["schemas"]["LineageRef-Output"];
+      /** Manifest Hash */
+      manifest_hash?: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "draft" | "computed" | "stale" | "failed";
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * SimulationResultRef
+     * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
+     */
+    SimulationResultRef: {
+      artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.simulation_result
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * SourceProfileInfo
      * @description Describe one curated data-source profile available to retrieval flows.
      */
@@ -5037,6 +7624,198 @@ export interface components {
       /** Profiles */
       profiles?: components["schemas"]["SourceProfileInfo"][];
     };
+    /**
+     * TemporalCapabilitiesResponse
+     * @description Response envelope for temporal capabilities and gaps.
+     */
+    TemporalCapabilitiesResponse: {
+      capabilities: components["schemas"]["TemporalCapabilitiesView"];
+      meta: components["schemas"]["ApiMeta"];
+    };
+    /**
+     * TemporalCapabilitiesView
+     * @description Temporal capability manifest for one run or the runtime as a whole.
+     */
+    TemporalCapabilitiesView: {
+      default_scope?: components["schemas"]["TemporalScope"] | null;
+      /** Event Points */
+      event_points?: components["schemas"]["TemporalEventPoint"][];
+      /**
+       * Resolution
+       * @default event
+       */
+      resolution: string;
+      /** Run Id */
+      run_id?: string | null;
+      /** Surfaces */
+      surfaces?: components["schemas"]["TemporalSurfaceCapability"][];
+      tx_range?: components["schemas"]["TemporalRange"];
+      valid_range?: components["schemas"]["TemporalRange"];
+    };
+    /**
+     * TemporalEventPoint
+     * @description Known event point used by scrubber snapping and capability diagnostics.
+     */
+    TemporalEventPoint: {
+      /** Id */
+      id: string;
+      /**
+       * Kind
+       * @default trace_event
+       * @enum {string}
+       */
+      kind:
+        | "run_start"
+        | "run_finish"
+        | "trace_event"
+        | "policy_change"
+        | "late_evidence"
+        | "correction"
+        | "snapshot"
+        | "now";
+      /** Label */
+      label: string;
+      /**
+       * Observed
+       * @default true
+       */
+      observed: boolean;
+      /**
+       * Timestamp
+       * Format: date-time
+       */
+      timestamp: string;
+      /** Tx At */
+      tx_at?: string | null;
+      /** Valid At */
+      valid_at?: string | null;
+    };
+    /**
+     * TemporalGapRange
+     * @description Typed unavailable interval for a temporal surface.
+     */
+    TemporalGapRange: {
+      /** End */
+      end?: string | null;
+      /** Label */
+      label?: string | null;
+      /** Reason Code */
+      reason_code: string;
+      /** Start */
+      start?: string | null;
+    };
+    /**
+     * TemporalRange
+     * @description Inclusive range in which a temporal cursor can be used.
+     */
+    TemporalRange: {
+      /** Earliest */
+      earliest?: string | null;
+      /** Latest */
+      latest?: string | null;
+    };
+    /**
+     * TemporalRef
+     * @description Bitemporal and snapshot scope carried by a decision-bearing value.
+     */
+    TemporalRef: {
+      /** Branch */
+      branch?: string | null;
+      /** Scenario Id */
+      scenario_id?: string | null;
+      /** Snapshot Id */
+      snapshot_id?: string | null;
+      /** Tx At */
+      tx_at?: string | null;
+      /** Valid At */
+      valid_at?: string | null;
+    };
+    /**
+     * TemporalScope
+     * @description Canonical bitemporal cursor used by runtime API and dashboard cache keys.
+     */
+    TemporalScope: {
+      /** Branch */
+      branch?: string | null;
+      /** Scenario Id */
+      scenario_id?: string | null;
+      /** Snapshot Id */
+      snapshot_id?: string | null;
+      /** Tx At */
+      tx_at?: string | null;
+      /** Valid At */
+      valid_at?: string | null;
+    };
+    /**
+     * TemporalSurfaceCapability
+     * @description Support declaration for one time-sensitive runtime surface.
+     */
+    TemporalSurfaceCapability: {
+      /** Gaps */
+      gaps?: components["schemas"]["TemporalGapRange"][];
+      /** Nearest Event Points */
+      nearest_event_points?: components["schemas"]["TemporalEventPoint"][];
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Resolution
+       * @default event
+       */
+      resolution: string;
+      /** Supported */
+      supported: boolean;
+      /**
+       * Surface
+       * @enum {string}
+       */
+      surface:
+        | "run_details"
+        | "run_timeline"
+        | "run_lineage"
+        | "run_quantities"
+        | "run_compare"
+        | "run_agents"
+        | "run_evidence_context"
+        | "run_workflow"
+        | "run_nodes"
+        | "artifact_content";
+      tx_range?: components["schemas"]["TemporalRange"] | null;
+      valid_range?: components["schemas"]["TemporalRange"] | null;
+    };
+    /**
+     * UnitRef
+     * @description Machine-readable unit identity plus a human display label.
+     */
+    UnitRef: {
+      /** Code */
+      code: string;
+      /** Display */
+      display?: string | null;
+      /**
+       * System
+       * @default ucum
+       */
+      system: string;
+    };
+    /**
+     * UnresolvedEquilibriumStart
+     * @description A start point that did not converge or could not be assigned to a cluster.
+     */
+    UnresolvedEquilibriumStart: {
+      /** Diagnostics */
+      diagnostics?: {
+        [key: string]: unknown;
+      };
+      /** Failure Reason */
+      failure_reason?: string | null;
+      /** Notes */
+      notes?: string[];
+      /** Residual Norm */
+      residual_norm?: number | null;
+      start_state: components["schemas"]["FeedbackStateSnapshot"];
+      /** Status */
+      status: string;
+    };
     /** ValidationError */
     ValidationError: {
       /** Context */
@@ -5049,6 +7828,39 @@ export interface components {
       msg: string;
       /** Error Type */
       type: string;
+    };
+    /**
+     * VerificationMetadata
+     * @description Audit metadata used by Trust View without changing the underlying truth.
+     */
+    VerificationMetadata: {
+      /**
+       * Dispute Status
+       * @default none
+       * @enum {string}
+       */
+      dispute_status: "none" | "disputed" | "under_review" | "resolved";
+      /**
+       * Freshness
+       * @default unknown
+       * @enum {string}
+       */
+      freshness: "current" | "stale" | "unknown";
+      /** Hash */
+      hash?: string | null;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      /** Verification Method */
+      verification_method?: string | null;
+      /**
+       * Verification Status
+       * @default untraced
+       * @enum {string}
+       */
+      verification_status: "verified" | "pending" | "disputed" | "untraced";
+      /** Verified At */
+      verified_at?: string | null;
+      /** Verified By */
+      verified_by?: string | null;
     };
     /**
      * WorkflowRunRequest
@@ -5101,6 +7913,618 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  analyze_attractors: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AttractorAnalysisRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AttractorAnalysisResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  persist_basin_map: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BasinMap"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BasinMapRef"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  persist_continuation_branch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ContinuationBranch-Input"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContinuationBranchRef"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  analyze_lyapunov_diagnostics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AttractorAnalysisRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AttractorAnalysisResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_attractor_analysis: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        analysis_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AttractorAnalysisResult"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_analysis_basin_map: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        analysis_id: string;
+        basin_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BasinMap"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_analysis_continuation_branch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        analysis_id: string;
+        branch_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ContinuationBranch-Output"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_artifact_batch: {
     parameters: {
       query?: never;
@@ -5557,6 +8981,194 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ArtifactSchemaResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  export_bureaucratic_artifact: {
+    parameters: {
+      query?: {
+        format?: "html" | "pdf" | "docx";
+        genre?:
+          | "postanova_kmu"
+          | "zakonoproekt"
+          | "expert_vysnovok"
+          | "analitichna_zapyska";
+        jurisdiction?: string;
+        template_version?: string | null;
+        trust_view?: boolean;
+        valid_at?: string | null;
+        tx_at?: string | null;
+      };
+      header?: never;
+      path: {
+        packet_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BureaucraticExportResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  render_bureaucratic_artifact: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        packet_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BureaucraticRenderRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BureaucraticRenderResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */
@@ -8382,6 +11994,92 @@ export interface operations {
       };
     };
   };
+  get_run_equilibria: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RunEquilibriaResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_errors: {
     parameters: {
       query?: never;
@@ -8798,6 +12496,380 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_lineage_batch: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LineageBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LineageBatchResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_lineage: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        lineage_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LineageResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  export_lineage_openlineage: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        lineage_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LineageExportResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  export_lineage_prov: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        lineage_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LineageExportResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
@@ -9425,9 +13497,109 @@ export interface operations {
       };
     };
   };
+  compare_runs: {
+    parameters: {
+      query: {
+        a: string;
+        b: string;
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompareRunResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_details: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9513,7 +13685,14 @@ export interface operations {
   };
   get_run_agents: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9597,9 +13776,110 @@ export interface operations {
       };
     };
   };
+  get_run_compare_candidates: {
+    parameters: {
+      query?: {
+        limit?: number;
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompareCandidatesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_evidence_context: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9689,6 +13969,12 @@ export interface operations {
         root_artifact_id?: string[] | null;
         max_depth?: number | null;
         max_nodes?: number | null;
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
       };
       header?: never;
       path: {
@@ -9773,9 +14059,110 @@ export interface operations {
       };
     };
   };
+  get_run_counterfactual_metrics: {
+    parameters: {
+      query: {
+        scenario_id: string;
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        regime_shift_forecast_bundle_ref?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CounterfactualMetricsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_nodes: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9859,9 +14246,301 @@ export interface operations {
       };
     };
   };
+  get_run_quantities: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RunQuantitiesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  list_run_scenarios: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+        regime_shift_forecast_bundle_ref?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ScenarioListResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  create_run_scenario: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+        regime_shift_forecast_bundle_ref?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ScenarioCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ScenarioManifestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_timeline: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9947,7 +14626,14 @@ export interface operations {
   };
   get_run_workflow: {
     parameters: {
-      query?: never;
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
       header?: never;
       path: {
         run_id: string;
@@ -9963,6 +14649,277 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RunWorkflowResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_scenario_manifest: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+      };
+      header?: never;
+      path: {
+        scenario_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ScenarioManifestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_scenario_capabilities: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        regime_shift_forecast_bundle_ref?: string | null;
+      };
+      header?: never;
+      path: {
+        scenario_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ScenarioCapabilitiesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_temporal_capabilities: {
+    parameters: {
+      query?: {
+        run_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TemporalCapabilitiesResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

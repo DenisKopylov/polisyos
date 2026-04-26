@@ -4,25 +4,48 @@
 }
 
 @media print {
+  :root {
+    --print-ink: #111111;
+    --print-muted: #444444;
+    --print-line: #b8b8b8;
+  }
+
   nav,
   aside.dashboard-shell,
-  .reading-view-toggle {
+  .app-sidebar,
+  .shell-sidebar,
+  .dashboard-shell,
+  .reading-view-toggle,
+  .trust-inspector,
+  [data-a11y-overlay="true"],
+  [data-print-hidden="true"] {
     display: none !important;
   }
 
+  html,
   body {
     background: #ffffff !important;
+    color: var(--print-ink) !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.45;
   }
 
   .prose {
     max-width: none !important;
-    color: #111111 !important;
+    color: var(--print-ink) !important;
   }
 
   .monograph-layout,
   .monograph-main,
-  .monograph-prose-frame {
+  .monograph-page,
+  .monograph-prose-frame,
+  .bureaucratic-document,
+  [data-print-document="true"] {
     display: block !important;
+    max-width: none !important;
     padding-right: 0 !important;
   }
 
@@ -34,13 +57,56 @@
 
   h1,
   h2,
-  h3 {
+  h3,
+  h4 {
     break-after: avoid;
+    color: var(--print-ink) !important;
+  }
+
+  table,
+  figure,
+  blockquote,
+  .bureaucratic-block,
+  .trust-metadata-expanded,
+  .provenance-popover-summary,
+  [data-print-keep-together="true"] {
+    break-inside: avoid;
   }
 
   .fan-chart,
-  .uncertainty-band {
+  .uncertainty-band,
+  .small-multiples {
     break-inside: avoid;
+  }
+
+  a[href]::after {
+    color: var(--print-muted);
+    content: " <" attr(href) ">";
+    font-size: 8pt;
+    word-break: break-all;
+  }
+
+  .trust-hash-chip,
+  .quantity,
+  [data-testid="quantity"] {
+    border-color: var(--print-line) !important;
+    color: var(--print-ink) !important;
+  }
+
+  .trust-metadata,
+  .trust-metadata-expanded {
+    color: var(--print-ink) !important;
+  }
+
+  .print-document-metadata,
+  .print-provenance-summary,
+  .print-source-appendix {
+    border-top: 1px solid var(--print-line);
+    color: var(--print-muted);
+    display: block !important;
+    font-size: 8.5pt;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
   }
 
   .provenance-strip::after {

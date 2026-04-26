@@ -1,0 +1,9 @@
+{
+  "state_ids": ["0-17:F:UA", "18-64:F:UA"],
+  "target_state_totals": [120.0, 280.0],
+  "entrant_state_totals": [12.0, 3.0],
+  "metadata": {
+    "year": 2027,
+    "scope": "static-aging-fixture"
+  }
+}

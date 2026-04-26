@@ -1,0 +1,9 @@
+{
+  "metrics": {
+    "benchmark_search_top5_relevance_pct": 100.0,
+    "benchmark_retrieval_ready_pct": 100.0,
+    "benchmark_transport_ready_pct": 100.0,
+    "benchmark_foundry_fitness_pct": 100.0,
+    "benchmark_source_preflight_ready_pct": 100.0
+  }
+}

@@ -861,6 +861,7 @@ allowed-confusables = [
 "src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]
 "src/polisyos/runtime/http/routes/control.py" = ["B008"]
 "src/polisyos/runtime/http/routes/debug.py" = ["B008"]
+"src/polisyos/runtime/http/routes/lineage.py" = ["B008"]
 "src/polisyos/runtime/http/routes/mobility.py" = ["B008"]
 "tests/ir/analytics/test_evidence_bundle.py" = ["S106"]
 "tests/ir/test_public_surface.py" = ["S603"]
@@ -1396,6 +1397,7 @@ module = [
   "polisyos.foundry.methods.catalog.causal.schema_resolver",
   "polisyos.foundry.methods.catalog.causal.sensitivity_bounds",
   "polisyos.foundry.methods.catalog.causal.sensitivity_metrics",
+  "polisyos.foundry.methods.catalog.causal.space_time_dscm",
   "polisyos.foundry.methods.catalog.causal.stochastic_policies",
   "polisyos.foundry.methods.catalog.causal.strategic",
   "polisyos.foundry.methods.catalog.causal.structural_time_series",

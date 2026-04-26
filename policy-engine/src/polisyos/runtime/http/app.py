@@ -27,14 +27,18 @@ from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
 from polisyos.runtime.http.mutation_policy import MutationProtectionMiddleware
 from polisyos.runtime.http.openapi_contract import install_runtime_openapi_contract
 from polisyos.runtime.http.response_policies import set_versioning_headers
+from polisyos.runtime.http.routes.analysis import router as analysis_router
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
 from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router
+from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
 from polisyos.runtime.http.routes.review import router as review_router
 from polisyos.runtime.http.routes.runs import router as runs_router
+from polisyos.runtime.http.routes.scenarios import router as scenarios_router
+from polisyos.runtime.http.routes.temporal import router as temporal_router
 from polisyos.runtime.http.security import RuntimeSecurityConfig, is_fixture_identity_enabled
 
 if TYPE_CHECKING:
@@ -211,10 +215,18 @@ def create_runtime_api_app(
         app.include_router(auth_router)
     if runs_router is not None:
         app.include_router(runs_router)
+    if scenarios_router is not None:
+        app.include_router(scenarios_router)
+    if temporal_router is not None:
+        app.include_router(temporal_router)
     if debug_router is not None:
         app.include_router(debug_router)
     if artifacts_router is not None:
         app.include_router(artifacts_router)
+    if analysis_router is not None:
+        app.include_router(analysis_router)
+    if lineage_router is not None:
+        app.include_router(lineage_router)
     if mobility_router is not None:
         app.include_router(mobility_router)
     if control_router is not None:

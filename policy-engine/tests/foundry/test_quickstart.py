@@ -7,6 +7,7 @@ from polisyos.foundry import compile as compile_foundry
 from polisyos.foundry import compile_program, execute
 from polisyos.foundry.quickstart import (
     run_feedback_compile_execute,
+    run_feedback_multiplicity_demo,
     run_trivial_compile_execute,
 )
 
@@ -54,3 +55,13 @@ def test_run_feedback_compile_execute(tmp_path) -> None:
     assert result.simulation_result_artifact_id is not None
     assert result.feedback_result_artifact_id is not None
     assert result.feedback_convergence_certificate_artifact_id is not None
+
+
+def test_run_feedback_multiplicity_demo(tmp_path) -> None:
+    result = run_feedback_multiplicity_demo(cas_root=tmp_path)
+
+    assert result.compile_ok is True
+    assert result.execute_ok is True
+    assert result.feedback_result_artifact_id is not None
+    assert result.feedback_convergence_certificate_artifact_id is not None
+    assert result.equilibrium_multiplicity_report_artifact_id is not None

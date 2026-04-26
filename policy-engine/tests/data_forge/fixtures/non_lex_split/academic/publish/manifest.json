@@ -1,0 +1,35 @@
+{
+  "kind": "publish",
+  "pipeline": "academic",
+  "published_at": "2026-04-24T00:00:02+00:00",
+  "artifacts": [
+    {
+      "path": "graph/scholar_knowledge.duckdb",
+      "sha256": "edafc7ebf17a902f5fc5f250a02bf5548f9b659f2b9cbe9ec96d910bda0a9a9b"
+    },
+    {
+      "path": "qc_report.json",
+      "sha256": "e0474a61ed1ff6405a4c47f88be6ad86aa270dc14351a3f06443237507bd148e"
+    },
+    {
+      "path": "benchmark_report.json",
+      "sha256": "bc91ebbd806a85e2a77c41937cdf64d357d9c00fbba34fe70c4f39c5a232d8fd"
+    },
+    {
+      "path": "manifests/publish.json",
+      "sha256": "95eb100722eab4eadc969f6322be450a5398ceac7ee9d17c6fb52154ecdbed3f"
+    },
+    {
+      "path": "publish/academic_pipeline_readiness.json",
+      "sha256": "a8e4728d2662bc63ca49ef3d5b676e69d8935090cd87121d4aa41e487b877c03"
+    }
+  ],
+  "qc_report": "qc_report.json",
+  "extra": {
+    "component_dir": "tests/data_forge/fixtures/non_lex_split/academic",
+    "readiness_report": "publish/academic_pipeline_readiness.json",
+    "readiness": {
+      "consumer_ready": true
+    }
+  }
+}

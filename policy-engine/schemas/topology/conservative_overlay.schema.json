@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/conservative_overlay.schema.json",
+  "title": "Conservative Overlay Contract",
+  "type": "object",
+  "required": ["conservative_overlay", "end_gate", "protected_surface", "gate_mode"],
+  "properties": {
+    "conservative_overlay": {
+      "type": "object",
+      "required": ["version", "status", "owner", "starts_on", "mode"],
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "status": {"enum": ["active", "inactive", "closed"]},
+        "owner": {"type": "string", "minLength": 1},
+        "starts_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "source_plan": {"type": "string", "minLength": 1},
+        "data_forge_plan": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["report_only_for_protected_surfaces"]},
+        "description": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "end_gate": {
+      "type": "object",
+      "required": ["gate_id", "owner", "event_gated", "required_evidence"],
+      "properties": {
+        "gate_id": {"type": "string", "minLength": 1},
+        "owner": {"type": "string", "minLength": 1},
+        "event_gated": {"type": "boolean"},
+        "required_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "protected_surface": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "owner", "reason", "allowed_actions", "forbidden_actions"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "owner": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1},
+          "allowed_actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "forbidden_actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gate_mode": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "source", "protected_surface_mode", "reason"],
+        "properties": {
+          "gate": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "protected_surface_mode": {"enum": ["report_only"]},
+          "reason": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -74,6 +74,14 @@ from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
 from .dowhy_refute import DoWhyRefute
 from .dtr import estimate_dtr_trajectory
+from .dynamic_graph_dscm import (
+    DynamicGraphDSCM,
+    DynamicGraphDSCMData,
+    DynamicGraphDSCMResult,
+    DynamicGraphEvent,
+    LocalDependenceEdgeResult,
+    estimate_dynamic_graph_dscm,
+)
 from .fairness import (
     CounterfactualFairnessEstimator,
     PathSpecificFairnessEstimator,
@@ -188,6 +196,33 @@ from .recourse_manifold import (
 )
 from .sensitivity_metrics import SensitivityMetrics
 from .sigma_calculus import sigma_identify, sigma_z_identify
+from .space_time_dscm import (
+    FieldNode,
+    FittedSPDEParameters,
+    OperatorEdge,
+    SpaceTimeDomain,
+    SpaceTimeDSCM,
+    SpaceTimeFieldData,
+    SpaceTimeIdentificationCertificate,
+    SpaceTimeIdentificationStatus,
+    SpaceTimeIntervention,
+    SpaceTimeInterventionType,
+    SpaceTimeMeshSpec,
+    SpaceTimePathSpace,
+    SpaceTimeSPDEGComputation,
+    SpaceTimeSPDEGComputationResult,
+    SpaceTimeSplit,
+    SpaceTimeSupport,
+    SPDEEstimatorSpec,
+    SPDEGenerator,
+    SPDEMechanism,
+    build_piecewise_linear_fem_matrices,
+    build_space_time_identification_certificate,
+    estimate_space_time_spde_g_computation,
+    estimate_space_time_treatment_density_process,
+    simulate_linear_diffusion_response,
+    simulate_reaction_diffusion_response,
+)
 from .stochastic_policies import (
     PolicyAIPWEstimator,
     PolicyPluginEstimator,
@@ -374,6 +409,12 @@ __all__ = [
     "analyze_performative_loop",
     "estimate_g_computation_trajectory",
     "estimate_dtr_trajectory",
+    "DynamicGraphDSCM",
+    "DynamicGraphDSCMData",
+    "DynamicGraphDSCMResult",
+    "DynamicGraphEvent",
+    "LocalDependenceEdgeResult",
+    "estimate_dynamic_graph_dscm",
     "CausalQueryValidator",
     "transport_bounds",
     # Phase 4: Interference
@@ -416,6 +457,32 @@ __all__ = [
     "OperatorApplyProbeMethod",
     "OperatorExportBasisMethod",
     "OperatorUnsupportedTargetMethod",
+    # Stage 14.5: space-time DSCM controlled SPDE g-computation
+    "FieldNode",
+    "FittedSPDEParameters",
+    "OperatorEdge",
+    "SPDEEstimatorSpec",
+    "SPDEGenerator",
+    "SPDEMechanism",
+    "SpaceTimeDSCM",
+    "SpaceTimeDomain",
+    "SpaceTimeFieldData",
+    "SpaceTimeIdentificationCertificate",
+    "SpaceTimeIdentificationStatus",
+    "SpaceTimeIntervention",
+    "SpaceTimeInterventionType",
+    "SpaceTimeMeshSpec",
+    "SpaceTimePathSpace",
+    "SpaceTimeSPDEGComputation",
+    "SpaceTimeSPDEGComputationResult",
+    "SpaceTimeSplit",
+    "SpaceTimeSupport",
+    "build_piecewise_linear_fem_matrices",
+    "build_space_time_identification_certificate",
+    "estimate_space_time_spde_g_computation",
+    "estimate_space_time_treatment_density_process",
+    "simulate_linear_diffusion_response",
+    "simulate_reaction_diffusion_response",
     # Phase 8: Causal Fairness
     "FairnessObservationalData",
     "TVFairnessDecomposer",

@@ -4,12 +4,20 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
+import {
+  toApiTemporalParams,
+  type TemporalScope,
+} from "@/app/providers/temporal-scope";
+import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
 import { runTimelineSchema } from "../validators";
 
-async function fetchRunTimeline(runId: string) {
+async function fetchRunTimeline(
+  runId: string,
+  temporalScope?: TemporalScope | null,
+) {
   const { data, error, response } = await runtimeApiClient.GET(
     "/api/v1/runs/{run_id}/timeline",
     {
@@ -17,6 +25,7 @@ async function fetchRunTimeline(runId: string) {
         path: {
           run_id: runId,
         },
+        query: toApiTemporalParams(temporalScope),
       },
     },
   );
@@ -40,20 +49,28 @@ async function fetchRunTimeline(runId: string) {
   };
 }
 
-export function runTimelineQueryOptions(runId: string) {
+export function runTimelineQueryOptions(
+  runId: string,
+  temporalScope?: TemporalScope | null,
+) {
   return queryOptions({
-    queryKey: queryKeys.runTimeline(runId),
-    queryFn: () => fetchRunTimeline(runId),
+    queryKey: queryKeys.runTimeline(runId, temporalScope),
+    queryFn: () => fetchRunTimeline(runId, temporalScope),
   });
 }
 
 export function useRunTimeline(runId: string | undefined, enabled = true) {
+  const temporalCursor = useMaybeTemporalCursor();
+  const temporalScope = temporalCursor?.committedScope ?? null;
   return useQuery({
-    ...runTimelineQueryOptions(runId ?? "unknown"),
+    ...runTimelineQueryOptions(runId ?? "unknown", temporalScope),
     enabled: Boolean(runId) && enabled,
   });
 }
 
 export function useSuspenseRunTimeline(runId: string) {
-  return useSuspenseQuery(runTimelineQueryOptions(runId));
+  const temporalCursor = useMaybeTemporalCursor();
+  return useSuspenseQuery(
+    runTimelineQueryOptions(runId, temporalCursor?.committedScope ?? null),
+  );
 }

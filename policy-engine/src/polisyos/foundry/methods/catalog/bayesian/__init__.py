@@ -23,7 +23,13 @@ from .frontier import (
     SimulationBasedNREEstimator,
     SVGDRegressionEstimator,
 )
-from .protocols import PosteriorResult, TruthfulnessEvidence, TruthfulnessTier
+from .protocols import (
+    PosteriorResult,
+    SimulatorDiagnosticArtifact,
+    TruthfulnessEvidence,
+    TruthfulnessTier,
+    canonical_simulator_diagnostic_artifact,
+)
 from .regression import BayesianLinearRegressionEstimator
 from .timeseries import BayesianAutoregressionEstimator
 
@@ -52,11 +58,13 @@ __all__ = [
     "FactorGraphBeliefPropagationEstimator",
     "PosteriorResult",
     "SVGDRegressionEstimator",
+    "SimulatorDiagnosticArtifact",
     "SimulationBasedNLEEstimator",
     "SimulationBasedNPEEstimator",
     "SimulationBasedNREEstimator",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
+    "canonical_simulator_diagnostic_artifact",
     "ensure_bayesian_methods_registered",
     "register_bayesian_methods",
 ]

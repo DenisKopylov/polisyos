@@ -540,6 +540,116 @@
       "title": "CountValue",
       "type": "object"
     },
+    "CycMonAllocationPointSpec": {
+      "additionalProperties": false,
+      "description": "Allocation and optional payment for one multidimensional report label.",
+      "properties": {
+        "allocation": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allocation",
+          "type": "array"
+        },
+        "payment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payment"
+        },
+        "type_label": {
+          "minLength": 1,
+          "title": "Type Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type_label",
+        "allocation"
+      ],
+      "title": "CycMonAllocationPointSpec",
+      "type": "object"
+    },
+    "CycMonGridSemanticsSpec": {
+      "additionalProperties": false,
+      "description": "Finite-grid multidimensional direct mechanism certified by utility potentials.",
+      "properties": {
+        "allocation_points": {
+          "items": {
+            "$ref": "#/$defs/CycMonAllocationPointSpec"
+          },
+          "title": "Allocation Points",
+          "type": "array"
+        },
+        "normalization_type_label": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalization Type Label"
+        },
+        "normalization_utility": {
+          "default": "0",
+          "title": "Normalization Utility",
+          "type": "string"
+        },
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "type_points": {
+          "items": {
+            "$ref": "#/$defs/CycMonTypePointSpec"
+          },
+          "title": "Type Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "player_id"
+      ],
+      "title": "CycMonGridSemanticsSpec",
+      "type": "object"
+    },
+    "CycMonTypePointSpec": {
+      "additionalProperties": false,
+      "description": "One multidimensional type-grid point used by the exact cycmon route.",
+      "properties": {
+        "coords": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Coords",
+          "type": "array"
+        },
+        "type_label": {
+          "minLength": 1,
+          "title": "Type Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type_label",
+        "coords"
+      ],
+      "title": "CycMonTypePointSpec",
+      "type": "object"
+    },
     "DurationValue": {
       "additionalProperties": false,
       "description": "Duration value public type.",
@@ -578,6 +688,85 @@
       ],
       "title": "EntityType",
       "type": "string"
+    },
+    "Envelope1DPointSpec": {
+      "additionalProperties": false,
+      "description": "One direct-report point in a single-parameter quasi-linear mechanism.",
+      "properties": {
+        "allocation": {
+          "title": "Allocation",
+          "type": "string"
+        },
+        "payment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payment"
+        },
+        "type_label": {
+          "minLength": 1,
+          "title": "Type Label",
+          "type": "string"
+        },
+        "type_value": {
+          "title": "Type Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type_label",
+        "type_value",
+        "allocation"
+      ],
+      "title": "Envelope1DPointSpec",
+      "type": "object"
+    },
+    "Envelope1DSemanticsSpec": {
+      "additionalProperties": false,
+      "description": "Single-player exact direct-mechanism fragment certified by envelope checks.",
+      "properties": {
+        "normalization_type_label": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalization Type Label"
+        },
+        "normalization_utility": {
+          "default": "0",
+          "title": "Normalization Utility",
+          "type": "string"
+        },
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/Envelope1DPointSpec"
+          },
+          "title": "Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "player_id"
+      ],
+      "title": "Envelope1DSemanticsSpec",
+      "type": "object"
     },
     "EnvironmentConfig": {
       "additionalProperties": false,
@@ -703,6 +892,53 @@
       "title": "EnvironmentParam",
       "type": "object"
     },
+    "ExactJointPriorEntry": {
+      "additionalProperties": false,
+      "description": "Exact joint-support atom for correlated finite Bayesian types.",
+      "properties": {
+        "probability": {
+          "title": "Probability",
+          "type": "string"
+        },
+        "type_profile": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Type Profile",
+          "type": "object"
+        }
+      },
+      "required": [
+        "type_profile",
+        "probability"
+      ],
+      "title": "ExactJointPriorEntry",
+      "type": "object"
+    },
+    "ExactPlayerPriorSpec": {
+      "additionalProperties": false,
+      "description": "Exact per-player marginal prior used by independent finite Bayesian checks.",
+      "properties": {
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "probabilities": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Probabilities",
+          "type": "object"
+        }
+      },
+      "required": [
+        "player_id",
+        "probabilities"
+      ],
+      "title": "ExactPlayerPriorSpec",
+      "type": "object"
+    },
     "ExtensiveFormNode": {
       "additionalProperties": false,
       "description": "One node in an extensive-form policy/mechanism game.",
@@ -806,6 +1042,141 @@
       ],
       "title": "FidelityLevel",
       "type": "string"
+    },
+    "FiniteOutcomeRuleEntry": {
+      "additionalProperties": false,
+      "description": "Map one report profile to one deterministic outcome plus exact payments.",
+      "properties": {
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "outcome_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Outcome Id",
+          "type": "string"
+        },
+        "payments_by_player": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Payments By Player",
+          "type": "object"
+        },
+        "report_profile": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Report Profile",
+          "type": "object"
+        }
+      },
+      "required": [
+        "report_profile",
+        "outcome_id"
+      ],
+      "title": "FiniteOutcomeRuleEntry",
+      "type": "object"
+    },
+    "FiniteOutcomeSpec": {
+      "additionalProperties": false,
+      "description": "One named outcome in the exact finite mechanism codomain.",
+      "properties": {
+        "allocation_by_player": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Allocation By Player",
+          "type": "object"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "outcome_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Outcome Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "outcome_id"
+      ],
+      "title": "FiniteOutcomeSpec",
+      "type": "object"
+    },
+    "FiniteUtilityTableEntry": {
+      "additionalProperties": false,
+      "description": "Exact utility for one player, true type, and full report profile.",
+      "properties": {
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "report_profile": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Report Profile",
+          "type": "object"
+        },
+        "true_type": {
+          "minLength": 1,
+          "title": "True Type",
+          "type": "string"
+        },
+        "utility": {
+          "title": "Utility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "player_id",
+        "true_type",
+        "report_profile",
+        "utility"
+      ],
+      "title": "FiniteUtilityTableEntry",
+      "type": "object"
+    },
+    "FiniteValueTableEntry": {
+      "additionalProperties": false,
+      "description": "Exact per-outcome value semantics for one player/type pair.",
+      "properties": {
+        "outcome_values": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Outcome Values",
+          "type": "object"
+        },
+        "player_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Player Id",
+          "type": "string"
+        },
+        "type_label": {
+          "minLength": 1,
+          "title": "Type Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "player_id",
+        "type_label",
+        "outcome_values"
+      ],
+      "title": "FiniteValueTableEntry",
+      "type": "object"
     },
     "IdentificationMode": {
       "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
@@ -1294,6 +1665,17 @@
           "pattern": "^\\d+\\.\\d+$",
           "title": "Schema Version",
           "type": "string"
+        },
+        "semantics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MechanismSemanticsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -1313,6 +1695,221 @@
       ],
       "title": "MechanismGameRepresentation",
       "type": "string"
+    },
+    "MechanismOutcomeMode": {
+      "description": "Whether the reported outcome rule is deterministic or randomized.",
+      "enum": [
+        "deterministic",
+        "randomized"
+      ],
+      "title": "MechanismOutcomeMode",
+      "type": "string"
+    },
+    "MechanismPriorKind": {
+      "description": "Supported exact prior semantics for finite Bayesian verification.",
+      "enum": [
+        "independent_exact",
+        "joint_exact_table"
+      ],
+      "title": "MechanismPriorKind",
+      "type": "string"
+    },
+    "MechanismPriorSpec": {
+      "additionalProperties": false,
+      "description": "Exact prior semantics used for BIC expectation replay.",
+      "properties": {
+        "joint_support": {
+          "items": {
+            "$ref": "#/$defs/ExactJointPriorEntry"
+          },
+          "title": "Joint Support",
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/MechanismPriorKind"
+        },
+        "player_priors": {
+          "items": {
+            "$ref": "#/$defs/ExactPlayerPriorSpec"
+          },
+          "title": "Player Priors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "MechanismPriorSpec",
+      "type": "object"
+    },
+    "MechanismRevelationMode": {
+      "description": "Whether the authored mechanism is direct or indirect.",
+      "enum": [
+        "direct",
+        "indirect"
+      ],
+      "title": "MechanismRevelationMode",
+      "type": "string"
+    },
+    "MechanismSemanticFragment": {
+      "description": "Supported exact semantic fragments for proof-carrying verification.",
+      "enum": [
+        "finite_direct",
+        "envelope_1d",
+        "cycmon_grid"
+      ],
+      "title": "MechanismSemanticFragment",
+      "type": "string"
+    },
+    "MechanismSemanticsSpec": {
+      "additionalProperties": false,
+      "description": "Semantic closure for exact finite and exact constructive IC fragments.",
+      "properties": {
+        "allocation_rule": {
+          "items": {
+            "$ref": "#/$defs/FiniteOutcomeRuleEntry"
+          },
+          "title": "Allocation Rule",
+          "type": "array"
+        },
+        "cycmon_grid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CycMonGridSemanticsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "envelope_1d": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Envelope1DSemanticsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "finite_outcomes": {
+          "items": {
+            "$ref": "#/$defs/FiniteOutcomeSpec"
+          },
+          "title": "Finite Outcomes",
+          "type": "array"
+        },
+        "fragment": {
+          "$ref": "#/$defs/MechanismSemanticFragment",
+          "default": "finite_direct"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "outcome_mode": {
+          "$ref": "#/$defs/MechanismOutcomeMode",
+          "default": "deterministic"
+        },
+        "prior": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MechanismPriorSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "revelation_mode": {
+          "$ref": "#/$defs/MechanismRevelationMode",
+          "default": "direct"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "semantics_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Semantics Id",
+          "type": "string"
+        },
+        "tie_breaking_rule": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tie Breaking Rule"
+        },
+        "utility_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MechanismUtilityModelSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "semantics_id"
+      ],
+      "title": "MechanismSemanticsSpec",
+      "type": "object"
+    },
+    "MechanismUtilityModelKind": {
+      "description": "Supported utility semantics for the finite exact MVP.",
+      "enum": [
+        "quasi_linear_scalar",
+        "explicit_table"
+      ],
+      "title": "MechanismUtilityModelKind",
+      "type": "string"
+    },
+    "MechanismUtilityModelSpec": {
+      "additionalProperties": false,
+      "description": "Utility semantics closed enough for exact finite replay.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/MechanismUtilityModelKind"
+        },
+        "utility_table": {
+          "items": {
+            "$ref": "#/$defs/FiniteUtilityTableEntry"
+          },
+          "title": "Utility Table",
+          "type": "array"
+        },
+        "value_table": {
+          "items": {
+            "$ref": "#/$defs/FiniteValueTableEntry"
+          },
+          "title": "Value Table",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "MechanismUtilityModelSpec",
+      "type": "object"
     },
     "ModelSpec": {
       "additionalProperties": false,

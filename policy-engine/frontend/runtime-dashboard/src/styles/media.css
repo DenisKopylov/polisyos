@@ -1,0 +1,48 @@
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    [data-motion-essential="false"],
+    .motion-popover-enter,
+    .motion-panel-enter {
+      transform: none !important;
+    }
+  }
+
+  @media (forced-colors: active) {
+    :root {
+      --chart-primary: LinkText;
+      --chart-secondary: CanvasText;
+      --chart-tertiary: GrayText;
+      --chart-alert: Mark;
+      --chart-warning: CanvasText;
+    }
+
+    svg [data-chart-series] {
+      forced-color-adjust: auto;
+    }
+  }
+}
+
+@layer utilities {
+  .media-print-only {
+    display: none;
+  }
+
+  @media print {
+    .media-screen-only {
+      display: none !important;
+    }
+
+    .media-print-only {
+      display: revert !important;
+    }
+  }
+}

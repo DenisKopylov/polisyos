@@ -1,7 +1,8 @@
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
-import { AnimatedNumber, BarChart } from "@/shared/charts";
+import { BarChart } from "@/shared/charts";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import type { ImpactMetric } from "../types";
 
@@ -54,6 +55,31 @@ export function ImpactPreview({
               : "n/a";
           const improved = m.higherIsBetter ? delta > 0 : delta < 0;
           const changed = delta !== 0;
+          const unit = {
+            code: m.unit || "1",
+            system: "ucum",
+            display: m.unit || "value",
+          };
+          const projectedQuantity = untracedDecisionQuantity({
+            point: m.projectedValue,
+            metricId: `whatif_projected_${m.key}`,
+            label: m.label,
+            unit,
+            uncertainty: m.ci
+              ? {
+                  ci_95: [m.ci.lower, m.ci.upper],
+                  identifiability: "estimated",
+                }
+              : null,
+            reasonCode: "whatif_projection_without_runtime_lineage",
+          });
+          const deltaQuantity = untracedDecisionQuantity({
+            point: delta,
+            metricId: `whatif_delta_${m.key}`,
+            label: `${m.label} delta`,
+            unit,
+            reasonCode: "whatif_projection_without_runtime_lineage",
+          });
 
           return (
             <div
@@ -70,16 +96,11 @@ export function ImpactPreview({
 
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="font-mono text-lg font-bold">
-                  <AnimatedNumber
-                    value={m.projectedValue}
-                    formatOptions={{
-                      maximumFractionDigits: 3,
-                      minimumFractionDigits: 3,
-                    }}
+                  <Quantity
+                    value={projectedQuantity}
+                    precision={3}
+                    variant="inline"
                   />
-                  {m.unit && (
-                    <span className="text-muted text-xs">{m.unit}</span>
-                  )}
                 </span>
               </div>
 
@@ -94,7 +115,11 @@ export function ImpactPreview({
                     }}
                   >
                     {delta >= 0 ? "+" : ""}
-                    {delta.toFixed(4)}
+                    <Quantity
+                      value={deltaQuantity}
+                      precision={4}
+                      variant="dense"
+                    />
                   </span>
                   <span className="text-muted">({pctChange}%)</span>
                   <span className="text-muted">

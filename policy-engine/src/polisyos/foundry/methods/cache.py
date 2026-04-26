@@ -475,9 +475,18 @@ def _metadata_from_payload(payload: dict[str, Any]):
         citations=tuple(payload.get("citations", [])),
         equations=dict(_restore_stable_value(payload.get("equations", {}))),
         assumptions=dict(_restore_stable_value(payload.get("assumptions", {}))),
+        simulator_regime_schema=dict(
+            _restore_stable_value(payload.get("simulator_regime_schema", {}))
+        ),
+        summary_schema_ref=payload.get("summary_schema_ref"),
+        identifiable_target=dict(_restore_stable_value(payload.get("identifiable_target", {}))),
+        coverage_contract=dict(_restore_stable_value(payload.get("coverage_contract", {}))),
+        diagnostic_contract=dict(_restore_stable_value(payload.get("diagnostic_contract", {}))),
         determinism_tier=(
             DeterminismTier(str(determinism_tier)) if determinism_tier is not None else None
         ),
+        declared_truthfulness_tier=payload.get("declared_truthfulness_tier"),
+        truthfulness_scope=payload.get("truthfulness_scope"),
         required_deps=tuple(payload.get("required_deps", [])),
         optional_deps=tuple(payload.get("optional_deps", [])),
         fallback_policy=str(payload.get("fallback_policy", "none")),

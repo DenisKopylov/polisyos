@@ -4,6 +4,12 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import (
+    AttractorAnalysisResult,
+    AttractorCertificate,
+    AttractorObservableSummary,
+    AttractorStateProjection,
+    AttractorStateRepresentation,
+    AttractorSummary,
     CompileRequest,
     CompileResult,
     DerivedArtifact,
@@ -18,6 +24,7 @@ from polisyos.core.contracts.foundry import (
     ObservedRange,
     ObservedRangeBundle,
     ObservedRangeBundleRef,
+    PeriodicOrbitDiagnostics,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
@@ -91,6 +98,51 @@ def test_execute_result_canonical() -> None:
         derived_refs=[DerivedArtifact(role="metrics", ref=_dummy_ref("foundry.metrics"))],
     )
     to_canonical_bytes(result)
+
+
+def test_attractor_analysis_result_canonical() -> None:
+    result = AttractorAnalysisResult(
+        analysis_id="analysis_a",
+        simulation_result_ref=SimulationResultRef(artifact_id=ArtifactID.from_sha256_hex("4" * 64)),
+        state_projection=AttractorStateProjection(
+            variables=["infected", "susceptible"],
+            reduced_dimension=2,
+            quotient_notes=["time_step excluded"],
+        ),
+        attractors=[
+            AttractorSummary(
+                attractor_id="A1",
+                kind="fixed_point",
+                existence_status="numerically_confirmed",
+                state_representation=AttractorStateRepresentation(
+                    equilibrium={"infected": 0.0, "susceptible": 127.3}
+                ),
+                certificate=AttractorCertificate(
+                    type="quadratic_lyapunov",
+                    status="proved_local",
+                    evidence_strength=0.9,
+                ),
+                observables=AttractorObservableSummary(terminal_residual_norm=1.0e-8),
+            )
+        ],
+    )
+
+    to_canonical_bytes(result, spec=CanonSpec(forbid_floats=False))
+
+
+def test_periodic_orbit_diagnostics_canonical() -> None:
+    diagnostics = PeriodicOrbitDiagnostics(
+        period=12.0,
+        section_definition="infected_dot = 0, crossing=positive",
+        spectral_radius=0.73,
+        transverse_certificate=AttractorCertificate(
+            type="poincare_transverse",
+            status="proved_local",
+            evidence_strength=0.85,
+        ),
+    )
+
+    to_canonical_bytes(diagnostics, spec=CanonSpec(forbid_floats=False))
 
 
 def test_welfare_bound_sidecar_models_canonical() -> None:

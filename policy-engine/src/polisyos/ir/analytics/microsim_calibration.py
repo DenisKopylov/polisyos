@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import ConfigDict, Field
 
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.refs import DynamicMicrosimValidationReportRef
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore
@@ -33,6 +34,8 @@ class MicrosimCalibrationReport(KernelModel):
     jacobian_rank: int | None = Field(default=None, ge=0)
     condition_number: float | None = Field(default=None, ge=0.0)
     max_abs_gap: float = Field(default=0.0, ge=0.0)
+    dynamic_validation_report_ref: DynamicMicrosimValidationReportRef | None = None
+    dynamic_validation_status: Literal["green", "amber", "red", "not_run"] | None = None
     warnings: list[str] = Field(default_factory=list)
     blocking_reasons: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -122,6 +125,40 @@ def report_from_target_compatibility(
     )
 
 
+def attach_dynamic_validation_report_ref(
+    report: MicrosimCalibrationReport,
+    *,
+    dynamic_validation_report_ref: DynamicMicrosimValidationReportRef,
+    dynamic_validation_status: Literal["green", "amber", "red", "not_run"],
+) -> MicrosimCalibrationReport:
+    """Attach the Phase-4 dynamic validation gate to a microsim calibration report."""
+
+    warnings = list(report.warnings)
+    blocking_reasons = list(report.blocking_reasons)
+    decision = report.decision
+    can_run_microsim = report.can_run_microsim
+    if dynamic_validation_status == "red":
+        decision = "block"
+        can_run_microsim = False
+        if "dynamic_microsim_validation_red" not in blocking_reasons:
+            blocking_reasons.append("dynamic_microsim_validation_red")
+    elif dynamic_validation_status == "amber":
+        if decision == "pass":
+            decision = "warn"
+        if "dynamic_microsim_validation_amber" not in warnings:
+            warnings.append("dynamic_microsim_validation_amber")
+    return report.model_copy(
+        update={
+            "decision": decision,
+            "can_run_microsim": can_run_microsim,
+            "dynamic_validation_report_ref": dynamic_validation_report_ref,
+            "dynamic_validation_status": dynamic_validation_status,
+            "warnings": warnings,
+            "blocking_reasons": blocking_reasons,
+        }
+    )
+
+
 def persist_microsim_calibration_report(
     store: ArtifactStore,
     report: MicrosimCalibrationReport,
@@ -179,6 +216,7 @@ def _enum_string(value: Any, *, default: str | None = None) -> str | None:
 
 __all__ = [
     "MicrosimCalibrationReport",
+    "attach_dynamic_validation_report_ref",
     "build_microsim_calibration_report",
     "load_microsim_calibration_report",
     "persist_microsim_calibration_report",

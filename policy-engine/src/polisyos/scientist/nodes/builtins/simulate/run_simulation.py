@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import (
@@ -20,6 +21,11 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.observability import get_metrics
 from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic_hook
+from polisyos.ir.analytics.phase4_dynamics import Phase4DynamicsGate, Phase4DynamicsGateError
+from polisyos.ir.analytics.simulation_proof_bridge import (
+    SimulationProofBridgeArtifacts,
+    build_simulation_proof_bridge_artifacts,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -38,13 +44,23 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
+    ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF,
+    ARTIFACT_CAUSAL_QUERY_RESULT_REF,
+    ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CONSTRAINT_REPORT_REF,
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
+    ARTIFACT_PROOF_BUNDLE_REF,
+    ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF,
+    ARTIFACT_PROOF_WITNESS_INDEX_REF,
     ARTIFACT_SBOM_REF,
+    ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
+    ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_DELTA_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
@@ -91,6 +107,11 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_LOWERED_IR_REF}",
         f"artifacts_index.{ARTIFACT_PROGRAM_GRAPH_REF}",
         f"artifacts_index.{ARTIFACT_ABSTRACTION_CERTIFICATE_REF}",
+        f"artifacts_index.{ARTIFACT_INTERFACE_MAPPING_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_READINESS_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_QUERY_RESULT_REF}",
+        f"artifacts_index.{ARTIFACT_PROOF_BUNDLE_REF}",
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
@@ -102,6 +123,7 @@ _SPEC = NodeSpec(
         "params.strategic_payoff_tables",
         "params.macro_strategic_payoff_tables",
         "params.performative_loop_spec",
+        "params.causal_query",
     ],
     state_writes=[
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
@@ -113,6 +135,12 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
         f"artifacts_index.{ARTIFACT_TEE_ATTESTATION_REF}",
         f"artifacts_index.{ARTIFACT_SBOM_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_PROOF_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_PROOF_WITNESS_INDEX_REF}",
+        f"artifacts_index.{ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF}",
+        f"artifacts_index.{ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF}",
+        f"artifacts_index.{ARTIFACT_SIMULATION_PROOF_BRIDGE_REF}",
         f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
         f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
         "params.strategic_response",
@@ -127,6 +155,12 @@ _SPEC = NodeSpec(
         ARTIFACT_ENVIRONMENT_MANIFEST_REF,
         ARTIFACT_TEE_ATTESTATION_REF,
         ARTIFACT_SBOM_REF,
+        ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF,
+        ARTIFACT_PROOF_BUNDLE_REF,
+        ARTIFACT_PROOF_WITNESS_INDEX_REF,
+        ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF,
+        ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
+        ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
         ARTIFACT_STRATEGIC_SCM_REF,
         ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ],
@@ -178,6 +212,12 @@ class RunSimulationNode:
                 f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
                 f"artifacts_index.{ARTIFACT_TEE_ATTESTATION_REF}",
                 f"artifacts_index.{ARTIFACT_SBOM_REF}",
+                f"artifacts_index.{ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_PROOF_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_PROOF_WITNESS_INDEX_REF}",
+                f"artifacts_index.{ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF}",
+                f"artifacts_index.{ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF}",
+                f"artifacts_index.{ARTIFACT_SIMULATION_PROOF_BRIDGE_REF}",
                 f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
                 f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
                 "params.strategic_response",
@@ -230,6 +270,28 @@ class RunSimulationNode:
 
         registry_ref = new_state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
         parameter_override_bundle_ref = new_state.inputs.get(INPUT_PARAMETER_OVERRIDE_BUNDLE_REF)
+        try:
+            Phase4DynamicsGate().enforce(
+                horizon=int(
+                    state.params.get(
+                        "simulation_horizon",
+                        state.params.get("horizon", state.params.get("n_periods", 1)),
+                    )
+                    or 1
+                ),
+                regime_bundle=state.params.get("regime_shift_forecast_bundle"),
+                regime_bundle_ref=state.params.get("regime_shift_forecast_bundle_ref"),
+                artifact_store=ctx.store,
+                metadata={"surface": "scientist.run_simulation", "method": method},
+            )
+        except Phase4DynamicsGateError as exc:
+            error = NodeError(
+                code=exc.code,
+                message=str(exc),
+                details=exc.verdict.model_dump(mode="json"),
+            )
+            metrics.record_slo_simulation_run("error", method=method)
+            return NodeOutcome(status="fail", state=new_state, error=error)
 
         try:
             request = ExecuteRequest(
@@ -329,6 +391,56 @@ class RunSimulationNode:
                 error=error,
             )
 
+        proof_events: list[NodeEvent] = []
+        if result.simulation_result_ref is not None:
+            try:
+                bridge_output = _materialize_simulation_proof_bridge(
+                    ctx,
+                    new_state,
+                    simulation_result_ref=result.simulation_result_ref,
+                    simulation_payload=simulation_payload,
+                    method=method,
+                )
+            except _SIMULATION_LOAD_ERRORS as exc:
+                logger.debug(
+                    "Failed to materialize simulation proof bridge: %s",
+                    exc,
+                    exc_info=True,
+                )
+                event = NodeEvent(
+                    level="error",
+                    code="simulation_proof_bridge_failed",
+                    message="Simulation proof bridge could not be materialized",
+                    attrs={"reason": str(exc)},
+                )
+                error = NodeError(
+                    code=node_errors.ERROR_SIMULATION_PROOF_BRIDGE_FAILED,
+                    message="Simulation proof bridge failed after Foundry execute",
+                    details={
+                        "simulation_result_ref": result.simulation_result_ref.model_dump(mode="json"),
+                        "reason": str(exc),
+                    },
+                )
+                metrics.record_slo_simulation_run("error", method=method)
+                return NodeOutcome(
+                    status="fail",
+                    state=new_state,
+                    artifacts=artifacts,
+                    events=[*runtime_events, event],
+                    error=error,
+                )
+            else:
+                _attach_simulation_proof_bridge(new_state, bridge_output)
+                artifacts.extend(_simulation_proof_bridge_artifacts(bridge_output))
+                proof_events.append(
+                    NodeEvent(
+                        level="info",
+                        code="simulation_proof_bridge_materialized",
+                        message="Simulation result linked to calibration receipt and proof bundle",
+                        attrs={"certification_status": bridge_output.certification_status.value},
+                    )
+                )
+
         if _has_nan_signal(result):
             metrics.record_slo_simulation_run("nan", method=method)
         else:
@@ -413,8 +525,106 @@ class RunSimulationNode:
             status="ok",
             state=new_state,
             artifacts=artifacts,
-            events=[*runtime_events, *strategic_events],
+            events=[*runtime_events, *proof_events, *strategic_events],
         )
+
+
+def _materialize_simulation_proof_bridge(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    simulation_result_ref: ArtifactRef,
+    simulation_payload: dict[str, Any] | None,
+    method: str,
+) -> SimulationProofBridgeArtifacts:
+    metrics_ref = _state_or_payload_ref(
+        state,
+        ARTIFACT_METRICS_REF,
+        simulation_payload,
+        "metrics_ref",
+    )
+    state_snapshot_ref = _state_or_payload_ref(
+        state,
+        ARTIFACT_STATE_SNAPSHOT_REF,
+        simulation_payload,
+        "state_snapshot_ref",
+    )
+    causal_query = state.params.get("causal_query")
+    return build_simulation_proof_bridge_artifacts(
+        ctx.store,
+        run_id=state.run_id,
+        simulation_result_ref=simulation_result_ref,
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=state_snapshot_ref,
+        constraint_report_ref=state.artifacts_index.get(ARTIFACT_CONSTRAINT_REPORT_REF),
+        environment_manifest_ref=state.artifacts_index.get(ARTIFACT_ENVIRONMENT_MANIFEST_REF),
+        tee_attestation_ref=state.artifacts_index.get(ARTIFACT_TEE_ATTESTATION_REF),
+        sbom_ref=state.artifacts_index.get(ARTIFACT_SBOM_REF),
+        interface_mapping_ref=state.artifacts_index.get(ARTIFACT_INTERFACE_MAPPING_REF),
+        causal_readiness_bundle_ref=state.artifacts_index.get(ARTIFACT_CAUSAL_READINESS_BUNDLE_REF),
+        causal_validity_bundle_ref=state.artifacts_index.get(ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF),
+        causal_query_ref=state.artifacts_index.get(ARTIFACT_CAUSAL_QUERY_RESULT_REF),
+        base_proof_bundle_ref=state.artifacts_index.get(ARTIFACT_PROOF_BUNDLE_REF),
+        simulation_payload=simulation_payload,
+        causal_query=causal_query if isinstance(causal_query, str) else None,
+        metadata={"simulation_method": method},
+    )
+
+
+def _state_or_payload_ref(
+    state: ExperimentState,
+    state_key: str,
+    payload: dict[str, Any] | None,
+    payload_key: str,
+) -> ArtifactRef | None:
+    ref = state.artifacts_index.get(state_key)
+    if ref is not None:
+        return ref
+    if not isinstance(payload, dict):
+        return None
+    raw = payload.get(payload_key)
+    if raw is None:
+        return None
+    return ArtifactRef.model_validate(raw)
+
+
+def _attach_simulation_proof_bridge(
+    state: ExperimentState,
+    output: SimulationProofBridgeArtifacts,
+) -> None:
+    state.artifacts_index[ARTIFACT_SIMULATION_PROOF_BRIDGE_REF] = _to_core_ref(output.bridge_ref)
+    state.artifacts_index[ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF] = _to_core_ref(
+        output.calibration_receipt_ref
+    )
+    state.artifacts_index[ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF] = _to_core_ref(
+        output.evidence_bundle_ref
+    )
+    state.artifacts_index[ARTIFACT_PROOF_BUNDLE_REF] = _to_core_ref(output.proof_bundle_ref)
+    state.artifacts_index[ARTIFACT_PROOF_WITNESS_INDEX_REF] = _to_core_ref(
+        output.witness_index_ref
+    )
+    state.artifacts_index[ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF] = _to_core_ref(
+        output.composability_certificate_ref
+    )
+
+
+def _simulation_proof_bridge_artifacts(output: SimulationProofBridgeArtifacts) -> list[ArtifactRef]:
+    return [
+        _to_core_ref(output.bridge_ref),
+        _to_core_ref(output.calibration_receipt_ref),
+        _to_core_ref(output.evidence_bundle_ref),
+        _to_core_ref(output.proof_bundle_ref),
+        _to_core_ref(output.witness_index_ref),
+        _to_core_ref(output.composability_certificate_ref),
+    ]
+
+
+def _to_core_ref(ref: Any) -> ArtifactRef:
+    if isinstance(ref, ArtifactRef):
+        return ref
+    if hasattr(ref, "model_dump"):
+        return ArtifactRef.model_validate(ref.model_dump(mode="json"))
+    return ArtifactRef.model_validate(ref)
 
 
 def _has_nan_signal(result: Any) -> bool:

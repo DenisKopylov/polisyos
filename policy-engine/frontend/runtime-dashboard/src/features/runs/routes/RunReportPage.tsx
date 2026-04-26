@@ -26,6 +26,7 @@ import {
   EmptyState,
   exportJson,
 } from "@/shared/ui";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 function RunReportContent({ runId }: { runId: string }) {
   const { t } = useI18n();
@@ -49,6 +50,19 @@ function RunReportContent({ runId }: { runId: string }) {
     () => buildRunReportSnapshot(summary, auditTrail),
     [auditTrail, summary],
   );
+  const decisionScoreQuantity = untracedDecisionQuantity({
+    point: summary.decisionScore,
+    metricId: "report_decision_score",
+    label: t("pages.runs.report.decisionScore"),
+    time: { valid_at: summary.decisionView?.generatedAt },
+  });
+  const blockerCountQuantity = untracedDecisionQuantity({
+    point: summary.blockerCount,
+    metricId: "report_blocker_count",
+    label: t("pages.runs.report.blockers"),
+    unit: { code: "{blocker}", system: "ucum", display: "blockers" },
+    time: { valid_at: summary.decisionView?.generatedAt },
+  });
 
   if (summary.runDetailsQuery.isError) {
     return (
@@ -122,9 +136,11 @@ function RunReportContent({ runId }: { runId: string }) {
               {t("pages.runs.report.decisionScore")}
             </p>
             <p className="mt-2 text-2xl font-semibold">
-              {formatNumber(summary.decisionScore, {
-                maximumFractionDigits: 2,
-              })}
+              <Quantity
+                value={decisionScoreQuantity}
+                precision={2}
+                variant="hero"
+              />
             </p>
           </div>
           <div className="bg-surface/75 border-line rounded-2xl border p-4">
@@ -132,7 +148,7 @@ function RunReportContent({ runId }: { runId: string }) {
               {t("pages.runs.report.blockers")}
             </p>
             <p className="mt-2 text-2xl font-semibold">
-              {formatNumber(summary.blockerCount)}
+              <Quantity value={blockerCountQuantity} variant="hero" />
             </p>
           </div>
           <div className="bg-surface/75 border-line rounded-2xl border p-4">

@@ -20,6 +20,8 @@ __all__ = [
     "PatchMap",
     "PatchRecord",
     "ProcurementGraphState",
+    "QueueEventCalendarState",
+    "QueueRuntimeState",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -32,6 +34,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "MarketState": ("polisyos.foundry.contracts.state", "MarketState"),
     "GlobalState": ("polisyos.foundry.contracts.state", "GlobalState"),
     "ProcurementGraphState": ("polisyos.foundry.contracts.state", "ProcurementGraphState"),
+    "QueueEventCalendarState": (
+        "polisyos.foundry.contracts.state",
+        "QueueEventCalendarState",
+    ),
+    "QueueRuntimeState": ("polisyos.foundry.contracts.state", "QueueRuntimeState"),
     "FidelityLevel": ("polisyos.foundry.contracts.fidelity", "FidelityLevel"),
     "PatchRecord": ("polisyos.foundry.contracts.mechanism", "PatchRecord"),
     "PatchMap": ("polisyos.foundry.contracts.mechanism", "PatchMap"),

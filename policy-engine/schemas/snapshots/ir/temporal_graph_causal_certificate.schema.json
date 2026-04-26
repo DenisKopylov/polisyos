@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Shared Phase-4 DSCM certificate for temporal and dynamic graph causality.",
+  "properties": {
+    "assumptions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "certificate_type": {
+      "const": "temporal_graph_causal_certificate",
+      "default": "temporal_graph_causal_certificate",
+      "title": "Certificate Type",
+      "type": "string"
+    },
+    "dscm_scope": {
+      "default": "dynamic_graph_local_independence_v1",
+      "title": "Dscm Scope",
+      "type": "string"
+    },
+    "local_independence_certificate": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Local Independence Certificate"
+    },
+    "local_independence_certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "identified",
+        "oracle_needed",
+        "blocked",
+        "degraded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "temporal_identification_certificate": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Temporal Identification Certificate"
+    },
+    "temporal_identification_certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "title": "TemporalGraphCausalCertificate",
+  "type": "object"
+}

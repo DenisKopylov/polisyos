@@ -45,6 +45,7 @@ import {
   AuthorshipTimeline,
   useAuthorship,
 } from "@/shared/ui/authored-text";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { UncertaintyBand, type IdentifiabilityState } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
@@ -286,6 +287,38 @@ function RunInspectorContent() {
     focus: summary.primaryDecisionArtifactId ? "artifact" : "overview",
     runId,
   });
+  const decisionScoreQuantity = untracedDecisionQuantity({
+    point: summary.decisionScore,
+    metricId: "run_decision_score",
+    label: t("pages.runs.report.decisionScore"),
+    time: { valid_at: decisionPacketTimestamp },
+  });
+  const evaluatorScoreQuantity = untracedDecisionQuantity({
+    point: summary.pipeline?.evaluator?.scores?.total_score,
+    metricId: "evaluator_total_score",
+    label: t("pages.runs.score", {
+      score: formatNumber(summary.pipeline?.evaluator?.scores?.total_score, {
+        maximumFractionDigits: 3,
+      }),
+    }),
+    time: { valid_at: decisionPacketTimestamp },
+  });
+  const blockerCountQuantity = untracedDecisionQuantity({
+    point: summary.blockerCount,
+    metricId: "governance_blocker_count",
+    label: t("pages.runs.blockers", {
+      count: formatNumber(summary.blockerCount),
+    }),
+    unit: { code: "{blocker}", system: "ucum", display: "blockers" },
+    time: { valid_at: decisionPacketTimestamp },
+  });
+  const decisionPacketBlockerQuantity = untracedDecisionQuantity({
+    point: decisionPacket.blockerCount,
+    metricId: "decision_packet_blocker_count",
+    label: t("pages.runs.blockerStateLabel"),
+    unit: { code: "{blocker}", system: "ucum", display: "blockers" },
+    time: { valid_at: decisionPacketTimestamp },
+  });
 
   return (
     <div className="space-y-5" data-testid="run-detail-page">
@@ -302,11 +335,11 @@ function RunInspectorContent() {
             <p className="eyebrow mt-4">{t("pages.runs.decisionArtifact")}</p>
             <h2>{summary.decisionHeadline}</h2>
             <div className="score-ring" style={summary.decisionScoreStyle}>
-              <span>
-                {formatNumber(summary.decisionScore, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
+              <Quantity
+                value={decisionScoreQuantity}
+                precision={2}
+                variant="hero"
+              />
             </div>
             <div className="space-y-3">
               <div className="bg-surface/80 border-line rounded-2xl border p-3">
@@ -328,9 +361,7 @@ function RunInspectorContent() {
                   {t("pages.runs.governance")}
                 </span>
                 <strong className="mt-2 block">
-                  {t("pages.runs.blockers", {
-                    count: formatNumber(summary.blockerCount),
-                  })}
+                  <Quantity value={blockerCountQuantity} variant="dense" />
                 </strong>
               </div>
               <details className="bg-surface/80 border-line rounded-2xl border p-3">
@@ -498,18 +529,17 @@ function RunInspectorContent() {
                     summary.pipeline?.evaluator?.verdict,
                     summary.pipeline?.evaluator?.verdict ?? t("common.unknown"),
                   )}
-                  meta={t("pages.runs.score", {
-                    score: formatNumber(
-                      summary.pipeline?.evaluator?.scores?.total_score,
-                      {
-                        maximumFractionDigits: 3,
-                      },
-                    ),
-                  })}
+                  meta={
+                    <Quantity
+                      value={evaluatorScoreQuantity}
+                      precision={3}
+                      variant="dense"
+                    />
+                  }
                 />
                 <MetricCard
                   label={t("pages.runs.governance")}
-                  value={formatNumber(summary.blockerCount)}
+                  value={<Quantity value={blockerCountQuantity} />}
                   meta={summary.transportStatus}
                 />
                 <MetricCard
@@ -566,7 +596,7 @@ function RunInspectorContent() {
                   />
                   <MetricCard
                     label={t("pages.runs.blockerStateLabel")}
-                    value={formatNumber(decisionPacket.blockerCount)}
+                    value={<Quantity value={decisionPacketBlockerQuantity} />}
                     meta={t("pages.runs.governance")}
                   />
                 </div>

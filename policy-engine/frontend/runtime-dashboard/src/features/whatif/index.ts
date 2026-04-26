@@ -8,6 +8,9 @@ export {
   ImpactPreview,
   ScenarioSnapshot,
 } from "./components";
+export { ScenarioWorkbench } from "./ScenarioWorkbench";
+export { ScenarioInterventionEditor } from "./ScenarioInterventionEditor";
+export { ScenarioValidationPanel } from "./ScenarioValidationPanel";
 
 // State
 export { useWhatIfStore } from "./state/useWhatIfStore";

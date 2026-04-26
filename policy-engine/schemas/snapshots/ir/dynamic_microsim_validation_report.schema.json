@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
+    "MicrosimCalibrationReportRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted microsim calibration gate reports.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.microsim_calibration_report",
+          "default": "ir.microsim_calibration_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "MicrosimCalibrationReportRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Public Phase-4 validation report that can block dynamic microsimulation.",
+  "properties": {
+    "blocking_reasons": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocking Reasons",
+      "type": "array"
+    },
+    "can_run_dynamic_microsim": {
+      "title": "Can Run Dynamic Microsim",
+      "type": "boolean"
+    },
+    "comparison_dataset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Comparison Dataset"
+    },
+    "diagnostic_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "diagnostics": {
+      "additionalProperties": true,
+      "title": "Diagnostics",
+      "type": "object"
+    },
+    "horizons_reported": {
+      "default": [],
+      "items": {
+        "type": "integer"
+      },
+      "title": "Horizons Reported",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "microsim_calibration_report_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MicrosimCalibrationReportRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "refusal_code": {
+      "anyOf": [
+        {
+          "const": "dynamic_microsim_validation_red",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Refusal Code"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_status": {
+      "title": "Source Status",
+      "type": "string"
+    },
+    "validation_status": {
+      "enum": [
+        "green",
+        "amber",
+        "red",
+        "not_run"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "validation_status",
+    "source_status",
+    "can_run_dynamic_microsim"
+  ],
+  "title": "DynamicMicrosimValidationReport",
+  "type": "object"
+}

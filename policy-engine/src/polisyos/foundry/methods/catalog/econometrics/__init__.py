@@ -46,6 +46,13 @@ from .high_dimensional import (
 )
 from .high_dimensional_iv import HighDimensionalPostSelectionIVEstimator
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
+from .mobility_latent import (
+    LatentMobilityEstimator,
+    LatentMobilityFit,
+    build_h_step_transition_kernels,
+    build_latent_mobility_report,
+    fit_latent_mobility,
+)
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
 from .protocols import (
     ConfidenceSetSegment,
@@ -123,6 +130,8 @@ __all__ = [
     "IdentificationDiagnostic",
     "IntervalDisagreementDiagnostic",
     "KernelRegressionEstimator",
+    "LatentMobilityEstimator",
+    "LatentMobilityFit",
     "LocalProjectionsEstimator",
     "LogitEstimator",
     "MixedLogitEstimator",
@@ -165,6 +174,9 @@ __all__ = [
     "VolatilityRegimeSegment",
     "WeakIVTestEstimator",
     "ZeroInflatedPoissonEstimator",
+    "build_h_step_transition_kernels",
+    "build_latent_mobility_report",
     "ensure_econometric_methods_registered",
+    "fit_latent_mobility",
     "register_econometric_methods",
 ]

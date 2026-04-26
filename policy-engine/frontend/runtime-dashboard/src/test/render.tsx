@@ -14,6 +14,7 @@ import { InterfaceModeProvider } from "@/app/providers/InterfaceModeProvider";
 import { TelemetryProvider } from "@/app/providers/TelemetryProvider";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
 import { ToastProvider } from "@/app/providers/ToastProvider";
+import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import {
   HighContrastProvider,
@@ -39,9 +40,13 @@ export function createAppRenderHarness() {
                     <FeatureFlagProvider>
                       <InterfaceModeProvider>
                         <DensityProvider>
-                          <ThemeProvider>
-                            <AuthorshipProvider>{children}</AuthorshipProvider>
-                          </ThemeProvider>
+                          <TrustViewProvider>
+                            <ThemeProvider>
+                              <AuthorshipProvider>
+                                {children}
+                              </AuthorshipProvider>
+                            </ThemeProvider>
+                          </TrustViewProvider>
                         </DensityProvider>
                       </InterfaceModeProvider>
                     </FeatureFlagProvider>

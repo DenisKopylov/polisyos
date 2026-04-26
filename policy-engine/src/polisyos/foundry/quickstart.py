@@ -69,6 +69,7 @@ class FeedbackQuickstartRunResult:
     simulation_result_artifact_id: str | None
     feedback_result_artifact_id: str | None
     feedback_convergence_certificate_artifact_id: str | None
+    equilibrium_multiplicity_report_artifact_id: str | None = None
 
 
 def resolve_registry_bundle_ref(store: FileSystemCAS, bundle: TrinityBundle) -> ArtifactRef:
@@ -237,6 +238,45 @@ def prepare_trivial_feedback_config(
     return FeedbackConfigRef(artifact_id=ref.artifact_id)
 
 
+def prepare_trivial_multiplicity_config(
+    store: FileSystemCAS,
+    *,
+    exec_plan_ref: ArtifactRef,
+) -> FeedbackConfigRef:
+    """Persist the quickstart feedback config with multiplicity discovery enabled."""
+
+    feedback_ref = prepare_trivial_feedback_config(store, exec_plan_ref=exec_plan_ref)
+    config = FeedbackConfig.model_validate(
+        from_canonical_bytes(store.get_bytes(feedback_ref.artifact_id))
+    )
+    multiplicity_config = config.model_copy(
+        update={
+            "solver": config.solver.model_copy(
+                update={
+                    "detect_multiplicity": True,
+                    "multiplicity_mode": "baseline",
+                    "multiplicity_max_attempts": 8,
+                    "multiplicity_sobol_draws": 6,
+                    "basin_draws": 8,
+                    "basin_seed": 17,
+                }
+            ),
+            "notes": [*config.notes, "quickstart_multiplicity_demo"],
+        }
+    )
+    ref = store.put_json(
+        multiplicity_config,
+        PutOptions(
+            kind="foundry.feedback_config",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.FeedbackConfig", version="1.0"),
+            inputs=[InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return FeedbackConfigRef(artifact_id=ref.artifact_id)
+
+
 def run_trivial_compile_execute(
     bundle: TrinityBundle | None = None,
     cas_root: str | Path = ".polisyos/cas",
@@ -345,6 +385,14 @@ def run_feedback_compile_execute(
         ),
         None,
     )
+    multiplicity_report_ref = next(
+        (
+            artifact.ref.artifact_id
+            for artifact in executed.derived_refs
+            if artifact.role == "equilibrium_multiplicity_report"
+        ),
+        None,
+    )
 
     return FeedbackQuickstartRunResult(
         compile_ok=compiled.ok,
@@ -359,6 +407,89 @@ def run_feedback_compile_execute(
         ),
         feedback_result_artifact_id=feedback_result_ref,
         feedback_convergence_certificate_artifact_id=feedback_certificate_ref,
+        equilibrium_multiplicity_report_artifact_id=multiplicity_report_ref,
+    )
+
+
+def run_feedback_multiplicity_demo(
+    bundle: TrinityBundle | None = None,
+    cas_root: str | Path = ".polisyos/cas",
+) -> FeedbackQuickstartRunResult:
+    """Compile and execute the quickstart with multiplicity reporting enabled."""
+
+    store = FileSystemCAS(Path(cas_root))
+
+    if bundle is None:
+        registry = build_default_registry_bundle(store)
+        load_registry_bundle_content(store, registry.bundle_ref)
+        bundle = build_trivial_trinity_bundle(str(registry.bundle_ref.artifact_id))
+
+    registry_bundle_ref = resolve_registry_bundle_ref(store, bundle)
+    policy_ref = put_trivial_trinity_bundle(store, bundle)
+    compiled = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry_bundle_ref,
+        ),
+    )
+    input_bindings_ref = prepare_trivial_input_bindings(
+        store,
+        registry_bundle_ref,
+        agent_income=100.0,
+    )
+    feedback_config_ref = prepare_trivial_multiplicity_config(
+        store,
+        exec_plan_ref=compiled.exec_plan_ref,
+    )
+    executed = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=compiled.exec_plan_ref,
+            input_bindings_ref=input_bindings_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            feedback_config_ref=feedback_config_ref,
+        ),
+    )
+    feedback_result_ref = next(
+        (
+            artifact.ref.artifact_id
+            for artifact in executed.derived_refs
+            if artifact.role == "feedback_result"
+        ),
+        None,
+    )
+    feedback_certificate_ref = next(
+        (
+            artifact.ref.artifact_id
+            for artifact in executed.derived_refs
+            if artifact.role == "feedback_convergence_certificate"
+        ),
+        None,
+    )
+    multiplicity_report_ref = next(
+        (
+            artifact.ref.artifact_id
+            for artifact in executed.derived_refs
+            if artifact.role == "equilibrium_multiplicity_report"
+        ),
+        None,
+    )
+    return FeedbackQuickstartRunResult(
+        compile_ok=compiled.ok,
+        execute_ok=executed.ok,
+        exec_plan_artifact_id=(
+            compiled.exec_plan_ref.artifact_id if compiled.exec_plan_ref is not None else None
+        ),
+        simulation_result_artifact_id=(
+            executed.simulation_result_ref.artifact_id
+            if executed.simulation_result_ref is not None
+            else None
+        ),
+        feedback_result_artifact_id=feedback_result_ref,
+        feedback_convergence_certificate_artifact_id=feedback_certificate_ref,
+        equilibrium_multiplicity_report_artifact_id=multiplicity_report_ref,
     )
 
 
@@ -368,8 +499,10 @@ __all__ = [
     "build_trivial_trinity_bundle",
     "prepare_trivial_feedback_config",
     "prepare_trivial_input_bindings",
+    "prepare_trivial_multiplicity_config",
     "put_trivial_trinity_bundle",
     "resolve_registry_bundle_ref",
     "run_feedback_compile_execute",
+    "run_feedback_multiplicity_demo",
     "run_trivial_compile_execute",
 ]

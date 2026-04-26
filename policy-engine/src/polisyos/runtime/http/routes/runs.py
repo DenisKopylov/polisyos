@@ -14,16 +14,22 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.runtime import (
     AgentPipelineResponse,
+    ArtifactLineageView,
+    CompareCandidatesResponse,
+    CompareRunResponse,
     RunDetailsResponse,
     RunEvidenceContextResponse,
     RunLineageResponse,
     RunNodesResponse,
+    RunQuantitiesResponse,
     RunsBatchRequest,
     RunsBatchResponse,
     RunsListResponse,
     RunTimelineResponse,
     RunWorkflowResponse,
     SourceKind,
+    TemporalScope,
+    TemporalSurfaceSupport,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -134,6 +140,73 @@ def _is_terminal_status(status: str | None) -> bool:
         or "execut" in normalized
         or "evaluat" in normalized
     )
+
+
+def _resolve_temporal_scope(
+    ctx: RuntimeApiContext,
+    run: Any,
+    response: Response,
+    *,
+    surface: TemporalSurfaceSupport,
+    valid_at: datetime | None,
+    tx_at: datetime | None,
+    t: datetime | None,
+    branch: str | None,
+    snapshot_id: str | None,
+    scenario_id: str | None,
+) -> TemporalScope | None:
+    scope = ctx.temporal.resolve_scope(
+        valid_at=valid_at,
+        tx_at=tx_at,
+        t=t,
+        branch=branch,
+        snapshot_id=snapshot_id,
+        scenario_id=scenario_id,
+    )
+    scope = ctx.temporal.materialize_run_scope(run, scope)
+    ctx.temporal.validate_run_scope(run, scope, surface=surface)
+    response.headers["X-Temporal-Scope"] = ctx.temporal.response_header_value(scope)
+    response.headers["ETag"] = ctx.temporal.response_etag(
+        run_id=run.run_id,
+        surface=surface,
+        scope=scope,
+    )
+    response.headers.setdefault("Vary", "Accept, Authorization")
+    return scope
+
+
+def _resolve_compare_temporal_scope(
+    ctx: RuntimeApiContext,
+    run_a: Any,
+    run_b: Any,
+    response: Response,
+    *,
+    valid_at: datetime | None,
+    tx_at: datetime | None,
+    t: datetime | None,
+    branch: str | None,
+    snapshot_id: str | None,
+    scenario_id: str | None,
+) -> TemporalScope | None:
+    scope = ctx.temporal.resolve_scope(
+        valid_at=valid_at,
+        tx_at=tx_at,
+        t=t,
+        branch=branch,
+        snapshot_id=snapshot_id,
+        scenario_id=scenario_id,
+    )
+    scope = ctx.temporal.materialize_run_scope(run_a, scope)
+    ctx.temporal.validate_run_scope(run_a, scope, surface="run_compare")
+    ctx.temporal.validate_run_scope(run_b, scope, surface="run_compare")
+    response.headers["X-Temporal-Scope"] = ctx.temporal.response_header_value(scope)
+    response.headers["ETag"] = ctx.temporal.response_etag(
+        run_id=f"{run_a.run_id}:{run_b.run_id}",
+        surface="run_compare",
+        scope=scope,
+    )
+    response.headers.setdefault("Vary", "Accept, Authorization")
+    return scope
 
 
 def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[str, Any]:
@@ -337,6 +410,66 @@ if router is not None:
             runs=runs,
         )
 
+    @router.get("/compare", response_model=CompareRunResponse, operation_id="compare_runs")
+    def compare_runs(
+        request: Request,
+        response: Response,
+        run_a_id: str = Query(alias="a", min_length=1),
+        run_b_id: str = Query(alias="b", min_length=1),
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> CompareRunResponse:
+        run_a = ctx.run_index.get_run(run_a_id)
+        run_b = ctx.run_index.get_run(run_b_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run_a)
+        enforce_run_tenant_access(request, ctx=ctx, run=run_b)
+        temporal_scope = _resolve_compare_temporal_scope(
+            ctx,
+            run_a,
+            run_b,
+            response,
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=run_a.details.tenant_id,
+            kind="runtime.run_compare",
+        )
+        frame, comparability, deltas = ctx.compare.build_compare(
+            run_a=run_a,
+            run_b=run_b,
+            temporal_scope=temporal_scope,
+        )
+        record_data_access_audit(
+            request,
+            resource_id=f"{run_a_id}:{run_b_id}",
+            tenant_id=run_a.details.tenant_id,
+            metadata={
+                "comparability": comparability.status,
+                "delta_count": len(deltas),
+            },
+        )
+        response.headers["Link"] = (
+            f'</api/v1/runs/{run_a_id}>; rel="run-a", </api/v1/runs/{run_b_id}>; rel="run-b"'
+        )
+        return CompareRunResponse(
+            meta=build_meta(request, source_kinds=[run_a.source_kind, run_b.source_kind]),
+            temporal_scope=temporal_scope,
+            comparison_frame=frame,
+            comparability=comparability,
+            deltas=deltas,
+        )
+
     @router.get("/live", include_in_schema=False)
     async def stream_runs_live(
         request: Request,
@@ -381,10 +514,28 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunDetailsResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_details",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -401,7 +552,8 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return RunDetailsResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
-            run=run.details,
+            temporal_scope=temporal_scope,
+            run=ctx.temporal.project_run_details(run.details, temporal_scope),
         )
 
     @router.get("/{run_id}/live", include_in_schema=False)
@@ -457,16 +609,37 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunTimelineResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_timeline",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
             kind="runtime.run_timeline",
         )
-        timeline = ctx.timeline.build_for_run(run).timeline
+        timeline = ctx.temporal.project_timeline(
+            ctx.timeline.build_for_run(run).timeline,
+            temporal_scope,
+        )
         record_data_access_audit(
             request,
             resource_id=run_id,
@@ -475,6 +648,7 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return RunTimelineResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
+            temporal_scope=temporal_scope,
             timeline=timeline,
         )
 
@@ -483,10 +657,28 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunNodesResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_nodes",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -519,10 +711,28 @@ if router is not None:
         root_artifact_id: list[str] | None = Query(default=None),
         max_depth: int | None = Query(default=None, ge=1, le=256),
         max_nodes: int | None = Query(default=None, ge=1, le=20000),
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunLineageResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_lineage",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -533,16 +743,37 @@ if router is not None:
             run,
             requested_root_ids=root_artifact_id or None,
         )
-        if not root_ids:
+        if (
+            temporal_scope is not None
+            and ctx.temporal.project_run_details(run.details, temporal_scope).finished_at is None
+        ):
+            visible_timeline = ctx.temporal.project_timeline(
+                ctx.timeline.build_for_run(run).timeline,
+                temporal_scope,
+            )
+            visible_output_ids = {
+                artifact_id
+                for event in visible_timeline.events
+                for artifact_id in event.output_artifact_ids
+            }
+            root_ids = [
+                artifact_id for artifact_id in root_ids if str(artifact_id) in visible_output_ids
+            ]
+
+        if not root_ids and temporal_scope is None:
             raise bad_request(
                 "No root artifacts available for lineage resolution",
                 code="lineage_roots_missing",
             )
 
-        lineage = ctx.lineage.build_for_artifact_ids(
-            root_ids,
-            max_depth=max_depth,
-            max_nodes=max_nodes,
+        lineage = (
+            ctx.lineage.build_for_artifact_ids(
+                root_ids,
+                max_depth=max_depth,
+                max_nodes=max_nodes,
+            )
+            if root_ids
+            else ArtifactLineageView(root_artifact_ids=[])
         )
         record_data_access_audit(
             request,
@@ -554,7 +785,144 @@ if router is not None:
         return RunLineageResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
+            temporal_scope=temporal_scope,
             lineage=lineage,
+        )
+
+    @router.get(
+        "/{run_id}/quantities",
+        response_model=RunQuantitiesResponse,
+        operation_id="get_run_quantities",
+    )
+    def get_run_quantities(
+        run_id: str,
+        request: Request,
+        response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunQuantitiesResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_quantities",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_quantities",
+        )
+        quantities, coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        quantities, coverage, entries = ctx.temporal.project_quantities(
+            quantities,
+            entries,
+            temporal_scope,
+        )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={
+                "quantity_count": len(quantities),
+                "untraced": coverage.untraced,
+            },
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return RunQuantitiesResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            run_id=run_id,
+            source_kind=run.source_kind,
+            temporal_scope=temporal_scope,
+            quantities=quantities,
+            coverage=coverage,
+            entries=entries,
+        )
+
+    @router.get(
+        "/{run_id}/compare-candidates",
+        response_model=CompareCandidatesResponse,
+        operation_id="get_run_compare_candidates",
+    )
+    def get_run_compare_candidates(
+        run_id: str,
+        request: Request,
+        response: Response,
+        limit: int = Query(default=20, ge=1, le=100),
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> CompareCandidatesResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_compare",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_compare_candidates",
+        )
+        summaries, _page = ctx.run_index.list_runs(
+            limit=100,
+            tenant_id=run.details.tenant_id,
+        )
+        candidates = []
+        for summary in summaries:
+            if summary.run_id == run_id:
+                continue
+            candidate = ctx.run_index.get_run(summary.run_id)
+            candidates.append(
+                ctx.compare.candidate_for(
+                    run=run,
+                    candidate=candidate,
+                    temporal_scope=temporal_scope,
+                )
+            )
+        candidates.sort(
+            key=lambda item: (
+                {"compatible": 0, "warning": 1, "blocked": 2}[item.comparability.status],
+                {"baseline": 0, "previous": 1, "recommended": 2, "selected": 3}[item.relation],
+                item.run_id,
+            )
+        )
+        candidates = candidates[:limit]
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={"candidate_count": len(candidates)},
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return CompareCandidatesResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            run_id=run_id,
+            candidates=candidates,
         )
 
     @router.get(
@@ -566,10 +934,28 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> AgentPipelineResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_agents",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -596,10 +982,28 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunEvidenceContextResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_evidence_context",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -626,10 +1030,28 @@ if router is not None:
         run_id: str,
         request: Request,
         response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunWorkflowResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_workflow",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,

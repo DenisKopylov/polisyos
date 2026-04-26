@@ -3,7 +3,7 @@ title: Repository SOTA Plan
 status: active
 owner: team-polisyos
 created: 2026-04-18
-last_verified: 2026-04-18
+last_verified: 2026-04-24
 stability: draft
 ---
 
@@ -28,6 +28,9 @@ Keep these decisions from the Data Forge plan as written:
 6. Golden snapshots are captured before each behavioral migration.
 7. Pipeline configs are frozen; overrides use typed composition and
    `replace()`-style copies.
+8. The temporary Lex production freeze in
+   `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md` is a repository-wide
+   safety constraint while the active NPA corpus run is in flight.
 
 ## SOTA Rubric
 
@@ -71,6 +74,76 @@ Keep these decisions from the Data Forge plan as written:
 | Repo hygiene gates        | ADR-0127 plus architecture/security gate configs                   |
 | Hermetic reproducibility  | ADR-0128 plus lockfiles, model hashes, and Docker digests          |
 
+## Temporary Conservative Overlay
+
+As of 2026-04-24, the cloud Lex pipeline is processing the NPA corpus. Queue 2
+is finishing `shard_4`, Queue 3 Wave 1 is active for `shard_0` through
+`shard_4`, and Queue 3 Waves 2, 3, 4, and 5 are still expected to run. Until
+that production run completes, this repository plan executes in conservative
+overlay mode.
+
+This overlay changes execution order only. The target topology, contracts, and
+acceptance criteria remain the desired end state, but implementation is limited
+to additive, read-only, or report-only work that cannot alter active cloud Lex
+behavior.
+
+The overlay ends only after the Data Forge cutover readiness gate records all of
+the following:
+
+1. Queue 2 `shard_4` has completed.
+2. Queue 3 Waves 1 through 5 have completed.
+3. Shard merge, QC, and publication checks have passed.
+4. The production source revision, artifact roots, manifest schemas, output
+   layouts, and merge/QC evidence have been recorded.
+
+Protected production surfaces:
+
+- `src/polisyos/lex/batch/**`
+- `src/polisyos/batch_common/**`
+- `src/polisyos/batch_snapshot/**`
+- `tools/ops/cloud/run_lex_from_manifest.py`
+- `tools/ops/cloud/build_queue3_waves.py`
+- `tools/ops/cloud/merge_shards.py`
+- `tools/ops/cloud/prepare_shards.*`
+- `tools/ops/ukraine_data/pre_shard_lex_corpus.py`
+- `tools/cloud/**` compatibility wrappers used by queued cloud jobs
+- production Lex manifest schemas, shard assignment semantics, output layouts,
+  resume markers, cache keys, idempotency keys, and clean/resume behavior
+
+Allowed during the overlay:
+
+1. Read-only inventories for topology, imports, duplicate tools, data roots,
+   generated artifacts, public surfaces, and local outputs.
+2. Additive edits to `architecture/*.toml`, schemas, ADRs, docs indexes,
+   CODEOWNERS, and reference documentation.
+3. Guardrails and checks in report-only or allowlisted mode.
+4. Data Forge freeze-safe foundation work that creates new modules, contracts,
+   schemas, fixtures, and tests without making cloud Lex jobs import or write
+   through Data Forge.
+5. Shadow or read-only analysis of completed Lex artifacts copied into isolated
+   fixtures, with no writes to production output roots.
+6. Ignore-rule and cleanup policy improvements for local-only outputs, provided
+   no active queue path or deploy asset path is moved or deleted.
+
+Deferred until the overlay ends:
+
+1. Physical moves or renames of protected Lex, shared-batch, cloud, or Ukraine
+   sharding surfaces.
+2. Rewriting active cloud runner imports from existing paths to Data Forge paths.
+3. Changing production manifest schemas, output directory layouts, cache keys,
+   idempotency keys, cleanup behavior, or resume semantics.
+4. Removing or tightening compatibility wrappers required by queued cloud jobs.
+5. Turning import, topology, generated-artifact, complexity, docs-freshness, or
+   loose-file gates fail-closed for protected paths.
+6. Burning down `lex/batch/*`, `batch_common`, or `batch_snapshot` complexity
+   exceptions.
+7. Repo-wide structural cleanup that moves tools, ops, tests, or data paths used
+   by current or queued Lex runs.
+
+If a production Lex hotfix is required during the overlay, it must be narrowly
+scoped, preserve existing import paths and artifact semantics, and be called out
+in the cutover readiness note.
+
 ## Target Contracts
 
 The first implementation phase creates these machine-readable contracts:
@@ -92,8 +165,9 @@ codegen, and OPA policies for repo-wide allow/deny rules.
 
 ## Gates Inventory
 
-Phase 5 turns these gates from report-only into fail-closed CI/pre-commit
-checks:
+During the conservative overlay, gates may be introduced only in report-only or
+allowlisted mode for protected surfaces. Phase 5 turns these gates from
+report-only into fail-closed CI/pre-commit checks after the overlay ends:
 
 | Gate             | Source                                                                      |
 | ---------------- | --------------------------------------------------------------------------- |
@@ -150,6 +224,10 @@ policy-engine/
 ```
 
 ## Required Structural Moves
+
+During the conservative overlay, this table is a target-state map. Structural
+moves are deferred when they touch protected Lex/cloud surfaces or any path used
+by current or queued NPA corpus processing.
 
 | Area                                      | Required move                                                                                                       |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -282,6 +360,28 @@ policy-engine/data/
 | 3     | Generated and frontend discipline | Frontend workspace plan, generated artifact freshness, schema drift gates            |
 | 4     | Data lake and retention           | Medallion data layout, `.polisyos/README`, retention/GC policy                       |
 | 5     | Enforcement                       | CI/pre-commit gates for import-linter, topology, generated drift, docs freshness     |
+
+### Conservative Overlay Phase Rules
+
+| Phase | Overlay status |
+| ----- | -------------- |
+| -1 | Allowed as read-only inventory. |
+| -1.5 | Restricted to classification, ignore rules, and local-only cleanup that cannot affect active queue assets. |
+| 0 | Allowed when changes are additive and guardrails remain report-only for protected paths. |
+| 1 | Restricted to Data Forge freeze-safe foundation work; no protected Lex/shared path moves or writer switch. |
+| 2 | Deferred except docs-only mapping and shim registry preparation. |
+| 3 | Allowed for registry/schema planning and report-only drift checks; generated outputs used by production jobs are not rewritten. |
+| 4 | Deferred for physical data moves that could touch active outputs; policy docs and isolated fixtures are allowed. |
+| 5 | Deferred for fail-closed enforcement on protected paths; report-only checks are allowed. |
+
+Current Phase -1 evidence:
+`docs/plans/active/REPOSITORY_SOTA_PHASE_MINUS_1_INVENTORY.md`.
+
+Current Phase -1.5 classification evidence:
+`docs/plans/active/REPOSITORY_SOTA_PHASE_MINUS_1_5_CLASSIFICATION.md`.
+
+Current Phase 0 contract evidence:
+`docs/plans/active/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md`.
 
 ### Phase -1.5 Acceptance
 

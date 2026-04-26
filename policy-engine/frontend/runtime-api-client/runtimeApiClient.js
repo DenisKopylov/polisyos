@@ -49,6 +49,24 @@ export class RuntimeApiClient {
     return query;
   }
 
+  async getAttractorAnalysis(params) {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getAnalysisBasinMap(params) {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/basin/${encodeURIComponent(String(params.basin_id))}`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getAnalysisContinuationBranch(params) {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/branch/${encodeURIComponent(String(params.branch_id))}`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
   async getArtifactBatch(params) {
     const path = `/api/v1/artifacts/batch`;
     const query = undefined;
@@ -87,6 +105,20 @@ export class RuntimeApiClient {
   async getArtifactSchema(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async exportBureaucraticArtifact(params) {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.packet_id))}/export`;
+    const query = this.buildQuery({
+      format: params?.format,
+      genre: params?.genre,
+      jurisdiction: params?.jurisdiction,
+      template_version: params?.template_version,
+      trust_view: params?.trust_view,
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+    });
     return this.request('GET', path, query);
   }
 
@@ -209,6 +241,12 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async getRunEquilibria(params) {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/equilibria`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
   async getRunErrors(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
     const query = undefined;
@@ -236,6 +274,45 @@ export class RuntimeApiClient {
   async runtimeApiHealth() {
     const path = `/api/v1/health`;
     const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getLineage(params) {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async exportLineageOpenlineage(params) {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/openlineage`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async exportLineageProv(params) {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/prov`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
     return this.request('GET', path, query);
   }
 
@@ -288,21 +365,71 @@ export class RuntimeApiClient {
     return this.request('POST', path, query, params?.body);
   }
 
+  async compareRuns(params) {
+    const path = `/api/v1/runs/compare`;
+    const query = this.buildQuery({
+      a: params?.a,
+      b: params?.b,
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
   async getRunDetails(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
     return this.request('GET', path, query);
   }
 
   async getRunAgents(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getRunCompareCandidates(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/compare-candidates`;
+    const query = this.buildQuery({
+      limit: params?.limit,
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
     return this.request('GET', path, query);
   }
 
   async getRunEvidenceContext(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
     return this.request('GET', path, query);
   }
 
@@ -312,25 +439,126 @@ export class RuntimeApiClient {
       root_artifact_id: params?.root_artifact_id,
       max_depth: params?.max_depth,
       max_nodes: params?.max_nodes,
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getRunCounterfactualMetrics(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/metrics`;
+    const query = this.buildQuery({
+      scenario_id: params?.scenario_id,
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      regime_shift_forecast_bundle_ref: params?.regime_shift_forecast_bundle_ref,
     });
     return this.request('GET', path, query);
   }
 
   async getRunNodes(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/nodes`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getRunQuantities(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/quantities`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async listRunScenarios(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/scenarios`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+      regime_shift_forecast_bundle_ref: params?.regime_shift_forecast_bundle_ref,
+    });
     return this.request('GET', path, query);
   }
 
   async getRunTimeline(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
     return this.request('GET', path, query);
   }
 
   async getRunWorkflow(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getScenarioManifest(params) {
+    const path = `/api/v1/scenarios/${encodeURIComponent(String(params.scenario_id))}`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getScenarioCapabilities(params) {
+    const path = `/api/v1/scenarios/${encodeURIComponent(String(params.scenario_id))}/capabilities`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      regime_shift_forecast_bundle_ref: params?.regime_shift_forecast_bundle_ref,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getTemporalCapabilities(params) {
+    const path = `/api/v1/temporal/capabilities`;
+    const query = this.buildQuery({
+      run_id: params?.run_id,
+    });
     return this.request('GET', path, query);
   }
 

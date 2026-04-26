@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
+from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.refs import (
     ArtifactRefModel,
     ChannelDecompositionArtifactRef,
@@ -282,6 +283,9 @@ class WelfareBundle(BaseModel):
 
     channel_decomposition: dict[str, float] = Field(default_factory=dict)
     subgroup_welfare: dict[str, float] = Field(default_factory=dict)
+    equilibrium_multiplicity: EquilibriumMultiplicityWelfareAnnotation = Field(
+        default_factory=EquilibriumMultiplicityWelfareAnnotation
+    )
 
     method_used: WelfareMethod = WelfareMethod.DETERMINISTIC
     method_config_ref: ArtifactRefModel | None = None

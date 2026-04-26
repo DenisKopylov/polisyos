@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import hashlib
+from collections.abc import Callable, Mapping
 from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -21,10 +23,21 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.phase4_dynamics import ABMResult, build_abm_result_from_simulation
 
 
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
+
+
+def _abm_result_stub(*, method_id: str, horizon: int) -> ABMResult:
+    digest = hashlib.sha256(f"{method_id}:{horizon}".encode()).hexdigest()
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=f"sha256:{digest}"),
+        metrics_ref=MetricsRef(artifact_id=f"sha256:{digest[::-1]}"),
+        notes=["phase4_abm_result_stub", "diagnostics_not_attached"],
+    )
+    return build_abm_result_from_simulation(simulation)
 
 
 def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
@@ -44,6 +57,79 @@ def _runtime_fidelity(value: Any) -> Any:
     from polisyos.foundry.contracts.fidelity import FidelityLevel as RuntimeFidelityLevel
 
     return RuntimeFidelityLevel(str(value or RuntimeFidelityLevel.SURROGATE_FLUID.value))
+
+
+def _rk4_step(
+    rhs: Callable[[np.ndarray], np.ndarray],
+    state: np.ndarray,
+    dt: float,
+) -> np.ndarray:
+    k1 = rhs(state)
+    k2 = rhs(state + 0.5 * dt * k1)
+    k3 = rhs(state + 0.5 * dt * k2)
+    k4 = rhs(state + dt * k3)
+    return state + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
+
+
+def _canonical_ode_rhs(system: str, params: Mapping[str, Any]) -> Callable[[np.ndarray], np.ndarray]:
+    if system == "hopf_normal_form":
+        mu = float(params.get("mu", 0.1))
+        omega = float(params.get("omega", 1.0))
+
+        def hopf(state: np.ndarray) -> np.ndarray:
+            x, y = state
+            radius_sq = x * x + y * y
+            return np.asarray(
+                [
+                    mu * x - omega * y - radius_sq * x,
+                    omega * x + mu * y - radius_sq * y,
+                ],
+                dtype=float,
+            )
+
+        return hopf
+    if system == "van_der_pol":
+        mu = float(params.get("mu", 1.0))
+
+        def van_der_pol(state: np.ndarray) -> np.ndarray:
+            x, y = state
+            return np.asarray([y, mu * (1.0 - x * x) * y - x], dtype=float)
+
+        return van_der_pol
+    if system == "lorenz63":
+        sigma = float(params.get("sigma", 10.0))
+        rho = float(params.get("rho", 28.0))
+        beta = float(params.get("beta", 8.0 / 3.0))
+
+        def lorenz(state: np.ndarray) -> np.ndarray:
+            x, y, z = state
+            return np.asarray(
+                [sigma * (y - x), x * (rho - z) - y, x * y - beta * z],
+                dtype=float,
+            )
+
+        return lorenz
+    raise ValueError(f"Unsupported canonical dynamical system '{system}'")
+
+
+def _canonical_variable_ids(system: str, dimension: int) -> list[str]:
+    if system == "logistic_map":
+        return ["x"]
+    if system in {"hopf_normal_form", "van_der_pol"}:
+        return ["x", "y"]
+    if system == "lorenz63":
+        return ["x", "y", "z"]
+    return [f"x{index}" for index in range(dimension)]
+
+
+def _suggested_canonical_kind(system: str, params: Mapping[str, Any]) -> str:
+    if system == "hopf_normal_form":
+        return "limit_cycle" if float(params.get("mu", 0.1)) > 0.0 else "fixed_point"
+    if system == "van_der_pol":
+        return "limit_cycle"
+    if system == "lorenz63":
+        return "chaotic"
+    return "unknown"
 
 
 def _agent_sim_vector(
@@ -215,6 +301,104 @@ class StockFlowSystemDynamicsEstimator:
                 "trajectory": trajectory.tolist(),
                 "final_stocks": current.tolist(),
                 "mass_balance": float(np.sum(current) - np.sum(trajectory[0])),
+            }
+        }
+
+
+@foundry_method(
+    namespace="simulation.dynamical_systems",
+    version="1.0.0",
+    tags={"simulation", "system-dynamics", "bifurcation", "attractor"},
+)
+class CanonicalDynamicalSystemEstimator:
+    """Simulate canonical ODE/map benchmarks for attractor and bifurcation validation."""
+
+    method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="canonical",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {SlotSpec("initial_state", SlotType.VECTOR, Unit("state", "level"))}
+        ),
+        output_slots=_result_slot(),
+        parameters=(
+            ParameterSpec(name="system", default="hopf_normal_form"),
+            ParameterSpec(name="n_steps", default=500),
+            ParameterSpec(name="dt", default=0.01),
+            ParameterSpec(name="r", default=4.0),
+            ParameterSpec(name="mu", default=1.0),
+            ParameterSpec(name="omega", default=1.0),
+            ParameterSpec(name="sigma", default=10.0),
+            ParameterSpec(name="rho", default=28.0),
+            ParameterSpec(name="beta", default=8.0 / 3.0),
+        ),
+        fidelity=FidelityLevel.MEDIUM,
+        complexity=ComplexityClass.O_N,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Canonical dynamical-system simulator for Hopf, van der Pol, Lorenz-63, "
+            "and logistic-map attractor tests."
+        ),
+        tags=frozenset({"simulation", "system-dynamics", "bifurcation", "attractor"}),
+        when_to_use="Validation cases for fixed points, limit cycles, chaos, and regime shifts.",
+        citations=(
+            "Guckenheimer, J., & Holmes, P. (1983). Nonlinear Oscillations, Dynamical Systems, and Bifurcations of Vector Fields.",
+            "Lorenz, E. N. (1963). Deterministic Nonperiodic Flow. Journal of the Atmospheric Sciences.",
+        ),
+        output_interpretation="Reduced trajectories suitable for attractor-analysis artifacts.",
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        system = str(params.get("system", "hopf_normal_form")).strip().lower()
+        current = _vector(state, "initial_state").astype(float)
+        n_steps = max(1, int(params.get("n_steps", 500)))
+        dt = max(1.0e-9, float(params.get("dt", 0.01)))
+        trajectory = np.zeros((n_steps + 1, current.shape[0]), dtype=float)
+        trajectory[0] = current
+
+        if system == "logistic_map":
+            if current.shape != (1,):
+                raise ValueError("logistic_map initial_state must have length 1")
+            rate = float(params.get("r", 4.0))
+            for step in range(1, n_steps + 1):
+                current = np.asarray([rate * current[0] * (1.0 - current[0])], dtype=float)
+                trajectory[step] = current
+            suggested_kind = "chaotic" if rate > 3.56995 else "invariant_set"
+            model_family = "discrete_map"
+        else:
+            expected_dimension = 3 if system == "lorenz63" else 2
+            if current.shape != (expected_dimension,):
+                raise ValueError(f"{system} initial_state must have length {expected_dimension}")
+            rhs = _canonical_ode_rhs(system, params)
+            for step in range(1, n_steps + 1):
+                current = _rk4_step(rhs, current, dt)
+                trajectory[step] = current
+            suggested_kind = _suggested_canonical_kind(system, params)
+            model_family = "ode"
+
+        return {
+            "result": {
+                "system": system,
+                "model_family": model_family,
+                "trajectory": trajectory.tolist(),
+                "final_state": current.tolist(),
+                "variable_ids": _canonical_variable_ids(system, current.shape[0]),
+                "suggested_attractor_kind": suggested_kind,
+                "notes": [
+                    "canonical_validation_family",
+                    "continuation_reference_solver_not_invoked",
+                ],
             }
         }
 
@@ -566,20 +750,43 @@ class AgentPopulationSimulationEstimator:
             fidelity=_runtime_fidelity(params.get("fidelity")),
         )
         metric_means = {key: jnp.mean(value) for key, value in metrics.items()}
-        return {
-            "result": {
-                "final_total_wealth": final_state.aggregates.total_wealth,
-                "final_mean_consumption": final_state.aggregates.mean_consumption,
-                "final_gini": final_state.distributions.gini_wealth,
-                "final_active_agents": final_state.population_manager.n_active,
-                "final_time_step": final_state.time_step,
-                "mean_metrics": metric_means,
-            }
+        result = {
+            "final_total_wealth": final_state.aggregates.total_wealth,
+            "final_mean_consumption": final_state.aggregates.mean_consumption,
+            "final_gini": final_state.distributions.gini_wealth,
+            "final_active_agents": final_state.population_manager.n_active,
+            "final_time_step": final_state.time_step,
+            "mean_metrics": metric_means,
         }
+        return {
+            "result": result,
+        }
+
+    @staticmethod
+    def postprocess_output(
+        *,
+        output: Mapping[str, Any],
+        state: Mapping[str, Any],
+        params: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Attach exact Phase-4 ABM fields outside the JAX-traced numeric core."""
+
+        del state
+        n_steps = max(1, int(params.get("n_steps", 12)))
+        abm_result = _abm_result_stub(
+            method_id="simulation.agent_based.population_dynamics",
+            horizon=n_steps,
+        )
+        patched = dict(output)
+        result_payload = dict(patched.get("result", {}))
+        result_payload["abm_result"] = abm_result.model_dump(mode="json")
+        patched["result"] = result_payload
+        return patched
 
 
 __all__ = [
     "AgentPopulationSimulationEstimator",
+    "CanonicalDynamicalSystemEstimator",
     "QueueDiscreteEventEstimator",
     "SEIRCompartmentalEstimator",
     "SIRCompartmentalEstimator",

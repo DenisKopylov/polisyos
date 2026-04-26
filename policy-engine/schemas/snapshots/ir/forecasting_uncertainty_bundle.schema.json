@@ -63,7 +63,8 @@
         "bayesian",
         "bayesian_plus_conformal",
         "gaussian_reconciliation",
-        "coherent_bootstrap"
+        "coherent_bootstrap",
+        "conformal_after_reconciliation"
       ],
       "title": "ForecastCalibrationMethod",
       "type": "string"
@@ -546,6 +547,18 @@
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "source_method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Method"
     },
     "target_id": {
       "title": "Target Id",

@@ -60,6 +60,17 @@ def test_feedback_endpoint_returns_feedback_loop(runtime_api_env) -> None:
     assert payload["monitoring_contract"]["metrics"][0]["metric_id"] == "policy_cost"
 
 
+def test_equilibria_endpoint_returns_multiplicity_report(runtime_api_env) -> None:
+    client = runtime_api_env["client"]
+    response = client.get(f"/api/v1/debug/runs/{runtime_api_env['core_run_id']}/equilibria")
+    assert response.status_code == 200
+
+    payload = response.json()["equilibria"]
+    assert payload["report_ref"]["artifact_id"] == runtime_api_env["equilibrium_report_artifact_id"]
+    assert payload["report"]["model_id"] == "ks_lite_fixture"
+    assert payload["report"]["global_diagnostics"]["num_equilibria"] == 1
+
+
 def test_compare_endpoint_surfaces_law_delta(runtime_api_env) -> None:
     client = runtime_api_env["client"]
     response = client.get(

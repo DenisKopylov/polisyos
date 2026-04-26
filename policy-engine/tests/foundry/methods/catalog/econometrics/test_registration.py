@@ -60,4 +60,6 @@ def test_register_econometric_methods_queryable() -> None:
         # Phase 2 factor/decomposition additions
         "dynamic_factor_model",
         "principal_components",
+        # Phase 4 mobility additions
+        "latent_mobility",
     }

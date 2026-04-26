@@ -1,0 +1,16 @@
+{
+  "passed": false,
+  "metrics": {
+    "quality_gate_passed": false,
+    "normative_ready_total": 3,
+    "normative_ready_share_pct": 75.0
+  },
+  "checks": [
+    {
+      "name": "normative_ready_share",
+      "passed": false,
+      "severity": "error",
+      "status": "failed"
+    }
+  ]
+}

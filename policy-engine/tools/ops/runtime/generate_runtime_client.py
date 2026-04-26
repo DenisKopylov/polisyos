@@ -83,7 +83,7 @@ def _schema_to_ts(
 
     ref = schema.get("$ref")
     if isinstance(ref, str) and ref.startswith("#/components/schemas/"):
-        return ref.rsplit("/", 1)[-1]
+        return _ts_type_name(ref.rsplit("/", 1)[-1])
 
     if schema.get("enum") and isinstance(schema["enum"], list):
         values = " | ".join(_literal(value) for value in schema["enum"])
@@ -164,6 +164,18 @@ def _literal(value: object) -> str:
 
 def _is_identifier(value: str) -> bool:
     return bool(_IDENT_RE.match(value))
+
+
+def _ts_type_name(value: str) -> str:
+    if _is_identifier(value):
+        return value
+    parts = [part for part in re.split(r"[^A-Za-z0-9]+", value) if part]
+    candidate = "".join(part[:1].upper() + part[1:] for part in parts)
+    if not candidate:
+        return "AnonymousSchema"
+    if candidate[0].isdigit():
+        candidate = f"Schema{candidate}"
+    return candidate if _is_identifier(candidate) else "AnonymousSchema"
 
 
 def _to_camel(name: str) -> str:
@@ -326,7 +338,9 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             schema = components[name]
             if not isinstance(schema, dict):
                 continue
-            lines.append(f"export type {name} = {_schema_to_ts(schema, components=components)};")
+            lines.append(
+                f"export type {_ts_type_name(name)} = {_schema_to_ts(schema, components=components)};"
+            )
             lines.append("")
 
     lines.extend(

@@ -19,11 +19,16 @@ from polisyos.core.security.access_scope import AccessScope
 from .errors import forbidden, unauthorized
 from .resilience import guard_runtime_cas
 from .services.artifact_inspector import ArtifactInspectorService
+from .services.attractors import AttractorAnalysisService
+from .services.bureaucratic_rendering import BureaucraticRenderingService
+from .services.compare import CompareService
 from .services.debug import DebugService
 from .services.feedback import FeedbackService
 from .services.lineage import LineageService
 from .services.mobility import MobilityService
 from .services.run_index import IndexedRunRecord, RunIndexService
+from .services.scenarios import ScenarioService
+from .services.temporal import TemporalService
 from .services.timeline import TimelineService
 
 if TYPE_CHECKING:
@@ -53,7 +58,12 @@ class RuntimeApiContext:
     debug: DebugService
     feedback: FeedbackService
     lineage: LineageService
+    compare: CompareService
+    temporal: TemporalService
+    scenarios: ScenarioService
     artifacts: ArtifactInspectorService
+    analysis: AttractorAnalysisService
+    bureaucratic_rendering: BureaucraticRenderingService
     mobility: MobilityService
     max_preview_bytes: int
     lineage_max_depth: int
@@ -98,12 +108,21 @@ def build_runtime_api_context(
     )
     debug = DebugService(store=store, timeline_service=timeline)
     feedback = FeedbackService(store=store, run_index=run_index)
+    temporal = TemporalService(timeline_service=timeline)
+    compare = CompareService(lineage_service=lineage, temporal_service=temporal)
+    scenarios = ScenarioService(
+        lineage_service=lineage,
+        temporal_service=temporal,
+        store=store,
+    )
     artifacts = ArtifactInspectorService(
         store=store,
         lineage_service=lineage,
         default_max_preview_bytes=max_preview_bytes,
         redaction_hooks=artifact_redaction_hooks,
     )
+    analysis = AttractorAnalysisService(store=store)
+    bureaucratic_rendering = BureaucraticRenderingService(store=store)
     mobility = MobilityService(store=store)
     return RuntimeApiContext(
         cas_root=cas_root,
@@ -115,7 +134,12 @@ def build_runtime_api_context(
         debug=debug,
         feedback=feedback,
         lineage=lineage,
+        compare=compare,
+        temporal=temporal,
+        scenarios=scenarios,
         artifacts=artifacts,
+        analysis=analysis,
+        bureaucratic_rendering=bureaucratic_rendering,
         mobility=mobility,
         max_preview_bytes=max_preview_bytes,
         lineage_max_depth=lineage_max_depth,

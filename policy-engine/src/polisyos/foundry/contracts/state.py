@@ -70,6 +70,90 @@ class AgentSimRuntimeState:
 
 
 @chex.dataclass(frozen=True)
+class QueueEventCalendarState:
+    """Fixed-shape event calendar for DES queue lifecycle execution."""
+
+    event_time: Float[Array, n_events]
+    event_kind: Int[Array, n_events]
+    event_entity: Int[Array, n_events]
+    event_priority: Int[Array, n_events]
+    event_active: Bool[Array, n_events]
+
+    @property
+    def size(self) -> int:
+        return self.event_time.shape[0]
+
+    @classmethod
+    def empty(cls, n_events: int) -> QueueEventCalendarState:
+        n_events = max(int(n_events), 1)
+        return cls(
+            event_time=jnp.full((n_events,), jnp.inf, dtype=jnp.float32),
+            event_kind=jnp.zeros((n_events,), dtype=jnp.int32),
+            event_entity=jnp.full((n_events,), -1, dtype=jnp.int32),
+            event_priority=jnp.zeros((n_events,), dtype=jnp.int32),
+            event_active=jnp.zeros((n_events,), dtype=jnp.bool_),
+        )
+
+
+@chex.dataclass(frozen=True)
+class QueueRuntimeState:
+    """Fixed-shape DES queue lifecycle state attached to canonical `GlobalState`.
+
+    Per-entity arrays use integer slots aligned with `GlobalState.agents`. Status
+    codes are intentionally compact so queue dynamics can stay array-oriented:
+    0=none, 1=queued, 2=in_service, 3=completed, 4=rejected.
+    """
+
+    time: Float[Array, ""]
+    queue_length: Float[Array, ""]
+    capacity: Float[Array, ""]
+    claim_status: Int[Array, n_entities]
+    claim_priority: Int[Array, n_entities]
+    queued_at: Float[Array, n_entities]
+    service_started_at: Float[Array, n_entities]
+    completed_at: Float[Array, n_entities]
+    expected_wait: Float[Array, n_entities]
+    admitted_count: Int[Array, ""]
+    completed_count: Int[Array, ""]
+    rejected_count: Int[Array, ""]
+    last_update_step: Int[Array, ""]
+    event_calendar: QueueEventCalendarState
+
+    @property
+    def size(self) -> int:
+        return self.claim_status.shape[0]
+
+    @classmethod
+    def empty(
+        cls,
+        n_entities: int,
+        *,
+        time: float = 0.0,
+        queue_length: float = 0.0,
+        capacity: float | None = None,
+        n_events: int | None = None,
+    ) -> QueueRuntimeState:
+        sentinel_time = -1.0
+        calendar_size = n_events if n_events is not None else max(int(n_entities) * 2, 1)
+        return cls(
+            time=jnp.array(time, dtype=jnp.float32),
+            queue_length=jnp.array(max(float(queue_length), 0.0), dtype=jnp.float32),
+            capacity=jnp.array(-1.0 if capacity is None else float(capacity), dtype=jnp.float32),
+            claim_status=jnp.zeros((n_entities,), dtype=jnp.int32),
+            claim_priority=jnp.zeros((n_entities,), dtype=jnp.int32),
+            queued_at=jnp.full((n_entities,), sentinel_time, dtype=jnp.float32),
+            service_started_at=jnp.full((n_entities,), sentinel_time, dtype=jnp.float32),
+            completed_at=jnp.full((n_entities,), sentinel_time, dtype=jnp.float32),
+            expected_wait=jnp.zeros((n_entities,), dtype=jnp.float32),
+            admitted_count=jnp.array(0, dtype=jnp.int32),
+            completed_count=jnp.array(0, dtype=jnp.int32),
+            rejected_count=jnp.array(0, dtype=jnp.int32),
+            last_update_step=jnp.array(-1, dtype=jnp.int32),
+            event_calendar=QueueEventCalendarState.empty(calendar_size),
+        )
+
+
+@chex.dataclass(frozen=True)
 class FeedbackState:
     """Compact fixed-point vector attached to `GlobalState` during feedback solve."""
 
@@ -254,6 +338,7 @@ class GlobalState:
     cells: CellState | None = None
     household_cells: HouseholdCellState | None = None
     agent_sim_runtime: AgentSimRuntimeState | None = None
+    queue_runtime: QueueRuntimeState | None = None
     feedback_state: FeedbackState | None = None
 
     @classmethod
@@ -315,6 +400,7 @@ class GlobalState:
             if n_household_cells > 0
             else None,
             agent_sim_runtime=None,
+            queue_runtime=None,
             feedback_state=None,
             government_balance=jnp.array(0.0, dtype=jnp.float32),
             tax_rate=jnp.array(0.0, dtype=jnp.float32),

@@ -8,6 +8,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     CompileRequest,
+    EquilibriumMultiplicityReport,
     ExecuteRequest,
     FeedbackConfig,
     FeedbackConfigRef,
@@ -179,6 +180,62 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
     feedback_config = FeedbackConfig.model_validate(
         from_canonical_bytes(store.get_bytes(feedback_config_ref.artifact_id))
     )
+    multiplicity_config = feedback_config.model_copy(
+        update={
+            "solver": feedback_config.solver.model_copy(
+                update={
+                    "detect_multiplicity": True,
+                    "multiplicity_mode": "baseline",
+                    "multiplicity_max_attempts": 1,
+                    "multiplicity_sobol_draws": 0,
+                    "basin_draws": 0,
+                }
+            )
+        }
+    )
+    multiplicity_config_ref = store.put_json(
+        multiplicity_config,
+        PutOptions(
+            kind="foundry.feedback_config",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.FeedbackConfig", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    multiplicity_exec_result = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=compile_result.exec_plan_ref,
+            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+            registry_bundle_ref=bundle.bundle_ref,
+            feedback_config_ref=FeedbackConfigRef(artifact_id=multiplicity_config_ref.artifact_id),
+        ),
+    )
+
+    assert multiplicity_exec_result.ok is True
+    assert {artifact.role for artifact in multiplicity_exec_result.derived_refs} >= {
+        "equilibrium_multiplicity_report",
+        "feedback_result",
+    }
+    multiplicity_report_ref = next(
+        artifact.ref
+        for artifact in multiplicity_exec_result.derived_refs
+        if artifact.role == "equilibrium_multiplicity_report"
+    )
+    multiplicity_report = EquilibriumMultiplicityReport.model_validate(
+        from_canonical_bytes(store.get_bytes(multiplicity_report_ref.artifact_id))
+    )
+    assert multiplicity_report.global_diagnostics.num_equilibria >= 1
+    multiplicity_feedback_result_ref = next(
+        artifact.ref
+        for artifact in multiplicity_exec_result.derived_refs
+        if artifact.role == "feedback_result"
+    )
+    multiplicity_feedback_result = FeedbackSolveResult.model_validate(
+        from_canonical_bytes(store.get_bytes(multiplicity_feedback_result_ref.artifact_id))
+    )
+    assert multiplicity_feedback_result.multiplicity_report_ref is not None
+
     failure_config = feedback_config.model_copy(
         update={
             "solver": feedback_config.solver.model_copy(

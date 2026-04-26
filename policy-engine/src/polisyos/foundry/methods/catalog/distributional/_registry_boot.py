@@ -22,6 +22,7 @@ from .mobility import (
     RefreshmentSampleMobilityEstimator,
     SequentialIPCWLifetimeMobilityEstimator,
 )
+from .mobility_latent_adapter import LatentMobilityReportAdapter
 from .polarization import (
     DuclosEstebanRayEstimator,
     EstebanRayEstimator,
@@ -48,6 +49,7 @@ def register_distributional_methods() -> Sequence[type]:
         AttritionAdjustedMobilityMatrixEstimator,
         SequentialIPCWLifetimeMobilityEstimator,
         RefreshmentSampleMobilityEstimator,
+        LatentMobilityReportAdapter,
         IntergenerationalElasticityEstimator,
         EstebanRayEstimator,
         DuclosEstebanRayEstimator,

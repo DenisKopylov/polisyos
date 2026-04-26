@@ -75,6 +75,7 @@ frontend/runtime-dashboard/.env
 frontend/runtime-dashboard/.env.local
 frontend/runtime-dashboard/.env.*.local
 !frontend/runtime-dashboard/.env.example
+packages/*/node_modules/
 
 # Local metrics (do not commit)
 test_collect.txt
@@ -130,6 +131,16 @@ docs/archive/reports/**
 !docs/connectors/**
 !docs/brand/
 docs/brand/*
+!docs/brand/BUREAUCRATIC_RENDERING.md
+!docs/brand/CLI_STYLEGUIDE.md
+!docs/brand/COMPOSITION_RULES.md
+!docs/brand/EMAIL_TEMPLATES.md
+!docs/brand/MOTION.md
+!docs/brand/PRINT_AND_EXPORT.md
+!docs/brand/PROVENANCE_INTERACTION.md
+!docs/brand/SOCIAL_TEMPLATES.md
+!docs/brand/TRUST_VIEW.md
+!docs/brand/bureaucratic-template-review.json
 !docs/brand/storybook-wave1-snapshot/
 !docs/brand/storybook-wave1-snapshot/**
 !docs/contracts/

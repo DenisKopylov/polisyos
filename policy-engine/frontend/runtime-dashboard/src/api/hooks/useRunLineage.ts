@@ -4,12 +4,20 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
+import {
+  toApiTemporalParams,
+  type TemporalScope,
+} from "@/app/providers/temporal-scope";
+import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
 import { runLineageSchema } from "../validators";
 
-async function fetchRunLineage(runId: string) {
+async function fetchRunLineage(
+  runId: string,
+  temporalScope?: TemporalScope | null,
+) {
   const { data, error, response } = await runtimeApiClient.GET(
     "/api/v1/runs/{run_id}/lineage",
     {
@@ -17,6 +25,7 @@ async function fetchRunLineage(runId: string) {
         path: {
           run_id: runId,
         },
+        query: toApiTemporalParams(temporalScope),
       },
     },
   );
@@ -43,20 +52,28 @@ async function fetchRunLineage(runId: string) {
   };
 }
 
-export function runLineageQueryOptions(runId: string) {
+export function runLineageQueryOptions(
+  runId: string,
+  temporalScope?: TemporalScope | null,
+) {
   return queryOptions({
-    queryKey: queryKeys.runLineage(runId),
-    queryFn: () => fetchRunLineage(runId),
+    queryKey: queryKeys.runLineage(runId, temporalScope),
+    queryFn: () => fetchRunLineage(runId, temporalScope),
   });
 }
 
 export function useRunLineage(runId: string | undefined, enabled = true) {
+  const temporalCursor = useMaybeTemporalCursor();
+  const temporalScope = temporalCursor?.committedScope ?? null;
   return useQuery({
-    ...runLineageQueryOptions(runId ?? "unknown"),
+    ...runLineageQueryOptions(runId ?? "unknown", temporalScope),
     enabled: Boolean(runId) && enabled,
   });
 }
 
 export function useSuspenseRunLineage(runId: string) {
-  return useSuspenseQuery(runLineageQueryOptions(runId));
+  const temporalCursor = useMaybeTemporalCursor();
+  return useSuspenseQuery(
+    runLineageQueryOptions(runId, temporalCursor?.committedScope ?? null),
+  );
 }

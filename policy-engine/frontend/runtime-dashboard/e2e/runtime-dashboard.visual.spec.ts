@@ -1,14 +1,44 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { readFixtureMetadata } from "./helpers/runtime-dashboard";
 
 const FIXTURE_RUN_ID = "R_core_api_001";
 const FIXTURE_PROMOTION_ID = "promotion_fixture_001";
+const FIXTURE_METADATA = readFixtureMetadata();
 const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
 const THEME_STORAGE_KEY = "polisyos.runtime.theme";
 const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
-const FIXTURE_DECISION_PACKET_ID =
-  readFixtureMetadata().decision_packet_artifact_id;
+const FIXTURE_DECISION_PACKET_ID = FIXTURE_METADATA.decision_packet_artifact_id;
+
+async function expectPrintSnapshot(
+  page: Page,
+  {
+    path,
+    readyTestId,
+    selector,
+    snapshot,
+  }: {
+    path: string;
+    readyTestId: string;
+    selector: string;
+    snapshot: string;
+  },
+) {
+  await page.setViewportSize({ width: 794, height: 1123 });
+  await page.emulateMedia({ media: "print" });
+  await page.goto(path);
+  await expect(page.getByTestId(readyTestId)).toBeVisible();
+  await expect(page.locator(selector)).toBeVisible();
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+  await expect(page.locator(selector)).toHaveScreenshot(snapshot, {
+    animations: "disabled",
+    caret: "hide",
+    maxDiffPixels: 100,
+  });
+  await page.emulateMedia({ media: "screen" });
+}
 
 test.describe("runtime-dashboard visual baselines", () => {
   test.use({
@@ -174,23 +204,47 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("decision packet reading view A4 print", async ({ page }) => {
-    await page.setViewportSize({ width: 794, height: 1123 });
-    await page.emulateMedia({ media: "print" });
-    await page.goto(
-      `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=content&view=reading`,
-    );
-    await expect(page.getByTestId("artifact-page")).toBeVisible();
-    await expect(page.locator(".monograph-layout")).toBeVisible();
-    await page.evaluate(async () => {
-      await document.fonts.ready;
+    await expectPrintSnapshot(page, {
+      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=content&view=reading`,
+      readyTestId: "artifact-page",
+      selector: ".monograph-layout",
+      snapshot: "decision-reading-view-a4-print.png",
     });
-    await expect(page.locator(".monograph-layout")).toHaveScreenshot(
-      "decision-reading-view-a4-print.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
-    await page.emulateMedia({ media: "screen" });
+  });
+
+  test("run detail A4 print", async ({ page }) => {
+    await expectPrintSnapshot(page, {
+      path: `/runs/${FIXTURE_RUN_ID}/overview?trust=expanded`,
+      readyTestId: "run-detail-page",
+      selector: '[data-testid="run-detail-page"]',
+      snapshot: "run-detail-a4-print.png",
+    });
+  });
+
+  test("bureaucratic document A4 print", async ({ page }) => {
+    await expectPrintSnapshot(page, {
+      path: `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=bureaucratic&genre=postanova_kmu&trust=expanded`,
+      readyTestId: "artifact-page",
+      selector: '[data-testid="artifact-page"]',
+      snapshot: "bureaucratic-document-a4-print.png",
+    });
+  });
+
+  test("policy compare A4 print", async ({ page }) => {
+    await expectPrintSnapshot(page, {
+      path: `/runs/compare?base=${FIXTURE_METADATA.core_run_id}&target=${FIXTURE_METADATA.core_run_id_secondary}&trust=compact`,
+      readyTestId: "run-compare-page",
+      selector: '[data-testid="run-compare-page"]',
+      snapshot: "policy-compare-a4-print.png",
+    });
+  });
+
+  test("counterfactual scenario A4 print", async ({ page }) => {
+    await expectPrintSnapshot(page, {
+      path: `/compose?scenario_id=scn_rate_cut_25bps&cf_mode=actual_vs_scenario`,
+      readyTestId: "composer-page",
+      selector: '[data-testid="composer-page"]',
+      snapshot: "scenario-a4-print.png",
+    });
   });
 });

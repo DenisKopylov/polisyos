@@ -47,3 +47,43 @@ class TestSIRCompartmental:
         }
         result = method.pure_step(state, {"beta": 0.35, "gamma": 0.1, "n_steps": 30, "dt": 1.0})
         assert isinstance(result, dict)
+
+
+class TestCanonicalDynamicalSystems:
+    def test_registered(self, isolated_registry) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "simulation.dynamical_systems.canonical@1.0.0",
+        )
+
+        assert method is not None
+
+    def test_hopf_emits_limit_cycle_validation_trajectory(self, isolated_registry) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "simulation.dynamical_systems.canonical@1.0.0",
+        )
+
+        result = method.pure_step(
+            {"initial_state": np.asarray([0.5, 0.0])},
+            {"system": "hopf_normal_form", "mu": 0.2, "n_steps": 20, "dt": 0.05},
+        )["result"]
+
+        assert result["suggested_attractor_kind"] == "limit_cycle"
+        assert result["variable_ids"] == ["x", "y"]
+        assert len(result["trajectory"]) == 21
+
+    def test_logistic_map_emits_chaos_validation_trajectory(self, isolated_registry) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "simulation.dynamical_systems.canonical@1.0.0",
+        )
+
+        result = method.pure_step(
+            {"initial_state": np.asarray([0.12345])},
+            {"system": "logistic_map", "r": 4.0, "n_steps": 8},
+        )["result"]
+
+        assert result["model_family"] == "discrete_map"
+        assert result["suggested_attractor_kind"] == "chaotic"
+        assert len(result["trajectory"]) == 9

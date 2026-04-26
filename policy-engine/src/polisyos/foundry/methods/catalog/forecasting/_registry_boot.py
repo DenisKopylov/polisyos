@@ -9,10 +9,13 @@ from .advanced import (
     STLDecompositionEstimator,
     VECForecastEstimator,
 )
+from .hybrid import GuardedNeuralForecastEstimator
+from .regime_shift import RegimeShiftForecastEstimator
 from .univariate import (
     BottomUpReconciliationEstimator,
     ExponentialSmoothingEstimator,
     ForecastEnsembleEstimator,
+    GeneralLinearReconciliationEstimator,
     ThetaMethodEstimator,
 )
 
@@ -24,9 +27,12 @@ def register_forecasting_methods() -> Sequence[type]:
         ThetaMethodEstimator,
         ForecastEnsembleEstimator,
         BottomUpReconciliationEstimator,
+        GeneralLinearReconciliationEstimator,
         STLDecompositionEstimator,
         VECForecastEstimator,
         ProphetEstimator,
+        GuardedNeuralForecastEstimator,
+        RegimeShiftForecastEstimator,
     )
 
 

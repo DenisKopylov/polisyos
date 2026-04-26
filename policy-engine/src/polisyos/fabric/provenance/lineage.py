@@ -854,6 +854,49 @@ def export_visualization_graph(graph: ProvenanceCoreGraph) -> dict[str, Any]:
     return {
         "graph_id": graph.graph_id,
         "stable_id": graph.compute_stable_id(),
+        "verification": {
+            "status": graph.metadata.get("verification_status", "verified"),
+            "freshness": graph.metadata.get("freshness", "current"),
+        },
+        "compact_summary": _compact_visualization_summary(nodes),
         "nodes": nodes,
         "edges": edges,
     }
+
+
+def _compact_visualization_summary(nodes: list[dict[str, Any]]) -> list[dict[str, str]]:
+    """Return a source-to-result summary for lightweight runtime projections."""
+    sources = [
+        node
+        for node in nodes
+        if node.get("kind") in {LINEAGE_KIND_SOURCE_DATASET, LINEAGE_KIND_SOURCE_FIELD}
+    ][:2]
+    transforms = [
+        node
+        for node in nodes
+        if node.get("kind") in {LINEAGE_KIND_TRANSFORM_FIELD, LINEAGE_KIND_MATERIALIZED_COLUMN}
+    ][:1]
+    results = [
+        node
+        for node in nodes
+        if node.get("kind")
+        in {LINEAGE_KIND_CLAIM_FIELD, LINEAGE_KIND_WORLD_FACT, LINEAGE_KIND_QUERY_RESULT_FIELD}
+    ][-1:]
+    summary = [*sources, *transforms, *results] or nodes[:3]
+    return [
+        {
+            "kind": _compact_kind(str(node.get("kind") or "unknown")),
+            "label": str(node.get("label") or node.get("id") or "unknown"),
+        }
+        for node in summary[:4]
+    ]
+
+
+def _compact_kind(kind: str) -> str:
+    if kind in {LINEAGE_KIND_SOURCE_DATASET, LINEAGE_KIND_SOURCE_FIELD}:
+        return "source"
+    if kind in {LINEAGE_KIND_TRANSFORM_FIELD, LINEAGE_KIND_MATERIALIZED_COLUMN}:
+        return "transform"
+    if kind in {LINEAGE_KIND_CLAIM_FIELD, LINEAGE_KIND_WORLD_FACT, LINEAGE_KIND_QUERY_RESULT_FIELD}:
+        return "result"
+    return "unknown"

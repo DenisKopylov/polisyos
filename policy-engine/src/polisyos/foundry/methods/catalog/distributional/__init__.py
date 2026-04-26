@@ -24,6 +24,7 @@ from .mobility import (
     RefreshmentSampleMobilityEstimator,
     SequentialIPCWLifetimeMobilityEstimator,
 )
+from .mobility_latent_adapter import LatentMobilityReportAdapter
 from .polarization import (
     DuclosEstebanRayEstimator,
     EstebanRayEstimator,
@@ -53,6 +54,7 @@ __all__ = [
     "GeneralizedEntropyEstimator",
     "GeneralizedGiniEstimator",
     "IntergenerationalElasticityEstimator",
+    "LatentMobilityReportAdapter",
     "LorenzCurveEstimator",
     "MobilityMatrixEstimator",
     "MultidimensionalPovertyEstimator",

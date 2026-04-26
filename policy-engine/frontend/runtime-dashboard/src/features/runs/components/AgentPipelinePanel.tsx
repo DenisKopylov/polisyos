@@ -10,6 +10,7 @@ import {
   formatNumber,
 } from "@/lib/utils";
 import { Badge, EmptyState } from "@/shared/ui";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 type AgentPipelinePanelProps = {
   payload: unknown;
@@ -26,6 +27,29 @@ function stepStatusKind(status: string): "ok" | "warn" | "fail" | "neutral" {
     return "fail";
   }
   return "neutral";
+}
+
+function PipelineScoreQuantity({
+  point,
+  metricId,
+  label,
+}: {
+  point: number | null | undefined;
+  metricId: string;
+  label: string;
+}) {
+  return (
+    <Quantity
+      value={untracedDecisionQuantity({
+        point,
+        metricId,
+        label,
+        reasonCode: "agent_pipeline_without_lineage",
+      })}
+      precision={3}
+      variant="dense"
+    />
+  );
 }
 
 export default function AgentPipelinePanel({
@@ -66,7 +90,7 @@ export default function AgentPipelinePanel({
           completionTokens: 0,
           totalTokens: 0,
           latencyMs: 0,
-          costUsd: 0,
+          costUsd: /* policyos-quantity: telemetry */ 0,
         };
         existing.steps += 1;
         existing.promptTokens += step.promptTokens ?? 0;
@@ -331,9 +355,11 @@ export default function AgentPipelinePanel({
                 {t("panels.agentPipeline.totalScore")}
               </p>
               <p className="text-sm font-semibold">
-                {formatNumber(pipeline.evaluator.scores.totalScore, {
-                  maximumFractionDigits: 3,
-                })}
+                <PipelineScoreQuantity
+                  point={pipeline.evaluator.scores.totalScore}
+                  metricId="agent_pipeline_total_score"
+                  label={t("panels.agentPipeline.totalScore")}
+                />
               </p>
             </div>
             <div className="bg-canvas/30 border-line rounded-lg border p-2">
@@ -341,13 +367,17 @@ export default function AgentPipelinePanel({
                 {t("panels.agentPipeline.kpiConstraints")}
               </p>
               <p className="text-sm font-semibold">
-                {formatNumber(pipeline.evaluator.scores.kpiScore, {
-                  maximumFractionDigits: 3,
-                })}{" "}
+                <PipelineScoreQuantity
+                  point={pipeline.evaluator.scores.kpiScore}
+                  metricId="agent_pipeline_kpi_score"
+                  label={t("panels.agentPipeline.kpiConstraints")}
+                />{" "}
                 /{" "}
-                {formatNumber(pipeline.evaluator.scores.constraintsScore, {
-                  maximumFractionDigits: 3,
-                })}
+                <PipelineScoreQuantity
+                  point={pipeline.evaluator.scores.constraintsScore}
+                  metricId="agent_pipeline_constraints_score"
+                  label={t("panels.agentPipeline.kpiConstraints")}
+                />
               </p>
             </div>
             <div className="bg-canvas/30 border-line rounded-lg border p-2">
@@ -355,13 +385,17 @@ export default function AgentPipelinePanel({
                 {t("panels.agentPipeline.dataBudget")}
               </p>
               <p className="text-sm font-semibold">
-                {formatNumber(pipeline.evaluator.scores.dataQualityScore, {
-                  maximumFractionDigits: 3,
-                })}{" "}
+                <PipelineScoreQuantity
+                  point={pipeline.evaluator.scores.dataQualityScore}
+                  metricId="agent_pipeline_data_quality_score"
+                  label={t("panels.agentPipeline.dataBudget")}
+                />{" "}
                 /{" "}
-                {formatNumber(pipeline.evaluator.scores.budgetScore, {
-                  maximumFractionDigits: 3,
-                })}
+                <PipelineScoreQuantity
+                  point={pipeline.evaluator.scores.budgetScore}
+                  metricId="agent_pipeline_budget_score"
+                  label={t("panels.agentPipeline.dataBudget")}
+                />
               </p>
             </div>
           </div>

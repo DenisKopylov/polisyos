@@ -1,5 +1,6 @@
 import { useState, type ComponentProps } from "react";
 
+import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,10 @@ import { GradedErrorBar } from "./GradedErrorBar";
 import { HypotheticalOutcomePlot } from "./HypotheticalOutcomePlot";
 import { QuantileDotplot } from "./QuantileDotplot";
 import { UncertaintyBand } from "./UncertaintyBand";
+import {
+  shouldRenderUncertaintyMethodLabel,
+  uncertaintyMethodTrustLabel,
+} from "./uncertainty-rendering";
 
 type UncertaintyDisplayMode = "intuitive" | "statistical";
 type CIBand = { lower: number; upper: number; level: number };
@@ -46,6 +51,7 @@ function LegacyUncertaintyDisplay({
   className,
 }: LegacyUncertaintyDisplayProps) {
   const { t } = useI18n();
+  const trustView = useMaybeTrustView();
   const [mode, setMode] = useState<UncertaintyDisplayMode>(defaultMode);
   const directionLabel =
     effectDirection === "positive"
@@ -68,7 +74,10 @@ function LegacyUncertaintyDisplay({
 
   return (
     <div
-      className={cn("border-border bg-card rounded-xl border p-5", className)}
+      className={cn(
+        "border-border bg-card group rounded-xl border p-5",
+        className,
+      )}
     >
       <div className="mb-4 flex items-center justify-between">
         <h4 className="text-foreground text-sm font-semibold">
@@ -124,6 +133,23 @@ function LegacyUncertaintyDisplay({
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {frequencyFraming ?? defaultFraming}
               </p>
+              {methodology &&
+              shouldRenderUncertaintyMethodLabel({
+                focused: true,
+                mode: trustView?.mode ?? "off",
+              }) ? (
+                <p
+                  className={cn(
+                    "text-muted-foreground text-xs",
+                    trustView?.mode === "compact" &&
+                      "opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100",
+                  )}
+                >
+                  {t("shared.uncertainty.method", {
+                    methodology: uncertaintyMethodTrustLabel(methodology),
+                  })}
+                </p>
+              ) : null}
             </div>
           </div>
           <FrequencyDots

@@ -16,3 +16,4 @@ Current schema set:
 - `complexity_exceptions.schema.json`
 - `import_contracts.schema.json`
 - `public_surface.schema.json`
+- `conservative_overlay.schema.json`

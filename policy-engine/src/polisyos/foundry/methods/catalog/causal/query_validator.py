@@ -21,6 +21,7 @@ from polisyos.ir.analytics.query_validation_report import (
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal import ProofBundle
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.dynamic_causal_semantics import ForecastInterventionQuery
     from polisyos.ir.analytics.estimand import EstimandAST
     from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase
     from polisyos.ir.analytics.recourse_manifold import (
@@ -194,6 +195,171 @@ class CausalQueryValidator:
             errors=tuple(errors),
             warnings=tuple(warnings),
             query_str=f"recourse:{query.target_outcome}",
+            checked_at=datetime.now(tz=UTC).isoformat(),
+        )
+
+    def validate_forecast_intervention_query(
+        self,
+        graph: CausalGraphModel,
+        query: ForecastInterventionQuery,
+        knowledge_base: DataKnowledgeBase | None = None,
+        proof_bundle: ProofBundle | None = None,
+    ) -> QueryValidationReport:
+        """Validate the forecast-as-treatment query surface before proof-kernel use."""
+
+        from polisyos.ir.analytics.dynamic_causal_semantics import (
+            ForecastSemanticsClass,
+            ForecastUpdateOperatorKind,
+        )
+
+        errors: list[ValidationError] = []
+        warnings: list[ValidationWarning] = []
+        graph_nodes = set(graph.nodes)
+
+        self._check_graph_acyclicity(graph, errors, warnings)
+
+        if query.message_var not in graph_nodes:
+            errors.append(
+                ValidationError(
+                    code="FORECAST_MESSAGE_NODE_MISSING",
+                    message="Forecast message_var must be present in the graph.",
+                    context={"message_var": query.message_var, "graph_nodes": sorted(graph_nodes)},
+                )
+            )
+        if query.expectation_target not in graph_nodes:
+            errors.append(
+                ValidationError(
+                    code="FORECAST_EXPECTATION_NODE_MISSING",
+                    message="Forecast expectation_target must be present in the graph.",
+                    context={"expectation_target": query.expectation_target},
+                )
+            )
+        if query.outcome_target not in graph_nodes:
+            errors.append(
+                ValidationError(
+                    code="FORECAST_OUTCOME_NODE_MISSING",
+                    message="Forecast outcome_target must be present in the graph.",
+                    context={"outcome_target": query.outcome_target},
+                )
+            )
+        if (
+            query.message_var in graph_nodes
+            and query.expectation_target in graph_nodes
+            and not _has_directed_edge(graph, query.message_var, query.expectation_target)
+        ):
+            errors.append(
+                ValidationError(
+                    code="FORECAST_EXPECTATION_EDGE_MISSING",
+                    message=(
+                        "Forecast-as-treatment requires the public message to be an allowed "
+                        "cause of the post-announcement expectation process."
+                    ),
+                    context={
+                        "message_var": query.message_var,
+                        "expectation_target": query.expectation_target,
+                    },
+                )
+            )
+        if query.pre_announcement_window is None or query.post_announcement_window is None:
+            errors.append(
+                ValidationError(
+                    code="FORECAST_WINDOW_MISSING",
+                    message=(
+                        "Forecast intervention queries require explicit pre- and "
+                        "post-announcement windows."
+                    ),
+                    context={
+                        "has_pre_window": query.pre_announcement_window is not None,
+                        "has_post_window": query.post_announcement_window is not None,
+                    },
+                )
+            )
+        if (
+            query.update_operator_kind is ForecastUpdateOperatorKind.UNKNOWN
+            and query.decomposition_method is None
+        ):
+            errors.append(
+                ValidationError(
+                    code="FORECAST_UPDATE_OR_DECOMPOSITION_MISSING",
+                    message=(
+                        "Forecast intervention queries must declare either a belief update "
+                        "operator or a recognized decomposition design."
+                    ),
+                    context={"update_operator_kind": query.update_operator_kind.value},
+                )
+            )
+        if (
+            query.hard_actions_same_window
+            and query.semantics_class is not ForecastSemanticsClass.HYBRID
+        ):
+            errors.append(
+                ValidationError(
+                    code="FORECAST_HARD_ACTION_REQUIRES_HYBRID",
+                    message=(
+                        "A simultaneous hard policy action in the announcement window requires "
+                        "semantics_class='hybrid'."
+                    ),
+                    context={"hard_actions_same_window": list(query.hard_actions_same_window)},
+                )
+            )
+        if query.positivity_claimed is False:
+            errors.append(
+                ValidationError(
+                    code="FORECAST_POSITIVITY_FAILED",
+                    message="Forecast contrast support/positivity is explicitly marked failed.",
+                    context={"message_var": query.message_var},
+                )
+            )
+        elif query.positivity_claimed is None:
+            warnings.append(
+                ValidationWarning(
+                    code="FORECAST_SUPPORT_UNVERIFIED",
+                    message=(
+                        "Forecast contrast support was not declared; certification should remain "
+                        "oracle/frontier unless a support witness is attached."
+                    ),
+                    context={"message_var": query.message_var},
+                )
+            )
+        if (
+            (query.continuous_time or query.event_history_required)
+            and query.censoring_assessed is not True
+        ):
+            warnings.append(
+                ValidationWarning(
+                    code="FORECAST_CENSORING_UNVERIFIED",
+                    message=(
+                        "Continuous-time/event-history forecast queries should carry censoring "
+                        "validity checks before claiming theorem-backed identification."
+                    ),
+                    context={"continuous_time": query.continuous_time},
+                )
+            )
+        if knowledge_base is not None and query.required_observables:
+            available = {
+                variable
+                for dataset in knowledge_base.datasets
+                for variable in getattr(dataset, "variables", ())
+            }
+            missing = sorted(set(query.required_observables) - available)
+            if missing:
+                errors.append(
+                    ValidationError(
+                        code="FORECAST_OBSERVABLES_MISSING",
+                        message=(
+                            "Required forecast-intervention observables are absent from the "
+                            "knowledge base."
+                        ),
+                        context={"missing_observables": missing},
+                    )
+                )
+        _check_forecast_proof_bundle(query, proof_bundle, errors, warnings)
+
+        return QueryValidationReport(
+            is_valid=len(errors) == 0,
+            errors=tuple(errors),
+            warnings=tuple(warnings),
+            query_str=query.query_str,
             checked_at=datetime.now(tz=UTC).isoformat(),
         )
 
@@ -691,6 +857,103 @@ def _treatment_covered_in_kb(treatment: str, knowledge_base: DataKnowledgeBase) 
         if entry.domain is DistributionDomain.SOURCE and treatment in entry.variables:
             return True
     return False
+
+
+def _has_directed_edge(graph: CausalGraphModel, src: str, dst: str) -> bool:
+    from polisyos.ir.analytics.causal_graph import EdgeMark
+
+    return any(
+        edge.src == src
+        and edge.dst == dst
+        and edge.mark_src is EdgeMark.TAIL
+        and edge.mark_dst is EdgeMark.ARROW
+        for edge in graph.edges
+    )
+
+
+def _check_forecast_proof_bundle(
+    query: ForecastInterventionQuery,
+    proof_bundle: ProofBundle | None,
+    errors: list[ValidationError],
+    warnings: list[ValidationWarning],
+) -> None:
+    if proof_bundle is None:
+        warnings.append(
+            ValidationWarning(
+                code="FORECAST_PROOF_BUNDLE_MISSING",
+                message=(
+                    "Forecast intervention validation ran without a ProofBundle; only query "
+                    "shape was checked."
+                ),
+                context={},
+            )
+        )
+        return
+    dynamic_semantics = proof_bundle.dynamic_semantics
+    if dynamic_semantics is None or dynamic_semantics.forecast_intervention is None:
+        warnings.append(
+            ValidationWarning(
+                code="FORECAST_DYNAMIC_SEMANTICS_MISSING",
+                message=(
+                    "The provided ProofBundle does not carry a forecast_intervention dynamic "
+                    "attachment."
+                ),
+                context={"proof_status": proof_bundle.proof_status},
+            )
+        )
+        return
+    attachment = dynamic_semantics.forecast_intervention
+    if attachment.announcement_node != query.message_var:
+        errors.append(
+            ValidationError(
+                code="FORECAST_PROOF_MESSAGE_MISMATCH",
+                message="Forecast proof attachment announcement_node does not match the query.",
+                context={
+                    "query_message_var": query.message_var,
+                    "proof_announcement_node": attachment.announcement_node,
+                },
+            )
+        )
+    if attachment.intervention_time != query.announcement_time:
+        errors.append(
+            ValidationError(
+                code="FORECAST_PROOF_TIME_MISMATCH",
+                message="Forecast proof attachment intervention_time does not match the query.",
+                context={
+                    "query_announcement_time": query.announcement_time,
+                    "proof_intervention_time": attachment.intervention_time,
+                },
+            )
+        )
+    if attachment.semantics_class is not query.semantics_class:
+        errors.append(
+            ValidationError(
+                code="FORECAST_PROOF_SEMANTICS_MISMATCH",
+                message="Forecast proof attachment semantics_class does not match the query.",
+                context={
+                    "query_semantics_class": query.semantics_class.value,
+                    "proof_semantics_class": attachment.semantics_class.value,
+                },
+            )
+        )
+    if attachment.proof_status == "oracle_needed":
+        warnings.append(
+            ValidationWarning(
+                code="FORECAST_PROOF_ORACLE_NEEDED",
+                message=(
+                    "Forecast proof attachment is still at the oracle/frontier boundary."
+                ),
+                context={"implementation_coverage": proof_bundle.implementation_coverage},
+            )
+        )
+    elif attachment.proof_status == "non_identified":
+        errors.append(
+            ValidationError(
+                code="FORECAST_PROOF_NON_IDENTIFIED",
+                message="Forecast proof attachment marks the intervention as non-identified.",
+                context={"blocking_reasons": list(attachment.blocking_reasons)},
+            )
+        )
 
 
 def _collect_operator_targets(node) -> list:

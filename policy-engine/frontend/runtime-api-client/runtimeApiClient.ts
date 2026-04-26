@@ -171,6 +171,170 @@ export type ArtifactSchemaView = {
   top_level_keys?: Array<string>;
 };
 
+export type AttractorAnalysisProvenance = {
+  derived_from?: Array<string>;
+  notes?: Array<string>;
+  toolchain?: Array<string>;
+};
+
+export type AttractorAnalysisRequest = {
+  analysis_modes?: Array<"attractors" | "continuation" | "basin_map" | "lyapunov">;
+  exec_plan_ref?: ExecPlanRef | null;
+  feedback_jacobian_diagnostics_ref?: FeedbackJacobianDiagnosticsRef | null;
+  feedback_result_ref?: FeedbackResultRef | null;
+  initial_states?: Array<{
+  [key: string]: number;
+}>;
+  largest_lyapunov_exponent?: number | null;
+  max_period?: number;
+  model_ref?: ArtifactRef | null;
+  notes?: Array<string>;
+  parameter_point?: AttractorParameterPoint;
+  persist_artifact?: boolean;
+  rtol?: number;
+  schema_version?: string;
+  seeds?: Array<number>;
+  simulation_result_ref?: SimulationResultRef | null;
+  state_projection?: AttractorStateProjection | null;
+  stochastic_model?: boolean;
+  tolerance?: number;
+  trajectories?: Array<Array<Array<number>>>;
+  trajectory?: Array<Array<number>> | null;
+  variable_ids?: Array<string>;
+  window?: number;
+};
+
+export type AttractorAnalysisResponse = {
+  analysis_result?: AttractorAnalysisResult | null;
+  analysis_result_ref?: AttractorAnalysisResultRef | null;
+  derived_refs?: Array<DerivedArtifact>;
+  notes?: Array<string>;
+  ok: boolean;
+  schema_version?: string;
+};
+
+export type AttractorAnalysisResult = {
+  analysis_id: string;
+  attractors?: Array<AttractorSummary>;
+  bifurcations?: Array<BifurcationEvent>;
+  exec_plan_ref?: ExecPlanRef | null;
+  feedback_result_ref?: FeedbackResultRef | null;
+  kind?: string;
+  model_ref?: ArtifactRef | null;
+  notes?: Array<string>;
+  parameter_point?: AttractorParameterPoint;
+  provenance?: AttractorAnalysisProvenance;
+  schema_version?: string;
+  simulation_result_ref?: SimulationResultRef | null;
+  state_projection: AttractorStateProjection;
+  uncertainty_summary?: AttractorUncertaintySummary;
+};
+
+export type AttractorAnalysisResultRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type AttractorBasinEstimate = {
+  basin_map_ref?: BasinMapRef | null;
+  basin_measure_estimate?: number | null;
+  boundary_complexity?: string | null;
+  confidence_interval?: Array<unknown> | null;
+  estimation_method?: string | null;
+  notes?: Array<string>;
+};
+
+export type AttractorCertificate = {
+  V_description?: string | null;
+  evidence_strength?: number | null;
+  notes?: Array<string>;
+  proof_artifact_ref?: ArtifactRef | null;
+  status?: "not_attempted" | "not_applicable" | "numerically_supported" | "proved_local" | "proved_global" | "failed";
+  type?: string;
+};
+
+export type AttractorObservableSummary = {
+  max_amplitude?: number | null;
+  period?: number | null;
+  summary?: {
+  [key: string]: unknown;
+};
+  terminal_residual_norm?: number | null;
+};
+
+export type AttractorParameterPoint = {
+  names?: Array<string>;
+  values?: Array<number>;
+};
+
+export type AttractorSpectralValue = {
+  imag?: number;
+  real: number;
+};
+
+export type AttractorStability = {
+  diagnostics?: {
+  [key: string]: unknown;
+};
+  floquet_multipliers?: Array<AttractorSpectralValue> | null;
+  jacobian_eigenvalues?: Array<AttractorSpectralValue>;
+  largest_lyapunov_exponent?: number | null;
+  local_class?: "asymptotically_stable" | "orbitally_stable" | "neutral" | "unstable" | "mixed" | "unknown";
+  lyapunov_spectrum?: Array<number> | null;
+  notes?: Array<string>;
+  spectral_radius?: number | null;
+};
+
+export type AttractorStateProjection = {
+  quotient_notes?: Array<string>;
+  reduced_dimension: number;
+  variables?: Array<string>;
+};
+
+export type AttractorStateRepresentation = {
+  equilibrium?: {
+  [key: string]: number;
+} | null;
+  invariant_set_artifact_ref?: ArtifactRef | null;
+  orbit_artifact_ref?: ArtifactRef | null;
+  orbit_points?: Array<{
+  [key: string]: number;
+}>;
+  section_definition?: string | null;
+  summary?: {
+  [key: string]: unknown;
+};
+};
+
+export type AttractorSummary = {
+  attractor_id: string;
+  basin?: AttractorBasinEstimate;
+  certificate?: AttractorCertificate;
+  existence_status?: "candidate" | "numerically_confirmed" | "analytically_confirmed" | "rejected" | "unknown";
+  kind: "fixed_point" | "limit_cycle" | "chaotic" | "torus" | "invariant_set" | "divergent";
+  notes?: Array<string>;
+  observables?: AttractorObservableSummary;
+  stability?: AttractorStability;
+  state_representation?: AttractorStateRepresentation;
+  uncertainty?: AttractorUncertainty;
+};
+
+export type AttractorUncertainty = {
+  continuation_step?: number | null;
+  finite_time_horizon?: number | null;
+  notes?: Array<string>;
+  numerical_tolerance?: number | null;
+  seeds_used?: number | null;
+};
+
+export type AttractorUncertaintySummary = {
+  notes?: Array<string>;
+  seed_ensemble_size?: number | null;
+  stochastic_model?: boolean;
+  unresolved_items?: Array<string>;
+};
+
 export type AuthMeResponse = {
   cell_id?: string | null;
   display_name: string;
@@ -184,6 +348,74 @@ export type AuthMeResponse = {
   roles?: Array<string>;
   tenant_id: string;
   user_id: string;
+};
+
+export type BasinEstimate = {
+  ci_95?: EquilibriumBasinInterval | null;
+  draws: number;
+  equilibrium_id: string;
+  hits: number;
+  notes?: Array<string>;
+  share_hat?: number | null;
+};
+
+export type BasinMap = {
+  analysis_id?: string | null;
+  basin_id: string;
+  basin_measure_estimates?: {
+  [key: string]: number;
+};
+  kind?: string;
+  notes?: Array<string>;
+  samples?: Array<BasinMapSample>;
+  sampling_method: string;
+  schema_version?: string;
+  state_projection: AttractorStateProjection;
+};
+
+export type BasinMapRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type BasinMapSample = {
+  attractor_id?: string | null;
+  confidence?: number | null;
+  initial_state: {
+  [key: string]: number;
+};
+  notes?: Array<string>;
+  sample_id: string;
+  seed?: number | null;
+  terminal_residual_norm?: number | null;
+};
+
+export type BifurcationCandidate = {
+  confidence?: "low" | "medium" | "high";
+  diagnostics?: {
+  [key: string]: unknown;
+};
+  equilibrium_id: string;
+  kind: "fold" | "flip" | "loss_of_stability";
+  lambda?: number | null;
+  notes?: Array<string>;
+};
+
+export type BifurcationEvent = {
+  bifurcation_id: string;
+  branch_from?: string | null;
+  branch_to?: string | null;
+  confidence?: number | null;
+  detection_method: string;
+  kind: "saddle_node" | "hopf" | "period_doubling" | "neimark_sacker" | "torus" | "branch_point" | "homoclinic" | "regime_change" | "unknown";
+  normal_form?: {
+  [key: string]: unknown;
+};
+  notes?: Array<string>;
+  parameter_values?: {
+  [key: string]: number;
+};
 };
 
 export type BindingProfileInfo = {
@@ -200,6 +432,97 @@ export type BindingProfileInfo = {
 export type BindingProfilesListResponse = {
   meta: ApiMeta;
   profiles?: Array<BindingProfileInfo>;
+};
+
+export type BureaucraticAuthorship = {
+  agent_version?: string | null;
+  author?: string;
+  author_role?: string;
+  reviewed_by_human?: boolean;
+  timestamp?: string | null;
+};
+
+export type BureaucraticBlock = {
+  authorship?: BureaucraticAuthorship;
+  children?: Array<BureaucraticBlock>;
+  epistemic_origin: "evidence_filled" | "model_generated" | "operator_filled" | "imported";
+  id: string;
+  items?: Array<string>;
+  kind: "header" | "requisites" | "preamble" | "legal_basis" | "section" | "article" | "clause" | "subclause" | "paragraph" | "list" | "table" | "quantity" | "annex" | "signature" | "appendix";
+  level?: number;
+  metadata?: {
+  [key: string]: unknown;
+};
+  number?: string | null;
+  provenance?: Array<LineageCompactSummaryItem>;
+  quantity?: QuantityValueOutput | null;
+  raw_source_refs?: Array<string>;
+  text?: string | null;
+  title?: string | null;
+};
+
+export type BureaucraticDocument = {
+  annexes?: Array<BureaucraticBlock>;
+  blocks?: Array<BureaucraticBlock>;
+  epistemic_summary?: BureaucraticEpistemicSummary;
+  genre: "postanova_kmu" | "zakonoproekt" | "expert_vysnovok" | "analitichna_zapyska";
+  id: string;
+  jurisdiction?: string;
+  language?: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  packet_hash: string;
+  packet_id: string;
+  render_timestamp?: string;
+  status?: "draft" | "signed_external" | "archived";
+  template: BureaucraticTemplateRef;
+  temporal_scope?: TemporalScope | null;
+  title: string;
+  trust_view?: boolean;
+  watermark: string;
+};
+
+export type BureaucraticEpistemicSummary = {
+  evidence_filled?: number;
+  imported?: number;
+  model_generated?: number;
+  operator_filled?: number;
+};
+
+export type BureaucraticExportResponse = {
+  content: string;
+  content_type: string;
+  document_id: string;
+  filename: string;
+  format: "html" | "pdf" | "docx";
+  meta: ApiMeta;
+  metadata?: {
+  [key: string]: unknown;
+};
+  packet_id: string;
+};
+
+export type BureaucraticRenderRequest = {
+  genre: "postanova_kmu" | "zakonoproekt" | "expert_vysnovok" | "analitichna_zapyska";
+  jurisdiction?: string;
+  template_version?: string | null;
+  temporal_scope?: TemporalScope | null;
+  trust_view?: boolean;
+};
+
+export type BureaucraticRenderResponse = {
+  document: BureaucraticDocument;
+  meta: ApiMeta;
+};
+
+export type BureaucraticTemplateRef = {
+  genre: "postanova_kmu" | "zakonoproekt" | "expert_vysnovok" | "analitichna_zapyska";
+  id: string;
+  jurisdiction?: string;
+  legal_review_status?: "pending_external_review" | "approved" | "rejected";
+  locale?: string;
+  version: string;
 };
 
 export type CacheEntryInfo = {
@@ -336,6 +659,28 @@ export type CausalFrontierSAEResponse = {
 };
 };
 
+export type ComparabilityReport = {
+  blocked_reasons?: Array<string>;
+  status: "compatible" | "warning" | "blocked";
+  warnings?: Array<string>;
+};
+
+export type CompareCandidate = {
+  comparability: ComparabilityReport;
+  finished_at?: string | null;
+  label?: string | null;
+  relation?: "baseline" | "previous" | "selected" | "recommended";
+  run_id: string;
+  started_at?: string | null;
+  status?: string | null;
+};
+
+export type CompareCandidatesResponse = {
+  candidates?: Array<CompareCandidate>;
+  meta: ApiMeta;
+  run_id: string;
+};
+
 export type CompareDeltaSection = {
   changed?: boolean;
   details?: {
@@ -347,6 +692,28 @@ export type CompareDeltaSection = {
   summary?: {
   [key: string]: unknown;
 };
+};
+
+export type CompareRunResponse = {
+  comparability: ComparabilityReport;
+  comparison_frame: ComparisonFrame;
+  deltas?: Array<DeltaQuantity>;
+  meta: ApiMeta;
+  status?: "computed" | "client_computable";
+  temporal_scope?: TemporalScope | null;
+};
+
+export type ComparisonFrame = {
+  assumption_set?: Array<string>;
+  metric_set?: Array<string>;
+  population?: string | null;
+  run_a: string;
+  run_b: string;
+  scenario_scope?: {
+  [key: string]: unknown;
+};
+  temporal_scope?: TemporalScope | null;
+  unit_policy?: "canonical" | "source" | "mixed";
 };
 
 export type ConnectorInfo = {
@@ -362,6 +729,66 @@ export type ConnectorInfo = {
 export type ConnectorsListResponse = {
   connectors?: Array<ConnectorInfo>;
   meta: ApiMeta;
+};
+
+export type ContinuationBranchInput = {
+  analysis_id?: string | null;
+  bifurcations?: Array<BifurcationEvent>;
+  branch_id: string;
+  branch_kind: "equilibrium" | "periodic_orbit" | "bifurcation_curve" | "parameter_sweep";
+  kind?: string;
+  notes?: Array<string>;
+  parameters?: Array<string>;
+  points?: Array<ContinuationBranchPointInput>;
+  schema_version?: string;
+  toolchain?: Array<string>;
+};
+
+export type ContinuationBranchOutput = {
+  analysis_id?: string | null;
+  bifurcations?: Array<BifurcationEvent>;
+  branch_id: string;
+  branch_kind: "equilibrium" | "periodic_orbit" | "bifurcation_curve" | "parameter_sweep";
+  kind?: string;
+  notes?: Array<string>;
+  parameters?: Array<string>;
+  points?: Array<ContinuationBranchPointOutput>;
+  schema_version?: string;
+  toolchain?: Array<string>;
+};
+
+export type ContinuationBranchPointInput = {
+  bifurcation_id?: string | null;
+  notes?: Array<string>;
+  parameter_values?: {
+  [key: string]: number;
+};
+  period?: number | null;
+  point_id: string;
+  stability?: AttractorStability;
+  state?: {
+  [key: string]: number;
+};
+};
+
+export type ContinuationBranchPointOutput = {
+  bifurcation_id?: string | null;
+  notes?: Array<string>;
+  parameter_values?: {
+  [key: string]: number;
+};
+  period?: number | null;
+  point_id: string;
+  stability?: AttractorStability;
+  state?: {
+  [key: string]: number;
+};
+};
+
+export type ContinuationBranchRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
 };
 
 export type ControlJobResponse = {
@@ -424,6 +851,26 @@ export type ControlWorkersResponse = {
   active_only?: boolean;
   meta: ApiMeta;
   workers?: Array<ControlWorkerLeaseInfo>;
+};
+
+export type CounterfactualMetric = {
+  actual: QuantityValueOutput;
+  assumption_ids: Array<string>;
+  counterfactual: QuantityValueOutput;
+  delta: QuantityValueOutput;
+  label: string;
+  metric_id: string;
+  scenario_ref: ScenarioRef;
+};
+
+export type CounterfactualMetricsResponse = {
+  meta: ApiMeta;
+  metrics?: {
+  [key: string]: CounterfactualMetric;
+};
+  run_id: string;
+  scenario: ScenarioManifest;
+  temporal_scope?: TemporalScope | null;
 };
 
 export type CursorPage = {
@@ -766,6 +1213,34 @@ export type DecisionValidityTransition = {
   triggered_by_event_id?: string | null;
 };
 
+export type DeltaDistribution = {
+  ci_overlap?: boolean | null;
+  mean_shift?: number | null;
+  median_shift?: number | null;
+  quantiles?: {
+  [key: string]: number;
+};
+};
+
+export type DeltaQuantity = {
+  a?: QuantityValueOutput | null;
+  b?: QuantityValueOutput | null;
+  decision_salience?: number;
+  delta_absolute?: QuantityValueOutput | null;
+  delta_distribution?: DeltaDistribution;
+  delta_relative?: QuantityValueOutput | null;
+  dominance?: "a" | "b" | "none" | "mixed" | "unknown";
+  label: string;
+  lineage_delta?: LineageDelta;
+  metric_id: string;
+  significance?: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
+};
+
+export type DerivedArtifact = {
+  ref: ArtifactRef;
+  role: string;
+};
+
 export type DiscoveryCandidate = {
   candidate_id: string;
   confidence?: number;
@@ -787,6 +1262,101 @@ export type DiscoveryCandidate = {
   source_lane?: "fastlane" | "explorelane" | "catalog";
 };
 
+export type EquilibriumBasinInterval = {
+  lower: number;
+  upper: number;
+};
+
+export type EquilibriumBranch = {
+  branch_id: string;
+  notes?: Array<string>;
+  points?: Array<EquilibriumBranchPoint>;
+};
+
+export type EquilibriumBranchPoint = {
+  equilibrium_id: string;
+  lambda: number;
+};
+
+export type EquilibriumCandidate = {
+  basin_ci_95?: EquilibriumBasinInterval | null;
+  basin_share_hat?: number | null;
+  branch_id?: string | null;
+  diagnostics?: {
+  [key: string]: unknown;
+};
+  discovered_from_starts?: number;
+  equilibrium_id: string;
+  jacobian?: EquilibriumCandidateJacobian | null;
+  local_stability?: "attractive" | "unstable" | "neutral_or_near_bifurcation" | "unknown";
+  notes?: Array<string>;
+  residual_norm?: number | null;
+  state: FeedbackStateSnapshot;
+  step_norm?: number | null;
+};
+
+export type EquilibriumCandidateJacobian = {
+  condition_number?: number | null;
+  near_bifurcation?: boolean;
+  near_flip?: boolean;
+  near_fold?: boolean;
+  near_loss_of_stability?: boolean;
+  operator_norm_inf?: number | null;
+  smallest_singular_value_i_minus_j?: number | null;
+  spectral_radius?: number | null;
+};
+
+export type EquilibriumMultiplicityDiagnostics = {
+  branch_switch_events?: number;
+  continuation_failures?: number;
+  divergence_failures?: number;
+  false_merge_risk?: number | null;
+  max_pairwise_cluster_overlap?: number | null;
+  notes?: Array<string>;
+  num_attempts: number;
+  num_converged: number;
+  num_equilibria: number;
+  num_unresolved?: number;
+  stagnation_failures?: number;
+  two_cycle_failures?: number;
+  unresolved_starts_share?: number | null;
+};
+
+export type EquilibriumMultiplicityProvenance = {
+  git_sha?: string;
+  random_seed?: number | null;
+  runtime_refs?: Array<string>;
+  solver_version?: string;
+};
+
+export type EquilibriumMultiplicityReport = {
+  basin_estimates?: Array<BasinEstimate>;
+  bifurcation_candidates?: Array<BifurcationCandidate>;
+  branches?: Array<EquilibriumBranch>;
+  equilibria?: Array<EquilibriumCandidate>;
+  global_diagnostics: EquilibriumMultiplicityDiagnostics;
+  model_id: string;
+  notes?: Array<string>;
+  parameter_hash?: string | null;
+  provenance?: EquilibriumMultiplicityProvenance;
+  schema_version?: string;
+  search_protocol: EquilibriumSearchProtocol;
+  unresolved_starts?: Array<UnresolvedEquilibriumStart>;
+};
+
+export type EquilibriumSearchProtocol = {
+  basin_draws?: number;
+  continuation_grid?: Array<number>;
+  continuation_parameter?: string | null;
+  merge_tol?: number | null;
+  mode?: "baseline" | "research" | "continuation";
+  n_attempts: number;
+  residual_tol?: number | null;
+  start_domain?: {
+  [key: string]: unknown;
+};
+};
+
 export type EvaluatorReportView = {
   diagnostics?: Array<PreflightDiagnosticView>;
   notes?: Array<string>;
@@ -806,6 +1376,12 @@ export type EvaluatorScoresView = {
   uncertainty_score?: number;
 };
 
+export type ExecPlanRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
 export type FeedbackActionResponse = {
   action: "evaluate_feedback" | "reissue";
   compare_report_ref?: ArtifactRef | null;
@@ -816,6 +1392,28 @@ export type FeedbackActionResponse = {
   reissued_run_id?: string | null;
   run_id: string;
   status?: "completed" | "accepted";
+};
+
+export type FeedbackJacobianDiagnosticsRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type FeedbackResultRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type FeedbackStateSnapshot = {
+  lower_bounds: Array<number | null>;
+  notes?: Array<string>;
+  scales: Array<number>;
+  upper_bounds: Array<number | null>;
+  values: Array<number>;
+  variable_ids: Array<string>;
+  weights: Array<number>;
 };
 
 export type FetchPlan = {
@@ -1059,6 +1657,114 @@ export type LexTriggerResponse = {
   meta: ApiMeta;
   pipeline_id: string;
   status: "accepted" | "rejected";
+};
+
+export type LineageBatchRequest = {
+  lineage_ids?: Array<string>;
+};
+
+export type LineageBatchResponse = {
+  lineages?: Array<LineageGraphView>;
+  meta: ApiMeta;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type LineageCompactSummaryItem = {
+  id?: string | null;
+  kind?: "source" | "transform" | "model" | "agent" | "result" | "artifact" | "dataset" | "method" | "unknown";
+  label: string;
+};
+
+export type LineageDelta = {
+  freshness_changed?: boolean;
+  hash_changed?: boolean;
+  model_changed?: boolean;
+  notes?: Array<string>;
+  source_changed?: boolean;
+  verification_changed?: string | null;
+};
+
+export type LineageExportLinks = {
+  openlineage: string;
+  prov: string;
+};
+
+export type LineageExportResponse = {
+  format: "openlineage" | "prov";
+  lineage_id: string;
+  meta: ApiMeta;
+  payload: {
+  [key: string]: unknown;
+};
+  temporal_scope?: TemporalScope | null;
+};
+
+export type LineageGraphEdge = {
+  metadata?: {
+  [key: string]: unknown;
+};
+  relation: string;
+  source_id: string;
+  target_id: string;
+};
+
+export type LineageGraphNode = {
+  id: string;
+  kind?: string;
+  label: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  timestamp?: string | null;
+};
+
+export type LineageGraphView = {
+  compact_summary?: Array<LineageCompactSummaryItem>;
+  edges?: Array<LineageGraphEdge>;
+  exports: LineageExportLinks;
+  freshness?: "current" | "stale" | "unknown";
+  hash?: string | null;
+  id: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  nodes?: Array<LineageGraphNode>;
+  status?: "verified" | "pending" | "disputed" | "untraced";
+  trust_metadata?: VerificationMetadata | null;
+};
+
+export type LineageRefInput = {
+  compact_summary?: Array<LineageCompactSummaryItem>;
+  freshness?: "current" | "stale" | "unknown";
+  hash?: string | null;
+  id: string;
+  reason_code?: string | null;
+  status?: "verified" | "pending" | "disputed" | "untraced";
+  summary?: {
+  [key: string]: string;
+};
+  tracking_issue?: string | null;
+  trust_metadata?: VerificationMetadata | null;
+};
+
+export type LineageRefOutput = {
+  compact_summary?: Array<LineageCompactSummaryItem>;
+  freshness?: "current" | "stale" | "unknown";
+  hash?: string | null;
+  id: string;
+  reason_code?: string | null;
+  status?: "verified" | "pending" | "disputed" | "untraced";
+  summary?: {
+  [key: string]: string;
+};
+  tracking_issue?: string | null;
+  trust_metadata?: VerificationMetadata | null;
+};
+
+export type LineageResponse = {
+  lineage: LineageGraphView;
+  meta: ApiMeta;
+  temporal_scope?: TemporalScope | null;
 };
 
 export type MetricCandidate = {
@@ -1327,6 +2033,59 @@ export type PromotionDecisionResponse = {
   status: "approved" | "rejected";
 };
 
+export type QuantityCoverageEntry = {
+  lineage_id?: string | null;
+  metric_id?: string | null;
+  path: string;
+  quantity_class: "decision" | "telemetry" | "layout" | "debug";
+  reason_code?: string | null;
+  status: "verified" | "pending" | "disputed" | "untraced";
+  tracking_issue?: string | null;
+};
+
+export type QuantityCoverageSummary = {
+  debug?: number;
+  decision?: number;
+  layout?: number;
+  telemetry?: number;
+  total?: number;
+  traced?: number;
+  untraced?: number;
+};
+
+export type QuantityUncertainty = {
+  ci_80?: Array<unknown> | null;
+  ci_95?: Array<unknown> | null;
+  disputed?: boolean;
+  identifiability?: "identified" | "estimated" | "assumed" | "unknown";
+  method?: "bootstrap" | "bayesian" | "analytic" | "simulation" | "none" | string | null;
+  quantiles?: {
+  [key: string]: number;
+};
+};
+
+export type QuantityValueInput = {
+  label?: string | null;
+  lineage: LineageRefInput;
+  metric_id?: string | null;
+  point?: number | null;
+  quantity_class?: "decision" | "telemetry" | "layout" | "debug";
+  time?: TemporalRef | null;
+  uncertainty?: QuantityUncertainty | null;
+  unit: UnitRef;
+};
+
+export type QuantityValueOutput = {
+  label?: string | null;
+  lineage: LineageRefOutput;
+  metric_id?: string | null;
+  point?: number | null;
+  quantity_class?: "decision" | "telemetry" | "layout" | "debug";
+  time?: TemporalRef | null;
+  uncertainty?: QuantityUncertainty | null;
+  unit: UnitRef;
+};
+
 export type ReproducibilityView = {
   data_snapshot_hash?: string | null;
   determinism_tier?: string | null;
@@ -1404,6 +2163,20 @@ export type RunDetails = {
 export type RunDetailsResponse = {
   meta: ApiMeta;
   run: RunDetails;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type RunEquilibriaResponse = {
+  equilibria: RunEquilibriaView;
+  meta: ApiMeta;
+};
+
+export type RunEquilibriaView = {
+  notes?: Array<string>;
+  report?: EquilibriumMultiplicityReport | null;
+  report_ref?: ArtifactRef | null;
+  run_id: string;
+  source_kind: string;
 };
 
 export type RunErrorView = {
@@ -1526,6 +2299,7 @@ export type RunLineageResponse = {
   lineage: ArtifactLineageView;
   meta: ApiMeta;
   run_id: string;
+  temporal_scope?: TemporalScope | null;
 };
 
 export type RunNodeRecord = {
@@ -1549,6 +2323,16 @@ export type RunNodesResponse = {
   nodes?: Array<RunNodeRecord>;
   run_id: string;
   source_kind: string;
+};
+
+export type RunQuantitiesResponse = {
+  coverage?: QuantityCoverageSummary;
+  entries?: Array<QuantityCoverageEntry>;
+  meta: ApiMeta;
+  quantities?: Array<QuantityValueOutput>;
+  run_id: string;
+  source_kind: string;
+  temporal_scope?: TemporalScope | null;
 };
 
 export type RunSummary = {
@@ -1590,6 +2374,7 @@ export type RunTimelineEvent = {
 
 export type RunTimelineResponse = {
   meta: ApiMeta;
+  temporal_scope?: TemporalScope | null;
   timeline: RunTimelineView;
 };
 
@@ -1692,6 +2477,149 @@ export type RuntimeApiProblem = {
   type?: string;
 };
 
+export type ScenarioAssumptionInput = {
+  description?: string | null;
+  id: string;
+  label: string;
+  lineage: LineageRefInput;
+  status: "operator_assumption" | "model_assumption" | "observed_evidence" | "disputed";
+};
+
+export type ScenarioAssumptionOutput = {
+  description?: string | null;
+  id: string;
+  label: string;
+  lineage: LineageRefOutput;
+  status: "operator_assumption" | "model_assumption" | "observed_evidence" | "disputed";
+};
+
+export type ScenarioCapabilitiesResponse = {
+  capabilities?: Array<ScenarioCapability>;
+  meta: ApiMeta;
+  run_id?: string | null;
+  scenario_id?: string | null;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type ScenarioCapability = {
+  limitations?: Array<string>;
+  metric_id?: string | null;
+  reason_code?: string | null;
+  supported: boolean;
+  supported_modes?: Array<"actual" | "actual_vs_scenario" | "scenario_only">;
+  surface: "run_metrics" | "quantities" | "lineage" | "charts" | "whatif";
+};
+
+export type ScenarioConstraintInput = {
+  field?: string | null;
+  id: string;
+  label: string;
+  message?: string | null;
+  operator?: string | null;
+  severity?: "error" | "warning";
+  value?: QuantityValueInput | null;
+};
+
+export type ScenarioConstraintOutput = {
+  field?: string | null;
+  id: string;
+  label: string;
+  message?: string | null;
+  operator?: string | null;
+  severity?: "error" | "warning";
+  value?: QuantityValueOutput | null;
+};
+
+export type ScenarioCreateRequest = {
+  affected_population?: string | null;
+  assumptions: Array<ScenarioAssumptionInput>;
+  author?: string;
+  constraints?: Array<ScenarioConstraintInput>;
+  id?: string | null;
+  interventions: Array<ScenarioInterventionInput>;
+  known_limitations?: Array<string>;
+  model_family?: string;
+  model_version?: string | null;
+  policy_question: string;
+  regime_shift_forecast_bundle_ref?: string | null;
+};
+
+export type ScenarioInterventionInput = {
+  baseline_value?: QuantityValueInput | null;
+  constraint_ids?: Array<string>;
+  field: string;
+  operator: "set" | "add" | "multiply" | "remove";
+  value: QuantityValueInput;
+};
+
+export type ScenarioInterventionOutput = {
+  baseline_value?: QuantityValueOutput | null;
+  constraint_ids?: Array<string>;
+  field: string;
+  operator: "set" | "add" | "multiply" | "remove";
+  value: QuantityValueOutput;
+};
+
+export type ScenarioListResponse = {
+  meta: ApiMeta;
+  run_id: string;
+  scenarios?: Array<ScenarioManifest>;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type ScenarioManifest = {
+  affected_population?: string | null;
+  assumptions: Array<ScenarioAssumptionOutput>;
+  author: string;
+  baseline_hash?: string | null;
+  baseline_lineage?: LineageRefOutput | null;
+  baseline_run_id: string;
+  computed_at?: string | null;
+  constraints?: Array<ScenarioConstraintOutput>;
+  id: string;
+  interventions: Array<ScenarioInterventionOutput>;
+  known_limitations?: Array<string>;
+  lifecycle_status?: "generated" | "draft" | "saved" | "promoted";
+  manifest_hash?: string;
+  model_family: string;
+  model_lineage: LineageRefOutput;
+  model_version?: string | null;
+  phase4_gate_verdict?: {
+  [key: string]: unknown;
+} | null;
+  policy_question: string;
+  promoted_at?: string | null;
+  revision?: number;
+  saved_at?: string | null;
+  stale_reasons?: Array<string>;
+  status: "draft" | "computed" | "stale" | "failed";
+  temporal_scope?: TemporalScope | null;
+  temporal_window?: TemporalRange | null;
+  validity_window?: TemporalRange | null;
+};
+
+export type ScenarioManifestResponse = {
+  meta: ApiMeta;
+  scenario: ScenarioManifest;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type ScenarioRef = {
+  assumption_ids: Array<string>;
+  baseline_run_id: string;
+  id: string;
+  lineage: LineageRefOutput;
+  manifest_hash?: string | null;
+  status: "draft" | "computed" | "stale" | "failed";
+  temporal_scope?: TemporalScope | null;
+};
+
+export type SimulationResultRef = {
+  artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
 export type SourceProfileInfo = {
   auth_policy?: string;
   base_url: string;
@@ -1710,6 +2638,87 @@ export type SourceProfilesListResponse = {
   profiles?: Array<SourceProfileInfo>;
 };
 
+export type TemporalCapabilitiesResponse = {
+  capabilities: TemporalCapabilitiesView;
+  meta: ApiMeta;
+};
+
+export type TemporalCapabilitiesView = {
+  default_scope?: TemporalScope | null;
+  event_points?: Array<TemporalEventPoint>;
+  resolution?: string;
+  run_id?: string | null;
+  surfaces?: Array<TemporalSurfaceCapability>;
+  tx_range?: TemporalRange;
+  valid_range?: TemporalRange;
+};
+
+export type TemporalEventPoint = {
+  id: string;
+  kind?: "run_start" | "run_finish" | "trace_event" | "policy_change" | "late_evidence" | "correction" | "snapshot" | "now";
+  label: string;
+  observed?: boolean;
+  timestamp: string;
+  tx_at?: string | null;
+  valid_at?: string | null;
+};
+
+export type TemporalGapRange = {
+  end?: string | null;
+  label?: string | null;
+  reason_code: string;
+  start?: string | null;
+};
+
+export type TemporalRange = {
+  earliest?: string | null;
+  latest?: string | null;
+};
+
+export type TemporalRef = {
+  branch?: string | null;
+  scenario_id?: string | null;
+  snapshot_id?: string | null;
+  tx_at?: string | null;
+  valid_at?: string | null;
+};
+
+export type TemporalScope = {
+  branch?: string | null;
+  scenario_id?: string | null;
+  snapshot_id?: string | null;
+  tx_at?: string | null;
+  valid_at?: string | null;
+};
+
+export type TemporalSurfaceCapability = {
+  gaps?: Array<TemporalGapRange>;
+  nearest_event_points?: Array<TemporalEventPoint>;
+  reason_code?: string | null;
+  resolution?: string;
+  supported: boolean;
+  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content";
+  tx_range?: TemporalRange | null;
+  valid_range?: TemporalRange | null;
+};
+
+export type UnitRef = {
+  code: string;
+  display?: string | null;
+  system?: string;
+};
+
+export type UnresolvedEquilibriumStart = {
+  diagnostics?: {
+  [key: string]: unknown;
+};
+  failure_reason?: string | null;
+  notes?: Array<string>;
+  residual_norm?: number | null;
+  start_state: FeedbackStateSnapshot;
+  status: string;
+};
+
 export type ValidationError = {
   ctx?: {
   [key: string]: unknown;
@@ -1718,6 +2727,17 @@ export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
   type: string;
+};
+
+export type VerificationMetadata = {
+  dispute_status?: "none" | "disputed" | "under_review" | "resolved";
+  freshness?: "current" | "stale" | "unknown";
+  hash?: string | null;
+  temporal_scope?: TemporalScope | null;
+  verification_method?: string | null;
+  verification_status?: "verified" | "pending" | "disputed" | "untraced";
+  verified_at?: string | null;
+  verified_by?: string | null;
 };
 
 export type WorkflowRunRequest = {
@@ -1802,6 +2822,32 @@ export class RuntimeApiClient {
     return query;
   }
 
+  async getAttractorAnalysis(params: {
+    analysis_id: string;
+  }): Promise<AttractorAnalysisResult> {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}`;
+    const query = undefined;
+    return this.request<AttractorAnalysisResult>("GET", path, query);
+  }
+
+  async getAnalysisBasinMap(params: {
+    analysis_id: string;
+    basin_id: string;
+  }): Promise<BasinMap> {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/basin/${encodeURIComponent(String(params.basin_id))}`;
+    const query = undefined;
+    return this.request<BasinMap>("GET", path, query);
+  }
+
+  async getAnalysisContinuationBranch(params: {
+    analysis_id: string;
+    branch_id: string;
+  }): Promise<ContinuationBranchOutput> {
+    const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/branch/${encodeURIComponent(String(params.branch_id))}`;
+    const query = undefined;
+    return this.request<ContinuationBranchOutput>("GET", path, query);
+  }
+
   async getArtifactBatch(params: {
     body: ArtifactBatchRequest;
   }): Promise<ArtifactBatchResponse> {
@@ -1856,6 +2902,29 @@ export class RuntimeApiClient {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     const query = undefined;
     return this.request<ArtifactSchemaResponse>("GET", path, query);
+  }
+
+  async exportBureaucraticArtifact(params: {
+    packet_id: string;
+    format?: "html" | "pdf" | "docx";
+    genre?: "postanova_kmu" | "zakonoproekt" | "expert_vysnovok" | "analitichna_zapyska";
+    jurisdiction?: string;
+    template_version?: string | null;
+    trust_view?: boolean;
+    valid_at?: string | null;
+    tx_at?: string | null;
+  }): Promise<BureaucraticExportResponse> {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.packet_id))}/export`;
+    const query = this.buildQuery({
+      format: params.format,
+      genre: params.genre,
+      jurisdiction: params.jurisdiction,
+      template_version: params.template_version,
+      trust_view: params.trust_view,
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+    });
+    return this.request<BureaucraticExportResponse>("GET", path, query);
   }
 
   async getAuthMe(): Promise<AuthMeResponse> {
@@ -1999,6 +3068,14 @@ export class RuntimeApiClient {
     return this.request<RunCompareResponse>("GET", path, query);
   }
 
+  async getRunEquilibria(params: {
+    run_id: string;
+  }): Promise<RunEquilibriaResponse> {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/equilibria`;
+    const query = undefined;
+    return this.request<RunEquilibriaResponse>("GET", path, query);
+  }
+
   async getRunErrors(params: {
     run_id: string;
   }): Promise<RunErrorsResponse> {
@@ -2040,6 +3117,69 @@ export class RuntimeApiClient {
     return this.request<{
   [key: string]: unknown;
 }>("GET", path, query);
+  }
+
+  async getLineage(params: {
+    lineage_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<LineageResponse> {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<LineageResponse>("GET", path, query);
+  }
+
+  async exportLineageOpenlineage(params: {
+    lineage_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<LineageExportResponse> {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/openlineage`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<LineageExportResponse>("GET", path, query);
+  }
+
+  async exportLineageProv(params: {
+    lineage_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<LineageExportResponse> {
+    const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/prov`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<LineageExportResponse>("GET", path, query);
   }
 
   async computeMobilityBounds(params: {
@@ -2110,27 +3250,113 @@ export class RuntimeApiClient {
     return this.request<RunsBatchResponse>("POST", path, query, params.body);
   }
 
+  async compareRuns(params: {
+    a: string;
+    b: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<CompareRunResponse> {
+    const path = `/api/v1/runs/compare`;
+    const query = this.buildQuery({
+      a: params.a,
+      b: params.b,
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<CompareRunResponse>("GET", path, query);
+  }
+
   async getRunDetails(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunDetailsResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<RunDetailsResponse>("GET", path, query);
   }
 
   async getRunAgents(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<AgentPipelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<AgentPipelineResponse>("GET", path, query);
+  }
+
+  async getRunCompareCandidates(params: {
+    run_id: string;
+    limit?: number;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<CompareCandidatesResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/compare-candidates`;
+    const query = this.buildQuery({
+      limit: params.limit,
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<CompareCandidatesResponse>("GET", path, query);
   }
 
   async getRunEvidenceContext(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunEvidenceContextResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<RunEvidenceContextResponse>("GET", path, query);
   }
 
@@ -2139,38 +3365,206 @@ export class RuntimeApiClient {
     root_artifact_id?: Array<string> | null;
     max_depth?: number | null;
     max_nodes?: number | null;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunLineageResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/lineage`;
     const query = this.buildQuery({
       root_artifact_id: params.root_artifact_id,
       max_depth: params.max_depth,
       max_nodes: params.max_nodes,
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
     });
     return this.request<RunLineageResponse>("GET", path, query);
   }
 
+  async getRunCounterfactualMetrics(params: {
+    run_id: string;
+    scenario_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    regime_shift_forecast_bundle_ref?: string | null;
+  }): Promise<CounterfactualMetricsResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/metrics`;
+    const query = this.buildQuery({
+      scenario_id: params.scenario_id,
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
+    });
+    return this.request<CounterfactualMetricsResponse>("GET", path, query);
+  }
+
   async getRunNodes(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunNodesResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/nodes`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<RunNodesResponse>("GET", path, query);
+  }
+
+  async getRunQuantities(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<RunQuantitiesResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/quantities`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<RunQuantitiesResponse>("GET", path, query);
+  }
+
+  async listRunScenarios(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    regime_shift_forecast_bundle_ref?: string | null;
+  }): Promise<ScenarioListResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/scenarios`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+      regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
+    });
+    return this.request<ScenarioListResponse>("GET", path, query);
   }
 
   async getRunTimeline(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunTimelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<RunTimelineResponse>("GET", path, query);
   }
 
   async getRunWorkflow(params: {
     run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
   }): Promise<RunWorkflowResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
-    const query = undefined;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
     return this.request<RunWorkflowResponse>("GET", path, query);
+  }
+
+  async getScenarioManifest(params: {
+    scenario_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+  }): Promise<ScenarioManifestResponse> {
+    const path = `/api/v1/scenarios/${encodeURIComponent(String(params.scenario_id))}`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+    });
+    return this.request<ScenarioManifestResponse>("GET", path, query);
+  }
+
+  async getScenarioCapabilities(params: {
+    scenario_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    regime_shift_forecast_bundle_ref?: string | null;
+  }): Promise<ScenarioCapabilitiesResponse> {
+    const path = `/api/v1/scenarios/${encodeURIComponent(String(params.scenario_id))}/capabilities`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
+    });
+    return this.request<ScenarioCapabilitiesResponse>("GET", path, query);
+  }
+
+  async getTemporalCapabilities(params: {
+    run_id?: string | null;
+  }): Promise<TemporalCapabilitiesResponse> {
+    const path = `/api/v1/temporal/capabilities`;
+    const query = this.buildQuery({
+      run_id: params.run_id,
+    });
+    return this.request<TemporalCapabilitiesResponse>("GET", path, query);
   }
 
   async health(): Promise<{

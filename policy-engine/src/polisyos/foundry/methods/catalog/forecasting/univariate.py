@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal, cast
 
 import numpy as np
 
@@ -22,10 +22,15 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.forecasting.uncertainty import (
     build_member_spread_bundle,
+    build_reconciled_conformal_bundle,
     build_reconciliation_placeholder_bundle,
     build_residual_conformal_bundle,
     forecasting_output_slots,
     resolve_artifact_store,
+)
+from polisyos.ir.analytics.forecasting_uncertainty import (
+    ForecastingUncertaintyBundleV2,
+    ReconciliationMethod,
 )
 
 
@@ -96,6 +101,102 @@ def _reconcile_sample_paths(
     if paths.shape[1] != aggregation_matrix.shape[1]:
         raise ValueError("bottom_sample_paths bottom dimension must match aggregation_matrix")
     return np.einsum("ij,pjk->pik", aggregation_matrix, paths, optimize=True)
+
+
+def _reconcile_calibration_forecasts(
+    state: Mapping[str, Any],
+    aggregation_matrix: np.ndarray,
+) -> np.ndarray | None:
+    calibration_reconciled = state.get("calibration_reconciled_forecasts")
+    if calibration_reconciled is not None:
+        return np.asarray(calibration_reconciled, dtype=float)
+    calibration_bottom = state.get("calibration_bottom_forecasts")
+    if calibration_bottom is None:
+        return None
+    bottom = np.asarray(calibration_bottom, dtype=float)
+    if bottom.ndim != 3:
+        raise ValueError(
+            "calibration_bottom_forecasts must have shape (n_calibration, n_bottom, horizon)"
+        )
+    if bottom.shape[1] != aggregation_matrix.shape[1]:
+        raise ValueError("calibration_bottom_forecasts bottom dimension must match aggregation_matrix")
+    return np.einsum("ij,pjk->pik", aggregation_matrix, bottom, optimize=True)
+
+
+def _optional_matrix(state: Mapping[str, Any], *keys: str) -> np.ndarray | None:
+    for key in keys:
+        value = state.get(key)
+        if value is not None:
+            matrix = np.asarray(value, dtype=float)
+            if matrix.ndim != 2:
+                raise ValueError(f"{key} must be a matrix")
+            return matrix
+    return None
+
+
+def _resolve_unreconciled_interval_inputs(
+    state: Mapping[str, Any],
+    *,
+    aggregation_matrix: np.ndarray | None = None,
+) -> tuple[np.ndarray | None, np.ndarray | None]:
+    lower = _optional_matrix(
+        state,
+        "unreconciled_interval_lower",
+        "base_interval_lower",
+        "interval_lower",
+    )
+    upper = _optional_matrix(
+        state,
+        "unreconciled_interval_upper",
+        "base_interval_upper",
+        "interval_upper",
+    )
+    if lower is not None or upper is not None:
+        return lower, upper
+    if aggregation_matrix is None:
+        return None, None
+    bottom_lower = _optional_matrix(state, "bottom_interval_lower", "bottom_unreconciled_lower")
+    bottom_upper = _optional_matrix(state, "bottom_interval_upper", "bottom_unreconciled_upper")
+    if bottom_lower is None and bottom_upper is None:
+        return None, None
+    if bottom_lower is None or bottom_upper is None:
+        raise ValueError("bottom interval lower and upper must be supplied together")
+    if bottom_lower.shape[0] != aggregation_matrix.shape[1]:
+        raise ValueError("bottom interval matrices must match aggregation_matrix columns")
+    return aggregation_matrix @ bottom_lower, aggregation_matrix @ bottom_upper
+
+
+def _constraints_kind(
+    value: Any,
+) -> Literal["hierarchical", "grouped", "general_linear"]:
+    normalized = str(value or "hierarchical")
+    if normalized not in {"hierarchical", "grouped", "general_linear"}:
+        raise ValueError("constraints_kind must be hierarchical, grouped, or general_linear")
+    return cast("Literal['hierarchical', 'grouped', 'general_linear']", normalized)
+
+
+def _general_linear_projection_matrix(constraint_matrix: np.ndarray) -> np.ndarray:
+    constraints = np.asarray(constraint_matrix, dtype=float)
+    if constraints.ndim != 2:
+        raise ValueError("constraint_matrix must be a matrix")
+    gram = constraints @ constraints.T
+    return (
+        np.eye(constraints.shape[1], dtype=float)
+        - constraints.T @ np.linalg.pinv(gram) @ constraints
+    )
+
+
+def _project_general_linear(values: np.ndarray, projection_matrix: np.ndarray) -> np.ndarray:
+    arr = np.asarray(values, dtype=float)
+    if arr.ndim == 2:
+        if arr.shape[0] != projection_matrix.shape[1]:
+            raise ValueError("forecast rows must match projection dimension")
+        return projection_matrix @ arr
+    if arr.ndim == 3:
+        if arr.shape[1] != projection_matrix.shape[1]:
+            raise ValueError("forecast node dimension must match projection dimension")
+        return np.einsum("ij,pjk->pik", projection_matrix, arr, optimize=True)
+    raise ValueError("values must be a matrix or calibration cube")
 
 
 @foundry_method(
@@ -357,7 +458,9 @@ class BottomUpReconciliationEstimator:
                 ),
             }
         ),
-        output_slots=forecasting_output_slots(),
+        output_slots=forecasting_output_slots(
+            contract_id=ForecastingUncertaintyBundleV2.contract_id
+        ),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -374,7 +477,8 @@ class BottomUpReconciliationEstimator:
         when_to_use="Reconcile forecasts across hierarchy levels; ensure aggregate consistency (national = sum of regions)",
         output_interpretation=(
             "Reconciled point forecasts at all hierarchy levels plus forecasting_uncertainty_bundle. "
-            "Phase 0 marks the bundle non-gate-eligible until coherent predictive paths are available."
+            "Phase 4 certifies marginal coverage only when post-reconciliation calibration "
+            "residuals are supplied; otherwise the bundle exposes an explicit fallback certificate."
         ),
     )
 
@@ -394,18 +498,206 @@ class BottomUpReconciliationEstimator:
                 np.asarray(bottom_sample_paths, dtype=float), aggregation
             )
         reconciled = aggregation @ bottom
+        nominal_coverage = float(params.get("nominal_coverage", 0.90))
+        constraints_kind = _constraints_kind(state.get("constraints_kind", "hierarchical"))
+        calibration_forecasts = _reconcile_calibration_forecasts(state, aggregation)
+        calibration_actuals = state.get("calibration_actuals")
+        if calibration_actuals is None:
+            calibration_actuals = state.get("calibration_targets")
+        interval_lower, interval_upper = _resolve_unreconciled_interval_inputs(
+            state,
+            aggregation_matrix=aggregation,
+        )
+        calibration_unreconciled = state.get("calibration_unreconciled_forecasts")
+        if calibration_forecasts is not None and calibration_actuals is not None:
+            uncertainty_bundle = build_reconciled_conformal_bundle(
+                method_fqn="forecasting.reconciliation.bottom_up@1.0.0",
+                target_id="reconciled_hierarchy",
+                reconciled_forecasts=reconciled,
+                calibration_reconciled_forecasts=calibration_forecasts,
+                calibration_actuals=np.asarray(calibration_actuals, dtype=float),
+                nominal_coverage=nominal_coverage,
+                coherent_sample_paths=coherent_paths,
+                aggregation_matrix=aggregation,
+                bottom_forecasts=bottom,
+                unreconciled_interval_lower=interval_lower,
+                unreconciled_interval_upper=interval_upper,
+                calibration_unreconciled_forecasts=(
+                    None
+                    if calibration_unreconciled is None
+                    else np.asarray(calibration_unreconciled, dtype=float)
+                ),
+                constraints_kind=constraints_kind,
+                reconciliation_method=ReconciliationMethod.BOTTOM_UP,
+                min_calibration_count=int(
+                    params.get("min_reconciliation_calibration_count", 5)
+                ),
+                artifact_store=artifact_store,
+                beta_mixing_penalty=(
+                    None
+                    if params.get("beta_mixing_penalty") is None
+                    else float(params["beta_mixing_penalty"])
+                ),
+            )
+        else:
+            uncertainty_bundle = build_reconciliation_placeholder_bundle(
+                method_fqn="forecasting.reconciliation.bottom_up@1.0.0",
+                target_id="reconciled_hierarchy",
+                reconciled_forecasts=reconciled,
+                nominal_coverage=nominal_coverage,
+                coherent_sample_paths=coherent_paths,
+                aggregation_matrix=aggregation,
+                bottom_forecasts=bottom,
+                unreconciled_interval_lower=interval_lower,
+                unreconciled_interval_upper=interval_upper,
+                constraints_kind=constraints_kind,
+                reconciliation_method=ReconciliationMethod.BOTTOM_UP,
+                artifact_store=artifact_store,
+            )
         return {
             "result": {
                 "reconciled_forecasts": reconciled.tolist(),
                 "bottom_forecasts": bottom.tolist(),
             },
-            "forecasting_uncertainty_bundle": build_reconciliation_placeholder_bundle(
-                method_fqn="forecasting.reconciliation.bottom_up@1.0.0",
-                target_id="reconciled_hierarchy",
+            "forecasting_uncertainty_bundle": uncertainty_bundle,
+        }
+
+
+@foundry_method(
+    namespace="forecasting.reconciliation",
+    version="1.0.0",
+    tags={"forecasting", "grouped", "general-linear", "reconciliation", "time-series"},
+)
+class GeneralLinearReconciliationEstimator:
+    """Project all-node forecasts onto linear equality constraints."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="general_linear_projection",
+        namespace="",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "base_forecasts",
+                    SlotType.MATRIX,
+                    Unit("forecast", "value"),
+                    shape=("n_nodes", "horizon"),
+                ),
+                SlotSpec(
+                    "constraint_matrix",
+                    SlotType.MATRIX,
+                    Unit("constraint", "weight"),
+                    shape=("n_constraints", "n_nodes"),
+                ),
+            }
+        ),
+        output_slots=forecasting_output_slots(
+            contract_id=ForecastingUncertaintyBundleV2.contract_id
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.MEDIUM,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Grouped/general-linear forecast reconciliation via orthogonal projection.",
+        tags=frozenset({"forecasting", "grouped", "general-linear", "reconciliation"}),
+        truthfulness_scope="predictive_calibration",
+        when_to_use=(
+            "Reconcile all-node forecasts when constraints are supplied as Gamma y = 0, "
+            "including grouped hierarchies without a single bottom-level tree."
+        ),
+        output_interpretation=(
+            "Point forecasts are projected into the linear constraint set. Certified "
+            "coverage requires calibration forecasts and actuals after the same projection."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        base = np.asarray(state["base_forecasts"], dtype=float)
+        constraints = np.asarray(state["constraint_matrix"], dtype=float)
+        if base.ndim != 2 or constraints.ndim != 2:
+            raise ValueError("base_forecasts and constraint_matrix must be 2D")
+        if constraints.shape[1] != base.shape[0]:
+            raise ValueError("constraint_matrix columns must equal number of forecast nodes")
+        projection = _general_linear_projection_matrix(constraints)
+        reconciled = _project_general_linear(base, projection)
+        artifact_store = resolve_artifact_store(state, params)
+        nominal_coverage = float(params.get("nominal_coverage", 0.90))
+        constraints_kind = _constraints_kind(state.get("constraints_kind", "general_linear"))
+        base_sample_paths = state.get("base_sample_paths")
+        coherent_paths = (
+            None
+            if base_sample_paths is None
+            else _project_general_linear(np.asarray(base_sample_paths, dtype=float), projection)
+        )
+        interval_lower, interval_upper = _resolve_unreconciled_interval_inputs(state)
+
+        calibration_base = state.get("calibration_base_forecasts")
+        if calibration_base is None:
+            calibration_base = state.get("calibration_unreconciled_forecasts")
+        calibration_actuals = state.get("calibration_actuals")
+        if calibration_actuals is None:
+            calibration_actuals = state.get("calibration_targets")
+
+        if calibration_base is not None and calibration_actuals is not None:
+            calibration_base_arr = np.asarray(calibration_base, dtype=float)
+            calibration_reconciled = _project_general_linear(calibration_base_arr, projection)
+            uncertainty_bundle = build_reconciled_conformal_bundle(
+                method_fqn="forecasting.reconciliation.general_linear_projection@1.0.0",
+                target_id="reconciled_linear_constraints",
                 reconciled_forecasts=reconciled,
+                calibration_reconciled_forecasts=calibration_reconciled,
+                calibration_actuals=np.asarray(calibration_actuals, dtype=float),
+                nominal_coverage=nominal_coverage,
                 coherent_sample_paths=coherent_paths,
+                constraint_matrix=constraints,
+                unreconciled_interval_lower=interval_lower,
+                unreconciled_interval_upper=interval_upper,
+                calibration_unreconciled_forecasts=calibration_base_arr,
+                constraints_kind=constraints_kind,
+                reconciliation_method=ReconciliationMethod.GENERAL_LINEAR_PROJECTION,
+                min_calibration_count=int(
+                    params.get("min_reconciliation_calibration_count", 5)
+                ),
                 artifact_store=artifact_store,
-            ),
+                beta_mixing_penalty=(
+                    None
+                    if params.get("beta_mixing_penalty") is None
+                    else float(params["beta_mixing_penalty"])
+                ),
+            )
+        else:
+            uncertainty_bundle = build_reconciliation_placeholder_bundle(
+                method_fqn="forecasting.reconciliation.general_linear_projection@1.0.0",
+                target_id="reconciled_linear_constraints",
+                reconciled_forecasts=reconciled,
+                nominal_coverage=nominal_coverage,
+                coherent_sample_paths=coherent_paths,
+                constraint_matrix=constraints,
+                unreconciled_interval_lower=interval_lower,
+                unreconciled_interval_upper=interval_upper,
+                constraints_kind=constraints_kind,
+                reconciliation_method=ReconciliationMethod.GENERAL_LINEAR_PROJECTION,
+                artifact_store=artifact_store,
+            )
+
+        return {
+            "result": {
+                "reconciled_forecasts": reconciled.tolist(),
+                "base_forecasts": base.tolist(),
+                "constraint_matrix": constraints.tolist(),
+                "projection_matrix": projection.tolist(),
+            },
+            "forecasting_uncertainty_bundle": uncertainty_bundle,
         }
 
 
@@ -413,5 +705,6 @@ __all__ = [
     "BottomUpReconciliationEstimator",
     "ExponentialSmoothingEstimator",
     "ForecastEnsembleEstimator",
+    "GeneralLinearReconciliationEstimator",
     "ThetaMethodEstimator",
 ]

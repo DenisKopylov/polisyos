@@ -256,6 +256,20 @@ _SUITES: tuple[SuiteSpec, ...] = (
         memory_gib_hint=2.0,
     ),
     SuiteSpec(
+        suite_id="phase2_mobility_latent_frontier",
+        label="Phase 4: Mobility — latent heterogeneity long-horizon benchmark",
+        script_relpath="distributional/phase2_mobility_latent_frontier.py",
+        aliases=("phase4", "mobility", "frontier", "latent_mobility"),
+        proof_class="supplementary_benchmark",
+        family="mobility_frontier",
+        primary_metrics=(
+            "pooled_minus_latent_rho",
+            "transition_row_sum_error",
+            "mobility_report_ok",
+        ),
+        memory_gib_hint=2.0,
+    ),
+    SuiteSpec(
         suite_id="phase2_network_identification",
         label="Phase 2f: Network — peer/formation/missingness/embedding benchmark",
         script_relpath="network/phase2_identification_frontier.py",
@@ -342,6 +356,16 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("frontier_frontier_claim", "full_stack_publication_claim"),
         proof_class="capability_gap",
         headline=True,
+    ),
+    SuiteSpec(
+        suite_id="capability_ks_lite_multiplicity",
+        label="Circuit 5f.2: Capability — KS-lite equilibrium multiplicity demo",
+        script_relpath="capability_wins/demo_krusell_smith_multiplicity.py",
+        aliases=("capability", "capability_demos", "phase4", "ks_lite", "multiplicity"),
+        proof_class="capability_gap",
+        family="feedback_multiplicity",
+        primary_metrics=("num_equilibria", "basin_mass"),
+        memory_gib_hint=2.0,
     ),
     SuiteSpec(
         suite_id="capability_surrogate_experiments",

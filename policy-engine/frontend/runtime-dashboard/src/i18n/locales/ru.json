@@ -862,6 +862,31 @@
         "complete": "Complete",
         "size": "Size"
       },
+      "bureaucratic": {
+        "renderAs": "Рендер как...",
+        "title": "Нативный бюрократический рендеринг",
+        "trustView": "Trust View",
+        "loading": "Формируем бюрократический документ...",
+        "error": "Не удалось отрендерить этот пакет как бюрократический документ.",
+        "printPdf": "Печать / PDF",
+        "docxSourceReady": "DOCX source готов",
+        "validationStatus": "AST {ast}; export parity {parity}; {filename}",
+        "valid": "валиден",
+        "needsReview": "нужна проверка",
+        "passed": "пройдено",
+        "templateVersion": "v{version}",
+        "draftArtifact": "PolicyOS draft artifact",
+        "packet": "Пакет",
+        "packetHash": "Хеш пакета",
+        "rendered": "Сформировано",
+        "status": "Статус",
+        "annexes": "Приложения",
+        "epistemicLegend": "Эпистемическая легенда",
+        "signatureTitle": "Подпись уполномоченного лица",
+        "signatureHint": "Внешнее подписание требуется вне PolicyOS.",
+        "sealTitle": "Печать / официальное удостоверение",
+        "sealHint": "Только placeholder. Официальная печать не рендерится."
+      },
       "viewers": {
         "readyToRun": "Ready to run",
         "diagnostics": "Diagnostics",
@@ -1413,6 +1438,110 @@
       },
       "lineageGraph": {
         "depthValue": "d={depth}"
+      },
+      "quantity": {
+        "valueLabel": "Значение",
+        "aria": {
+          "withCi95": "{label} {value}, 95 percent confidence interval {lower} to {upper}, {status} provenance available",
+          "withoutCi": "{label} {value}, {status} provenance available"
+        },
+        "status": {
+          "verified": "verified",
+          "pending": "pending",
+          "disputed": "disputed",
+          "stale": "stale",
+          "untraced": "untraced"
+        },
+        "kind": {
+          "source": "Source",
+          "transform": "Transform",
+          "model": "Model",
+          "agent": "Agent",
+          "result": "Result",
+          "artifact": "Artifact",
+          "unknown": "Unknown"
+        },
+        "popover": {
+          "title": "Provenance",
+          "value": "Value",
+          "uncertainty": "Uncertainty",
+          "temporal": "Time",
+          "temporalValue": "valid {validAt}; known {txAt}",
+          "lineage": "Lineage",
+          "untracedTitle": "Untraced quantity",
+          "loading": "Loading full lineage",
+          "loadError": "Unable to load full lineage.",
+          "shortcut": "Press D for deep dive",
+          "deepDive": "Deep dive",
+          "noUncertainty": "No interval supplied",
+          "interval": "95% CI {lower} to {upper}"
+        },
+        "miniGraph": {
+          "ariaLabel": "Provenance summary graph",
+          "empty": "No provenance summary available.",
+          "hidden": "+{count} {kind}"
+        },
+        "deepDive": {
+          "title": "Provenance deep dive",
+          "description": "Full lineage, raw sources, exports, and timestamps for {metric}.",
+          "node": "Node",
+          "kind": "Kind",
+          "timestamp": "Timestamp",
+          "verification": "Verification",
+          "freshness": "Freshness",
+          "hash": "Hash",
+          "rawSources": "Raw sources",
+          "noRawSources": "No raw source links were found in this lineage graph.",
+          "exports": "Exports",
+          "openlineage": "OpenLineage",
+          "prov": "PROV",
+          "emptyGraph": "The full graph is empty."
+        }
+      },
+      "trustView": {
+        "label": "Trust View",
+        "toggleAria": "Режим Trust View: {mode}. Нажмите, чтобы переключить.",
+        "mode": {
+          "off": "Trust выключен",
+          "compact": "Trust compact",
+          "expanded": "Trust expanded"
+        },
+        "status": {
+          "verified": "верифицировано",
+          "pending": "ожидает",
+          "disputed": "оспорено",
+          "stale": "устарело",
+          "untraced": "без lineage"
+        },
+        "dispute": {
+          "none": "без спора",
+          "disputed": "оспорено",
+          "under_review": "на проверке",
+          "resolved": "решено"
+        },
+        "kindValue": {
+          "quantity": "Quantity",
+          "authored_text": "Авторский текст",
+          "artifact": "Артефакт",
+          "lineage": "Lineage",
+          "chart": "Chart"
+        },
+        "hashChipTitle": "Audit hash {hash}",
+        "copyHash": "Копировать hash",
+        "copied": "Скопировано",
+        "verifiedBy": "Верификатор",
+        "verifiedAt": "Время верификации",
+        "method": "Метод",
+        "temporal": "Время",
+        "temporalScope": "valid {validAt}; known {txAt}",
+        "latest": "latest",
+        "inspectorTitle": "Trust inspector",
+        "subject": "Subject",
+        "kind": "Тип",
+        "copyAuditLink": "Копировать audit-ссылку",
+        "openDeepDive": "Открыть deep dive",
+        "exportAudit": "Экспорт audit",
+        "lineageActionUnavailable": "Lineage-действие доступно только когда у элемента есть lineage reference."
       },
       "evidenceCoverageRadar": {
         "overall": "Overall: {percent}%"

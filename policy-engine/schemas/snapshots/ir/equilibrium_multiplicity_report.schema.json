@@ -1,0 +1,839 @@
+{
+  "$defs": {
+    "BasinEstimate": {
+      "additionalProperties": false,
+      "description": "Estimated basin share for one clustered fixed point.",
+      "properties": {
+        "ci_95": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EquilibriumBasinInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "draws": {
+          "minimum": 0,
+          "title": "Draws",
+          "type": "integer"
+        },
+        "equilibrium_id": {
+          "title": "Equilibrium Id",
+          "type": "string"
+        },
+        "hits": {
+          "minimum": 0,
+          "title": "Hits",
+          "type": "integer"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "share_hat": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share Hat"
+        }
+      },
+      "required": [
+        "equilibrium_id",
+        "draws",
+        "hits"
+      ],
+      "title": "BasinEstimate",
+      "type": "object"
+    },
+    "BifurcationCandidate": {
+      "additionalProperties": false,
+      "description": "Potential bifurcation event detected from local diagnostics.",
+      "properties": {
+        "confidence": {
+          "default": "low",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "equilibrium_id": {
+          "title": "Equilibrium Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "fold",
+            "flip",
+            "loss_of_stability"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "lambda": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lambda"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "equilibrium_id"
+      ],
+      "title": "BifurcationCandidate",
+      "type": "object"
+    },
+    "EquilibriumBasinInterval": {
+      "additionalProperties": false,
+      "description": "Confidence interval for a basin-share estimate.",
+      "properties": {
+        "lower": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Lower",
+          "type": "number"
+        },
+        "upper": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Upper",
+          "type": "number"
+        }
+      },
+      "required": [
+        "lower",
+        "upper"
+      ],
+      "title": "EquilibriumBasinInterval",
+      "type": "object"
+    },
+    "EquilibriumBranch": {
+      "additionalProperties": false,
+      "description": "A continuation branch through discovered equilibria.",
+      "properties": {
+        "branch_id": {
+          "title": "Branch Id",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/EquilibriumBranchPoint"
+          },
+          "title": "Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "branch_id"
+      ],
+      "title": "EquilibriumBranch",
+      "type": "object"
+    },
+    "EquilibriumBranchPoint": {
+      "additionalProperties": false,
+      "description": "One point on a continuation branch.",
+      "properties": {
+        "equilibrium_id": {
+          "title": "Equilibrium Id",
+          "type": "string"
+        },
+        "lambda": {
+          "title": "Lambda",
+          "type": "number"
+        }
+      },
+      "required": [
+        "lambda",
+        "equilibrium_id"
+      ],
+      "title": "EquilibriumBranchPoint",
+      "type": "object"
+    },
+    "EquilibriumCandidate": {
+      "additionalProperties": false,
+      "description": "One clustered fixed-point candidate in a multiplicity report.",
+      "properties": {
+        "basin_ci_95": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EquilibriumBasinInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "basin_share_hat": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basin Share Hat"
+        },
+        "branch_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Branch Id"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "discovered_from_starts": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Discovered From Starts",
+          "type": "integer"
+        },
+        "equilibrium_id": {
+          "title": "Equilibrium Id",
+          "type": "string"
+        },
+        "jacobian": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EquilibriumCandidateJacobian"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "local_stability": {
+          "default": "unknown",
+          "enum": [
+            "attractive",
+            "unstable",
+            "neutral_or_near_bifurcation",
+            "unknown"
+          ],
+          "title": "Local Stability",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "residual_norm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual Norm"
+        },
+        "state": {
+          "$ref": "#/$defs/FeedbackStateSnapshot"
+        },
+        "step_norm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Norm"
+        }
+      },
+      "required": [
+        "equilibrium_id",
+        "state"
+      ],
+      "title": "EquilibriumCandidate",
+      "type": "object"
+    },
+    "EquilibriumCandidateJacobian": {
+      "additionalProperties": false,
+      "description": "Jacobian summaries attached to one equilibrium candidate.",
+      "properties": {
+        "condition_number": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition Number"
+        },
+        "near_bifurcation": {
+          "default": false,
+          "title": "Near Bifurcation",
+          "type": "boolean"
+        },
+        "near_flip": {
+          "default": false,
+          "title": "Near Flip",
+          "type": "boolean"
+        },
+        "near_fold": {
+          "default": false,
+          "title": "Near Fold",
+          "type": "boolean"
+        },
+        "near_loss_of_stability": {
+          "default": false,
+          "title": "Near Loss Of Stability",
+          "type": "boolean"
+        },
+        "operator_norm_inf": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operator Norm Inf"
+        },
+        "smallest_singular_value_i_minus_j": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Smallest Singular Value I Minus J"
+        },
+        "spectral_radius": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spectral Radius"
+        }
+      },
+      "title": "EquilibriumCandidateJacobian",
+      "type": "object"
+    },
+    "EquilibriumMultiplicityDiagnostics": {
+      "additionalProperties": false,
+      "description": "Search-level diagnostics for a multiplicity report.",
+      "properties": {
+        "branch_switch_events": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Branch Switch Events",
+          "type": "integer"
+        },
+        "continuation_failures": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Continuation Failures",
+          "type": "integer"
+        },
+        "divergence_failures": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Divergence Failures",
+          "type": "integer"
+        },
+        "false_merge_risk": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "False Merge Risk"
+        },
+        "max_pairwise_cluster_overlap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Pairwise Cluster Overlap"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "num_attempts": {
+          "minimum": 0,
+          "title": "Num Attempts",
+          "type": "integer"
+        },
+        "num_converged": {
+          "minimum": 0,
+          "title": "Num Converged",
+          "type": "integer"
+        },
+        "num_equilibria": {
+          "minimum": 0,
+          "title": "Num Equilibria",
+          "type": "integer"
+        },
+        "num_unresolved": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Num Unresolved",
+          "type": "integer"
+        },
+        "stagnation_failures": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Stagnation Failures",
+          "type": "integer"
+        },
+        "two_cycle_failures": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Two Cycle Failures",
+          "type": "integer"
+        },
+        "unresolved_starts_share": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unresolved Starts Share"
+        }
+      },
+      "required": [
+        "num_attempts",
+        "num_converged",
+        "num_equilibria"
+      ],
+      "title": "EquilibriumMultiplicityDiagnostics",
+      "type": "object"
+    },
+    "EquilibriumMultiplicityProvenance": {
+      "additionalProperties": false,
+      "description": "Reproducibility metadata for a multiplicity report.",
+      "properties": {
+        "git_sha": {
+          "default": "unknown",
+          "title": "Git Sha",
+          "type": "string"
+        },
+        "random_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Seed"
+        },
+        "runtime_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Runtime Refs",
+          "type": "array"
+        },
+        "solver_version": {
+          "default": "polisyos-foundry-feedback-1.0",
+          "title": "Solver Version",
+          "type": "string"
+        }
+      },
+      "title": "EquilibriumMultiplicityProvenance",
+      "type": "object"
+    },
+    "EquilibriumSearchProtocol": {
+      "additionalProperties": false,
+      "description": "Protocol metadata for a fixed-point multiplicity search.",
+      "properties": {
+        "basin_draws": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Basin Draws",
+          "type": "integer"
+        },
+        "continuation_grid": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Continuation Grid",
+          "type": "array"
+        },
+        "continuation_parameter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Continuation Parameter"
+        },
+        "merge_tol": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Merge Tol"
+        },
+        "mode": {
+          "default": "baseline",
+          "enum": [
+            "baseline",
+            "research",
+            "continuation"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "n_attempts": {
+          "minimum": 1,
+          "title": "N Attempts",
+          "type": "integer"
+        },
+        "residual_tol": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual Tol"
+        },
+        "start_domain": {
+          "additionalProperties": true,
+          "title": "Start Domain",
+          "type": "object"
+        }
+      },
+      "required": [
+        "n_attempts"
+      ],
+      "title": "EquilibriumSearchProtocol",
+      "type": "object"
+    },
+    "FeedbackStateSnapshot": {
+      "additionalProperties": false,
+      "description": "Compact feedback vector plus solver scaling metadata.",
+      "properties": {
+        "lower_bounds": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Lower Bounds",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "scales": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Scales",
+          "type": "array"
+        },
+        "upper_bounds": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Upper Bounds",
+          "type": "array"
+        },
+        "values": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "variable_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Variable Ids",
+          "type": "array"
+        },
+        "weights": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variable_ids",
+        "values",
+        "scales",
+        "lower_bounds",
+        "upper_bounds",
+        "weights"
+      ],
+      "title": "FeedbackStateSnapshot",
+      "type": "object"
+    },
+    "UnresolvedEquilibriumStart": {
+      "additionalProperties": false,
+      "description": "A start point that did not converge or could not be assigned to a cluster.",
+      "properties": {
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "residual_norm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual Norm"
+        },
+        "start_state": {
+          "$ref": "#/$defs/FeedbackStateSnapshot"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start_state",
+        "status"
+      ],
+      "title": "UnresolvedEquilibriumStart",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Structured report for discovered fixed-point multiplicity.",
+  "properties": {
+    "basin_estimates": {
+      "items": {
+        "$ref": "#/$defs/BasinEstimate"
+      },
+      "title": "Basin Estimates",
+      "type": "array"
+    },
+    "bifurcation_candidates": {
+      "items": {
+        "$ref": "#/$defs/BifurcationCandidate"
+      },
+      "title": "Bifurcation Candidates",
+      "type": "array"
+    },
+    "branches": {
+      "items": {
+        "$ref": "#/$defs/EquilibriumBranch"
+      },
+      "title": "Branches",
+      "type": "array"
+    },
+    "equilibria": {
+      "items": {
+        "$ref": "#/$defs/EquilibriumCandidate"
+      },
+      "title": "Equilibria",
+      "type": "array"
+    },
+    "global_diagnostics": {
+      "$ref": "#/$defs/EquilibriumMultiplicityDiagnostics"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "parameter_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parameter Hash"
+    },
+    "provenance": {
+      "$ref": "#/$defs/EquilibriumMultiplicityProvenance"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "search_protocol": {
+      "$ref": "#/$defs/EquilibriumSearchProtocol"
+    },
+    "unresolved_starts": {
+      "items": {
+        "$ref": "#/$defs/UnresolvedEquilibriumStart"
+      },
+      "title": "Unresolved Starts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "model_id",
+    "search_protocol",
+    "global_diagnostics"
+  ],
+  "title": "EquilibriumMultiplicityReport",
+  "type": "object"
+}

@@ -6,13 +6,21 @@ import {
   RUN_BOOTSTRAP_REFETCH_MS,
   RUN_TERMINAL_STALE_MS,
 } from "../../lib/constants";
+import {
+  useMaybeTemporalCursor,
+  type TemporalScope,
+} from "@/app/providers/useTemporalCursor";
+import { toApiTemporalParams } from "@/app/providers/temporal-scope";
 import { isRunTerminal } from "../../features/runs/domain/status";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError, isRuntimeApiNotFound } from "../http";
 import { queryKeys } from "../queryKeys";
 import { runDetailsSchema } from "../validators";
 
-async function fetchRunDetails(runId: string) {
+async function fetchRunDetails(
+  runId: string,
+  temporalScope?: TemporalScope | null,
+) {
   const { data, error, response } = await runtimeApiClient.GET(
     "/api/v1/runs/{run_id}",
     {
@@ -20,6 +28,7 @@ async function fetchRunDetails(runId: string) {
         path: {
           run_id: runId,
         },
+        query: toApiTemporalParams(temporalScope),
       },
     },
   );
@@ -33,11 +42,12 @@ async function fetchRunDetails(runId: string) {
 export function runDetailsQueryOptions(
   runId: string,
   options?: { liveTransport?: boolean },
+  temporalScope?: TemporalScope | null,
 ) {
   const liveTransport = options?.liveTransport ?? false;
   return {
-    queryKey: queryKeys.run(runId),
-    queryFn: () => fetchRunDetails(runId),
+    queryKey: queryKeys.run(runId, temporalScope),
+    queryFn: () => fetchRunDetails(runId, temporalScope),
     staleTime: (query: {
       state: { data?: { run?: { status?: string | null | undefined } } };
     }) => {
@@ -72,8 +82,10 @@ export function useRunDetails(
   runId: string | undefined,
   options?: { liveTransport?: boolean },
 ) {
+  const temporalCursor = useMaybeTemporalCursor();
+  const temporalScope = temporalCursor?.committedScope ?? null;
   return useQuery({
-    ...runDetailsQueryOptions(runId ?? "unknown", options),
+    ...runDetailsQueryOptions(runId ?? "unknown", options, temporalScope),
     enabled: Boolean(runId),
   });
 }

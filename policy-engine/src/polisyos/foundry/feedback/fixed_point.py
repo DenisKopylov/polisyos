@@ -467,7 +467,13 @@ def _compute_jacobian_summary(
         prepared=prepared,
         baseline_map=baseline.map_value,
     )
-    return summarize_jacobian(jacobian)
+    cfg = prepared.config.solver
+    return summarize_jacobian(
+        jacobian,
+        near_bifurcation_threshold=max(0.0, 1.0 - cfg.spectral_radius_warn_tol),
+        fold_singular_value_threshold=cfg.svd_bifurcation_tol,
+        stability_radius_tolerance=cfg.spectral_radius_warn_tol,
+    )
 
 
 def _coerce_map_value(result: MapEvaluation | np.ndarray) -> np.ndarray:

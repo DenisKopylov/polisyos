@@ -1,0 +1,31 @@
+{
+  "kind": "ukraine_readiness",
+  "component_dir": "tests/data_forge/fixtures/ukraine_shadow/baseline",
+  "readiness": {
+    "source_data_ready": true,
+    "demography_ready": true,
+    "static_aging_ready": true,
+    "consumer_ready": true
+  },
+  "table_counts": {
+    "source_records": 4,
+    "demography_states": 2,
+    "donor_records": 2
+  },
+  "source_summaries": [
+    {
+      "source_id": "state_statistics_demography",
+      "stage": "normalized",
+      "records": 2,
+      "ready": true,
+      "warnings": []
+    },
+    {
+      "source_id": "household_donor_pool",
+      "stage": "normalized",
+      "records": 2,
+      "ready": true,
+      "warnings": []
+    }
+  ]
+}

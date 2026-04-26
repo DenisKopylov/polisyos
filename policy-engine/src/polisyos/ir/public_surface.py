@@ -70,6 +70,16 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.alignment_certification",
         "AlignmentReport",
     ),
+    "ABMBifurcationReport": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "ABMBifurcationReport",
+    ),
+    "ABMIdentifiabilityCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "ABMIdentifiabilityCertificate",
+    ),
+    "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
+    "ABMResultRef": ("polisyos.ir.refs", "ABMResultRef"),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
         "CausalDiscoveryReport",
@@ -427,6 +437,14 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.refs",
         "MicrosimCalibrationReportRef",
     ),
+    "DynamicMicrosimValidationReport": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "DynamicMicrosimValidationReport",
+    ),
+    "DynamicMicrosimValidationReportRef": (
+        "polisyos.ir.refs",
+        "DynamicMicrosimValidationReportRef",
+    ),
     "DependenceStructure": (
         "polisyos.ir.analytics.dependence_structure",
         "DependenceStructure",
@@ -601,6 +619,14 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "ForecastingUncertaintyBundle",
     ),
+    "ForecastingUncertaintyBundleV2": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ForecastingUncertaintyBundleV2",
+    ),
+    "ForecastShiftTypeAssessment": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "ForecastShiftTypeAssessment",
+    ),
     "GEUncertaintyBundle": (
         "polisyos.ir.analytics.welfare",
         "GEUncertaintyBundle",
@@ -614,6 +640,18 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "FanChartSpec",
     ),
+    "ReconciliationCertificate": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationCertificate",
+    ),
+    "ReconciliationMethod": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationMethod",
+    ),
+    "ReconciliationStatus": (
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "ReconciliationStatus",
+    ),
     "HorizonInterval": (
         "polisyos.ir.analytics.forecasting_uncertainty",
         "HorizonInterval",
@@ -622,11 +660,67 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "HorizonPolicySpec",
     ),
+    "RegimeBenchmarkStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeBenchmarkStatus",
+    ),
+    "RegimeForecastCalibrationStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeForecastCalibrationStatus",
+    ),
+    "RegimeIdentifiabilityStatus": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeIdentifiabilityStatus",
+    ),
+    "RegimeModelFamily": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeModelFamily",
+    ),
+    "RegimeShiftForecastBundle": (
+        "polisyos.ir.analytics.regime_shift_forecast",
+        "RegimeShiftForecastBundle",
+    ),
+    "RegimeShiftForecastBundleRef": (
+        "polisyos.ir.refs",
+        "RegimeShiftForecastBundleRef",
+    ),
+    "Phase4DynamicsGate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4DynamicsGate",
+    ),
+    "Phase4GateStatus": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4GateStatus",
+    ),
+    "Phase4TemporalPolicyGateVerdict": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "Phase4TemporalPolicyGateVerdict",
+    ),
+    "TemporalGraphCausalCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "TemporalGraphCausalCertificate",
+    ),
+    "TemporalGraphCausalCertificateRef": (
+        "polisyos.ir.refs",
+        "TemporalGraphCausalCertificateRef",
+    ),
+    "SpaceTimeCausalCertificate": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "SpaceTimeCausalCertificate",
+    ),
+    "SpaceTimeCausalCertificateRef": (
+        "polisyos.ir.refs",
+        "SpaceTimeCausalCertificateRef",
+    ),
     "UncertaintyEnvelope": (
         "polisyos.ir.analytics.uncertainty",
         "UncertaintyEnvelope",
     ),
     "UncertaintySource": ("polisyos.ir.analytics.uncertainty", "UncertaintySource"),
+    "EquilibriumMultiplicityWelfareAnnotation": (
+        "polisyos.ir.analytics.phase4_dynamics",
+        "EquilibriumMultiplicityWelfareAnnotation",
+    ),
     "WelfareBundle": ("polisyos.ir.analytics.welfare", "WelfareBundle"),
     "WelfareBundleRef": ("polisyos.ir.refs", "WelfareBundleRef"),
     "WelfareIntervalSemantics": (

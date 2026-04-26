@@ -64,6 +64,9 @@ class NumpyRunner(MethodRunner):
 
         started = time.perf_counter()
         output = method_class.pure_step(state, resolved)
+        postprocess = getattr(method_class, "postprocess_output", None)
+        if callable(postprocess):
+            output = postprocess(output=output, state=state, params=resolved)
         wall_ms = (time.perf_counter() - started) * 1000
 
         determinism_tier = DeterminismTier.LIBRARY_DETERMINISTIC

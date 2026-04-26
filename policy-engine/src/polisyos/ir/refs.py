@@ -64,6 +64,61 @@ class ForecastingUncertaintyBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ForecastInterventionQueryRef(ArtifactRefModel):
+    """Stable handle for persisted forecast-as-treatment intervention queries."""
+
+    kind: Literal["ir.forecast_intervention_query"] = "ir.forecast_intervention_query"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ForecastInterventionCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted forecast-as-treatment certificates."""
+
+    kind: Literal["ir.forecast_intervention_certificate"] = (
+        "ir.forecast_intervention_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RegimeShiftForecastBundleRef(ArtifactRefModel):
+    """Stable handle for persisted regime-aware forecasting uncertainty bundles."""
+
+    kind: Literal["ir.regime_shift_forecast_bundle"] = "ir.regime_shift_forecast_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ABMResultRef(ArtifactRefModel):
+    """Stable handle for persisted Phase-4 ABM result summaries."""
+
+    kind: Literal["ir.abm_result"] = "ir.abm_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DynamicMicrosimValidationReportRef(ArtifactRefModel):
+    """Stable handle for persisted dynamic microsim validation gate reports."""
+
+    kind: Literal["ir.dynamic_microsim_validation_report"] = (
+        "ir.dynamic_microsim_validation_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TemporalGraphCausalCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted temporal graph DSCM causal certificates."""
+
+    kind: Literal["ir.temporal_graph_causal_certificate"] = (
+        "ir.temporal_graph_causal_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SpaceTimeCausalCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted space-time DSCM causal certificates."""
+
+    kind: Literal["ir.space_time_causal_certificate"] = "ir.space_time_causal_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class GEUncertaintyBundleRef(ArtifactRefModel):
     """Stable handle for persisted general-equilibrium uncertainty summaries."""
 
@@ -138,6 +193,20 @@ class ProofBundleRef(ArtifactRefModel):
     """Stable handle for persisted identification or proof bundles reviewed by governance and auditors."""
 
     kind: Literal["ir.proof_bundle"] = "ir.proof_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SimulationCalibrationReceiptRef(ArtifactRefModel):
+    """Stable handle for posterior/calibration receipts attached to simulation outputs."""
+
+    kind: Literal["ir.simulation_calibration_receipt"] = "ir.simulation_calibration_receipt"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SimulationProofBridgeRef(ArtifactRefModel):
+    """Stable handle for the bridge linking SimulationResult, EvidenceBundle, and ProofBundle."""
+
+    kind: Literal["ir.simulation_proof_bridge"] = "ir.simulation_proof_bridge"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -772,6 +841,7 @@ class OptimalRecourseInterventionBundleRef(ArtifactRefModel):
 
 __all__ = [
     "ABMAlignmentReportRef",
+    "ABMResultRef",
     "AbstractionCertificateRef",
     "AlignmentReportRef",
     "ArtifactRefModel",
@@ -805,6 +875,7 @@ __all__ = [
     "DistributionalEffectBundleRef",
     "DistributionalProofArtifactRef",
     "DistributionalReportRef",
+    "DynamicMicrosimValidationReportRef",
     "DynamicTreatmentRegimeRef",
     "EffectTrajectoryBundleRef",
     "EndogenousGroupInequalityDecompositionRef",
@@ -812,6 +883,8 @@ __all__ = [
     "EvidenceBundleRef",
     "FiniteStateAbstractionMapRef",
     "FiscalFeedbackLinkRef",
+    "ForecastInterventionCertificateRef",
+    "ForecastInterventionQueryRef",
     "ForecastingUncertaintyBundleRef",
     "FrontierSketchRef",
     "GEUncertaintyBundleRef",
@@ -853,16 +926,21 @@ __all__ = [
     "RecourseFeasibilityCertificateRef",
     "RecourseProofBundleRef",
     "RecoverabilityCertificateRef",
+    "RegimeShiftForecastBundleRef",
     "RegimeShiftIdentificationCertificateRef",
     "RoughPathInterventionCertificateRef",
     "SCMFragmentRef",
+    "SimulationCalibrationReceiptRef",
+    "SimulationProofBridgeRef",
     "SocialWeightManifestRef",
     "SpatialHodgeDiagnosticsRef",
+    "SpaceTimeCausalCertificateRef",
     "StrategicPayoffTableRef",
     "StrategicResponseBundleRef",
     "StrategicSCMRef",
     "StructuralCausalModelSpecRef",
     "SurveyQualityCertificateRef",
+    "TemporalGraphCausalCertificateRef",
     "TemporalIdentificationCertificateRef",
     "TemporalInterventionTrajectoryRef",
     "TransportabilityResultRef",

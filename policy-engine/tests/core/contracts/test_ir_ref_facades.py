@@ -78,7 +78,12 @@ from polisyos.core.contracts.hte import (
 from polisyos.core.contracts.normative_arbitration import (
     NormativeArbitrationResultRef as CoreNormativeArbitrationResultRef,
 )
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef as CoreUncertaintyEnvelopeRef
+from polisyos.core.contracts.uncertainty import (
+    RegimeShiftForecastBundleRef as CoreRegimeShiftForecastBundleRef,
+)
+from polisyos.core.contracts.uncertainty import (
+    UncertaintyEnvelopeRef as CoreUncertaintyEnvelopeRef,
+)
 from polisyos.ir.refs import (
     BacktestReportRef as IrBacktestReportRef,
 )
@@ -159,6 +164,9 @@ from polisyos.ir.refs import (
 )
 from polisyos.ir.refs import RecourseProofBundleRef as IrRecourseProofBundleRef
 from polisyos.ir.refs import (
+    RegimeShiftForecastBundleRef as IrRegimeShiftForecastBundleRef,
+)
+from polisyos.ir.refs import (
     RoughPathInterventionCertificateRef as IrRoughPathInterventionCertificateRef,
 )
 from polisyos.ir.refs import (
@@ -202,6 +210,7 @@ def test_core_contract_facades_reexport_ir_ref_types() -> None:
     assert CoreNormativeArbitrationResultRef is IrNormativeArbitrationResultRef
     assert CorePolicyRecommendationRef is IrPolicyRecommendationRef
     assert CoreUncertaintyEnvelopeRef is IrUncertaintyEnvelopeRef
+    assert CoreRegimeShiftForecastBundleRef is IrRegimeShiftForecastBundleRef
 
 
 def test_core_contract_facades_accept_core_artifact_id_values() -> None:
@@ -238,6 +247,7 @@ def test_core_contract_facades_accept_core_artifact_id_values() -> None:
         CoreNormativeArbitrationResultRef(artifact_id=core_id),
         CorePolicyRecommendationRef(artifact_id=core_id),
         CoreUncertaintyEnvelopeRef(artifact_id=core_id),
+        CoreRegimeShiftForecastBundleRef(artifact_id=core_id),
     ]
 
     for ref in refs:

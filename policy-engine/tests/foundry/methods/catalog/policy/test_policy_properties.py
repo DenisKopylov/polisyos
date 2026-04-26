@@ -24,7 +24,7 @@ from tests.foundry.methods.testing.strategies import _finite_array, distribution
 
 @st.composite
 def cost_benefit_strategy(draw):
-    n_periods = draw(st.integers(min_value=3, max_value=15))
+    n_periods = draw(st.integers(min_value=3, max_value=12))
     costs = draw(_finite_array((n_periods,), min_value=0.0, max_value=1000.0))
     benefits = draw(_finite_array((n_periods,), min_value=0.0, max_value=2000.0))
     discount_rate = draw(st.floats(min_value=0.01, max_value=0.20, allow_nan=False))

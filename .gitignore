@@ -11,6 +11,7 @@ policy-engine/data/**
 .benchmarks/
 .cursor/plans/
 .venv/
+.venv-*/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -49,6 +50,15 @@ output/playwright/
 /.tmp/
 /tmp/
 /runs/
+/logs/
+/out/
+/dist/
+/site/
+/benchmark-results/
+
+# local audit bundles and accidental shell redirection artifacts
+/*.polisyos-audit.tar.gz
+/=*
 
 # local Claude desktop state
 .claude/settings*.json

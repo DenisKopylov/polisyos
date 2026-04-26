@@ -40,6 +40,12 @@ Source of truth: `src/polisyos/foundry/__init__.py`, `src/polisyos/foundry/compi
   `feedback_trace`, `feedback_convergence_certificate`,
   optional `feedback_jacobian_diagnostics`, and `feedback_result`.
 
+- Set `FeedbackSolverConfig.detect_multiplicity=True` when a feedback solve
+  should also produce a structured equilibrium multiplicity report. The report
+  is persisted as `foundry.equilibrium_multiplicity_report`, attached to
+  `FeedbackSolveResult.multiplicity_report_ref`, and exposed through the
+  runtime debug endpoint `/api/v1/debug/runs/{run_id}/equilibria`.
+
 ## Runtime Contract
 
 - `compile()` accepts `input_kind="trinity"` or `input_kind="auto"` for
@@ -62,6 +68,16 @@ exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
   with durable feedback artifacts whenever possible. Non-convergence does not
   erase the residual trace or convergence certificate.
 
+- Multiplicity discovery is additive. Existing feedback runs are unchanged
+  unless `detect_multiplicity=True` or `multiplicity_mode != "off"`. The first
+  production path runs bounded multi-start exploration, clusters fixed points,
+  classifies local stability from the Jacobian, flags fold/flip/loss-of-stability
+  candidates, and optionally estimates basin shares with Wilson intervals.
+  Research callers can provide a continuation map factory to
+  `discover_equilibria(...)`; the explorer then walks `continuation_grid` with
+  pseudo-arclength predictors and records nearest-neighbor branch metadata in
+  `EquilibriumMultiplicityReport.branches`.
+
 - Unsupported runtime mechanisms and hard constraint failures return
   `ExecuteResult(ok=False, notes=[...])` envelopes.
 
@@ -73,6 +89,7 @@ exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
 | Bind data             | `build_input_bindings(store, data_snapshot_ref=..., registry_bundle_ref=...)`              | `FoundryInputBindingsRef` and bound `StateSnapshotRef` |
 | Execute               | `polisyos.foundry.execute(store, request)`                                                 | `ExecuteResult.simulation_result_ref`                  |
 | Execute with feedback | `polisyos.foundry.execute(store, request.model_copy(update={"feedback_config_ref": ...}))` | `SimulationResult` plus `feedback_*` derived artifacts |
+| Multiplicity report   | `FeedbackSolverConfig.detect_multiplicity=True`                                           | `foundry.equilibrium_multiplicity_report`              |
 
 The downstream contract is refs, not in-memory objects. Consumers should persist
 `CompileResult.exec_plan_ref`, `FoundryInputBindingsRef`, and
@@ -127,6 +144,23 @@ with TemporaryDirectory(prefix="foundry-feedback-docs-") as tmp:
     assert result.execute_ok is True
     assert result.feedback_result_artifact_id is not None
     assert result.feedback_convergence_certificate_artifact_id is not None
+PY
+```
+
+Feedback multiplicity quickstart:
+
+```bash
+uv run python - <<'PY'
+from tempfile import TemporaryDirectory
+from polisyos.foundry.quickstart import run_feedback_multiplicity_demo
+
+with TemporaryDirectory(prefix="foundry-multiplicity-docs-") as tmp:
+    result = run_feedback_multiplicity_demo(cas_root=tmp)
+    print(result)
+    assert result.compile_ok is True
+    assert result.execute_ok is True
+    assert result.feedback_result_artifact_id is not None
+    assert result.equilibrium_multiplicity_report_artifact_id is not None
 PY
 ```
 
@@ -189,6 +223,13 @@ feedback_result = execute(
 solver requires both numeric fixed-point convergence and fiscal closure before
 marking the run converged.
 
+When multiplicity discovery is enabled, `FeedbackSolveResult` also carries
+`multiplicity_report_ref`. The report contains `search_protocol`, clustered
+`equilibria`, continuation `branches`, `bifurcation_candidates`,
+`basin_estimates`, `unresolved_starts`, and `global_diagnostics`. Basin shares
+are properties of the declared start distribution and should not be read as
+model-invariant probabilities.
+
 ## Evidence Links
 
 - Compile determinism:
@@ -202,6 +243,12 @@ marking the run converged.
 
 - Execute feedback fixed point:
   `tests/foundry/test_execute_feedback.py`
+
+- Feedback multiplicity explorer:
+  `tests/foundry/test_feedback_fixed_point.py`
+
+- Runtime equilibria endpoint:
+  `tests/runtime/http/test_debug_api.py`
 
 - Input bindings:
   `tests/foundry/test_execute_input_bindings.py`

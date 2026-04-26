@@ -8,6 +8,11 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { useMaybeTrustView } from "@/app/providers/useTrustView";
+import {
+  TrustMetadata,
+  type VerificationMetadata,
+} from "@/shared/ui/trust-view";
 
 import { AuthorBadge } from "./AuthorBadge";
 import { useAuthorship } from "./AuthorshipProvider";
@@ -28,6 +33,7 @@ type AuthoredTextProps<T extends ElementType = "p"> = {
   sourceHref?: string;
   sourceRef?: string;
   timestamp?: string;
+  trustMetadata?: VerificationMetadata | null;
 } & Omit<ComponentPropsWithoutRef<T>, "as" | "children" | "className">;
 
 export function AuthoredText<T extends ElementType = "p">({
@@ -41,11 +47,13 @@ export function AuthoredText<T extends ElementType = "p">({
   sourceHref,
   sourceRef,
   timestamp,
+  trustMetadata,
   ...props
 }: AuthoredTextProps<T>) {
   const Component = (as ?? "p") as ElementType;
   const authoredTextId = useId();
   const { highlightMode, registerBlock, unregisterBlock } = useAuthorship();
+  const trustView = useMaybeTrustView();
   const entry = AUTHOR_REGISTRY[author];
   const announcedText = entry.announcement(sourceRef);
   const extractedText = extractTextFromNode(children);
@@ -54,6 +62,21 @@ export function AuthoredText<T extends ElementType = "p">({
   const showGlyph =
     highlightMode !== "off" && author !== "citation" && author !== "human";
   const showBadge = highlightMode === "prominent" || author === "citation";
+  const trustMode =
+    trustView?.mode === "expanded"
+      ? "expanded"
+      : trustView?.mode === "compact"
+        ? "compact"
+        : "off";
+  const resolvedTrustMetadata =
+    trustMetadata ??
+    buildAuthoredTrustMetadata({
+      author,
+      authorAgentVersion,
+      reviewedByHuman,
+      sourceRef,
+      timestamp,
+    });
   const style = {
     ...(props.style as CSSProperties | undefined),
     ...(showBorder
@@ -138,6 +161,48 @@ export function AuthoredText<T extends ElementType = "p">({
           />
         </span>
       ) : null}
+      {trustMode !== "off" ? (
+        <span className="mt-2 block">
+          <TrustMetadata
+            hash={resolvedTrustMetadata.hash}
+            label={entry.badgeLabel}
+            metadata={resolvedTrustMetadata}
+            mode={trustMode}
+            subjectId={authoredTextId}
+            subjectKind="authored_text"
+          />
+        </span>
+      ) : null}
     </Component>
   );
+}
+
+function buildAuthoredTrustMetadata({
+  author,
+  authorAgentVersion,
+  reviewedByHuman,
+  sourceRef,
+  timestamp,
+}: {
+  author: AuthoredTextAuthor;
+  authorAgentVersion?: string;
+  reviewedByHuman: boolean;
+  sourceRef?: string;
+  timestamp?: string;
+}): VerificationMetadata {
+  const hash = sourceRef?.startsWith("sha256:") ? sourceRef : null;
+  return {
+    dispute_status: "none",
+    freshness: "current",
+    hash,
+    temporal_scope: timestamp ? { valid_at: timestamp } : null,
+    verification_method: sourceRef
+      ? "authorship_source_ref"
+      : "authorship_registry",
+    verification_status: reviewedByHuman ? "verified" : "pending",
+    verified_at: timestamp ?? null,
+    verified_by: reviewedByHuman
+      ? author
+      : (authorAgentVersion ?? "PolicyOSAuthorshipRegistry"),
+  };
 }

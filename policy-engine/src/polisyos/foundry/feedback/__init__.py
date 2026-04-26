@@ -10,15 +10,18 @@ from .config import (
 )
 from .fixed_point import AlternativeSolution, MapEvaluation, SolveOutcome, solve_fixed_point
 from .jacobian import JacobianSummary
+from .multiplicity import MultiplicityExplorer, discover_equilibria
 
 __all__ = [
     "AlternativeSolution",
     "JacobianSummary",
     "MapEvaluation",
+    "MultiplicityExplorer",
     "PreparedFeedbackConfig",
     "SolveOutcome",
     "prepare_feedback_config",
     "project_bounds",
+    "discover_equilibria",
     "snapshot_from_vector",
     "solve_fixed_point",
 ]

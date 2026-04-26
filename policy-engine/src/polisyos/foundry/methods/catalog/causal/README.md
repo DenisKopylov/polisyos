@@ -17,6 +17,9 @@ estimation, transportability, policy learning, diagnostics and strategic respons
 - **Strategic response** - `strategic.py` now models solve/bundle/summary flows for response design.
 - **Policy learning** - `policy_learning.py` and adjacent estimators support downstream decisioning.
 - **Measurement error** - `measurement_error.py` and adapter layers expand noisy-observation handling.
+- **Space-time DSCM** - `space_time_dscm.py` adds field-valued DSCM contracts, operator edges,
+  controlled diffusion-reaction simulation, finite-element SPDE g-computation, optional
+  continuous-time IPW/DR diagnostics, and mesh/time-step sensitivity reports.
 - **Capability contracts** - optional backends degrade by contract instead of silently changing semantics.
 
 ## Public API
@@ -35,11 +38,13 @@ estimation, transportability, policy learning, diagnostics and strategic respons
 | `OptimalPolicyLearner`               | Learner for policy-selection oriented causal workflows. |
 | `CheckTransportability`              | Transportability gate for cross-context use.            |
 | `transport_bounds()`                 | Computes transportability bounds.                       |
+| `SpaceTimeSPDEGComputation`          | FEM SPDE g-computation for ST-DSCM policy spillovers.   |
+| `simulate_reaction_diffusion_response()` | Validation helper for nonlinear reaction-diffusion systems. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../../docs/reference/foundry/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 97 Python files
-- Exports: 140
+- Last updated: 2026-04-25
+- Files: 98 Python files
+- Exports: 164

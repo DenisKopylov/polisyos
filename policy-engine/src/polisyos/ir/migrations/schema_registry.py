@@ -31,6 +31,25 @@ def register_default_schema_rules() -> None:
         notes=("Policy recommendation 1.0 has no declared schema successors yet.",),
     )
     register_schema_version(
+        "regime_shift_forecast_bundle",
+        "1.0",
+        compatibility=CompatibilityMode.FULL,
+        notes=("Regime-shift forecast bundle 1.0 has no declared schema successors yet.",),
+    )
+    for abi_key, label in (
+        ("abm_result", "Phase-4 ABM result"),
+        ("phase4_temporal_policy_gate_verdict", "Phase-4 temporal policy gate verdict"),
+        ("dynamic_microsim_validation_report", "Dynamic microsim validation report"),
+        ("temporal_graph_causal_certificate", "Temporal graph causal certificate"),
+        ("space_time_causal_certificate", "Space-time causal certificate"),
+    ):
+        register_schema_version(
+            abi_key,
+            "1.0",
+            compatibility=CompatibilityMode.FULL,
+            notes=(f"{label} 1.0 has no declared schema successors yet.",),
+        )
+    register_schema_version(
         "literature_causal_prior",
         "1.0",
         compatibility=CompatibilityMode.FULL,

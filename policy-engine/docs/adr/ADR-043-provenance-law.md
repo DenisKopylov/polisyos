@@ -1,4 +1,4 @@
-# ADR-043: Provenance as a Law of the Interface
+# ADR-043: Provenance Law Through QuantityValue
 
 ## Status
 
@@ -10,128 +10,67 @@ Approved
 
 ## Context
 
-PolicyOS already carries lineage metadata on every evidence artefact
-(`EvidenceFabricItem.source_chain`, `ArtifactRef` governance,
-`Trinity` bundles). But lineage is **invisible** unless an analyst
-actively hunts for it — a raw number shown in a dashboard looks the
-same whether it came from a refuted bootstrap, a primary dataset, or an
-LLM hallucination.
+PolicyOS already records artifact lineage, Fabric value lineage, time-travel
+scope, and governance metadata. The weak point was the API/UI boundary: a raw
+number could still appear in a decision surface without its unit, uncertainty,
+temporal scope, verification status, or lineage.
 
-The design plan (Phase 2.2, best-in-class primitive B2) proposes
-provenance-on-hover as a platform-wide law: every quantitative claim
-carries its lineage reachable by hover, focus, or keyboard activation.
-But before the implementation phase begins, the **contract** must be
-established: what it means for something to be provenanced, what the
-shape of the lineage payload is, and how the contract propagates from
-backend fabric through API into every chart and prose block.
-
-A weaker version — "let's add hover provenance to some charts" —
-creates islands of rigor surrounded by unprovenanced surfaces, which
-is worse than a uniform absence because it misleads users about which
-numbers are and are not trustworthy.
+That creates false confidence. A dashboard value that came from a verified
+artifact and a value copied from an untraced fixture look identical unless the
+reader opens a separate debug path.
 
 ## Decision
 
-1. **Provenance is a law, not a feature.** Every numeric claim
-   rendered in PolicyOS UI **must** resolve to a `ProvenanceRef`
-   payload reachable via keyboard, hover, or a provenance panel. If
-   a component cannot produce a `ProvenanceRef`, it cannot render the
-   number.
-2. The `ProvenanceRef` payload contract (stable, versioned):
+Provenance is enforced as a data law:
 
-   ```ts
-   type ProvenanceRef = {
-     artifact_ref: string; // content-addressable ref per ADR-0123
-     source_chain: SourceLink[]; // ordered, latest → earliest
-     computed_by: string; // algorithm id + version
-     as_of: string; // ISO timestamp of the underlying data
-     governance_status: "approved" | "review" | "blocker";
-     assumption_class: "identified" | "estimated" | "assumed";
-     dispute_count: number;
-     evidence_strength: "strong" | "weak" | "unknown";
-     freshness_seconds: number; // age at render time
-   };
-   ```
+1. Every decision-bearing numeric value MUST be emitted as `QuantityValue`.
+2. `QuantityValue` is atomic. Callers pass `point`, `unit`, `lineage`,
+   `uncertainty`, and `time` together, not as detached props.
+3. `LineageRef.status = "untraced"` is allowed only with both `reason_code`
+   and `tracking_issue`.
+4. Telemetry, layout, and debug numbers are classified separately. They may
+   remain primitives only when the classification is explicit.
+5. Runtime lineage APIs expose both compact summaries and full graph payloads.
+   Hover surfaces consume compact summaries; deep-dive panels lazy-load the
+   full graph.
+6. The frontend canonical renderer is `<Quantity value={quantityValue} />`.
+   Decision surfaces must not render primitive decision numbers directly.
 
-3. The backend emits `ProvenanceRef` as an additive field on every
-   quantitative payload (`EvidenceFabricItem`, `ForecastResponse`,
-   `ConfidenceDialPayload`, etc.). Additive contract — no breaking
-   changes; deprecation window ≥ 2 releases per plan invariants.
-4. Frontend components carry a `<ProvenanceBoundary />` context
-   provider around sections that render numeric content. The boundary
-   asserts at runtime (development mode) that every descendant
-   numeric component has a resolved `ProvenanceRef`; missing refs
-   throw in dev and log a warning to telemetry in production.
-5. The `<ProvenanceStrip />` component (Phase 1.1) renders
-   `ProvenanceRef` compactly in eyebrow position; the full graph
-   surfaces in the hover overlay built in Phase 2.2.
-6. Un-provenanced numbers are **not** rendered with a fallback label;
-   they are removed from the UI entirely. The policy engine will
-   refuse to emit a decision packet without a resolved lineage.
-7. The AuthoredText registry (ADR-046) is the textual counterpart:
-   every sentence in a decision packet has an author attribution and
-   a citation chain, and this is mechanically enforced by the packet
-   compiler.
+## Contract
 
-Source of truth:
+`QuantityValue` contains:
 
-- Backend contract: `policy-engine/src/policy_engine/schemas/provenance_ref.py`
-  (new, Phase 2.0).
+- `point`: numeric value.
+- `unit`: `UnitRef` with machine code and display label.
+- `metric_id`: stable metric identifier when known.
+- `lineage`: `LineageRef` with verification status, freshness, summary, and
+  optional compact summary.
+- `uncertainty`: confidence intervals, quantiles, method, identifiability, and
+  dispute flag.
+- `time`: `TemporalRef` for valid time, transaction time, snapshot, branch, and
+  scenario scope.
+- `quantity_class`: `decision`, `telemetry`, `layout`, or `debug`.
 
-- OpenAPI schema: `policy-engine/schemas/runtime_api_v1.openapi.json`
-  additive field `provenance_ref`.
+The runtime API exposes:
 
-- Frontend types: `frontend/runtime-dashboard/src/api/types.ts`
-  regenerated by `openapi-typescript` pipeline.
-
-- Frontend boundary: `frontend/runtime-dashboard/src/shared/provenance/ProvenanceBoundary.tsx`
-  (new, Phase 2.2).
+- `GET /api/v1/lineage/{lineage_id}`
+- `POST /api/v1/lineage/batch`
+- `GET /api/v1/lineage/{lineage_id}/export/openlineage`
+- `GET /api/v1/lineage/{lineage_id}/export/prov`
+- `GET /api/v1/runs/{run_id}/quantities`
 
 ## Consequences
 
-- Backend owners of every numeric emitter must supply provenance. This
-  surfaces legacy paths (hard-coded constants, un-versioned heuristics)
-  that cannot satisfy the contract; those paths either migrate or
-  disappear.
-
-- Frontend receives a stable, versioned type; migrations consist of
-  adding `<ProvenanceBoundary>` wrappers and wiring the hover overlay.
-
-- A new CI gate `provenance-coverage` parses the frontend source,
-  enumerates numeric render sites, and fails if any lack a boundary.
-
-- The UI becomes categorically harder to build carelessly — this is
-  the intent.
-
-## Concrete impact
-
-Files created or modified across Phase 2.0 and Phase 2.2:
-
-- New: `policy-engine/src/policy_engine/schemas/provenance_ref.py`
-- New: `policy-engine/tests/schemas/test_provenance_ref.py`
-- Modified: `policy-engine/src/policy_engine/runtime/routes/evidence.py`
-  (emit `provenance_ref`)
-
-- Modified: `policy-engine/schemas/runtime_api_v1.openapi.json`
-  (regenerated)
-
-- Modified: `frontend/runtime-dashboard/src/api/types.ts` (regenerated)
-- New: `frontend/runtime-dashboard/src/shared/provenance/ProvenanceBoundary.tsx`
-- New: `frontend/runtime-dashboard/src/shared/provenance/ProvenanceOverlay.tsx`
-- New: `frontend/runtime-dashboard/src/shared/provenance/useProvenance.ts`
-- New CI job: `ci/provenance-coverage.yml` (gate).
+- The backend can emit partially migrated payloads, but missing lineage must be
+  visible as typed `untraced` status, not hidden behind a decorative id.
+- The UI can build progressive disclosure consistently: inline value first,
+  hover/focus compact lineage second, full graph third.
+- ESLint and coverage tooling provide a phased warning path by feature slice.
+- Generated OpenAPI and frontend API types include the quantity and lineage
+  contracts.
 
 ## Related Decisions
 
-- Extends: [ADR-0123](0123-artifact-ref-governance.md)
-  (`artifact_ref` is reused as the identity of lineage nodes).
-
-- Extends: [ADR-0124](0124-llm-idempotency-and-prompt-versioning.md)
-  (LLM calls emit `prompt_id/version` that feed the `computed_by`
-  field of `ProvenanceRef`).
-
-- Related: [ADR-046](ADR-046-authored-text-registry.md) — textual
-  provenance analogue.
-
-- Related: [ADR-044](ADR-044-time-as-primitive.md) — `as_of`
-  timestamps participate in the time-as-primitive scrubber.
+- Extends [ADR-0123](0123-artifact-ref-governance.md).
+- Related to [ADR-044](ADR-044-time-as-primitive.md).
+- Related to [ADR-046](ADR-046-authored-text-registry.md).

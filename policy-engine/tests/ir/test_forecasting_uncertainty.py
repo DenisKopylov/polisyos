@@ -11,12 +11,16 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     ForecastCalibrationMethod,
     ForecastCoverageDiagnostic,
     ForecastingUncertaintyBundle,
+    ForecastingUncertaintyBundleV2,
     ForecastIntervalSemantics,
     HorizonDiagnosticState,
     HorizonInterval,
     HorizonPolicyRule,
     HorizonPolicySpec,
     HorizonQuantileSet,
+    ReconciliationCertificate,
+    ReconciliationMethod,
+    ReconciliationStatus,
     load_forecasting_uncertainty_bundle,
     persist_forecasting_uncertainty_bundle,
 )
@@ -103,9 +107,41 @@ def _sample_bundle() -> ForecastingUncertaintyBundle:
     )
 
 
+def _sample_reconciliation_certificate(
+    *,
+    status: ReconciliationStatus = ReconciliationStatus.CERTIFIED,
+) -> ReconciliationCertificate:
+    return ReconciliationCertificate(
+        status=status,
+        method=ReconciliationMethod.BOTTOM_UP,
+        constraints_kind="hierarchical",
+        coherent_points=True,
+        coherent_paths=False,
+        coverage_scope="per_series_marginal" if status is ReconciliationStatus.CERTIFIED else "uncertified",
+        preconditions_passed=status is ReconciliationStatus.CERTIFIED,
+        preconditions={
+            "rolling_origin_residual_bank": status is ReconciliationStatus.CERTIFIED,
+            "minimum_calibration_count": status is ReconciliationStatus.CERTIFIED,
+        },
+        diagnostics={
+            "max_point_aggregation_error_by_horizon": {1: 0.0, 2: 0.0},
+            "aggregation_gap_by_horizon": {1: 0.0, 2: 0.0},
+            "empirical_coverage_by_horizon": {1: 0.92, 2: 0.91},
+            "mean_interval_width_by_horizon": {1: 2.0, 2: 3.4},
+            "width_reduction_vs_unreconciled_by_horizon": {},
+            "sample_count_by_horizon": {1: 12, 2: 11},
+            "diagnostic_state_by_horizon": {1: "green", 2: "amber"},
+        },
+        fallback_reason=None
+        if status is ReconciliationStatus.CERTIFIED
+        else "reconciled calibration residual bank is missing",
+    )
+
+
 def test_forecasting_uncertainty_bundle_creation() -> None:
     bundle = _sample_bundle()
 
+    assert bundle.source_method == bundle.method_fqn
     assert bundle.interval_semantics is ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
     assert len(bundle.prediction_interval) == 2
     assert bundle.coverage_diagnostic.empirical_coverage_by_horizon[1] == pytest.approx(0.92)
@@ -113,6 +149,7 @@ def test_forecasting_uncertainty_bundle_creation() -> None:
     receipt = bundle.to_truthfulness_receipt()
     assert receipt.truthfulness_scope == "marginal_coverage"
     assert receipt.runtime_truthfulness_tier == "approximate_calibrated"
+    assert receipt.diagnostics["source_method"] == bundle.method_fqn
 
 
 def test_forecasting_uncertainty_bundle_rejects_point_outside_interval() -> None:
@@ -137,6 +174,62 @@ def test_forecasting_uncertainty_bundle_cas_roundtrip(tmp_path) -> None:
     assert ref_1.kind == "ir.forecasting_uncertainty_bundle"
     assert ref_1.artifact_id == ref_2.artifact_id
     assert loaded == bundle
+
+
+def test_forecasting_uncertainty_bundle_v1_rejects_reconciliation_certificate() -> None:
+    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
+    payload["reconciliation_certificate"] = _sample_reconciliation_certificate().model_dump(
+        mode="python"
+    )
+
+    with pytest.raises(ValidationError):
+        ForecastingUncertaintyBundle.model_validate(payload)
+
+
+def test_forecasting_uncertainty_bundle_v2_receipt_uses_reconciliation_certificate() -> None:
+    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
+    payload["schema_version"] = "2.0"
+    payload["calibration_method"] = ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    payload["horizon_policy"]["default_method"] = (
+        ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    )
+    for interval in payload["prediction_interval"]:
+        interval["constructor"] = ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    for rule in payload["horizon_policy"]["rules"]:
+        rule["allowed_methods"] = (
+            ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION,
+        )
+    payload["reconciliation_certificate"] = _sample_reconciliation_certificate().model_dump(
+        mode="python"
+    )
+
+    bundle = ForecastingUncertaintyBundleV2.model_validate(payload)
+
+    assert bundle.contract_id == "ir.forecasting_uncertainty_bundle.v2"
+    assert bundle.reconciliation_certificate is not None
+    assert bundle.reconciliation_certificate.status is ReconciliationStatus.CERTIFIED
+    receipt = bundle.to_truthfulness_receipt()
+    assert receipt.runtime_truthfulness_tier.value == "approximate_calibrated"
+    assert receipt.truthfulness_scope.value == "marginal_coverage"
+    assert "reconciliation_certificate" in receipt.diagnostics
+
+
+def test_forecasting_uncertainty_bundle_v2_cas_roundtrip(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
+    payload["schema_version"] = "2.0"
+    payload["reconciliation_certificate"] = _sample_reconciliation_certificate().model_dump(
+        mode="python"
+    )
+    bundle = ForecastingUncertaintyBundleV2.model_validate(payload)
+
+    ref = persist_forecasting_uncertainty_bundle(store, bundle)
+    loaded = load_forecasting_uncertainty_bundle(store, ref)
+
+    assert ref.kind == "ir.forecasting_uncertainty_bundle"
+    assert isinstance(loaded, ForecastingUncertaintyBundleV2)
+    assert loaded.schema_version == "2.0"
+    assert loaded.reconciliation_certificate is not None
 
 
 def test_forecasting_uncertainty_bundle_registered_in_abi_catalog() -> None:

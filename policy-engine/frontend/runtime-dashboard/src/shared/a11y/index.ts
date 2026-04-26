@@ -10,6 +10,7 @@ export {
 } from "./HighContrastProvider";
 export {
   ReducedMotionProvider,
+  useMaybeReducedMotionPreference,
   useReducedMotionPreference,
   type ReducedMotionPreference,
 } from "./ReducedMotionProvider";

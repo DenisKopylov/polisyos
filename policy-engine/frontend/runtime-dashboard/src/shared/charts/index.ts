@@ -31,6 +31,16 @@ export {
   categoricalPalette,
   chartDefaults,
 } from "./theme";
+export {
+  categorical12,
+  categorical8,
+  categoricalCssVars,
+  categoricalSwatch,
+} from "./categorical-palettes";
+export type {
+  CategoricalPaletteSwatch,
+  CategoricalPattern,
+} from "./categorical-palettes";
 
 /* ── Accessibility ── */
 export {
@@ -78,6 +88,8 @@ export { FanChart } from "./FanChart";
 export { QuantileDotplot } from "./QuantileDotplot";
 export { HypotheticalOutcomePlot } from "./HypotheticalOutcomePlot";
 export { DisputedMarker } from "./DisputedMarker";
+export { SmallMultiples } from "./SmallMultiples";
+export type { SmallMultipleDatum } from "./SmallMultiples";
 export {
   uncertaintyTokens,
   resolveCounterfactualColor,
@@ -86,6 +98,10 @@ export {
   resolveUncertaintyIntervalColor,
   resolveUncertaintyPaletteColor,
 } from "./uncertainty-tokens";
+export {
+  shouldRenderUncertaintyMethodLabel,
+  uncertaintyMethodTrustLabel,
+} from "./uncertainty-rendering";
 export {
   buildUncertaintyPatternIds,
   resolveUncertaintyPatternFill,

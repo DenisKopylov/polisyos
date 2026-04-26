@@ -1,0 +1,19 @@
+{
+  "name": "@polisyos/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "exports": {
+    "./styleguide": "./src/styleguide/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.18"
+  }
+}

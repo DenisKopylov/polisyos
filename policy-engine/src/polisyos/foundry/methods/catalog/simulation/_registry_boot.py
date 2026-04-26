@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+from polisyos.foundry.methods.catalog.simulation.coupled import (
+    CoupledPairedMonteCarloEstimator,
+    CoupledPolicySimulationEstimator,
+    CoupledQueueMLEEstimator,
+    CoupledQueueParticleFilterEstimator,
+    CoupledSMMEstimator,
+)
 from polisyos.foundry.methods.catalog.simulation.demography import (
     StaticAgingSimulationEstimator,
 )
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     AgentPopulationSimulationEstimator,
+    CanonicalDynamicalSystemEstimator,
     QueueDiscreteEventEstimator,
     SEIRCompartmentalEstimator,
     SIRCompartmentalEstimator,
@@ -23,11 +31,17 @@ def register_simulation_methods() -> tuple[type, ...]:
     """Register simulation methods."""
     return (
         StockFlowSystemDynamicsEstimator,
+        CanonicalDynamicalSystemEstimator,
         QueueDiscreteEventEstimator,
         SIRCompartmentalEstimator,
         SEIRCompartmentalEstimator,
         StaticAgingSimulationEstimator,
         AgentPopulationSimulationEstimator,
+        CoupledPolicySimulationEstimator,
+        CoupledQueueMLEEstimator,
+        CoupledSMMEstimator,
+        CoupledQueueParticleFilterEstimator,
+        CoupledPairedMonteCarloEstimator,
         MonteCarloEstimator,
         BootstrapInferenceEstimator,
         PermutationTestEstimator,

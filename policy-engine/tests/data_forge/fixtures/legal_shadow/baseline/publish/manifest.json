@@ -1,0 +1,37 @@
+{
+  "kind": "publish",
+  "pipeline": "lex",
+  "published_at": "2026-04-24T00:00:02+00:00",
+  "artifacts": [
+    {
+      "path": "qc_report.json",
+      "sha256": "fdee693768c847efa9a6bb911de20b260e52f97076f56bb2bfce2343a61ed653"
+    },
+    {
+      "path": "benchmark_report.json",
+      "sha256": "b43e4ae831a777a99d6074c28d2183ae82b646af431c4e84931b4e916edf9d3c"
+    },
+    {
+      "path": "manifests/run.json",
+      "sha256": "1adccf59ecc30a593ff9df04ec6399c804e3d88a1bb3bcc192ec0f12125eb18f"
+    },
+    {
+      "path": "claim_exports/normative_claims.jsonl",
+      "sha256": "17fc0d8664adc0be13a68da3adadef81e90902dba544ea3787f92e4064711822"
+    },
+    {
+      "path": "claim_exports/normative_claims_summary.json",
+      "sha256": "8194697a011ed56137fe82afbb90b1d625ae28035c27ebefe76ed487a7454091"
+    },
+    {
+      "path": "publish/consumer_readiness.json",
+      "sha256": "8d559055b444b12fbddcabfbc08341a38be522aa85ce346e869fbe24ad35322a"
+    }
+  ],
+  "qc_report": "qc_report.json",
+  "extra": {
+    "component_dir": "tests/data_forge/fixtures/legal_shadow/baseline",
+    "consumer_readiness_manifest": "publish/consumer_readiness.json",
+    "require_embeddings": false
+  }
+}

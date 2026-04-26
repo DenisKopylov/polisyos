@@ -16,14 +16,19 @@ from .benchmarking import (
     ForecastBenchmarkResult,
     ForecastRecommendationCell,
     ForecastResearchStrategy,
+    RegimeShiftCalibrationBenchmarkResult,
     lookup_phase0_forecasting_recommendation,
     phase0_forecasting_recommendation_matrix,
     run_phase0_forecasting_benchmark,
+    run_regime_shift_calibration_benchmark,
 )
+from .hybrid import GuardedNeuralForecastEstimator
+from .regime_shift import RegimeShiftForecastEstimator
 from .univariate import (
     BottomUpReconciliationEstimator,
     ExponentialSmoothingEstimator,
     ForecastEnsembleEstimator,
+    GeneralLinearReconciliationEstimator,
     ThetaMethodEstimator,
 )
 
@@ -46,7 +51,11 @@ __all__ = [
     "ForecastEnsembleEstimator",
     "ForecastRecommendationCell",
     "ForecastResearchStrategy",
+    "GeneralLinearReconciliationEstimator",
+    "GuardedNeuralForecastEstimator",
     "ProphetEstimator",
+    "RegimeShiftCalibrationBenchmarkResult",
+    "RegimeShiftForecastEstimator",
     "STLDecompositionEstimator",
     "ThetaMethodEstimator",
     "VECForecastEstimator",
@@ -55,4 +64,5 @@ __all__ = [
     "phase0_forecasting_recommendation_matrix",
     "register_forecasting_methods",
     "run_phase0_forecasting_benchmark",
+    "run_regime_shift_calibration_benchmark",
 ]

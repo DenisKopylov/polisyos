@@ -35,6 +35,7 @@ def test_openapi_contract_includes_client_navigation_links() -> None:
         "runEvidenceContext",
         "runLineage",
         "runNodes",
+        "runQuantities",
         "runTimeline",
         "runWorkflow",
     ]
@@ -58,6 +59,8 @@ def test_openapi_contract_includes_batch_read_operations() -> None:
 
     assert runs_batch["operationId"] == "get_runs_batch"
     assert artifacts_batch["operationId"] == "get_artifact_batch"
+    lineage_batch = schema["paths"]["/api/v1/lineage/batch"]["post"]
+    assert lineage_batch["operationId"] == "get_lineage_batch"
 
 
 def test_generated_runtime_client_includes_batch_read_wrappers() -> None:

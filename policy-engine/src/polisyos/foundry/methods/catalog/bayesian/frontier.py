@@ -27,11 +27,14 @@ from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 
 from .protocols import (
     PosteriorResult,
+    SimulatorDiagnosticArtifact,
     augment_sampler_diagnostics,
+    canonical_simulator_diagnostic_artifact,
     extract_truthfulness_hints,
     relative_interval_shift_max,
     split_truthfulness_hints,
     summarize_posterior_samples,
+    validate_simulator_diagnostic_artifact,
     weighted_quantile,
 )
 
@@ -52,6 +55,24 @@ def _posterior_output_slots() -> frozenset[SlotSpec]:
                 shape=("n_samples", "n_parameters"),
             ),
             SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
+        }
+    )
+
+
+def _sbi_output_slots() -> frozenset[SlotSpec]:
+    return _posterior_output_slots() | frozenset(
+        {
+            SlotSpec(
+                "simulator_diagnostic",
+                SlotType.SCALAR,
+                Unit("diagnostic", "json"),
+                contract_id=SimulatorDiagnosticArtifact.contract_id,
+            ),
+            SlotSpec(
+                "simulator_diagnostic_ref",
+                SlotType.SCALAR,
+                Unit("artifact", "ref"),
+            ),
         }
     )
 
@@ -160,6 +181,7 @@ def _posterior_from_samples(
     parameter_names: list[str],
     metadata: Mapping[str, Any],
     diagnostics: Mapping[str, Any] | None = None,
+    simulator_diagnostic_ref: str | None = None,
 ) -> PosteriorResult:
     sample_map = {name: samples[:, idx] for idx, name in enumerate(parameter_names)}
     posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
@@ -182,6 +204,7 @@ def _posterior_from_samples(
             },
         },
         metadata=dict(metadata),
+        simulator_diagnostic_ref=simulator_diagnostic_ref,
     )
 
 
@@ -198,6 +221,429 @@ def _apply_truthfulness_hints(
     merged_metadata = dict(metadata)
     merged_metadata.update(hint_metadata)
     return merged_diagnostics, merged_metadata
+
+
+_SBI_SIMULATOR_REGIME_SCHEMA = {
+    "version": "v1",
+    "variables": [
+        {
+            "name": "calendar_period",
+            "kind": "ordered_discrete",
+            "observed_at_inference": True,
+        },
+        {
+            "name": "policy_regime",
+            "kind": "categorical",
+            "observed_at_inference": True,
+        },
+        {
+            "name": "admin_definition",
+            "kind": "categorical",
+            "observed_at_inference": True,
+        },
+    ],
+    "stationarity_assumption": "piecewise_stationary_given_regime",
+    "discontinuity_axes": ["policy_regime", "admin_definition"],
+    "smooth_axes": ["calendar_period"],
+}
+_SBI_SUMMARY_SCHEMA_REF = "artifact://foundry/sbi/summary_schema/regime-aware-v1"
+_SBI_IDENTIFIABLE_TARGET = {
+    "parameter_names": [],
+    "functional_target_names": [],
+    "equivalence_classes_allowed": True,
+    "target_conditioning": "p(theta | summary, regime_context)",
+}
+_SBI_COVERAGE_CONTRACT = {
+    "coverage_target": 0.90,
+    "coverage_tolerance": 0.03,
+    "budget_lower_bound_formula": (
+        "C*(d_id+log(1/delta))/eps_cov^2 * regime_cover_cost"
+    ),
+    "locality": "conditional_on_regime",
+}
+_SBI_DIAGNOSTIC_CONTRACT = {
+    "required_metrics": [
+        "support_quantile",
+        "knn_radius_mahalanobis",
+        "effective_local_simulations",
+        "local_c2st_score",
+        "posterior_sbc_error",
+        "tarp_coverage_error",
+        "ppc_mahalanobis",
+    ],
+    "support_required": True,
+    "thresholds": {
+        "support_quantile_min": 0.01,
+        "knn_radius_mahalanobis_max": 4.0,
+        "min_effective_local_simulations": 16,
+    },
+}
+
+
+def _sbi_contract_metadata(method_metadata: MethodMetadata) -> dict[str, Any]:
+    coverage_contract = dict(method_metadata.coverage_contract)
+    return {
+        "regime_aware_calibration_required": bool(method_metadata.diagnostic_contract),
+        "simulator_regime_schema": dict(method_metadata.simulator_regime_schema),
+        "summary_schema_ref": method_metadata.summary_schema_ref,
+        "identifiable_target": dict(method_metadata.identifiable_target),
+        "coverage_contract": coverage_contract,
+        "coverage_tolerance": coverage_contract.get("coverage_tolerance"),
+        "diagnostic_contract": dict(method_metadata.diagnostic_contract),
+    }
+
+
+def _metadata_lookup(source: Mapping[str, Any], key: str) -> Any:
+    if key in source:
+        return source.get(key)
+    metadata = source.get("metadata")
+    if isinstance(metadata, Mapping):
+        return metadata.get(key)
+    return None
+
+
+def _first_text_from_sources(
+    sources: tuple[Mapping[str, Any], ...],
+    *,
+    key: str,
+) -> str | None:
+    for source in sources:
+        raw = _metadata_lookup(source, key)
+        if raw is None:
+            continue
+        text = str(raw).strip()
+        if text:
+            return text
+    return None
+
+
+def _merge_simulator_diagnostic(
+    *,
+    diagnostics: Mapping[str, Any],
+    metadata: Mapping[str, Any],
+    sources: tuple[Mapping[str, Any], ...],
+) -> tuple[dict[str, float], dict[str, Any], str | None]:
+    merged_diagnostics = dict(diagnostics)
+    merged_metadata = dict(metadata)
+    diagnostic_ref = _first_text_from_sources(sources, key="simulator_diagnostic_ref")
+    for source in sources:
+        observed_regime = _metadata_lookup(source, "observed_regime")
+        if isinstance(observed_regime, Mapping):
+            merged_metadata["observed_regime"] = dict(observed_regime)
+    for source in sources:
+        raw = _metadata_lookup(source, "simulator_diagnostic")
+        if raw is None:
+            continue
+        diagnostic = validate_simulator_diagnostic_artifact(raw)
+        if diagnostic is None:
+            continue
+        payload = diagnostic.model_dump(mode="python", by_alias=True, exclude_none=True)
+        merged_metadata["simulator_diagnostic"] = payload
+        if diagnostic.artifact_ref and diagnostic_ref is None:
+            diagnostic_ref = diagnostic.artifact_ref
+        for key in (
+            "support_quantile",
+            "knn_radius_mahalanobis",
+            "effective_local_simulations",
+            "local_c2st_score",
+            "posterior_sbc_error",
+            "tarp_coverage_error",
+            "ppc_mahalanobis",
+        ):
+            value = payload.get(key)
+            if value is None:
+                continue
+            scalar = float(value)
+            if np.isfinite(scalar):
+                merged_diagnostics[key] = scalar
+        merged_metadata["simulator_diagnostic_status"] = diagnostic.status
+        merged_metadata["failure_mode"] = list(diagnostic.failure_mode)
+        if diagnostic.observed_regime:
+            merged_metadata["observed_regime"] = dict(diagnostic.observed_regime)
+    if diagnostic_ref is not None:
+        merged_metadata["simulator_diagnostic_ref"] = diagnostic_ref
+    return merged_diagnostics, merged_metadata, diagnostic_ref
+
+
+def _coerce_regime_rows(raw: Any, *, n_rows: int) -> list[dict[str, Any]] | None:
+    if raw is None:
+        return None
+    if isinstance(raw, Mapping):
+        rows: list[dict[str, Any]] = [dict() for _ in range(n_rows)]
+        found_vector = False
+        for key, values in raw.items():
+            if isinstance(values, (str, bytes)) or not hasattr(values, "__len__"):
+                for row in rows:
+                    row[str(key)] = values
+                continue
+            if len(values) != n_rows:
+                return None
+            found_vector = True
+            for idx, value in enumerate(values):
+                rows[idx][str(key)] = value
+        return rows if found_vector or rows else None
+    if not isinstance(raw, (list, tuple)) or len(raw) != n_rows:
+        return None
+    rows = []
+    for item in raw:
+        if not isinstance(item, Mapping):
+            return None
+        rows.append(dict(item))
+    return rows
+
+
+def _simulation_regimes_from_sources(
+    sources: tuple[Mapping[str, Any], ...],
+    *,
+    n_rows: int,
+) -> list[dict[str, Any]] | None:
+    for key in ("simulation_regimes", "simulator_regimes", "regime_contexts"):
+        for source in sources:
+            regimes = _coerce_regime_rows(_metadata_lookup(source, key), n_rows=n_rows)
+            if regimes is not None:
+                return regimes
+    return None
+
+
+def _observed_regime_from_sources(sources: tuple[Mapping[str, Any], ...]) -> dict[str, Any]:
+    for key in ("observed_regime", "regime_context", "observed_context"):
+        for source in sources:
+            raw = _metadata_lookup(source, key)
+            if isinstance(raw, Mapping):
+                regime = {str(name): value for name, value in raw.items() if value is not None}
+                if regime:
+                    return regime
+    return {}
+
+
+def _regime_match_mask(
+    regimes: list[dict[str, Any]] | None,
+    observed_regime: Mapping[str, Any],
+) -> np.ndarray | None:
+    if regimes is None or not observed_regime:
+        return None
+    keys = [str(key) for key, value in observed_regime.items() if value is not None]
+    if not keys:
+        return None
+    return np.asarray(
+        [
+            all(str(regime.get(key, "")) == str(observed_regime[key]) for key in keys)
+            for regime in regimes
+        ],
+        dtype=bool,
+    )
+
+
+def _sbi_recommended_local_budget(
+    *,
+    parameter_dimension: int,
+    metadata: Mapping[str, Any],
+) -> int:
+    coverage_contract = metadata.get("coverage_contract")
+    if not isinstance(coverage_contract, Mapping):
+        coverage_contract = {}
+    identifiable_target = metadata.get("identifiable_target")
+    target_dim = parameter_dimension
+    if isinstance(identifiable_target, Mapping):
+        target_names = list(identifiable_target.get("parameter_names") or ()) + list(
+            identifiable_target.get("functional_target_names") or ()
+        )
+        if target_names:
+            target_dim = max(1, len(target_names))
+    tolerance = coverage_contract.get("coverage_tolerance", metadata.get("coverage_tolerance"))
+    try:
+        eps_cov = float(tolerance)
+    except (TypeError, ValueError):
+        eps_cov = 0.05
+    eps_cov = float(np.clip(eps_cov, 1e-3, 0.5))
+    delta_raw = coverage_contract.get("delta", metadata.get("coverage_delta", 0.05))
+    try:
+        delta = float(delta_raw)
+    except (TypeError, ValueError):
+        delta = 0.05
+    delta = float(np.clip(delta, 1e-12, 0.5))
+    constant_raw = coverage_contract.get(
+        "budget_constant",
+        metadata.get("budget_constant", 0.01),
+    )
+    try:
+        constant = float(constant_raw)
+    except (TypeError, ValueError):
+        constant = 0.01
+    constant = max(constant, 0.0)
+    lower_bound = constant * (float(target_dim) + float(np.log(1.0 / delta))) / (eps_cov**2)
+    return max(16, int(np.ceil(lower_bound)))
+
+
+def _sbi_regime_training_view(
+    *,
+    parameters: np.ndarray,
+    simulations: np.ndarray,
+    observed_regime: Mapping[str, Any],
+    simulation_regimes: list[dict[str, Any]] | None,
+    min_local: int,
+) -> tuple[np.ndarray, np.ndarray, dict[str, float | bool | int]]:
+    mask = _regime_match_mask(simulation_regimes, observed_regime)
+    if mask is None:
+        return (
+            parameters,
+            simulations,
+            {
+                "effective_local_simulations": int(parameters.shape[0]),
+                "regime_context_declared": bool(observed_regime),
+                "simulation_regimes_declared": simulation_regimes is not None,
+                "regime_local_training_used": False,
+                "pooled_training_used": True,
+            },
+        )
+    local_count = int(np.count_nonzero(mask))
+    if local_count >= min_local:
+        return (
+            parameters[mask],
+            simulations[mask],
+            {
+                "effective_local_simulations": local_count,
+                "regime_context_declared": True,
+                "simulation_regimes_declared": True,
+                "regime_local_training_used": True,
+                "pooled_training_used": False,
+            },
+        )
+    return (
+        parameters,
+        simulations,
+        {
+            "effective_local_simulations": local_count,
+            "regime_context_declared": True,
+            "simulation_regimes_declared": True,
+            "regime_local_training_used": False,
+            "pooled_training_used": True,
+        },
+    )
+
+
+def _sbi_simulation_distance_diagnostics(
+    *,
+    parameters: np.ndarray,
+    simulations: np.ndarray,
+    observed_summary: np.ndarray,
+    samples: np.ndarray,
+) -> dict[str, float]:
+    simulation_scale = np.std(simulations, axis=0, ddof=1)
+    simulation_scale = np.where(simulation_scale > 1e-9, simulation_scale, 1.0)
+    standardized_distances = np.linalg.norm(
+        (simulations - observed_summary[None, :]) / simulation_scale[None, :], axis=1
+    )
+    neighborhood_count = min(max(16, int(np.sqrt(simulations.shape[0]))), simulations.shape[0])
+    nearest = np.argsort(standardized_distances)[:neighborhood_count]
+    local_parameters = parameters[nearest]
+    local_mean = np.mean(local_parameters, axis=0)
+    local_std = np.std(local_parameters, axis=0, ddof=1)
+    local_std = np.where(local_std > 1e-9, local_std, 1.0)
+    sample_mean = np.mean(samples, axis=0)
+    sample_std = np.std(samples, axis=0, ddof=1)
+    sample_std = np.where(sample_std > 1e-9, sample_std, 1.0)
+    knn_radius = float(np.mean(standardized_distances[nearest]))
+    radius_ratio = knn_radius / max(float(np.mean(standardized_distances)), 1e-12)
+    return {
+        "observed_neighborhood_count": float(neighborhood_count),
+        "observed_neighborhood_radius_quantile": float(radius_ratio),
+        "support_quantile": float(np.clip(1.0 - radius_ratio, 0.0, 1.0)),
+        "knn_radius_mahalanobis": knn_radius,
+        "local_reference_mean_shift_max": float(
+            np.max(np.abs(sample_mean - local_mean) / local_std)
+        ),
+        "local_reference_std_ratio_max": float(
+            np.max(np.maximum(sample_std / local_std, local_std / sample_std))
+        ),
+    }
+
+
+def _build_sbi_diagnostic_artifact(
+    *,
+    observed_regime: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+    metadata: Mapping[str, Any],
+) -> tuple[str, dict[str, Any], str]:
+    diagnostic_contract = metadata.get("diagnostic_contract")
+    thresholds = (
+        diagnostic_contract.get("thresholds", {})
+        if isinstance(diagnostic_contract, Mapping)
+        else {}
+    )
+    default_thresholds = _SBI_DIAGNOSTIC_CONTRACT["thresholds"]
+    min_support_quantile = float(
+        thresholds.get("support_quantile_min", default_thresholds["support_quantile_min"])
+    )
+    max_knn_radius = float(
+        thresholds.get("knn_radius_mahalanobis_max", default_thresholds["knn_radius_mahalanobis_max"])
+    )
+    min_local = float(
+        thresholds.get(
+            "min_effective_local_simulations",
+            default_thresholds["min_effective_local_simulations"],
+        )
+    )
+    failure_modes: list[str] = []
+    if not observed_regime:
+        failure_modes.append("regime_context_missing")
+    if float(diagnostics.get("effective_local_simulations", 0.0)) < min_local and bool(
+        diagnostics.get("simulation_regimes_declared", False)
+    ):
+        failure_modes.append("regime_extrapolation")
+    support_quantile = float(diagnostics.get("support_quantile", 0.0))
+    knn_radius = float(diagnostics.get("knn_radius_mahalanobis", np.inf))
+    if support_quantile < min_support_quantile or knn_radius > max_knn_radius:
+        failure_modes.append("unreachable_observation")
+    try:
+        coverage_tolerance = float(metadata.get("coverage_tolerance", 0.05))
+    except (TypeError, ValueError):
+        coverage_tolerance = 0.05
+    posterior_sbc_error = diagnostics.get("posterior_sbc_error")
+    tarp_coverage_error = diagnostics.get("tarp_coverage_error")
+    local_c2st_score = diagnostics.get("local_c2st_score")
+    if (
+        posterior_sbc_error is None
+        or float(posterior_sbc_error) > coverage_tolerance
+        or tarp_coverage_error is None
+        or float(tarp_coverage_error) > coverage_tolerance
+        or local_c2st_score is None
+        or float(local_c2st_score) > 0.6
+    ):
+        failure_modes.append("local_miscalibration")
+    ppc_mahalanobis = diagnostics.get("ppc_mahalanobis")
+    if ppc_mahalanobis is None or float(ppc_mahalanobis) > 2.5:
+        failure_modes.append("structural_misspecification")
+    failure_modes = list(dict.fromkeys(failure_modes))
+    actions = []
+    if any(mode in failure_modes for mode in ("regime_context_missing", "regime_extrapolation")):
+        actions.append("expand_regime_support")
+    if "unreachable_observation" in failure_modes:
+        actions.append("add_adjustment_parameter")
+    if "local_miscalibration" in failure_modes:
+        actions.append("increase_regime_local_simulations")
+    if "structural_misspecification" in failure_modes:
+        actions.append("switch_to_generalized_bayes")
+    diagnostic = SimulatorDiagnosticArtifact(
+        observed_regime=dict(observed_regime),
+        support_quantile=support_quantile,
+        knn_radius_mahalanobis=knn_radius,
+        effective_local_simulations=int(float(diagnostics.get("effective_local_simulations", 0))),
+        local_c2st_score=None
+        if local_c2st_score is None
+        else float(local_c2st_score),
+        posterior_sbc_error=None
+        if posterior_sbc_error is None
+        else float(posterior_sbc_error),
+        tarp_coverage_error=None
+        if tarp_coverage_error is None
+        else float(tarp_coverage_error),
+        ppc_mahalanobis=None if ppc_mahalanobis is None else float(ppc_mahalanobis),
+        status="fail" if failure_modes else "pass",
+        failure_mode=tuple(failure_modes),
+        recommended_action=tuple(actions),
+    )
+    return canonical_simulator_diagnostic_artifact(diagnostic)
 
 
 def _sample_intervals(
@@ -1034,9 +1480,26 @@ class _SBIBase:
                     Unit("summary", "value"),
                     shape=("n_summaries",),
                 ),
+                SlotSpec(
+                    "simulation_regimes",
+                    SlotType.VECTOR,
+                    Unit("regime", "json"),
+                    shape=("n_simulations",),
+                ),
+                SlotSpec(
+                    "observed_regime",
+                    SlotType.SCALAR,
+                    Unit("regime", "json"),
+                ),
+                SlotSpec(
+                    "simulator_diagnostic",
+                    SlotType.SCALAR,
+                    Unit("diagnostic", "json"),
+                    contract_id=SimulatorDiagnosticArtifact.contract_id,
+                ),
             }
         ),
-        output_slots=_posterior_output_slots(),
+        output_slots=_sbi_output_slots(),
         parameters=(
             ParameterSpec(name="runtime_backend", default="auto"),
             ParameterSpec(name="num_training_epochs", default=64),
@@ -1060,10 +1523,36 @@ class _SBIBase:
         num_training_epochs = max(1, int(params.get("num_training_epochs", 64)))
         num_posterior_samples = max(32, int(params.get("num_posterior_samples", 256)))
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
-        samples = _sbi_infer(
-            algorithm=algorithm,
+        contract_metadata = _sbi_contract_metadata(cls.metadata)
+        observed_regime = _observed_regime_from_sources((state, params))
+        simulation_regimes = _simulation_regimes_from_sources(
+            (state, params),
+            n_rows=parameter_draws.shape[0],
+        )
+        if observed_regime:
+            contract_metadata["observed_regime"] = observed_regime
+        recommended_budget = _sbi_recommended_local_budget(
+            parameter_dimension=parameter_draws.shape[1],
+            metadata=contract_metadata,
+        )
+        threshold_payload = cls.metadata.diagnostic_contract.get("thresholds", {})
+        min_local = int(
+            threshold_payload.get(
+                "min_effective_local_simulations",
+                _SBI_DIAGNOSTIC_CONTRACT["thresholds"]["min_effective_local_simulations"],
+            )
+        )
+        training_parameters, training_simulations, regime_diagnostics = _sbi_regime_training_view(
             parameters=parameter_draws,
             simulations=simulations,
+            observed_regime=observed_regime,
+            simulation_regimes=simulation_regimes,
+            min_local=min_local,
+        )
+        samples = _sbi_infer(
+            algorithm=algorithm,
+            parameters=training_parameters,
+            simulations=training_simulations,
             observed_summary=observed_summary,
             num_posterior_samples=num_posterior_samples,
             num_training_epochs=num_training_epochs,
@@ -1078,44 +1567,57 @@ class _SBIBase:
         ]
         if len(parameter_names) != samples.shape[1]:
             parameter_names = [f"theta_{idx}" for idx in range(samples.shape[1])]
-        simulation_scale = np.std(simulations, axis=0, ddof=1)
-        simulation_scale = np.where(simulation_scale > 1e-9, simulation_scale, 1.0)
-        standardized_distances = np.linalg.norm(
-            (simulations - observed_summary[None, :]) / simulation_scale[None, :], axis=1
+        base_diagnostics = _sbi_simulation_distance_diagnostics(
+            parameters=training_parameters,
+            simulations=training_simulations,
+            observed_summary=observed_summary,
+            samples=samples,
         )
-        neighborhood_count = min(max(16, int(np.sqrt(simulations.shape[0]))), simulations.shape[0])
-        nearest = np.argsort(standardized_distances)[:neighborhood_count]
-        local_parameters = parameter_draws[nearest]
-        local_mean = np.mean(local_parameters, axis=0)
-        local_std = np.std(local_parameters, axis=0, ddof=1)
-        local_std = np.where(local_std > 1e-9, local_std, 1.0)
-        sample_mean = np.mean(samples, axis=0)
-        sample_std = np.std(samples, axis=0, ddof=1)
-        sample_std = np.where(sample_std > 1e-9, sample_std, 1.0)
-        base_diagnostics = {
-            "observed_neighborhood_count": float(neighborhood_count),
-            "observed_neighborhood_radius_quantile": float(
-                np.mean(standardized_distances[nearest])
-                / max(float(np.mean(standardized_distances)), 1e-12)
-            ),
-            "local_reference_mean_shift_max": float(
-                np.max(np.abs(sample_mean - local_mean) / local_std)
-            ),
-            "local_reference_std_ratio_max": float(
-                np.max(np.maximum(sample_std / local_std, local_std / sample_std))
-            ),
-        }
+        base_diagnostics.update(
+            {
+                "total_simulations": float(parameter_draws.shape[0]),
+                "training_simulations": float(training_parameters.shape[0]),
+                "recommended_effective_local_simulations": float(recommended_budget),
+                **{key: float(value) for key, value in regime_diagnostics.items()},
+            }
+        )
         diagnostics, metadata = _apply_truthfulness_hints(
             diagnostics=base_diagnostics,
             metadata={
                 "sbi_algorithm": algorithm.upper(),
                 "runtime_backend_used": "sbi",
                 "num_training_epochs": num_training_epochs,
-                "summary_dimension": int(simulations.shape[1]),
+                "summary_dimension": int(training_simulations.shape[1]),
                 "observed_summary": observed_summary.tolist(),
+                **contract_metadata,
             },
             sources=(state, params),
         )
+        diagnostics, metadata, simulator_diagnostic_ref = _merge_simulator_diagnostic(
+            diagnostics=diagnostics,
+            metadata=metadata,
+            sources=(state, params),
+        )
+        if "simulator_diagnostic" in metadata and simulator_diagnostic_ref is None:
+            simulator_diagnostic_ref, simulator_diagnostic, simulator_diagnostic_hash = (
+                canonical_simulator_diagnostic_artifact(metadata["simulator_diagnostic"])
+            )
+            metadata["simulator_diagnostic"] = simulator_diagnostic
+            metadata["simulator_diagnostic_ref"] = simulator_diagnostic_ref
+            metadata["simulator_diagnostic_hash"] = simulator_diagnostic_hash
+        elif "simulator_diagnostic" not in metadata:
+            simulator_diagnostic_ref, simulator_diagnostic, simulator_diagnostic_hash = (
+                _build_sbi_diagnostic_artifact(
+                    observed_regime=observed_regime,
+                    diagnostics=diagnostics,
+                    metadata=metadata,
+                )
+            )
+            metadata["simulator_diagnostic"] = simulator_diagnostic
+            metadata["simulator_diagnostic_ref"] = simulator_diagnostic_ref
+            metadata["simulator_diagnostic_hash"] = simulator_diagnostic_hash
+            metadata["simulator_diagnostic_status"] = simulator_diagnostic.get("status")
+            metadata["failure_mode"] = list(simulator_diagnostic.get("failure_mode", ()))
         posterior = _posterior_from_samples(
             method_name=f"simulation_based_{algorithm}",
             samples=samples,
@@ -1123,10 +1625,13 @@ class _SBIBase:
             parameter_names=parameter_names,
             metadata=metadata,
             diagnostics=diagnostics,
+            simulator_diagnostic_ref=simulator_diagnostic_ref,
         )
         return {
             "result": posterior,
             "posterior_samples": samples,
+            "simulator_diagnostic": metadata.get("simulator_diagnostic"),
+            "simulator_diagnostic_ref": simulator_diagnostic_ref,
             "uncertainty_envelope": posterior.to_uncertainty_envelope(),
         }
 
@@ -1144,12 +1649,17 @@ class SimulationBasedNPEEstimator(_SBIBase):
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simulation-based neural posterior estimation using the installed SBI stack.",
         tags=frozenset({"bayesian", "sbi", "npe", "likelihood-free", "structural"}),
-        when_to_use="Likelihood-free calibration where simulator summaries and parameter draws are available.",
-        when_not_to_use="Installed runtime lacks sbi/torch, or the prior/simulation design is poorly specified.",
+        when_to_use="Likelihood-free calibration where simulator summaries, parameter draws, observed regime context, and regime-local diagnostic artifacts are available.",
+        when_not_to_use="Installed runtime lacks sbi/torch, the prior/simulation design is poorly specified, or observed policy regimes are not declared and locally supported.",
         citations=(
             "Papamakarios, G. & Murray, I. (2016). Fast epsilon-free inference of simulation models with Bayesian conditional density estimation. NeurIPS.",
         ),
-        output_interpretation="Posterior samples over simulator parameters conditioned on observed summary statistics.",
+        simulator_regime_schema=_SBI_SIMULATOR_REGIME_SCHEMA,
+        summary_schema_ref=_SBI_SUMMARY_SCHEMA_REF,
+        identifiable_target=_SBI_IDENTIFIABLE_TARGET,
+        coverage_contract=_SBI_COVERAGE_CONTRACT,
+        diagnostic_contract=_SBI_DIAGNOSTIC_CONTRACT,
+        output_interpretation="Posterior samples over simulator parameters conditioned on observed summary statistics and the declared regime context.",
     )
 
     @staticmethod
@@ -1170,10 +1680,15 @@ class SimulationBasedNLEEstimator(_SBIBase):
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simulation-based neural likelihood estimation using the installed SBI stack.",
         tags=frozenset({"bayesian", "sbi", "nle", "likelihood-free", "structural"}),
-        when_to_use="Likelihood-free policy models where likelihood estimation is preferable to direct posterior estimation.",
-        when_not_to_use="Installed runtime lacks sbi/torch, or posterior sampling through the learned likelihood is ill-conditioned.",
+        when_to_use="Likelihood-free policy models where likelihood estimation is preferable and regime-local simulator diagnostics certify the observed context.",
+        when_not_to_use="Installed runtime lacks sbi/torch, posterior sampling through the learned likelihood is ill-conditioned, or simulator support around the observed regime is not certified.",
         citations=("Papamakarios, G. et al. (2019). Sequential neural likelihood. AISTATS.",),
-        output_interpretation="Posterior samples drawn through the learned likelihood conditioned on observed summaries.",
+        simulator_regime_schema=_SBI_SIMULATOR_REGIME_SCHEMA,
+        summary_schema_ref=_SBI_SUMMARY_SCHEMA_REF,
+        identifiable_target=_SBI_IDENTIFIABLE_TARGET,
+        coverage_contract=_SBI_COVERAGE_CONTRACT,
+        diagnostic_contract=_SBI_DIAGNOSTIC_CONTRACT,
+        output_interpretation="Posterior samples drawn through the learned likelihood conditioned on observed summaries and declared regime context.",
     )
 
     @staticmethod
@@ -1194,12 +1709,17 @@ class SimulationBasedNREEstimator(_SBIBase):
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simulation-based neural ratio estimation using the installed SBI stack.",
         tags=frozenset({"bayesian", "sbi", "nre", "likelihood-free", "structural"}),
-        when_to_use="Likelihood-free policy models where ratio estimation is more stable than density estimation.",
-        when_not_to_use="Installed runtime lacks sbi/torch, or simulator coverage around observed summaries is weak.",
+        when_to_use="Likelihood-free policy models where ratio estimation is more stable and regime-local support/calibration diagnostics are available.",
+        when_not_to_use="Installed runtime lacks sbi/torch, simulator coverage around observed summaries is weak, or policy-regime drift is not represented in the conditioning context.",
         citations=(
             "Hermans, J., Begy, V. & Louppe, G. (2020). Likelihood-free MCMC with amortized approximate ratio estimators. ICML.",
         ),
-        output_interpretation="Posterior samples obtained from learned likelihood-to-evidence ratio estimates.",
+        simulator_regime_schema=_SBI_SIMULATOR_REGIME_SCHEMA,
+        summary_schema_ref=_SBI_SUMMARY_SCHEMA_REF,
+        identifiable_target=_SBI_IDENTIFIABLE_TARGET,
+        coverage_contract=_SBI_COVERAGE_CONTRACT,
+        diagnostic_contract=_SBI_DIAGNOSTIC_CONTRACT,
+        output_interpretation="Posterior samples obtained from learned likelihood-to-evidence ratio estimates conditioned on observed summaries and declared regime context.",
     )
 
     @staticmethod

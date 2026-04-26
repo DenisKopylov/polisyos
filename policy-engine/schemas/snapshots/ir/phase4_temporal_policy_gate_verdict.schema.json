@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "Phase4GateStatus": {
+      "description": "Decision emitted by the Phase 4 temporal dynamics gate.",
+      "enum": [
+        "allowed",
+        "refused"
+      ],
+      "title": "Phase4GateStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Auditable verdict for a multi-period Phase 4 policy or forecast query.",
+  "properties": {
+    "checked_regime_bundle": {
+      "default": false,
+      "title": "Checked Regime Bundle",
+      "type": "boolean"
+    },
+    "gate_eligible": {
+      "default": true,
+      "title": "Gate Eligible",
+      "type": "boolean"
+    },
+    "gate_id": {
+      "const": "phase4_temporal_policy_gate",
+      "default": "phase4_temporal_policy_gate",
+      "title": "Gate Id",
+      "type": "string"
+    },
+    "horizon": {
+      "minimum": 1,
+      "title": "Horizon",
+      "type": "integer"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "reasons": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "red_horizons": {
+      "default": [],
+      "items": {
+        "type": "integer"
+      },
+      "title": "Red Horizons",
+      "type": "array"
+    },
+    "refusal_code": {
+      "anyOf": [
+        {
+          "const": "phase4_regime_gate_failed",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Refusal Code"
+    },
+    "regime_status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Regime Status"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/Phase4GateStatus"
+    },
+    "threshold_horizon": {
+      "default": 12,
+      "minimum": 1,
+      "title": "Threshold Horizon",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "status",
+    "horizon"
+  ],
+  "title": "Phase4TemporalPolicyGateVerdict",
+  "type": "object"
+}

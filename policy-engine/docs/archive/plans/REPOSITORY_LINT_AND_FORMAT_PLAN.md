@@ -1,11 +1,15 @@
 ---
 title: Repository Lint and Format Plan
-status: active
+status: archived
 owner: team-polisyos
 created: 2026-04-23
 last_verified: 2026-04-24
-stability: draft
+stability: archived
+archived: 2026-04-24
 ---
+
+> **Archived:** implementation completed and canonical repository hygiene gates
+> are documented in `docs/reference/repository-hygiene.md`.
 
 # Repository Lint and Format Plan
 

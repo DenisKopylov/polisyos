@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.policy.evaluation import BudgetImpactEstimator
 from polisyos.foundry.methods.catalog.policy.welfare import (
     AtkinsonSWFEstimator,
     CostBenefitAnalysisEstimator,
@@ -14,6 +15,7 @@ from polisyos.foundry.methods.catalog.policy.welfare import (
     clear_social_weight_manifest_registry,
     resolve_social_weight_schedule,
 )
+from polisyos.ir.analytics.phase4_dynamics import Phase4DynamicsGateError
 
 
 def _inverse_tax_rates(
@@ -109,6 +111,35 @@ class TestCostBenefitAnalysis:
             CostBenefitAnalysisEstimator.pure_step(
                 {"benefits": np.array([1, 2]), "costs": np.array([1])}, {}
             )
+
+    def test_phase4_gate_blocks_long_cost_benefit_without_calibrated_regime(self):
+        state = {
+            "benefits": np.ones(13, dtype=float),
+            "costs": np.zeros(13, dtype=float),
+        }
+
+        with pytest.raises(Phase4DynamicsGateError):
+            CostBenefitAnalysisEstimator.pure_step(state, {})
+
+        result = CostBenefitAnalysisEstimator.pure_step(
+            state,
+            {"regime_shift_forecast_bundle": {"regime_status": "calibrated"}},
+        )["result"]
+        assert result["phase4_gate_verdict"]["status"] == "allowed"
+        assert result["phase4_gate_verdict"]["checked_regime_bundle"] is True
+
+
+def test_budget_impact_phase4_gate_records_short_horizon_verdict() -> None:
+    result = BudgetImpactEstimator.pure_step(
+        {
+            "revenue_effects": np.array([2.0, 3.0]),
+            "expenditure_effects": np.array([1.0, 1.0]),
+        },
+        {},
+    )["result"]
+
+    assert result["phase4_gate_verdict"]["status"] == "allowed"
+    assert result["phase4_gate_verdict"]["horizon"] == 2
 
 
 class TestCostEffectiveness:

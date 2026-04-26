@@ -22,6 +22,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.phase4_dynamics import Phase4DynamicsGate
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -672,6 +673,18 @@ class CostBenefitAnalysisEstimator:
         shadow = float(params.get("shadow_price_factor", 1.0))
 
         n = len(benefits)
+        phase4_verdict = Phase4DynamicsGate().enforce(
+            horizon=n,
+            regime_bundle=params.get("regime_shift_forecast_bundle")
+            or state.get("regime_shift_forecast_bundle"),
+            regime_bundle_ref=params.get("regime_shift_forecast_bundle_ref")
+            or state.get("regime_shift_forecast_bundle_ref"),
+            artifact_store=params.get("artifact_store") or state.get("artifact_store"),
+            metadata={
+                "surface": "foundry.policy.welfare.cost_benefit_analysis",
+                "method": "policy.welfare.cost_benefit_analysis",
+            },
+        )
         periods = np.arange(n, dtype=float)
         discount_factors = 1.0 / (1.0 + discount_rate) ** periods
 
@@ -706,6 +719,7 @@ class CostBenefitAnalysisEstimator:
                     "pv_costs": pv_costs,
                     "discount_rate": discount_rate,
                     "n_periods": n,
+                    "phase4_gate_verdict": phase4_verdict.model_dump(mode="json"),
                 },
                 state=state,
                 params=params,

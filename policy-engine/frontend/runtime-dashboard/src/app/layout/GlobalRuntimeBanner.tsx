@@ -33,7 +33,7 @@ export function GlobalRuntimeBanner() {
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
-      className={`mx-6 mt-5 rounded-3xl border px-5 py-4 ${resolveBannerTone(incident.status)}`}
+      className={`mx-6 mt-5 rounded-lg border px-5 py-4 ${resolveBannerTone(incident.status)}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">

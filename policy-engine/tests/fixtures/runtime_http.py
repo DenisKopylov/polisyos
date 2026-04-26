@@ -698,6 +698,57 @@ def build_runtime_api_env(
         },
         kind="scientist.workflow_spec",
     )
+    equilibrium_report_ref = _put_json(
+        store,
+        {
+            "schema_version": "1.0",
+            "model_id": "ks_lite_fixture",
+            "search_protocol": {
+                "mode": "baseline",
+                "start_domain": {"belief_slope": [0.0, 1.0]},
+                "n_attempts": 2,
+                "merge_tol": 1.0e-6,
+                "residual_tol": 1.0e-8,
+                "basin_draws": 0,
+            },
+            "equilibria": [
+                {
+                    "equilibrium_id": "eq_001",
+                    "state": {
+                        "variable_ids": ["belief_slope"],
+                        "values": [0.72],
+                        "scales": [1.0],
+                        "lower_bounds": [0.0],
+                        "upper_bounds": [1.0],
+                        "weights": [1.0],
+                    },
+                    "residual_norm": 1.0e-9,
+                    "local_stability": "attractive",
+                    "discovered_from_starts": 2,
+                }
+            ],
+            "branches": [
+                {
+                    "branch_id": "br_001",
+                    "points": [{"lambda": 0.0, "equilibrium_id": "eq_001"}],
+                }
+            ],
+            "bifurcation_candidates": [],
+            "basin_estimates": [],
+            "unresolved_starts": [],
+            "global_diagnostics": {
+                "num_attempts": 2,
+                "num_converged": 2,
+                "num_equilibria": 1,
+                "num_unresolved": 0,
+            },
+            "provenance": {
+                "solver_version": "polisyos-foundry-feedback-1.0",
+                "git_sha": "fixture",
+            },
+        },
+        kind="foundry.equilibrium_multiplicity_report",
+    )
 
     run = RunContext.start(
         store=store,
@@ -735,6 +786,7 @@ def build_runtime_api_env(
     run.add_output(quality_ref)
     run.add_output(legal_ref)
     run.add_output(reflexion_terminal_ref)
+    run.add_output(equilibrium_report_ref)
     run.run_manifest.execution_profile = "governed"
     run.run_manifest.control_job_id = "job_ctrl_fixture_001"
     run.run_manifest.capability_manifest_ref = capability_manifest_ref
@@ -839,6 +891,7 @@ def build_runtime_api_env(
         "workflow_spec_artifact_id": str(workflow_spec_ref.artifact_id),
         "experiment_state_artifact_id": str(experiment_state_ref.artifact_id),
         "workflow_report_artifact_id": str(workflow_report_ref.artifact_id),
+        "equilibrium_report_artifact_id": str(equilibrium_report_ref.artifact_id),
         "execution_plan_artifact_id": str(execution_plan_ref.artifact_id),
         "preflight_artifact_id": str(preflight_ref.artifact_id),
         "evaluator_artifact_id": str(evaluator_ref.artifact_id),

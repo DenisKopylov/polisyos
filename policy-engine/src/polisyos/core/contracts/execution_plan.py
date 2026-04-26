@@ -272,6 +272,11 @@ class MethodCatalogEntry(BaseModel):
     diagnostic_checks: list[str] = Field(default_factory=list)
     typical_min_obs: int | None = Field(default=None)
     output_interpretation: str = Field(default="")
+    simulator_regime_schema: dict[str, Any] = Field(default_factory=dict)
+    summary_schema_ref: str | None = Field(default=None)
+    identifiable_target: dict[str, Any] = Field(default_factory=dict)
+    coverage_contract: dict[str, Any] = Field(default_factory=dict)
+    diagnostic_contract: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _synchronize_truthfulness_fields(self) -> MethodCatalogEntry:

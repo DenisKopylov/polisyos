@@ -14,13 +14,19 @@ const {
   useFeatureFlagsMock,
   useHealthMock,
   useInterfaceModeMock,
+  useMaybeCounterfactualMock,
   useRunsLiveStatusMock,
   useRunsSampleMock,
+  useRunScenariosMock,
   useRuntimeApiIncidentMock,
   useThemeMock,
+  setCounterfactualModeMock,
+  setCounterfactualScenarioIdMock,
 } = vi.hoisted(() => ({
   dismissIncidentMock: vi.fn(),
   cycleDensityMock: vi.fn(),
+  setCounterfactualModeMock: vi.fn(),
+  setCounterfactualScenarioIdMock: vi.fn(),
   setInterfaceModeMock: vi.fn(),
   setLocaleMock: vi.fn(),
   toggleThemeMock: vi.fn(),
@@ -29,8 +35,10 @@ const {
   useFeatureFlagsMock: vi.fn(),
   useHealthMock: vi.fn(),
   useInterfaceModeMock: vi.fn(),
+  useMaybeCounterfactualMock: vi.fn(),
   useRunsLiveStatusMock: vi.fn(),
   useRunsSampleMock: vi.fn(),
+  useRunScenariosMock: vi.fn(),
   useRuntimeApiIncidentMock: vi.fn(),
   useThemeMock: vi.fn(),
 }));
@@ -41,6 +49,16 @@ vi.mock("@/api/hooks/useCapabilities", () => ({
 
 vi.mock("@/api/hooks/useHealth", () => ({
   useHealth: (...args: unknown[]) => useHealthMock(...args),
+}));
+
+vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
+  useRunScenarios: (...args: unknown[]) => useRunScenariosMock(...args),
+  useScenarioCapabilities: vi.fn(),
+}));
+
+vi.mock("@/app/providers/useCounterfactual", () => ({
+  useMaybeCounterfactual: (...args: unknown[]) =>
+    useMaybeCounterfactualMock(...args),
 }));
 
 vi.mock("@/app/providers/FeatureFlagProvider", () => ({
@@ -130,6 +148,8 @@ describe("layout surfaces", () => {
   beforeEach(() => {
     mockViewport(1280);
     dismissIncidentMock.mockReset();
+    setCounterfactualModeMock.mockReset();
+    setCounterfactualScenarioIdMock.mockReset();
     setInterfaceModeMock.mockReset();
     setLocaleMock.mockReset();
     toggleThemeMock.mockReset();
@@ -168,6 +188,13 @@ describe("layout surfaces", () => {
       isClerk: false,
       isAnalyst: true,
     });
+    useMaybeCounterfactualMock.mockReset();
+    useMaybeCounterfactualMock.mockReturnValue({
+      mode: "actual",
+      scenarioId: null,
+      setMode: setCounterfactualModeMock,
+      setScenarioId: setCounterfactualScenarioIdMock,
+    });
     useRunsLiveStatusMock.mockReset();
     useRunsLiveStatusMock.mockReturnValue({
       lastEventAt: Date.now(),
@@ -181,6 +208,13 @@ describe("layout surfaces", () => {
           { run_id: "run-2", status: "completed" },
         ],
       },
+    });
+    useRunScenariosMock.mockReset();
+    useRunScenariosMock.mockReturnValue({
+      data: { scenarios: [] },
+      error: null,
+      isError: false,
+      isLoading: false,
     });
     useRuntimeApiIncidentMock.mockReset();
     useRuntimeApiIncidentMock.mockReturnValue({
@@ -208,6 +242,43 @@ describe("layout surfaces", () => {
     expect(screen.getByTestId("shell-sidebar")).toBeInTheDocument();
     expect(screen.getByTestId("shell-header")).toBeInTheDocument();
     expect(screen.getByText("Run workspace")).toBeInTheDocument();
+  });
+
+  it("shows counterfactual controls on concrete run routes", async () => {
+    const user = userEvent.setup();
+    useRunScenariosMock.mockReturnValueOnce({
+      data: {
+        scenarios: [
+          {
+            id: "scn-1",
+            policy_question: "Rate cut",
+            status: "computed",
+          },
+        ],
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderWithRouter(
+      <AppShell>
+        <div>Run detail</div>
+      </AppShell>,
+      "/runs/run-1/overview",
+    );
+
+    expect(screen.getByTestId("counterfactual-shell-rail")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("radio", {
+        name: "shared.ui.counterfactual.mode.actual_vs_scenario",
+      }),
+    );
+
+    expect(setCounterfactualScenarioIdMock).toHaveBeenCalledWith("scn-1");
+    expect(setCounterfactualModeMock).toHaveBeenCalledWith(
+      "actual_vs_scenario",
+    );
   });
 
   it("switches to Atlas brand lockups when Atlas v2 is enabled", () => {

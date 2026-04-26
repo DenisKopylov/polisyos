@@ -18,7 +18,19 @@ def test_phase0_forecasting_recommendation_lookup_returns_research_matrix_cell()
     assert cell.strategies == (ForecastResearchStrategy.BAYESIAN_PLUS_CONFORMAL,)
 
 
-def test_phase0_forecasting_benchmark_smoke_covers_all_seven_methods() -> None:
+def test_phase0_forecasting_recommendation_lookup_covers_regime_shift_method() -> None:
+    cell = lookup_phase0_forecasting_recommendation(
+        "forecasting.regime_shift.hybrid@1.0.0",
+        ForecastBenchmarkRegime.POLICY_BREAKS,
+        12,
+    )
+
+    assert cell.strategies == (
+        ForecastResearchStrategy.REGIME_SWITCHING_ADAPTIVE_CONFORMAL,
+    )
+
+
+def test_phase0_forecasting_benchmark_smoke_covers_benchmarked_methods() -> None:
     results = run_phase0_forecasting_benchmark(
         regimes=(ForecastBenchmarkRegime.STABLE_SMALL,),
         horizons=(1, 4),
@@ -28,7 +40,7 @@ def test_phase0_forecasting_benchmark_smoke_covers_all_seven_methods() -> None:
 
     by_method = {result.method_fqn: result for result in results}
 
-    assert len(by_method) == 7
+    assert len(by_method) == 8
     assert by_method["forecasting.decomposition.stl@1.0.0"].status == "attached_output_only"
     assert (
         by_method["forecasting.univariate.exponential_smoothing@1.0.0"].current_calibration_method
@@ -41,3 +53,9 @@ def test_phase0_forecasting_benchmark_smoke_covers_all_seven_methods() -> None:
     assert by_method["forecasting.advanced.prophet@1.0.0"].research_recommendation_by_horizon[
         1
     ] == ("conformal",)
+    assert by_method["forecasting.regime_shift.hybrid@1.0.0"].current_calibration_method == (
+        "conformal"
+    )
+    assert by_method["forecasting.regime_shift.hybrid@1.0.0"].research_recommendation_by_horizon[
+        1
+    ] == ("regime_switching_adaptive_conformal",)

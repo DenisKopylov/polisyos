@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-labelledby="title desc">
+  <title id="title">Tryzub placeholder silhouette</title>
+  <desc id="desc">Public-domain style placeholder used only as a non-official decorative marker.</desc>
+  <path fill="none" stroke="#111827" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" d="M48 8v102M22 20c12 10 18 24 18 42 0 18-7 33-18 46M74 20c-12 10-18 24-18 42 0 18 7 33 18 46M32 54h32M24 116h48M48 8c-7 14-7 25 0 34 7-9 7-20 0-34Z"/>
+</svg>

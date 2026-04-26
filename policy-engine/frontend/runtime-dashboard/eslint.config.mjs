@@ -77,6 +77,7 @@ export default tseslint.config(
     plugins: {
       boundaries,
       local: localPlugin,
+      policyos: localPlugin,
       "testing-library": testingLibrary,
       "unused-imports": unusedImports,
     },
@@ -170,6 +171,14 @@ export default tseslint.config(
     files: authoredProseFiles,
     rules: {
       "local/require-authored-text-in-prose": "error",
+    },
+  },
+  {
+    files: [
+      "src/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "policyos/quantity-must-be-wrapped": ["error", { classes: ["decision"] }],
     },
   },
   {

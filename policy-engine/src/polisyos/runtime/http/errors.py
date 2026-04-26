@@ -45,6 +45,7 @@ _DEFAULT_TYPE_BY_STATUS: dict[int, str] = {
     403: "https://polisyos.dev/problems/forbidden",
     404: "https://polisyos.dev/problems/not-found",
     406: "https://polisyos.dev/problems/not-acceptable",
+    409: "https://polisyos.dev/problems/conflict",
     429: "https://polisyos.dev/problems/rate-limited",
     422: "https://polisyos.dev/problems/validation-error",
     503: "https://polisyos.dev/problems/service-unavailable",
@@ -275,6 +276,7 @@ class RuntimeHTTPError(Exception):
     error: str
     detail: str
     code: str
+    extensions: dict[str, Any] | None = None
 
     def to_model(
         self,
@@ -300,6 +302,22 @@ def bad_request(detail: str, *, code: str = "bad_request") -> RuntimeHTTPError:
 def forbidden(detail: str, *, code: str = "forbidden") -> RuntimeHTTPError:
     """Create a 403 error for tenant, capability, or authz policy violations."""
     return RuntimeHTTPError(status_code=403, error="forbidden", detail=detail, code=code)
+
+
+def conflict(
+    detail: str,
+    *,
+    code: str = "conflict",
+    extensions: dict[str, Any] | None = None,
+) -> RuntimeHTTPError:
+    """Create a 409 error for incompatible runtime surface state."""
+    return RuntimeHTTPError(
+        status_code=409,
+        error="conflict",
+        detail=detail,
+        code=code,
+        extensions=extensions,
+    )
 
 
 def unauthorized(detail: str, *, code: str = "unauthorized") -> RuntimeHTTPError:
@@ -549,6 +567,8 @@ def install_exception_handlers(app: Any) -> None:
         request_id = context.request_id
         payload = exc.to_model(request_id=request_id, instance=str(request.url.path))
         content = payload.model_dump(mode="json")
+        if exc.extensions:
+            content.update(exc.extensions)
         content.update(_context_extension(context))
         return json_response(
             status_code=exc.status_code,

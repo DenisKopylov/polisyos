@@ -94,6 +94,48 @@ class FeedbackResultRef(ArtifactRef):
     media_type: str = "application/json"
 
 
+class EquilibriumMultiplicityReportRef(ArtifactRef):
+    """Artifact reference for a structured fixed-point multiplicity report."""
+
+    kind: str = "foundry.equilibrium_multiplicity_report"
+    media_type: str = "application/json"
+
+
+class IdentifiabilityDiagnosticRef(ArtifactRef):
+    """Artifact reference for aggregate-moment identifiability diagnostics."""
+
+    kind: str = "foundry.identifiability_diagnostic"
+    media_type: str = "application/json"
+
+
+class AttractorAnalysisResultRef(ArtifactRef):
+    """Artifact reference for a multi-attractor analysis summary."""
+
+    kind: str = "foundry.attractor_analysis_result"
+    media_type: str = "application/json"
+
+
+class BasinMapRef(ArtifactRef):
+    """Artifact reference for dense basin membership samples."""
+
+    kind: str = "foundry.basin_map"
+    media_type: str = "application/json"
+
+
+class ContinuationBranchRef(ArtifactRef):
+    """Artifact reference for an equilibrium, cycle, or bifurcation continuation branch."""
+
+    kind: str = "foundry.continuation_branch"
+    media_type: str = "application/json"
+
+
+class PeriodicOrbitDiagnosticsRef(ArtifactRef):
+    """Artifact reference for periodic-orbit diagnostics such as Floquet multipliers."""
+
+    kind: str = "foundry.periodic_orbit_diagnostics"
+    media_type: str = "application/json"
+
+
 class TreasurySeedRef(ArtifactRef):
     """Artifact reference for deterministic random-stream seeds used during execution."""
 
@@ -623,6 +665,16 @@ class FeedbackSolverConfig(BaseModel):
     multi_start_values: list[list[float]] = Field(default_factory=list)
     fixed_point_merge_tol: float = Field(default=1e-4, gt=0.0)
     store_alternative_fixed_points: bool = True
+    detect_multiplicity: bool = False
+    multiplicity_mode: Literal["off", "baseline", "continuation"] = "off"
+    multiplicity_max_attempts: int = Field(default=256, ge=1)
+    multiplicity_sobol_draws: int = Field(default=128, ge=0)
+    continuation_parameter: str | None = None
+    continuation_grid: list[float] = Field(default_factory=list)
+    basin_draws: int = Field(default=0, ge=0)
+    basin_seed: int = Field(default=0, ge=0)
+    svd_bifurcation_tol: float = Field(default=1e-3, gt=0.0)
+    spectral_radius_warn_tol: float = Field(default=5e-2, gt=0.0)
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -723,7 +775,184 @@ class FeedbackJacobianDiagnostics(BaseModel):
     spectral_radius: float | None = None
     operator_norm_inf: float | None = None
     condition_number: float | None = None
+    smallest_singular_value_i_minus_j: float | None = None
+    near_fold: bool = False
+    near_flip: bool = False
+    near_loss_of_stability: bool = False
     near_bifurcation: bool = False
+    notes: list[str] = Field(default_factory=list)
+
+
+class EquilibriumBasinInterval(BaseModel):
+    """Confidence interval for a basin-share estimate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lower: float = Field(ge=0.0, le=1.0)
+    upper: float = Field(ge=0.0, le=1.0)
+
+
+class EquilibriumSearchProtocol(BaseModel):
+    """Protocol metadata for a fixed-point multiplicity search."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["baseline", "research", "continuation"] = "baseline"
+    start_domain: dict[str, Any] = Field(default_factory=dict)
+    n_attempts: int = Field(ge=1)
+    continuation_parameter: str | None = None
+    continuation_grid: list[float] = Field(default_factory=list)
+    merge_tol: float | None = Field(default=None, gt=0.0)
+    residual_tol: float | None = Field(default=None, ge=0.0)
+    basin_draws: int = Field(default=0, ge=0)
+
+
+class EquilibriumCandidateJacobian(BaseModel):
+    """Jacobian summaries attached to one equilibrium candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectral_radius: float | None = None
+    operator_norm_inf: float | None = None
+    condition_number: float | None = None
+    smallest_singular_value_i_minus_j: float | None = None
+    near_fold: bool = False
+    near_flip: bool = False
+    near_loss_of_stability: bool = False
+    near_bifurcation: bool = False
+
+
+class BasinEstimate(BaseModel):
+    """Estimated basin share for one clustered fixed point."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    equilibrium_id: str
+    draws: int = Field(ge=0)
+    hits: int = Field(ge=0)
+    share_hat: float | None = Field(default=None, ge=0.0, le=1.0)
+    ci_95: EquilibriumBasinInterval | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class EquilibriumCandidate(BaseModel):
+    """One clustered fixed-point candidate in a multiplicity report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    equilibrium_id: str
+    state: FeedbackStateSnapshot
+    residual_norm: float | None = None
+    step_norm: float | None = None
+    jacobian: EquilibriumCandidateJacobian | None = None
+    local_stability: Literal[
+        "attractive",
+        "unstable",
+        "neutral_or_near_bifurcation",
+        "unknown",
+    ] = "unknown"
+    branch_id: str | None = None
+    basin_share_hat: float | None = Field(default=None, ge=0.0, le=1.0)
+    basin_ci_95: EquilibriumBasinInterval | None = None
+    discovered_from_starts: int = Field(default=1, ge=1)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class EquilibriumBranchPoint(BaseModel):
+    """One point on a continuation branch."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    lambda_value: float = Field(alias="lambda")
+    equilibrium_id: str
+
+
+class EquilibriumBranch(BaseModel):
+    """A continuation branch through discovered equilibria."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    branch_id: str
+    points: list[EquilibriumBranchPoint] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class BifurcationCandidate(BaseModel):
+    """Potential bifurcation event detected from local diagnostics."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    kind: Literal["fold", "flip", "loss_of_stability"]
+    lambda_value: float | None = Field(default=None, alias="lambda")
+    equilibrium_id: str
+    confidence: Literal["low", "medium", "high"] = "low"
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class UnresolvedEquilibriumStart(BaseModel):
+    """A start point that did not converge or could not be assigned to a cluster."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start_state: FeedbackStateSnapshot
+    status: str
+    failure_reason: str | None = None
+    residual_norm: float | None = None
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class EquilibriumMultiplicityDiagnostics(BaseModel):
+    """Search-level diagnostics for a multiplicity report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    num_attempts: int = Field(ge=0)
+    num_converged: int = Field(ge=0)
+    num_equilibria: int = Field(ge=0)
+    num_unresolved: int = Field(default=0, ge=0)
+    two_cycle_failures: int = Field(default=0, ge=0)
+    stagnation_failures: int = Field(default=0, ge=0)
+    divergence_failures: int = Field(default=0, ge=0)
+    unresolved_starts_share: float | None = Field(default=None, ge=0.0, le=1.0)
+    max_pairwise_cluster_overlap: float | None = None
+    branch_switch_events: int = Field(default=0, ge=0)
+    continuation_failures: int = Field(default=0, ge=0)
+    false_merge_risk: float | None = Field(default=None, ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
+
+
+class EquilibriumMultiplicityProvenance(BaseModel):
+    """Reproducibility metadata for a multiplicity report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    solver_version: str = "polisyos-foundry-feedback-1.0"
+    git_sha: str = "unknown"
+    runtime_refs: list[str] = Field(default_factory=list)
+    random_seed: int | None = None
+
+
+class EquilibriumMultiplicityReport(BaseModel):
+    """Structured report for discovered fixed-point multiplicity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    model_id: str
+    parameter_hash: str | None = None
+    search_protocol: EquilibriumSearchProtocol
+    equilibria: list[EquilibriumCandidate] = Field(default_factory=list)
+    branches: list[EquilibriumBranch] = Field(default_factory=list)
+    bifurcation_candidates: list[BifurcationCandidate] = Field(default_factory=list)
+    basin_estimates: list[BasinEstimate] = Field(default_factory=list)
+    unresolved_starts: list[UnresolvedEquilibriumStart] = Field(default_factory=list)
+    global_diagnostics: EquilibriumMultiplicityDiagnostics
+    provenance: EquilibriumMultiplicityProvenance = Field(
+        default_factory=EquilibriumMultiplicityProvenance
+    )
     notes: list[str] = Field(default_factory=list)
 
 
@@ -771,9 +1000,396 @@ class FeedbackSolveResult(BaseModel):
     jacobian_diagnostics_ref: FeedbackJacobianDiagnosticsRef | None = None
     convergence_certificate_ref: FeedbackConvergenceCertificateRef | None = None
     final_parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None
+    multiplicity_report_ref: EquilibriumMultiplicityReportRef | None = None
     alternative_fixed_points: list[FeedbackFixedPointCandidate] = Field(default_factory=list)
     failure_reason: str | None = None
     final_diagnostics: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorStateProjection(BaseModel):
+    """Reduced observable state on which attractor claims are made."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    variables: list[str] = Field(default_factory=list)
+    reduced_dimension: int = Field(ge=0)
+    quotient_notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_dimension(self) -> AttractorStateProjection:
+        if self.variables and self.reduced_dimension != len(self.variables):
+            raise ValueError("reduced_dimension must match variables length")
+        return self
+
+
+class AttractorParameterPoint(BaseModel):
+    """Parameter coordinate associated with an attractor-analysis result."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    names: list[str] = Field(default_factory=list)
+    values: list[float] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_shapes(self) -> AttractorParameterPoint:
+        if len(self.names) != len(self.values):
+            raise ValueError("parameter names and values must have equal length")
+        return self
+
+
+class AttractorSpectralValue(BaseModel):
+    """JSON-safe representation of a real or complex spectral value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    real: float
+    imag: float = 0.0
+
+
+class AttractorStateRepresentation(BaseModel):
+    """Compact state, orbit, or invariant-set representation for one attractor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    equilibrium: dict[str, float] | None = None
+    section_definition: str | None = None
+    orbit_artifact_ref: ArtifactRef | None = None
+    orbit_points: list[dict[str, float]] = Field(default_factory=list)
+    invariant_set_artifact_ref: ArtifactRef | None = None
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class AttractorStability(BaseModel):
+    """Local or finite-time stability diagnostics for an attractor candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    local_class: Literal[
+        "asymptotically_stable",
+        "orbitally_stable",
+        "neutral",
+        "unstable",
+        "mixed",
+        "unknown",
+    ] = "unknown"
+    jacobian_eigenvalues: list[AttractorSpectralValue] = Field(default_factory=list)
+    spectral_radius: float | None = Field(default=None, ge=0.0)
+    floquet_multipliers: list[AttractorSpectralValue] | None = None
+    lyapunov_spectrum: list[float] | None = None
+    largest_lyapunov_exponent: float | None = None
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorCertificate(BaseModel):
+    """Declare the certificate or evidence supporting an attractor claim."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    type: str = "none"
+    status: Literal[
+        "not_attempted",
+        "not_applicable",
+        "numerically_supported",
+        "proved_local",
+        "proved_global",
+        "failed",
+    ] = "not_attempted"
+    evidence_strength: float | None = Field(default=None, ge=0.0, le=1.0)
+    v_description: str | None = Field(default=None, alias="V_description")
+    proof_artifact_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class PeriodicOrbitDiagnostics(BaseModel):
+    """Diagnostics for a periodic orbit or Poincare-map fixed point."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    period: float = Field(gt=0.0)
+    section_definition: str | None = None
+    orbit_artifact_ref: ArtifactRef | None = None
+    floquet_multipliers: list[AttractorSpectralValue] = Field(default_factory=list)
+    spectral_radius: float | None = Field(default=None, ge=0.0)
+    transverse_certificate: AttractorCertificate | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorBasinEstimate(BaseModel):
+    """Basin-of-attraction estimate for one attractor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    estimation_method: str | None = None
+    basin_measure_estimate: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_interval: tuple[float, float] | None = None
+    boundary_complexity: str | None = None
+    basin_map_ref: BasinMapRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_confidence_interval(self) -> AttractorBasinEstimate:
+        if self.confidence_interval is None:
+            return self
+        lower, upper = self.confidence_interval
+        if lower < 0.0 or upper > 1.0 or lower > upper:
+            raise ValueError("confidence_interval must be ordered within [0, 1]")
+        return self
+
+
+class AttractorObservableSummary(BaseModel):
+    """Human-scale observable properties of one attractor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    period: float | None = Field(default=None, gt=0.0)
+    max_amplitude: float | None = Field(default=None, ge=0.0)
+    terminal_residual_norm: float | None = Field(default=None, ge=0.0)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class AttractorUncertainty(BaseModel):
+    """Numerical and stochastic uncertainty attached to one attractor claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    seeds_used: int | None = Field(default=None, ge=0)
+    numerical_tolerance: float | None = Field(default=None, ge=0.0)
+    continuation_step: float | None = Field(default=None, gt=0.0)
+    finite_time_horizon: int | None = Field(default=None, ge=0)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorSummary(BaseModel):
+    """One attractor, invariant set, or rejected divergent regime."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    attractor_id: str
+    kind: Literal[
+        "fixed_point",
+        "limit_cycle",
+        "chaotic",
+        "torus",
+        "invariant_set",
+        "divergent",
+    ]
+    existence_status: Literal[
+        "candidate",
+        "numerically_confirmed",
+        "analytically_confirmed",
+        "rejected",
+        "unknown",
+    ] = "candidate"
+    state_representation: AttractorStateRepresentation = Field(
+        default_factory=AttractorStateRepresentation
+    )
+    stability: AttractorStability = Field(default_factory=AttractorStability)
+    certificate: AttractorCertificate = Field(default_factory=AttractorCertificate)
+    basin: AttractorBasinEstimate = Field(default_factory=AttractorBasinEstimate)
+    observables: AttractorObservableSummary = Field(default_factory=AttractorObservableSummary)
+    uncertainty: AttractorUncertainty = Field(default_factory=AttractorUncertainty)
+    notes: list[str] = Field(default_factory=list)
+
+
+class BifurcationEvent(BaseModel):
+    """Detected local or global bifurcation event on a branch or sweep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bifurcation_id: str
+    kind: Literal[
+        "saddle_node",
+        "hopf",
+        "period_doubling",
+        "neimark_sacker",
+        "torus",
+        "branch_point",
+        "homoclinic",
+        "regime_change",
+        "unknown",
+    ]
+    parameter_values: dict[str, float] = Field(default_factory=dict)
+    branch_from: str | None = None
+    branch_to: str | None = None
+    detection_method: str
+    normal_form: dict[str, Any] = Field(default_factory=dict)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorUncertaintySummary(BaseModel):
+    """Top-level uncertainty summary for an attractor-analysis run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    stochastic_model: bool = False
+    seed_ensemble_size: int | None = Field(default=None, ge=0)
+    unresolved_items: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorAnalysisProvenance(BaseModel):
+    """Toolchain and upstream artifacts used to produce an attractor report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    toolchain: list[str] = Field(default_factory=list)
+    derived_from: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorAnalysisResult(BaseModel):
+    """Top-level Foundry artifact for attractors, bifurcations, and certificates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    kind: Literal["foundry.attractor_analysis_result"] = "foundry.attractor_analysis_result"
+    analysis_id: str
+    model_ref: ArtifactRef | None = None
+    simulation_result_ref: SimulationResultRef | None = None
+    exec_plan_ref: ExecPlanRef | None = None
+    feedback_result_ref: FeedbackResultRef | None = None
+    state_projection: AttractorStateProjection
+    parameter_point: AttractorParameterPoint = Field(default_factory=AttractorParameterPoint)
+    attractors: list[AttractorSummary] = Field(default_factory=list)
+    bifurcations: list[BifurcationEvent] = Field(default_factory=list)
+    uncertainty_summary: AttractorUncertaintySummary = Field(
+        default_factory=AttractorUncertaintySummary
+    )
+    provenance: AttractorAnalysisProvenance = Field(default_factory=AttractorAnalysisProvenance)
+    notes: list[str] = Field(default_factory=list)
+
+
+class BasinMapSample(BaseModel):
+    """One initial-condition sample and its assigned attractor label."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str
+    initial_state: dict[str, float]
+    attractor_id: str | None = None
+    seed: int | None = None
+    terminal_residual_norm: float | None = Field(default=None, ge=0.0)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
+
+
+class BasinMap(BaseModel):
+    """Dense basin-map sidecar for attractor analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    kind: Literal["foundry.basin_map"] = "foundry.basin_map"
+    basin_id: str
+    analysis_id: str | None = None
+    state_projection: AttractorStateProjection
+    sampling_method: str
+    samples: list[BasinMapSample] = Field(default_factory=list)
+    basin_measure_estimates: dict[str, float] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ContinuationBranchPoint(BaseModel):
+    """One continuation branch point with optional stability summaries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    point_id: str
+    parameter_values: dict[str, float] = Field(default_factory=dict)
+    state: dict[str, float] = Field(default_factory=dict)
+    period: float | None = Field(default=None, gt=0.0)
+    stability: AttractorStability = Field(default_factory=AttractorStability)
+    bifurcation_id: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class ContinuationBranch(BaseModel):
+    """Continuation sidecar for equilibria, periodic orbits, or bifurcation curves."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    kind: Literal["foundry.continuation_branch"] = "foundry.continuation_branch"
+    branch_id: str
+    analysis_id: str | None = None
+    branch_kind: Literal["equilibrium", "periodic_orbit", "bifurcation_curve", "parameter_sweep"]
+    parameters: list[str] = Field(default_factory=list)
+    points: list[ContinuationBranchPoint] = Field(default_factory=list)
+    bifurcations: list[BifurcationEvent] = Field(default_factory=list)
+    toolchain: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AttractorAnalysisRequest(BaseModel):
+    """Input contract for Foundry attractor-analysis endpoints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    model_ref: ArtifactRef | None = None
+    simulation_result_ref: SimulationResultRef | None = None
+    exec_plan_ref: ExecPlanRef | None = None
+    feedback_result_ref: FeedbackResultRef | None = None
+    feedback_jacobian_diagnostics_ref: FeedbackJacobianDiagnosticsRef | None = None
+    state_projection: AttractorStateProjection | None = None
+    parameter_point: AttractorParameterPoint = Field(default_factory=AttractorParameterPoint)
+    variable_ids: list[str] = Field(default_factory=list)
+    trajectory: list[list[float]] | None = None
+    trajectories: list[list[list[float]]] = Field(default_factory=list)
+    initial_states: list[dict[str, float]] = Field(default_factory=list)
+    seeds: list[int] = Field(default_factory=list)
+    analysis_modes: list[
+        Literal["attractors", "continuation", "basin_map", "lyapunov"]
+    ] = Field(default_factory=lambda: ["attractors"])
+    tolerance: float = Field(default=1.0e-6, ge=0.0)
+    rtol: float = Field(default=1.0e-5, ge=0.0)
+    window: int = Field(default=32, ge=2)
+    max_period: int = Field(default=12, ge=2)
+    largest_lyapunov_exponent: float | None = None
+    stochastic_model: bool = False
+    persist_artifact: bool = True
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_source_ref(self) -> AttractorAnalysisRequest:
+        if self.trajectory is not None and self.trajectories:
+            raise ValueError("use either trajectory or trajectories, not both")
+        trajectory_count = 1 if self.trajectory is not None else len(self.trajectories)
+        if self.initial_states and len(self.initial_states) != trajectory_count:
+            raise ValueError("initial_states length must match trajectory count")
+        if self.seeds and len(self.seeds) != trajectory_count:
+            raise ValueError("seeds length must match trajectory count")
+        if (
+            self.model_ref is None
+            and self.simulation_result_ref is None
+            and self.exec_plan_ref is None
+            and self.feedback_result_ref is None
+            and self.trajectory is None
+            and not self.trajectories
+        ):
+            raise ValueError(
+                "attractor analysis requires a model/run reference or direct trajectory data"
+            )
+        if not self.variable_ids and self.state_projection is not None:
+            self.variable_ids = list(self.state_projection.variables)
+        return self
+
+
+class AttractorAnalysisResponse(BaseModel):
+    """Response contract for Foundry attractor-analysis endpoints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    ok: bool
+    analysis_result: AttractorAnalysisResult | None = None
+    analysis_result_ref: AttractorAnalysisResultRef | None = None
+    derived_refs: list[DerivedArtifact] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -1094,4 +1710,5 @@ class SimulationResult(BaseModel):
     propagation_config_ref: ArtifactRef | None = None
     propagation_report_ref: ArtifactRef | None = None
     feedback_result_ref: FeedbackResultRef | None = None
+    identifiability_diagnostic_ref: IdentifiabilityDiagnosticRef | None = None
     notes: list[str] = Field(default_factory=list)

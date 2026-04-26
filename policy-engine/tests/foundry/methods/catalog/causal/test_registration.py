@@ -79,6 +79,8 @@ def test_register_causal_methods_queryable():
     assert {"partial", "network_aipw", "spatial", "bipartite", "network_cate"}.issubset(
         interference_names
     )
+    dynamic_graph_names = {sig.name for sig in registry.query(namespace="causal.dynamic_graph")}
+    assert "dscm" in dynamic_graph_names
     assert "efficiency_bound" in semiparametric_names
     assert {
         "cme_krr",

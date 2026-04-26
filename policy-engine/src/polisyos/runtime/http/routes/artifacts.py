@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import mimetypes
 import re
+from datetime import datetime  # noqa: TC003 - FastAPI needs the runtime query annotation.
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -14,6 +15,12 @@ from polisyos.core.contracts.runtime import (
     ArtifactLineageResponse,
     ArtifactManifestResponse,
     ArtifactSchemaResponse,
+    BureaucraticExportFormat,
+    BureaucraticExportResponse,
+    BureaucraticGenre,
+    BureaucraticRenderRequest,
+    BureaucraticRenderResponse,
+    TemporalScope,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -287,6 +294,98 @@ if router is not None:
                 "schema": schema_view.model_dump(mode="json"),
             }
         )
+
+    @router.post(
+        "/{packet_id}/render",
+        response_model=BureaucraticRenderResponse,
+        operation_id="render_bureaucratic_artifact",
+    )
+    def render_bureaucratic_artifact(
+        packet_id: str,
+        body: BureaucraticRenderRequest,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> BureaucraticRenderResponse:
+        parsed_id = _parse_artifact_id(packet_id)
+        tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id or getattr(request.state, "tenant_id", None),
+            kind="runtime.artifact_bureaucratic_render",
+            artifact_id=str(parsed_id),
+        )
+        try:
+            document = ctx.bureaucratic_rendering.render_document(parsed_id, body)
+        except FileNotFoundError as exc:
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={
+                "genre": body.genre,
+                "template_version": body.template_version,
+                "trust_view": body.trust_view,
+            },
+        )
+        return BureaucraticRenderResponse(meta=build_meta(request), document=document)
+
+    @router.get(
+        "/{packet_id}/export",
+        response_model=BureaucraticExportResponse,
+        operation_id="export_bureaucratic_artifact",
+    )
+    def export_bureaucratic_artifact(
+        packet_id: str,
+        request: Request,
+        format: BureaucraticExportFormat = Query(default="html"),
+        genre: BureaucraticGenre = Query(default="postanova_kmu"),
+        jurisdiction: str = Query(default="ua", min_length=1),
+        template_version: str | None = Query(default=None),
+        trust_view: bool = Query(default=False),
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> BureaucraticExportResponse:
+        parsed_id = _parse_artifact_id(packet_id)
+        tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id or getattr(request.state, "tenant_id", None),
+            kind="runtime.artifact_bureaucratic_export",
+            artifact_id=str(parsed_id),
+        )
+        temporal_scope = None
+        if valid_at is not None or tx_at is not None:
+            temporal_scope = TemporalScope(valid_at=valid_at, tx_at=tx_at)
+        render_request = BureaucraticRenderRequest(
+            genre=genre,
+            jurisdiction=jurisdiction,
+            template_version=template_version,
+            temporal_scope=temporal_scope,
+            trust_view=trust_view,
+        )
+        try:
+            export = ctx.bureaucratic_rendering.export_document(
+                parsed_id,
+                render_request,
+                export_format=format,
+                meta=build_meta(request),
+            )
+        except FileNotFoundError as exc:
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={
+                "format": format,
+                "genre": genre,
+                "template_version": template_version,
+                "trust_view": trust_view,
+            },
+        )
+        return export
 
     @router.get(
         "/{artifact_id}/download",

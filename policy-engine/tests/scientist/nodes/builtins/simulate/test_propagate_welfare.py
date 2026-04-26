@@ -7,6 +7,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
+from polisyos.core.contracts.foundry import (
+    EquilibriumMultiplicityDiagnostics,
+    EquilibriumMultiplicityReport,
+    EquilibriumMultiplicityReportRef,
+    EquilibriumSearchProtocol,
+    FeedbackResultRef,
+    FeedbackSolveResult,
+    FeedbackStateSnapshot,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.decision_layer import load_social_weight_manifest
@@ -124,6 +133,126 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
     )
     updated_sim = SimulationResult.model_validate(updated_payload)
     assert updated_sim.welfare_bundle_ref is not None
+
+
+def test_propagate_welfare_node_feeds_feedback_multiplicity_into_welfare_bundle(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_welfare_multiplicity",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.welfare.multiplicity"),
+    )
+
+    snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"policy_value": 10.0}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    multiplicity_report_ref_payload = store.put_json(
+        EquilibriumMultiplicityReport(
+            model_id="test_feedback_model",
+            search_protocol=EquilibriumSearchProtocol(n_attempts=2),
+            global_diagnostics=EquilibriumMultiplicityDiagnostics(
+                num_attempts=2,
+                num_converged=2,
+                num_equilibria=2,
+            ),
+        ),
+        PutOptions(
+            kind="foundry.equilibrium_multiplicity_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.EquilibriumMultiplicityReport",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    multiplicity_report_ref = EquilibriumMultiplicityReportRef(
+        artifact_id=multiplicity_report_ref_payload.artifact_id
+    )
+    feedback_state = FeedbackStateSnapshot(
+        variable_ids=["x"],
+        values=[1.0],
+        scales=[1.0],
+        lower_bounds=[None],
+        upper_bounds=[None],
+        weights=[1.0],
+    )
+    feedback_result_ref_payload = store.put_json(
+        FeedbackSolveResult(
+            converged=True,
+            initial_state=feedback_state,
+            final_state=feedback_state,
+            multiplicity_report_ref=multiplicity_report_ref,
+        ),
+        PutOptions(
+            kind="foundry.feedback_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.FeedbackSolveResult", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    feedback_result_ref = FeedbackResultRef(artifact_id=feedback_result_ref_payload.artifact_id)
+    sim_result_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+            feedback_result_ref=feedback_result_ref,
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_welfare_multiplicity",
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref},
+        params={
+            "welfare_weights": {"policy_value": 1.0},
+            "welfare_input_envelopes": {
+                "policy_value": {
+                    "point_estimate": 10.0,
+                    "confidence_interval": [9.0, 11.0],
+                    "confidence_level": 0.95,
+                    "distribution_family": "normal",
+                    "source": "manual",
+                    "propagation_method": "none",
+                    "interval_semantics": "confidence_interval",
+                }
+            },
+        },
+    )
+
+    outcome = PropagateWelfareNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
+    assert bundle.equilibrium_multiplicity.status == "multiple"
+    assert bundle.equilibrium_multiplicity.selection_dependence is True
+    assert bundle.equilibrium_multiplicity.report_ref is not None
+    assert bundle.metadata["equilibrium_multiplicity_status"] == "multiple"
 
 
 def test_propagate_welfare_node_materializes_social_weight_manifest(tmp_path) -> None:

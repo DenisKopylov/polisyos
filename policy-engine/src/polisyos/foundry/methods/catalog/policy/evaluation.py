@@ -20,6 +20,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.phase4_dynamics import Phase4DynamicsGate
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -91,6 +92,18 @@ class BudgetImpactEstimator:
 
         discount_rate = float(params.get("discount_rate", 0.03))
         n = len(revenue)
+        phase4_verdict = Phase4DynamicsGate().enforce(
+            horizon=n,
+            regime_bundle=params.get("regime_shift_forecast_bundle")
+            or state.get("regime_shift_forecast_bundle"),
+            regime_bundle_ref=params.get("regime_shift_forecast_bundle_ref")
+            or state.get("regime_shift_forecast_bundle_ref"),
+            artifact_store=params.get("artifact_store") or state.get("artifact_store"),
+            metadata={
+                "surface": "foundry.policy.evaluation.budget_impact",
+                "method": "policy.evaluation.budget_impact",
+            },
+        )
         discount_factors = 1.0 / (1.0 + discount_rate) ** np.arange(n, dtype=float)
 
         net_fiscal = revenue - expenditure
@@ -107,6 +120,7 @@ class BudgetImpactEstimator:
                 "annual_net_fiscal": net_fiscal.tolist(),
                 "cumulative_net_fiscal": cumulative_net.tolist(),
                 "n_periods": n,
+                "phase4_gate_verdict": phase4_verdict.model_dump(mode="json"),
             }
         }
 

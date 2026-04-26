@@ -9,19 +9,24 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.ir.analytics.simulation_proof_bridge import load_simulation_proof_bridge
 from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     StrategicSCM,
     load_strategic_response_bundle,
     persist_strategic_payoff_table,
 )
-from polisyos.ir.refs import ArtifactRefModel, StrategicResponseBundleRef
+from polisyos.ir.refs import ArtifactRefModel, SimulationProofBridgeRef, StrategicResponseBundleRef
 from polisyos.scientist.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_PROOF_BUNDLE_REF,
+    ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
+    ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
     INPUT_INPUT_BINDINGS_REF,
@@ -153,6 +158,143 @@ def test_ok_when_foundry_execute_succeeds(execution_context, minimal_state, arti
 
     outcome = RunSimulationNode().execute(ctx, state)
     assert outcome.status == "ok"
+
+
+def test_run_simulation_calls_phase4_gate_for_long_temporal_queries(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    mock_foundry = MagicMock()
+    ctx = replace(execution_context, foundry=mock_foundry)
+    ref = artifact_ref_factory(kind="foundry.exec_plan")
+    bindings_ref = artifact_ref_factory(kind="foundry.input_bindings")
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = ref
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = bindings_ref
+    state.params["simulation_horizon"] = 13
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "phase4_regime_gate_failed"
+    assert outcome.error.details["horizon"] == 13
+    mock_foundry.execute.assert_not_called()
+
+
+def test_run_simulation_allows_long_temporal_queries_with_calibrated_regime_bundle(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    mock_foundry = MagicMock()
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=None,
+        derived_refs=[],
+        notes=[],
+    )
+    ctx = replace(execution_context, foundry=mock_foundry)
+    ref = artifact_ref_factory(kind="foundry.exec_plan")
+    bindings_ref = artifact_ref_factory(kind="foundry.input_bindings")
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = ref
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = bindings_ref
+    state.params["simulation_horizon"] = 13
+    state.params["regime_shift_forecast_bundle"] = {"regime_status": "calibrated"}
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    mock_foundry.execute.assert_called_once()
+
+
+def test_run_simulation_materializes_proof_bridge_for_simulation_result(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    exec_plan_ref = artifact_ref_factory(kind="foundry.exec_plan")
+    input_bindings_ref = artifact_ref_factory(kind="foundry.input_bindings")
+    metrics_ref = artifact_ref_factory(
+        kind="foundry.metrics",
+        data={"values": {"policy_value": "1.0"}, "notes": []},
+    )
+    simulation_ref = artifact_ref_factory(
+        kind="foundry.simulation_result",
+        data={
+            "schema_version": "1.3",
+            "exec_plan_ref": exec_plan_ref.model_dump(mode="json"),
+            "metrics_ref": metrics_ref.model_dump(mode="json"),
+            "notes": [],
+        },
+    )
+    mock_foundry = MagicMock()
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=simulation_ref,
+        derived_refs=[SimpleNamespace(role="metrics", ref=metrics_ref)],
+        notes=[],
+    )
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = exec_plan_ref
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = input_bindings_ref
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_SIMULATION_PROOF_BRIDGE_REF in outcome.state.artifacts_index
+    assert ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF in outcome.state.artifacts_index
+    assert ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF in outcome.state.artifacts_index
+    assert ARTIFACT_PROOF_BUNDLE_REF in outcome.state.artifacts_index
+    bridge = load_simulation_proof_bridge(
+        ctx.store,
+        SimulationProofBridgeRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_SIMULATION_PROOF_BRIDGE_REF].model_dump(
+                mode="json"
+            )
+        ),
+    )
+    assert bridge.certification_status.value == "SCENARIO"
+    assert str(bridge.simulation_result_ref.artifact_id) == str(simulation_ref.artifact_id)
+
+
+def test_run_simulation_fails_closed_when_proof_bridge_cannot_materialize(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    exec_plan_ref = artifact_ref_factory(kind="foundry.exec_plan")
+    input_bindings_ref = artifact_ref_factory(kind="foundry.input_bindings")
+    simulation_ref = artifact_ref_factory(kind="foundry.simulation_result")
+    mock_foundry = MagicMock()
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=simulation_ref,
+        derived_refs=[],
+        notes=[],
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_simulation."
+        "build_simulation_proof_bridge_artifacts",
+        lambda *args, **kwargs: (_ for _ in ()).throw(ValueError("bridge failed")),
+    )
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = exec_plan_ref
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = input_bindings_ref
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == node_errors.ERROR_SIMULATION_PROOF_BRIDGE_FAILED
+    assert ARTIFACT_SIMULATION_PROOF_BRIDGE_REF not in outcome.state.artifacts_index
 
 
 def test_run_simulation_persists_strategic_artifacts_when_inputs_are_valid(

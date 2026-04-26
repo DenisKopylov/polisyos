@@ -8,6 +8,7 @@ import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
 import { buildArtifactHref } from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
+import { ScenarioWorkbench } from "@/features/whatif";
 import { useI18n } from "@/i18n/LocaleProvider";
 import {
   findRunEvidenceNeed,
@@ -32,6 +33,7 @@ import {
 } from "@/shared/telemetry/performance";
 import { Badge, Card, EmptyState, PanelSkeleton } from "@/shared/ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
@@ -47,6 +49,17 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const readingViewHref = isDecisionPacket
     ? buildArtifactHref(artifactId, { tab: "content", view: "reading" })
     : null;
+  const decisionScoreQuantity = untracedDecisionQuantity({
+    point: summary.decisionScore,
+    metricId: "overview_decision_score",
+    label: t("pages.runs.report.decisionScore"),
+    time: {
+      valid_at:
+        summary.decisionView?.generatedAt ??
+        summary.run?.finished_at ??
+        summary.run?.started_at,
+    },
+  });
 
   useEffect(() => {
     markUiMilestone("runs.overview.decision.ready", {
@@ -103,7 +116,13 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
                 maximumFractionDigits: 2,
               }),
             })}
-            value={formatPercent(summary.decisionScore)}
+            value={
+              <Quantity
+                value={decisionScoreQuantity}
+                format="percent"
+                precision={0}
+              />
+            }
           />
         </div>
       </div>
@@ -144,13 +163,19 @@ function GovernancePanelContent({ runId }: { runId: string }) {
   const transportStatus = String(
     governance.transport_summary?.status ?? "not_available",
   );
+  const blockerCountQuantity = untracedDecisionQuantity({
+    point: blockerCount,
+    metricId: "overview_governance_blocker_count",
+    label: t("pages.runs.governance"),
+    unit: { code: "{blocker}", system: "ucum", display: "blockers" },
+  });
 
   return (
     <>
       <div className="grid gap-3 md:grid-cols-2">
         <MetricCard
           label={t("pages.runs.governance")}
-          value={formatNumber(blockerCount)}
+          value={<Quantity value={blockerCountQuantity} />}
         />
         <MetricCard label={t("pages.runs.transport")} value={transportStatus} />
       </div>
@@ -432,6 +457,10 @@ export default function OverviewTab() {
           </FeatureAsyncBoundary>
         </Card>
       </div>
+
+      <Card className="space-y-4" data-testid="overview-scenario-workbench">
+        <ScenarioWorkbench runId={runId} />
+      </Card>
 
       {/* Explainability & Trust (XAI) */}
       <Card className="space-y-4">

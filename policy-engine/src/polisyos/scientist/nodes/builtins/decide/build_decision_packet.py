@@ -2155,6 +2155,9 @@ def _build_welfare_section(
                 ),
                 "channel_decomposition": dict(welfare.channel_decomposition),
                 "subgroup_welfare": dict(welfare.subgroup_welfare),
+                "equilibrium_multiplicity": welfare.equilibrium_multiplicity.model_dump(
+                    mode="json"
+                ),
                 "method_used": welfare.method_used.value,
                 "status": welfare.status.value,
                 "warnings": list(welfare.warnings),

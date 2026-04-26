@@ -27,3 +27,5 @@ export * from "../Textarea";
 export * from "../ToggleButton";
 export * from "../Tooltip";
 export * from "../ProvenanceStrip";
+export * from "../counterfactual";
+export * from "../quantity";

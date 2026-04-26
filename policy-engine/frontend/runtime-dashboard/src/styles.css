@@ -2,9 +2,13 @@
 @import "./styles/theme-light.css";
 @import "./styles/theme-dark.css";
 @import "./styles/theme-high-contrast.css";
+@import "./styles/motion.css";
 @import "./styles/density-comfortable.css";
 @import "./styles/density-compact.css";
 @import "./styles/density-condensed.css";
+@import "./styles/media.css";
+@import "./styles/print.css";
+@import "./shared/ui/trust-view/trust-view.css";
 
 @theme inline {
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -1606,5 +1610,76 @@
     content: " (" attr(href) ")";
     font-size: 0.8em;
     color: #666;
+  }
+}
+
+@layer components {
+  .small-multiples {
+    display: grid;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .small-multiples-axis {
+    color: var(--muted);
+    display: flex;
+    font-size: var(--text-xs);
+    justify-content: space-between;
+  }
+
+  .small-multiples-grid {
+    display: grid;
+    gap: var(--space-2);
+    grid-template-columns: repeat(auto-fit, minmax(8.25rem, 1fr));
+  }
+
+  .small-multiple-cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--panel) 84%, transparent);
+    color: var(--ink);
+    display: grid;
+    gap: 0.35rem;
+    min-height: 7.5rem;
+    padding: 0.65rem;
+    text-align: left;
+  }
+
+  .small-multiple-cell:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .small-multiple-cell-selected {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--accent) 42%, transparent);
+  }
+
+  .small-multiple-heading {
+    display: flex;
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    gap: 0.35rem;
+    justify-content: space-between;
+    min-width: 0;
+    text-transform: uppercase;
+  }
+
+  .small-multiple-heading span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .small-multiple-chart {
+    inline-size: 100%;
+    min-block-size: 3rem;
+  }
+
+  .small-multiple-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 700;
   }
 }

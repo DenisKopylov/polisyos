@@ -1,0 +1,364 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "EquilibriumMultiplicityReportRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for a structured fixed-point multiplicity report.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "foundry.equilibrium_multiplicity_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "EquilibriumMultiplicityReportRef",
+      "type": "object"
+    },
+    "FeedbackConvergenceCertificateRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for the feedback convergence certificate.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "foundry.feedback_convergence_certificate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "FeedbackConvergenceCertificateRef",
+      "type": "object"
+    },
+    "FeedbackFixedPointCandidate": {
+      "additionalProperties": false,
+      "description": "One converged fixed-point candidate returned by a multi-start solve.",
+      "properties": {
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "residual_norm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual Norm"
+        },
+        "state": {
+          "$ref": "#/$defs/FeedbackStateSnapshot"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "FeedbackFixedPointCandidate",
+      "type": "object"
+    },
+    "FeedbackJacobianDiagnosticsRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for Jacobian diagnostics around the solved fixed point.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "foundry.feedback_jacobian_diagnostics",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "FeedbackJacobianDiagnosticsRef",
+      "type": "object"
+    },
+    "FeedbackStateSnapshot": {
+      "additionalProperties": false,
+      "description": "Compact feedback vector plus solver scaling metadata.",
+      "properties": {
+        "lower_bounds": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Lower Bounds",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "scales": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Scales",
+          "type": "array"
+        },
+        "upper_bounds": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Upper Bounds",
+          "type": "array"
+        },
+        "values": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "variable_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Variable Ids",
+          "type": "array"
+        },
+        "weights": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variable_ids",
+        "values",
+        "scales",
+        "lower_bounds",
+        "upper_bounds",
+        "weights"
+      ],
+      "title": "FeedbackStateSnapshot",
+      "type": "object"
+    },
+    "FeedbackTraceRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for the feedback iteration trace.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "foundry.feedback_trace",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "FeedbackTraceRef",
+      "type": "object"
+    },
+    "ParameterOverrideBundleRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for parameter overrides layered onto a baseline execution config.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "foundry.parameter_override_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "ParameterOverrideBundleRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Top-level feedback-solver outcome persisted as a CAS artifact.",
+  "properties": {
+    "alternative_fixed_points": {
+      "items": {
+        "$ref": "#/$defs/FeedbackFixedPointCandidate"
+      },
+      "title": "Alternative Fixed Points",
+      "type": "array"
+    },
+    "converged": {
+      "title": "Converged",
+      "type": "boolean"
+    },
+    "convergence_certificate_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FeedbackConvergenceCertificateRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Reason"
+    },
+    "final_diagnostics": {
+      "additionalProperties": true,
+      "title": "Final Diagnostics",
+      "type": "object"
+    },
+    "final_parameter_override_bundle_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ParameterOverrideBundleRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "final_state": {
+      "$ref": "#/$defs/FeedbackStateSnapshot"
+    },
+    "initial_state": {
+      "$ref": "#/$defs/FeedbackStateSnapshot"
+    },
+    "jacobian_diagnostics_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FeedbackJacobianDiagnosticsRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "multiplicity_report_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EquilibriumMultiplicityReportRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "default": "converged",
+      "title": "Status",
+      "type": "string"
+    },
+    "trace_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FeedbackTraceRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "converged",
+    "initial_state",
+    "final_state"
+  ],
+  "title": "FeedbackSolveResult",
+  "type": "object"
+}

@@ -5,6 +5,15 @@ import pytest
 from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
 from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    ForecastAnnouncementWindow,
+    ForecastContrastSpec,
+    ForecastIdentificationMethod,
+    ForecastIdentifiedComponent,
+    ForecastInterventionQuery,
+    ForecastSemanticsClass,
+    ForecastUpdateOperatorKind,
+)
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
@@ -211,6 +220,94 @@ class TestVariablesMembership:
         report = CausalQueryValidator().validate(graph, ast)
         warning_codes = [w.code for w in report.warnings]
         assert "S_NODE_DANGLING" in warning_codes
+
+
+# ---------------------------------------------------------------------------
+# Forecast-as-treatment query lane
+# ---------------------------------------------------------------------------
+
+
+def _forecast_query(**overrides) -> ForecastInterventionQuery:
+    payload = {
+        "message_var": "A_tau",
+        "announcement_time": "2026-04-25T10:00:00Z",
+        "semantics_class": ForecastSemanticsClass.DELPHIC,
+        "expectation_target": "B_tau_plus",
+        "outcome_target": "Y",
+        "contrast_spec": ForecastContrastSpec(
+            message="published_soft_landing_forecast",
+            baseline_message="baseline_projection",
+        ),
+        "decomposition_goal": ForecastIdentifiedComponent.EXPECTATION_ONLY,
+        "update_operator_kind": ForecastUpdateOperatorKind.BAYES,
+        "decomposition_method": ForecastIdentificationMethod.LOCAL_INDEPENDENCE_REWEIGHTING,
+        "pre_announcement_window": ForecastAnnouncementWindow(
+            start="2026-04-25T09:55:00Z",
+            end="2026-04-25T10:00:00Z",
+        ),
+        "post_announcement_window": ForecastAnnouncementWindow(
+            start="2026-04-25T10:00:00Z",
+            end="2026-04-25T10:05:00Z",
+        ),
+        "positivity_claimed": True,
+        "censoring_assessed": True,
+        "required_observables": ("A_tau", "B_tau_plus", "Y"),
+    }
+    payload.update(overrides)
+    return ForecastInterventionQuery(**payload)
+
+
+class TestForecastInterventionQuery:
+    def test_valid_forecast_query_has_no_errors(self):
+        graph = _make_dag(("A_tau", "B_tau_plus"), ("B_tau_plus", "Y"))
+        report = CausalQueryValidator().validate_forecast_intervention_query(
+            graph,
+            _forecast_query(),
+        )
+
+        assert report.is_valid is True
+        assert report.errors == ()
+        assert "FORECAST_PROOF_BUNDLE_MISSING" in [w.code for w in report.warnings]
+
+    def test_forecast_query_requires_windows_and_update_or_decomposition(self):
+        graph = _make_dag(("A_tau", "B_tau_plus"), ("B_tau_plus", "Y"))
+        report = CausalQueryValidator().validate_forecast_intervention_query(
+            graph,
+            _forecast_query(
+                update_operator_kind=ForecastUpdateOperatorKind.UNKNOWN,
+                decomposition_method=None,
+                pre_announcement_window=None,
+                post_announcement_window=None,
+                positivity_claimed=False,
+            ),
+        )
+
+        error_codes = [error.code for error in report.errors]
+        assert "FORECAST_WINDOW_MISSING" in error_codes
+        assert "FORECAST_UPDATE_OR_DECOMPOSITION_MISSING" in error_codes
+        assert "FORECAST_POSITIVITY_FAILED" in error_codes
+
+    def test_forecast_query_blocks_hard_action_without_hybrid_semantics(self):
+        graph = _make_dag(("A_tau", "B_tau_plus"), ("B_tau_plus", "Y"))
+        report = CausalQueryValidator().validate_forecast_intervention_query(
+            graph,
+            _forecast_query(hard_actions_same_window=("rate_cut",)),
+        )
+
+        assert "FORECAST_HARD_ACTION_REQUIRES_HYBRID" in [
+            error.code for error in report.errors
+        ]
+
+    def test_forecast_query_requires_message_to_expectation_edge(self):
+        graph = _make_dag(("A_tau", "Y"), ("B_tau_plus", "Y"))
+        report = CausalQueryValidator().validate_forecast_intervention_query(
+            graph,
+            _forecast_query(),
+        )
+
+        assert "FORECAST_EXPECTATION_EDGE_MISSING" in [
+            error.code for error in report.errors
+        ]
 
 
 # ---------------------------------------------------------------------------

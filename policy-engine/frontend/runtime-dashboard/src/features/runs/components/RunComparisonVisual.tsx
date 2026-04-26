@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import {
   BarChart,
   ParallelCoordinatesChart,
@@ -90,10 +91,21 @@ export function RunComparisonVisual({
               <div key={m.key} className="border-line rounded-xl border p-2">
                 <p className="text-muted truncate text-xs">{m.label}</p>
                 <p className="font-mono text-lg font-bold">
-                  {typeof m.base === "number" ? m.base.toFixed(2) : m.base}
-                  {m.unit && (
-                    <span className="text-muted text-xs">{m.unit}</span>
-                  )}
+                  <Quantity
+                    value={untracedDecisionQuantity({
+                      point: m.base,
+                      metricId: `compare_base_${m.key}`,
+                      label: m.label,
+                      unit: {
+                        code: m.unit || "1",
+                        system: "ucum",
+                        display: m.unit || "value",
+                      },
+                      reasonCode: "run_comparison_without_lineage",
+                    })}
+                    precision={2}
+                    variant="inline"
+                  />
                 </p>
               </div>
             ))}
@@ -118,12 +130,21 @@ export function RunComparisonVisual({
                 <div key={m.key} className="border-line rounded-xl border p-2">
                   <p className="text-muted truncate text-xs">{m.label}</p>
                   <p className="font-mono text-lg font-bold">
-                    {typeof m.target === "number"
-                      ? m.target.toFixed(2)
-                      : m.target}
-                    {m.unit && (
-                      <span className="text-muted text-xs">{m.unit}</span>
-                    )}
+                    <Quantity
+                      value={untracedDecisionQuantity({
+                        point: m.target,
+                        metricId: `compare_target_${m.key}`,
+                        label: m.label,
+                        unit: {
+                          code: m.unit || "1",
+                          system: "ucum",
+                          display: m.unit || "value",
+                        },
+                        reasonCode: "run_comparison_without_lineage",
+                      })}
+                      precision={2}
+                      variant="inline"
+                    />
                   </p>
                   <p
                     className="text-xs font-semibold"
@@ -137,7 +158,21 @@ export function RunComparisonVisual({
                     }}
                   >
                     {delta >= 0 ? "+" : ""}
-                    {delta.toFixed(2)}
+                    <Quantity
+                      value={untracedDecisionQuantity({
+                        point: delta,
+                        metricId: `compare_delta_${m.key}`,
+                        label: `${m.label} delta`,
+                        unit: {
+                          code: m.unit || "1",
+                          system: "ucum",
+                          display: m.unit || "value",
+                        },
+                        reasonCode: "run_comparison_without_lineage",
+                      })}
+                      precision={2}
+                      variant="dense"
+                    />
                   </p>
                 </div>
               );

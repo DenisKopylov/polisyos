@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..artifacts.manifest import ArtifactRef, InputRef
 from .decision_validity import DecisionValidityStatus
@@ -20,10 +20,102 @@ from .feedback import (
     DecisionMonitoringReport,
     DecisionReissuePlan,
 )
+from .foundry import EquilibriumMultiplicityReport
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
 PreviewMode = Literal["json", "text", "binary"]
+VerificationStatus = Literal["verified", "pending", "disputed", "untraced"]
+LineageFreshness = Literal["current", "stale", "unknown"]
+DisputeStatus = Literal["none", "disputed", "under_review", "resolved"]
+QuantityClass = Literal["decision", "telemetry", "layout", "debug"]
+ComparabilityStatus = Literal["compatible", "warning", "blocked"]
+CompareCandidateRelation = Literal["baseline", "previous", "selected", "recommended"]
+CompareResponseStatus = Literal["computed", "client_computable"]
+DeltaSignificance = Literal["improved", "worsened", "mixed", "uncertain", "not_comparable"]
+DeltaDominance = Literal["a", "b", "none", "mixed", "unknown"]
+CounterfactualMode = Literal["actual", "actual_vs_scenario", "scenario_only"]
+ScenarioStatus = Literal["draft", "computed", "stale", "failed"]
+ScenarioLifecycleStatus = Literal["generated", "draft", "saved", "promoted"]
+ScenarioAssumptionStatus = Literal[
+    "operator_assumption",
+    "model_assumption",
+    "observed_evidence",
+    "disputed",
+]
+ScenarioInterventionOperator = Literal["set", "add", "multiply", "remove"]
+ScenarioConstraintSeverity = Literal["error", "warning"]
+ScenarioSurfaceSupport = Literal[
+    "run_metrics",
+    "quantities",
+    "lineage",
+    "charts",
+    "whatif",
+]
+BureaucraticGenre = Literal[
+    "postanova_kmu",
+    "zakonoproekt",
+    "expert_vysnovok",
+    "analitichna_zapyska",
+]
+BureaucraticBlockKind = Literal[
+    "header",
+    "requisites",
+    "preamble",
+    "legal_basis",
+    "section",
+    "article",
+    "clause",
+    "subclause",
+    "paragraph",
+    "list",
+    "table",
+    "quantity",
+    "annex",
+    "signature",
+    "appendix",
+]
+BureaucraticEpistemicKind = Literal[
+    "evidence_filled",
+    "model_generated",
+    "operator_filled",
+    "imported",
+]
+BureaucraticDocumentStatus = Literal["draft", "signed_external", "archived"]
+BureaucraticExportFormat = Literal["html", "pdf", "docx"]
+TemporalSurfaceSupport = Literal[
+    "run_details",
+    "run_timeline",
+    "run_lineage",
+    "run_quantities",
+    "run_compare",
+    "run_agents",
+    "run_evidence_context",
+    "run_workflow",
+    "run_nodes",
+    "artifact_content",
+]
+TemporalEventKind = Literal[
+    "run_start",
+    "run_finish",
+    "trace_event",
+    "policy_change",
+    "late_evidence",
+    "correction",
+    "snapshot",
+    "now",
+]
+LineageSummaryKind = Literal[
+    "source",
+    "transform",
+    "model",
+    "agent",
+    "result",
+    "artifact",
+    "dataset",
+    "method",
+    "unknown",
+]
 
 
 def _utc_now() -> datetime:
@@ -76,6 +168,766 @@ class RuntimeApiProblem(BaseModel):
 
 class RuntimeApiError(RuntimeApiProblem):
     """Backward-compatible alias for runtime API error payloads."""
+
+
+class UnitRef(BaseModel):
+    """Machine-readable unit identity plus a human display label."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(min_length=1)
+    system: str = Field(default="ucum", min_length=1)
+    display: str | None = None
+
+
+class TemporalRef(BaseModel):
+    """Bitemporal and snapshot scope carried by a decision-bearing value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid_at: datetime | None = None
+    tx_at: datetime | None = None
+    snapshot_id: str | None = None
+    branch: str | None = None
+    scenario_id: str | None = None
+
+
+class TemporalScope(BaseModel):
+    """Canonical bitemporal cursor used by runtime API and dashboard cache keys."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid_at: datetime | None = None
+    tx_at: datetime | None = None
+    branch: str | None = None
+    snapshot_id: str | None = None
+    scenario_id: str | None = None
+
+
+class TemporalRange(BaseModel):
+    """Inclusive range in which a temporal cursor can be used."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    earliest: datetime | None = None
+    latest: datetime | None = None
+
+
+class TemporalGapRange(BaseModel):
+    """Typed unavailable interval for a temporal surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start: datetime | None = None
+    end: datetime | None = None
+    reason_code: str
+    label: str | None = None
+
+
+class TemporalEventPoint(BaseModel):
+    """Known event point used by scrubber snapping and capability diagnostics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    timestamp: datetime
+    kind: TemporalEventKind = "trace_event"
+    label: str
+    valid_at: datetime | None = None
+    tx_at: datetime | None = None
+    observed: bool = True
+
+
+class TemporalSurfaceCapability(BaseModel):
+    """Support declaration for one time-sensitive runtime surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: TemporalSurfaceSupport
+    supported: bool
+    resolution: str = "event"
+    reason_code: str | None = None
+    valid_range: TemporalRange | None = None
+    tx_range: TemporalRange | None = None
+    nearest_event_points: list[TemporalEventPoint] = Field(default_factory=list)
+    gaps: list[TemporalGapRange] = Field(default_factory=list)
+
+
+class TemporalCapabilitiesView(BaseModel):
+    """Temporal capability manifest for one run or the runtime as a whole."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str | None = None
+    default_scope: TemporalScope | None = None
+    valid_range: TemporalRange = Field(default_factory=TemporalRange)
+    tx_range: TemporalRange = Field(default_factory=TemporalRange)
+    resolution: str = "event"
+    surfaces: list[TemporalSurfaceCapability] = Field(default_factory=list)
+    event_points: list[TemporalEventPoint] = Field(default_factory=list)
+
+
+class TemporalCapabilitiesResponse(BaseModel):
+    """Response envelope for temporal capabilities and gaps."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    capabilities: TemporalCapabilitiesView
+
+
+class VerificationMetadata(BaseModel):
+    """Audit metadata used by Trust View without changing the underlying truth."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    hash: str | None = None
+    verification_status: VerificationStatus = "untraced"
+    verified_by: str | None = None
+    verified_at: datetime | None = None
+    verification_method: str | None = None
+    freshness: LineageFreshness = "unknown"
+    dispute_status: DisputeStatus = "none"
+    temporal_scope: TemporalScope | None = None
+
+
+class TrustMetadataRef(BaseModel):
+    """Selected runtime object and its Trust View metadata payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str = Field(min_length=1)
+    subject_kind: Literal["quantity", "authored_text", "artifact", "lineage", "chart"] = (
+        "lineage"
+    )
+    trust_metadata: VerificationMetadata
+
+
+class LineageCompactSummaryItem(BaseModel):
+    """One compact lineage crumb suitable for inline and hover surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: LineageSummaryKind = "unknown"
+    label: str
+    id: str | None = None
+
+
+class LineageRef(BaseModel):
+    """Typed lineage reference embedded inside `QuantityValue` envelopes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    hash: str | None = None
+    status: VerificationStatus = "untraced"
+    freshness: LineageFreshness = "unknown"
+    summary: dict[str, str] = Field(default_factory=dict)
+    compact_summary: list[LineageCompactSummaryItem] = Field(default_factory=list)
+    reason_code: str | None = None
+    tracking_issue: str | None = None
+    trust_metadata: VerificationMetadata | None = None
+
+    @model_validator(mode="after")
+    def _validate_untraced_contract(self) -> LineageRef:
+        if self.id == "untraced" and self.status != "untraced":
+            raise ValueError('lineage id "untraced" requires status="untraced"')
+        if self.status == "untraced":
+            if not self.reason_code:
+                raise ValueError("untraced lineage requires reason_code")
+            if not self.tracking_issue:
+                raise ValueError("untraced lineage requires tracking_issue")
+        return self
+
+
+class QuantityUncertainty(BaseModel):
+    """Uncertainty envelope for a decision-bearing quantity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ci_80: tuple[float, float] | None = None
+    ci_95: tuple[float, float] | None = None
+    quantiles: dict[str, float] = Field(default_factory=dict)
+    method: Literal["bootstrap", "bayesian", "analytic", "simulation", "none"] | str | None = None
+    identifiability: Literal["identified", "estimated", "assumed", "unknown"] = "unknown"
+    disputed: bool = False
+
+
+class QuantityValue(BaseModel):
+    """Canonical envelope for every numeric value that can influence a decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    point: float | None = None
+    unit: UnitRef
+    metric_id: str | None = None
+    lineage: LineageRef
+    uncertainty: QuantityUncertainty | None = None
+    time: TemporalRef | None = None
+    quantity_class: QuantityClass = "decision"
+    label: str | None = None
+
+
+class LineageGraphNode(BaseModel):
+    """Runtime lineage graph node projected from artifact or Fabric provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    kind: str = "unknown"
+    label: str
+    timestamp: datetime | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class LineageGraphEdge(BaseModel):
+    """Runtime lineage graph edge projected from artifact or Fabric provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_id: str
+    target_id: str
+    relation: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class LineageExportLinks(BaseModel):
+    """Stable export links for external lineage interoperability formats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    openlineage: str
+    prov: str
+
+
+class LineageGraphView(BaseModel):
+    """Compact plus full runtime lineage graph view."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    status: VerificationStatus = "untraced"
+    hash: str | None = None
+    freshness: LineageFreshness = "unknown"
+    compact_summary: list[LineageCompactSummaryItem] = Field(default_factory=list)
+    nodes: list[LineageGraphNode] = Field(default_factory=list)
+    edges: list[LineageGraphEdge] = Field(default_factory=list)
+    exports: LineageExportLinks
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    trust_metadata: VerificationMetadata | None = None
+
+
+class LineageBatchRequest(BaseModel):
+    """Batch lineage lookup request used to avoid client-side N+1 fetches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lineage_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
+
+
+class LineageResponse(BaseModel):
+    """Response envelope returned by one runtime lineage lookup."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
+    lineage: LineageGraphView
+
+
+class LineageBatchResponse(BaseModel):
+    """Response envelope returned by runtime lineage batch lookup."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
+    lineages: list[LineageGraphView] = Field(default_factory=list)
+
+
+class LineageExportResponse(BaseModel):
+    """Response envelope returned by runtime lineage export endpoints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
+    lineage_id: str
+    format: Literal["openlineage", "prov"]
+    payload: dict[str, Any]
+
+
+class QuantityCoverageEntry(BaseModel):
+    """One numeric field discovered by the quantity coverage inventory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    path: str
+    quantity_class: QuantityClass
+    status: VerificationStatus
+    lineage_id: str | None = None
+    metric_id: str | None = None
+    reason_code: str | None = None
+    tracking_issue: str | None = None
+
+
+class QuantityCoverageSummary(BaseModel):
+    """Class-aware coverage counts for quantity law migration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total: int = Field(default=0, ge=0)
+    decision: int = Field(default=0, ge=0)
+    telemetry: int = Field(default=0, ge=0)
+    layout: int = Field(default=0, ge=0)
+    debug: int = Field(default=0, ge=0)
+    traced: int = Field(default=0, ge=0)
+    untraced: int = Field(default=0, ge=0)
+
+
+class RunQuantitiesResponse(BaseModel):
+    """Response envelope returned by the run quantity inventory endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    source_kind: SourceKind
+    temporal_scope: TemporalScope | None = None
+    quantities: list[QuantityValue] = Field(default_factory=list)
+    coverage: QuantityCoverageSummary = Field(default_factory=QuantityCoverageSummary)
+    entries: list[QuantityCoverageEntry] = Field(default_factory=list)
+
+
+class ComparisonFrame(BaseModel):
+    """Canonical scope that makes two run payloads comparable."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_a: str
+    run_b: str
+    metric_set: list[str] = Field(default_factory=list)
+    population: str | None = None
+    unit_policy: Literal["canonical", "source", "mixed"] = "canonical"
+    temporal_scope: TemporalScope | None = None
+    scenario_scope: dict[str, Any] = Field(default_factory=dict)
+    assumption_set: list[str] = Field(default_factory=list)
+
+
+class ComparabilityReport(BaseModel):
+    """Pre-flight report that prevents misleading run comparisons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: ComparabilityStatus
+    warnings: list[str] = Field(default_factory=list)
+    blocked_reasons: list[str] = Field(default_factory=list)
+
+
+class LineageDelta(BaseModel):
+    """Compact provenance drift summary for one compared metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_changed: bool = False
+    model_changed: bool = False
+    hash_changed: bool = False
+    freshness_changed: bool = False
+    verification_changed: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class DeltaDistribution(BaseModel):
+    """Distributional summary of a metric delta."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    quantiles: dict[str, float] = Field(default_factory=dict)
+    mean_shift: float | None = None
+    median_shift: float | None = None
+    ci_overlap: bool | None = None
+
+
+class DeltaQuantity(BaseModel):
+    """One decision-bearing metric comparison with quantity-law envelopes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_id: str
+    label: str
+    a: QuantityValue | None = None
+    b: QuantityValue | None = None
+    delta_absolute: QuantityValue | None = None
+    delta_relative: QuantityValue | None = None
+    delta_distribution: DeltaDistribution = Field(default_factory=DeltaDistribution)
+    significance: DeltaSignificance = "uncertain"
+    dominance: DeltaDominance = "unknown"
+    decision_salience: float = Field(default=0.0, ge=0.0, le=1.0)
+    lineage_delta: LineageDelta = Field(default_factory=LineageDelta)
+
+
+class CompareCandidate(BaseModel):
+    """One candidate run suggested as a meaningful comparator."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    label: str | None = None
+    relation: CompareCandidateRelation = "recommended"
+    status: str | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    comparability: ComparabilityReport
+
+
+class CompareRunResponse(BaseModel):
+    """Response envelope for the best-in-class policy diff endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    status: CompareResponseStatus = "computed"
+    temporal_scope: TemporalScope | None = None
+    comparison_frame: ComparisonFrame
+    comparability: ComparabilityReport
+    deltas: list[DeltaQuantity] = Field(default_factory=list)
+
+
+class CompareCandidatesResponse(BaseModel):
+    """Response envelope for compare-candidate discovery."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    candidates: list[CompareCandidate] = Field(default_factory=list)
+
+
+class ScenarioConstraint(BaseModel):
+    """One explicit constraint that bounds a scenario intervention."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    label: str
+    field: str | None = None
+    severity: ScenarioConstraintSeverity = "warning"
+    operator: str | None = None
+    value: QuantityValue | None = None
+    message: str | None = None
+
+
+class ScenarioAssumption(BaseModel):
+    """Named scenario assumption with provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    label: str
+    status: ScenarioAssumptionStatus
+    lineage: LineageRef
+    description: str | None = None
+
+
+class ScenarioIntervention(BaseModel):
+    """One operator-visible policy intervention inside a scenario manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field: str = Field(min_length=1)
+    operator: ScenarioInterventionOperator
+    value: QuantityValue
+    baseline_value: QuantityValue | None = None
+    constraint_ids: list[str] = Field(default_factory=list)
+
+
+class ScenarioRef(BaseModel):
+    """Stable reference carried by every counterfactual value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    status: ScenarioStatus
+    baseline_run_id: str = Field(min_length=1)
+    temporal_scope: TemporalScope | None = None
+    lineage: LineageRef
+    assumption_ids: list[str] = Field(min_length=1)
+    manifest_hash: str | None = None
+
+
+class ScenarioManifest(BaseModel):
+    """Manifest that makes a counterfactual named, reproducible and auditable."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    baseline_run_id: str = Field(min_length=1)
+    status: ScenarioStatus
+    lifecycle_status: ScenarioLifecycleStatus = "generated"
+    revision: int = Field(default=1, ge=1)
+    manifest_hash: str = ""
+    temporal_scope: TemporalScope | None = None
+    policy_question: str = Field(min_length=1)
+    author: str = Field(min_length=1)
+    affected_population: str | None = None
+    temporal_window: TemporalRange | None = None
+    model_family: str = Field(min_length=1)
+    model_version: str | None = None
+    model_lineage: LineageRef
+    baseline_lineage: LineageRef | None = None
+    baseline_hash: str | None = None
+    computed_at: datetime | None = None
+    saved_at: datetime | None = None
+    promoted_at: datetime | None = None
+    validity_window: TemporalRange | None = None
+    known_limitations: list[str] = Field(default_factory=list)
+    stale_reasons: list[str] = Field(default_factory=list)
+    interventions: list[ScenarioIntervention] = Field(min_length=1)
+    assumptions: list[ScenarioAssumption] = Field(min_length=1)
+    constraints: list[ScenarioConstraint] = Field(default_factory=list)
+    phase4_gate_verdict: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _validate_scenario_manifest(self) -> ScenarioManifest:
+        assumption_ids = {assumption.id for assumption in self.assumptions}
+        constraint_ids = {constraint.id for constraint in self.constraints}
+        for intervention in self.interventions:
+            unknown_constraints = [
+                constraint_id
+                for constraint_id in intervention.constraint_ids
+                if constraint_id not in constraint_ids
+            ]
+            if unknown_constraints:
+                raise ValueError(
+                    "intervention references unknown constraints: "
+                    + ",".join(sorted(unknown_constraints))
+                )
+        if not assumption_ids:
+            raise ValueError("scenario manifest requires at least one assumption")
+        return self
+
+
+class CounterfactualMetric(BaseModel):
+    """Actual, scenario and delta values for one metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_id: str = Field(min_length=1)
+    label: str
+    actual: QuantityValue
+    counterfactual: QuantityValue
+    delta: QuantityValue
+    scenario_ref: ScenarioRef
+    assumption_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_counterfactual_metric(self) -> CounterfactualMetric:
+        if not set(self.assumption_ids).issubset(set(self.scenario_ref.assumption_ids)):
+            raise ValueError("counterfactual metric references assumptions outside ScenarioRef")
+        for field_name in ("counterfactual", "delta"):
+            quantity = getattr(self, field_name)
+            if quantity.time is None or quantity.time.scenario_id != self.scenario_ref.id:
+                raise ValueError(
+                    f"{field_name} quantity must carry time.scenario_id={self.scenario_ref.id}"
+                )
+        return self
+
+
+class ScenarioCapability(BaseModel):
+    """Support declaration for one counterfactual runtime surface or metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: ScenarioSurfaceSupport
+    supported: bool
+    reason_code: str | None = None
+    metric_id: str | None = None
+    supported_modes: list[CounterfactualMode] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+
+
+class ScenarioCreateRequest(BaseModel):
+    """Request body for saving a scenario draft under a baseline run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str | None = None
+    policy_question: str = Field(min_length=1)
+    author: str = Field(default="operator", min_length=1)
+    interventions: list[ScenarioIntervention] = Field(min_length=1)
+    assumptions: list[ScenarioAssumption] = Field(min_length=1)
+    constraints: list[ScenarioConstraint] = Field(default_factory=list)
+    affected_population: str | None = None
+    model_family: str = Field(default="operator-specified", min_length=1)
+    model_version: str | None = None
+    known_limitations: list[str] = Field(default_factory=list)
+    regime_shift_forecast_bundle_ref: str | None = None
+
+
+class ScenarioListResponse(BaseModel):
+    """Response envelope for scenarios available on a run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    temporal_scope: TemporalScope | None = None
+    scenarios: list[ScenarioManifest] = Field(default_factory=list)
+
+
+class ScenarioManifestResponse(BaseModel):
+    """Response envelope for one scenario manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
+    scenario: ScenarioManifest
+
+
+class ScenarioCapabilitiesResponse(BaseModel):
+    """Response envelope for scenario support and unsupported surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str | None = None
+    scenario_id: str | None = None
+    temporal_scope: TemporalScope | None = None
+    capabilities: list[ScenarioCapability] = Field(default_factory=list)
+
+
+class CounterfactualMetricsResponse(BaseModel):
+    """Response envelope for normalized actual + scenario metrics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    temporal_scope: TemporalScope | None = None
+    scenario: ScenarioManifest
+    metrics: dict[str, CounterfactualMetric] = Field(default_factory=dict)
+
+
+class BureaucraticTemplateRef(BaseModel):
+    """Versioned jurisdictional template identity used by bureaucratic renderers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+    genre: BureaucraticGenre
+    jurisdiction: str = Field(default="ua", min_length=1)
+    locale: str = Field(default="uk-UA", min_length=1)
+    legal_review_status: Literal["pending_external_review", "approved", "rejected"] = (
+        "pending_external_review"
+    )
+
+
+class BureaucraticAuthorship(BaseModel):
+    """Authorship, agent and review attribution for one document block."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    author: str = "PolicyOS"
+    author_role: str = "system"
+    agent_version: str | None = None
+    timestamp: datetime | None = None
+    reviewed_by_human: bool = False
+
+
+class BureaucraticBlock(BaseModel):
+    """Canonical document AST block independent of HTML/PDF/DOCX renderers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    kind: BureaucraticBlockKind
+    title: str | None = None
+    text: str | None = None
+    level: int = Field(default=1, ge=1, le=6)
+    number: str | None = None
+    items: list[str] = Field(default_factory=list)
+    quantity: QuantityValue | None = None
+    epistemic_origin: BureaucraticEpistemicKind
+    authorship: BureaucraticAuthorship = Field(default_factory=BureaucraticAuthorship)
+    provenance: list[LineageCompactSummaryItem] = Field(default_factory=list)
+    raw_source_refs: list[str] = Field(default_factory=list)
+    children: list[BureaucraticBlock] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class BureaucraticEpistemicSummary(BaseModel):
+    """Document-level block-origin proportions shown in the epistemic legend."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_filled: float = Field(default=0.0, ge=0.0, le=1.0)
+    model_generated: float = Field(default=0.0, ge=0.0, le=1.0)
+    operator_filled: float = Field(default=0.0, ge=0.0, le=1.0)
+    imported: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class BureaucraticDocument(BaseModel):
+    """Machine-checkable bureaucratic document AST rendered from a decision packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    packet_id: str = Field(min_length=1)
+    genre: BureaucraticGenre
+    jurisdiction: str = Field(default="ua", min_length=1)
+    template: BureaucraticTemplateRef
+    status: BureaucraticDocumentStatus = "draft"
+    title: str
+    language: str = "uk"
+    watermark: str
+    render_timestamp: datetime = Field(default_factory=_utc_now)
+    packet_hash: str
+    temporal_scope: TemporalScope | None = None
+    trust_view: bool = False
+    blocks: list[BureaucraticBlock] = Field(default_factory=list)
+    annexes: list[BureaucraticBlock] = Field(default_factory=list)
+    epistemic_summary: BureaucraticEpistemicSummary = Field(
+        default_factory=BureaucraticEpistemicSummary
+    )
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class BureaucraticRenderRequest(BaseModel):
+    """Request body for rendering one packet into a jurisdictional document AST."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    genre: BureaucraticGenre
+    jurisdiction: str = Field(default="ua", min_length=1)
+    template_version: str | None = None
+    temporal_scope: TemporalScope | None = None
+    trust_view: bool = False
+
+
+class BureaucraticRenderResponse(BaseModel):
+    """Response envelope for bureaucratic document AST rendering."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    document: BureaucraticDocument
+
+
+class BureaucraticExportResponse(BaseModel):
+    """Deterministic export packet for HTML/PDF/DOCX generation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    document_id: str
+    packet_id: str
+    format: BureaucraticExportFormat
+    content_type: str
+    filename: str
+    content: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class CursorPage(BaseModel):
@@ -787,6 +1639,18 @@ class RunFeedbackView(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class RunEquilibriaView(BaseModel):
+    """Runtime view of a Foundry equilibrium multiplicity report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    source_kind: SourceKind
+    report_ref: ArtifactRef | None = None
+    report: EquilibriumMultiplicityReport | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
 class RunCompareView(BaseModel):
     """Side-by-side comparison payload for two runtime runs."""
 
@@ -813,6 +1677,7 @@ class RunDetailsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
     run: RunDetails
 
 
@@ -822,6 +1687,7 @@ class RunTimelineResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
     timeline: RunTimelineView
 
 
@@ -843,6 +1709,7 @@ class RunLineageResponse(BaseModel):
 
     meta: ApiMeta
     run_id: str
+    temporal_scope: TemporalScope | None = None
     lineage: ArtifactLineageView
 
 
@@ -1056,6 +1923,15 @@ class RunFeedbackResponse(BaseModel):
     feedback: RunFeedbackView
 
 
+class RunEquilibriaResponse(BaseModel):
+    """Response envelope returned by the run equilibria endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    equilibria: RunEquilibriaView
+
+
 class RunCompareResponse(BaseModel):
     """Response envelope returned by the run comparison endpoint."""
 
@@ -1098,6 +1974,29 @@ __all__ = [
     "ArtifactSchemaResponse",
     "ArtifactSchemaView",
     "AuthMeResponse",
+    "BureaucraticAuthorship",
+    "BureaucraticBlock",
+    "BureaucraticBlockKind",
+    "BureaucraticDocument",
+    "BureaucraticDocumentStatus",
+    "BureaucraticEpistemicKind",
+    "BureaucraticEpistemicSummary",
+    "BureaucraticExportFormat",
+    "BureaucraticExportResponse",
+    "BureaucraticGenre",
+    "BureaucraticRenderRequest",
+    "BureaucraticRenderResponse",
+    "BureaucraticTemplateRef",
+    "ComparabilityReport",
+    "ComparabilityStatus",
+    "CompareCandidate",
+    "CompareCandidatesResponse",
+    "CompareResponseStatus",
+    "CompareRunResponse",
+    "ComparisonFrame",
+    "CounterfactualMetric",
+    "CounterfactualMetricsResponse",
+    "CounterfactualMode",
     "CursorPage",
     "DecisionCompareReport",
     "DecisionMonitoringContract",
@@ -1109,12 +2008,30 @@ __all__ = [
     "DecisionPacketOutlineEntry",
     "DecisionPacketPreview",
     "DecisionReissuePlan",
+    "DeltaDistribution",
+    "DeltaDominance",
+    "DeltaQuantity",
+    "DeltaSignificance",
+    "DisputeStatus",
     "EvaluatorReportView",
     "EvaluatorScoresView",
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
     "IterationLifecycleView",
+    "LineageBatchRequest",
+    "LineageBatchResponse",
+    "LineageCompactSummaryItem",
+    "LineageDelta",
+    "LineageExportLinks",
+    "LineageExportResponse",
+    "LineageFreshness",
+    "LineageGraphEdge",
+    "LineageGraphNode",
+    "LineageGraphView",
+    "LineageRef",
+    "LineageResponse",
+    "LineageSummaryKind",
     "MobilityBoundsRequest",
     "MobilityBoundsResponse",
     "MobilityDiagnosticsResponse",
@@ -1127,6 +2044,11 @@ __all__ = [
     "PreflightDiagnosticView",
     "PreflightReportView",
     "PreviewMode",
+    "QuantityClass",
+    "QuantityCoverageEntry",
+    "QuantityCoverageSummary",
+    "QuantityUncertainty",
+    "QuantityValue",
     "ReproducibilityView",
     "RetrievalPhaseTelemetry",
     "RetrievalTelemetryView",
@@ -1134,6 +2056,8 @@ __all__ = [
     "RunCompareView",
     "RunDetails",
     "RunDetailsResponse",
+    "RunEquilibriaResponse",
+    "RunEquilibriaView",
     "RunErrorView",
     "RunErrorsResponse",
     "RunEvidenceContextResponse",
@@ -1146,6 +2070,7 @@ __all__ = [
     "RunLineageResponse",
     "RunNodeRecord",
     "RunNodesResponse",
+    "RunQuantitiesResponse",
     "RunRecordV1",
     "RunSummary",
     "RunTimelineEvent",
@@ -1160,5 +2085,35 @@ __all__ = [
     "RunsListResponse",
     "RuntimeApiError",
     "RuntimeApiProblem",
+    "ScenarioAssumption",
+    "ScenarioAssumptionStatus",
+    "ScenarioCapabilitiesResponse",
+    "ScenarioCapability",
+    "ScenarioConstraint",
+    "ScenarioConstraintSeverity",
+    "ScenarioCreateRequest",
+    "ScenarioIntervention",
+    "ScenarioInterventionOperator",
+    "ScenarioListResponse",
+    "ScenarioLifecycleStatus",
+    "ScenarioManifest",
+    "ScenarioManifestResponse",
+    "ScenarioRef",
+    "ScenarioStatus",
+    "ScenarioSurfaceSupport",
     "SourceKind",
+    "TemporalCapabilitiesResponse",
+    "TemporalCapabilitiesView",
+    "TemporalEventKind",
+    "TemporalEventPoint",
+    "TemporalGapRange",
+    "TemporalRange",
+    "TemporalRef",
+    "TemporalScope",
+    "TemporalSurfaceCapability",
+    "TemporalSurfaceSupport",
+    "TrustMetadataRef",
+    "UnitRef",
+    "VerificationMetadata",
+    "VerificationStatus",
 ]

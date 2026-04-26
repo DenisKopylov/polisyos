@@ -15,11 +15,11 @@ Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import opti
 
 ## Facade Inventory
 
-| Facade                  | Symbol count | Import policy       |
-| ----------------------- | ------------ | ------------------- |
-| `polisyos.ir.analytics` | 202          | curated lazy facade |
-| `polisyos.ir.kernel`    | 52           | full lazy facade    |
-| `polisyos.ir.world`     | 54           | full lazy facade    |
+| Facade | Symbol count | Import policy |
+| --- | --- | --- |
+| `polisyos.ir.analytics` | 228 | curated lazy facade |
+| `polisyos.ir.kernel` | 52 | full lazy facade |
+| `polisyos.ir.world` | 54 | full lazy facade |
 
 Advanced or module-specific APIs should be imported from their defining
 submodules, for example `polisyos.ir.analytics.causal_graph`,
@@ -55,6 +55,12 @@ submodules, for example `polisyos.ir.analytics.causal_graph`,
 
 - The analytics facade also includes the Phase 3 welfare/GE uncertainty bundle
   contracts used by welfare propagation and decision-packet aggregation.
+
+- The analytics facade also includes the Phase 4 regime-shift forecast bundle
+  contract used to gate long-horizon forecasts under structural breaks.
+
+- The analytics facade also includes the Phase 4 exact ABM, microsim validation,
+  temporal graph, space-time causal, and welfare multiplicity closure contracts.
 
 - Validation hooks: `tests/ir/test_public_surface.py` for IR package facades and
   the public-surface renderer in `tools/architecture/guardrails.py` for the

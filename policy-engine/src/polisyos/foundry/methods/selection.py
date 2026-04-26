@@ -621,6 +621,16 @@ def method_selection_payload(
             item["typical_min_obs"] = entry.typical_min_obs
         if entry.output_interpretation:
             item["output_interpretation"] = entry.output_interpretation
+        if entry.simulator_regime_schema:
+            item["simulator_regime_schema"] = dict(entry.simulator_regime_schema)
+        if entry.summary_schema_ref:
+            item["summary_schema_ref"] = entry.summary_schema_ref
+        if entry.identifiable_target:
+            item["identifiable_target"] = dict(entry.identifiable_target)
+        if entry.coverage_contract:
+            item["coverage_contract"] = dict(entry.coverage_contract)
+        if entry.diagnostic_contract:
+            item["diagnostic_contract"] = dict(entry.diagnostic_contract)
         payload.append(item)
     return payload
 

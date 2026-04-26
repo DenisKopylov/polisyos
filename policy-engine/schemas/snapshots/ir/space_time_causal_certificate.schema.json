@@ -1,0 +1,68 @@
+{
+  "additionalProperties": false,
+  "description": "Shared Phase-4 DSCM certificate for space-time causal inference.",
+  "properties": {
+    "assumptions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "object"
+    },
+    "caveats": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Caveats",
+      "type": "array"
+    },
+    "certificate_type": {
+      "const": "space_time_causal_certificate",
+      "default": "space_time_causal_certificate",
+      "title": "Certificate Type",
+      "type": "string"
+    },
+    "dscm_scope": {
+      "default": "controlled_diffusion_reaction_st_dscm_v1",
+      "title": "Dscm Scope",
+      "type": "string"
+    },
+    "identification_certificate": {
+      "additionalProperties": true,
+      "title": "Identification Certificate",
+      "type": "object"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "spde_scope": {
+      "default": "fem_spde_g_computation_v1",
+      "title": "Spde Scope",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "identified",
+        "model_extrapolation",
+        "blocked"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "identification_certificate"
+  ],
+  "title": "SpaceTimeCausalCertificate",
+  "type": "object"
+}

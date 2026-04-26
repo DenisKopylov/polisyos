@@ -16,6 +16,7 @@ import {
   getArtifactViewerDescriptor,
   renderArtifactViewer,
 } from "@/features/artifacts/components/ArtifactViewerRegistry";
+import { BureaucraticArtifactView } from "@/features/artifacts/bureaucratic/BureaucraticArtifactView";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { formatBytes, formatDate } from "@/lib/utils";
 import { ApiErrorAlert, Card, EmptyState, LineageGraph } from "@/shared/ui";
@@ -281,6 +282,11 @@ export default function ArtifactInspector() {
                   view: activeView,
                   onViewChange: selectView,
                 })}
+
+                {content.kind === "scientist.decision_packet" ||
+                content.kind === "decision_packet" ? (
+                  <BureaucraticArtifactView artifactId={artifactId} />
+                ) : null}
               </>
             ) : null}
           </div>

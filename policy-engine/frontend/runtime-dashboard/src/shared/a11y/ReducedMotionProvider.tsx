@@ -106,3 +106,7 @@ export function useReducedMotionPreference() {
   }
   return context;
 }
+
+export function useMaybeReducedMotionPreference() {
+  return useContext(ReducedMotionContext) ?? readReducedMotionState();
+}

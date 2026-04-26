@@ -20,6 +20,17 @@ const runCompareSearchSchema = z.object({
   target: z.string().trim().min(1).optional().catch(undefined),
 });
 
+const POLICY_DIFF_PRESERVED_PARAMS = [
+  "valid_at",
+  "tx_at",
+  "t",
+  "branch",
+  "snapshot_id",
+  "scenario_id",
+  "metric",
+  "panel",
+] as const;
+
 const runDetailLegacySearchSchema = z.object({
   tab: z.string().trim().min(1).optional().catch(undefined),
 });
@@ -57,6 +68,35 @@ export function buildRunCompareHref(search?: Partial<RunCompareSearchParams>) {
     base: search?.base,
     target: search?.target,
   });
+}
+
+export function buildPolicyDiffHref(
+  runA: string,
+  runB: string,
+  search?: URLSearchParams | string,
+) {
+  const params = preservePolicyDiffSearchParams(search);
+  const query = params.toString();
+  return `/compare/${encodeURIComponent(runA)}/${encodeURIComponent(runB)}${
+    query ? `?${query}` : ""
+  }`;
+}
+
+export function preservePolicyDiffSearchParams(
+  search?: URLSearchParams | string,
+) {
+  const source =
+    typeof search === "string"
+      ? new URLSearchParams(search)
+      : new URLSearchParams(search ?? undefined);
+  const preserved = new URLSearchParams();
+  for (const key of POLICY_DIFF_PRESERVED_PARAMS) {
+    const value = source.get(key);
+    if (value) {
+      preserved.set(key, value);
+    }
+  }
+  return preserved;
 }
 
 export function parseRunDetailLegacySearchParams(

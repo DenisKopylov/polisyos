@@ -27,10 +27,20 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
+from polisyos.ir.analytics.phase4_dynamics import (
+    DynamicMicrosimValidationReport,
+    build_dynamic_microsim_validation_report,
+    enforce_dynamic_microsim_validation_report,
+    load_dynamic_microsim_validation_report,
+    persist_dynamic_microsim_validation_report,
+)
+from polisyos.ir.refs import DynamicMicrosimValidationReportRef
 
+from .dynamic_validation import attach_dynamic_validation
 from .protocols import (
     BehavioralResponseResult,
-    DynamicMicrosimResult,
+    DynamicMicrosimResultV2,
     HeterogeneousBehavioralResponseResult,
     ImputationResult,
     SurveyMicroData,
@@ -2157,7 +2167,7 @@ class DynamicMicrosimEstimator:
                     "result",
                     SlotType.SCALAR,
                     Unit("dynamic_microsim", "json"),
-                    contract_id=DynamicMicrosimResult.contract_id,
+                    contract_id=DynamicMicrosimResultV2.contract_id,
                 ),
                 SlotSpec(
                     "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
@@ -2172,6 +2182,12 @@ class DynamicMicrosimEstimator:
             ParameterSpec(name="volatility", default=0.05),
             ParameterSpec(name="tax_rate", default=0.2),
             ParameterSpec(name="benefit_floor", default=8000.0),
+            ParameterSpec(name="store_market_income_path", default=False),
+            ParameterSpec(name="validation_panel_data", default=None),
+            ParameterSpec(name="validation_spec", default=None),
+            ParameterSpec(name="dynamic_validation_report", default=None),
+            ParameterSpec(name="dynamic_validation_report_ref", default=None),
+            ParameterSpec(name="dynamic_validation_required", default=False),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -2218,10 +2234,13 @@ class DynamicMicrosimEstimator:
         volatility = float(params.get("volatility", 0.05))
         tax_rate = float(params.get("tax_rate", 0.2))
         benefit_floor = float(params.get("benefit_floor", 8000.0))
+        store_market_income_path = bool(params.get("store_market_income_path", False))
+        artifact_store = resolve_artifact_store(state, params)
 
         current = income.copy()
         mean_income_path: list[float] = []
         policy_revenue_path: list[float] = []
+        market_income_path: list[np.ndarray] = []
         for _ in range(horizon):
             shocks = rng.normal(loc=0.0, scale=volatility, size=current.shape[0])
             growth = np.maximum(1.0 + drift + shocks, 0.2)
@@ -2230,18 +2249,125 @@ class DynamicMicrosimEstimator:
             taxes = tax_rate * np.maximum(current - benefit_floor, 0.0)
             mean_income_path.append(_weighted_mean(current, weights))
             policy_revenue_path.append(float(np.sum((taxes - benefits) * weights)))
+            if store_market_income_path:
+                market_income_path.append(current.copy())
 
         final_benefits = np.maximum(benefit_floor - 0.15 * current, 0.0)
         final_taxes = tax_rate * np.maximum(current - benefit_floor, 0.0)
         disposable_income = current - final_taxes + final_benefits
-        result = DynamicMicrosimResult(
+        cohort_data = {
+            name: value
+            for name, value in {
+                "cohort_id": data.cohort_id,
+                "region_id": data.region_id,
+                "policy_id": data.policy_id,
+                "reform_id": data.reform_id,
+            }.items()
+            if value is not None
+        }
+        result = DynamicMicrosimResultV2(
             final_market_income=current,
             disposable_income=disposable_income,
             mean_income_path=mean_income_path,
             policy_revenue_path=policy_revenue_path,
             weighted_mean_final_income=_weighted_mean(current, weights),
-            metadata={"horizon": horizon, "drift": drift, "volatility": volatility},
+            market_income_path=np.vstack(market_income_path) if market_income_path else None,
+            weights=weights,
+            cohort_data=cohort_data,
+            metadata={
+                "horizon": horizon,
+                "drift": drift,
+                "volatility": volatility,
+                "tax_rate": tax_rate,
+                "benefit_floor": benefit_floor,
+                "monte_carlo_reps": 1,
+                "store_market_income_path": store_market_income_path,
+            },
         )
+        supplied_report = params.get("dynamic_validation_report")
+        resolved_report_ref = params.get("dynamic_validation_report_ref")
+        resolved_report_from_ref = False
+        if supplied_report is not None:
+            report = enforce_dynamic_microsim_validation_report(
+                supplied_report
+                if isinstance(supplied_report, DynamicMicrosimValidationReport)
+                else DynamicMicrosimValidationReport.model_validate(supplied_report)
+            )
+            if report is not None:
+                if resolved_report_ref is None and artifact_store is not None:
+                    resolved_report_ref = persist_dynamic_microsim_validation_report(
+                        artifact_store,
+                        report,
+                    )
+                result = result.model_copy(
+                    update={
+                        "metadata": {
+                            **result.metadata,
+                            "dynamic_validation_status": report.validation_status,
+                            "dynamic_validation_warning_count": len(report.warnings),
+                        }
+                    }
+                )
+        elif resolved_report_ref is not None and artifact_store is not None:
+            typed_report_ref = DynamicMicrosimValidationReportRef.model_validate(
+                resolved_report_ref.model_dump(mode="python")
+                if hasattr(resolved_report_ref, "model_dump")
+                else resolved_report_ref
+            )
+            report = load_dynamic_microsim_validation_report(artifact_store, typed_report_ref)
+            enforce_dynamic_microsim_validation_report(report)
+            resolved_report_ref = typed_report_ref
+            resolved_report_from_ref = True
+            result = result.model_copy(
+                update={
+                    "metadata": {
+                        **result.metadata,
+                        "dynamic_validation_status": report.validation_status,
+                        "dynamic_validation_warning_count": len(report.warnings),
+                    }
+                }
+            )
+
+        panel_data = params.get("validation_panel_data")
+        validation_spec = params.get("validation_spec")
+        if panel_data is not None and validation_spec is not None:
+            result = attach_dynamic_validation(result, panel_data, validation_spec)
+            report = build_dynamic_microsim_validation_report(result.validation_diagnostic)
+            enforce_dynamic_microsim_validation_report(report)
+            if artifact_store is not None:
+                resolved_report_ref = persist_dynamic_microsim_validation_report(
+                    artifact_store,
+                    report,
+                )
+            result = result.model_copy(
+                update={
+                    "metadata": {
+                        **result.metadata,
+                        "dynamic_validation_status": report.validation_status,
+                        "dynamic_validation_warning_count": len(report.warnings),
+                    }
+                }
+            )
+        elif bool(params.get("dynamic_validation_required", False)) and not resolved_report_from_ref:
+            report = DynamicMicrosimValidationReport(
+                validation_status="red",
+                source_status="not_run",
+                can_run_dynamic_microsim=False,
+                refusal_code="dynamic_microsim_validation_red",
+                blocking_reasons=("dynamic_microsim_validation_required_but_missing",),
+            )
+            enforce_dynamic_microsim_validation_report(report)
+
+        if resolved_report_ref is not None:
+            result = result.model_copy(
+                update={
+                    "dynamic_validation_report_ref": DynamicMicrosimValidationReportRef.model_validate(
+                        resolved_report_ref.model_dump(mode="python")
+                        if hasattr(resolved_report_ref, "model_dump")
+                        else resolved_report_ref
+                    )
+                }
+            )
         return {
             "result": result,
             "market_income": current,

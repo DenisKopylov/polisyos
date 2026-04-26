@@ -109,3 +109,9 @@ def test_simulation_methods_dispatch_and_agent_sim_bridge_runs() -> None:
     )
     assert int(abm_result.output["result"]["final_time_step"]) == 3
     assert float(abm_result.output["result"]["final_total_wealth"]) >= 0.0
+    assert abm_result.output["result"]["abm_result"]["identifiability_certificate"]["status"] == (
+        "not_available"
+    )
+    assert abm_result.output["result"]["abm_result"]["bifurcation_report"]["status"] == (
+        "not_available"
+    )

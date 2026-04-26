@@ -53,6 +53,66 @@ class TruthfulnessEvidence(BaseModel):
     coverage_tolerance: float | None = None
 
 
+class SimulatorDiagnosticArtifact(BaseModel):
+    """Regime-aware simulator diagnostic artifact for policy SBI posteriors."""
+
+    contract_id: ClassVar[str] = "foundry.sbi.simulator_diagnostic.v1"
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
+
+    schema_id: str = Field(default=contract_id, alias="schema")
+    observed_regime: dict[str, Any] = Field(default_factory=dict)
+    support_quantile: float | None = None
+    knn_radius_mahalanobis: float | None = None
+    effective_local_simulations: int | None = None
+    local_c2st_score: float | None = None
+    posterior_sbc_error: float | None = None
+    tarp_coverage_error: float | None = None
+    ppc_mahalanobis: float | None = None
+    status: str = "unknown"
+    failure_mode: tuple[str, ...] = ()
+    recommended_action: tuple[str, ...] = ()
+    artifact_ref: str | None = None
+
+
+def validate_simulator_diagnostic_artifact(
+    value: SimulatorDiagnosticArtifact | Mapping[str, Any] | None,
+) -> SimulatorDiagnosticArtifact | None:
+    """Validate a mapping-or-model simulator diagnostic artifact."""
+
+    if value is None:
+        return None
+    if isinstance(value, SimulatorDiagnosticArtifact):
+        return value
+    if isinstance(value, Mapping):
+        return SimulatorDiagnosticArtifact.model_validate(dict(value))
+    raise TypeError("simulator diagnostic artifact must be a mapping or SimulatorDiagnosticArtifact")
+
+
+def canonical_simulator_diagnostic_artifact(
+    diagnostic: SimulatorDiagnosticArtifact | Mapping[str, Any],
+) -> tuple[str, dict[str, Any], str]:
+    """Encode an SBI simulator diagnostic as a canonical hash-addressed artifact."""
+
+    artifact_model = validate_simulator_diagnostic_artifact(diagnostic)
+    if artifact_model is None:
+        raise ValueError("simulator diagnostic artifact is required")
+    artifact = artifact_model.model_dump(
+        mode="python",
+        by_alias=True,
+        exclude_none=True,
+        exclude={"artifact_ref"},
+    )
+    canonical_bytes = to_canonical_bytes(artifact, spec=CanonSpec(forbid_floats=False))
+    digest = content_hash(canonical_bytes, prefix=True)
+    ref = f"artifact://foundry/sbi/simulator_diagnostic/{digest}"
+    return ref, artifact, digest
+
+
 _EXACT_METHOD_BASES = {
     "gp_regression": "closed_form_gaussian_process_posterior",
 }
@@ -258,6 +318,98 @@ def _truthfulness_flag(
         if text in {"false", "fail", "failed", "no"}:
             return False
     return None
+
+
+def _simulator_diagnostic_ref(metadata: Mapping[str, Any]) -> str | None:
+    raw = metadata.get("simulator_diagnostic_ref")
+    if raw is None:
+        diagnostic = metadata.get("simulator_diagnostic")
+        if isinstance(diagnostic, Mapping):
+            raw = diagnostic.get("artifact_ref") or diagnostic.get("ref")
+    if raw is None:
+        return None
+    text = str(raw).strip()
+    return text or None
+
+
+def _simulator_diagnostic_payload(metadata: Mapping[str, Any]) -> Mapping[str, Any]:
+    raw = metadata.get("simulator_diagnostic")
+    return raw if isinstance(raw, Mapping) else {}
+
+
+def _simulator_diagnostic_status(metadata: Mapping[str, Any]) -> str | None:
+    for raw in (
+        metadata.get("simulator_diagnostic_status"),
+        metadata.get("diagnostic_status"),
+        _simulator_diagnostic_payload(metadata).get("status"),
+        metadata.get("status"),
+    ):
+        if raw is None:
+            continue
+        text = str(raw).strip().lower()
+        if text:
+            return text
+    return None
+
+
+def _simulator_diagnostic_failure_modes(metadata: Mapping[str, Any]) -> tuple[str, ...]:
+    candidates = (
+        metadata.get("failure_mode"),
+        metadata.get("simulator_failure_mode"),
+        metadata.get("simulator_diagnostic_failure_mode"),
+        _simulator_diagnostic_payload(metadata).get("failure_mode"),
+    )
+    modes: list[str] = []
+    for raw in candidates:
+        if raw is None:
+            continue
+        values = raw if isinstance(raw, (list, tuple, set, frozenset)) else (raw,)
+        for value in values:
+            text = str(value).strip().lower()
+            if text:
+                modes.append(text)
+    return tuple(dict.fromkeys(modes))
+
+
+def _sbi_regime_aware_required(metadata: Mapping[str, Any]) -> bool:
+    if bool(metadata.get("regime_aware_calibration_required")):
+        return True
+    diagnostic_contract = metadata.get("diagnostic_contract")
+    if isinstance(diagnostic_contract, Mapping) and bool(
+        diagnostic_contract.get("support_required")
+    ):
+        return True
+    return bool(metadata.get("simulator_regime_schema"))
+
+
+def _sbi_support_threshold(metadata: Mapping[str, Any], key: str, default: float) -> float:
+    raw = metadata.get(key)
+    diagnostic_contract = metadata.get("diagnostic_contract")
+    if raw is None and isinstance(diagnostic_contract, Mapping):
+        thresholds = diagnostic_contract.get("thresholds")
+        if isinstance(thresholds, Mapping):
+            raw = thresholds.get(key)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return default
+    return value if np.isfinite(value) else default
+
+
+def _sbi_status_override(payload: Mapping[str, Any]) -> tuple[str | None, str | None]:
+    method_name = str(payload.get("method_name", "")).strip()
+    if method_name not in {"simulation_based_npe", "simulation_based_nle", "simulation_based_nre"}:
+        return None, None
+    metadata = payload.get("metadata", {}) or {}
+    if not isinstance(metadata, Mapping):
+        return None, None
+    modes = set(_simulator_diagnostic_failure_modes(metadata))
+    support_failure_modes = {"unreachable_observation", "regime_extrapolation"}
+    if modes & support_failure_modes:
+        return "degraded", "simulator_support_failure"
+    return None, None
 
 
 def _sample_size_aware_psis_threshold(num_samples: float | None) -> float:
@@ -816,11 +968,51 @@ def _infer_sbi_evidence(
         diagnostics, metadata, key="observed_neighborhood_radius_quantile"
     )
     posterior_sbc_error = _truthfulness_metric(diagnostics, metadata, key="posterior_sbc_error")
+    tarp_coverage_error = _truthfulness_metric(diagnostics, metadata, key="tarp_coverage_error")
     local_c2st = _truthfulness_metric(diagnostics, metadata, key="local_c2st_score")
     ppc_mahalanobis = _truthfulness_metric(diagnostics, metadata, key="ppc_mahalanobis")
+    support_quantile = _truthfulness_metric(diagnostics, metadata, key="support_quantile")
+    knn_radius_mahalanobis = _truthfulness_metric(
+        diagnostics, metadata, key="knn_radius_mahalanobis"
+    )
+    effective_local_simulations = _truthfulness_metric(
+        diagnostics, metadata, key="effective_local_simulations"
+    )
+    regime_required = _sbi_regime_aware_required(metadata)
+    observed_regime = metadata.get("observed_regime")
+    observed_regime_present = isinstance(observed_regime, Mapping) and bool(observed_regime)
+    simulator_ref = _simulator_diagnostic_ref(metadata)
+    diagnostic_status = _simulator_diagnostic_status(metadata)
+    failure_modes = set(_simulator_diagnostic_failure_modes(metadata))
+    support_quantile_min = _sbi_support_threshold(metadata, "support_quantile_min", 0.01)
+    knn_radius_max = _sbi_support_threshold(metadata, "knn_radius_mahalanobis_max", 4.0)
+    min_effective_local = _sbi_support_threshold(
+        metadata, "min_effective_local_simulations", 16.0
+    )
     coverage_tolerance = _truthfulness_coverage_tolerance(metadata)
+    support_failure = bool(failure_modes & {"unreachable_observation", "regime_extrapolation"})
+    local_miscalibration = "local_miscalibration" in failure_modes
+    structural_misspecification = "structural_misspecification" in failure_modes
+    support_metrics_required = regime_required
+    support_metrics_ok = (
+        support_quantile is not None
+        and support_quantile >= support_quantile_min
+        and knn_radius_mahalanobis is not None
+        and knn_radius_mahalanobis <= knn_radius_max
+        and effective_local_simulations is not None
+        and effective_local_simulations >= min_effective_local
+    )
+    tarp_ok = (
+        tarp_coverage_error is not None
+        and coverage_tolerance is not None
+        and tarp_coverage_error <= coverage_tolerance
+    )
     assumptions_checked = {
         **benchmark_assumptions,
+        "observed_regime_present": (not regime_required) or observed_regime_present,
+        "simulator_diagnostic_ref_present": (not regime_required) or simulator_ref is not None,
+        "simulator_support_gate_ok": not support_failure
+        and ((not support_metrics_required) or support_metrics_ok),
         "observed_neighborhood_ok": (
             neighborhood_count is not None
             and neighborhood_count >= 16.0
@@ -829,10 +1021,36 @@ def _infer_sbi_evidence(
         ),
         "posterior_sbc_ok": posterior_sbc_error is not None
         and (coverage_tolerance is not None and posterior_sbc_error <= coverage_tolerance),
-        "local_c2st_ok": local_c2st is not None and local_c2st <= 0.6,
-        "ppc_ok": ppc_mahalanobis is not None and ppc_mahalanobis <= 2.5,
+        "tarp_coverage_ok": (not regime_required) or tarp_ok,
+        "local_c2st_ok": local_c2st is not None
+        and local_c2st <= 0.6
+        and not local_miscalibration,
+        "ppc_ok": ppc_mahalanobis is not None
+        and ppc_mahalanobis <= 2.5
+        and not structural_misspecification,
     }
     downgrade_reasons = list(benchmark_reasons)
+    if regime_required and not observed_regime_present:
+        downgrade_reasons.append("observed_regime_missing")
+    if regime_required and simulator_ref is None:
+        downgrade_reasons.append("simulator_diagnostic_ref_missing")
+    if support_failure:
+        downgrade_reasons.append("simulator_support_failure")
+    if diagnostic_status == "fail" and not failure_modes:
+        downgrade_reasons.append("simulator_diagnostic_failed")
+    if support_metrics_required:
+        if support_quantile is None:
+            downgrade_reasons.append("support_quantile_missing")
+        elif support_quantile < support_quantile_min:
+            downgrade_reasons.append("support_quantile_too_low")
+        if knn_radius_mahalanobis is None:
+            downgrade_reasons.append("knn_radius_mahalanobis_missing")
+        elif knn_radius_mahalanobis > knn_radius_max:
+            downgrade_reasons.append("knn_radius_mahalanobis_too_large")
+        if effective_local_simulations is None:
+            downgrade_reasons.append("effective_local_simulations_missing")
+        elif effective_local_simulations < min_effective_local:
+            downgrade_reasons.append("effective_local_simulations_too_low")
     if neighborhood_count is None or neighborhood_radius is None:
         downgrade_reasons.append("observed_neighborhood_diagnostics_missing")
     elif neighborhood_count < 16.0 or neighborhood_radius > 0.25:
@@ -841,13 +1059,18 @@ def _infer_sbi_evidence(
         downgrade_reasons.append("posterior_sbc_missing")
     elif coverage_tolerance is None or posterior_sbc_error > coverage_tolerance:
         downgrade_reasons.append("posterior_sbc_failed")
+    if regime_required:
+        if tarp_coverage_error is None:
+            downgrade_reasons.append("tarp_coverage_missing")
+        elif coverage_tolerance is None or tarp_coverage_error > coverage_tolerance:
+            downgrade_reasons.append("tarp_coverage_failed")
     if local_c2st is None:
         downgrade_reasons.append("local_c2st_missing")
-    elif local_c2st > 0.6:
+    elif local_c2st > 0.6 or local_miscalibration:
         downgrade_reasons.append("local_c2st_failed")
     if ppc_mahalanobis is None:
         downgrade_reasons.append("ppc_diagnostic_missing")
-    elif ppc_mahalanobis > 2.5:
+    elif ppc_mahalanobis > 2.5 or structural_misspecification:
         downgrade_reasons.append("ppc_diagnostic_failed")
     return _build_approximate_evidence(
         tier_basis="sbi_conditional_runtime_calibration",
@@ -1032,7 +1255,10 @@ def _infer_asymptotic_evidence(
 def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvidence:
     method_name = str(payload.get("method_name", "")).strip()
     diagnostics = payload.get("diagnostics", {}) or {}
-    metadata = payload.get("metadata", {}) or {}
+    metadata = dict(payload.get("metadata", {}) or {})
+    simulator_diagnostic_ref = payload.get("simulator_diagnostic_ref")
+    if simulator_diagnostic_ref is not None:
+        metadata["simulator_diagnostic_ref"] = simulator_diagnostic_ref
     diagnostic_gates = payload.get("diagnostic_gates", {}) or {}
     diagnostics_summary = payload.get("diagnostics_summary", {}) or {}
     sampler_family = str(payload.get("sampler_family", "") or "").strip().lower()
@@ -1136,6 +1362,7 @@ class PosteriorResult(BaseModel):
     sampler_kernel: str | None = None
     draws_ref: str | None = None
     warmup_draws_ref: str | None = None
+    simulator_diagnostic_ref: str | None = None
     draw_layout: dict[str, Any] = Field(default_factory=dict)
     diagnostics_per_chain: dict[str, dict[str, float]] = Field(default_factory=dict)
     diagnostics_summary: dict[str, float] = Field(default_factory=dict)
@@ -1155,6 +1382,11 @@ class PosteriorResult(BaseModel):
         if not isinstance(value, dict):
             return value
         payload = dict(value)
+        status_override, degradation_reason = _sbi_status_override(payload)
+        if status_override is not None and "status" not in payload:
+            payload["status"] = status_override
+        if degradation_reason is not None and "degradation_reason" not in payload:
+            payload["degradation_reason"] = degradation_reason
         if "truthfulness" in payload and "truthfulness_tier" not in payload:
             evidence = TruthfulnessEvidence.model_validate(payload["truthfulness"])
             payload["truthfulness"] = evidence
@@ -1216,8 +1448,14 @@ class PosteriorResult(BaseModel):
             diagnostics={
                 **self.truthfulness.diagnostics,
                 "basis": self.truthfulness.basis,
+                **(
+                    {"simulator_diagnostic_ref": self.simulator_diagnostic_ref}
+                    if self.simulator_diagnostic_ref is not None
+                    else {}
+                ),
             },
             degradation_reasons=tuple(self.truthfulness.downgrade_reasons),
+            evidence_ref=self.simulator_diagnostic_ref,
         )
 
     def to_uncertainty_envelope(
@@ -1256,6 +1494,7 @@ class PosteriorResult(BaseModel):
                 "num_chains": self.diagnostics.get("num_chains"),
                 "truthfulness_tier": self.truthfulness_tier.value,
                 "truthfulness_basis": self.truthfulness.basis,
+                "simulator_diagnostic_ref": self.simulator_diagnostic_ref,
             },
         )
 
@@ -1386,13 +1625,16 @@ def metropolis_sample(
 
 __all__ = [
     "PosteriorResult",
+    "SimulatorDiagnosticArtifact",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "augment_sampler_diagnostics",
     "canonical_draws_artifact",
+    "canonical_simulator_diagnostic_artifact",
     "compute_sampler_chain_diagnostics",
     "credible_interval",
     "flatten_chain_draws",
     "metropolis_sample",
     "summarize_posterior_samples",
+    "validate_simulator_diagnostic_artifact",
 ]

@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "metrics": {
+    "runtime_demanded_canonical_resolution_rate_pct": 92.0,
+    "global_canonical_resolution_rate_pct": 91.0
+  }
+}

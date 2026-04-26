@@ -6,9 +6,17 @@ from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
 from ._registry_boot import register_simulation_methods
+from .coupled import (
+    CoupledPairedMonteCarloEstimator,
+    CoupledPolicySimulationEstimator,
+    CoupledQueueMLEEstimator,
+    CoupledQueueParticleFilterEstimator,
+    CoupledSMMEstimator,
+)
 from .demography import StaticAgingResult, StaticAgingSimulationEstimator
 from .dynamics import (
     AgentPopulationSimulationEstimator,
+    CanonicalDynamicalSystemEstimator,
     QueueDiscreteEventEstimator,
     SEIRCompartmentalEstimator,
     SIRCompartmentalEstimator,
@@ -34,6 +42,12 @@ def ensure_simulation_methods_registered(registry: MethodRegistry | None = None)
 __all__ = [
     "AgentPopulationSimulationEstimator",
     "BootstrapInferenceEstimator",
+    "CanonicalDynamicalSystemEstimator",
+    "CoupledPairedMonteCarloEstimator",
+    "CoupledPolicySimulationEstimator",
+    "CoupledQueueMLEEstimator",
+    "CoupledQueueParticleFilterEstimator",
+    "CoupledSMMEstimator",
     "MonteCarloEstimator",
     "PermutationTestEstimator",
     "QueueDiscreteEventEstimator",

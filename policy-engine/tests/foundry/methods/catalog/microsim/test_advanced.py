@@ -1,10 +1,29 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.microsim import SurveyMicroData, ensure_microsim_methods_registered
+from polisyos.foundry.methods.microsim import (
+    DynamicMicrosimEstimator,
+    DynamicMicrosimResult,
+    DynamicMicrosimResultV2,
+    DynamicValidationSensitivitySpec,
+    DynamicValidationSpec,
+    SurveyMicroData,
+    ValidationMomentSpec,
+    attach_dynamic_validation,
+    ensure_microsim_methods_registered,
+    run_dynamic_validation,
+    upgrade_dynamic_microsim_result,
+)
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.analytics.phase4_dynamics import (
+    DynamicMicrosimValidationReport,
+    load_dynamic_microsim_validation_report,
+    persist_dynamic_microsim_validation_report,
+)
 
 
 def _survey_state() -> SurveyMicroData:
@@ -78,11 +97,356 @@ def test_tax_behavior_imputation_and_dynamic_microsim_run() -> None:
         method_class=dynamic_cls,
         signature=dynamic_cls.signature,
         state=survey,
-        params={"n_periods": 4},
+        params={"n_periods": 4, "store_market_income_path": True},
         seed=149,
     )
+    assert isinstance(dynamic_result.output["result"], DynamicMicrosimResultV2)
+    assert dynamic_result.output["result"].contract_id == "foundry.microsim.dynamic_result.v2"
     assert dynamic_result.output["result"].weighted_mean_final_income > 0.0
+    assert np.asarray(dynamic_result.output["result"].market_income_path).shape == (4, 5)
     assert dynamic_result.output["uncertainty_envelope"] is not None
+
+
+def test_dynamic_microsim_validation_diagnostic_and_v1_adapter() -> None:
+    v1_result = DynamicMicrosimResult(
+        final_market_income=np.array([110.0, 220.0]),
+        disposable_income=np.array([100.0, 200.0]),
+        mean_income_path=[150.0, 165.0],
+        policy_revenue_path=[5.0, 7.0],
+        weighted_mean_final_income=165.0,
+        metadata={"horizon": 2},
+    )
+    result = upgrade_dynamic_microsim_result(
+        v1_result,
+        market_income_path=np.array([[100.0, 200.0], [110.0, 220.0]]),
+        weights=np.array([1.0, 1.0]),
+    )
+
+    spec = DynamicValidationSpec(
+        comparison_dataset="unit_panel",
+        comparison_dataset_version="fixture",
+        direct_support_max_horizon=1,
+        horizons=(1, 2),
+        moment_specs=(
+            ValidationMomentSpec(
+                moment_id="mean_income",
+                family="level",
+                scale="raw",
+                unit="currency",
+                tolerance_rel=0.20,
+                primary=True,
+            ),
+        ),
+        bootstrap_reps=16,
+        bootstrap_seed=11,
+    )
+    panel_moments = {
+        "observed_moments": [
+            {
+                "cohort_key": {"all": "all"},
+                "horizon_years": 1,
+                "moment_id": "mean_income",
+                "support_type": "direct",
+                "observed_value": 145.0,
+                "se": 20.0,
+                "n": 2,
+                "ess": 2.0,
+            },
+            {
+                "cohort_key": {"all": "all"},
+                "horizon_years": 2,
+                "moment_id": "mean_income",
+                "support_type": "extrapolated",
+                "observed_value": 160.0,
+                "se": 20.0,
+                "n": 2,
+                "ess": 2.0,
+            },
+        ]
+    }
+
+    diagnostic = run_dynamic_validation(result, panel_moments, spec)
+
+    assert diagnostic.status == "warn"
+    assert diagnostic.horizons_reported == [1, 2]
+    assert len(diagnostic.cell_results) == 2
+    assert diagnostic.cell_results[0].bias == 5.0
+    assert diagnostic.omnibus_tests
+    assert diagnostic.bias_envelopes[0].target_moment_id == "mean_income"
+    assert "some_horizons_are_extrapolated_beyond_direct_panel_support" in diagnostic.warnings
+
+    attached = attach_dynamic_validation(result, panel_moments, spec)
+    envelope = attached.to_uncertainty_envelope()
+    assert attached.validation_diagnostic == diagnostic
+    assert envelope.confidence_level == 0.95
+    assert envelope.confidence_interval[0] < envelope.point_estimate
+    assert envelope.confidence_interval[1] > envelope.point_estimate
+
+
+def test_dynamic_microsim_refuses_red_phase4_validation_report() -> None:
+    survey = SurveyMicroData(
+        market_income=np.array([100.0, 120.0, 140.0]),
+        weights=np.ones(3),
+    )
+    red_report = DynamicMicrosimValidationReport(
+        validation_status="red",
+        source_status="fail",
+        can_run_dynamic_microsim=False,
+        refusal_code="dynamic_microsim_validation_red",
+        blocking_reasons=("dynamic_microsim_validation_red",),
+    )
+
+    with pytest.raises(ValueError, match="dynamic_microsim_validation_red"):
+        DynamicMicrosimEstimator.pure_step(
+            survey,
+            {
+                "horizon": 2,
+                "dynamic_validation_report": red_report.model_dump(mode="json"),
+            },
+        )
+
+
+def test_dynamic_microsim_persists_generated_phase4_validation_report(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    survey = _survey_state()
+    weighted_mean = float(np.average(survey.market_income, weights=survey.weights))
+    spec = DynamicValidationSpec(
+        comparison_dataset="green_panel",
+        comparison_dataset_version="fixture",
+        direct_support_max_horizon=2,
+        horizons=(1, 2),
+        moment_specs=(
+            ValidationMomentSpec(
+                moment_id="mean_income",
+                family="level",
+                scale="raw",
+                unit="currency",
+                tolerance_rel=1.0,
+                primary=True,
+            ),
+        ),
+        bootstrap_reps=8,
+        bootstrap_seed=11,
+    )
+    panel_moments = {
+        "observed_moments": [
+            {
+                "cohort_key": {"all": "all"},
+                "horizon_years": 1,
+                "moment_id": "mean_income",
+                "support_type": "direct",
+                "observed_value": weighted_mean,
+                "se": 10.0,
+                "n": int(survey.market_income.size),
+                "ess": float(np.sum(survey.weights)),
+            },
+            {
+                "cohort_key": {"all": "all"},
+                "horizon_years": 2,
+                "moment_id": "mean_income",
+                "support_type": "direct",
+                "observed_value": weighted_mean,
+                "se": 10.0,
+                "n": int(survey.market_income.size),
+                "ess": float(np.sum(survey.weights)),
+            },
+        ]
+    }
+
+    result = DynamicMicrosimEstimator.pure_step(
+        survey,
+        {
+            "n_periods": 2,
+            "drift": 0.0,
+            "volatility": 0.0,
+            "artifact_store": store,
+            "validation_panel_data": panel_moments,
+            "validation_spec": spec,
+        },
+    )["result"]
+
+    assert result.dynamic_validation_report_ref is not None
+    loaded = load_dynamic_microsim_validation_report(store, result.dynamic_validation_report_ref)
+    assert loaded.validation_status in {"green", "amber"}
+    assert result.metadata["dynamic_validation_status"] == loaded.validation_status
+
+
+def test_dynamic_microsim_persists_supplied_amber_report_with_warning(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    report = DynamicMicrosimValidationReport(
+        validation_status="amber",
+        source_status="warn",
+        can_run_dynamic_microsim=True,
+        warnings=("longitudinal_panel_support_partial",),
+    )
+
+    result = DynamicMicrosimEstimator.pure_step(
+        _survey_state(),
+        {
+            "n_periods": 2,
+            "artifact_store": store,
+            "dynamic_validation_report": report.model_dump(mode="json"),
+        },
+    )["result"]
+
+    assert result.dynamic_validation_report_ref is not None
+    loaded = load_dynamic_microsim_validation_report(store, result.dynamic_validation_report_ref)
+    assert loaded.validation_status == "amber"
+    assert result.metadata["dynamic_validation_status"] == "amber"
+    assert result.metadata["dynamic_validation_warning_count"] == 1
+
+
+def test_dynamic_microsim_refuses_red_phase4_validation_report_ref(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    red_report = DynamicMicrosimValidationReport(
+        validation_status="red",
+        source_status="fail",
+        can_run_dynamic_microsim=False,
+        refusal_code="dynamic_microsim_validation_red",
+        blocking_reasons=("dynamic_microsim_validation_red",),
+    )
+    report_ref = persist_dynamic_microsim_validation_report(store, red_report)
+
+    with pytest.raises(ValueError, match="dynamic_microsim_validation_red"):
+        DynamicMicrosimEstimator.pure_step(
+            _survey_state(),
+            {
+                "n_periods": 2,
+                "artifact_store": store,
+                "dynamic_validation_report_ref": report_ref,
+            },
+        )
+
+
+def test_dynamic_validation_uses_cohort_paths_core_moments_and_sensitivity() -> None:
+    cohort_id = np.array(["young", "young", "senior", "senior"])
+    weights = np.array([1.0, 1.3, 0.9, 1.1])
+    observed_path = np.array(
+        [
+            [100.0, 120.0, 210.0, 240.0],
+            [106.0, 126.0, 214.0, 246.0],
+            [111.0, 132.0, 219.0, 252.0],
+            [116.0, 137.0, 224.0, 258.0],
+            [121.0, 143.0, 229.0, 264.0],
+            [126.0, 149.0, 235.0, 271.0],
+        ],
+        dtype=float,
+    )
+    simulated_path = observed_path * np.array([[1.0], [1.01], [1.015], [1.018], [1.02], [1.022]])
+    result = DynamicMicrosimResultV2(
+        final_market_income=simulated_path[-1],
+        disposable_income=simulated_path[-1],
+        mean_income_path=[
+            float(np.average(row, weights=weights))
+            for row in simulated_path
+        ],
+        policy_revenue_path=[0.0] * simulated_path.shape[0],
+        weighted_mean_final_income=float(np.average(simulated_path[-1], weights=weights)),
+        market_income_path=simulated_path,
+        weights=weights,
+        cohort_data={"cohort_id": cohort_id},
+    )
+
+    spec = DynamicValidationSpec(
+        comparison_dataset="panel_fixture",
+        cohort_dimensions=("cohort_id",),
+        direct_support_max_horizon=6,
+        horizons=(2, 6),
+        moment_specs=(
+            ValidationMomentSpec(
+                moment_id="mean_log_income",
+                family="level",
+                scale="log",
+                unit="log_currency",
+                tolerance_abs=0.05,
+                primary=True,
+            ),
+            ValidationMomentSpec(
+                moment_id="autocovariance_1y_log_income",
+                family="persistence",
+                scale="log",
+                unit="log_currency_sq",
+                primary=True,
+            ),
+            ValidationMomentSpec(
+                moment_id="rank_rank_persistence",
+                family="mobility",
+                scale="relative",
+                unit="correlation",
+                primary=True,
+            ),
+            ValidationMomentSpec(
+                moment_id="lifetime_discounted_income",
+                family="lifetime",
+                scale="raw",
+                unit="currency_present_value",
+                tolerance_rel=0.10,
+                primary=True,
+            ),
+        ),
+        bootstrap_reps=24,
+        bootstrap_seed=17,
+        multiple_testing_correction="holm_stepdown",
+        max_abs_relative_bias_warn=0.50,
+        max_abs_relative_bias_fail=0.90,
+        sensitivity_scenarios=(
+            DynamicValidationSensitivitySpec(
+                scenario_id="strict_bias_gate",
+                changed_inputs={
+                    "max_abs_relative_bias_warn": 0.0001,
+                    "max_abs_relative_bias_fail": 0.0002,
+                },
+            ),
+        ),
+        metadata={"lifetime_discount_factor": 0.98},
+    )
+
+    diagnostic = run_dynamic_validation(
+        result,
+        {
+            "observed_income_path": observed_path,
+            "weights": weights,
+            "cohort_data": {"cohort_id": cohort_id},
+        },
+        spec,
+    )
+
+    assert diagnostic.status == "pass"
+    assert diagnostic.cohort_dimensions == ("cohort_id",)
+    assert {cell.cohort_key["cohort_id"] for cell in diagnostic.cell_results} == {
+        "young",
+        "senior",
+    }
+    assert "rank_rank_persistence" in {
+        cell.moment_id for cell in diagnostic.cell_results
+    }
+    assert all(
+        cell.p_value_adjusted is not None
+        for cell in diagnostic.cell_results
+        if cell.p_value is not None
+    )
+    assert {"wald", "hansen_j_type"}.issubset(
+        {test.method for test in diagnostic.omnibus_tests}
+    )
+    assert diagnostic.bias_envelopes
+    assert diagnostic.bias_envelopes[0].simultaneous is True
+    assert diagnostic.diagnostics["multiple_testing_correction"] == "holm_stepdown"
+    assert diagnostic.sensitivity_runs[0].scenario_id == "strict_bias_gate"
+    assert diagnostic.sensitivity_runs[0].status == "fail"
+
+    long_panel_diagnostic = run_dynamic_validation(
+        result,
+        {
+            "person_id": np.tile(np.arange(observed_path.shape[1]), observed_path.shape[0]),
+            "year": np.repeat(np.arange(1, observed_path.shape[0] + 1), observed_path.shape[1]),
+            "income": observed_path.reshape(-1),
+            "weights": np.tile(weights, observed_path.shape[0]),
+            "cohort_data": {"cohort_id": np.tile(cohort_id, observed_path.shape[0])},
+        },
+        spec.model_copy(update={"sensitivity_scenarios": ()}),
+    )
+    assert long_panel_diagnostic.status == "pass"
+    assert len(long_panel_diagnostic.cell_results) == len(diagnostic.cell_results)
 
 
 def test_behavioral_response_v2_blocks_unidentified_cross_section() -> None:

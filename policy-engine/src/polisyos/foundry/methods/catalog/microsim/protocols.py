@@ -23,13 +23,25 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.refs import FiscalFeedbackLinkRef
+from polisyos.ir.refs import DynamicMicrosimValidationReportRef, FiscalFeedbackLinkRef
 
 
 def _to_numpy(value: Any) -> np.ndarray:
     if isinstance(value, np.ndarray):
         return value
     return np.asarray(value)
+
+
+def _jsonable_array_payload(value: Any) -> Any:
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, dict):
+        return {key: _jsonable_array_payload(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return tuple(_jsonable_array_payload(item) for item in value)
+    if isinstance(value, list):
+        return [_jsonable_array_payload(item) for item in value]
+    return value
 
 
 class SurveyMicroData(BaseModel):
@@ -737,6 +749,269 @@ class MNARIncomeBoundsResult(BaseModel):
     warnings: tuple[str, ...] = ()
 
 
+class ValidationMomentSpec(BaseModel):
+    """Declare one life-cycle income moment used by dynamic microsim validation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    moment_id: str
+    family: Literal["level", "dispersion", "tail", "persistence", "mobility", "lifetime"]
+    scale: Literal["raw", "log", "equivalized", "relative"]
+    unit: str
+    transform: str | None = None
+    tolerance_abs: float | None = Field(default=None, ge=0.0)
+    tolerance_rel: float | None = Field(default=None, ge=0.0)
+    primary: bool = True
+
+
+class ValidationCellResult(BaseModel):
+    """Per cohort-horizon-moment comparison between simulated and observed panel moments."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cohort_key: dict[str, str | int]
+    horizon_years: int = Field(ge=0)
+    moment_id: str
+    support_type: Literal["direct", "stitched", "extrapolated"]
+    simulated_value: float
+    observed_value: float
+    bias: float
+    relative_bias: float | None = None
+    se: float | None = Field(default=None, ge=0.0)
+    test_stat: float | None = None
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    p_value_adjusted: float | None = Field(default=None, ge=0.0, le=1.0)
+    ci_lower: float | None = None
+    ci_upper: float | None = None
+    n_sim: int | None = Field(default=None, ge=0)
+    n_obs: int | None = Field(default=None, ge=0)
+    ess_obs: float | None = Field(default=None, ge=0.0)
+    ess_sim: float | None = Field(default=None, ge=0.0)
+
+
+class ValidationOmnibusTest(BaseModel):
+    """Vector-level validation test over horizons, moments, or the full diagnostic grid."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scope: Literal["cohort_moment_horizons", "cohort_all_moments", "global_all"]
+    method: Literal["wald", "hansen_j_type", "diebold_mariano", "giacomini_white", "sup_wald"]
+    null_hypothesis: str
+    statistic: float
+    df: int | None = Field(default=None, ge=0)
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    p_value_adjusted: float | None = Field(default=None, ge=0.0, le=1.0)
+    covariance_estimator: str | None = None
+    bootstrap_reps: int | None = Field(default=None, ge=0)
+
+
+class HorizonBiasEnvelope(BaseModel):
+    """Horizon-dependent bias path with pointwise or simultaneous uncertainty bands."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    target_moment_id: str
+    horizons: list[int]
+    point_path: list[float]
+    lower_path: list[float]
+    upper_path: list[float]
+    confidence_level: float = Field(gt=0.0, lt=1.0)
+    simultaneous: bool = True
+    method: Literal[
+        "sup_t_block_bootstrap",
+        "pointwise_block_bootstrap",
+        "state_space_parametric",
+        "hybrid",
+    ]
+    scale: Literal["bias", "relative_bias"]
+    block_scheme: str | None = None
+    block_length: int | None = Field(default=None, ge=1)
+    extrapolated_from_horizon: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def _validate_path_lengths(self) -> HorizonBiasEnvelope:
+        n_horizons = len(self.horizons)
+        if not (
+            len(self.point_path)
+            == len(self.lower_path)
+            == len(self.upper_path)
+            == n_horizons
+        ):
+            raise ValueError("horizons, point_path, lower_path, and upper_path lengths must match")
+        return self
+
+
+class SensitivityRunResult(BaseModel):
+    """Summary for one dynamic-validation sensitivity scenario."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scenario_id: str
+    changed_inputs: dict[str, Any]
+    status: Literal["pass", "warn", "fail", "inconclusive"]
+    key_shifts: dict[str, float] = Field(default_factory=dict)
+
+
+class DynamicMicrosimValidationDiagnostic(BaseModel):
+    """Typed validation artifact for dynamic microsimulation against panel moments."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    status: Literal["pass", "warn", "fail", "inconclusive", "not_run"]
+    validation_target: Literal["life_cycle_income_moments"] = "life_cycle_income_moments"
+    comparison_dataset: str
+    comparison_dataset_version: str | None = None
+    panel_span_years: int | None = Field(default=None, ge=0)
+    direct_support_max_horizon: int | None = Field(default=None, ge=0)
+    cohort_dimensions: tuple[str, ...]
+    horizons_reported: list[int]
+    moment_specs: list[ValidationMomentSpec]
+    cell_results: list[ValidationCellResult]
+    omnibus_tests: list[ValidationOmnibusTest] = Field(default_factory=list)
+    bias_envelopes: list[HorizonBiasEnvelope] = Field(default_factory=list)
+    sensitivity_runs: list[SensitivityRunResult] = Field(default_factory=list)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    warnings: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+def _default_dynamic_validation_moments() -> tuple[ValidationMomentSpec, ...]:
+    return (
+        ValidationMomentSpec(
+            moment_id="mean_log_income",
+            family="level",
+            scale="log",
+            unit="log_currency",
+            transform="log(max(y, 1))",
+            tolerance_abs=0.03,
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="median_income",
+            family="level",
+            scale="raw",
+            unit="currency",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="p10_income",
+            family="tail",
+            scale="raw",
+            unit="currency",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="p90_income",
+            family="tail",
+            scale="raw",
+            unit="currency",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="var_log_income",
+            family="dispersion",
+            scale="log",
+            unit="log_currency_sq",
+            transform="var(log(max(y, 1)))",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="low_income_share",
+            family="tail",
+            scale="raw",
+            unit="share",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="autocovariance_1y_log_income",
+            family="persistence",
+            scale="log",
+            unit="log_currency_sq",
+            transform="cov(log(y_t), log(y_t-1))",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="autocovariance_5y_log_income",
+            family="persistence",
+            scale="log",
+            unit="log_currency_sq",
+            transform="cov(log(y_t), log(y_t-5))",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="rank_rank_persistence",
+            family="mobility",
+            scale="relative",
+            unit="correlation",
+            primary=True,
+        ),
+        ValidationMomentSpec(
+            moment_id="lifetime_discounted_income",
+            family="lifetime",
+            scale="raw",
+            unit="currency_present_value",
+            transform="sum(beta^h * y_h)",
+            primary=True,
+        ),
+    )
+
+
+class DynamicValidationSensitivitySpec(BaseModel):
+    """One robustness scenario for dynamic microsim validation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scenario_id: str
+    changed_inputs: dict[str, Any] = Field(default_factory=dict)
+
+
+class DynamicValidationSpec(BaseModel):
+    """Configuration for validating dynamic microsimulation moments against panel data."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    comparison_dataset: str
+    comparison_dataset_version: str | None = None
+    panel_span_years: int | None = Field(default=None, ge=0)
+    direct_support_max_horizon: int | None = Field(default=None, ge=0)
+    income_concept: Literal["market", "gross", "disposable", "equivalized_disposable"] = "market"
+    cohort_dimensions: tuple[str, ...] = ("all",)
+    horizons: tuple[int, ...] = ()
+    moment_specs: tuple[ValidationMomentSpec, ...] = Field(
+        default_factory=_default_dynamic_validation_moments
+    )
+    confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    alpha: float = Field(default=0.05, gt=0.0, lt=1.0)
+    bootstrap_reps: int = Field(default=199, ge=0)
+    bootstrap_seed: int = 0
+    block_scheme: str = "stationary_bootstrap"
+    block_length: int = Field(default=4, ge=1)
+    support_type_by_horizon: dict[int, Literal["direct", "stitched", "extrapolated"]] = Field(
+        default_factory=dict
+    )
+    low_income_threshold: float = 1.0
+    minimum_cell_ess: float | None = Field(default=None, ge=0.0)
+    multiple_testing_correction: Literal["none", "bonferroni", "holm_stepdown"] = "holm_stepdown"
+    max_abs_relative_bias_warn: float | None = Field(default=0.05, ge=0.0)
+    max_abs_relative_bias_fail: float | None = Field(default=0.10, ge=0.0)
+    global_pass_rule: Literal["tolerance", "p_value_or_tolerance"] = "tolerance"
+    sensitivity_scenarios: tuple[DynamicValidationSensitivitySpec, ...] = ()
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_horizons(self) -> DynamicValidationSpec:
+        if any(horizon < 0 for horizon in self.horizons):
+            raise ValueError("horizons must be non-negative")
+        if (
+            self.max_abs_relative_bias_warn is not None
+            and self.max_abs_relative_bias_fail is not None
+            and self.max_abs_relative_bias_warn > self.max_abs_relative_bias_fail
+        ):
+            raise ValueError("warn relative-bias threshold must be <= fail threshold")
+        return self
+
+
 class DynamicMicrosimResult(BaseModel):
     """Carry final outcomes and time paths emitted by dynamic microsimulation runs."""
 
@@ -775,10 +1050,197 @@ class DynamicMicrosimResult(BaseModel):
         )
 
 
+class DynamicMicrosimResultV2(DynamicMicrosimResult):
+    """Dynamic microsimulation result with optional validation and replay-ready path payloads."""
+
+    contract_id: ClassVar[str] = "foundry.microsim.dynamic_result.v2"
+
+    validation_diagnostic: DynamicMicrosimValidationDiagnostic | None = None
+    dynamic_validation_report_ref: DynamicMicrosimValidationReportRef | None = None
+    market_income_path: Any | None = None
+    weights: Any | None = None
+    cohort_data: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("market_income_path", "weights", mode="before")
+    @classmethod
+    def _coerce_optional_dynamic_array(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        return _to_numpy(value)
+
+    @field_validator("cohort_data", mode="before")
+    @classmethod
+    def _coerce_cohort_data(cls, value: Any) -> Any:
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError("cohort_data must be a mapping")
+        return {
+            str(key): _to_numpy(item) if item is not None else None
+            for key, item in value.items()
+        }
+
+    @model_validator(mode="after")
+    def _validate_optional_paths(self) -> DynamicMicrosimResultV2:
+        final_income = np.asarray(self.final_market_income)
+        if self.market_income_path is not None:
+            path = np.asarray(self.market_income_path)
+            if path.ndim != 2:
+                raise ValueError("market_income_path must be a 2D array of periods by observations")
+            if path.shape[1] != final_income.shape[0]:
+                raise ValueError("market_income_path observation count must match final_market_income")
+        if self.weights is not None:
+            weights = np.asarray(self.weights)
+            if weights.ndim != 1:
+                raise ValueError("weights must be a 1D array")
+            if weights.shape[0] != final_income.shape[0]:
+                raise ValueError("weights length must match final_market_income")
+        for key, value in self.cohort_data.items():
+            if value is None:
+                continue
+            array = np.asarray(value)
+            if array.ndim != 1:
+                raise ValueError(f"cohort_data.{key} must be a 1D array")
+            if array.shape[0] != final_income.shape[0]:
+                raise ValueError(f"cohort_data.{key} length must match final_market_income")
+        return self
+
+    @field_serializer("market_income_path", "weights", mode="plain", when_used="json")
+    def _serialize_optional_dynamic_array(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @field_serializer("cohort_data", mode="plain", when_used="json")
+    def _serialize_cohort_data(self, value: dict[str, Any]) -> Any:
+        return _jsonable_array_payload(value)
+
+    @classmethod
+    def from_v1(
+        cls,
+        result: DynamicMicrosimResult,
+        *,
+        validation_diagnostic: DynamicMicrosimValidationDiagnostic | None = None,
+        market_income_path: Any | None = None,
+        weights: Any | None = None,
+        cohort_data: dict[str, Any] | None = None,
+        dynamic_validation_report_ref: DynamicMicrosimValidationReportRef | None = None,
+    ) -> DynamicMicrosimResultV2:
+        payload = result.model_dump(mode="python")
+        payload.update(
+            {
+                "validation_diagnostic": validation_diagnostic,
+                "dynamic_validation_report_ref": dynamic_validation_report_ref,
+                "market_income_path": market_income_path,
+                "weights": weights,
+                "cohort_data": cohort_data or {},
+            }
+        )
+        return cls.model_validate(payload)
+
+    def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
+        point = float(self.weighted_mean_final_income)
+        metadata: dict[str, Any] = {
+            "mean_income_path": list(self.mean_income_path),
+            "validation_status": (
+                self.validation_diagnostic.status if self.validation_diagnostic is not None else None
+            ),
+        }
+        if self.validation_diagnostic is not None:
+            metadata["validation_warnings"] = list(self.validation_diagnostic.warnings)
+            candidates = {
+                "mean_income",
+                "mean_market_income",
+                "weighted_mean_final_income",
+            }
+            selected = next(
+                (
+                    envelope
+                    for envelope in self.validation_diagnostic.bias_envelopes
+                    if envelope.target_moment_id in candidates
+                    and envelope.scale == "bias"
+                    and envelope.point_path
+                ),
+                None,
+            )
+            if selected is not None:
+                lower_bias = float(selected.lower_path[-1])
+                upper_bias = float(selected.upper_path[-1])
+                corrected_lower = point - upper_bias
+                corrected_upper = point - lower_bias
+                metadata["validation_bias_envelope"] = selected.model_dump(mode="python")
+                return UncertaintyEnvelope(
+                    point_estimate=point,
+                    confidence_interval=(
+                        min(corrected_lower, corrected_upper),
+                        max(corrected_lower, corrected_upper),
+                    ),
+                    confidence_level=float(selected.confidence_level),
+                    distribution_family=DistributionFamily.BOOTSTRAP,
+                    source=UncertaintySource.BOOTSTRAP,
+                    propagation_method=PropagationMethod.MONTE_CARLO,
+                    interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+                    metadata=metadata,
+                )
+        return UncertaintyEnvelope(
+            point_estimate=point,
+            confidence_interval=(point, point),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CALIBRATION,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            metadata=metadata,
+        )
+
+
+def upgrade_dynamic_microsim_result(
+    result: DynamicMicrosimResult | DynamicMicrosimResultV2,
+    *,
+    validation_diagnostic: DynamicMicrosimValidationDiagnostic | None = None,
+    dynamic_validation_report_ref: DynamicMicrosimValidationReportRef | None = None,
+    market_income_path: Any | None = None,
+    weights: Any | None = None,
+    cohort_data: dict[str, Any] | None = None,
+) -> DynamicMicrosimResultV2:
+    """Adapt a v1 dynamic microsim result into the v2 validation-ready contract."""
+
+    if isinstance(result, DynamicMicrosimResultV2):
+        updates: dict[str, Any] = {}
+        if validation_diagnostic is not None:
+            updates["validation_diagnostic"] = validation_diagnostic
+        if dynamic_validation_report_ref is not None:
+            updates["dynamic_validation_report_ref"] = dynamic_validation_report_ref
+        if market_income_path is not None:
+            updates["market_income_path"] = market_income_path
+        if weights is not None:
+            updates["weights"] = weights
+        if cohort_data is not None:
+            updates["cohort_data"] = cohort_data
+        if not updates:
+            return result
+        payload = result.model_dump(mode="python")
+        payload.update(updates)
+        return DynamicMicrosimResultV2.model_validate(payload)
+    return DynamicMicrosimResultV2.from_v1(
+        result,
+        validation_diagnostic=validation_diagnostic,
+        dynamic_validation_report_ref=dynamic_validation_report_ref,
+        market_income_path=market_income_path,
+        weights=weights,
+        cohort_data=cohort_data,
+    )
+
+
 __all__ = [
     "BehavioralResponseResult",
+    "DynamicMicrosimResultV2",
     "DynamicMicrosimResult",
+    "DynamicMicrosimValidationDiagnostic",
+    "DynamicValidationSensitivitySpec",
+    "DynamicValidationSpec",
     "HeterogeneousBehavioralResponseResult",
+    "HorizonBiasEnvelope",
     "ImputationResult",
     "InverseBehavioralCalibrationResult",
     "InverseBehavioralIdentifiedSet",
@@ -797,6 +1259,11 @@ __all__ = [
     "ReweightingTargetGap",
     "ReweightingTargetKind",
     "ReweightingTargetSpec",
+    "SensitivityRunResult",
     "SurveyMicroData",
     "TaxBenefitResult",
+    "ValidationCellResult",
+    "ValidationMomentSpec",
+    "ValidationOmnibusTest",
+    "upgrade_dynamic_microsim_result",
 ]

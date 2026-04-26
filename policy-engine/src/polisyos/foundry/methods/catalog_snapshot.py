@@ -169,6 +169,19 @@ def build_method_catalog_snapshot(
             "effect_semantics": effect_semantics,
             "shape_semantics": shape_semantics,
             "dependency_semantics": dependency_semantics,
+            "simulator_regime_schema": (
+                dict(entry.metadata.simulator_regime_schema) if entry is not None else {}
+            ),
+            "summary_schema_ref": entry.metadata.summary_schema_ref if entry is not None else None,
+            "identifiable_target": (
+                dict(entry.metadata.identifiable_target) if entry is not None else {}
+            ),
+            "coverage_contract": (
+                dict(entry.metadata.coverage_contract) if entry is not None else {}
+            ),
+            "diagnostic_contract": (
+                dict(entry.metadata.diagnostic_contract) if entry is not None else {}
+            ),
             "backend_available": backend_available,
             "runnable": runnable,
         }
@@ -273,6 +286,23 @@ def build_method_catalog_snapshot(
                 output_interpretation=str(getattr(entry.metadata, "output_interpretation", ""))
                 if entry is not None
                 else "",
+                simulator_regime_schema=dict(
+                    getattr(entry.metadata, "simulator_regime_schema", {})
+                )
+                if entry is not None
+                else {},
+                summary_schema_ref=getattr(entry.metadata, "summary_schema_ref", None)
+                if entry is not None
+                else None,
+                identifiable_target=dict(getattr(entry.metadata, "identifiable_target", {}))
+                if entry is not None
+                else {},
+                coverage_contract=dict(getattr(entry.metadata, "coverage_contract", {}))
+                if entry is not None
+                else {},
+                diagnostic_contract=dict(getattr(entry.metadata, "diagnostic_contract", {}))
+                if entry is not None
+                else {},
             )
         )
     snapshot_payload = {

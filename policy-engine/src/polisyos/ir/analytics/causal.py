@@ -17,6 +17,11 @@ from polisyos.ir.analytics.administrative_missingness import (
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsAttachment,
+    DynamicSemanticsFamily,
+    ForecastInterventionAttachment,
+    InterventionKind,
+    InterventionScope,
+    LocalIndependenceAttachment,
 )
 from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
 from polisyos.ir.analytics.transportability import TransportabilityResult
@@ -91,6 +96,7 @@ class CausalMethod(str, Enum):
     X_LEARNER = "x_learner"
     POLICY_TREE = "policy_tree"
     G_COMPUTATION = "g_computation"
+    ST_DSCM_SPDE = "st_dscm_spde"
     ICE_G_FORMULA = "ice_g_formula"
     LTMLE = "ltmle"
     G_ESTIMATION = "g_estimation"
@@ -1046,6 +1052,98 @@ def build_dynamic_proof_bundle(
     )
 
 
+def build_forecast_intervention_proof_bundle(
+    *,
+    forecast_intervention: ForecastInterventionAttachment,
+    dynamic_semantics: DynamicSemanticsAttachment | None = None,
+    theorem_family: str = "forecast_local_independence_v1",
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    estimand_ast: Any = None,
+    proof_trace: list[str] | None = None,
+    assumptions: list[str] | None = None,
+    metadata: dict[str, Any] | None = None,
+    frontier_sketch_ref: FrontierSketchRef | None = None,
+) -> ProofBundle:
+    """Construct a ProofBundle for the forecast-as-treatment dynamic surface."""
+
+    proof_status = forecast_intervention.proof_status
+    resolved_dynamic_semantics = dynamic_semantics
+    if resolved_dynamic_semantics is None:
+        if proof_status == "identified":
+            reduction_status = DynamicReductionStatus.VALIDATED_REDUCTION
+        elif proof_status == "non_identified":
+            reduction_status = DynamicReductionStatus.BLOCKED
+        else:
+            reduction_status = DynamicReductionStatus.HEURISTIC_ONLY
+        resolved_dynamic_semantics = DynamicSemanticsAttachment(
+            semantics_family=DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH,
+            reduction_status=reduction_status,
+            intervention_scope=InterventionScope(
+                kind=InterventionKind.FORECAST_PUBLICATION,
+                targets=(forecast_intervention.announcement_node,),
+                admissible=forecast_intervention.admissible_intervention,
+                admissibility_theorem="forecast_publication_expectation_update_v1",
+            ),
+            continuous_time_attachment=LocalIndependenceAttachment(
+                graphical_oracle=forecast_intervention.graphical_oracle,
+                causal_validity_rule=forecast_intervention.causal_validity_rule,
+                process_family="event_process",
+                policy_semantics="forecast_publication",
+                identification_method=forecast_intervention.identification_method.value,
+                independent_censoring_checked=(
+                    forecast_intervention.censoring_checks.independent_censoring_checked
+                ),
+                positivity_assumed=forecast_intervention.support_checks.positivity_passed,
+            ),
+            forecast_intervention=forecast_intervention,
+        )
+    payload_metadata = {
+        "query_kind": "forecast_intervention",
+        "forecast_intervention_certificate": forecast_intervention.model_dump(mode="json"),
+        "forecast_intervention_status": proof_status,
+        "forecast_replay_composability_status": (
+            forecast_intervention.replay_composability_status
+        ),
+        "forecast_missing_replay_fingerprints": list(
+            forecast_intervention.missing_replay_fingerprints
+        ),
+        **dict(metadata or {}),
+    }
+    resolved_assumptions = list(assumptions or [])
+    resolved_assumptions.extend(
+        [
+            "forecast_publication_intervenes_on_information_law",
+            "post_announcement_belief_update_operator",
+            "local_independence_causal_validity",
+            "announcement_window_exogeneity",
+            "forecast_contrast_positivity",
+        ]
+    )
+    return build_dynamic_proof_bundle(
+        dynamic_semantics=resolved_dynamic_semantics,
+        theorem_family=theorem_family,
+        proof_status=proof_status,
+        graph_ref=graph_ref,
+        query_ref=query_ref or forecast_intervention.query_ref,
+        estimand_ast=estimand_ast,
+        negative_certificate_summary=(
+            "; ".join(forecast_intervention.blocking_reasons)
+            if forecast_intervention.blocking_reasons
+            else None
+        ),
+        proof_trace=proof_trace
+        or [
+            "forecast_publication_semantics",
+            "expectation_update_channel",
+            "continuous_time_local_independence",
+        ],
+        assumptions=sorted(set(resolved_assumptions)),
+        metadata=payload_metadata,
+        frontier_sketch_ref=frontier_sketch_ref,
+    )
+
+
 def build_data_readiness_report(
     *,
     positivity: PositivityDiagnosticReport | dict[str, Any] | None = None,
@@ -1676,6 +1774,31 @@ def _implementation_coverage_for_result(
     dynamic_semantics: DynamicSemanticsAttachment | None = None,
 ) -> str:
     if dynamic_semantics is not None:
+        forecast_attachment = getattr(dynamic_semantics, "forecast_intervention", None)
+        if forecast_attachment is not None:
+            forecast_status = getattr(forecast_attachment, "proof_status", status_raw)
+            identified_component = str(
+                getattr(getattr(forecast_attachment, "identified_component", None), "value", "")
+                or getattr(forecast_attachment, "identified_component", "")
+                or ""
+            )
+            semantics_class = str(
+                getattr(getattr(forecast_attachment, "semantics_class", None), "value", "")
+                or getattr(forecast_attachment, "semantics_class", "")
+                or ""
+            )
+            if (
+                dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+                and forecast_status == "identified"
+            ):
+                if identified_component == "total_announcement":
+                    return "declared-dynamic-scope:forecast_total_announcement_v1"
+                return "declared-dynamic-scope:forecast_local_independence_v1"
+            if semantics_class == "hybrid" and identified_component == "expectation_only":
+                return "dynamic-research-boundary:forecast_hybrid_unseparated"
+            if forecast_status == "non_identified":
+                return "dynamic-research-boundary:forecast_non_identified"
+            return "dynamic-research-boundary:forecast_oracle_needed_v1"
         if dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION:
             return f"declared-dynamic-scope:{theorem_family or 'dynamic'}"
         if dynamic_semantics.reduction_status is DynamicReductionStatus.BLOCKED:
@@ -1725,6 +1848,7 @@ __all__ = [
     "TransportabilityResult",
     "build_data_readiness_report",
     "build_dynamic_proof_bundle",
+    "build_forecast_intervention_proof_bundle",
     "load_causal_effect_report",
     "load_data_readiness_report",
     "load_proof_bundle",

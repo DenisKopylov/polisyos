@@ -1,0 +1,54 @@
+{
+  "schema": "polisyos.bureaucratic_template_review.v1",
+  "review_record_status": "awaiting_external_review",
+  "notes": [
+    "This registry is the machine-readable Wave 2 legal/document review gate.",
+    "Replace reviewer_* fields with the external specialist record before public release."
+  ],
+  "templates": {
+    "ua.kmu.postanova.v1": {
+      "status": "pending_external_review",
+      "reviewer_name": "",
+      "reviewer_role": "",
+      "review_date": null,
+      "reviewed_template_version": "1.0.0",
+      "watermark_disclaimer_approved": false,
+      "numbering_approved": false,
+      "signature_seal_placeholders_approved": false,
+      "evidence_ref": null
+    },
+    "ua.rada.zakonoproekt.v1": {
+      "status": "pending_external_review",
+      "reviewer_name": "",
+      "reviewer_role": "",
+      "review_date": null,
+      "reviewed_template_version": "1.0.0",
+      "watermark_disclaimer_approved": false,
+      "numbering_approved": false,
+      "signature_seal_placeholders_approved": false,
+      "evidence_ref": null
+    },
+    "ua.expert_vysnovok.v1": {
+      "status": "pending_external_review",
+      "reviewer_name": "",
+      "reviewer_role": "",
+      "review_date": null,
+      "reviewed_template_version": "1.0.0",
+      "watermark_disclaimer_approved": false,
+      "numbering_approved": false,
+      "signature_seal_placeholders_approved": false,
+      "evidence_ref": null
+    },
+    "ua.analitichna_zapyska.v1": {
+      "status": "pending_external_review",
+      "reviewer_name": "",
+      "reviewer_role": "",
+      "review_date": null,
+      "reviewed_template_version": "1.0.0",
+      "watermark_disclaimer_approved": false,
+      "numbering_approved": false,
+      "signature_seal_placeholders_approved": false,
+      "evidence_ref": null
+    }
+  }
+}

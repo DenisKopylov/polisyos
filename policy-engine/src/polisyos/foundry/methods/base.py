@@ -13,6 +13,7 @@ Architecture laws enforced:
 from __future__ import annotations
 
 import ast
+import copy
 import dataclasses
 import functools
 import inspect
@@ -114,7 +115,7 @@ def _infer_affinity_tags(namespace: str, signature: MethodSignature) -> set[str]
     } & slot_names:
         inferred.add("cross-section")
     if (
-        any(token in ns for token in ("timeseries", "time_series", "time-series"))
+        any(token in ns for token in ("timeseries", "time_series", "time-series", "space_time"))
         or {
             "time_series_data",
             "endog",
@@ -123,7 +124,7 @@ def _infer_affinity_tags(namespace: str, signature: MethodSignature) -> set[str]
         & slot_names
     ):
         inferred.add("time-series")
-    if "spatial" in ns or "geo" in ns:
+    if "spatial" in ns or "geo" in ns or "space_time" in ns:
         inferred.add("spatial")
     if "network" in ns or "graph" in ns:
         inferred.add("network")
@@ -749,6 +750,11 @@ class MethodMetadata:
     citations: tuple[str, ...] = ()
     equations: Mapping[str, str] = field(default_factory=dict)
     assumptions: Mapping[str, str] = field(default_factory=dict)
+    simulator_regime_schema: Mapping[str, Any] = field(default_factory=dict)
+    summary_schema_ref: str | None = None
+    identifiable_target: Mapping[str, Any] = field(default_factory=dict)
+    coverage_contract: Mapping[str, Any] = field(default_factory=dict)
+    diagnostic_contract: Mapping[str, Any] = field(default_factory=dict)
     determinism_tier: DeterminismTier | None = None
     declared_truthfulness_tier: str | None = None
     truthfulness_scope: str | None = None
@@ -823,6 +829,37 @@ class MethodMetadata:
         if not isinstance(self.assumptions, MappingProxyType):
             assumptions_copy = dict(self.assumptions)
             object.__setattr__(self, "assumptions", MappingProxyType(assumptions_copy))
+        if not isinstance(self.simulator_regime_schema, MappingProxyType):
+            regime_schema_copy = copy.deepcopy(dict(self.simulator_regime_schema))
+            object.__setattr__(
+                self,
+                "simulator_regime_schema",
+                MappingProxyType(regime_schema_copy),
+            )
+        if self.summary_schema_ref is not None:
+            summary_schema_ref = str(self.summary_schema_ref).strip()
+            object.__setattr__(self, "summary_schema_ref", summary_schema_ref or None)
+        if not isinstance(self.identifiable_target, MappingProxyType):
+            identifiable_target_copy = copy.deepcopy(dict(self.identifiable_target))
+            object.__setattr__(
+                self,
+                "identifiable_target",
+                MappingProxyType(identifiable_target_copy),
+            )
+        if not isinstance(self.coverage_contract, MappingProxyType):
+            coverage_contract_copy = copy.deepcopy(dict(self.coverage_contract))
+            object.__setattr__(
+                self,
+                "coverage_contract",
+                MappingProxyType(coverage_contract_copy),
+            )
+        if not isinstance(self.diagnostic_contract, MappingProxyType):
+            diagnostic_contract_copy = copy.deepcopy(dict(self.diagnostic_contract))
+            object.__setattr__(
+                self,
+                "diagnostic_contract",
+                MappingProxyType(diagnostic_contract_copy),
+            )
 
     def stable_digest(self) -> str:
         """Stable digest for provenance artifacts."""
@@ -835,6 +872,11 @@ class MethodMetadata:
             "citations": list(self.citations),
             "equations": _stable_mapping(self.equations),
             "assumptions": _stable_mapping(self.assumptions),
+            "simulator_regime_schema": _stable_mapping(self.simulator_regime_schema),
+            "summary_schema_ref": self.summary_schema_ref,
+            "identifiable_target": _stable_mapping(self.identifiable_target),
+            "coverage_contract": _stable_mapping(self.coverage_contract),
+            "diagnostic_contract": _stable_mapping(self.diagnostic_contract),
             "determinism_tier": (
                 self.determinism_tier.value if self.determinism_tier is not None else None
             ),
@@ -859,6 +901,11 @@ class MethodMetadata:
                 self.tags,
                 self.citations,
                 tuple(self.assumptions.items()),
+                _canonical_json(_stable_mapping(self.simulator_regime_schema)),
+                self.summary_schema_ref,
+                _canonical_json(_stable_mapping(self.identifiable_target)),
+                _canonical_json(_stable_mapping(self.coverage_contract)),
+                _canonical_json(_stable_mapping(self.diagnostic_contract)),
                 self.determinism_tier,
                 self.declared_truthfulness_tier,
                 self.truthfulness_scope,
@@ -1012,6 +1059,11 @@ def foundry_method(
                 citations=existing.citations,
                 equations=existing.equations,
                 assumptions=existing.assumptions,
+                simulator_regime_schema=existing.simulator_regime_schema,
+                summary_schema_ref=existing.summary_schema_ref,
+                identifiable_target=existing.identifiable_target,
+                coverage_contract=existing.coverage_contract,
+                diagnostic_contract=existing.diagnostic_contract,
                 determinism_tier=existing.determinism_tier,
                 declared_truthfulness_tier=existing.declared_truthfulness_tier,
                 truthfulness_scope=existing.truthfulness_scope,
@@ -1053,6 +1105,11 @@ def foundry_method(
             citations=current_metadata.citations,
             equations=current_metadata.equations,
             assumptions=current_metadata.assumptions,
+            simulator_regime_schema=current_metadata.simulator_regime_schema,
+            summary_schema_ref=current_metadata.summary_schema_ref,
+            identifiable_target=current_metadata.identifiable_target,
+            coverage_contract=current_metadata.coverage_contract,
+            diagnostic_contract=current_metadata.diagnostic_contract,
             determinism_tier=determinism_tier,
             declared_truthfulness_tier=current_metadata.declared_truthfulness_tier,
             truthfulness_scope=current_metadata.truthfulness_scope,

@@ -3,7 +3,7 @@ title: Data Forge Consolidation Plan
 status: active
 owner: team-data-forge
 created: 2026-04-18
-last_verified: 2026-04-18
+last_verified: 2026-04-24
 stability: draft
 ---
 
@@ -37,6 +37,77 @@ src/polisyos/data_forge/
 
 Runtime packages consume artifacts through stable contracts and
 `data_forge.read_api`, not through pipeline internals.
+
+Temporary constraint: as of 2026-04-24, the cloud Lex pipeline is processing the
+NPA corpus. Queue 2 is finishing `shard_4`, and Queue 3 Wave 1 is active for
+`shard_0` through `shard_4`; Queue 3 Waves 2, 3, 4, and 5 are still expected to
+run. Until that run completes, Data Forge work uses a hybrid additive/domain
+split plan:
+
+1. Build new Data Forge foundations additively.
+2. Allow non-Lex domain work that does not touch active cloud pipeline surfaces.
+3. Freeze physical moves and behavior changes for the Lex production writer.
+4. Return to the strict consolidation sequence after the run is complete.
+
+## Temporary Lex Production Freeze
+
+This freeze starts on 2026-04-24 and ends only after all of the following are
+true:
+
+1. Queue 2 `shard_4` has completed.
+2. Queue 3 Waves 1 through 5 have completed.
+3. Shard merge, QC, and publication checks have passed.
+4. A cutover readiness note records the exact production source revision,
+   artifact roots, and merge/QC evidence.
+
+The freeze is event-gated, not calendar-gated. During this window, the current
+Lex pipeline remains the production writer and Data Forge remains a shadow or
+read-only consumer for legal artifacts.
+
+Protected surfaces during the freeze:
+
+- `src/polisyos/lex/batch/**`
+- `src/polisyos/batch_common/**`
+- `src/polisyos/batch_snapshot/**`
+- `tools/ops/cloud/run_lex_from_manifest.py`
+- `tools/ops/cloud/build_queue3_waves.py`
+- `tools/ops/cloud/merge_shards.py`
+- `tools/ops/cloud/prepare_shards.*`
+- `tools/ops/ukraine_data/pre_shard_lex_corpus.py`
+- `tools/cloud/**` compatibility wrappers used by cloud jobs
+- production Lex output layouts, stage manifests, resume markers, cache keys,
+  idempotency keys, and clean/resume semantics
+
+Forbidden during the freeze:
+
+1. Moving or renaming `polisyos.lex.batch`, `polisyos.batch_common`, or
+   `polisyos.batch_snapshot`.
+2. Rewriting active cloud runner imports from old paths to Data Forge paths.
+3. Changing production manifest schemas, shard assignment semantics, output
+   directory layout, cache keys, or cleanup/resume behavior.
+4. Removing or tightening compatibility wrappers required by queued cloud jobs.
+5. Burning down `lex/batch/*`, `batch_common`, or `batch_snapshot` complexity
+   exceptions before the cutover gate.
+
+Allowed during the freeze:
+
+1. Create or extend `polisyos.data_forge` modules without switching production
+   Lex jobs to them.
+2. Build the asset kernel, schema registry skeleton, ArtifactRef models,
+   snapshot contracts, config contracts, quality contracts, and test harnesses.
+3. Add read-only or shadow legal adapters that inspect completed Lex artifacts
+   without writing to production outputs.
+4. Capture tiny legal goldens from local fixtures or completed shard outputs.
+5. Migrate academic and catalog code when their public imports, tests, and
+   compatibility shims remain stable.
+6. Add Ukraine Data Forge scaffolding and read APIs, but defer any change that
+   affects Lex NPA sharding, manifests, or cloud execution.
+7. Add import/package-boundary checks in warning or allowlisted mode for paths
+   still frozen by this section.
+
+If a production Lex hotfix is required during the freeze, it must be narrowly
+scoped, preserve existing import paths and artifact semantics, and be called out
+in the cutover readiness note.
 
 ## Target Layout
 
@@ -245,16 +316,36 @@ LLM extraction requires:
 
 ## Phases
 
-| Phase | Deliverables                                                                                                                                                   |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0     | Create `data_forge` skeleton, asset kernel, schema registry skeleton, import contracts, public surface entry                                                   |
-| 1     | Move shared batch infrastructure into `kernel/*`; remove `batch_common` and `batch_snapshot` entries from `architecture/complexity_exceptions.toml` when split |
-| 2     | Move academic domain into `domains/academic`; burn down academic entries in `architecture/complexity_exceptions.toml`                                          |
-| 3     | Move catalog domain into `domains/catalog`; replace `core_sources_ingest.py` exception with per-source modules                                                 |
-| 4     | Move legal batch into `domains/legal`; burn down `lex/batch/*` exceptions                                                                                      |
-| 5     | Move Ukraine pipeline into `domains/ukraine`; split `ukraine_data/builders.py` exception                                                                       |
-| 6     | Split old read facades into `read_api/*`; remove runtime imports of domain internals                                                                           |
-| 7     | Remove compatibility shims after `migration_shims.toml` sunset gates pass                                                                                      |
+| Phase | Mode | Deliverables |
+| ----- | ---- | ------------ |
+| 0A | Freeze-safe foundation | Create `data_forge` skeleton, asset kernel contracts, schema registry skeleton, ArtifactRef models, snapshot contracts, import contracts, public surface entry, and Data Forge test harnesses. No protected Lex/shared paths move. |
+| 0B | Shadow legal bridge | Add read-only legal shadow adapters and tiny golden/differential fixtures for completed Lex artifacts. Do not make cloud jobs import Data Forge legal code. |
+| 0C | Non-Lex domain split | Move or mirror academic and catalog toward `domains/academic` and `domains/catalog` behind compatibility shims. Ukraine work is allowed only for scaffolding/read APIs that do not affect NPA sharding or active cloud execution. |
+| 0D | Cutover readiness gate | After Queue 2 `shard_4` and Queue 3 Waves 1-5 pass merge/QC, record the production revision, artifact roots, manifest schemas, output layouts, and old-vs-new golden comparison. |
+| 1 | Strict shared-kernel cutover | Move shared batch infrastructure into `kernel/*`; only then remove `batch_common` and `batch_snapshot` complexity exceptions when compatibility and tests pass. |
+| 2 | Academic completion | Complete academic migration into `domains/academic`; burn down academic entries in `architecture/complexity_exceptions.toml`. |
+| 3 | Catalog completion | Complete catalog migration into `domains/catalog`; replace `core_sources_ingest.py` exception with per-source modules. |
+| 4 | Legal cutover | Move legal batch into `domains/legal`; switch cloud/job entrypoints after replay/differential checks; burn down `lex/batch/*` exceptions. |
+| 5 | Ukraine completion | Move Ukraine pipeline into `domains/ukraine`; split `ukraine_data/builders.py` exception after Lex sharding dependencies are clear. |
+| 6 | Read API consolidation | Split old read facades into `read_api/*`; remove runtime imports of domain internals. |
+| 7 | Shim sunset | Remove compatibility shims after `migration_shims.toml` sunset gates pass. |
+
+## Freeze-Safe Workstreams
+
+The hybrid plan lets work proceed without waiting for the active Lex run:
+
+| Workstream | Status During Freeze | Notes |
+| ---------- | -------------------- | ----- |
+| Data Forge kernel | Allowed | Additive contracts and tests only; no production writer switch. |
+| Schema registry | Allowed | New Data Forge schema definitions may be added; production Lex manifest schemas remain unchanged. |
+| ArtifactRef governance | Allowed | Model and validation work may proceed; production Lex manifests may be read, not rewritten. |
+| Snapshot semantics | Allowed | Implement and test new transaction/Merkle/time-travel code against isolated fixtures. |
+| Quality system | Allowed | Add golden, differential, and drift harnesses using fixtures or copied completed outputs. |
+| Academic domain | Allowed | Migrate behind shims if public imports and tests stay stable. |
+| Catalog domain | Allowed | Migrate behind shims if public imports and tests stay stable. |
+| Ukraine domain | Partially allowed | Add scaffolding/read APIs; defer changes to NPA sharding, Lex manifests, and cloud runners. |
+| Legal domain | Shadow only | Add read-only adapters and tests; defer physical move and writer switch. |
+| Shared batch infra | Shadow only | Implement Data Forge equivalents; defer old import rewrites and exception burn-down. |
 
 ## Acceptance Criteria
 
@@ -268,3 +359,8 @@ LLM extraction requires:
    and manifest schemas under `schemas/manifests/`.
 8. No migrated god-file remains in `architecture/complexity_exceptions.toml`
    without a new owner, reason, and sunset.
+9. During the Lex freeze, no protected production surface changes behavior or
+   import path.
+10. Legal and shared-batch cutover happens only after the cutover readiness gate
+    records completed Queue 2/Queue 3 processing, merge/QC evidence, and
+    old-vs-new replay or differential results.

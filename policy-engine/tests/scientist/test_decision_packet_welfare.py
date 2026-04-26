@@ -7,6 +7,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.welfare import (
     ChannelDecompositionArtifact,
     ChannelDecompositionTargetKind,
@@ -100,6 +101,16 @@ def test_decision_packet_includes_welfare_section(tmp_path) -> None:
             interval_semantics=WelfareIntervalSemantics.MIXED_NESTED,
             channel_decomposition_ref=channel_ref,
             channel_decomposition={"pe": 0.57, "ge": 0.27},
+            equilibrium_multiplicity=EquilibriumMultiplicityWelfareAnnotation(
+                status="multiple",
+                report_ref=ArtifactRefModel(
+                    artifact_id="sha256:" + "4" * 64,
+                    kind="ir.equilibrium_multiplicity_report",
+                    media_type="application/json",
+                ),
+                selection_dependence=True,
+                materiality_note="selection dependent welfare ranking",
+            ),
             method_used=WelfareMethod.MIXED_NESTED,
             warnings=["dependence_assumed_independent"],
             status=WelfareStatus.DEGRADED,
@@ -125,6 +136,12 @@ def test_decision_packet_includes_welfare_section(tmp_path) -> None:
     assert payload["welfare"]["point_estimate"] == 0.84
     assert payload["welfare"]["robust_interval"] == [0.12, 1.43]
     assert payload["welfare"]["status"] == "degraded"
+    assert payload["welfare"]["equilibrium_multiplicity"]["status"] == "multiple"
+    assert payload["welfare"]["equilibrium_multiplicity"]["selection_dependence"] is True
+    assert (
+        payload["welfare"]["equilibrium_multiplicity"]["materiality_note"]
+        == "selection dependent welfare ranking"
+    )
     assert payload["welfare"]["channel_decomposition_ref"] == str(channel_ref.artifact_id)
     assert (
         payload["welfare"]["channel_decomposition_artifact"]["identification_status"]

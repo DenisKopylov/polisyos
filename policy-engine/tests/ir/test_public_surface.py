@@ -156,6 +156,24 @@ def test_welfare_ge_uncertainty_contracts_are_exported_from_ir_surfaces() -> Non
     assert ir.GEUncertaintyBundleRef.__name__ == "GEUncertaintyBundleRef"
 
 
+def test_regime_shift_forecast_contracts_are_exported_from_ir_surfaces() -> None:
+    regime_exports = {
+        "ForecastShiftTypeAssessment",
+        "RegimeBenchmarkStatus",
+        "RegimeForecastCalibrationStatus",
+        "RegimeIdentifiabilityStatus",
+        "RegimeModelFamily",
+        "RegimeShiftForecastBundle",
+        "RegimeShiftForecastBundleRef",
+    }
+    assert regime_exports <= set(analytics.__all__)
+    assert analytics.RegimeShiftForecastBundle.__name__ == "RegimeShiftForecastBundle"
+    assert analytics.RegimeShiftForecastBundleRef.__name__ == "RegimeShiftForecastBundleRef"
+    assert regime_exports <= set(ir.__all__)
+    assert ir.RegimeShiftForecastBundle.__name__ == "RegimeShiftForecastBundle"
+    assert ir.RegimeShiftForecastBundleRef.__name__ == "RegimeShiftForecastBundleRef"
+
+
 def test_public_surface_docs_counts_match_manifest() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     docs_page = repo_root / "docs" / "reference" / "ir" / "public-surface.md"

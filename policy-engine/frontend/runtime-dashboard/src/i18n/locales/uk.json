@@ -862,6 +862,31 @@
         "complete": "Повнота",
         "size": "Розмір"
       },
+      "bureaucratic": {
+        "renderAs": "Рендер як...",
+        "title": "Нативний бюрократичний рендеринг",
+        "trustView": "Trust View",
+        "loading": "Формуємо бюрократичний документ...",
+        "error": "Не вдалося відрендерити цей пакет як бюрократичний документ.",
+        "printPdf": "Друк / PDF",
+        "docxSourceReady": "DOCX source готовий",
+        "validationStatus": "AST {ast}; export parity {parity}; {filename}",
+        "valid": "валідний",
+        "needsReview": "потребує перевірки",
+        "passed": "пройдено",
+        "templateVersion": "v{version}",
+        "draftArtifact": "PolicyOS draft artifact",
+        "packet": "Пакет",
+        "packetHash": "Хеш пакета",
+        "rendered": "Сформовано",
+        "status": "Статус",
+        "annexes": "Додатки",
+        "epistemicLegend": "Епістемічна легенда",
+        "signatureTitle": "Підпис уповноваженої особи",
+        "signatureHint": "Зовнішнє підписання потрібне поза PolicyOS.",
+        "sealTitle": "Печатка / офіційне засвідчення",
+        "sealHint": "Лише placeholder. Офіційна печатка не рендериться."
+      },
       "viewers": {
         "readyToRun": "Готовність до запуску",
         "diagnostics": "Diagnostics",
@@ -1413,6 +1438,110 @@
       },
       "lineageGraph": {
         "depthValue": "d={depth}"
+      },
+      "quantity": {
+        "valueLabel": "Значення",
+        "aria": {
+          "withCi95": "{label} {value}, 95 percent confidence interval {lower} to {upper}, {status} provenance available",
+          "withoutCi": "{label} {value}, {status} provenance available"
+        },
+        "status": {
+          "verified": "verified",
+          "pending": "pending",
+          "disputed": "disputed",
+          "stale": "stale",
+          "untraced": "untraced"
+        },
+        "kind": {
+          "source": "Source",
+          "transform": "Transform",
+          "model": "Model",
+          "agent": "Agent",
+          "result": "Result",
+          "artifact": "Artifact",
+          "unknown": "Unknown"
+        },
+        "popover": {
+          "title": "Provenance",
+          "value": "Value",
+          "uncertainty": "Uncertainty",
+          "temporal": "Time",
+          "temporalValue": "valid {validAt}; known {txAt}",
+          "lineage": "Lineage",
+          "untracedTitle": "Untraced quantity",
+          "loading": "Loading full lineage",
+          "loadError": "Unable to load full lineage.",
+          "shortcut": "Press D for deep dive",
+          "deepDive": "Deep dive",
+          "noUncertainty": "No interval supplied",
+          "interval": "95% CI {lower} to {upper}"
+        },
+        "miniGraph": {
+          "ariaLabel": "Provenance summary graph",
+          "empty": "No provenance summary available.",
+          "hidden": "+{count} {kind}"
+        },
+        "deepDive": {
+          "title": "Provenance deep dive",
+          "description": "Full lineage, raw sources, exports, and timestamps for {metric}.",
+          "node": "Node",
+          "kind": "Kind",
+          "timestamp": "Timestamp",
+          "verification": "Verification",
+          "freshness": "Freshness",
+          "hash": "Hash",
+          "rawSources": "Raw sources",
+          "noRawSources": "No raw source links were found in this lineage graph.",
+          "exports": "Exports",
+          "openlineage": "OpenLineage",
+          "prov": "PROV",
+          "emptyGraph": "The full graph is empty."
+        }
+      },
+      "trustView": {
+        "label": "Trust View",
+        "toggleAria": "Режим Trust View: {mode}. Натисніть, щоб перемкнути.",
+        "mode": {
+          "off": "Trust вимкнено",
+          "compact": "Trust compact",
+          "expanded": "Trust expanded"
+        },
+        "status": {
+          "verified": "верифіковано",
+          "pending": "очікує",
+          "disputed": "оспорено",
+          "stale": "застаріло",
+          "untraced": "без lineage"
+        },
+        "dispute": {
+          "none": "без спору",
+          "disputed": "оспорено",
+          "under_review": "на перегляді",
+          "resolved": "вирішено"
+        },
+        "kindValue": {
+          "quantity": "Quantity",
+          "authored_text": "Авторський текст",
+          "artifact": "Артефакт",
+          "lineage": "Lineage",
+          "chart": "Chart"
+        },
+        "hashChipTitle": "Audit hash {hash}",
+        "copyHash": "Копіювати hash",
+        "copied": "Скопійовано",
+        "verifiedBy": "Верифікатор",
+        "verifiedAt": "Час верифікації",
+        "method": "Метод",
+        "temporal": "Час",
+        "temporalScope": "valid {validAt}; known {txAt}",
+        "latest": "latest",
+        "inspectorTitle": "Trust inspector",
+        "subject": "Subject",
+        "kind": "Тип",
+        "copyAuditLink": "Копіювати audit-посилання",
+        "openDeepDive": "Відкрити deep dive",
+        "exportAudit": "Експорт audit",
+        "lineageActionUnavailable": "Lineage-дія доступна лише коли елемент має lineage reference."
       },
       "evidenceCoverageRadar": {
         "overall": "Загалом: {percent}%"

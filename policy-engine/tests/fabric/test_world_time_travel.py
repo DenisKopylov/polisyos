@@ -27,6 +27,7 @@ from polisyos.fabric.world.store import (
     resolve_world_snapshot,
 )
 from polisyos.fabric.world_query import WorldQueryError, query_world_table
+from polisyos.runtime.http.services.temporal import TemporalService
 
 
 def _insert_node_attr_fact(
@@ -140,6 +141,19 @@ def test_query_world_nodes_supports_bitemporal_as_of_without_rebuild(tmp_path: P
         as_of_valid_time="2025-02-01T00:00:00Z",
     )
     assert after_correction.iloc[0]["label"] == "Corrected label"
+
+    temporal_scope = TemporalService().resolve_scope(
+        valid_at=pd.Timestamp("2025-02-01T00:00:00Z").to_pydatetime(),
+        tx_at=pd.Timestamp("2026-02-10T00:00:00Z").to_pydatetime(),
+    )
+    via_runtime_adapter = query_world_table(
+        db,
+        table="world_nodes",
+        columns=("node_id", "label"),
+        where={"node_id": "node.time"},
+        **TemporalService().world_query_kwargs(temporal_scope),
+    )
+    assert via_runtime_adapter.iloc[0]["label"] == "Late arrival"
 
 
 def test_world_branch_snapshot_queries_do_not_contaminate_base(tmp_path: Path) -> None:

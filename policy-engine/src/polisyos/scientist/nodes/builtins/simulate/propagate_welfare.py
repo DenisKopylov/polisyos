@@ -18,13 +18,20 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
+from polisyos.core.contracts.foundry import (
+    EquilibriumMultiplicityReport,
+    FeedbackSolveResult,
+    Metrics,
+    SimulationResult,
+    SimulationResultRef,
+)
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
     load_dependence_structure,
 )
+from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     UncertaintyEnvelope,
@@ -338,6 +345,7 @@ class PropagateWelfareNode:
                 welfare_params=welfare_params,
                 total_vector=total_vector,
             )
+            equilibrium_multiplicity = _equilibrium_multiplicity_annotation(ctx, sim_result)
             bundle = WelfareBundle(
                 welfare_measure=context.welfare_measure,
                 model_class=context.model_class,
@@ -361,6 +369,7 @@ class PropagateWelfareNode:
                     "ge": float(point_outputs["welfare_ge"]),
                 },
                 subgroup_welfare=subgroup_welfare,
+                equilibrium_multiplicity=equilibrium_multiplicity,
                 method_used=method_used,
                 method_config_ref=propagation.method_config_ref,
                 sample_bundle_ref=propagation.sample_bundle_ref,
@@ -372,6 +381,7 @@ class PropagateWelfareNode:
                     "response_labels": list(context.labels),
                     "used_input_params": sorted(used_input_envelopes),
                     "source_social_weight_handle": _source_social_weight_handle(welfare_params),
+                    "equilibrium_multiplicity_status": equilibrium_multiplicity.status,
                 },
             )
             bundle_inputs = _bundle_inputs(
@@ -463,6 +473,59 @@ class PropagateWelfareNode:
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
     payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
     return model_cls.model_validate(payload)
+
+
+def _equilibrium_multiplicity_annotation(
+    ctx: ExecutionContext,
+    sim_result: SimulationResult,
+) -> EquilibriumMultiplicityWelfareAnnotation:
+    if sim_result.feedback_result_ref is None:
+        return EquilibriumMultiplicityWelfareAnnotation(status="not_checked")
+    try:
+        feedback = _load_model(ctx, sim_result.feedback_result_ref, FeedbackSolveResult)
+    except _WELFARE_LOAD_ERRORS:
+        return EquilibriumMultiplicityWelfareAnnotation(
+            status="unresolved",
+            materiality_note="feedback_result_unavailable_for_multiplicity_annotation",
+        )
+    report_ref = feedback.multiplicity_report_ref
+    if report_ref is None:
+        return EquilibriumMultiplicityWelfareAnnotation(status="not_checked")
+    generic_ref = ArtifactRefModel.model_validate(report_ref.model_dump(mode="python"))
+    try:
+        report = _load_model(ctx, report_ref, EquilibriumMultiplicityReport)
+    except _WELFARE_LOAD_ERRORS:
+        return EquilibriumMultiplicityWelfareAnnotation(
+            status="unresolved",
+            report_ref=generic_ref,
+            selection_dependence=True,
+            materiality_note="equilibrium_multiplicity_report_unavailable",
+        )
+    count = int(report.global_diagnostics.num_equilibria)
+    unresolved = int(report.global_diagnostics.num_unresolved)
+    status: Literal["unique", "multiple", "unresolved", "not_checked"]
+    if count > 1:
+        status = "multiple"
+    elif unresolved > 0:
+        status = "unresolved"
+    elif count == 1:
+        status = "unique"
+    else:
+        status = "unresolved"
+    return EquilibriumMultiplicityWelfareAnnotation(
+        status=status,
+        report_ref=generic_ref,
+        selection_dependence=status in {"multiple", "unresolved"},
+        materiality_note=(
+            f"equilibria={count}; unresolved_starts={unresolved}; "
+            f"bifurcation_candidates={len(report.bifurcation_candidates)}"
+        ),
+        metadata={
+            "num_equilibria": count,
+            "num_unresolved": unresolved,
+            "bifurcation_candidate_count": len(report.bifurcation_candidates),
+        },
+    )
 
 
 def _load_welfare_params(state: ExperimentState) -> dict[str, Any]:

@@ -61,6 +61,7 @@ class JaxRunner(MethodRunner):
         compiled = self._compiler.compile(
             method_name=signature.fqn,
             params=params,
+            jit=signature.supports_jit,
         )
         compile_ms = (time.perf_counter() - compile_started) * 1000
 
@@ -74,6 +75,9 @@ class JaxRunner(MethodRunner):
             lambda x: x.block_until_ready() if hasattr(x, "block_until_ready") else x,
             output,
         )
+        postprocess = getattr(method_class, "postprocess_output", None)
+        if callable(postprocess):
+            output = postprocess(output=output, state=state, params=params)
         exec_ms = (time.perf_counter() - run_started) * 1000
 
         runtime_stack = runtime_stack_for(method_class)

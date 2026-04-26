@@ -10,9 +10,10 @@ data preparation.
 - `polisyos.data_forge`
 - `polisyos.data_forge.read_api`
 
-The package currently re-exports `read_api` eagerly from
-[`__init__.py`](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/data_forge/__init__.py).
-Domain internals under `domains/` remain non-public.
+The package exposes `read_api` as the stable runtime entrypoint. `read_api`
+keeps its domain surfaces lazy, so importing `polisyos.data_forge.read_api`
+does not load `domains/` or `kernel/` internals. Domain internals under
+`domains/` remain non-public.
 
 ## Role
 

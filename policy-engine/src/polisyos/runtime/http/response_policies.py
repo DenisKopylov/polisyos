@@ -106,6 +106,7 @@ def add_run_link_relations(response: Response, *, run_id: str) -> None:
     _append_link_header(response, f'<{base}/timeline>; rel="related"')
     _append_link_header(response, f'<{base}/nodes>; rel="related"')
     _append_link_header(response, f'<{base}/lineage>; rel="related"')
+    _append_link_header(response, f'<{base}/quantities>; rel="related"')
     _append_link_header(response, f'<{base}/agents>; rel="related"')
     _append_link_header(response, f'<{base}/evidence-context>; rel="describedby"')
     _append_link_header(response, f'<{base}/workflow>; rel="related"')

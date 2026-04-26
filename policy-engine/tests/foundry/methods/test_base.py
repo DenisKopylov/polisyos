@@ -93,6 +93,25 @@ class TestMethodMetadataImmutability:
         with pytest.raises(TypeError):
             metadata.equations["x"] = "z"  # type: ignore
 
+    def test_sbi_contract_mappings_are_immutable_and_stable(self):
+        regime_schema = {"variables": [{"name": "policy_regime"}]}
+        variables = regime_schema["variables"]
+        metadata = MethodMetadata(
+            description="sbi",
+            simulator_regime_schema=regime_schema,
+            summary_schema_ref="artifact://summary",
+            identifiable_target={"equivalence_classes_allowed": True},
+            coverage_contract={"locality": "conditional_on_regime"},
+            diagnostic_contract={"support_required": True},
+        )
+        regime_schema["variables"] = []
+        variables[0]["name"] = "mutated"
+
+        assert metadata.simulator_regime_schema["variables"] == [{"name": "policy_regime"}]
+        assert metadata.stable_digest() == metadata.stable_digest()
+        with pytest.raises(TypeError):
+            metadata.diagnostic_contract["support_required"] = False  # type: ignore
+
 
 class TestUnitValidation:
     def test_scale_must_be_positive(self):

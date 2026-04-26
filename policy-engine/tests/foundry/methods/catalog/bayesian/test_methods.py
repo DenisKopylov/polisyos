@@ -16,8 +16,15 @@ from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.bayesian import (
     PosteriorResult,
+    SimulatorDiagnosticArtifact,
     TruthfulnessTier,
+    canonical_simulator_diagnostic_artifact,
     ensure_bayesian_methods_registered,
+)
+from polisyos.foundry.methods.catalog.bayesian.frontier import (
+    _build_sbi_diagnostic_artifact,
+    _sbi_regime_training_view,
+    _simulation_regimes_from_sources,
 )
 from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 from polisyos.foundry.methods.ml import TabularData
@@ -605,6 +612,219 @@ def test_posterior_result_infers_family_specific_approximate_calibration() -> No
         )
         assert posterior.truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
         assert posterior.truthfulness.downgrade_reasons == []
+
+
+def test_sbi_regime_contract_requires_simulator_diagnostic_ref() -> None:
+    diagnostics = {
+        "observed_neighborhood_count": 32.0,
+        "observed_neighborhood_radius_quantile": 0.1,
+        "support_quantile": 0.2,
+        "knn_radius_mahalanobis": 1.4,
+        "effective_local_simulations": 48.0,
+        "posterior_sbc_error": 0.02,
+        "tarp_coverage_error": 0.02,
+        "local_c2st_score": 0.55,
+        "ppc_mahalanobis": 1.2,
+    }
+    metadata = {
+        "benchmark_regime": "phase0_suite",
+        "coverage_tolerance": 0.05,
+        "offline_calibration_passed": True,
+        "diagnostic_contract": {"support_required": True},
+        "observed_regime": {"calendar_period": "2024Q3", "policy_regime": "benefit-v2"},
+    }
+
+    missing_ref = PosteriorResult(
+        method_name="simulation_based_npe",
+        diagnostics=diagnostics,
+        metadata=metadata,
+    )
+    assert missing_ref.truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    assert "simulator_diagnostic_ref_missing" in missing_ref.truthfulness.downgrade_reasons
+
+    with_ref = PosteriorResult(
+        method_name="simulation_based_npe",
+        diagnostics=diagnostics,
+        metadata=metadata,
+        simulator_diagnostic_ref="artifact://foundry/sbi/diagnostic/example",
+    )
+    assert with_ref.truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+    assert with_ref.to_truthfulness_receipt().evidence_ref == (
+        "artifact://foundry/sbi/diagnostic/example"
+    )
+
+
+def test_sbi_support_failure_degrades_posterior_status() -> None:
+    diagnostic = SimulatorDiagnosticArtifact(
+        observed_regime={
+            "calendar_period": "2024Q3",
+            "policy_regime": "benefit-v2",
+            "admin_schema": "admin-v2",
+        },
+        support_quantile=0.001,
+        knn_radius_mahalanobis=8.0,
+        effective_local_simulations=4,
+        local_c2st_score=0.55,
+        posterior_sbc_error=0.02,
+        tarp_coverage_error=0.02,
+        ppc_mahalanobis=1.2,
+        status="fail",
+        failure_mode=("regime_extrapolation",),
+        artifact_ref="artifact://foundry/sbi/diagnostic/fail",
+    )
+
+    posterior = PosteriorResult(
+        method_name="simulation_based_npe",
+        diagnostics={
+            "observed_neighborhood_count": 32.0,
+            "observed_neighborhood_radius_quantile": 0.1,
+            "posterior_sbc_error": 0.02,
+            "local_c2st_score": 0.55,
+            "ppc_mahalanobis": 1.2,
+        },
+        metadata={
+            "benchmark_regime": "phase0_suite",
+            "coverage_tolerance": 0.05,
+            "offline_calibration_passed": True,
+            "diagnostic_contract": {"support_required": True},
+            "simulator_diagnostic": diagnostic.model_dump(mode="python", by_alias=True),
+            "simulator_diagnostic_ref": "artifact://foundry/sbi/diagnostic/fail",
+        },
+    )
+
+    assert posterior.status == "degraded"
+    assert posterior.degradation_reason == "simulator_support_failure"
+    assert posterior.truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    assert "simulator_support_failure" in posterior.truthfulness.downgrade_reasons
+
+
+def test_sbi_regime_training_view_uses_local_simulation_budget() -> None:
+    parameters = np.arange(80, dtype=float).reshape(40, 2)
+    simulations = parameters[:, :1]
+    regimes = [
+        {"calendar_period": "2024Q3", "policy_regime": "benefit-v2"}
+        for _ in range(20)
+    ] + [
+        {"calendar_period": "2024Q4", "policy_regime": "benefit-v3"}
+        for _ in range(20)
+    ]
+    observed_regime = {"calendar_period": "2024Q3", "policy_regime": "benefit-v2"}
+
+    simulation_regimes = _simulation_regimes_from_sources(
+        ({"simulation_regimes": regimes},),
+        n_rows=40,
+    )
+    local_parameters, local_simulations, diagnostics = _sbi_regime_training_view(
+        parameters=parameters,
+        simulations=simulations,
+        observed_regime=observed_regime,
+        simulation_regimes=simulation_regimes,
+        min_local=16,
+    )
+
+    assert local_parameters.shape[0] == 20
+    assert local_simulations.shape[0] == 20
+    assert diagnostics["effective_local_simulations"] == 20
+    assert diagnostics["regime_local_training_used"] is True
+
+    pooled_parameters, _, pooled_diagnostics = _sbi_regime_training_view(
+        parameters=parameters,
+        simulations=simulations,
+        observed_regime={"calendar_period": "2025Q1", "policy_regime": "benefit-v9"},
+        simulation_regimes=simulation_regimes,
+        min_local=16,
+    )
+
+    assert pooled_parameters.shape[0] == 40
+    assert pooled_diagnostics["effective_local_simulations"] == 0
+    assert pooled_diagnostics["pooled_training_used"] is True
+
+
+def test_sbi_runtime_diagnostic_artifact_is_canonical_and_gate_aware() -> None:
+    diagnostics = {
+        "support_quantile": 0.2,
+        "knn_radius_mahalanobis": 1.2,
+        "effective_local_simulations": 32.0,
+        "simulation_regimes_declared": True,
+        "posterior_sbc_error": 0.02,
+        "tarp_coverage_error": 0.02,
+        "local_c2st_score": 0.55,
+        "ppc_mahalanobis": 1.2,
+    }
+    observed_regime = {"calendar_period": "2024Q3", "policy_regime": "benefit-v2"}
+    metadata = {
+        "coverage_tolerance": 0.05,
+        "diagnostic_contract": {
+            "thresholds": {
+                "support_quantile_min": 0.01,
+                "knn_radius_mahalanobis_max": 4.0,
+                "min_effective_local_simulations": 16,
+            }
+        },
+    }
+
+    ref, artifact, digest = _build_sbi_diagnostic_artifact(
+        observed_regime=observed_regime,
+        diagnostics=diagnostics,
+        metadata=metadata,
+    )
+
+    assert ref.startswith("artifact://foundry/sbi/simulator_diagnostic/")
+    assert digest in ref
+    assert artifact["schema"] == SimulatorDiagnosticArtifact.contract_id
+    assert artifact["status"] == "pass"
+    assert artifact.get("failure_mode") in (None, [], ())
+
+    failing_ref, failing_artifact, _ = _build_sbi_diagnostic_artifact(
+        observed_regime=observed_regime,
+        diagnostics={**diagnostics, "effective_local_simulations": 4.0},
+        metadata=metadata,
+    )
+
+    assert failing_ref != ref
+    assert failing_artifact["status"] == "fail"
+    assert "regime_extrapolation" in failing_artifact["failure_mode"]
+
+
+def test_simulator_diagnostic_artifact_hash_is_stable() -> None:
+    diagnostic = SimulatorDiagnosticArtifact(
+        observed_regime={"calendar_period": "2024Q3", "policy_regime": "benefit-v2"},
+        support_quantile=0.2,
+        knn_radius_mahalanobis=1.2,
+        effective_local_simulations=32,
+        local_c2st_score=0.55,
+        posterior_sbc_error=0.02,
+        tarp_coverage_error=0.02,
+        ppc_mahalanobis=1.2,
+        status="pass",
+    )
+
+    first_ref, first_artifact, first_digest = canonical_simulator_diagnostic_artifact(diagnostic)
+    second_ref, second_artifact, second_digest = canonical_simulator_diagnostic_artifact(
+        diagnostic.model_dump(mode="python", by_alias=True)
+    )
+
+    assert first_ref == second_ref
+    assert first_digest == second_digest
+    assert first_artifact == second_artifact
+
+
+def test_sbi_method_metadata_declares_regime_aware_contract() -> None:
+    ensure_bayesian_methods_registered()
+    registry = MethodRegistry.get_instance()
+    method_cls = registry.get("bayesian.sbi.npe@1.0.0")
+
+    metadata = method_cls.metadata
+    assert metadata.simulator_regime_schema["stationarity_assumption"] == (
+        "piecewise_stationary_given_regime"
+    )
+    assert metadata.summary_schema_ref == "artifact://foundry/sbi/summary_schema/regime-aware-v1"
+    assert metadata.identifiable_target["equivalence_classes_allowed"] is True
+    assert metadata.coverage_contract["locality"] == "conditional_on_regime"
+    assert "effective_local_simulations" in metadata.diagnostic_contract["required_metrics"]
+    assert "observed_regime" in method_cls.signature.input_slot_names
+    assert "simulation_regimes" in method_cls.signature.input_slot_names
+    assert "simulator_diagnostic_ref" in method_cls.signature.output_slot_names
 
 
 def test_bayesian_hmc_explicit_numpyro_request_fails_closed_when_unavailable() -> None:

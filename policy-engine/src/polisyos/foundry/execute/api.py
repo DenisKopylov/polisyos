@@ -19,6 +19,8 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
+    EquilibriumMultiplicityReport,
+    EquilibriumMultiplicityReportRef,
     ExecPlan,
     ExecuteRequest,
     ExecuteResult,
@@ -68,6 +70,7 @@ from polisyos.foundry.feedback import (
     MapEvaluation,
     PreparedFeedbackConfig,
     SolveOutcome,
+    discover_equilibria,
     prepare_feedback_config,
     snapshot_from_vector,
     solve_fixed_point,
@@ -440,6 +443,44 @@ def _execute_with_feedback(
         feedback_artifacts.append(
             DerivedArtifact(role="feedback_jacobian_diagnostics", ref=feedback_jacobian_ref)
         )
+    multiplicity_report_ref: EquilibriumMultiplicityReportRef | None = None
+    multiplicity_notes: list[str] = []
+    if (
+        feedback_config.solver.detect_multiplicity
+        or feedback_config.solver.multiplicity_mode != "off"
+    ):
+        try:
+            report = discover_equilibria(
+                prepared=prepared,
+                evaluate_map=evaluate_feedback_map,
+                base_outcome=outcome,
+                runtime_refs=[
+                    str(feedback_trace_ref.artifact_id),
+                    str(feedback_certificate_ref.artifact_id),
+                    *(
+                        [str(feedback_jacobian_ref.artifact_id)]
+                        if feedback_jacobian_ref is not None
+                        else []
+                    ),
+                ],
+            )
+            multiplicity_report_ref = _persist_equilibrium_multiplicity_report(
+                store,
+                request=request,
+                report=report,
+                trace_ref=feedback_trace_ref,
+                jacobian_ref=feedback_jacobian_ref,
+                convergence_certificate_ref=feedback_certificate_ref,
+            )
+            feedback_artifacts.append(
+                DerivedArtifact(
+                    role="equilibrium_multiplicity_report",
+                    ref=multiplicity_report_ref,
+                )
+            )
+            multiplicity_notes.append("feedback_multiplicity_report:created")
+        except RuntimeError as exc:
+            multiplicity_notes.append(f"feedback_multiplicity_report_failed:{exc}")
 
     if not outcome.converged:
         feedback_result_ref = _persist_feedback_result(
@@ -454,6 +495,7 @@ def _execute_with_feedback(
             trace_ref=feedback_trace_ref,
             jacobian_ref=feedback_jacobian_ref,
             convergence_certificate_ref=feedback_certificate_ref,
+            multiplicity_report_ref=multiplicity_report_ref,
             status=outcome.status,
             converged=False,
             failure_reason=outcome.failure_reason,
@@ -461,6 +503,7 @@ def _execute_with_feedback(
             notes=[
                 "feedback_mode:fixed_point",
                 f"feedback_status:{outcome.status}",
+                *multiplicity_notes,
             ],
         )
         return ExecuteResult(
@@ -474,6 +517,7 @@ def _execute_with_feedback(
                 *execution_notes,
                 "feedback_mode:fixed_point",
                 f"feedback_status:{outcome.status}",
+                *multiplicity_notes,
                 *([f"feedback_failure:{outcome.failure_reason}"] if outcome.failure_reason else []),
             ],
         )
@@ -562,6 +606,7 @@ def _execute_with_feedback(
             trace_ref=feedback_trace_ref,
             jacobian_ref=feedback_jacobian_ref,
             convergence_certificate_ref=feedback_certificate_ref,
+            multiplicity_report_ref=multiplicity_report_ref,
             status="failed",
             converged=False,
             failure_reason=str(exc),
@@ -569,6 +614,7 @@ def _execute_with_feedback(
             notes=[
                 "feedback_mode:fixed_point",
                 "feedback_status:failed",
+                *multiplicity_notes,
                 f"missing_runtime_mechanism_support:{exc.mech_type}",
             ],
         )
@@ -583,6 +629,7 @@ def _execute_with_feedback(
                 *execution_notes,
                 "feedback_mode:fixed_point",
                 "feedback_status:failed",
+                *multiplicity_notes,
                 f"missing_runtime_mechanism_support:{exc.mech_type}",
                 str(exc),
             ],
@@ -629,6 +676,7 @@ def _execute_with_feedback(
         trace_ref=feedback_trace_ref,
         jacobian_ref=feedback_jacobian_ref,
         convergence_certificate_ref=feedback_certificate_ref,
+        multiplicity_report_ref=multiplicity_report_ref,
         status=outcome.status,
         converged=outcome.converged,
         failure_reason=outcome.failure_reason,
@@ -637,6 +685,7 @@ def _execute_with_feedback(
             "feedback_mode:fixed_point",
             f"feedback_converged:{int(outcome.converged)}",
             f"feedback_status:{outcome.status}",
+            *multiplicity_notes,
         ],
     )
     derived_refs.extend(
@@ -659,6 +708,7 @@ def _execute_with_feedback(
         "feedback_mode:fixed_point",
         f"feedback_iterations:{len(outcome.trace)}",
         f"feedback_status:{outcome.status}",
+        *multiplicity_notes,
     ]
     sim_result = SimulationResult(
         exec_plan_ref=request.exec_plan_ref,
@@ -1022,6 +1072,12 @@ def _persist_feedback_jacobian(
         spectral_radius=outcome.jacobian.spectral_radius,
         operator_norm_inf=outcome.jacobian.operator_norm_inf,
         condition_number=outcome.jacobian.condition_number,
+        smallest_singular_value_i_minus_j=(
+            outcome.jacobian.smallest_singular_value_i_minus_j
+        ),
+        near_fold=outcome.jacobian.near_fold,
+        near_flip=outcome.jacobian.near_flip,
+        near_loss_of_stability=outcome.jacobian.near_loss_of_stability,
         near_bifurcation=outcome.jacobian.near_bifurcation,
         notes=list(outcome.jacobian.notes),
     )
@@ -1127,6 +1183,53 @@ def _persist_feedback_convergence_certificate(
     return FeedbackConvergenceCertificateRef(artifact_id=ref.artifact_id)
 
 
+def _persist_equilibrium_multiplicity_report(
+    store: FileSystemCAS,
+    *,
+    request: ExecuteRequest,
+    report: EquilibriumMultiplicityReport,
+    trace_ref: FeedbackTraceRef,
+    jacobian_ref: FeedbackJacobianDiagnosticsRef | None,
+    convergence_certificate_ref: FeedbackConvergenceCertificateRef,
+) -> EquilibriumMultiplicityReportRef:
+    inputs = [
+        InputRef(artifact_id=request.exec_plan_ref.artifact_id, role="exec_plan"),
+        InputRef(artifact_id=trace_ref.artifact_id, role="artifact.feedback_trace_ref"),
+        InputRef(
+            artifact_id=convergence_certificate_ref.artifact_id,
+            role="artifact.feedback_convergence_certificate_ref",
+        ),
+    ]
+    if request.feedback_config_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=request.feedback_config_ref.artifact_id,
+                role="input.feedback_config_ref",
+            )
+        )
+    if jacobian_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=jacobian_ref.artifact_id,
+                role="artifact.feedback_jacobian_diagnostics_ref",
+            )
+        )
+    ref = store.put_json(
+        report,
+        PutOptions(
+            kind="foundry.equilibrium_multiplicity_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.EquilibriumMultiplicityReport",
+                version="1.0",
+            ),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return EquilibriumMultiplicityReportRef(artifact_id=ref.artifact_id)
+
+
 def _persist_feedback_result(
     store: FileSystemCAS,
     *,
@@ -1140,6 +1243,7 @@ def _persist_feedback_result(
     trace_ref: FeedbackTraceRef,
     jacobian_ref: FeedbackJacobianDiagnosticsRef | None,
     convergence_certificate_ref: FeedbackConvergenceCertificateRef | None,
+    multiplicity_report_ref: EquilibriumMultiplicityReportRef | None,
     status: str,
     converged: bool,
     failure_reason: str | None,
@@ -1155,6 +1259,7 @@ def _persist_feedback_result(
         jacobian_diagnostics_ref=jacobian_ref,
         convergence_certificate_ref=convergence_certificate_ref,
         final_parameter_override_bundle_ref=final_override_bundle_ref,
+        multiplicity_report_ref=multiplicity_report_ref,
         alternative_fixed_points=[
             FeedbackFixedPointCandidate(
                 state=snapshot_from_vector(
@@ -1206,6 +1311,13 @@ def _persist_feedback_result(
             InputRef(
                 artifact_id=final_override_bundle_ref.artifact_id,
                 role="feedback.parameter_override_bundle",
+            )
+        )
+    if multiplicity_report_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=multiplicity_report_ref.artifact_id,
+                role="artifact.equilibrium_multiplicity_report_ref",
             )
         )
     ref = store.put_json(

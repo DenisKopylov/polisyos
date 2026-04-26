@@ -1,0 +1,258 @@
+{
+  "additionalProperties": false,
+  "description": "Numerical controls for the fixed-point outer loop.",
+  "properties": {
+    "anderson_accept_ratio": {
+      "default": 0.95,
+      "exclusiveMinimum": 0.0,
+      "maximum": 1.0,
+      "title": "Anderson Accept Ratio",
+      "type": "number"
+    },
+    "anderson_memory": {
+      "default": 5,
+      "minimum": 1,
+      "title": "Anderson Memory",
+      "type": "integer"
+    },
+    "anderson_start": {
+      "default": 3,
+      "minimum": 0,
+      "title": "Anderson Start",
+      "type": "integer"
+    },
+    "atol": {
+      "default": 1e-06,
+      "minimum": 0.0,
+      "title": "Atol",
+      "type": "number"
+    },
+    "basin_draws": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Basin Draws",
+      "type": "integer"
+    },
+    "basin_seed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Basin Seed",
+      "type": "integer"
+    },
+    "budget_diagnostic_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Budget Diagnostic Id"
+    },
+    "budget_tolerance": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Budget Tolerance"
+    },
+    "compute_jacobian_diagnostics": {
+      "default": true,
+      "title": "Compute Jacobian Diagnostics",
+      "type": "boolean"
+    },
+    "continuation_grid": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Continuation Grid",
+      "type": "array"
+    },
+    "continuation_parameter": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Continuation Parameter"
+    },
+    "damping_init": {
+      "default": 0.5,
+      "exclusiveMinimum": 0.0,
+      "maximum": 1.0,
+      "title": "Damping Init",
+      "type": "number"
+    },
+    "damping_min": {
+      "default": 0.05,
+      "exclusiveMinimum": 0.0,
+      "maximum": 1.0,
+      "title": "Damping Min",
+      "type": "number"
+    },
+    "detect_multiplicity": {
+      "default": false,
+      "title": "Detect Multiplicity",
+      "type": "boolean"
+    },
+    "divergence_patience": {
+      "default": 2,
+      "minimum": 1,
+      "title": "Divergence Patience",
+      "type": "integer"
+    },
+    "fixed_point_merge_tol": {
+      "default": 0.0001,
+      "exclusiveMinimum": 0.0,
+      "title": "Fixed Point Merge Tol",
+      "type": "number"
+    },
+    "homotopy_grid": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Homotopy Grid",
+      "type": "array"
+    },
+    "jacobian_eps": {
+      "default": 0.0001,
+      "exclusiveMinimum": 0.0,
+      "title": "Jacobian Eps",
+      "type": "number"
+    },
+    "max_iter": {
+      "default": 50,
+      "minimum": 1,
+      "title": "Max Iter",
+      "type": "integer"
+    },
+    "max_restarts": {
+      "default": 3,
+      "minimum": 0,
+      "title": "Max Restarts",
+      "type": "integer"
+    },
+    "mode": {
+      "default": "hybrid",
+      "enum": [
+        "picard",
+        "anderson",
+        "hybrid"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "multi_start_values": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Multi Start Values",
+      "type": "array"
+    },
+    "multiplicity_max_attempts": {
+      "default": 256,
+      "minimum": 1,
+      "title": "Multiplicity Max Attempts",
+      "type": "integer"
+    },
+    "multiplicity_mode": {
+      "default": "off",
+      "enum": [
+        "off",
+        "baseline",
+        "continuation"
+      ],
+      "title": "Multiplicity Mode",
+      "type": "string"
+    },
+    "multiplicity_sobol_draws": {
+      "default": 128,
+      "minimum": 0,
+      "title": "Multiplicity Sobol Draws",
+      "type": "integer"
+    },
+    "newton_start": {
+      "default": 4,
+      "minimum": 0,
+      "title": "Newton Start",
+      "type": "integer"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "oscillation_patience": {
+      "default": 4,
+      "minimum": 2,
+      "title": "Oscillation Patience",
+      "type": "integer"
+    },
+    "rtol": {
+      "default": 1e-05,
+      "minimum": 0.0,
+      "title": "Rtol",
+      "type": "number"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "spectral_radius_warn_tol": {
+      "default": 0.05,
+      "exclusiveMinimum": 0.0,
+      "title": "Spectral Radius Warn Tol",
+      "type": "number"
+    },
+    "stagnation_patience": {
+      "default": 4,
+      "minimum": 1,
+      "title": "Stagnation Patience",
+      "type": "integer"
+    },
+    "store_alternative_fixed_points": {
+      "default": true,
+      "title": "Store Alternative Fixed Points",
+      "type": "boolean"
+    },
+    "svd_bifurcation_tol": {
+      "default": 0.001,
+      "exclusiveMinimum": 0.0,
+      "title": "Svd Bifurcation Tol",
+      "type": "number"
+    },
+    "trust_radius_init": {
+      "default": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Trust Radius Init",
+      "type": "number"
+    },
+    "xtol": {
+      "default": 1e-07,
+      "minimum": 0.0,
+      "title": "Xtol",
+      "type": "number"
+    }
+  },
+  "title": "FeedbackSolverConfig",
+  "type": "object"
+}

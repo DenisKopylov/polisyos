@@ -78,5 +78,8 @@ def test_lineage_trace_and_impact_analysis_cover_source_to_query() -> None:
     assert openlineage["inputs"]
     assert openlineage["outputs"]
     assert visualization["graph_id"] == "graph.lineage.test"
+    assert visualization["verification"]["status"] == "verified"
+    assert visualization["verification"]["freshness"] == "current"
+    assert visualization["compact_summary"]
     assert visualization["nodes"]
     assert visualization["edges"]

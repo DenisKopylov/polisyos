@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "metrics": {
+    "execution_readiness_score_avg": 0.82,
+    "datasets_with_metric_binding_pct": 90.0
+  }
+}

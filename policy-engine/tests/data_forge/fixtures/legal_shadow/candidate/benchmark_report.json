@@ -1,0 +1,10 @@
+{
+  "metrics": {
+    "benchmark_search_cases_total": 1,
+    "benchmark_search_top5_relevance_pct": 80.0
+  },
+  "readiness": {
+    "passed": true,
+    "failed_checks": []
+  }
+}

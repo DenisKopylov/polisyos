@@ -42,6 +42,12 @@ vi.mock("@/features/artifacts/components/ArtifactViewerRegistry", () => ({
     renderArtifactViewerMock(...args),
 }));
 
+vi.mock("@/features/artifacts/bureaucratic/BureaucraticArtifactView", () => ({
+  BureaucraticArtifactView: ({ artifactId }: { artifactId: string }) => (
+    <div data-testid="bureaucratic-artifact-view">{artifactId}</div>
+  ),
+}));
+
 vi.mock("@/i18n/LocaleProvider", async () => {
   const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
     "@/i18n/LocaleProvider",

@@ -45,6 +45,7 @@ from .high_dimensional import (
 )
 from .high_dimensional_iv import HighDimensionalPostSelectionIVEstimator
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
+from .mobility_latent import LatentMobilityEstimator
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
 from .selection import (
     HeckmanSelectionEstimator,
@@ -114,6 +115,8 @@ def register_econometric_methods() -> Sequence[type]:
         # Phase SOTA additions
         PrincipalComponentsEstimator,
         DynamicFactorModelEstimator,
+        # Phase 4 mobility additions
+        LatentMobilityEstimator,
     )
 
 

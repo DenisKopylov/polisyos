@@ -12,6 +12,7 @@ import {
 } from "@/lib/parsing";
 import { formatNumber } from "@/lib/utils";
 import { Badge, JsonPreview } from "@/shared/ui";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 const DecisionCardView = lazy(() => import("./DecisionCardView"));
 const SimulationResultsViewer = lazy(
@@ -65,6 +66,31 @@ function SummaryGrid({ items }: { items: ArtifactViewerSummaryItem[] }) {
         </div>
       ))}
     </div>
+  );
+}
+
+function PreviewQuantity({
+  point,
+  metricId,
+  label,
+  precision = 3,
+}: {
+  point: number | null;
+  metricId: string;
+  label: string;
+  precision?: number;
+}) {
+  return (
+    <Quantity
+      value={untracedDecisionQuantity({
+        point,
+        metricId,
+        label,
+        reasonCode: "artifact_preview_without_lineage",
+      })}
+      precision={precision}
+      variant="dense"
+    />
   );
 }
 
@@ -345,21 +371,33 @@ function EvaluatorReportViewer({ preview }: { preview: unknown }) {
           },
           {
             label: t("pages.artifacts.viewers.totalScore"),
-            value: formatNumber(asNumber(scores?.total_score), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(scores?.total_score)}
+                metricId="artifact_evaluator_total_score"
+                label={t("pages.artifacts.viewers.totalScore")}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.kpiScore"),
-            value: formatNumber(asNumber(scores?.kpi_score), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(scores?.kpi_score)}
+                metricId="artifact_evaluator_kpi_score"
+                label={t("pages.artifacts.viewers.kpiScore")}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.budgetScore"),
-            value: formatNumber(asNumber(scores?.budget_score), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(scores?.budget_score)}
+                metricId="artifact_evaluator_budget_score"
+                label={t("pages.artifacts.viewers.budgetScore")}
+              />
+            ),
           },
         ]}
       />
@@ -528,21 +566,33 @@ function QualityReportViewer({ preview }: { preview: unknown }) {
         items={[
           {
             label: t("pages.artifacts.viewers.qualityScore"),
-            value: formatNumber(asNumber(report?.quality_score), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(report?.quality_score)}
+                metricId="artifact_quality_score"
+                label={t("pages.artifacts.viewers.qualityScore")}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.coverage"),
-            value: formatNumber(asNumber(metrics?.coverage), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(metrics?.coverage)}
+                metricId="artifact_quality_coverage"
+                label={t("pages.artifacts.viewers.coverage")}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.completeness"),
-            value: formatNumber(asNumber(metrics?.completeness), {
-              maximumFractionDigits: 3,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(metrics?.completeness)}
+                metricId="artifact_quality_completeness"
+                label={t("pages.artifacts.viewers.completeness")}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.gateStatus"),
@@ -591,9 +641,14 @@ function CausalEffectReportViewer({ preview }: { preview: unknown }) {
           },
           {
             label: t("pages.artifacts.viewers.effect"),
-            value: formatNumber(asNumber(report?.effect_estimate), {
-              maximumFractionDigits: 4,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(report?.effect_estimate)}
+                metricId="artifact_causal_effect_estimate"
+                label={t("pages.artifacts.viewers.effect")}
+                precision={4}
+              />
+            ),
           },
           {
             label: t("pages.artifacts.viewers.status"),
@@ -605,9 +660,14 @@ function CausalEffectReportViewer({ preview }: { preview: unknown }) {
           },
           {
             label: t("pages.artifacts.viewers.stdError"),
-            value: formatNumber(asNumber(report?.standard_error), {
-              maximumFractionDigits: 4,
-            }),
+            value: (
+              <PreviewQuantity
+                point={asNumber(report?.standard_error)}
+                metricId="artifact_causal_standard_error"
+                label={t("pages.artifacts.viewers.stdError")}
+                precision={4}
+              />
+            ),
           },
         ]}
       />
@@ -770,21 +830,33 @@ function buildSummaryItems(
       },
       {
         label: t("pages.artifacts.viewers.totalScore"),
-        value: formatNumber(asNumber(scores?.total_score), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(scores?.total_score)}
+            metricId="artifact_summary_evaluator_total_score"
+            label={t("pages.artifacts.viewers.totalScore")}
+          />
+        ),
       },
       {
         label: t("pages.artifacts.viewers.kpiScore"),
-        value: formatNumber(asNumber(scores?.kpi_score), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(scores?.kpi_score)}
+            metricId="artifact_summary_evaluator_kpi_score"
+            label={t("pages.artifacts.viewers.kpiScore")}
+          />
+        ),
       },
       {
         label: t("pages.artifacts.viewers.budgetScore"),
-        value: formatNumber(asNumber(scores?.budget_score), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(scores?.budget_score)}
+            metricId="artifact_summary_evaluator_budget_score"
+            label={t("pages.artifacts.viewers.budgetScore")}
+          />
+        ),
       },
     ];
   }
@@ -832,21 +904,33 @@ function buildSummaryItems(
     return [
       {
         label: t("pages.artifacts.viewers.qualityScore"),
-        value: formatNumber(asNumber(record.quality_score), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(record.quality_score)}
+            metricId="artifact_summary_quality_score"
+            label={t("pages.artifacts.viewers.qualityScore")}
+          />
+        ),
       },
       {
         label: t("pages.artifacts.viewers.coverage"),
-        value: formatNumber(asNumber(metrics?.coverage), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(metrics?.coverage)}
+            metricId="artifact_summary_quality_coverage"
+            label={t("pages.artifacts.viewers.coverage")}
+          />
+        ),
       },
       {
         label: t("pages.artifacts.viewers.completeness"),
-        value: formatNumber(asNumber(metrics?.completeness), {
-          maximumFractionDigits: 3,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(metrics?.completeness)}
+            metricId="artifact_summary_quality_completeness"
+            label={t("pages.artifacts.viewers.completeness")}
+          />
+        ),
       },
     ];
   }
@@ -859,9 +943,14 @@ function buildSummaryItems(
       },
       {
         label: t("pages.artifacts.viewers.effect"),
-        value: formatNumber(asNumber(record.effect_estimate), {
-          maximumFractionDigits: 4,
-        }),
+        value: (
+          <PreviewQuantity
+            point={asNumber(record.effect_estimate)}
+            metricId="artifact_summary_causal_effect_estimate"
+            label={t("pages.artifacts.viewers.effect")}
+            precision={4}
+          />
+        ),
       },
       {
         label: t("pages.artifacts.viewers.status"),

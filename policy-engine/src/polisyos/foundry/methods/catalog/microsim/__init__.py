@@ -14,12 +14,18 @@ from .advanced import (
     TaxBenefitCalculatorEstimator,
 )
 from .calibration import ReweightingCalibrationEstimator
+from .dynamic_validation import attach_dynamic_validation, run_dynamic_validation
 from .inverse import InverseBehavioralCalibrationEstimator
 from .mnar import MNARIncomeBoundsEstimator
 from .protocols import (
     BehavioralResponseResult,
     DynamicMicrosimResult,
+    DynamicMicrosimResultV2,
+    DynamicMicrosimValidationDiagnostic,
+    DynamicValidationSensitivitySpec,
+    DynamicValidationSpec,
     HeterogeneousBehavioralResponseResult,
+    HorizonBiasEnvelope,
     ImputationResult,
     InverseBehavioralCalibrationResult,
     InverseBehavioralIdentifiedSet,
@@ -38,8 +44,13 @@ from .protocols import (
     ReweightingTargetGap,
     ReweightingTargetKind,
     ReweightingTargetSpec,
+    SensitivityRunResult,
     SurveyMicroData,
     TaxBenefitResult,
+    ValidationCellResult,
+    ValidationMomentSpec,
+    ValidationOmnibusTest,
+    upgrade_dynamic_microsim_result,
 )
 from .static import StaticMicrosimEstimator
 
@@ -59,8 +70,13 @@ __all__ = [
     "BehavioralResponseResult",
     "DynamicMicrosimEstimator",
     "DynamicMicrosimResult",
+    "DynamicMicrosimResultV2",
+    "DynamicMicrosimValidationDiagnostic",
+    "DynamicValidationSensitivitySpec",
+    "DynamicValidationSpec",
     "HeterogeneousBehavioralResponseEstimator",
     "HeterogeneousBehavioralResponseResult",
+    "HorizonBiasEnvelope",
     "ImputationModelEstimator",
     "ImputationResult",
     "InverseBehavioralCalibrationEstimator",
@@ -83,10 +99,17 @@ __all__ = [
     "ReweightingTargetGap",
     "ReweightingTargetKind",
     "ReweightingTargetSpec",
+    "SensitivityRunResult",
     "StaticMicrosimEstimator",
     "SurveyMicroData",
     "TaxBenefitCalculatorEstimator",
     "TaxBenefitResult",
+    "ValidationCellResult",
+    "ValidationMomentSpec",
+    "ValidationOmnibusTest",
+    "attach_dynamic_validation",
     "ensure_microsim_methods_registered",
     "register_microsim_methods",
+    "run_dynamic_validation",
+    "upgrade_dynamic_microsim_result",
 ]

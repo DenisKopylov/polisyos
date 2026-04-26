@@ -1,0 +1,107 @@
+{
+  "additionalProperties": false,
+  "description": "Finite-difference Jacobian diagnostics near the solved fixed point.",
+  "properties": {
+    "condition_number": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Condition Number"
+    },
+    "dimension": {
+      "minimum": 1,
+      "title": "Dimension",
+      "type": "integer"
+    },
+    "jacobian": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Jacobian",
+      "type": "array"
+    },
+    "near_bifurcation": {
+      "default": false,
+      "title": "Near Bifurcation",
+      "type": "boolean"
+    },
+    "near_flip": {
+      "default": false,
+      "title": "Near Flip",
+      "type": "boolean"
+    },
+    "near_fold": {
+      "default": false,
+      "title": "Near Fold",
+      "type": "boolean"
+    },
+    "near_loss_of_stability": {
+      "default": false,
+      "title": "Near Loss Of Stability",
+      "type": "boolean"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "operator_norm_inf": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Operator Norm Inf"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "smallest_singular_value_i_minus_j": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Smallest Singular Value I Minus J"
+    },
+    "spectral_radius": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Spectral Radius"
+    }
+  },
+  "required": [
+    "dimension"
+  ],
+  "title": "FeedbackJacobianDiagnostics",
+  "type": "object"
+}

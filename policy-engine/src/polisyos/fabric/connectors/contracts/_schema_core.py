@@ -17,9 +17,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.finite import ensure_probability
+from polisyos.fabric.safety import validate_sql_identifier
 from polisyos.ir.kernel.units import UnitRef
 
-from ._schema_field import FieldSpec, SchemaVersion
+from ._schema_field import SCHEMA_ID_PATTERN, FieldSpec, SchemaVersion, make_schema_id
 from ._schema_types import GeoGranularity, TimeGranularity
 
 __all__ = [
@@ -57,7 +58,7 @@ def _unit_id(unit: UnitRef | None) -> str | None:
 
 
 def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
-    return {
+    payload = {
         "name": field.name,
         "data_type": field.data_type.value,
         "element_type": field.element_type.value if field.element_type else None,
@@ -77,6 +78,9 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "expected_completeness": _float_token(field.expected_completeness),
         "tags": _sorted_list(field.tags),
     }
+    if field.field_id is not None:
+        payload["field_id"] = field.field_id
+    return payload
 
 
 # =============================================================================
@@ -105,7 +109,7 @@ class DataSchema(BaseModel):
     # Identity
     schema_id: str = Field(
         ...,
-        pattern=r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*)*$",
+        pattern=SCHEMA_ID_PATTERN,
         description="Unique schema identifier (e.g., 'worldbank.wdi.gdp')",
     )
     version: SchemaVersion = Field(..., description="Semantic version")
@@ -209,13 +213,30 @@ class DataSchema(BaseModel):
             raise ValueError(f"Duplicate field names: {set(duplicates)}")
         return self
 
+    @model_validator(mode="after")
+    def validate_unique_field_ids(self) -> DataSchema:
+        """Ensure stable field identities are unique within the schema."""
+        ids = [field.stable_id for field in self.fields]
+        if len(ids) != len(set(ids)):
+            duplicates = sorted({field_id for field_id in ids if ids.count(field_id) > 1})
+            raise ValueError(f"Duplicate field ids: {duplicates}")
+        return self
+
     def get_field(self, name: str) -> FieldSpec | None:
         """Get field by name."""
         return next((f for f in self.fields if f.name == name), None)
 
+    def get_field_by_id(self, field_id: str) -> FieldSpec | None:
+        """Get field by stable id."""
+        return next((f for f in self.fields if f.stable_id == field_id), None)
+
     def field_names(self) -> list[str]:
         """Get ordered list of field names."""
         return [f.name for f in self.fields]
+
+    def field_ids(self) -> list[str]:
+        """Get ordered list of stable field identities."""
+        return [f.stable_id for f in self.fields]
 
     def effective_grain_dims(self) -> tuple[str, ...]:
         """Return grain dimensions, falling back to primary_key if unspecified."""
@@ -258,12 +279,17 @@ class DataSchema(BaseModel):
         columns = [f.to_duckdb_column_def() for f in self.fields]
         pk_clause = ""
         if self.primary_key:
-            pk_clause = f", PRIMARY KEY ({', '.join(self.primary_key)})"
+            primary_key_columns = ", ".join(
+                validate_sql_identifier(pk_field, what="schema primary key")
+                for pk_field in self.primary_key
+            )
+            pk_clause = f", PRIMARY KEY ({primary_key_columns})"
         return f"({', '.join(columns)}{pk_clause})"
 
     def to_duckdb_create_table(self, table_name: str) -> str:
         """Generate full DuckDB CREATE TABLE statement."""
-        return f"CREATE TABLE {table_name} {self.to_duckdb_schema()}"
+        table_sql = validate_sql_identifier(table_name, what="schema table", allow_dotted=True)
+        return f"CREATE TABLE {table_sql} {self.to_duckdb_schema()}"
 
     @property
     def content_hash(self) -> str:
@@ -307,7 +333,7 @@ class DataSchema(BaseModel):
         new_geo = self.geo_dimension if self.geo_dimension in selected_names else None
 
         return DataSchema(
-            schema_id=f"{self.schema_id}.selected",
+            schema_id=make_schema_id(self.schema_id, "selected"),
             version=self.version,
             fields=selected,
             primary_key=new_pk,

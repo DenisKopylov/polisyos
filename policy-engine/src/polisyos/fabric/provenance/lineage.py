@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import OrderedDict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -153,17 +154,19 @@ class FabricLineageTracker:
         *,
         created_at: datetime | None = None,
         metadata: dict[str, str] | None = None,
+        max_tracked_nodes: int = 4096,
     ) -> None:
         self.graph = ProvenanceCoreGraph(
             graph_id=graph_id,
             created_at=created_at or _utc_now(),
             metadata=dict(metadata or {}),
         )
-        self._current_field_nodes: dict[str, str] = {}
-        self._dataset_nodes: dict[str, str] = {}
-        self._evidence_nodes: dict[str, str] = {}
-        self._segment_nodes: dict[str, str] = {}
-        self._event_nodes: dict[str, str] = {}
+        self._max_tracked_nodes = max(1, max_tracked_nodes)
+        self._current_field_nodes: OrderedDict[str, str] = OrderedDict()
+        self._dataset_nodes: OrderedDict[str, str] = OrderedDict()
+        self._evidence_nodes: OrderedDict[str, str] = OrderedDict()
+        self._segment_nodes: OrderedDict[str, str] = OrderedDict()
+        self._event_nodes: OrderedDict[str, str] = OrderedDict()
 
     def register_source_dataset(
         self,
@@ -193,7 +196,7 @@ class FabricLineageTracker:
             },
         )
         self.graph.add_entity(dataset_entity)
-        self._dataset_nodes[dataset_node_id] = dataset_node_id
+        self._remember_node(self._dataset_nodes, dataset_node_id, dataset_node_id)
 
         for field_name in fields:
             field_node_id = f"field.source.{_slug(schema_key)}.{_slug(field_name)}"
@@ -215,7 +218,7 @@ class FabricLineageTracker:
                 )
             )
             self.graph.add_derivation(field_node_id, dataset_node_id)
-            self._current_field_nodes[str(field_name)] = field_node_id
+            self._remember_node(self._current_field_nodes, str(field_name), field_node_id)
 
         return dataset_node_id
 
@@ -241,7 +244,7 @@ class FabricLineageTracker:
                     },
                 )
             )
-            self._evidence_nodes[evidence_ref] = node_id
+            self._remember_node(self._evidence_nodes, evidence_ref, node_id)
             for source_id in source_node_ids or ():
                 self.graph.add_derivation(node_id, source_id)
         return node_id
@@ -323,7 +326,8 @@ class FabricLineageTracker:
             self.graph.add_generation(output_node_id, activity_id)
             output_nodes[str(output_column)] = output_node_id
 
-        self._current_field_nodes = dict(output_nodes)
+        self._current_field_nodes = OrderedDict(output_nodes)
+        self._trim_nodes(self._current_field_nodes)
         return activity_id, output_nodes
 
     def record_materialized_column(
@@ -474,7 +478,7 @@ class FabricLineageTracker:
                 },
             )
         )
-        self._segment_nodes[segment_id] = node_id
+        self._remember_node(self._segment_nodes, segment_id, node_id)
         return node_id
 
     def _ensure_world_event(self, world_event_id: str) -> str:
@@ -494,13 +498,22 @@ class FabricLineageTracker:
                 },
             )
         )
-        self._event_nodes[world_event_id] = node_id
+        self._remember_node(self._event_nodes, world_event_id, node_id)
         return node_id
 
     def _resolve_field_node(self, field_or_node_id: str) -> str | None:
         if field_or_node_id in self.graph.entities:
             return field_or_node_id
         return self._current_field_nodes.get(str(field_or_node_id))
+
+    def _remember_node(self, bucket: OrderedDict[str, str], key: str, node_id: str) -> None:
+        bucket.pop(key, None)
+        bucket[key] = node_id
+        self._trim_nodes(bucket)
+
+    def _trim_nodes(self, bucket: OrderedDict[str, str]) -> None:
+        while len(bucket) > self._max_tracked_nodes:
+            bucket.popitem(last=False)
 
     def _resolve_upstream_columns(
         self,

@@ -17,6 +17,7 @@ class BindingProfileRegistry:
 
     def __init__(self) -> None:
         self._profiles: dict[str, BindingProfile] = {}
+        self._state_lock = threading.RLock()
 
     @classmethod
     def get_instance(cls) -> BindingProfileRegistry:
@@ -35,21 +36,24 @@ class BindingProfileRegistry:
             cls._instance = None
 
     def register(self, profile: BindingProfile, *, override: bool = False) -> None:
-        if profile.profile_id in self._profiles and not override:
-            raise ValueError(f"Binding profile '{profile.profile_id}' already registered")
-        self._profiles[profile.profile_id] = profile
+        with self._state_lock:
+            if profile.profile_id in self._profiles and not override:
+                raise ValueError(f"Binding profile '{profile.profile_id}' already registered")
+            self._profiles[profile.profile_id] = profile
 
     def get(self, profile_id: str) -> BindingProfile | None:
-        return self._profiles.get(profile_id)
+        with self._state_lock:
+            return self._profiles.get(profile_id)
 
     def list_all(self) -> list[BindingProfile]:
-        return sorted(self._profiles.values(), key=lambda p: p.profile_id)
+        with self._state_lock:
+            profiles = list(self._profiles.values())
+        return sorted(profiles, key=lambda p: p.profile_id)
 
     def list_by_family(self, schema_family: str) -> list[BindingProfile]:
-        return sorted(
-            [p for p in self._profiles.values() if p.schema_family == schema_family],
-            key=lambda p: p.profile_id,
-        )
+        with self._state_lock:
+            profiles = [p for p in self._profiles.values() if p.schema_family == schema_family]
+        return sorted(profiles, key=lambda p: p.profile_id)
 
     def _bootstrap(self) -> None:
         from .builtin_profiles import BUILTIN_BINDING_PROFILES

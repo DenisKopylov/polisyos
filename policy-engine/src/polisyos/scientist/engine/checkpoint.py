@@ -155,6 +155,7 @@ class CheckpointMetadata(BaseModel):
     writer_hostname: str = Field(default_factory=socket.gethostname)
     trace_id: str | None = None
     span_id: str | None = None
+    research_dag_ref: ArtifactRef | None = None
 
 
 class CheckpointArtifact(BaseModel):
@@ -166,6 +167,12 @@ class CheckpointArtifact(BaseModel):
     state: dict[str, Any] | None = None
     base_checkpoint_ref: ArtifactRef | None = None
     state_delta: dict[str, Any] | None = None
+
+
+def checkpoint_research_dag_status(research_dag_ref: ArtifactRef | str | None) -> str:
+    """Return checkpoint rendering status for runs created before Phase 1.2."""
+
+    return "available" if research_dag_ref is not None else "legacy_missing"
 
 
 class CheckpointHead(BaseModel):

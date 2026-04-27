@@ -14,6 +14,7 @@ from polisyos.scientist.policy_verified import (
     persist_policy_request_frame,
 )
 from polisyos.scientist.policy_verified.service import build_policy_request_frame
+from polisyos.scientist.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_plan_policy_request@1.0.0"),
@@ -35,6 +36,7 @@ _SPEC = NodeSpec(
         "params.policy_request_jurisdiction",
         "params.policy_request_as_of",
         "params.policy_request_domain",
+        "params.research_dag_enabled",
         "artifacts_index",
     ],
     state_writes=[
@@ -82,7 +84,14 @@ class PlanPolicyRequestNode:
                 NodeEvent(
                     level="info",
                     message="Policy request frame created.",
-                    attrs={"jurisdiction": frame.jurisdiction, "request_id": frame.request_id},
+                    attrs={
+                        "jurisdiction": frame.jurisdiction,
+                        "request_id": frame.request_id,
+                        "research_dag_sidecar": bool(
+                            state.params.get("research_dag_enabled")
+                            or state.params.get(RESEARCH_DAG_FEATURE_FLAG)
+                        ),
+                    },
                 )
             ],
         )

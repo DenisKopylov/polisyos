@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from .dependent_copula import DependentCopulaSensitivityEstimator
+from .distributional import (
+    DistributionalSensitivityEstimator,
+    QOSAPinballSensitivityEstimator,
+)
 from .screening import (
     FASTEstimator,
     MorrisSensitivityEstimator,
@@ -17,10 +22,13 @@ def register_sensitivity_methods() -> Sequence[type]:
     """Register sensitivity methods."""
     return (
         SobolFirstOrderEstimator,
+        DependentCopulaSensitivityEstimator,
         MorrisSensitivityEstimator,
         FASTEstimator,
         PAWNEstimator,
         SpecificationCurveEstimator,
+        QOSAPinballSensitivityEstimator,
+        DistributionalSensitivityEstimator,
     )
 
 

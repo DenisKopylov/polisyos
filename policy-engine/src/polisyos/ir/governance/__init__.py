@@ -50,6 +50,8 @@ __all__ = [
     "NormativeOutcomeChannel",
     "ObjectiveSpec",
     "ParameterSpec",
+    "Phase5GateComponent",
+    "Phase5GateWaiver",
     "Phase1GateSummary",
     "PolicyCompatibilityConstraint",
     "PolicyCompatibilityMode",
@@ -110,6 +112,8 @@ __all__ = [
     "diff_payloads",
     "issues_from_validation_error",
     "load_phase1_flagship_dataset_ids",
+    "load_validation_report",
+    "persist_validation_report",
     "schedule_range",
     "summarize_issues",
 ]
@@ -370,6 +374,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SelectorExpr": ("polisyos.ir.governance.selector_expr", "SelectorExpr"),
     "ValidationIssue": ("polisyos.ir.governance.validation", "ValidationIssue"),
     "ValidationReport": ("polisyos.ir.governance.validation", "ValidationReport"),
+    "Phase5GateComponent": ("polisyos.ir.governance.validation", "Phase5GateComponent"),
+    "Phase5GateWaiver": ("polisyos.ir.governance.validation", "Phase5GateWaiver"),
     "Phase1GateSummary": ("polisyos.ir.governance.phase1", "Phase1GateSummary"),
     "build_phase1_gate_summary": (
         "polisyos.ir.governance.phase1",
@@ -388,6 +394,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "build_validation_report": (
         "polisyos.ir.governance.validation",
         "build_validation_report",
+    ),
+    "persist_validation_report": (
+        "polisyos.ir.governance.validation",
+        "persist_validation_report",
+    ),
+    "load_validation_report": (
+        "polisyos.ir.governance.validation",
+        "load_validation_report",
     ),
 }
 

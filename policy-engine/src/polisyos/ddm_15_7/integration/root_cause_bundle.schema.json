@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/root_cause_bundle.schema.json",
+  "title": "DDM-15.7 RootCauseBundle.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_type",
+    "event_id",
+    "timestamp",
+    "model_id",
+    "model_version",
+    "shift_event_ids",
+    "degradation_event_ids",
+    "affected_features",
+    "affected_slices",
+    "upstream_versions",
+    "data_quality_violations",
+    "stationarity_regime_ids",
+    "calibration_ids"
+  ],
+  "properties": {
+    "event_type": { "const": "ml.problem_15_7.root_cause_bundle.v1" },
+    "event_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "model_id": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "shift_event_ids": { "type": "array", "items": { "type": "string" } },
+    "degradation_event_ids": { "type": "array", "items": { "type": "string" } },
+    "affected_features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["feature", "score"],
+        "properties": {
+          "feature": { "type": "string", "minLength": 1 },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "direction": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "affected_slices": { "type": "array", "items": { "type": "string" } },
+    "upstream_versions": { "type": "object", "additionalProperties": { "type": "string" } },
+    "data_quality_violations": { "type": "array", "items": { "type": "string" } },
+    "stationarity_regime_ids": { "type": "array", "items": { "type": "string" } },
+    "calibration_ids": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from random import SystemRandom
@@ -74,6 +75,7 @@ class PrefetchScheduler:
         max_retries: int = 3,
         backoff_seconds: float = 30.0,
         max_queued_jobs: int = 1024,
+        max_connector_semaphores: int = 512,
         metrics: MetricsRegistry | None = None,
     ) -> None:
         self._cache = cache
@@ -91,11 +93,12 @@ class PrefetchScheduler:
         self._queue_keys: set[str] = set()
         self._inflight_keys: set[str] = set()
         self._lock = asyncio.Lock()
-        self._semaphores: dict[str, asyncio.Semaphore] = {}
-        self._max_in_flight = max_in_flight_per_connector
-        self._max_retries = max_retries
-        self._backoff_seconds = backoff_seconds
+        self._semaphores: OrderedDict[str, asyncio.Semaphore] = OrderedDict()
+        self._max_in_flight = max(1, max_in_flight_per_connector)
+        self._max_retries = max(0, max_retries)
+        self._backoff_seconds = max(0.0, backoff_seconds)
         self._max_queued_jobs = bounded_queue_size
+        self._max_connector_semaphores = max(1, max_connector_semaphores)
         self._metrics = metrics if metrics is not None else _default_metrics()
 
     async def start(self) -> None:
@@ -186,9 +189,7 @@ class PrefetchScheduler:
                     continue
                 self._inflight_keys.add(dedupe_key)
 
-            sem = self._semaphores.setdefault(
-                job.connector_id, asyncio.Semaphore(self._max_in_flight)
-            )
+            sem = self._connector_semaphore(job.connector_id)
 
             try:
                 async with sem:
@@ -297,6 +298,15 @@ class PrefetchScheduler:
         size_penalty = int(min(payload_size_bytes / (1024 * 1024), 50))
         hotness = min(access_count, 50)
         return 100 - urgency + size_penalty - hotness
+
+    def _connector_semaphore(self, connector_id: str) -> asyncio.Semaphore:
+        sem = self._semaphores.pop(connector_id, None)
+        if sem is None:
+            sem = asyncio.Semaphore(self._max_in_flight)
+        self._semaphores[connector_id] = sem
+        while len(self._semaphores) > self._max_connector_semaphores:
+            self._semaphores.popitem(last=False)
+        return sem
 
     def _record_prefetch_metric(self, status: str, connector_id: str) -> None:
         metric = getattr(self._metrics, "connector_cache_prefetch_jobs_total", None)

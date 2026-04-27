@@ -9,7 +9,7 @@ from polisyos.scientist.autotune.registry import ChampionRegistry
 from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
 from polisyos.scientist.replay.verification import load_replay_verification_report
-from polisyos.scientist.search.judge_stack import JudgeStack, PolicyPromotionCoordinator
+from polisyos.scientist.search.judge_stack import JudgeName, JudgeStack, PolicyPromotionCoordinator
 from tests.scientist.search.test_phase_b_policy_runtime import (
     _benchmark,
     _candidate,
@@ -103,6 +103,23 @@ def test_phase2_econometrics_frontier_six_judge_promote(tmp_path) -> None:
     )
 
     assert verdict.composite_decision == "promote"
+
+
+def test_phase5_preflight_evaluates_all_six_judges(tmp_path) -> None:
+    verdict = JudgeStack().evaluate_phase5_preflight(
+        _phase2_bundle(
+            tmp_path,
+            artifact_family="econometrics_frontier",
+            estimator_name="high_dimensional_post_selection_iv",
+            query_type="post_selection_inference",
+        )
+    )
+
+    assert set(verdict.per_judge) == {judge.value for judge in JudgeName}
+    assert all(
+        judge_status.violations != ["judge_inactive"]
+        for judge_status in verdict.per_judge.values()
+    )
 
 
 def test_phase2_distributional_frontier_six_judge_promote(tmp_path) -> None:

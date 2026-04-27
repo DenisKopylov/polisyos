@@ -46,6 +46,7 @@ class FieldMapping(BaseModel):
     transform: str | None = Field(
         default=None,
         max_length=128,
+        pattern=r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$",
         description="Optional transform identifier (e.g. int, float, iso3166_alpha3)",
     )
 
@@ -154,6 +155,11 @@ class ConnectorSchemaContract(BaseModel):
             )
 
         schema_fields = set(self.connector_schema.field_names())
+        for mapping in self.field_mappings:
+            if mapping.target_field not in schema_fields:
+                raise ValueError(
+                    f"field_mappings target_field '{mapping.target_field}' is not in schema"
+                )
         for field_name, _threshold in self.field_completeness.items():
             if field_name not in schema_fields:
                 raise ValueError(

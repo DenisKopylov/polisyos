@@ -1,0 +1,2736 @@
+{
+  "contracts": {
+    "ckan.catalog.generic": {
+      "connector_id": "ckan.catalog",
+      "content_hash": "sha256:e753b59da3e44bc0b9c0ed1ec6b48c4620d50ee7433d5e50d350e9117cc87987",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "ckan-catalog-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "ckan.catalog.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.ckan.catalog.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "ckan.catalog.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "ckan.catalog",
+          "dataset_pattern": "*",
+          "profile_id": "data_gov_us",
+          "source_name": "CKAN Catalog",
+          "source_organization": "Various CKAN portals",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "ckan.catalog.generic",
+      "profile_id": "data_gov_us",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "ckan.resource.generic": {
+      "connector_id": "ckan.resource",
+      "content_hash": "sha256:03ecc5f143122080dff1ac4b1f5e0a9b48530699f0aeea585bc5d4a9f9ee92eb",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "ckan-resource-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "ckan.resource.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.ckan.resource.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "ckan.resource.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "ckan.resource",
+          "dataset_pattern": "*",
+          "profile_id": "data_gov_us",
+          "source_name": "CKAN Resource",
+          "source_organization": "Various CKAN portals",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "ckan.resource.generic",
+      "profile_id": "data_gov_us",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "eurostat.data.generic": {
+      "connector_id": "eurostat.data",
+      "content_hash": "sha256:7e823750a9b0ae153ab0c9e69648c35681d6175410a223fd395e210d0bd2770c",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": null,
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "eurostat.data.generic",
+        "lineage": {
+          "evidence_ref": "sha256:64ab9d69c26c4274c272ae0306defc2d3177a8f9806031edd097a12574a5c4e0",
+          "seed_fields": [
+            "dataset_id",
+            "observation_index",
+            "time_period",
+            "unit",
+            "value",
+            "dimensions_json"
+          ],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.eurostat.data.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sha256:64ab9d69c26c4274c272ae0306defc2d3177a8f9806031edd097a12574a5c4e0",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "retain"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "contracted",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.dataset_id",
+              "max_length": 128,
+              "name": "dataset_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.observation_index",
+              "max_length": null,
+              "name": "observation_index",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "index",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "field_id": "eurostat.data.generic.time_period",
+              "max_length": 32,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "field_id": "eurostat.data.generic.unit",
+              "max_length": 64,
+              "name": "unit",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "field_id": "eurostat.data.generic.value",
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.dimensions_json",
+              "max_length": 8192,
+              "name": "dimensions_json",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/eurostat.data.generic",
+          "schema_id": "eurostat.data.generic",
+          "schema_version": "1.0.0"
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [
+            "eurostat.data.generic"
+          ],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "eurostat.data",
+          "dataset_pattern": "*",
+          "profile_id": "eurostat_public",
+          "source_name": "Eurostat Statistics Database",
+          "source_organization": "European Commission - Eurostat",
+          "source_url": "https://ec.europa.eu/eurostat/"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://ec.europa.eu/eurostat/"
+        },
+        "version": "1.1.0"
+      },
+      "id": "eurostat.data.generic",
+      "profile_id": "eurostat_public",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "files.tabular.generic": {
+      "connector_id": "files.tabular",
+      "content_hash": "sha256:e97e54c2409d123e5400dafb5edd5d91dd84b10be2749f4960c5b1ed6c8fda3d",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "files-tabular-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "files.tabular.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.files.tabular.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "files.tabular.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "files.tabular",
+          "dataset_pattern": "*",
+          "profile_id": "files_demo_tabular",
+          "source_name": "Tabular Files",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/files"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/files"
+        },
+        "version": "1.1.0"
+      },
+      "id": "files.tabular.generic",
+      "profile_id": "files_demo_tabular",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "geojson.features.generic": {
+      "connector_id": "geojson.features",
+      "content_hash": "sha256:e7a99f5e29eb59d1c1e99996c56acbab03b4da286e98706f2a63e94bbce083a5",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "geojson-features-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "geojson.features.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.geojson.features.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "geojson.features.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "geojson.features",
+          "dataset_pattern": "*",
+          "profile_id": "geojson_demo",
+          "source_name": "GeoJSON Features",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/geojson"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/geojson"
+        },
+        "version": "1.1.0"
+      },
+      "id": "geojson.features.generic",
+      "profile_id": "geojson_demo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "graphql.api.generic": {
+      "connector_id": "graphql.api",
+      "content_hash": "sha256:2dc2f7fff9268ee62a5fd653542ade738f1bb6156eab600c1bc1c2e5bb490f55",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "graphql-api-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "graphql.api.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.graphql.api.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "graphql.api.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "graphql.api",
+          "dataset_pattern": "*",
+          "profile_id": "graphql_demo",
+          "source_name": "GraphQL API",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/graphql"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/graphql"
+        },
+        "version": "1.1.0"
+      },
+      "id": "graphql.api.generic",
+      "profile_id": "graphql_demo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "object_storage.blob.generic": {
+      "connector_id": "object_storage.blob",
+      "content_hash": "sha256:f2e27042230ba5445a32039845c68e8f16654a54804aee0e461a36d1496086af",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "object_storage-blob-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "object_storage.blob.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.object_storage.blob.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "object_storage.blob.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "object_storage.blob",
+          "dataset_pattern": "*",
+          "profile_id": "object_storage_demo",
+          "source_name": "Cloud Object Storage",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/object-storage"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/object-storage"
+        },
+        "version": "1.1.0"
+      },
+      "id": "object_storage.blob.generic",
+      "profile_id": "object_storage_demo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "opendatasoft.ods.generic": {
+      "connector_id": "opendatasoft.ods",
+      "content_hash": "sha256:770e30af27cb42049e5430ef22ca143e91a85f96ac1da2c011b56a099ef6511d",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "opendatasoft-ods-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "opendatasoft.ods.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.opendatasoft.ods.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "opendatasoft.ods.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "opendatasoft.ods",
+          "dataset_pattern": "*",
+          "profile_id": "opendatasoft_public",
+          "source_name": "Opendatasoft",
+          "source_organization": "Various Opendatasoft portals",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "opendatasoft.ods.generic",
+      "profile_id": "opendatasoft_public",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "rest.json.generic": {
+      "connector_id": "rest.json",
+      "content_hash": "sha256:d84019bfc8cd71a4148e06ab85c55b2400e38e5a797bd9b70b097073de00a373",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "rest-json-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "rest.json.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.rest.json.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "rest.json.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "rest.json",
+          "dataset_pattern": "*",
+          "profile_id": "open_meteo",
+          "source_name": "REST JSON API",
+          "source_organization": "Generic",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "rest.json.generic",
+      "profile_id": "open_meteo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "sdmx.generic": {
+      "connector_id": "sdmx.source",
+      "content_hash": "sha256:f291020f19401309bfd81f908bc43e7382d76bcc8a09f620dac36d0d63b1f2b6",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": null,
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "sdmx.generic",
+        "lineage": {
+          "evidence_ref": "sha256:839e76c3fd794eee4aba20f505a21a6c42fe7cc8a531547db7d4290a67835053",
+          "seed_fields": [
+            "value",
+            "time_period",
+            "freq"
+          ],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.sdmx.source.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sha256:839e76c3fd794eee4aba20f505a21a6c42fe7cc8a531547db7d4290a67835053",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "retain"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "contracted",
+          "fields": [
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.85,
+              "field_id": "sdmx.generic.value",
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.9,
+              "field_id": "sdmx.generic.time_period",
+              "max_length": 32,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "field_id": "sdmx.generic.freq",
+              "max_length": 8,
+              "name": "freq",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/sdmx.generic",
+          "schema_id": "sdmx.generic",
+          "schema_version": "1.0.0"
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [
+            "sdmx.generic"
+          ],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "sdmx.source",
+          "dataset_pattern": "*",
+          "profile_id": "ecb_sdmx",
+          "source_name": "SDMX Statistical Data Exchange",
+          "source_organization": "Various statistical agencies (ECB, OECD, IMF, BIS)",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "sdmx.generic",
+      "profile_id": "ecb_sdmx",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "socrata.soda.generic": {
+      "connector_id": "socrata.soda",
+      "content_hash": "sha256:30705c9f6b597c875b3a6c378562487f3c199929035dede922c5571e3443997c",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "socrata-soda-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "socrata.soda.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.socrata.soda.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "socrata.soda.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "socrata.soda",
+          "dataset_pattern": "*",
+          "profile_id": "nyc_opendata",
+          "source_name": "Socrata Open Data (SODA)",
+          "source_organization": "Various municipalities and agencies",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "socrata.soda.generic",
+      "profile_id": "nyc_opendata",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "sparql.endpoint.generic": {
+      "connector_id": "sparql.endpoint",
+      "content_hash": "sha256:bf9324343d993b7fa45335e3faf24e8cf03ea86b617e79ee0e05ed547a30f9cb",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "sparql-endpoint-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "sparql.endpoint.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.sparql.endpoint.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sparql.endpoint.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "sparql.endpoint",
+          "dataset_pattern": "*",
+          "profile_id": "wikidata_sparql",
+          "source_name": "SPARQL Endpoint",
+          "source_organization": "Various linked data providers",
+          "source_url": null
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": null
+        },
+        "version": "1.1.0"
+      },
+      "id": "sparql.endpoint.generic",
+      "profile_id": "wikidata_sparql",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "sql.query.generic": {
+      "connector_id": "sql.query",
+      "content_hash": "sha256:00d34a32dd637f20911c14b7dd8092bec0b65364ff421f258c2fc5ab5c166208",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "sql-query-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "sql.query.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.sql.query.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sql.query.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "sql.query",
+          "dataset_pattern": "*",
+          "profile_id": "sqlite_demo",
+          "source_name": "SQL Query",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/sql"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/sql"
+        },
+        "version": "1.1.0"
+      },
+      "id": "sql.query.generic",
+      "profile_id": "sqlite_demo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "stream.jsonl.generic": {
+      "connector_id": "stream.jsonl",
+      "content_hash": "sha256:cba0ba606d8776536851f41a5503c1e72d42ef2e77090dc32c03b7b98fcf1c2c",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "stream-jsonl-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "stream.jsonl.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.stream.jsonl.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "stream.jsonl.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "stream.jsonl",
+          "dataset_pattern": "*",
+          "profile_id": "stream_jsonl_demo",
+          "source_name": "JSONL Event Stream",
+          "source_organization": "PolicyOS Fabric",
+          "source_url": "https://polisyos.io/fabric/connectors/stream"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://polisyos.io/fabric/connectors/stream"
+        },
+        "version": "1.1.0"
+      },
+      "id": "stream.jsonl.generic",
+      "profile_id": "stream_jsonl_demo",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "ukons.datasets.generic": {
+      "connector_id": "ukons.datasets",
+      "content_hash": "sha256:cb32d9941bd8190972c5d0cfdefb88abf2fd105c15219a4aeb3483715effdac9",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": null,
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "ukons.datasets.generic",
+        "lineage": {
+          "evidence_ref": "sha256:3a33aec485b484b5f67f3fbf7005def3bd0fdc1d6cbb87bc0bd10966bb2e3001",
+          "seed_fields": [
+            "dataset_id",
+            "observation",
+            "time_period",
+            "geography",
+            "dimensions_json"
+          ],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.ukons.datasets.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sha256:3a33aec485b484b5f67f3fbf7005def3bd0fdc1d6cbb87bc0bd10966bb2e3001",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "retain"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "contracted",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "ukons.datasets.generic.dataset_id",
+              "max_length": 128,
+              "name": "dataset_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "field_id": "ukons.datasets.generic.observation",
+              "max_length": null,
+              "name": "observation",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.5,
+              "field_id": "ukons.datasets.generic.time_period",
+              "max_length": 64,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.5,
+              "field_id": "ukons.datasets.generic.geography",
+              "max_length": 64,
+              "name": "geography",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "ukons.datasets.generic.dimensions_json",
+              "max_length": 8192,
+              "name": "dimensions_json",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/ukons.datasets.generic",
+          "schema_id": "ukons.datasets.generic",
+          "schema_version": "1.0.0"
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [
+            "ukons.datasets.generic"
+          ],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "ukons.datasets",
+          "dataset_pattern": "*",
+          "profile_id": "ukons_public",
+          "source_name": "UK Office for National Statistics API",
+          "source_organization": "Office for National Statistics",
+          "source_url": "https://api.ons.gov.uk"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://api.ons.gov.uk"
+        },
+        "version": "1.1.0"
+      },
+      "id": "ukons.datasets.generic",
+      "profile_id": "ukons_public",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "unesco_uis.data.generic": {
+      "connector_id": "unesco_uis.data",
+      "content_hash": "sha256:33da077932710d612a4c1eeb76cae5bd6387446b30162e821d5e84b39a0fb2dc",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "unesco_uis-data-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "unesco_uis.data.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.unesco_uis.data.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "unesco_uis.data.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "unesco_uis.data",
+          "dataset_pattern": "*",
+          "profile_id": "unesco_uis_public",
+          "source_name": "UNESCO Institute for Statistics",
+          "source_organization": "UNESCO Institute for Statistics",
+          "source_url": "https://api.uis.unesco.org"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://api.uis.unesco.org"
+        },
+        "version": "1.1.0"
+      },
+      "id": "unesco_uis.data.generic",
+      "profile_id": "unesco_uis_public",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "unpd.data.generic": {
+      "connector_id": "unpd.data",
+      "content_hash": "sha256:dd3f59b5cfc1e90baf6bbca95604c20ae04f4a36e79097597264cfb599f8f0ac",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "unpd-data-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "unpd.data.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.unpd.data.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "unpd.data.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "unpd.data",
+          "dataset_pattern": "*",
+          "profile_id": "unpd_dataportal",
+          "source_name": "UN Population Division Data Portal",
+          "source_organization": "United Nations Population Division",
+          "source_url": "https://population.un.org/dataportal/"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://population.un.org/dataportal/"
+        },
+        "version": "1.1.0"
+      },
+      "id": "unpd.data.generic",
+      "profile_id": "unpd_dataportal",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "who.indicators.generic": {
+      "connector_id": "who.indicators",
+      "content_hash": "sha256:ec92a7a2e25adb582cba35bb084e950e714a9f0a1462efa80e704db83928ecac",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": "who-indicators-generic",
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "who.indicators.generic",
+        "lineage": {
+          "evidence_ref": null,
+          "seed_fields": [],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.who.indicators.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "who.indicators.*",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "source_terms_bound"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "template_only",
+          "fields": [],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json",
+          "schema_id": null,
+          "schema_version": null
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "who.indicators",
+          "dataset_pattern": "*",
+          "profile_id": "who_gho",
+          "source_name": "WHO Global Health Observatory",
+          "source_organization": "World Health Organization",
+          "source_url": "https://www.who.int/data/gho"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Scaffolded from connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://www.who.int/data/gho"
+        },
+        "version": "1.1.0"
+      },
+      "id": "who.indicators.generic",
+      "profile_id": "who_gho",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "worldbank.wdi.generic": {
+      "connector_id": "worldbank.wdi",
+      "content_hash": "sha256:6b22f6a7868cdb378f14b1e964399dc70b28d0ab08ca5a378eadeb4491bb0d11",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": null,
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "worldbank.wdi.generic",
+        "lineage": {
+          "evidence_ref": "sha256:1c955f0a7558b90113fff96fa7e7c03edb79b6a81306ec3d05789824f4b40216",
+          "seed_fields": [
+            "country_code",
+            "country_name",
+            "indicator_id",
+            "indicator_name",
+            "year",
+            "value",
+            "unit",
+            "decimal"
+          ],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.worldbank.wdi.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sha256:1c955f0a7558b90113fff96fa7e7c03edb79b6a81306ec3d05789824f4b40216",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "retain"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "contracted",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.country_code",
+              "max_length": 3,
+              "name": "country_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.95,
+              "field_id": "worldbank.wdi.generic.country_name",
+              "max_length": 256,
+              "name": "country_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.indicator_id",
+              "max_length": 128,
+              "name": "indicator_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.95,
+              "field_id": "worldbank.wdi.generic.indicator_name",
+              "max_length": 512,
+              "name": "indicator_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1960.0,
+                2100.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.year",
+              "max_length": null,
+              "name": "year",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.8,
+              "field_id": "worldbank.wdi.generic.value",
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "field_id": "worldbank.wdi.generic.unit",
+              "max_length": 64,
+              "name": "unit",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "field_id": "worldbank.wdi.generic.decimal",
+              "max_length": null,
+              "name": "decimal",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/worldbank.wdi.generic",
+          "schema_id": "worldbank.wdi.generic",
+          "schema_version": "1.0.0"
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [
+            "worldbank.wdi.generic"
+          ],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "worldbank.wdi",
+          "dataset_pattern": "*",
+          "profile_id": "worldbank_wdi",
+          "source_name": "World Development Indicators",
+          "source_organization": "The World Bank Group",
+          "source_url": "https://api.worldbank.org/v2"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://api.worldbank.org/v2"
+        },
+        "version": "1.1.0"
+      },
+      "id": "worldbank.wdi.generic",
+      "profile_id": "worldbank_wdi",
+      "status": "active",
+      "version": "1.1.0"
+    },
+    "wvs.wave7.generic": {
+      "connector_id": "wvs.wave7",
+      "content_hash": "sha256:c97f22a920afaf4d77b485ca8655ab2c45563be1ff0cf95a964db6b488f2d750",
+      "contract": {
+        "deprecation": null,
+        "docs": {
+          "generated_anchor": null,
+          "reference_page": "docs/reference/fabric/source-platform.md"
+        },
+        "id": "wvs.wave7.generic",
+        "lineage": {
+          "evidence_ref": "sha256:194f88668ef76db93263492d1c33794a7100dc8697c6307fa2e77b0b6c527647",
+          "seed_fields": [
+            "country_code",
+            "country_name",
+            "survey_year",
+            "wave",
+            "indicator_code",
+            "indicator_label",
+            "value",
+            "sample_size"
+          ],
+          "seed_node_kind": "source_dataset"
+        },
+        "owner": "@fabric-owners",
+        "quality": {
+          "contract_ref": "fabric.quality.wvs.wave7.default.v1",
+          "min_quality_score": 0.8,
+          "required_checks": [
+            "schema_compliance",
+            "finite_values",
+            "freshness",
+            "safe_filters",
+            "bounded_reads"
+          ]
+        },
+        "replay": {
+          "determinism_key": "sha256:194f88668ef76db93263492d1c33794a7100dc8697c6307fa2e77b0b6c527647",
+          "fixture_ref": null,
+          "non_replayable_reason": "Replay fixture has not been recorded for this migrated source yet.",
+          "required": false
+        },
+        "retention": {
+          "artifact_retention_days": 365,
+          "cold_storage_required": false,
+          "min_retention_days": 30,
+          "policy": "retain"
+        },
+        "reviewer": "@fabric-reviewers",
+        "schema": {
+          "compatibility_status": "contracted",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.country_code",
+              "max_length": 3,
+              "name": "country_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "field_id": "wvs.wave7.generic.country_name",
+              "max_length": 256,
+              "name": "country_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1990.0,
+                2100.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.survey_year",
+              "max_length": null,
+              "name": "survey_year",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1.0,
+                20.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.wave",
+              "max_length": null,
+              "name": "wave",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "index",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.indicator_code",
+              "max_length": 64,
+              "name": "indicator_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "field_id": "wvs.wave7.generic.indicator_label",
+              "max_length": 512,
+              "name": "indicator_label",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "field_id": "wvs.wave7.generic.value",
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.2,
+              "field_id": "wvs.wave7.generic.sample_size",
+              "max_length": null,
+              "name": "sample_size",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/wvs.wave7.generic",
+          "schema_id": "wvs.wave7.generic",
+          "schema_version": "1.0.0"
+        },
+        "schema_version": "fabric.source_contract.v2",
+        "security": {
+          "audit_required": true,
+          "classification": "public",
+          "pii_tier": "none",
+          "safe_filters_required": true,
+          "tenant_scope": "shared_public"
+        },
+        "semantics": {
+          "canonical_ids": [
+            "wvs.wave7.generic"
+          ],
+          "domain": "general_policy_data",
+          "metric_definitions": []
+        },
+        "sla": {
+          "availability_target": 0.99,
+          "freshness_slo_seconds": 86400,
+          "max_latency": "PT2S",
+          "p95_latency_ms": 2000.0,
+          "refresh_frequency": "daily",
+          "replay_success_target": 0.99
+        },
+        "source": {
+          "connector_id": "wvs.wave7",
+          "dataset_pattern": "*",
+          "profile_id": "wvs_wave7",
+          "source_name": "World Values Survey (Wave 7)",
+          "source_organization": "World Values Survey Association",
+          "source_url": "https://www.worldvaluessurvey.org"
+        },
+        "source_trust": {
+          "calibration_status": "heuristic",
+          "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
+          "tier": "institutional"
+        },
+        "status": "active",
+        "terms": {
+          "allowed_uses": [
+            "policy_analysis",
+            "reporting"
+          ],
+          "attribution_required": true,
+          "disallowed_uses": [],
+          "terms_url": "https://www.worldvaluessurvey.org"
+        },
+        "version": "1.1.0"
+      },
+      "id": "wvs.wave7.generic",
+      "profile_id": "wvs_wave7",
+      "status": "active",
+      "version": "1.1.0"
+    }
+  },
+  "generated_at": "2026-04-27T00:00:00Z",
+  "schema_version": "fabric.source_contract.v2"
+}

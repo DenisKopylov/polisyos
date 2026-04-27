@@ -15,6 +15,7 @@ import pandas as pd
 from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.safety import quote_sql_identifier
 from polisyos.fabric.security import (
     DataClassification,
     RetentionScope,
@@ -53,6 +54,14 @@ _MERGEABLE_WORLD_TABLES = (
 
 class WorldSnapshotAdapterError(ValueError):
     """Raised when snapshot storage adapters cannot satisfy one requested operation."""
+
+
+def _world_table_sql(table_name: str) -> str:
+    return quote_sql_identifier(table_name, what="world table", allow_dotted=True)
+
+
+def _sql_string_literal(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
 
 
 @dataclass(frozen=True)
@@ -560,8 +569,9 @@ def merge_world_branch(
                 for table_name in _MERGEABLE_WORLD_TABLES:
                     if table_name not in source_tables or table_name not in target_tables:
                         continue
-                    target_frame = merged_db.conn.execute(f"SELECT * FROM {table_name}").fetchdf()
-                    source_frame = source_db.conn.execute(f"SELECT * FROM {table_name}").fetchdf()
+                    table_sql = _world_table_sql(table_name)
+                    target_frame = merged_db.conn.execute(f"SELECT * FROM {table_sql}").fetchdf()
+                    source_frame = source_db.conn.execute(f"SELECT * FROM {table_sql}").fetchdf()
                     primary_keys = _primary_key_columns(merged_db, table_name)
                     if not primary_keys:
                         continue
@@ -750,7 +760,8 @@ def _list_world_tables(db: SimulationDB) -> tuple[str, ...]:
 
 
 def _primary_key_columns(db: SimulationDB, table_name: str) -> tuple[str, ...]:
-    rows = db.conn.execute(f"PRAGMA table_info('{table_name}')").fetchall()
+    _world_table_sql(table_name)
+    rows = db.conn.execute(f"PRAGMA table_info({_sql_string_literal(table_name)})").fetchall()
     primary_keys = [(int(row[5]), str(row[1])) for row in rows if int(row[5]) > 0]
     primary_keys.sort(key=lambda item: item[0])
     return tuple(name for _, name in primary_keys)
@@ -913,14 +924,18 @@ def _replace_table_contents(
     table_name: str,
     frame: pd.DataFrame,
 ) -> None:
-    db.conn.execute(f"DELETE FROM {table_name}")
+    table_sql = _world_table_sql(table_name)
+    db.conn.execute(f"DELETE FROM {table_sql}")
     if frame.empty:
         return
     temp_name = f"merge_{table_name.split('.')[-1]}_{uuid.uuid4().hex[:8]}"
     db.conn.register(temp_name, frame)
     try:
-        columns = ", ".join(str(column) for column in frame.columns)
-        db.conn.execute(f"INSERT INTO {table_name} ({columns}) SELECT {columns} FROM {temp_name}")
+        temp_sql = quote_sql_identifier(temp_name, what="temporary merge table")
+        columns = ", ".join(
+            quote_sql_identifier(str(column), what="merge table column") for column in frame.columns
+        )
+        db.conn.execute(f"INSERT INTO {table_sql} ({columns}) SELECT {columns} FROM {temp_sql}")
     finally:
         db.conn.unregister(temp_name)
 
@@ -964,8 +979,11 @@ def _max_world_fact_value(
     *,
     skip_null: bool = False,
 ) -> str | None:
-    where = "WHERE " + column_name + " IS NOT NULL" if skip_null else ""
-    row = db.conn.execute(f"SELECT MAX({column_name}) FROM world.world_facts {where}").fetchone()
+    column_sql = quote_sql_identifier(column_name, what="world fact column")
+    where = f"WHERE {column_sql} IS NOT NULL" if skip_null else ""
+    row = db.conn.execute(
+        f"SELECT MAX({column_sql}) FROM {_world_table_sql('world.world_facts')} {where}"
+    ).fetchone()
     if not row or row[0] is None:
         return None
     return str(row[0])

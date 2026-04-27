@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-27.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/quality.py`, `src/polisyos/fabric/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/fabric/test_quality_indicators.py`, `tests/fabric/connectors/test_quality_{system,statistics}.py`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric currently exposes two quality layers that are both active in code.
 
@@ -67,9 +68,10 @@ Its default tier mapping is:
 | Surface                           | Current evidence                                                                                                                                                               |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `DataQualityReport.to_evidence()` | Builds a content-hashed evidence payload with score, tier, freshness, completeness, consistency, anomaly, drift, and contract-failure counts                                   |
+| `build_fabric_quality_governance_evidence()` | Normalizes a quality report into `fabric.quality.evidence.v1` for Scientist governance state, including quality indicators and contract status                                  |
 | `DataFitnessReport`               | Generates ASCII or Markdown summaries for governance/logging/UI paths                                                                                                          |
 | Orchestrated ingestion            | `tests/fabric/data_plane/test_orchestrator.py` shows `run_orchestrated_ingestion(..., produce_snapshot=True)` persisting `fabric.quality_report` before `fabric.data_snapshot` |
-| Scientist quality gate            | `tests/fabric/test_quality_indicators.py` checks that strict validation profiles can block on poor quality and attach `data_fitness_report` into pass state                    |
+| Scientist quality gate            | `tests/fabric/test_observability_governance_quality_phase4.py` checks that strict validation profiles receive `fabric_quality_evidence` and dataset-indexed quality evidence    |
 
 ## Safety And Boundary Rules
 
@@ -86,6 +88,7 @@ Its default tier mapping is:
 uv run pytest tests/fabric/test_quality_indicators.py -q
 uv run pytest tests/fabric/connectors/test_quality_system.py -q
 uv run pytest tests/fabric/connectors/test_quality_statistics.py -q
+uv run pytest tests/fabric/test_observability_governance_quality_phase4.py -q
 uv run pytest tests/fabric/data_plane/test_orchestrator.py -q
 ```
 
@@ -98,3 +101,5 @@ uv run pytest tests/fabric/data_plane/test_orchestrator.py -q
 ::: polisyos.fabric.connectors.quality.validator
 
 ::: polisyos.fabric.connectors.quality.report
+
+::: polisyos.fabric.connectors.quality.evidence

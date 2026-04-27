@@ -16,18 +16,44 @@ from .frontier import (
     TabNetEstimator,
 )
 from .protocols import (
+    CalibrationSupportDiagnostic,
     ClusteringResult,
+    ConditionalCoverageDiagnostic,
+    ConformalMethodSpec,
+    CoverageEstimate,
     EmbeddingResult,
+    ERTDiagnostic,
+    GraphCoverageDiagnostic,
+    GroupCoverageEstimate,
     PredictionIntervalResult,
     PredictionResult,
+    PredictionResultConsumerInput,
+    PredictionSetResult,
+    ScoreTailDiagnostic,
+    ShiftDiagnostic,
     SurvivalData,
     SurvivalResult,
     TabularData,
 )
 from .regression import ElasticNetEstimator, GradientBoostingEstimator, RandomForestEstimator
+from .shift_diagnostics import (
+    ShiftDiagnosticEstimator,
+    ShiftDiagnosticInput,
+    build_shift_diagnostic_report,
+    build_shift_reference_comparison_reports,
+)
 from .survival import SurvivalAnalysisEstimator
 from .transformers import TabularTransformerEstimator
-from .uncertainty import ConformalPredictionEstimator
+from .uncertainty import (
+    ConformalPredictionEstimator,
+    GraphAwareConformalizer,
+    MondrianAPSRAPSConformalizer,
+    MondrianCQRConformalizer,
+    NormalizedResidualMondrianConformalizer,
+    WeightedConformalQuantile,
+    evaluate_conformal_acceptance_gate,
+    update_conditional_coverage_diagnostic_with_outcomes,
+)
 
 
 def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
@@ -41,28 +67,50 @@ def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None
 
 
 __all__ = [
+    "CalibrationSupportDiagnostic",
     "ClusteringResult",
+    "ConditionalCoverageDiagnostic",
     "ConformalPredictionEstimator",
+    "ConformalMethodSpec",
+    "CoverageEstimate",
     "ElasticNetEstimator",
     "EmbeddingResult",
+    "ERTDiagnostic",
     "FTTransformerEstimator",
     "GaussianProcessEstimator",
     "GradientBoostingEstimator",
+    "GraphCoverageDiagnostic",
+    "GraphAwareConformalizer",
     "GraphNeuralNetworkEstimator",
+    "GroupCoverageEstimate",
     "KMeansEstimator",
     "MaskedAutoencoderEmbeddingEstimator",
+    "MondrianAPSRAPSConformalizer",
+    "MondrianCQRConformalizer",
+    "NormalizedResidualMondrianConformalizer",
     "NeuralODEEstimator",
     "PCAEstimator",
     "PredictionIntervalResult",
     "PredictionResult",
+    "PredictionResultConsumerInput",
+    "PredictionSetResult",
     "QuantileForestEstimator",
     "RandomForestEstimator",
+    "ScoreTailDiagnostic",
+    "ShiftDiagnostic",
+    "ShiftDiagnosticEstimator",
+    "ShiftDiagnosticInput",
     "SurvivalAnalysisEstimator",
     "SurvivalData",
     "SurvivalResult",
     "TabNetEstimator",
     "TabularData",
     "TabularTransformerEstimator",
+    "WeightedConformalQuantile",
+    "build_shift_diagnostic_report",
+    "build_shift_reference_comparison_reports",
     "ensure_ml_methods_registered",
+    "evaluate_conformal_acceptance_gate",
     "register_ml_methods",
+    "update_conditional_coverage_diagnostic_with_outcomes",
 ]

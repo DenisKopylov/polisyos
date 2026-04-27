@@ -45,6 +45,21 @@ class ToolLoopResult:
     degraded_events: list[dict[str, Any]] = field(default_factory=list)
 
 
+def project_tool_loop_result_to_research_dag(
+    result: ToolLoopResult,
+    *,
+    run_id: str,
+    workflow_id: str = "tool_loop",
+) -> Any:
+    """Adapter-only bridge from tool-loop results to the Phase 1.2 research DAG."""
+
+    from polisyos.scientist.research_dag.projections import (
+        project_tool_loop_result_to_research_dag as _project,
+    )
+
+    return _project(result, run_id=run_id, workflow_id=workflow_id)
+
+
 @dataclass
 class ParsedToolCall:
     """A single tool call extracted from an LLM response."""

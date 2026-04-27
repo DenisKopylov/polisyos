@@ -1,0 +1,19 @@
+contract_id: ddm_15_7_label_join_contract_v1
+required_fields:
+  - request_id
+  - label_join_key
+  - prediction_timestamp
+  - label_timestamp
+  - label
+  - outcome_available
+  - label_delay_days
+rules:
+  maintain_prediction_time_and_label_arrival_time: true
+  do_not_assume_missing_labels_are_random_without_validation: true
+  report_delay_quantiles:
+    - p50
+    - p90
+invalidation_triggers:
+  - label_delay_distribution_shift
+  - label_missingness_policy_change
+  - outcome_definition_change

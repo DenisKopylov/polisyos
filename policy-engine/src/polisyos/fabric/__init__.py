@@ -12,9 +12,24 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "AccessRef",
+    "AuthoredText",
+    "FabricDecisionData",
+    "FabricDecisionDataCoverage",
+    "FabricDecisionDataResponse",
+    "LineageRef",
+    "QualityRef",
+    "ReplayRef",
+    "SourceContractRef",
+    "TemporalRef",
+    "TypedGap",
+    "UnitRef",
     "WorldQueryError",
     "WorldQueryRequest",
     "execute_world_query",
+    "fabric_claim_to_authored_text",
+    "fabric_event_to_authored_text",
+    "fabric_fact_to_quantity_value",
     "fabric_get_data",
     "query_claims",
     "query_events",
@@ -24,6 +39,36 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "AccessRef": ("polisyos.fabric.decision_data", "AccessRef"),
+    "AuthoredText": ("polisyos.fabric.decision_data", "AuthoredText"),
+    "FabricDecisionData": ("polisyos.fabric.decision_data", "FabricDecisionData"),
+    "FabricDecisionDataCoverage": (
+        "polisyos.fabric.decision_data",
+        "FabricDecisionDataCoverage",
+    ),
+    "FabricDecisionDataResponse": (
+        "polisyos.fabric.decision_data",
+        "FabricDecisionDataResponse",
+    ),
+    "fabric_claim_to_authored_text": (
+        "polisyos.fabric.decision_data",
+        "fabric_claim_to_authored_text",
+    ),
+    "fabric_event_to_authored_text": (
+        "polisyos.fabric.decision_data",
+        "fabric_event_to_authored_text",
+    ),
+    "fabric_fact_to_quantity_value": (
+        "polisyos.fabric.decision_data",
+        "fabric_fact_to_quantity_value",
+    ),
+    "LineageRef": ("polisyos.fabric.decision_data", "LineageRef"),
+    "QualityRef": ("polisyos.fabric.decision_data", "QualityRef"),
+    "ReplayRef": ("polisyos.fabric.decision_data", "ReplayRef"),
+    "SourceContractRef": ("polisyos.fabric.decision_data", "SourceContractRef"),
+    "TemporalRef": ("polisyos.fabric.decision_data", "TemporalRef"),
+    "TypedGap": ("polisyos.fabric.decision_data", "TypedGap"),
+    "UnitRef": ("polisyos.fabric.decision_data", "UnitRef"),
     "fabric_get_data": ("polisyos.fabric._connector_bridge", "fabric_get_data"),
     "execute_world_query": ("polisyos.fabric.world_query", "execute_world_query"),
     "run_connectors_ingestion": ("polisyos.fabric.ingestion", "run_connectors_ingestion"),

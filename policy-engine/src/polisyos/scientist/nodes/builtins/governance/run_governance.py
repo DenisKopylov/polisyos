@@ -41,6 +41,13 @@ from polisyos.ir.governance.gate import (
     GateVerdict,
 )
 from polisyos.ir.refs import NormativeArbitrationResultRef
+from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.projections import project_governance_report_claims
+from polisyos.scientist.claims.validators import (
+    is_claim_spine_enabled,
+    is_fail_on_naked_claims_enabled,
+    validate_state_claim_projection,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -56,7 +63,10 @@ from polisyos.scientist.governance.report import GovernanceReport, GovernanceRep
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_HUMAN_REVIEW_DECISION_REF,
+    ARTIFACT_HUMAN_REVIEW_PACKET_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
@@ -98,6 +108,9 @@ _SPEC = NodeSpec(
         "artifacts_index.simulation_result_ref",
         "artifacts_index.distributional_report_ref",
         "artifacts_index.causal_report_ref",
+        "artifacts_index.claims_ref",
+        "artifacts_index.human_review_packet_ref",
+        "artifacts_index.human_review_decision_ref",
         "artifacts_index.causal_graph_ref",
         "artifacts_index.metrics_ref",
         "artifacts_index.normative_arbitration_result_ref",
@@ -114,6 +127,7 @@ _SPEC = NodeSpec(
         "params.validation_trace",
         "params.human_review_request",
         "params.human_review_request_ref",
+        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
         f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}",
     ],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
@@ -307,11 +321,47 @@ class RunGovernanceNode:
             if blocker_count > 0 and verdict != "human_gate":
                 verdict = "reject"
 
+        fail_on_naked_claims = is_fail_on_naked_claims_enabled(new_state.params)
+        claim_projection = validate_state_claim_projection(
+            workflow_id=str(new_state.params.get("workflow_id") or ""),
+            artifacts_index=new_state.artifacts_index,
+            fail_on_naked_claims=fail_on_naked_claims,
+        )
+        if claim_projection.violations and fail_on_naked_claims:
+            issues.append(
+                {
+                    "code": "claim_spine.naked_decision_claims",
+                    "message": "Decision-bearing artifacts require claims_ref projection.",
+                    "details": claim_projection.model_dump(mode="json"),
+                }
+            )
+        if not claim_projection.passed and verdict != "human_gate":
+            verdict = "reject"
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    message="Governance blocked publication because claims_ref is missing.",
+                )
+            )
+
         report = GovernanceReport(
             verdict=verdict,
             issues=issues,
             links=_build_governance_links(new_state),
         )
+        if is_claim_spine_enabled(new_state.params):
+            claim_ledger = project_governance_report_claims(
+                report,
+                run_id=new_state.run_id,
+                source_artifact_refs=_claim_source_artifact_refs(new_state),
+            )
+            claims_ref = persist_claim_ledger(ctx.store, claim_ledger)
+            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+            report = report.model_copy(
+                update={
+                    "links": report.links.model_copy(update={"claims_ref": claims_ref})
+                }
+            )
         report_ref_payload = ctx.store.put_json(
             report,
             PutOptions(
@@ -327,7 +377,10 @@ class RunGovernanceNode:
         new_state.reports_index[REPORT_GOVERNANCE_REPORT_REF] = report_ref
 
         events.append(NodeEvent(level="info", message=f"Governance verdict: {verdict}"))
-        return NodeOutcome(status="ok", state=new_state, artifacts=[report_ref], events=events)
+        artifacts = [report_ref]
+        if report.links.claims_ref is not None:
+            artifacts.append(report.links.claims_ref)
+        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts, events=events)
 
 
 def _create_gate_request(
@@ -854,12 +907,34 @@ def _build_governance_links(state: ExperimentState) -> GovernanceReportLinks:
         state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF),
         ref_cls=VerifiedPolicyReportRef,
     )
+    claims_ref = state.artifacts_index.get(ARTIFACT_CLAIMS_REF)
+    human_review_packet_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_PACKET_REF)
+    human_review_decision_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_DECISION_REF)
     return GovernanceReportLinks(
         legal_report_ref=legal_ref,
         change_proposal_ref=change_ref,
         source_verification_report_ref=source_verification_ref,
         verified_policy_report_ref=verified_policy_ref,
+        claims_ref=claims_ref,
+        human_review_packet_ref=human_review_packet_ref,
+        human_review_decision_ref=human_review_decision_ref,
     )
+
+
+def _claim_source_artifact_refs(state: ExperimentState) -> list[ArtifactRef]:
+    refs: list[ArtifactRef] = []
+    refs.extend(state.inputs.values())
+    refs.extend(state.artifacts_index.values())
+    refs.extend(state.reports_index.values())
+    output: list[ArtifactRef] = []
+    seen: set[str] = set()
+    for ref in refs:
+        artifact_id = str(ref.artifact_id)
+        if artifact_id in seen:
+            continue
+        seen.add(artifact_id)
+        output.append(ref)
+    return output
 
 
 def _coerce_report_ref(raw: Any, *, ref_cls: type[ArtifactRef]) -> ArtifactRef | None:

@@ -245,12 +245,11 @@ class ConsistencyChecker:
 
             expected_type = field.data_type
 
-            if expected_type in (
-                SchemaType.INT32,
-                SchemaType.INT64,
-                SchemaType.FLOAT32,
-                SchemaType.FLOAT64,
-            ):
+            numeric_expected = expected_type != SchemaType.BOOLEAN and (
+                expected_type.is_numeric() or expected_type == SchemaType.DECIMAL
+            )
+
+            if numeric_expected:
                 numeric = pd.to_numeric(series, errors="coerce")
                 non_numeric = numeric.isna() & series.notna()
                 non_finite = numeric.notna() & ~numeric.map(is_finite_number)

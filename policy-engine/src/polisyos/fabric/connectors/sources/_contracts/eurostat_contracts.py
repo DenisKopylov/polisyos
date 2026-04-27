@@ -11,26 +11,37 @@ from polisyos.fabric.connectors.contracts import (
     SchemaType,
     SchemaVersion,
     SemanticType,
+    make_field_id,
 )
 
+_SCHEMA_ID = "eurostat.data.generic"
+
+
+def _field_id(name: str) -> str:
+    return make_field_id(_SCHEMA_ID, name)
+
+
 EUROSTAT_GENERIC_SCHEMA = DataSchema(
-    schema_id="eurostat.data.generic",
+    schema_id=_SCHEMA_ID,
     version=SchemaVersion(1, 0, 0),
     fields=(
         FieldSpec(
             name="dataset_id",
+            field_id=_field_id("dataset_id"),
             data_type=SchemaType.STRING,
             nullable=False,
             max_length=128,
         ),
         FieldSpec(
             name="observation_index",
+            field_id=_field_id("observation_index"),
             data_type=SchemaType.INT64,
             nullable=False,
             semantic_type=SemanticType.INDEX,
         ),
         FieldSpec(
             name="time_period",
+            field_id=_field_id("time_period"),
             data_type=SchemaType.STRING,
             nullable=True,
             semantic_type=SemanticType.TEMPORAL,
@@ -39,6 +50,7 @@ EUROSTAT_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="unit",
+            field_id=_field_id("unit"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=64,
@@ -46,6 +58,7 @@ EUROSTAT_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="value",
+            field_id=_field_id("value"),
             data_type=SchemaType.FLOAT64,
             nullable=True,
             additivity=Additivity.SEMI_ADDITIVE,
@@ -53,6 +66,7 @@ EUROSTAT_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="dimensions_json",
+            field_id=_field_id("dimensions_json"),
             data_type=SchemaType.STRING,
             nullable=False,
             max_length=8192,

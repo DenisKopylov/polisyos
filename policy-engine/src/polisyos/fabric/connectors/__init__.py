@@ -73,6 +73,11 @@ from polisyos.fabric.connectors.family_contracts import (
     ConnectorFamilyContract,
     contract_for_family,
 )
+from polisyos.fabric.connectors.governance_metadata import (
+    ConnectorGovernanceMetadataIssue,
+    ConnectorGovernanceMetadataReport,
+    validate_connector_governance_metadata,
+)
 
 # Connection Pooling (Phase 2.2)
 from polisyos.fabric.connectors.pool import (
@@ -204,6 +209,8 @@ __all__ = [
     "ConnectorError",
     # === Family contracts (WS-5B) ===
     "ConnectorFamilyContract",
+    "ConnectorGovernanceMetadataIssue",
+    "ConnectorGovernanceMetadataReport",
     "ConnectorMetadataSpec",
     "ConnectorNotFoundError",
     "ConnectorPreferences",
@@ -284,6 +291,7 @@ __all__ = [
     # === Capability Utilities ===
     "requires_capability",
     "resolve_resilience_config",
+    "validate_connector_governance_metadata",
     # === Validation Helpers ===
     "validate_fetch_result_against_schema",
     "validate_protocol_compliance",

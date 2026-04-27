@@ -433,6 +433,19 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async getRunFabricDecisionData(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/fabric-decision-data`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
   async getRunLineage(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/lineage`;
     const query = this.buildQuery({

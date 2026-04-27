@@ -19,6 +19,7 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
+from polisyos.fabric.finite import ensure_finite_float, ensure_probability, is_finite_number
 
 __all__ = [
     "CompletenessRule",
@@ -44,6 +45,9 @@ class CompletenessRule:
 
     field: str
     threshold: float = 0.95
+
+    def __post_init__(self) -> None:
+        self.threshold = ensure_probability(self.threshold, what=f"{self.name} threshold")
 
     @property
     def name(self) -> str:
@@ -72,6 +76,18 @@ class RangeRule:
     min_value: float | None = None
     max_value: float | None = None
 
+    def __post_init__(self) -> None:
+        if self.min_value is not None:
+            self.min_value = ensure_finite_float(self.min_value, what=f"{self.name} min_value")
+        if self.max_value is not None:
+            self.max_value = ensure_finite_float(self.max_value, what=f"{self.name} max_value")
+        if (
+            self.min_value is not None
+            and self.max_value is not None
+            and self.min_value > self.max_value
+        ):
+            raise ValueError(f"{self.name} min_value must be <= max_value")
+
     @property
     def name(self) -> str:
         return f"range:{self.field}"
@@ -84,6 +100,12 @@ class RangeRule:
             return [f"Field '{self.field}' not found"]
         series = pd.to_numeric(data[self.field], errors="coerce")
         violations = []
+        non_finite = series.notna() & ~series.map(is_finite_number)
+        if non_finite.any():
+            violations.append(
+                f"Field '{self.field}' has {int(non_finite.sum())} non-finite values"
+            )
+        series = series[~non_finite]
         if self.min_value is not None:
             below = (series < self.min_value).sum()
             if below > 0:

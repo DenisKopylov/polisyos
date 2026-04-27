@@ -35,6 +35,7 @@ from polisyos.core.contracts.scientist import (
     DecisionPacketRef,
     MetricValidationReportRef,
     SourceVerificationReportRef,
+    ValidationReportRef,
     VerifiedPolicyReportRef,
 )
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
@@ -60,7 +61,11 @@ from polisyos.ir.analytics.normative_arbitration import (
     load_normative_arbitration_result,
 )
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.ir.analytics.sensitivity import load_sensitivity_result
+from polisyos.ir.analytics.sensitivity import (
+    load_sensitivity_result,
+    persist_sensitivity_analysis_bundle,
+    sensitivity_analysis_bundle_from_result,
+)
 from polisyos.ir.analytics.strategic import (
     load_mean_field_equilibrium_certificate,
     load_mean_field_macro_simulation_config,
@@ -85,9 +90,19 @@ from polisyos.ir.refs import (
     EvidenceBundleRef,
     KernelEstimatorSpecRef,
     NormativeArbitrationResultRef,
+    SensitivityAnalysisBundleRef,
     StrategicResponseBundleRef,
     StrategicSCMRef,
     WelfareBundleRef,
+)
+from polisyos.scholar.search.models import WebEvidenceBundle
+from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.projections import project_decision_packet_claims
+from polisyos.scientist.claims.readiness import summarize_ledger_readiness
+from polisyos.scientist.claims.validators import (
+    is_claim_spine_enabled,
+    is_fail_on_naked_claims_enabled,
+    validate_naked_decision_claims,
 )
 from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.engine.context import ExecutionContext
@@ -95,11 +110,19 @@ from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.evidence.safe_fetch import neutralize_instruction_markers
 from polisyos.scientist.feedback import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
 )
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.human_review.decisions import load_review_decision
+from polisyos.scientist.human_review.oversight_policy import (
+    evaluate_human_review_requirement,
+    human_review_section,
+    validate_human_reviewed_readiness,
+)
+from polisyos.scientist.human_review.packets import load_review_packet
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
     ReplayReadiness,
@@ -123,6 +146,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
@@ -136,7 +160,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_HUMAN_REVIEW_DECISION_REF,
+    ARTIFACT_HUMAN_REVIEW_PACKET_REF,
     ARTIFACT_INPUT_BINDING_REPORT_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
@@ -147,6 +174,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
+    ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
@@ -155,7 +184,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    ARTIFACT_WEB_EVIDENCE_BUNDLE_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
@@ -175,6 +206,16 @@ from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
+)
+from polisyos.scientist.research_dag.projections import (
+    is_research_dag_required_for_publication,
+)
+from polisyos.scientist.research_dag.replay import legacy_research_dag_status
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    Phase5ValidationBlocked,
+    enforce_phase5_publication,
+    run_phase5_artifact_preflight,
 )
 
 logger = get_logger(__name__)
@@ -217,13 +258,29 @@ _SPEC = NodeSpec(
         "artifacts_index",
         "artifacts_index.normative_arbitration_result_ref",
         "artifacts_index.policy_output_bundle_ref",
+        "artifacts_index.claims_ref",
+        "artifacts_index.research_dag_ref",
+        "artifacts_index.human_review_packet_ref",
+        "artifacts_index.human_review_decision_ref",
+        "artifacts_index.web_evidence_bundle_ref",
         "artifacts_index.source_verification_report_ref",
         "artifacts_index.verified_policy_report_ref",
         "artifacts_index.bounds_bundle_ref",
         "artifacts_index.decision_readiness_contract_ref",
     ],
-    state_writes=[f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}"],
-    produces=[ARTIFACT_DECISION_PACKET_REF],
+    state_writes=[
+        f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
+        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+        f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
+    ],
+    produces=[
+        ARTIFACT_DECISION_PACKET_REF,
+        ARTIFACT_CLAIMS_REF,
+        ARTIFACT_VALIDATION_REPORT_REF,
+        ARTIFACT_JUDGE_VERDICT_REF,
+    ],
 )
 
 
@@ -315,10 +372,22 @@ class BuildDecisionPacketNode:
             "inputs": request.inputs_section,
             "artifacts": request.artifacts_section,
             "replay": replay_section,
+            "research_dag_ref": request.artifacts_section.get(ARTIFACT_RESEARCH_DAG_REF),
+            "research_dag_status": legacy_research_dag_status(
+                request.artifacts_section.get(ARTIFACT_RESEARCH_DAG_REF)
+            ),
+            "human_review": None,
+            "human_review_validation": None,
+            "web_evidence": None,
             "degraded_paths": [],
             "document_outline": [],
             "notes": [],
         }
+        packet_payload["web_evidence"] = _build_web_evidence_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
         packet_payload["uncertainty"] = _build_uncertainty_section(
             ctx,
             state.inputs,
@@ -480,11 +549,13 @@ class BuildDecisionPacketNode:
                     ),
                 )
 
+        governance_report: GovernanceReport | None = None
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
                 payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref.artifact_id))
                 report = GovernanceReport.model_validate(payload)
+                governance_report = report
                 packet_payload["governance"] = {
                     "verdict": report.verdict,
                     "issues": report.issues,
@@ -661,6 +732,149 @@ class BuildDecisionPacketNode:
                 ),
             )
 
+        claims_ref = _attach_claim_ledger_to_packet(ctx, state, packet_payload)
+        human_review_validation = _attach_human_review_projection(
+            ctx,
+            state,
+            packet_payload,
+            governance_report=governance_report,
+        )
+        claim_gate = validate_naked_decision_claims(
+            packet_payload,
+            claims_ref=claims_ref,
+            workflow_id=str(state.params.get("workflow_id") or ""),
+            fail_on_naked_claims=is_fail_on_naked_claims_enabled(state.params),
+        )
+        packet_payload["claim_ledger_validation"] = claim_gate.model_dump(mode="json")
+        if not claim_gate.passed:
+            write_paths = [f"artifacts_index.{ARTIFACT_CLAIMS_REF}"] if claims_ref else []
+            new_state = branch_state(state, write_paths=tuple(write_paths)).state
+            if claims_ref is not None:
+                new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                artifacts=[claims_ref] if claims_ref is not None else [],
+                events=[
+                    NodeEvent(
+                        level="error",
+                        message="Claim spine validation blocked decision packet publication.",
+                    )
+                ],
+                error=NodeError(
+                    code="claim_spine_validation_failed",
+                    message="Decision packet contains decision-bearing claims without claims_ref",
+                    details=claim_gate.model_dump(mode="json"),
+                ),
+            )
+        if not human_review_validation.passed:
+            write_paths = [f"artifacts_index.{ARTIFACT_CLAIMS_REF}"] if claims_ref else []
+            new_state = branch_state(state, write_paths=tuple(write_paths)).state
+            if claims_ref is not None:
+                new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                artifacts=[claims_ref] if claims_ref is not None else [],
+                events=[
+                    NodeEvent(
+                        level="error",
+                        message="Human review validation blocked decision packet publication.",
+                    )
+                ],
+                error=NodeError(
+                    code="human_review_validation_failed",
+                    message="Decision packet human-review readiness requires review refs",
+                    details=human_review_validation.model_dump(mode="json"),
+                ),
+            )
+        if (
+            is_research_dag_required_for_publication(state.params)
+            and request.artifacts_section.get(ARTIFACT_RESEARCH_DAG_REF) is None
+        ):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="error",
+                        message="Research DAG sidecar is required for publication.",
+                    )
+                ],
+                error=NodeError(
+                    code="research_dag_missing_for_publication",
+                    message="Decision packet publication requires research_dag_ref",
+                    details={"research_dag_status": "legacy_missing"},
+                ),
+            )
+
+        validation_ref: ValidationReportRef | None = None
+        judge_verdict_ref: ArtifactRef | None = None
+        if _should_run_phase5_publication_preflight(state):
+            publication = run_phase5_artifact_preflight(
+                ctx,
+                state,
+                Phase5ArtifactPreflightInput(
+                    artifact_payload=packet_payload,
+                    artifact_kind="scientist.decision_packet",
+                    generated_for="scientist.decision_packet",
+                    analyst_facing=True,
+                    base_readiness="ready",
+                ),
+            )
+            validation_report = publication.validation_report
+            validation_ref = ValidationReportRef.model_validate(
+                dict(publication.validation_ref)
+            )
+            judge_verdict_ref = publication.judge_verdict_ref
+            try:
+                enforce_phase5_publication(publication)
+            except Phase5ValidationBlocked:
+                write_paths = [
+                    f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                    f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+                ]
+                if judge_verdict_ref is not None:
+                    write_paths.append(f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}")
+                new_state = branch_state(
+                    state,
+                    write_paths=tuple(write_paths),
+                ).state
+                new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
+                if claims_ref is not None:
+                    new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+                if judge_verdict_ref is not None:
+                    new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = judge_verdict_ref
+                return NodeOutcome(
+                    status="fail",
+                    state=new_state,
+                    events=[
+                        NodeEvent(
+                            level="error",
+                            message="Phase 5 validation blocked decision packet publication.",
+                        )
+                    ],
+                    artifacts=[
+                        artifact
+                        for artifact in (validation_ref, judge_verdict_ref)
+                        if artifact is not None
+                    ],
+                    error=NodeError(
+                        code="phase5_validation_failed",
+                        message="Phase 5 validation blocked analyst-facing publication",
+                        details={
+                            "validation_report_ref": str(validation_ref.artifact_id),
+                            "verdict": validation_report.verdict,
+                            "readiness": validation_report.readiness,
+                            "gate_failures": list(validation_report.gate_failures),
+                        },
+                    ),
+                )
+
+            packet_payload["validation_report_ref"] = validation_ref.model_dump(mode="json")
+            if judge_verdict_ref is not None:
+                packet_payload["judge_verdict_ref"] = judge_verdict_ref.model_dump(mode="json")
+            packet_payload["validation"] = _phase5_validation_summary(validation_report)
         inputs = _build_manifest_inputs(packet_payload)
 
         packet_ref_payload = ctx.store.put_json(
@@ -677,6 +891,7 @@ class BuildDecisionPacketNode:
             canon_spec=CanonSpec(forbid_floats=False),
         )
         packet_ref = DecisionPacketRef(artifact_id=packet_ref_payload.artifact_id)
+        sensitivity_bundle_ref = _sensitivity_analysis_bundle_ref_from_packet(packet_payload)
         DecisionValidityService(ctx.store).register_decision_packet(
             packet_ref=str(packet_ref.artifact_id),
             envelope=validity_envelope,
@@ -686,11 +901,208 @@ class BuildDecisionPacketNode:
 
         new_state = branch_state(
             state,
-            write_paths=("artifacts_index.decision_packet_ref",),
+            write_paths=(
+                f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+                f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
+            ),
         ).state
         new_state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = packet_ref
+        if claims_ref is not None:
+            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+        if validation_ref is not None:
+            new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
+        if judge_verdict_ref is not None:
+            new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = judge_verdict_ref
+        if sensitivity_bundle_ref is not None:
+            new_state.artifacts_index[ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF] = (
+                sensitivity_bundle_ref
+            )
 
-        return NodeOutcome(status="ok", state=new_state, artifacts=[packet_ref])
+        return NodeOutcome(
+            status="ok",
+            state=new_state,
+            artifacts=[
+                artifact
+                for artifact in (packet_ref, claims_ref, validation_ref, judge_verdict_ref)
+                if artifact is not None
+            ],
+        )
+
+
+def _phase5_validation_summary(report: Any) -> dict[str, Any]:
+    """Return the compact in-packet Phase-5 validation summary."""
+
+    return {
+        "schema_version": getattr(report, "schema_version", "2.0"),
+        "verdict": report.verdict,
+        "readiness": report.readiness,
+        "gate_failures": list(report.gate_failures),
+        "components": [
+            {
+                "name": component.name,
+                "status": component.status,
+                "required": component.required,
+            }
+            for component in report.phase5_components
+        ],
+    }
+
+
+def _should_run_phase5_publication_preflight(state: ExperimentState) -> bool:
+    """Return whether this packet is explicitly opted into Phase-5 publication checks."""
+
+    params = state.params
+    if state.artifacts_index.get(ARTIFACT_JUDGE_VERDICT_REF) is not None:
+        return True
+    return any(
+        bool(params.get(key))
+        for key in (
+            "phase5_enforce_publication",
+            "phase5_require_judge_verdict",
+            "phase5_require_advisor_consensus",
+            "phase5_requires_fairness",
+            "phase5_judge_input_bundle",
+            "judge_input_bundle",
+            "judge_verdict",
+            "high_impact",
+        )
+    )
+
+
+def _attach_human_review_projection(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+    *,
+    governance_report: GovernanceReport | None = None,
+):
+    """Attach Phase 1.6 human-review status and validate release claims."""
+
+    review_packet_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_PACKET_REF)
+    review_decision_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_DECISION_REF)
+    review_packet = None
+    review_decisions = None
+    if review_packet_ref is not None:
+        try:
+            review_packet = load_review_packet(ctx.store, review_packet_ref)
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_human_review_packet",
+                reason="human_review_packet_load_failed",
+                exc=exc,
+                ref=review_packet_ref,
+                artifact_key=ARTIFACT_HUMAN_REVIEW_PACKET_REF,
+            )
+    if review_decision_ref is not None:
+        try:
+            review_decisions = [load_review_decision(ctx.store, review_decision_ref)]
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            review_decisions = []
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_human_review_decision",
+                reason="human_review_decision_load_failed",
+                exc=exc,
+                ref=review_decision_ref,
+                artifact_key=ARTIFACT_HUMAN_REVIEW_DECISION_REF,
+            )
+    requirement = evaluate_human_review_requirement(
+        params=state.params,
+        governance_report=governance_report,
+        packet_payload=packet_payload,
+    )
+    packet_payload["human_review"] = human_review_section(
+        requirement=requirement,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+        decisions=review_decisions,
+        packet=review_packet,
+    )
+    validation = validate_human_reviewed_readiness(
+        packet_payload,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+        decisions=review_decisions,
+        packet=review_packet,
+        requirement=requirement,
+    )
+    packet_payload["human_review_validation"] = validation.model_dump(mode="json")
+    artifacts = packet_payload.get("artifacts")
+    if isinstance(artifacts, dict):
+        if review_packet_ref is not None:
+            artifacts[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = str(review_packet_ref.artifact_id)
+        if review_decision_ref is not None:
+            artifacts[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = str(
+                review_decision_ref.artifact_id
+            )
+    return validation
+
+
+def _attach_claim_ledger_to_packet(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+) -> ArtifactRef | None:
+    """Persist and attach the Phase 1.1 claim ledger sidecar for a packet."""
+
+    if not is_claim_spine_enabled(state.params):
+        packet_payload["claim_ledger_status"] = "disabled"
+        return None
+
+    source_refs = _claim_source_artifact_refs(state)
+    decision_readiness_ref = state.artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
+    ledger = project_decision_packet_claims(
+        packet_payload,
+        run_id=state.run_id,
+        source_artifact_refs=source_refs,
+        decision_readiness_ref=decision_readiness_ref,
+    )
+    claims_ref = persist_claim_ledger(ctx.store, ledger)
+    packet_payload["claims_ref"] = str(claims_ref.artifact_id)
+    packet_payload["claim_ledger_status"] = "available"
+    packet_payload["claim_readiness_summary"] = summarize_ledger_readiness(ledger)
+    artifacts = packet_payload.get("artifacts")
+    if isinstance(artifacts, dict):
+        artifacts[ARTIFACT_CLAIMS_REF] = str(claims_ref.artifact_id)
+    return claims_ref
+
+
+def _claim_source_artifact_refs(state: ExperimentState) -> list[ArtifactRef]:
+    refs: list[ArtifactRef] = []
+    refs.extend(state.inputs.values())
+    refs.extend(state.artifacts_index.values())
+    refs.extend(state.reports_index.values())
+    output: list[ArtifactRef] = []
+    seen: set[str] = set()
+    for ref in refs:
+        artifact_id = str(ref.artifact_id)
+        if artifact_id in seen:
+            continue
+        seen.add(artifact_id)
+        output.append(ref)
+    return output
+
+
+def _sensitivity_analysis_bundle_ref_from_packet(
+    packet_payload: dict[str, object],
+) -> SensitivityAnalysisBundleRef | None:
+    section = packet_payload.get("sensitivity")
+    if not isinstance(section, dict):
+        return None
+    ref = section.get("sensitivity_analysis_bundle_ref")
+    if not isinstance(ref, str):
+        return None
+    return SensitivityAnalysisBundleRef.model_validate(
+        {
+            "artifact_id": ref,
+            "kind": "scientist.sensitivity_analysis_bundle",
+            "media_type": "application/json",
+        }
+    )
 
 
 def _build_decision_packet_request(
@@ -755,6 +1167,9 @@ def _build_artifacts_section(
         ARTIFACT_METRIC_VALIDATION_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_METRIC_VALIDATION_REPORT_REF
         ),
+        ARTIFACT_WEB_EVIDENCE_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_WEB_EVIDENCE_BUNDLE_REF
+        ),
         ARTIFACT_INPUT_BINDING_REPORT_REF: _ref_from_dict(
             artifacts_index,
             ARTIFACT_INPUT_BINDING_REPORT_REF,
@@ -808,6 +1223,14 @@ def _build_artifacts_section(
             artifacts_index, ARTIFACT_ECONOMETRIC_ENVELOPE_REF
         ),
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
+        ARTIFACT_CLAIMS_REF: _ref_from_dict(artifacts_index, ARTIFACT_CLAIMS_REF),
+        ARTIFACT_RESEARCH_DAG_REF: _ref_from_dict(artifacts_index, ARTIFACT_RESEARCH_DAG_REF),
+        ARTIFACT_HUMAN_REVIEW_PACKET_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_HUMAN_REVIEW_PACKET_REF
+        ),
+        ARTIFACT_HUMAN_REVIEW_DECISION_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_HUMAN_REVIEW_DECISION_REF
+        ),
         ARTIFACT_DECISION_READINESS_CONTRACT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_DECISION_READINESS_CONTRACT_REF
         ),
@@ -852,6 +1275,85 @@ def _build_runtime_contracts_section(state: ExperimentState) -> dict[str, object
             if state.capability_manifest_ref is not None
             else None
         ),
+    }
+
+
+def _build_web_evidence_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object] | None:
+    ref = artifacts_index.get(ARTIFACT_WEB_EVIDENCE_BUNDLE_REF)
+    if ref is None:
+        return None
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        bundle = WebEvidenceBundle.model_validate(payload)
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_web_evidence_bundle",
+            reason="web_evidence_bundle_load_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_WEB_EVIDENCE_BUNDLE_REF,
+        )
+        return {
+            "status": "parse_failed",
+            "web_evidence_bundle_ref": str(ref.artifact_id),
+        }
+
+    source_title_by_id = {
+        source.source_id: source.title or source.domain for source in bundle.sources
+    }
+    return {
+        "status": "available",
+        "web_evidence_bundle_ref": str(ref.artifact_id),
+        "bundle_id": bundle.bundle_id,
+        "source_count": len(bundle.sources),
+        "snippet_count": len(bundle.snippets),
+        "claim_support_count": len(bundle.claim_supports),
+        "fetch_safety_events": [
+            event.model_dump(mode="json", exclude_none=True)
+            for event in bundle.fetch_safety_events[:20]
+        ],
+        "source_quality_signals": [
+            signal.model_dump(mode="json", exclude_none=True)
+            for signal in bundle.source_quality_signals[:50]
+        ],
+        "claim_supports": [
+            {
+                "claim_id": support.claim_id,
+                "claim_id_namespace": support.metadata.get(
+                    "claim_id_namespace",
+                    "legacy_local",
+                ),
+                "support_status": support.metadata.get("support_status"),
+                "support_score": support.support_score,
+                "conflict_score": support.conflict_score,
+                "snippet_ids": list(support.snippet_ids),
+                "source_ids": list(support.source_ids),
+                "uncertainty_note": support.uncertainty_note,
+            }
+            for support in bundle.claim_supports[:50]
+        ],
+        "snippets": [
+            {
+                "snippet_id": snippet.snippet_id,
+                "source_id": snippet.source_id,
+                "source_title": source_title_by_id.get(snippet.source_id),
+                "url": str(snippet.url),
+                "start_char": snippet.start_char,
+                "end_char": snippet.end_char,
+                "text": neutralize_instruction_markers(
+                    snippet.text.replace("\n", " ").strip()
+                )[:600],
+                "untrusted_evidence_text": True,
+            }
+            for snippet in bundle.snippets[:50]
+        ],
+        "uncertainty_notes": list(bundle.uncertainty_notes),
     }
 
 
@@ -2488,6 +2990,25 @@ def _build_sensitivity_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    canonical_ref = artifacts_index.get(ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF)
+    if canonical_ref is not None:
+        try:
+            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(canonical_ref.artifact_id))
+            return {
+                "ref": str(canonical_ref.artifact_id),
+                "sensitivity_analysis_bundle_ref": str(canonical_ref.artifact_id),
+                "content": artifact_obj,
+            }
+        except _DECISION_PACKET_LOAD_ERRORS as exc:
+            _record_decision_packet_section_degraded(
+                packet_payload,
+                operation="load_sensitivity_analysis_bundle",
+                reason="sensitivity_analysis_bundle_load_failed",
+                exc=exc,
+                ref=canonical_ref,
+                artifact_key=ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
+            )
+
     ref = artifacts_index.get(ARTIFACT_SENSITIVITY_RESULT_REF)
     if ref is None:
         return None
@@ -2524,6 +3045,29 @@ def _build_sensitivity_section(
         return payload
 
     content = result.model_dump(mode="json")
+    try:
+        bundle = sensitivity_analysis_bundle_from_result(
+            result,
+            bundle_id=f"legacy_sensitivity_result_{str(ref.artifact_id)[:12]}",
+            source_ref=str(ref.artifact_id),
+        )
+        bundle_ref = persist_sensitivity_analysis_bundle(
+            ctx.store,
+            bundle,
+            inputs=[InputRef(artifact_id=ref.artifact_id, role="legacy_sensitivity_result")],
+        )
+        payload["sensitivity_analysis_bundle_ref"] = str(bundle_ref.artifact_id)
+        payload["sensitivity_analysis_bundle"] = bundle.model_dump(mode="json")
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        payload["parse_warning"] = "sensitivity_bundle_wrap_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="wrap_sensitivity_analysis_bundle",
+            reason="sensitivity_bundle_wrap_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
+        )
     content["summary"] = {
         "status": "robust" if result.is_robust else "fragile",
         "e_value": result.e_value,
@@ -3587,6 +4131,10 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("norm_impact", "norm_impact"),
         ("sensitivity", "sensitivity"),
         ("stress_test", "stress_test"),
+        ("claims_ref", "claims"),
+        ("human_review", "human_review"),
+        ("validation_report_ref", "validation_report"),
+        ("judge_verdict_ref", "judge_verdict"),
     ):
         section = packet_payload.get(section_name)
         _collect_manifest_refs(section, prefix, collected)

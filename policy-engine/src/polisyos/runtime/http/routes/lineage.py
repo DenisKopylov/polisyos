@@ -137,10 +137,11 @@ if router is not None:
             tenant_id=tenant_ids[0] if tenant_ids else getattr(request.state, "tenant_id", None),
             kind="runtime.lineage_batch",
         )
-        lineages = [
-            _build_runtime_lineage(ctx, lineage_id, temporal_scope=temporal_scope)
-            for lineage_id in body.lineage_ids
-        ]
+        lineages = _build_runtime_lineage_batch(
+            ctx,
+            body.lineage_ids,
+            temporal_scope=temporal_scope,
+        )
         record_data_access_audit(
             request,
             resource_id="lineage.batch",
@@ -282,6 +283,34 @@ def _build_runtime_lineage(
     else:
         lineage = ctx.lineage.build_runtime_lineage(lineage_id)
     return _with_trust_metadata(lineage, temporal_scope=temporal_scope)
+
+
+def _build_runtime_lineage_batch(
+    ctx: RuntimeApiContext,
+    lineage_ids: list[str],
+    *,
+    temporal_scope: TemporalScope | None = None,
+) -> list[LineageGraphView]:
+    scenario_lineage_by_id: dict[str, LineageGraphView] = {}
+    runtime_ids: list[str] = []
+    for lineage_id in lineage_ids:
+        if ctx.scenarios.is_scenario_lineage(lineage_id):
+            if lineage_id not in scenario_lineage_by_id:
+                scenario_lineage_by_id[lineage_id] = ctx.scenarios.build_lineage(lineage_id)
+        elif lineage_id not in runtime_ids:
+            runtime_ids.append(lineage_id)
+
+    runtime_lineage_by_id = {
+        lineage.id: lineage for lineage in ctx.lineage.build_runtime_lineage_batch(runtime_ids)
+    }
+    lineages: list[LineageGraphView] = []
+    for lineage_id in lineage_ids:
+        if lineage_id in scenario_lineage_by_id:
+            lineage = scenario_lineage_by_id[lineage_id]
+        else:
+            lineage = runtime_lineage_by_id[lineage_id]
+        lineages.append(_with_trust_metadata(lineage, temporal_scope=temporal_scope))
+    return lineages
 
 
 def _with_trust_metadata(

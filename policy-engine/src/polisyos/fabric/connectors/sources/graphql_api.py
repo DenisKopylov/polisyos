@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from datetime import UTC, datetime
 from typing import Any, ClassVar
+
+import aiohttp
 
 from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
@@ -16,8 +19,14 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts import infer_schema
-from polisyos.fabric.connectors.types import ValidationIssue, ValidationResult, ValidationSeverity
+from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
+from polisyos.fabric.connectors.types import (
+    FetchError,
+    ValidationIssue,
+    ValidationResult,
+    ValidationSeverity,
+)
 from polisyos.fabric.safety import extract_bounded_data_path, validate_data_path
 from polisyos.fabric.tabular import payload_to_dataframe
 from polisyos.ir.connectors import (
@@ -29,6 +38,20 @@ from polisyos.ir.connectors import (
     VersionStrategy,
     capabilities_from_flags,
 )
+
+_DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024
+_DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
+_DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
+
+
+def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+    raw = headers.get(header_name)
+    if raw in (None, ""):
+        return default
+    value = int(raw)
+    if value <= 0:
+        raise ValueError(f"{header_name} must be a positive integer")
+    return value
 
 
 class GraphQLConnector(BaseConnector[Any]):
@@ -61,6 +84,8 @@ class GraphQLConnector(BaseConnector[Any]):
         description="Generic GraphQL API connector with configurable query documents.",
     )
     _STATE_KEY: ClassVar[str] = "graphql_api"
+    _STATE_SESSION_KEY: ClassVar[str] = "graphql_api.http_session"
+    _STATE_SESSION_LOCK_KEY: ClassVar[str] = "graphql_api.http_session_lock"
 
     def _query_document(self, config: ConnectionConfig) -> str:
         query = str(config.headers.get("X-GraphQL-Query", "")).strip()
@@ -86,10 +111,35 @@ class GraphQLConnector(BaseConnector[Any]):
             raise ValueError(f"invalid {self.connector_id} config: {issues}")
         handle = self._create_handle(config)
         handle.set_state(self._STATE_KEY, {"schema_by_dataset": {}})
+        handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
-        del handle
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is not None and not session.closed:
+                await session.close()
+            handle.set_state(self._STATE_SESSION_KEY, None)
+
+    def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
+        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
+        if isinstance(lock, asyncio.Lock):
+            return lock
+        lock = asyncio.Lock()
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
+        return lock
+
+    async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is None or session.closed:
+                timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+                session = aiohttp.ClientSession(timeout=timeout)
+                handle.set_state(self._STATE_SESSION_KEY, session)
+            return session
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         started = time.monotonic()
@@ -110,22 +160,52 @@ class GraphQLConnector(BaseConnector[Any]):
         query: str,
         variables: dict[str, Any],
     ) -> tuple[Any, bytes]:
-        import aiohttp
-
         payload = {"query": query, "variables": variables}
         raw = json.dumps(payload, sort_keys=True).encode("utf-8")
-        timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+        session = await self._get_session(handle)
         async with (
-            aiohttp.ClientSession(timeout=timeout) as session,
             session.post(
                 handle.config.url,
                 headers=self._transport_headers(handle.config),
                 data=raw,
+                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
             ) as response,
         ):
             response.raise_for_status()
-            body = await response.read()
-        parsed = json.loads(body.decode("utf-8"))
+            body = await read_bounded_response_body(
+                response,
+                connector_id=self.connector_id,
+                url=handle.config.url,
+                max_response_bytes=_positive_int_header(
+                    handle.config.headers,
+                    "X-GraphQL-MaxResponseBytes",
+                    _DEFAULT_MAX_RESPONSE_BYTES,
+                ),
+                max_decompressed_bytes=_positive_int_header(
+                    handle.config.headers,
+                    "X-GraphQL-MaxDecompressedBytes",
+                    _DEFAULT_MAX_DECOMPRESSED_BYTES,
+                ),
+            )
+        max_json_bytes = _positive_int_header(
+            handle.config.headers,
+            "X-GraphQL-MaxJsonBytes",
+            _DEFAULT_MAX_JSON_BYTES,
+        )
+        if len(body) > max_json_bytes:
+            raise FetchError(
+                message=f"GraphQL JSON body exceeds safe limit ({len(body)} > {max_json_bytes})",
+                connector_id=self.connector_id,
+                request_params={"url": handle.config.url},
+            )
+        try:
+            parsed = json.loads(body.decode("utf-8"))
+        except json.JSONDecodeError as exc:
+            raise FetchError(
+                message=f"GraphQL JSON decode failed: {exc}",
+                connector_id=self.connector_id,
+                request_params={"url": handle.config.url},
+            ) from exc
         if parsed.get("errors"):
             raise ValueError(f"graphql errors: {parsed['errors']}")
         return parsed, body
@@ -161,7 +241,7 @@ class GraphQLConnector(BaseConnector[Any]):
         if frame is None:
             frame = pd.DataFrame(rows)
         fetched_at = datetime.now(UTC)
-        schema_id = f"{self.connector_id}.{request.dataset_id or 'query'}"
+        schema_id = make_schema_id(self.connector_id, request.dataset_id or "query")
         schema = infer_schema(frame, schema_id=schema_id)
         state = handle.get_state(self._STATE_KEY) or {}
         schema_by_dataset = dict(state.get("schema_by_dataset", {}))
@@ -171,6 +251,7 @@ class GraphQLConnector(BaseConnector[Any]):
             "fields": [
                 {
                     "name": field.name,
+                    "field_id": field.stable_id,
                     "data_type": field.data_type.value,
                     "nullable": field.nullable,
                 }
@@ -246,6 +327,21 @@ class GraphQLConnector(BaseConnector[Any]):
                     message=str(exc),
                 )
             )
+        for header_name, default in (
+            ("X-GraphQL-MaxResponseBytes", _DEFAULT_MAX_RESPONSE_BYTES),
+            ("X-GraphQL-MaxJsonBytes", _DEFAULT_MAX_JSON_BYTES),
+            ("X-GraphQL-MaxDecompressedBytes", _DEFAULT_MAX_DECOMPRESSED_BYTES),
+        ):
+            try:
+                _positive_int_header(config.headers, header_name, default)
+            except (TypeError, ValueError) as exc:
+                issues.append(
+                    ValidationIssue(
+                        severity=ValidationSeverity.ERROR,
+                        field=header_name,
+                        message=str(exc),
+                    )
+                )
         return ValidationResult(valid=not issues, issues=tuple(issues))
 
 

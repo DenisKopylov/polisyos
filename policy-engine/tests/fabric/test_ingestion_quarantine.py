@@ -84,3 +84,22 @@ def test_non_finite_metrics_are_quarantined_per_row(tmp_path):
     records = list_quarantine_records(store, source="connector.fetch:test.conn:demo")
     assert len(records) == 1
     assert records[0][1].reason == "non_finite_metric"
+
+
+def test_non_finite_nan_is_quarantined_even_when_field_is_not_metric_named(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    result, warnings, quarantined = _sanitize_fetch_result(
+        _fetch_result(
+            [
+                {"population": 10.0, "country": "US"},
+                {"population": float("nan"), "country": "UA"},
+            ]
+        ),
+        connector_id="test.conn",
+        dataset_id="demo",
+        cas_store=store,
+    )
+
+    assert quarantined == 1
+    assert result.row_count == 1
+    assert any("non_finite_metric" in warning for warning in warnings)

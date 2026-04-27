@@ -36,6 +36,8 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.projections import project_causal_validity_bundle_claims
 from polisyos.scientist.compute.job_spec import JobResult, JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.frontier_runtime import (
@@ -170,6 +172,18 @@ def persist_causal_validity_bundle(
         "frontier_runtime": frontier_report.model_dump(mode="python"),
         "warnings": warnings,
     }
+    claim_source_refs = [ref for ref in (sensitivity_ref,) if ref is not None]
+    claim_ledger = project_causal_validity_bundle_claims(
+        payload,
+        run_id=state.run_id,
+        source_artifact_refs=claim_source_refs,
+    )
+    claims_ref = persist_claim_ledger(
+        ctx.store,
+        claim_ledger,
+        inputs=bundle_inputs or None,
+    )
+    payload["claims_ref"] = str(claims_ref.artifact_id)
     return ctx.store.put_json(
         payload,
         PutOptions(

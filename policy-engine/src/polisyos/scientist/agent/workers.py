@@ -272,6 +272,21 @@ def build_scholar_search_worker_handler(
             ),
             budgets=_search_budgets_from_hints(task.budget_hints),
         )
+        from polisyos.scientist.evidence.safe_fetch import detect_prompt_injection
+        from polisyos.scientist.evidence.source_quality import score_web_evidence_bundle_sources
+
+        source_quality_signals = score_web_evidence_bundle_sources(bundle)
+        fetch_safety_events = list(bundle.fetch_safety_events)
+        for snippet in bundle.snippets:
+            fetch_safety_events.extend(
+                detect_prompt_injection(snippet.text, url=str(snippet.url))
+            )
+        bundle = bundle.model_copy(
+            update={
+                "source_quality_signals": source_quality_signals,
+                "fetch_safety_events": fetch_safety_events,
+            }
+        )
         title_by_source_id = {
             source.source_id: source.title for source in bundle.sources if source.title
         }
@@ -305,6 +320,12 @@ def build_scholar_search_worker_handler(
                 "query_traces": [trace.model_dump(mode="json") for trace in bundle.query_traces],
                 "claim_supports": [link.model_dump(mode="json") for link in bundle.claim_supports],
                 "sources": [source.model_dump(mode="json") for source in bundle.sources],
+                "source_quality_signals": [
+                    signal.model_dump(mode="json") for signal in bundle.source_quality_signals
+                ],
+                "fetch_safety_events": [
+                    event.model_dump(mode="json") for event in bundle.fetch_safety_events
+                ],
                 "uncertainty_notes": list(bundle.uncertainty_notes),
                 "partial": bundle.partial,
             },

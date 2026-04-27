@@ -50,6 +50,10 @@ from unittest.mock import patch
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
+from polisyos.fabric.io.atomic import atomic_write_text
+
+_MAX_RECORDED_FIXTURE_BYTES = 50 * 1024 * 1024
 
 # ---------------------------------------------------------------------------
 # Enums & data objects
@@ -125,7 +129,7 @@ class SimulatorFixture:
     def write(self, path: Path) -> None:
         """Persist fixture to path (creates parent dirs)."""
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+        atomic_write_text(path, json.dumps(self.to_dict(), indent=2))
 
     @classmethod
     def read(cls, path: Path) -> SimulatorFixture:
@@ -282,12 +286,14 @@ class APISimulator:
         connector_id: str = "unknown",
         dataset_id: str | None = None,
         schema: Any | None = None,
+        max_call_log_entries: int = 10_000,
     ) -> None:
         self.mode = mode
         self.fixture_root = fixture_root or Path("tests/fabric/connectors/fixtures")
         self.connector_id = connector_id
         self.dataset_id = dataset_id or "unknown"
         self.schema = schema
+        self.max_call_log_entries = max(1, max_call_log_entries)
 
         # Internal call log for assertion helpers
         self._call_log: list[dict[str, Any]] = []
@@ -353,6 +359,8 @@ class APISimulator:
                 "timestamp": time.monotonic(),
             }
         )
+        if len(self._call_log) > self.max_call_log_entries:
+            del self._call_log[: len(self._call_log) - self.max_call_log_entries]
 
         match self.mode:
             case SimulatorMode.REPLAY:
@@ -413,7 +421,13 @@ class APISimulator:
 
         async with aiohttp.ClientSession() as session:
             async with self._orig_request(session, method, url, **kwargs) as resp:
-                body_bytes = await resp.read()
+                body_bytes = await read_bounded_response_body(
+                    resp,
+                    connector_id="api_simulator.record",
+                    url=url,
+                    max_response_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+                    max_decompressed_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+                )
                 headers = dict(resp.headers)
                 status = resp.status
 

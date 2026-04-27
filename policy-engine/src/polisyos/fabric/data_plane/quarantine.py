@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import threading
 import uuid
+from collections import OrderedDict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
@@ -37,7 +39,9 @@ _QUARANTINE_REPROCESS_SCHEMA = SchemaInfo(
 _INDEX_NAME = "quarantine_records.jsonl"
 _INDEX_LOCK_NAME = "quarantine_records.lock"
 _DEFAULT_RETRY_POLICY = {"mode": "deterministic_reprocess", "max_attempts": 1}
-_REPROCESSORS: dict[str, Callable[[Any, QuarantineRecord], Any]] = {}
+_MAX_REPROCESSORS = 512
+_REPROCESSORS: OrderedDict[str, Callable[[Any, QuarantineRecord], Any]] = OrderedDict()
+_REPROCESSORS_LOCK = threading.RLock()
 
 
 def _default_metrics() -> MetricsRegistry:
@@ -408,7 +412,11 @@ def register_quarantine_reprocessor(
     key = str(source).strip()
     if not key:
         raise ValueError("quarantine reprocessor source must not be empty")
-    _REPROCESSORS[key] = handler
+    with _REPROCESSORS_LOCK:
+        _REPROCESSORS.pop(key, None)
+        _REPROCESSORS[key] = handler
+        while len(_REPROCESSORS) > _MAX_REPROCESSORS:
+            _REPROCESSORS.popitem(last=False)
 
 
 def _resolve_reprocessor(
@@ -417,9 +425,12 @@ def _resolve_reprocessor(
 ) -> Callable[[Any, QuarantineRecord], Any]:
     if handler is not None:
         return handler
-    for prefix in sorted(_REPROCESSORS, key=len, reverse=True):
-        if source == prefix or source.startswith(prefix):
-            return _REPROCESSORS[prefix]
+    with _REPROCESSORS_LOCK:
+        for prefix in sorted(_REPROCESSORS, key=len, reverse=True):
+            if source == prefix or source.startswith(prefix):
+                resolved = _REPROCESSORS[prefix]
+                _REPROCESSORS.move_to_end(prefix)
+                return resolved
     raise KeyError(f"no quarantine reprocessor registered for source {source!r}")
 
 

@@ -48,6 +48,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "CompiledMethod": ("polisyos.foundry.methods.compiler", "CompiledMethod"),
     "CompiledMethodChain": ("polisyos.foundry.methods.composer", "CompiledMethodChain"),
     "ComparatorKind": ("polisyos.foundry.methods.equivalence", "ComparatorKind"),
+    "ConsensusTarget": ("polisyos.foundry.methods.consensus", "ConsensusTarget"),
     "ComplexityClass": ("polisyos.foundry.methods.base", "ComplexityClass"),
     "ComponentsBridgeError": (
         "polisyos.foundry.methods.components_bridge",
@@ -67,6 +68,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.equivalence",
         "CrossBackendEquivalenceCertificate",
     ),
+    "CrossMethodConsensus": ("polisyos.foundry.methods.consensus", "CrossMethodConsensus"),
     "CyclicDependencyError": (
         "polisyos.foundry.methods.exceptions",
         "CyclicDependencyError",
@@ -103,6 +105,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "EQUIVALENCE_ATTESTATION_SCHEMA_VERSION",
     ),
     "EntryPointSource": ("polisyos.foundry.methods.discovery", "EntryPointSource"),
+    "EstimandSpec": ("polisyos.foundry.methods.consensus", "EstimandSpec"),
     "EquivalenceCertificateResolver": (
         "polisyos.foundry.methods.equivalence",
         "EquivalenceCertificateResolver",
@@ -185,6 +188,11 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.deprecation",
         "MethodRetiredException",
     ),
+    "MisspecificationClassification": (
+        "polisyos.foundry.methods.consensus",
+        "MisspecificationClassification",
+    ),
+    "NotComparableYet": ("polisyos.foundry.methods.consensus", "NotComparableYet"),
     "MethodRunner": ("polisyos.foundry.methods.backends", "MethodRunner"),
     "MethodScoreTraceEntry": (
         "polisyos.foundry.methods.selection",
@@ -203,6 +211,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.exceptions",
         "ParameterValidationError",
     ),
+    "PairwiseDisagreement": ("polisyos.foundry.methods.consensus", "PairwiseDisagreement"),
     "PersistedEquivalenceArtifacts": (
         "polisyos.foundry.methods.equivalence",
         "PersistedEquivalenceArtifacts",
@@ -255,6 +264,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "UnitMismatchError": ("polisyos.foundry.methods.exceptions", "UnitMismatchError"),
     "VersionConstraint": ("polisyos.foundry.methods.resolution", "VersionConstraint"),
     "advise_methods": ("polisyos.foundry.methods.selection", "advise_methods"),
+    "advise_methods_for_analyst": (
+        "polisyos.foundry.methods.selection",
+        "advise_methods_for_analyst",
+    ),
     "assert_no_breaking_changes": (
         "polisyos.foundry.methods.compat",
         "assert_no_breaking_changes",
@@ -322,6 +335,22 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "compare_field_values",
     ),
     "compare_versions": ("polisyos.foundry.methods.resolution", "compare_versions"),
+    "compute_distributional_check": (
+        "polisyos.foundry.methods.consensus",
+        "compute_distributional_check",
+    ),
+    "compute_hausman_like_check": (
+        "polisyos.foundry.methods.consensus",
+        "compute_hausman_like_check",
+    ),
+    "compute_pairwise_checks": (
+        "polisyos.foundry.methods.consensus",
+        "compute_pairwise_checks",
+    ),
+    "compute_projection_checks": (
+        "polisyos.foundry.methods.consensus",
+        "compute_projection_checks",
+    ),
     "compute_source_fingerprint": (
         "polisyos.foundry.methods.artifacts",
         "compute_source_fingerprint",
@@ -431,6 +460,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "suggest_plan_node_alternatives": (
         "polisyos.foundry.methods.selection",
         "suggest_plan_node_alternatives",
+    ),
+    "run_cross_method_consensus": (
+        "polisyos.foundry.methods.consensus",
+        "run_cross_method_consensus",
     ),
     "tag_deprecated_in_registry": (
         "polisyos.foundry.methods.deprecation",

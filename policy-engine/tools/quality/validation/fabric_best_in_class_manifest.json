@@ -1,0 +1,1827 @@
+{
+  "coverage": {
+    "access_classification": {
+      "access_control_module": true,
+      "column_mask_module": true,
+      "pii_stage_module": true,
+      "status": "partial",
+      "tests": [
+        "tests/fabric/test_access_control.py",
+        "tests/fabric/test_duckdb_storage_access_control.py",
+        "tests/fabric/test_world_query_column_masking.py"
+      ]
+    },
+    "decision_data_envelope": {
+      "coverage_report": true,
+      "decision_data_module": true,
+      "naked_decision_values": 0,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_decision_data_envelope.py",
+        "tests/runtime/http/test_lineage_routes.py",
+        "tests/runtime/http/test_temporal_routes.py",
+        "tests/tools/test_fabric_decision_data_coverage.py"
+      ],
+      "trust_envelope_schema": true,
+      "typed_gap_states": [
+        "untraced",
+        "unknown_quality",
+        "restricted",
+        "non_replayable",
+        "unsupported_temporal_scope"
+      ]
+    },
+    "lineage_nodes_edges": {
+      "lineage_module": true,
+      "openlineage_export": true,
+      "prov_export": true,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_lineage.py",
+        "tests/fabric/test_fabric_observability.py",
+        "tests/fabric/test_provenance.py"
+      ]
+    },
+    "observability_governance": {
+      "connector_governance_metadata": true,
+      "quality_evidence": true,
+      "slo_contract": true,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_observability_governance_quality_phase4.py"
+      ]
+    },
+    "public_facade_exports": {
+      "export_count": 24,
+      "exports": [
+        "AccessRef",
+        "AuthoredText",
+        "FabricDecisionData",
+        "FabricDecisionDataCoverage",
+        "FabricDecisionDataResponse",
+        "LineageRef",
+        "QualityRef",
+        "ReplayRef",
+        "SourceContractRef",
+        "TemporalRef",
+        "TypedGap",
+        "UnitRef",
+        "WorldQueryError",
+        "WorldQueryRequest",
+        "execute_world_query",
+        "fabric_claim_to_authored_text",
+        "fabric_event_to_authored_text",
+        "fabric_fact_to_quantity_value",
+        "fabric_get_data",
+        "query_claims",
+        "query_events",
+        "query_world_table",
+        "run_connectors_ingestion",
+        "world"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_connector_bridge.py",
+        "tests/fabric/test_world_query_multibackend.py",
+        "tests/runtime/http/test_e2e_ingestion.py"
+      ]
+    },
+    "quality_contracts": {
+      "connector_quality_module_count": 7,
+      "contract_count": 5,
+      "profile_count": 38,
+      "quality_module": true,
+      "source_contract_v2_count": 20,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_quality_indicators.py",
+        "tests/fabric/connectors/test_quality_system.py",
+        "tests/fabric/connectors/test_quality_statistics.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ]
+    },
+    "replay_fixtures": {
+      "contract_snapshot_count": 5,
+      "non_replayable_reason_count": 20,
+      "production_entrypoint_count": 11,
+      "quarantine_module": true,
+      "record_replay_store": true,
+      "replay_fixture_count": 0,
+      "source_contract_v2_count": 20,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_record_replay.py",
+        "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/test_ingestion_quarantine.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ]
+    },
+    "source_contracts": {
+      "contract_ids": [
+        "eurostat.data.generic",
+        "sdmx.generic",
+        "ukons.datasets.generic",
+        "worldbank.wdi.generic",
+        "wvs.wave7.generic"
+      ],
+      "fabric_registry_contracts": 5,
+      "legacy_connector_contracts": 5,
+      "source_contract_v2_contracts": 20,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ]
+    },
+    "source_platform": {
+      "bounded_read_evidence_count": 20,
+      "classification_count": 20,
+      "non_replayable_reason_count": 20,
+      "replay_fixture_count": 0,
+      "source_contract_v2_count": 20,
+      "source_scorecard_count": 20,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ]
+    },
+    "source_profiles": {
+      "profile_count": 38,
+      "profile_ids": [
+        "bis_sdmx",
+        "chicago_opendata",
+        "data_gov_md",
+        "data_gov_pl",
+        "data_gov_ro",
+        "data_gov_ua",
+        "data_gov_uk",
+        "data_gov_us",
+        "dbpedia_sparql",
+        "ecb_sdmx",
+        "eia_api",
+        "eu_open_data",
+        "eurostat_public",
+        "fao_sdmx",
+        "files_demo_tabular",
+        "geojson_demo",
+        "graphql_demo",
+        "ilo_sdmx",
+        "imf_sdmx",
+        "nvd_cve",
+        "nyc_opendata",
+        "object_storage_demo",
+        "oecd_sdmx",
+        "open_meteo",
+        "openaq_v2",
+        "opendatasoft_public",
+        "paris_opendata",
+        "sqlite_demo",
+        "stream_jsonl_demo",
+        "ukons_public",
+        "unesco_uis_public",
+        "unpd_dataportal",
+        "unsd_sdmx",
+        "usgs_earthquake",
+        "who_gho",
+        "wikidata_sparql",
+        "worldbank_wdi",
+        "wvs_wave7"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/profiles/test_source_profiles.py"
+      ]
+    },
+    "temporal_support": {
+      "runtime_temporal_adapter": true,
+      "snapshot_store": true,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_world_time_travel.py",
+        "tests/fabric/test_world_materialization.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
+      ],
+      "world_query": true
+    },
+    "tests_by_plane": {
+      "evidence": [
+        "tests/fabric/data_plane/test_record_replay.py",
+        "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/test_ingestion_quarantine.py",
+        "tests/fabric/test_provenance.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "semantics": [
+        "tests/fabric/test_quality_indicators.py",
+        "tests/fabric/connectors/test_quality_system.py",
+        "tests/fabric/connectors/test_quality_statistics.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "source": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/connectors/test_registry.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/connectors/profiles/test_source_profiles.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "trust": [
+        "tests/fabric/test_lineage.py",
+        "tests/fabric/test_decision_data_envelope.py",
+        "tests/fabric/test_fabric_observability.py",
+        "tests/fabric/test_observability_governance_quality_phase4.py",
+        "tests/fabric/test_provenance.py",
+        "tests/fabric/test_access_control.py",
+        "tests/fabric/test_duckdb_storage_access_control.py",
+        "tests/fabric/test_world_query_column_masking.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/runtime/http/test_lineage_api.py",
+        "tests/runtime/http/test_lineage_routes.py",
+        "tests/tools/test_fabric_source_contracts.py",
+        "tests/tools/test_fabric_decision_data_coverage.py"
+      ],
+      "world": [
+        "tests/fabric/test_world_time_travel.py",
+        "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_query_multibackend.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
+      ]
+    }
+  },
+  "generated_at": "2026-04-26T00:00:00Z",
+  "phase": 0,
+  "phase_owner": "@fabric-owners",
+  "ratchet_mode": {
+    "after_phase_6": "decision-bearing untraced, unknown_quality, and non_replayable statuses require reason codes.",
+    "after_wave_1": "P0/P1 missing entries fail CI unless they carry accepted_risk metadata.",
+    "phase_0": "report_only"
+  },
+  "schema_version": "fabric.best_in_class_manifest.v1",
+  "status_model": {
+    "accepted_risk_required_fields": [
+      "owner",
+      "reason",
+      "review_date",
+      "expiry_date"
+    ],
+    "allowed_priorities": [
+      "P0",
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "allowed_severities": [
+      "P0",
+      "P1",
+      "P2",
+      "P3"
+    ],
+    "allowed_statuses": [
+      "implemented",
+      "partial",
+      "missing",
+      "not_applicable",
+      "accepted_risk",
+      "blocked_by_research"
+    ],
+    "planes": [
+      "source",
+      "evidence",
+      "semantics",
+      "world",
+      "trust"
+    ],
+    "report_only_until": "Wave 1 hardening ratchet"
+  },
+  "summary": {
+    "plane_counts": {
+      "evidence": 4,
+      "semantics": 6,
+      "source": 16,
+      "trust": 12,
+      "world": 5
+    },
+    "status_counts": {
+      "accepted_risk": 1,
+      "blocked_by_research": 1,
+      "implemented": 38,
+      "missing": 0,
+      "not_applicable": 1,
+      "partial": 2
+    },
+    "surface_count": 43
+  },
+  "surfaces": [
+    {
+      "description": "Evidence bundle helpers that persist provenance payloads into governed artifact storage.",
+      "docs": [
+        "docs/reference/fabric/lineage.md"
+      ],
+      "evidence": {
+        "evidence_module": true,
+        "provenance_bundle_tests": true
+      },
+      "id": "evidence.cas_evidence_bundle",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/evidence.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_provenance.py"
+      ],
+      "title": "CAS-backed evidence bundle persistence"
+    },
+    {
+      "description": "SourceContract v2 records either replay fixtures or explicit non-replayable reasons for production source contracts.",
+      "docs": [
+        "docs/reference/fabric/data-plane.md",
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "contract_snapshot_count": 5,
+        "non_replayable_reason_count": 20,
+        "production_entrypoint_count": 11,
+        "record_replay_tests_present": true,
+        "replay_fixture_count": 0,
+        "source_contract_v2_count": 20
+      },
+      "follow_up": "Phase 5: add replay fixtures for sources currently carrying explicit non-replayable reasons.",
+      "id": "evidence.production_source_replay_fixtures",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/data_plane/replay_store.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/data_plane/test_record_replay.py",
+        "tests/fabric/test_ingestion_quarantine.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Replay fixture or explicit non-replayable matrix"
+    },
+    {
+      "description": "Quarantine records, replay hooks, and DLQ operational coverage.",
+      "docs": [
+        "docs/reference/fabric/data-plane.md",
+        "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md"
+      ],
+      "evidence": {
+        "quarantine_module": true,
+        "quarantine_tests": true
+      },
+      "id": "evidence.quarantine_replay_surface",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/data_plane/quarantine.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/data_plane/test_record_replay.py",
+        "tests/fabric/test_ingestion_quarantine.py"
+      ],
+      "title": "Quarantine/DLQ replay surface"
+    },
+    {
+      "description": "Data-plane replay store and tests for deterministic ingestion replay.",
+      "docs": [
+        "docs/reference/fabric/data-plane.md"
+      ],
+      "evidence": {
+        "record_replay_tests": true,
+        "replay_store": true
+      },
+      "id": "evidence.record_replay_store",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/data_plane/replay_store.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/data_plane/test_record_replay.py",
+        "tests/fabric/test_ingestion_quarantine.py"
+      ],
+      "title": "Record/replay persistence surface"
+    },
+    {
+      "description": "Completeness, consistency, freshness, statistics, and validator modules for source outputs.",
+      "docs": [
+        "docs/reference/fabric/quality.md"
+      ],
+      "evidence": {
+        "quality_module_count": 7,
+        "quality_modules": [
+          "src/polisyos/fabric/connectors/quality/completeness.py",
+          "src/polisyos/fabric/connectors/quality/consistency.py",
+          "src/polisyos/fabric/connectors/quality/evidence.py",
+          "src/polisyos/fabric/connectors/quality/freshness.py",
+          "src/polisyos/fabric/connectors/quality/report.py",
+          "src/polisyos/fabric/connectors/quality/statistics.py",
+          "src/polisyos/fabric/connectors/quality/validator.py"
+        ]
+      },
+      "id": "semantics.connector_quality_validators",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/quality/completeness.py",
+        "src/polisyos/fabric/connectors/quality/consistency.py",
+        "src/polisyos/fabric/connectors/quality/evidence.py",
+        "src/polisyos/fabric/connectors/quality/freshness.py",
+        "src/polisyos/fabric/connectors/quality/report.py",
+        "src/polisyos/fabric/connectors/quality/statistics.py",
+        "src/polisyos/fabric/connectors/quality/validator.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_quality_statistics.py",
+        "tests/fabric/connectors/test_quality_system.py",
+        "tests/fabric/test_quality_indicators.py"
+      ],
+      "title": "Connector-level quality validators"
+    },
+    {
+      "description": "Normalized Fabric quality evidence is exported from quality reports and attached to Scientist governance state.",
+      "docs": [
+        "docs/reference/fabric/observability-governance.md",
+        "docs/reference/fabric/quality.md"
+      ],
+      "evidence": {
+        "quality_evidence_builder": true,
+        "scientist_state_key": true
+      },
+      "id": "semantics.fabric_quality_governance_evidence",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/quality/evidence.py",
+        "src/polisyos/scientist/governance/passes/quality_gate_pass.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_observability_governance_quality_phase4.py"
+      ],
+      "title": "Fabric quality evidence propagation"
+    },
+    {
+      "description": "Quality indicator scoring, finite-value guards, and metric fitness reports.",
+      "docs": [
+        "docs/reference/fabric/quality.md"
+      ],
+      "evidence": {
+        "fitness_report_module": true,
+        "quality_module": true,
+        "quality_tests": [
+          "tests/fabric/test_quality_indicators.py",
+          "tests/fabric/connectors/test_quality_system.py",
+          "tests/fabric/connectors/test_quality_statistics.py"
+        ]
+      },
+      "id": "semantics.quality_indicators",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/fitness_report.py",
+        "src/polisyos/fabric/quality.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_quality_statistics.py",
+        "tests/fabric/connectors/test_quality_system.py",
+        "tests/fabric/test_quality_indicators.py"
+      ],
+      "title": "Metric-level quality indicators"
+    },
+    {
+      "description": "Governance check for connector contract evolution and committed snapshots.",
+      "docs": [
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "validator": "tools/quality/validation/fabric_schema_governance.py"
+      },
+      "id": "semantics.schema_governance_snapshot_gate",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "tools/quality/validation/fabric_schema_governance.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Schema governance snapshot gate"
+    },
+    {
+      "description": "SourceContract v2 snapshot carries quality-contract refs and required quality checks for production source contracts.",
+      "docs": [
+        "docs/reference/fabric/profiles.md",
+        "docs/reference/fabric/quality.md",
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "contract_count": 5,
+        "profile_count": 38,
+        "quality_validator_module_count": 7,
+        "source_contract_v2_count": 20
+      },
+      "follow_up": "Phase 6: propagate source quality states into decision-data envelopes.",
+      "id": "semantics.source_quality_contract_coverage",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/profiles/builtin_profiles.py",
+        "src/polisyos/fabric/quality.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_quality_statistics.py",
+        "tests/fabric/connectors/test_quality_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/test_quality_indicators.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Quality-contract coverage by source contract/profile"
+    },
+    {
+      "description": "Scorecards summarize freshness, reliability, schema drift, quality, contract violations, quarantine, replay, latency, and source trust.",
+      "docs": [
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "required_dimensions": [
+          "freshness",
+          "reliability",
+          "schema_drift",
+          "quality",
+          "replay_success"
+        ],
+        "schema": "schemas/fabric/source_scorecard.schema.json",
+        "scorecard_count": 20,
+        "snapshot": "schemas/snapshots/fabric/source_scorecards.json"
+      },
+      "id": "semantics.source_scorecards",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/fabric/source_scorecard.schema.json",
+        "schemas/snapshots/fabric/source_scorecards.json",
+        "src/polisyos/fabric/connectors/scorecard.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Generated source scorecards"
+    },
+    {
+      "description": "Curated profile catalog for source execution policies and connector defaults.",
+      "docs": [
+        "docs/reference/fabric/profiles.md"
+      ],
+      "evidence": {
+        "profile_count": 38,
+        "profile_ids": [
+          "bis_sdmx",
+          "chicago_opendata",
+          "data_gov_md",
+          "data_gov_pl",
+          "data_gov_ro",
+          "data_gov_ua",
+          "data_gov_uk",
+          "data_gov_us",
+          "dbpedia_sparql",
+          "ecb_sdmx",
+          "eia_api",
+          "eu_open_data",
+          "eurostat_public",
+          "fao_sdmx",
+          "files_demo_tabular",
+          "geojson_demo",
+          "graphql_demo",
+          "ilo_sdmx",
+          "imf_sdmx",
+          "nvd_cve",
+          "nyc_opendata",
+          "object_storage_demo",
+          "oecd_sdmx",
+          "open_meteo",
+          "openaq_v2",
+          "opendatasoft_public",
+          "paris_opendata",
+          "sqlite_demo",
+          "stream_jsonl_demo",
+          "ukons_public",
+          "unesco_uis_public",
+          "unpd_dataportal",
+          "unsd_sdmx",
+          "usgs_earthquake",
+          "who_gho",
+          "wikidata_sparql",
+          "worldbank_wdi",
+          "wvs_wave7"
+        ]
+      },
+      "id": "source.builtin_source_profiles",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/profiles/builtin_profiles.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/profiles/test_source_profiles.py"
+      ],
+      "title": "Built-in source profile catalog"
+    },
+    {
+      "description": "Harness reuses connector testing v1 and checks SourceContract v2, profile, schema, quality, replay, lineage, access, retention, and SLO evidence.",
+      "docs": [
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "bounded_read_check": true,
+        "harness": "ConnectorConformanceHarnessV2",
+        "report_count": 20,
+        "validator": "validate_source_conformance_v2"
+      },
+      "id": "source.conformance_harness_v2",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/testing/conformance.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Connector conformance harness v2"
+    },
+    {
+      "description": "Install-time discovery surface for production connector components.",
+      "docs": [
+        "docs/reference/fabric/connectors.md"
+      ],
+      "evidence": {
+        "entrypoint_count": 11,
+        "entrypoint_group": "polisyos.fabric_connectors",
+        "entrypoints": {
+          "ckan.catalog": "polisyos.fabric.connectors.components:ckan_catalog_connector_component",
+          "ckan.resource": "polisyos.fabric.connectors.components:ckan_resource_connector_component",
+          "eurostat.data": "polisyos.fabric.connectors.components:eurostat_connector_component",
+          "opendatasoft.ods": "polisyos.fabric.connectors.components:opendatasoft_connector_component",
+          "rest.json": "polisyos.fabric.connectors.components:rest_json_connector_component",
+          "sdmx.source": "polisyos.fabric.connectors.components:sdmx_connector_component",
+          "socrata.soda": "polisyos.fabric.connectors.components:socrata_connector_component",
+          "sparql.endpoint": "polisyos.fabric.connectors.components:sparql_connector_component",
+          "ukons.datasets": "polisyos.fabric.connectors.components:ukons_connector_component",
+          "worldbank.wdi": "polisyos.fabric.connectors.components:world_bank_connector_component",
+          "wvs.wave7": "polisyos.fabric.connectors.components:wvs_connector_component"
+        }
+      },
+      "id": "source.connector_entrypoints",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "pyproject.toml"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/connectors/test_registry.py"
+      ],
+      "title": "Production connector entry points"
+    },
+    {
+      "description": "Concrete connector classes exported from the source package.",
+      "docs": [
+        "docs/reference/fabric/connectors.md"
+      ],
+      "evidence": {
+        "concrete_connector_count": 20,
+        "concrete_connectors": [
+          "CKANCatalogConnector",
+          "CKANResourceConnector",
+          "EurostatConnector",
+          "EventStreamConnector",
+          "FileTabularConnector",
+          "GeoJSONConnector",
+          "GraphQLConnector",
+          "ObjectStorageConnector",
+          "OpendatasoftConnector",
+          "RestJsonConnector",
+          "SDMXSourceConnector",
+          "SPARQLConnector",
+          "SQLQueryConnector",
+          "SocrataConnector",
+          "UKONSConnector",
+          "UNESCOUISConnector",
+          "UNPDConnector",
+          "WHOConnector",
+          "WVSConnector",
+          "WorldBankConnector"
+        ],
+        "export_count": 22
+      },
+      "id": "source.connector_public_exports",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/sources/__init__.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/connectors/test_registry.py"
+      ],
+      "title": "Concrete connector public exports"
+    },
+    {
+      "description": "Scaffold helpers derive source, profile, contract, replay, quality, and docs ids before a connector becomes production-visible.",
+      "docs": [
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "profile_matrix": "build_source_profile_matrix",
+        "sdk_package": "src/polisyos/fabric/connectors/sdk"
+      },
+      "id": "source.connector_sdk_authoring_helpers",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/sdk/__init__.py",
+        "src/polisyos/fabric/connectors/sdk/scaffold.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Connector SDK authoring helpers"
+    },
+    {
+      "description": "Recursive inventory of source connector modules and source-contract modules.",
+      "docs": [
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "source_module_count": 30,
+        "source_modules": [
+          "src/polisyos/fabric/connectors/sources/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+          "src/polisyos/fabric/connectors/sources/_file_common.py",
+          "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+          "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+          "src/polisyos/fabric/connectors/sources/eurostat.py",
+          "src/polisyos/fabric/connectors/sources/event_stream.py",
+          "src/polisyos/fabric/connectors/sources/file_tabular.py",
+          "src/polisyos/fabric/connectors/sources/geojson.py",
+          "src/polisyos/fabric/connectors/sources/graphql_api.py",
+          "src/polisyos/fabric/connectors/sources/http_base.py",
+          "src/polisyos/fabric/connectors/sources/http_common.py",
+          "src/polisyos/fabric/connectors/sources/object_storage.py",
+          "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+          "src/polisyos/fabric/connectors/sources/rest_json.py",
+          "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+          "src/polisyos/fabric/connectors/sources/socrata.py",
+          "src/polisyos/fabric/connectors/sources/sparql.py",
+          "src/polisyos/fabric/connectors/sources/sql_query.py",
+          "src/polisyos/fabric/connectors/sources/ukons.py",
+          "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+          "src/polisyos/fabric/connectors/sources/unpd.py",
+          "src/polisyos/fabric/connectors/sources/who.py",
+          "src/polisyos/fabric/connectors/sources/world_bank.py",
+          "src/polisyos/fabric/connectors/sources/wvs.py"
+        ],
+        "source_tree": "src/polisyos/fabric/connectors/sources/**"
+      },
+      "id": "source.connector_source_modules",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/connectors/sources/__init__.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+        "src/polisyos/fabric/connectors/sources/_file_common.py",
+        "src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "src/polisyos/fabric/connectors/sources/eurostat.py",
+        "src/polisyos/fabric/connectors/sources/event_stream.py",
+        "src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "src/polisyos/fabric/connectors/sources/geojson.py",
+        "src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "src/polisyos/fabric/connectors/sources/http_base.py",
+        "src/polisyos/fabric/connectors/sources/http_common.py",
+        "src/polisyos/fabric/connectors/sources/object_storage.py",
+        "src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "src/polisyos/fabric/connectors/sources/rest_json.py",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "src/polisyos/fabric/connectors/sources/socrata.py",
+        "src/polisyos/fabric/connectors/sources/sparql.py",
+        "src/polisyos/fabric/connectors/sources/sql_query.py",
+        "src/polisyos/fabric/connectors/sources/ukons.py",
+        "src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "src/polisyos/fabric/connectors/sources/unpd.py",
+        "src/polisyos/fabric/connectors/sources/who.py",
+        "src/polisyos/fabric/connectors/sources/world_bank.py",
+        "src/polisyos/fabric/connectors/sources/wvs.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/connectors/test_registry.py"
+      ],
+      "title": "Connector source module tree"
+    },
+    {
+      "description": "The entry-point group covers production HTTP/open-data components; additional connector families are currently direct-import/registry surfaces.",
+      "docs": [
+        "docs/reference/fabric/connectors.md"
+      ],
+      "evidence": {
+        "concrete_connector_count": 20,
+        "direct_import_family_count": 9,
+        "entrypoint_count": 11
+      },
+      "follow_up": "Phase 5: decide which direct-import families require entry-point registration.",
+      "id": "source.entrypoint_coverage.direct_import_families",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "pyproject.toml",
+        "src/polisyos/fabric/connectors/sources/__init__.py"
+      ],
+      "status": "partial",
+      "tests": [
+        "tests/fabric/connectors/test_registry.py"
+      ],
+      "title": "Entry-point coverage for direct-import connector families"
+    },
+    {
+      "description": "HTTPConnectorBase and HTTPResilienceProfile are exported runtime primitives, not standalone production source connectors.",
+      "docs": [
+        "docs/reference/fabric/connectors.md"
+      ],
+      "evidence": {
+        "non_connector_exports": [
+          "HTTPConnectorBase",
+          "HTTPResilienceProfile"
+        ]
+      },
+      "id": "source.http_runtime_base_contract",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P3",
+      "severity": "P3",
+      "source_files": [
+        "src/polisyos/fabric/connectors/sources/__init__.py"
+      ],
+      "status": "not_applicable",
+      "tests": [],
+      "title": "Shared HTTP runtime as production source"
+    },
+    {
+      "description": "Contract-first source evidence covering schema, profile, quality, replay, lineage, access, retention, SLO, owner, reviewer, and docs.",
+      "docs": [
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "bounded_read_evidence_count": 20,
+        "schema": "schemas/fabric/source_contract.schema.json",
+        "snapshot": "schemas/snapshots/fabric/source_contracts_v2.json",
+        "source_contract_v2_count": 20,
+        "source_contract_v2_ids": [
+          "ckan.catalog.generic",
+          "ckan.resource.generic",
+          "eurostat.data.generic",
+          "files.tabular.generic",
+          "geojson.features.generic",
+          "graphql.api.generic",
+          "object_storage.blob.generic",
+          "opendatasoft.ods.generic",
+          "rest.json.generic",
+          "sdmx.generic",
+          "socrata.soda.generic",
+          "sparql.endpoint.generic",
+          "sql.query.generic",
+          "stream.jsonl.generic",
+          "ukons.datasets.generic",
+          "unesco_uis.data.generic",
+          "unpd.data.generic",
+          "who.indicators.generic",
+          "worldbank.wdi.generic",
+          "wvs.wave7.generic"
+        ]
+      },
+      "id": "source.source_contract_v2_platform",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/fabric/source_contract.schema.json",
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "tools/quality/validation/fabric_source_contracts.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "SourceContract v2 production source platform"
+    },
+    {
+      "description": "Addressable committed connector contract from the Fabric governance snapshot.",
+      "docs": [
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "connector_id": "eurostat.data",
+        "content_hash": "sha256:64ab9d69c26c4274c272ae0306defc2d3177a8f9806031edd097a12574a5c4e0",
+        "contract_id": "eurostat.data.generic",
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "dataset_id": "*",
+        "schema_id": "eurostat.data.generic",
+        "schema_version": "1.0.0"
+      },
+      "id": "source_contracts.eurostat.data.generic",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+        "src/polisyos/fabric/connectors/sources/eurostat.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source contract: eurostat.data.generic"
+    },
+    {
+      "description": "Committed source-contract snapshot used by schema governance.",
+      "docs": [
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "contract_count": 5,
+        "contract_ids": [
+          "eurostat.data.generic",
+          "sdmx.generic",
+          "ukons.datasets.generic",
+          "worldbank.wdi.generic",
+          "wvs.wave7.generic"
+        ],
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json"
+      },
+      "id": "source_contracts.fabric_registry_snapshot",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/__init__.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Fabric connector contract registry snapshot"
+    },
+    {
+      "description": "Compatibility snapshot still checked by legacy connector tooling.",
+      "docs": [
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "contract_count": 5,
+        "contract_ids": [
+          "eurostat.data.generic",
+          "sdmx.generic",
+          "ukons.datasets.generic",
+          "worldbank.wdi.generic",
+          "wvs.wave7.generic"
+        ],
+        "contract_snapshot": "schemas/snapshots/connectors/contracts.json"
+      },
+      "id": "source_contracts.legacy_connector_snapshot",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "schemas/snapshots/connectors/contracts.json"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Legacy connector contract snapshot"
+    },
+    {
+      "description": "Addressable committed connector contract from the Fabric governance snapshot.",
+      "docs": [
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "connector_id": "sdmx.source",
+        "content_hash": "sha256:839e76c3fd794eee4aba20f505a21a6c42fe7cc8a531547db7d4290a67835053",
+        "contract_id": "sdmx.generic",
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "dataset_id": "*",
+        "schema_id": "sdmx.generic",
+        "schema_version": "1.0.0"
+      },
+      "id": "source_contracts.sdmx.generic",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source contract: sdmx.generic"
+    },
+    {
+      "description": "Addressable committed connector contract from the Fabric governance snapshot.",
+      "docs": [
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "connector_id": "ukons.datasets",
+        "content_hash": "sha256:3a33aec485b484b5f67f3fbf7005def3bd0fdc1d6cbb87bc0bd10966bb2e3001",
+        "contract_id": "ukons.datasets.generic",
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "dataset_id": "*",
+        "schema_id": "ukons.datasets.generic",
+        "schema_version": "1.0.0"
+      },
+      "id": "source_contracts.ukons.datasets.generic",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+        "src/polisyos/fabric/connectors/sources/ukons.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source contract: ukons.datasets.generic"
+    },
+    {
+      "description": "Addressable committed connector contract from the Fabric governance snapshot.",
+      "docs": [
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "connector_id": "worldbank.wdi",
+        "content_hash": "sha256:1c955f0a7558b90113fff96fa7e7c03edb79b6a81306ec3d05789824f4b40216",
+        "contract_id": "worldbank.wdi.generic",
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "dataset_id": "*",
+        "schema_id": "worldbank.wdi.generic",
+        "schema_version": "1.0.0"
+      },
+      "id": "source_contracts.worldbank.wdi.generic",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+        "src/polisyos/fabric/connectors/sources/world_bank.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source contract: worldbank.wdi.generic"
+    },
+    {
+      "description": "Addressable committed connector contract from the Fabric governance snapshot.",
+      "docs": [
+        "docs/reference/fabric/best-in-class-inventory.md",
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/schema-compatibility.md"
+      ],
+      "evidence": {
+        "connector_id": "wvs.wave7",
+        "content_hash": "sha256:194f88668ef76db93263492d1c33794a7100dc8697c6307fa2e77b0b6c527647",
+        "contract_id": "wvs.wave7.generic",
+        "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
+        "dataset_id": "*",
+        "schema_id": "wvs.wave7.generic",
+        "schema_version": "1.0.0"
+      },
+      "id": "source_contracts.wvs.wave7.generic",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/connector_contract_registry.json",
+        "src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+        "src/polisyos/fabric/connectors/sources/wvs.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_contract_system.py",
+        "tests/fabric/connectors/test_schema_system.py",
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_schema_governance.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source contract: wvs.wave7.generic"
+    },
+    {
+      "description": "Access policies, column masking, and PII staging exist; source contracts do not yet prove classification coverage for every decision-bearing field.",
+      "docs": [
+        "docs/reference/fabric/quality.md",
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "access_control_module": true,
+        "access_tests": [
+          "tests/fabric/test_access_control.py",
+          "tests/fabric/test_duckdb_storage_access_control.py",
+          "tests/fabric/test_world_query_column_masking.py"
+        ],
+        "column_mask_module": true,
+        "pii_stage_module": true
+      },
+      "follow_up": "Phase 5/6: require contract/profile-level classification coverage for decision-bearing fields.",
+      "id": "trust.access_classification",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/pii/stage.py",
+        "src/polisyos/fabric/security/access_control.py",
+        "src/polisyos/fabric/security/column_mask.py"
+      ],
+      "status": "partial",
+      "tests": [
+        "tests/fabric/test_access_control.py",
+        "tests/fabric/test_duckdb_storage_access_control.py",
+        "tests/fabric/test_world_query_column_masking.py"
+      ],
+      "title": "Access classification and masking inventory"
+    },
+    {
+      "description": "Production connectors expose schema, quality, SLA, access classification, and owner metadata with a validator-backed inventory check.",
+      "docs": [
+        "docs/reference/fabric/connectors.md",
+        "docs/reference/fabric/observability-governance.md"
+      ],
+      "evidence": {
+        "metadata_validator": true,
+        "quality_governance": true,
+        "schema_governance": true,
+        "sla": true
+      },
+      "id": "trust.connector_governance_metadata",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/connectors/governance_metadata.py",
+        "src/polisyos/ir/connectors.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_protocol_compliance.py",
+        "tests/fabric/test_observability_governance_quality_phase4.py"
+      ],
+      "title": "Production connector governance metadata"
+    },
+    {
+      "description": "Fabric-level envelope binding source, quality, lineage, replay, temporal, and access state into a single decision-bearing contract.",
+      "docs": [
+        "docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md",
+        "docs/reference/fabric/best-in-class-inventory.md"
+      ],
+      "evidence": {
+        "coverage_report": "tools/quality/validation/fabric_decision_data_coverage.json",
+        "required_contracts": {
+          "batch_lineage_lookup": true,
+          "decision_data_module": true,
+          "runtime_decision_data_route": true,
+          "schema_matches_model": true,
+          "temporal_scope_echo": true,
+          "trust_envelope_schema": true,
+          "typed_gap_states": true
+        }
+      },
+      "id": "trust.fabric_decision_envelope",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/fabric/trust_envelope.schema.json",
+        "src/polisyos/fabric/decision_data.py",
+        "src/polisyos/runtime/http/routes/runs.py",
+        "src/polisyos/runtime/http/services/lineage.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_decision_data_envelope.py",
+        "tests/runtime/http/test_lineage_routes.py",
+        "tests/runtime/http/test_temporal_routes.py",
+        "tests/tools/test_fabric_decision_data_coverage.py"
+      ],
+      "title": "Fabric decision envelope"
+    },
+    {
+      "description": "Decision-bearing untraced, unknown_quality, restricted, non_replayable, and unsupported_temporal_scope states carry required reason metadata.",
+      "docs": [
+        "docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md"
+      ],
+      "evidence": {
+        "naked_decision_values": [],
+        "typed_gap_states": [
+          {
+            "state": "untraced",
+            "status": "implemented"
+          },
+          {
+            "state": "unknown_quality",
+            "status": "implemented"
+          },
+          {
+            "state": "restricted",
+            "status": "implemented"
+          },
+          {
+            "state": "non_replayable",
+            "status": "implemented"
+          },
+          {
+            "state": "unsupported_temporal_scope",
+            "status": "implemented"
+          }
+        ]
+      },
+      "id": "trust.fabric_decision_reason_codes",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/decision_data.py",
+        "tools/quality/validation/fabric_decision_data_coverage.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_decision_data_envelope.py",
+        "tests/runtime/http/test_lineage_routes.py",
+        "tests/runtime/http/test_temporal_routes.py",
+        "tests/tools/test_fabric_decision_data_coverage.py"
+      ],
+      "title": "Reason codes for decision-bearing unknown states"
+    },
+    {
+      "description": "Fabric defines the release-blocking SLI set, evaluates SLO burn, records SLI/burn metrics, and blocks P0/P1 feature expansion.",
+      "docs": [
+        "docs/reference/fabric/observability-governance.md"
+      ],
+      "evidence": {
+        "burn_metric": true,
+        "error_budget_gate": true,
+        "sli_enum": true,
+        "sli_metric": true,
+        "slo_targets": true
+      },
+      "id": "trust.fabric_slo_error_budget_gate",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/core/observability/_metrics_registry_base.py",
+        "src/polisyos/core/observability/metrics_parts.py",
+        "src/polisyos/fabric/observability.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_fabric_observability.py",
+        "tests/fabric/test_observability_governance_quality_phase4.py"
+      ],
+      "title": "Fabric SLI/SLO and error-budget gate"
+    },
+    {
+      "description": "FabricLineageTracker records source, schema, dataset, transform, query, and claim lineage.",
+      "docs": [
+        "docs/reference/fabric/lineage.md"
+      ],
+      "evidence": {
+        "impact_analysis": true,
+        "trace_column_lineage": true,
+        "trace_value_origin": true
+      },
+      "id": "trust.lineage_nodes_edges",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/provenance/lineage.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_fabric_observability.py",
+        "tests/fabric/test_lineage.py"
+      ],
+      "title": "Lineage graph nodes, edges, trace, and impact APIs"
+    },
+    {
+      "description": "OpenLineage-shaped export for Fabric provenance graphs.",
+      "docs": [
+        "docs/reference/fabric/lineage.md"
+      ],
+      "evidence": {
+        "export_openlineage_json": true
+      },
+      "id": "trust.openlineage_export",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/provenance/lineage.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_lineage.py"
+      ],
+      "title": "OpenLineage export"
+    },
+    {
+      "description": "PROV-O JSON-LD and PROV-JSON export surface for governed provenance.",
+      "docs": [
+        "docs/reference/fabric/lineage.md"
+      ],
+      "evidence": {
+        "prov_json_export": true,
+        "prov_o_export": true
+      },
+      "id": "trust.prov_export",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/provenance/export_provo.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_provenance.py"
+      ],
+      "title": "W3C PROV export"
+    },
+    {
+      "description": "Root Fabric package exports the supported ingestion and world-query facade.",
+      "docs": [
+        "docs/reference/fabric/index.md"
+      ],
+      "evidence": {
+        "export_count": 24,
+        "exports": [
+          "AccessRef",
+          "AuthoredText",
+          "FabricDecisionData",
+          "FabricDecisionDataCoverage",
+          "FabricDecisionDataResponse",
+          "LineageRef",
+          "QualityRef",
+          "ReplayRef",
+          "SourceContractRef",
+          "TemporalRef",
+          "TypedGap",
+          "UnitRef",
+          "WorldQueryError",
+          "WorldQueryRequest",
+          "execute_world_query",
+          "fabric_claim_to_authored_text",
+          "fabric_event_to_authored_text",
+          "fabric_fact_to_quantity_value",
+          "fabric_get_data",
+          "query_claims",
+          "query_events",
+          "query_world_table",
+          "run_connectors_ingestion",
+          "world"
+        ]
+      },
+      "id": "trust.public_facade_exports",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/__init__.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_connector_bridge.py",
+        "tests/fabric/test_world_query_multibackend.py",
+        "tests/runtime/http/test_e2e_ingestion.py"
+      ],
+      "title": "Stable public facade exports"
+    },
+    {
+      "description": "HTTP route/service adapter for trace and impact lookup over Fabric lineage.",
+      "docs": [
+        "docs/reference/api/index.md",
+        "docs/reference/fabric/lineage.md"
+      ],
+      "evidence": {
+        "route": true,
+        "service": true
+      },
+      "id": "trust.runtime_lineage_adapter",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/runtime/http/routes/lineage.py",
+        "src/polisyos/runtime/http/services/lineage.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/runtime/http/test_lineage_api.py"
+      ],
+      "title": "Runtime lineage API adapter"
+    },
+    {
+      "description": "Production SourceContract v2 records carry classification, retention, owner/reviewer, and source SLO metadata before production visibility.",
+      "docs": [
+        "docs/reference/fabric/observability-governance.md",
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "classification_count": 20,
+        "owner_reviewer_count": 20,
+        "source_contract_v2_count": 20
+      },
+      "id": "trust.source_contract_access_retention_slo",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "tools/quality/validation/fabric_source_contracts.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/test_observability_governance_quality_phase4.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "SourceContract access, retention, owner, reviewer, and SLO metadata"
+    },
+    {
+      "description": "SourceContract v2 models deprecated/sunset status with owner-reviewed reason, migration note, replacement, and retained historical replay.",
+      "docs": [
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "deprecation_model": true,
+        "sunset_doc": true
+      },
+      "id": "trust.source_deprecation_sunset_policy",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "docs/reference/fabric/source-platform.md",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/tools/test_fabric_source_contracts.py"
+      ],
+      "title": "Source deprecation and sunset policy"
+    },
+    {
+      "description": "World queries support transaction-time and valid-time filters.",
+      "docs": [
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "as_of_tx_time": true,
+        "as_of_valid_time": true,
+        "temporal_tests": [
+          "tests/fabric/test_world_time_travel.py",
+          "tests/fabric/test_world_materialization.py",
+          "tests/runtime/http/test_temporal_api.py",
+          "tests/runtime/http/test_temporal_routes.py"
+        ]
+      },
+      "id": "world.bitemporal_world_query",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/world_query.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_time_travel.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
+      ],
+      "title": "Bitemporal world-query support"
+    },
+    {
+      "accepted_risk": {
+        "expiry_date": "2026-07-31",
+        "owner": "@fabric-owners",
+        "reason": "External table-format adapters are discoverable for planning, while runtime query/create paths reject unsupported adapters.",
+        "review_date": "2026-05-31"
+      },
+      "description": "Iceberg/Delta-style external adapters are metadata-visible but fail closed until runtime support is implemented.",
+      "docs": [
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "adapter_registry_present": true,
+        "runtime_rejection_test": true
+      },
+      "id": "world.future_table_snapshot_adapters",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/world/store/snapshots.py",
+        "src/polisyos/fabric/world_query.py"
+      ],
+      "status": "accepted_risk",
+      "tests": [
+        "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_time_travel.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
+      ],
+      "title": "Future table-format snapshot adapters"
+    },
+    {
+      "description": "World snapshot store supports retained snapshots, branches, merge policy, and GC metadata.",
+      "docs": [
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "create_world_branch": true,
+        "gc_world_snapshots": true,
+        "merge_world_branch": true
+      },
+      "id": "world.snapshot_branch_surface",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/world/store/snapshots.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_time_travel.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
+      ],
+      "title": "Snapshot, branch, merge, and retention surface"
+    },
+    {
+      "description": "Advanced temporal graph semantics are intentionally deferred to the research wave before being converted into runtime acceptance gates.",
+      "docs": [
+        "docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md"
+      ],
+      "evidence": {
+        "research_wave": "Wave R / R3 temporal graph semantics"
+      },
+      "follow_up": "Wave R R3: define acceptance semantics before implementation.",
+      "id": "world.temporal_graph_reasoning",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/provenance/lineage.py",
+        "src/polisyos/fabric/world_query.py"
+      ],
+      "status": "blocked_by_research",
+      "tests": [],
+      "title": "Temporal graph reasoning over world snapshots"
+    },
+    {
+      "description": "HTTP service/route adapter maps API temporal scopes to Fabric world-query kwargs.",
+      "docs": [
+        "docs/reference/api/index.md",
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "route": true,
+        "service": true
+      },
+      "id": "world.temporal_runtime_adapter",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/runtime/http/routes/temporal.py",
+        "src/polisyos/runtime/http/services/temporal.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/runtime/http/test_temporal_api.py"
+      ],
+      "title": "Runtime temporal API adapter"
+    }
+  ]
+}

@@ -21,6 +21,8 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+from polisyos.fabric.io.atomic import atomic_write_text  # noqa: E402
+
 _CONNECTORS_PATH = SRC_ROOT / "polisyos" / "fabric" / "connectors"
 _CONNECTORS_PACKAGE = "polisyos.fabric.connectors"
 if _CONNECTORS_PACKAGE not in sys.modules:
@@ -169,6 +171,8 @@ def build_evidence_payload(
             "migration_plan": (
                 {
                     "safe_to_apply": evaluation.migration_plan.safe_to_apply,
+                    "evidence_id": evaluation.migration_plan.evidence_id,
+                    "generated_at": evaluation.migration_plan.generated_at.isoformat(),
                     "sql_statements": list(evaluation.migration_plan.sql_statements),
                     "operations": [
                         operation.model_dump(mode="json")
@@ -195,6 +199,8 @@ def build_evidence_payload(
         "compatible_migration_plans": {
             contract_id: {
                 "safe_to_apply": plan.safe_to_apply,
+                "evidence_id": plan.evidence_id,
+                "generated_at": plan.generated_at.isoformat(),
                 "sql_statements": list(plan.sql_statements),
             }
             for contract_id, plan in sorted(migrations.items())
@@ -221,7 +227,7 @@ def main() -> int:
 
     if args.update:
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
-        snapshot_path.write_text(dump_json(current), encoding="utf-8")
+        atomic_write_text(snapshot_path, dump_json(current))
         print(f"Updated Fabric schema registry snapshot: {snapshot_path}")
         return 0
 
@@ -235,7 +241,7 @@ def main() -> int:
     if args.evidence_out is not None:
         evidence = build_evidence_payload(baseline, current)
         args.evidence_out.parent.mkdir(parents=True, exist_ok=True)
-        args.evidence_out.write_text(dump_json(evidence), encoding="utf-8")
+        atomic_write_text(args.evidence_out, dump_json(evidence))
     if errors:
         print("Fabric schema governance check FAILED")
         for row in errors:

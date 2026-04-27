@@ -27,6 +27,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_field_id, make_schema_id
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
     HTTPResilienceProfile,
@@ -242,7 +243,7 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
         return self._build_fetch_result(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.package",
+            schema_id=make_schema_id(self.connector_id, "package"),
             schema_version="1.0.0",
             quality_tier=QualityTier.SILVER,
             bytes_transferred=len(raw),
@@ -263,19 +264,31 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
+        schema_id = make_schema_id(self.connector_id, dataset_id)
+        field_names = (
+            "resource_id",
+            "name",
+            "format",
+            "url",
+            "description",
+            "created",
+            "last_modified",
+            "size",
+        )
+        field_types = {
+            "size": "number",
+        }
         return {
-            "schema_id": f"{self.connector_id}.{dataset_id}",
+            "schema_id": schema_id,
             "version": "1.0.0",
             "format": "ckan-package",
             "fields": [
-                {"name": "resource_id", "type": "string"},
-                {"name": "name", "type": "string"},
-                {"name": "format", "type": "string"},
-                {"name": "url", "type": "string"},
-                {"name": "description", "type": "string"},
-                {"name": "created", "type": "string"},
-                {"name": "last_modified", "type": "string"},
-                {"name": "size", "type": "number"},
+                {
+                    "name": field_name,
+                    "field_id": make_field_id(schema_id, field_name),
+                    "type": field_types.get(field_name, "string"),
+                }
+                for field_name in field_names
             ],
         }
 

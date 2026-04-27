@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from collections.abc import Iterable
 from fnmatch import fnmatchcase
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.io.atomic import atomic_write_text
 
 logger = get_logger(__name__)
 
@@ -90,6 +92,7 @@ class SourceBindingRegistry:
         self._bindings: list[SourceBinding] = []
         self._by_metric: dict[str, list[SourceBinding]] = {}
         self._raw_size_bytes = 0
+        self._lock = threading.RLock()
         self._load()
 
     def _load(self) -> None:
@@ -108,7 +111,7 @@ class SourceBindingRegistry:
             logger.warning("Invalid source bindings file '%s': %s", self.bindings_path, exc)
             return
 
-        self._bindings = sorted(
+        bindings = sorted(
             collection.bindings,
             key=lambda item: (
                 item.metric_id,
@@ -119,27 +122,32 @@ class SourceBindingRegistry:
             ),
         )
         by_metric: dict[str, list[SourceBinding]] = {}
-        for binding in self._bindings:
+        for binding in bindings:
             by_metric.setdefault(binding.metric_id, []).append(binding)
-        self._by_metric = by_metric
+        with self._lock:
+            self._bindings = bindings
+            self._by_metric = by_metric
         logger.info(
             "Loaded %s source bindings from %s",
-            len(self._bindings),
+            len(bindings),
             self.bindings_path,
         )
 
     def all_bindings(self) -> list[SourceBinding]:
-        return list(self._bindings)
+        with self._lock:
+            return list(self._bindings)
 
     def list_metric_ids(self) -> list[str]:
-        return sorted(self._by_metric)
+        with self._lock:
+            return sorted(self._by_metric)
 
     def bindings_for_metric(
         self, metric_id: str, *, geography: str | None = None
     ) -> list[SourceBinding]:
-        bindings = self._by_metric.get(metric_id, [])
+        with self._lock:
+            bindings = list(self._by_metric.get(metric_id, []))
         if geography is None:
-            return list(bindings)
+            return bindings
         return [binding for binding in bindings if binding.matches_geography(geography)]
 
     def search(
@@ -181,7 +189,7 @@ class SourceBindingRegistry:
                 return result[:limit]
 
         # Alias/tag substring fallback.
-        for binding in self._bindings:
+        for binding in self.all_bindings():
             if query in binding.metric_id.lower():
                 _append([binding])
                 if len(result) >= limit:
@@ -198,39 +206,43 @@ class SourceBindingRegistry:
     def upsert(self, binding: SourceBinding) -> None:
         """Insert or replace a binding in memory."""
         key = (binding.metric_id, binding.connector_id, binding.dataset_id)
-        retained = [
-            item
-            for item in self._bindings
-            if (item.metric_id, item.connector_id, item.dataset_id) != key
-        ]
-        retained.append(binding)
-        self._bindings = sorted(
-            retained,
-            key=lambda item: (
-                item.metric_id,
-                item.priority,
-                -item.trust,
-                item.connector_id,
-                item.dataset_id,
-            ),
-        )
-        by_metric: dict[str, list[SourceBinding]] = {}
-        for item in self._bindings:
-            by_metric.setdefault(item.metric_id, []).append(item)
-        self._by_metric = by_metric
+        with self._lock:
+            retained = [
+                item
+                for item in self._bindings
+                if (item.metric_id, item.connector_id, item.dataset_id) != key
+            ]
+            retained.append(binding)
+            self._bindings = sorted(
+                retained,
+                key=lambda item: (
+                    item.metric_id,
+                    item.priority,
+                    -item.trust,
+                    item.connector_id,
+                    item.dataset_id,
+                ),
+            )
+            by_metric: dict[str, list[SourceBinding]] = {}
+            for item in self._bindings:
+                by_metric.setdefault(item.metric_id, []).append(item)
+            self._by_metric = by_metric
 
     def persist(self) -> None:
         """Persist in-memory registry to JSON file."""
-        payload = SourceBindingCollection(bindings=self._bindings).model_dump(mode="json")
+        with self._lock:
+            payload = SourceBindingCollection(bindings=list(self._bindings)).model_dump(mode="json")
         encoded = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
         self.bindings_path.parent.mkdir(parents=True, exist_ok=True)
-        self.bindings_path.write_text(encoded, encoding="utf-8")
-        self._raw_size_bytes = len(encoded.encode("utf-8"))
+        atomic_write_text(self.bindings_path, encoded)
+        with self._lock:
+            self._raw_size_bytes = len(encoded.encode("utf-8"))
 
     def stats(self) -> dict[str, int]:
-        sources = {item.connector_id for item in self._bindings}
-        return {
-            "docs_total": len(self._bindings),
-            "size_bytes": self._raw_size_bytes,
-            "indexed_sources": len(sources),
-        }
+        with self._lock:
+            sources = {item.connector_id for item in self._bindings}
+            return {
+                "docs_total": len(self._bindings),
+                "size_bytes": self._raw_size_bytes,
+                "indexed_sources": len(sources),
+            }

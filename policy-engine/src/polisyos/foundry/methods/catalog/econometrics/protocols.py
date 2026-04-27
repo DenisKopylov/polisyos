@@ -891,6 +891,13 @@ class EconometricResult(BaseModel):
             },
         )
 
+    def to_consensus_target(self, query: Any) -> Any:
+        """Expose this econometric result on the canonical cross-method consensus surface."""
+
+        from polisyos.foundry.methods.consensus import target_from_econometric_result
+
+        return target_from_econometric_result(self, query)
+
 
 class EconometricDiagnosticResult(BaseModel):
     """Common diagnostic-test payload for econometric methods."""

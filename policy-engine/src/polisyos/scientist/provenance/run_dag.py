@@ -427,3 +427,22 @@ class RunProvenanceDAG:
         from polisyos.scientist.provenance.prov_json import to_prov_json
 
         return to_prov_json(self._graph)
+
+    def to_research_dag_artifact(
+        self,
+        *,
+        workflow_id: str,
+        claim_ledger_ref: Any | None = None,
+    ) -> Any:
+        """Project this provenance graph into the Phase 1.2 research DAG contract."""
+
+        from polisyos.scientist.research_dag.projections import (
+            project_provenance_graph_to_research_dag,
+        )
+
+        return project_provenance_graph_to_research_dag(
+            run_id=self._run_id,
+            workflow_id=workflow_id,
+            provenance_graph=self._graph,
+            claim_ledger_ref=claim_ledger_ref,
+        )

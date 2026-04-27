@@ -19,14 +19,23 @@ from polisyos.fabric.connectors.contracts import (
     SchemaVersion,
     SemanticType,
     TimeGranularity,
+    make_field_id,
 )
 
+_SCHEMA_ID = "sdmx.generic"
+
+
+def _field_id(name: str) -> str:
+    return make_field_id(_SCHEMA_ID, name)
+
+
 SDMX_GENERIC_SCHEMA = DataSchema(
-    schema_id="sdmx.generic",
+    schema_id=_SCHEMA_ID,
     version=SchemaVersion(1, 0, 0),
     fields=(
         FieldSpec(
             name="value",
+            field_id=_field_id("value"),
             data_type=SchemaType.FLOAT64,
             nullable=True,
             additivity=Additivity.SEMI_ADDITIVE,
@@ -34,6 +43,7 @@ SDMX_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="time_period",
+            field_id=_field_id("time_period"),
             data_type=SchemaType.STRING,
             nullable=True,
             semantic_type=SemanticType.TEMPORAL,
@@ -42,6 +52,7 @@ SDMX_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="freq",
+            field_id=_field_id("freq"),
             data_type=SchemaType.STRING,
             nullable=True,
             semantic_type=SemanticType.CODE,

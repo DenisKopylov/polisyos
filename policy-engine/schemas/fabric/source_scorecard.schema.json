@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/fabric/source_scorecard.schema.json",
+  "title": "Fabric Source Scorecard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_contract_id",
+    "connector_id",
+    "profile_id",
+    "generated_at",
+    "window",
+    "metrics",
+    "overall_score",
+    "grade",
+    "status"
+  ],
+  "properties": {
+    "schema_version": { "const": "fabric.source_scorecard.v1" },
+    "source_contract_id": { "type": "string", "minLength": 1 },
+    "connector_id": { "type": "string", "minLength": 1 },
+    "profile_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string" },
+    "window": { "type": "string" },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "score", "status"],
+        "properties": {
+          "name": {
+            "enum": [
+              "freshness",
+              "reliability",
+              "schema_drift",
+              "quality",
+              "contract_violations",
+              "quarantine_rate",
+              "replay_success",
+              "latency",
+              "source_trust"
+            ]
+          },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "observed_value": { "type": ["number", "null"] },
+          "target_value": { "type": ["number", "null"] },
+          "status": { "enum": ["healthy", "watch", "breached", "unknown"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "overall_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "grade": { "enum": ["A", "B", "C", "D", "F"] },
+    "status": { "enum": ["healthy", "watch", "breached", "unknown"] },
+    "evidence": { "type": "object" }
+  }
+}
+

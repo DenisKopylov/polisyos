@@ -29,12 +29,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_GOVERNANCE_GATE_PACKET_REF,
     ARTIFACT_IMPLEMENTATION_PLAN_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_POLICY_BRIEF_REF,
     ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
@@ -42,8 +44,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF,
     ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF,
     ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_SUBGROUP_IMPACT_REPORT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -69,6 +73,12 @@ from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.readiness import (
     DecisionReadinessContract,
     load_decision_readiness_contract,
+)
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    Phase5ValidationBlocked,
+    enforce_phase5_publication,
+    run_phase5_artifact_preflight,
 )
 
 _LOGGER = get_logger(__name__)
@@ -127,6 +137,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_POLICY_OUTPUT_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_POLICY_FRONTIER_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_CHAMPION_POLICY_DOSSIER_REF}",
+        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
         f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
         f"artifacts_index.{ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_SUBGROUP_IMPACT_REPORT_REF}",
@@ -137,8 +148,14 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF}",
         f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
+        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
     ],
-    produces=[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    produces=[
+        ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+        ARTIFACT_VALIDATION_REPORT_REF,
+        ARTIFACT_JUDGE_VERDICT_REF,
+    ],
 )
 
 
@@ -311,7 +328,14 @@ class BuildPolicyOutputBundleNode:
             runtime_reports_index=dict(state.reports_index),
             runtime_params_snapshot=_snapshot_runtime_params(state.params),
             execution_profile=state.execution_profile,
-            metadata={"workflow_id": str(state.params.get("workflow_id") or "")},
+            metadata={
+                "workflow_id": str(state.params.get("workflow_id") or ""),
+                "research_dag_status": (
+                    "available"
+                    if state.artifacts_index.get(ARTIFACT_RESEARCH_DAG_REF) is not None
+                    else "legacy_missing"
+                ),
+            },
         )
         try:
             bundle_ref = PolicyArtifactBuilder().build(ctx.store, build_input)
@@ -325,6 +349,63 @@ class BuildPolicyOutputBundleNode:
                 ),
             )
         bundle = load_policy_artifact_bundle(ctx.store, bundle_ref)
+        publication = run_phase5_artifact_preflight(
+            ctx,
+            state,
+            Phase5ArtifactPreflightInput(
+                artifact_ref=bundle_ref,
+                artifact_kind="scientist.policy_artifact_bundle",
+                artifact_payload=bundle.model_dump(mode="json"),
+                generated_for="scientist.policy_artifact_bundle",
+                analyst_facing=True,
+                base_readiness="ready",
+            ),
+        )
+        try:
+            enforce_phase5_publication(publication)
+        except Phase5ValidationBlocked:
+            new_state = branch_state(
+                state,
+                write_paths=(
+                    f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                    f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                ),
+            ).state
+            new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = ArtifactRef.model_validate(
+                dict(publication.validation_ref)
+            )
+            if publication.judge_verdict_ref is not None:
+                new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = (
+                    publication.judge_verdict_ref
+                )
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                artifacts=[
+                    artifact
+                    for artifact in (
+                        ArtifactRef.model_validate(dict(publication.validation_ref)),
+                        publication.judge_verdict_ref,
+                    )
+                    if artifact is not None
+                ],
+                events=[
+                    NodeEvent(
+                        level="error",
+                        message="Phase 5 validation blocked policy output publication.",
+                    )
+                ],
+                error=NodeError(
+                    code="phase5_validation_failed",
+                    message="Phase 5 validation blocked analyst-facing policy output",
+                    details={
+                        "validation_report_ref": str(publication.validation_ref.artifact_id),
+                        "verdict": publication.validation_report.verdict,
+                        "readiness": publication.validation_report.readiness,
+                        "gate_failures": list(publication.validation_report.gate_failures),
+                    },
+                ),
+            )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.policy_output_bundle_ref = bundle_ref
@@ -337,6 +418,8 @@ class BuildPolicyOutputBundleNode:
         new_state.artifacts_index[ARTIFACT_CHAMPION_POLICY_DOSSIER_REF] = (
             bundle.champion_policy_dossier_ref
         )
+        if bundle.claims_ref is not None:
+            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = bundle.claims_ref
         new_state.artifacts_index[ARTIFACT_POLICY_BRIEF_REF] = bundle.policy_brief_ref
         new_state.artifacts_index[ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF] = (
             bundle.constraint_satisfaction_report_ref
@@ -364,11 +447,25 @@ class BuildPolicyOutputBundleNode:
             new_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = (
                 bundle.decision_readiness_contract_ref
             )
+        new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = ArtifactRef.model_validate(
+            dict(publication.validation_ref)
+        )
+        if publication.judge_verdict_ref is not None:
+            new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = publication.judge_verdict_ref
 
         return NodeOutcome(
             status="ok",
             state=new_state,
-            artifacts=[bundle_ref],
+            artifacts=[
+                artifact
+                for artifact in (
+                    bundle_ref,
+                    bundle.claims_ref,
+                    ArtifactRef.model_validate(dict(publication.validation_ref)),
+                    publication.judge_verdict_ref,
+                )
+                if artifact is not None
+            ],
             events=[
                 *degraded_events,
                 NodeEvent(
@@ -377,6 +474,7 @@ class BuildPolicyOutputBundleNode:
                     attrs={
                         "candidate_id": candidate.candidate_id,
                         "has_readiness": bundle.decision_readiness_contract_ref is not None,
+                        "has_claims": bundle.claims_ref is not None,
                         "has_stress_test": bundle.stress_test_report_ref is not None,
                     },
                 ),

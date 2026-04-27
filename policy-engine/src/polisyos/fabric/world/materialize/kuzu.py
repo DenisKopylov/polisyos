@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import re
 import shutil
 import tempfile
 from collections import defaultdict, deque
@@ -18,6 +19,7 @@ from .errors import WorldKuzuNotAvailable, WorldMaterializationError, WorldSchem
 
 logger = get_logger(__name__)
 
+_KUZU_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 _DEFAULT_DDL_PATH = Path(__file__).resolve().parents[1] / "ddl" / "kuzu_world.cypher"
 
@@ -685,6 +687,8 @@ def _duckdb_copy(db: SimulationDB, select_sql: str, output_path: Path) -> None:
 
 
 def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
+    if not _KUZU_IDENTIFIER_RE.fullmatch(table_name):
+        raise WorldMaterializationError(f"unsafe Kuzu table identifier: {table_name!r}")
     path_sql = _sql_literal(str(csv_path))
     try:
         conn.execute(f"COPY {table_name} FROM {path_sql} (HEADER=true);")

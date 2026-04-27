@@ -560,6 +560,11 @@ def _build_claim_supports(
             claim_text,
             [snippet.text for _, snippet in selected],
         )
+        support_status = _claim_support_status(
+            support_score=support_score,
+            conflict_score=conflict_score,
+            snippet_count=len(snippet_ids),
+        )
         supports.append(
             ClaimSupportLink(
                 claim_id=f"claim.{index + 1}",
@@ -569,9 +574,28 @@ def _build_claim_supports(
                 support_score=round(support_score, 6),
                 conflict_score=round(conflict_score, 6),
                 uncertainty_note=uncertainty_note,
+                metadata={
+                    "claim_id_namespace": "legacy_local",
+                    "support_status": support_status,
+                },
             )
         )
     return supports
+
+
+def _claim_support_status(
+    *,
+    support_score: float,
+    conflict_score: float,
+    snippet_count: int,
+) -> str:
+    if snippet_count <= 0 or support_score <= 0:
+        return "unsupported"
+    if conflict_score >= 0.5:
+        return "contested"
+    if support_score >= 0.12:
+        return "supported"
+    return "weakly_supported"
 
 
 def _resolve_constraints(

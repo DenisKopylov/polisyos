@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -23,8 +24,10 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_promotion import (
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_POLICY_BRIEF_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
 )
 from polisyos.scientist.policy_design.output import PolicyArtifactBuilder, PolicyArtifactBuildInput
 from polisyos.scientist.policy_design.translator import (
@@ -34,6 +37,12 @@ from polisyos.scientist.policy_design.translator import (
 from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
 from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    Phase5ValidationBlocked,
+    enforce_phase5_publication,
+    run_phase5_artifact_preflight,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_policy_translation@1.0.0"),
@@ -63,8 +72,14 @@ _SPEC = NodeSpec(
         "params.policy_brief",
         "policy_brief_ref",
         f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
+        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
     ],
-    produces=[ARTIFACT_POLICY_BRIEF_REF],
+    produces=[
+        ARTIFACT_POLICY_BRIEF_REF,
+        ARTIFACT_VALIDATION_REPORT_REF,
+        ARTIFACT_JUDGE_VERDICT_REF,
+    ],
 )
 
 
@@ -154,15 +169,70 @@ class RunPolicyTranslationNode:
         brief, brief_ref = PolicyTranslatorWorker().translate_and_persist(
             ctx.store, translator_bundle
         )
+        publication = run_phase5_artifact_preflight(
+            ctx,
+            state,
+            Phase5ArtifactPreflightInput(
+                artifact_ref=brief_ref,
+                artifact_kind="scientist.policy_brief",
+                artifact_payload=brief.model_dump(mode="json"),
+                generated_for="scientist.policy_brief",
+                analyst_facing=True,
+                base_readiness="ready",
+            ),
+        )
+        try:
+            enforce_phase5_publication(publication)
+        except Phase5ValidationBlocked:
+            validation_ref = ArtifactRef.model_validate(dict(publication.validation_ref))
+            new_state = branch_state(
+                state,
+                write_paths=(
+                    f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                    f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                ),
+            ).state
+            new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
+            if publication.judge_verdict_ref is not None:
+                new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = (
+                    publication.judge_verdict_ref
+                )
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                artifacts=[
+                    artifact
+                    for artifact in (validation_ref, publication.judge_verdict_ref)
+                    if artifact is not None
+                ],
+                error=NodeError(
+                    code="phase5_validation_failed",
+                    message="Phase 5 validation blocked policy brief publication",
+                    details={
+                        "validation_report_ref": str(publication.validation_ref.artifact_id),
+                        "verdict": publication.validation_report.verdict,
+                        "readiness": publication.validation_report.readiness,
+                        "gate_failures": list(publication.validation_report.gate_failures),
+                    },
+                ),
+            )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["policy_brief"] = brief.model_dump(mode="json")
         new_state.policy_brief_ref = brief_ref
         new_state.artifacts_index[ARTIFACT_POLICY_BRIEF_REF] = brief_ref
+        validation_ref = ArtifactRef.model_validate(dict(publication.validation_ref))
+        new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
+        if publication.judge_verdict_ref is not None:
+            new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = publication.judge_verdict_ref
         return NodeOutcome(
             status="ok",
             state=new_state,
-            artifacts=[brief_ref],
+            artifacts=[
+                artifact
+                for artifact in (brief_ref, validation_ref, publication.judge_verdict_ref)
+                if artifact is not None
+            ],
             events=[
                 NodeEvent(
                     level="info",

@@ -37,7 +37,19 @@ from polisyos.foundry.methods.catalog.ml.regression import (
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
 
+from .pmd_hmc import assess_pmd_hmc_multimodality
+from .prior_sensitivity import (
+    BayesianPolicyModelFamily,
+    PriorSensitivityReport,
+    assemble_prior_sensitivity_report,
+    build_admissible_prior_class,
+    not_run_prior_sensitivity_report,
+    prior_predictive_rank_test,
+    prior_scale_sensitivity_records_from_samples,
+    simulate_linear_gaussian_prior_predictive,
+)
 from .protocols import (
+    MultimodalityState,
     PosteriorResult,
     augment_sampler_diagnostics,
     canonical_draws_artifact,
@@ -605,6 +617,52 @@ def _reference_sampler_contract(
     return posterior_fields, artifacts, warnings, determinism_tier
 
 
+def _pmd_hmc_assessment(
+    *,
+    posterior: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+    contract_fields: Mapping[str, Any],
+    params: Mapping[str, Any],
+    num_chains: int,
+    num_samples: int,
+    policy_functions: Mapping[str, Any] | None = None,
+    lp_energy: Mapping[str, Any] | None = None,
+    utility_by_action: Mapping[str, Any] | None = None,
+) -> tuple[Any, tuple[Any, ...], tuple[str, ...]]:
+    status, modes = assess_pmd_hmc_multimodality(
+        posterior,
+        num_chains=num_chains,
+        num_samples=num_samples,
+        diagnostics=diagnostics,
+        diagnostics_summary=contract_fields.get("diagnostics_summary", {}),
+        diagnostic_gates=contract_fields.get("diagnostic_gates", {}),
+        policy_functions=policy_functions,
+        lp_energy=lp_energy,
+        utility_by_action=utility_by_action,
+        seed=int(params.get("__seed__", 0)),
+        view_count=max(8, int(params.get("pmd_hmc_view_count", 200))),
+        n_bootstrap=max(0, int(params.get("pmd_hmc_bootstrap", 64))),
+        alpha_detect=float(params.get("pmd_hmc_alpha_detect", 0.01)),
+        alpha_warn=float(params.get("pmd_hmc_alpha_warn", 0.10)),
+        w_min=float(params.get("pmd_hmc_w_min", 0.05)),
+        max_modes=max(2, int(params.get("pmd_hmc_max_modes", 8))),
+        policy_margin=float(params.get("pmd_hmc_policy_margin", 0.0)),
+    )
+    warning_states = {
+        MultimodalityState.INCONCLUSIVE_SAMPLING_GEOMETRY,
+        MultimodalityState.INCONCLUSIVE_LOW_ESS,
+        MultimodalityState.INCONCLUSIVE_UNVISITED_MODES_POSSIBLE,
+        MultimodalityState.AMBIGUOUS,
+        MultimodalityState.MULTIMODALITY_DETECTED,
+        MultimodalityState.MULTIMODALITY_DETECTED_POLICY_INVARIANT,
+        MultimodalityState.MULTIMODALITY_DETECTED_POLICY_RELEVANT,
+    }
+    warnings = (
+        (f"posterior_geometry:{status.state.value}",) if status.state in warning_states else ()
+    )
+    return status, modes, warnings
+
+
 def _prediction_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
@@ -735,6 +793,83 @@ def _predictive_uncertainty_decomposition(
         epistemic_std=epistemic_std,
         aleatoric_std=aleatoric_std,
         metadata=metadata,
+    )
+
+
+def _linear_sampler_prior_sensitivity_report(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    posterior: Mapping[str, np.ndarray],
+    credible_intervals: Mapping[str, tuple[float, float]],
+    prior_scale: float,
+    credible_mass: float,
+    method_name: str,
+    params: Mapping[str, Any],
+) -> PriorSensitivityReport:
+    design = np.column_stack([np.ones(x.shape[0]), x])
+    seed = int(params.get("__seed__", params.get("seed", 0))) + 8807
+    rng = np.random.default_rng(seed)
+    simulations = simulate_linear_gaussian_prior_predictive(
+        design,
+        prior_scale=prior_scale,
+        n_simulations=max(32, int(params.get("prior_predictive_simulations", 128))),
+        rng=rng,
+    )
+    admissible = build_admissible_prior_class(
+        BayesianPolicyModelFamily.LINEAR,
+        hyperparameters={
+            "prior_scale": prior_scale,
+            "sigma_scale": prior_scale,
+            "nu_beta": float(params.get("nu_beta", 10.0)),
+        },
+        prior_predictive_simulations=simulations,
+    )
+    prior_predictive = prior_predictive_rank_test(
+        y,
+        simulations,
+        alpha=float(params.get("prior_predictive_alpha", 0.05)),
+        model_family=BayesianPolicyModelFamily.LINEAR,
+        features=x,
+        conditioned_on=("covariates", "sampling_design"),
+    )
+    coefficient_draws = np.asarray(posterior["coefficients"], dtype=float)
+    samples = {
+        "intercept": np.asarray(posterior["intercept"], dtype=float),
+        "sigma": np.asarray(posterior["sigma"], dtype=float),
+        **{
+            f"coefficients_{idx}": coefficient_draws[:, idx]
+            for idx in range(coefficient_draws.shape[1])
+        },
+    }
+    estimand_ids = tuple(
+        key for key in credible_intervals if key.startswith("coefficients_") or key == "intercept"
+    )
+    sensitivity_records = prior_scale_sensitivity_records_from_samples(
+        samples=samples,
+        credible_intervals=credible_intervals,
+        credible_interval_level=credible_mass,
+        baseline_prior_scale=prior_scale,
+        estimand_ids=estimand_ids,
+        ess_threshold=float(params["prior_sensitivity_ess_threshold"])
+        if "prior_sensitivity_ess_threshold" in params
+        else None,
+    )
+    sensitivity = sensitivity_records[0] if sensitivity_records else None
+    return assemble_prior_sensitivity_report(
+        model_family=BayesianPolicyModelFamily.LINEAR,
+        selected_prior_id=f"{method_name}_normal_halfnormal_prior_v1",
+        admissible_prior_class=admissible,
+        prior_predictive_check=prior_predictive,
+        sensitivity=sensitivity,
+        sensitivity_by_estimand=sensitivity_records,
+        readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
+        metadata={"prior_predictive_seed": seed, "estimand_count": len(sensitivity_records)},
+        warnings=tuple(
+            dict.fromkeys(
+                warning for record in sensitivity_records for warning in record.warnings
+            )
+        ),
     )
 
 
@@ -2088,6 +2223,32 @@ class BayesianHierarchicalRegressionEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        try:
+            prior_sensitivity = _linear_sampler_prior_sensitivity_report(
+                x=x,
+                y=y,
+                posterior={
+                    "intercept": np.asarray(posterior["global_intercept"], dtype=float),
+                    "coefficients": np.asarray(posterior["coefficients"], dtype=float),
+                    "sigma": np.asarray(posterior["sigma"], dtype=float),
+                },
+                credible_intervals={
+                    ("intercept" if key == "global_intercept" else key): value
+                    for key, value in credible_intervals.items()
+                    if key == "global_intercept" or key.startswith("coefficients_")
+                },
+                prior_scale=prior_scale,
+                credible_mass=credible_mass,
+                method_name="bayesian_hierarchical_regression",
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.LINEAR,
+                selected_prior_id="bayesian_hierarchical_regression_normal_hierarchical_prior_v1",
+                admissible_prior_class_id="linear_gaussian_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
         posterior_result = PosteriorResult(
             method_name="bayesian_hierarchical_regression",
             posterior_means=posterior_means,
@@ -2103,6 +2264,7 @@ class BayesianHierarchicalRegressionEstimator:
                 "uncertainty_decomposition": decomposition.as_dict(),
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
+            prior_sensitivity=prior_sensitivity,
         )
         return {
             "result": posterior_result,
@@ -2341,18 +2503,61 @@ class BayesianHMCRegressionEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        multimodality_status, modes, geometry_warnings = _pmd_hmc_assessment(
+            posterior=posterior,
+            diagnostics=diagnostics,
+            contract_fields=contract_fields,
+            params=params,
+            num_chains=num_chains,
+            num_samples=num_samples,
+            policy_functions=payload.get("policy_functions")
+            if isinstance(payload.get("policy_functions"), Mapping)
+            else None,
+            lp_energy=payload.get("lp_energy") if isinstance(payload.get("lp_energy"), Mapping) else None,
+            utility_by_action=payload.get("utility_by_action")
+            if isinstance(payload.get("utility_by_action"), Mapping)
+            else None,
+        )
+        contract_fields = {
+            **contract_fields,
+            "warnings": tuple(
+                dict.fromkeys([*contract_fields.get("warnings", ()), *geometry_warnings])
+            ),
+        }
+        contract_warnings = tuple(dict.fromkeys([*contract_warnings, *geometry_warnings]))
+        try:
+            prior_sensitivity = _linear_sampler_prior_sensitivity_report(
+                x=x,
+                y=y,
+                posterior=posterior,
+                credible_intervals=credible_intervals,
+                prior_scale=prior_scale,
+                credible_mass=credible_mass,
+                method_name="bayesian_hmc_regression",
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.LINEAR,
+                selected_prior_id="bayesian_hmc_regression_normal_halfnormal_prior_v1",
+                admissible_prior_class_id="linear_gaussian_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
         posterior_result = PosteriorResult(
             method_name="bayesian_hmc_regression",
             posterior_means=posterior_means,
             posterior_stds=posterior_stds,
             credible_intervals=credible_intervals,
             diagnostics=diagnostics,
+            multimodality_status=multimodality_status,
+            modes=modes,
             **contract_fields,
             metadata={
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
                 "uncertainty_decomposition": decomposition.as_dict(),
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
+            prior_sensitivity=prior_sensitivity,
         )
         result = {
             "result": posterior_result,
@@ -2598,18 +2803,61 @@ class BayesianNUTSRegressionEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        multimodality_status, modes, geometry_warnings = _pmd_hmc_assessment(
+            posterior=posterior,
+            diagnostics=diagnostics,
+            contract_fields=contract_fields,
+            params=params,
+            num_chains=num_chains,
+            num_samples=num_samples,
+            policy_functions=payload.get("policy_functions")
+            if isinstance(payload.get("policy_functions"), Mapping)
+            else None,
+            lp_energy=payload.get("lp_energy") if isinstance(payload.get("lp_energy"), Mapping) else None,
+            utility_by_action=payload.get("utility_by_action")
+            if isinstance(payload.get("utility_by_action"), Mapping)
+            else None,
+        )
+        contract_fields = {
+            **contract_fields,
+            "warnings": tuple(
+                dict.fromkeys([*contract_fields.get("warnings", ()), *geometry_warnings])
+            ),
+        }
+        contract_warnings = tuple(dict.fromkeys([*contract_warnings, *geometry_warnings]))
+        try:
+            prior_sensitivity = _linear_sampler_prior_sensitivity_report(
+                x=x,
+                y=y,
+                posterior=posterior,
+                credible_intervals=credible_intervals,
+                prior_scale=prior_scale,
+                credible_mass=credible_mass,
+                method_name="bayesian_nuts_regression",
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.LINEAR,
+                selected_prior_id="bayesian_nuts_regression_normal_halfnormal_prior_v1",
+                admissible_prior_class_id="linear_gaussian_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
         posterior_result = PosteriorResult(
             method_name="bayesian_nuts_regression",
             posterior_means=posterior_means,
             posterior_stds=posterior_stds,
             credible_intervals=credible_intervals,
             diagnostics=diagnostics,
+            multimodality_status=multimodality_status,
+            modes=modes,
             **contract_fields,
             metadata={
                 "feature_names": _feature_names_from_payload(payload, x.shape[1]),
                 "uncertainty_decomposition": decomposition.as_dict(),
                 **_runtime_backend_metadata(params, backend_used=backend_used),
             },
+            prior_sensitivity=prior_sensitivity,
         )
         result = {
             "result": posterior_result,

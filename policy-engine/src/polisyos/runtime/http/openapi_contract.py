@@ -232,6 +232,11 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
             "parameters": {"run_id": "$response.body#/run/run_id"},
             "description": "Inspect QuantityValue coverage for the same run.",
         },
+        "runFabricDecisionData": {
+            "operationId": "get_run_fabric_decision_data",
+            "parameters": {"run_id": "$response.body#/run/run_id"},
+            "description": "Inspect Fabric trust envelopes for decision-bearing run values.",
+        },
         "runAgents": {
             "operationId": "get_run_agents",
             "parameters": {"run_id": "$response.body#/run/run_id"},
@@ -1144,6 +1149,89 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "tracking_issue": None,
             }
         ],
+    },
+    "get_run_fabric_decision_data": {
+        "meta": _META_CORE_RUN,
+        "run_id": _RUN_ID_SAMPLE,
+        "source_kind": "core_run",
+        "temporal_scope": _TEMPORAL_SCOPE_SAMPLE,
+        "decision_data": [
+            {
+                "id": "fabric_decision_data:policy_cost",
+                "kind": "quantity",
+                "value": {
+                    "point": 100.0,
+                    "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+                    "semantic_type": "policy_cost",
+                    "metric_id": "policy_cost",
+                    "label": "policy_cost",
+                },
+                "source_contract": {
+                    "id": "runtime.decision_packet.generic",
+                    "version": "0.1.0",
+                },
+                "quality": {
+                    "status": "passed",
+                    "score": 1.0,
+                    "report_ref": "runtime://quantity-quality/policy_cost",
+                    "reason_code": None,
+                    "quality_surface": None,
+                    "remediation_link": None,
+                },
+                "lineage": {
+                    "id": "artifact:" + _ARTIFACT_ID_SAMPLE,
+                    "status": "verified",
+                    "hash": None,
+                    "compact_summary_ref": "/api/v1/lineage/artifact:" + _ARTIFACT_ID_SAMPLE,
+                    "full_graph_ref": "/api/v1/lineage/artifact:"
+                    + _ARTIFACT_ID_SAMPLE
+                    + "?view=full",
+                    "raw_evidence_refs": ["cas://" + _ARTIFACT_ID_SAMPLE],
+                    "export_links": {
+                        "openlineage": "/api/v1/lineage/artifact:"
+                        + _ARTIFACT_ID_SAMPLE
+                        + "/export/openlineage",
+                        "prov": "/api/v1/lineage/artifact:"
+                        + _ARTIFACT_ID_SAMPLE
+                        + "/export/prov",
+                    },
+                    "reason_code": None,
+                    "owner": None,
+                    "tracking_issue": None,
+                },
+                "access": {
+                    "classification": "public",
+                    "pii_tier": "none",
+                    "tenant_scope": "shared_public",
+                    "redaction": "none",
+                    "policy_ref": None,
+                },
+                "time": _TEMPORAL_SCOPE_SAMPLE,
+                "replay": {
+                    "status": "replayable",
+                    "manifest_ref": "cas://" + _ARTIFACT_ID_SAMPLE,
+                    "reason_code": None,
+                    "source_reason": None,
+                    "retention_alternative": None,
+                },
+                "gaps": [],
+                "metadata": {
+                    "quantity_class": "decision",
+                    "runtime_metric_id": "policy_cost",
+                },
+            }
+        ],
+        "coverage": {
+            "total": 1,
+            "decision": 1,
+            "telemetry": 0,
+            "layout": 0,
+            "debug": 0,
+            "traced": 1,
+            "untraced": 0,
+            "naked_decision_values": 0,
+            "transitional_waivers": 0,
+        },
     },
     "get_lineage": {"meta": _META_NO_SOURCE, "lineage": _LINEAGE_VIEW_SAMPLE},
     "get_lineage_batch": {

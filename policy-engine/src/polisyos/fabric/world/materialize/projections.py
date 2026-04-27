@@ -12,6 +12,7 @@ import pandas as pd
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.fabric.safety import quote_sql_identifier
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
     validate_conflict_set_id,
@@ -329,15 +330,21 @@ def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
     df = df.drop_duplicates(subset=[pk_col], keep="last")
     ids_df = df[[pk_col]].drop_duplicates()
     ids_name = _register_df(conn, ids_df, prefix=f"{pk_col}_ids")
+    table_sql = quote_sql_identifier(table, what="projection table", allow_dotted=True)
+    pk_sql = quote_sql_identifier(pk_col, what="projection primary key")
+    ids_sql = quote_sql_identifier(ids_name, what="temporary projection table")
     try:
-        conn.execute(f"DELETE FROM {table} WHERE {pk_col} IN (SELECT {pk_col} FROM {ids_name})")
+        conn.execute(f"DELETE FROM {table_sql} WHERE {pk_sql} IN (SELECT {pk_sql} FROM {ids_sql})")
     finally:
         conn.unregister(ids_name)
 
     data_name = _register_df(conn, df, prefix=f"{table}_rows")
+    data_sql = quote_sql_identifier(data_name, what="temporary projection data table")
     try:
-        cols = ", ".join(df.columns)
-        conn.execute(f"INSERT INTO {table} ({cols}) SELECT {cols} FROM {data_name}")
+        cols = ", ".join(
+            quote_sql_identifier(str(column), what="projection column") for column in df.columns
+        )
+        conn.execute(f"INSERT INTO {table_sql} ({cols}) SELECT {cols} FROM {data_sql}")
     finally:
         conn.unregister(data_name)
     return len(df.index)

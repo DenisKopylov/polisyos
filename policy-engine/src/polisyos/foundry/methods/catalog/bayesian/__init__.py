@@ -23,8 +23,18 @@ from .frontier import (
     SimulationBasedNREEstimator,
     SVGDRegressionEstimator,
 )
+from .pmd_hmc import (
+    PmdHmcBenchmarkCase,
+    assess_pmd_hmc_multimodality,
+    build_pmd_hmc_benchmark_suite,
+    run_pmd_hmc_benchmark,
+)
 from .protocols import (
+    MultimodalityState,
+    MultimodalityStatus,
+    PosteriorModeSummary,
     PosteriorResult,
+    PriorSensitivityReport,
     SimulatorDiagnosticArtifact,
     TruthfulnessEvidence,
     TruthfulnessTier,
@@ -56,7 +66,12 @@ __all__ = [
     "DirichletProcessMixtureEstimator",
     "ExpectationPropagationGaussianEstimator",
     "FactorGraphBeliefPropagationEstimator",
+    "MultimodalityState",
+    "MultimodalityStatus",
+    "PmdHmcBenchmarkCase",
     "PosteriorResult",
+    "PosteriorModeSummary",
+    "PriorSensitivityReport",
     "SVGDRegressionEstimator",
     "SimulatorDiagnosticArtifact",
     "SimulationBasedNLEEstimator",
@@ -65,6 +80,9 @@ __all__ = [
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "canonical_simulator_diagnostic_artifact",
+    "assess_pmd_hmc_multimodality",
+    "build_pmd_hmc_benchmark_suite",
+    "run_pmd_hmc_benchmark",
     "ensure_bayesian_methods_registered",
     "register_bayesian_methods",
 ]

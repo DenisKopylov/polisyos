@@ -10,6 +10,10 @@ from typing import Any
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.fabric.connectors.http_limits import (
+    DEFAULT_READ_CHUNK_SIZE,
+    read_bounded_response_body,
+)
 from polisyos.fabric.connectors.resilience.rate_limiter import parse_retry_after_header
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
@@ -134,11 +138,13 @@ def quality_flags_from_source_metadata(
 
 
 __all__ = [
+    "DEFAULT_READ_CHUNK_SIZE",
     "FRESHNESS_SOURCE_TIMESTAMP_MISSING",
     "build_data_version",
     "frame_completeness",
     "parse_http_datetime",
     "quality_flags_from_source_metadata",
+    "read_bounded_response_body",
     "retry_after_seconds",
     "safe_float",
     "safe_int",

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0",
+  "title": "BERL ExplanationBundle",
+  "description": "Versioned audit contract for bounded, assumption-scoped model explanations.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "created_at",
+    "model",
+    "prediction",
+    "feature_context",
+    "assumptions",
+    "methods",
+    "validity",
+    "audit"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "bundle_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "faithfulness_claim": { "enum": ["bounded", "unbounded"] },
+    "display_policy": { "enum": ["analyst_display", "limited", "diagnostic_only"] },
+    "analyst_warning": { "type": ["string", "null"] },
+    "model": { "type": "object" },
+    "prediction": { "type": "object" },
+    "feature_context": { "type": "object" },
+    "assumptions": { "type": "object" },
+    "redundancy": { "type": "object" },
+    "methods": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "disagreement": { "type": ["object", "null"] },
+    "validity": { "type": "object" },
+    "audit": { "type": "object" }
+  },
+  "additionalProperties": false
+}

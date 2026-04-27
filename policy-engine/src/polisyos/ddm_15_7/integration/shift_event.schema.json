@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/shift_event.schema.json",
+  "title": "Track 2.2 ShiftDetected.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_type",
+    "event_id",
+    "timestamp",
+    "model_id",
+    "model_version",
+    "detector_id",
+    "detector_family",
+    "signal",
+    "representation",
+    "reference_window",
+    "current_window",
+    "stationarity_regime_id",
+    "calibration_id",
+    "test_statistic",
+    "empirical_fp_rate",
+    "shift_severity",
+    "diagnostic_only"
+  ],
+  "properties": {
+    "event_type": { "const": "ml.track_2_2.shift_detected.v1" },
+    "event_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "model_id": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "detector_id": { "type": "string", "minLength": 1 },
+    "detector_family": { "type": "string", "minLength": 1 },
+    "signal": {
+      "enum": [
+        "input_shift",
+        "prediction_drift",
+        "embedding_shift",
+        "attribution_drift",
+        "slice_shift",
+        "feature_shift"
+      ]
+    },
+    "representation": { "type": "string", "minLength": 1 },
+    "reference_window": { "$ref": "#/$defs/window" },
+    "current_window": { "$ref": "#/$defs/window" },
+    "stationarity_regime_id": { "type": "string", "minLength": 1 },
+    "calibration_id": { "type": "string", "minLength": 1 },
+    "test_statistic": { "type": "number" },
+    "p_value": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "e_value": { "type": ["number", "null"], "minimum": 0 },
+    "ert": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+    "threshold": { "type": ["number", "null"] },
+    "empirical_fp_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "shift_severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "affected_features": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/affected_feature" },
+      "default": []
+    },
+    "affected_slices": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/affected_slice" },
+      "default": []
+    },
+    "diagnostic_only": { "type": "boolean" }
+  },
+  "anyOf": [
+    { "properties": { "p_value": { "type": "number", "minimum": 0, "maximum": 1 } }, "required": ["p_value"] },
+    { "properties": { "e_value": { "type": "number", "minimum": 0 } }, "required": ["e_value"] },
+    { "properties": { "ert": { "type": "number", "exclusiveMinimum": 0 } }, "required": ["ert"] }
+  ],
+  "$defs": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end", "n"],
+      "properties": {
+        "start": { "type": "string", "format": "date-time" },
+        "end": { "type": "string", "format": "date-time" },
+        "n": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "affected_feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature", "score"],
+      "properties": {
+        "feature": { "type": "string", "minLength": 1 },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "direction": { "type": ["string", "null"] }
+      }
+    },
+    "affected_slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slice", "score"],
+      "properties": {
+        "slice": { "type": "string", "minLength": 1 },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

@@ -33,6 +33,7 @@ def test_openapi_contract_includes_client_navigation_links() -> None:
     assert sorted(run_links) == [
         "runAgents",
         "runEvidenceContext",
+        "runFabricDecisionData",
         "runLineage",
         "runNodes",
         "runQuantities",
@@ -72,6 +73,7 @@ def test_generated_runtime_client_includes_batch_read_wrappers() -> None:
 
     assert "getRunsBatch" in names
     assert "getArtifactBatch" in names
+    assert "getRunFabricDecisionData" in names
 
 
 def test_generated_runtime_client_includes_mobility_wrappers() -> None:

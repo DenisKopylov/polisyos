@@ -10,6 +10,7 @@ Provides:
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -22,8 +23,12 @@ from ._schema_types import Additivity, SchemaType, SemanticType
 
 __all__ = [
     "FIELD_NAME_PATTERN",
+    "SCHEMA_ID_PATTERN",
     "FieldSpec",
     "SchemaVersion",
+    "make_field_id",
+    "make_schema_id",
+    "normalize_schema_id_part",
     "normalize_unit_id",
 ]
 
@@ -92,6 +97,75 @@ class SchemaVersion:
 
 # Pattern for valid field names (snake_case)
 FIELD_NAME_PATTERN = r"^[a-z][a-z0-9_]*$"
+SCHEMA_ID_PATTERN = (
+    r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
+    r"(?:\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*)*$"
+)
+
+
+def _encode_identifier_char(char: str) -> str:
+    return f"u{ord(char):04x}"
+
+
+def _normalize_identifier_segment(value: str) -> str:
+    value = unicodedata.normalize("NFKC", value).casefold().strip()
+    if not value:
+        return ""
+
+    chars: list[str] = []
+    for char in value:
+        if char.isascii():
+            if char.isalnum():
+                chars.append(char)
+            elif char in {"_", "-"} or char.isspace():
+                chars.append("_")
+            else:
+                chars.append("_")
+            continue
+        if unicodedata.category(char)[:1] in {"L", "N"}:
+            chars.append(_encode_identifier_char(char))
+        else:
+            chars.append("_")
+
+    segment = re.sub(r"_+", "_", "".join(chars)).strip("_")
+    if not segment:
+        return ""
+    if not segment[0].isalpha():
+        segment = f"id_{segment}"
+    return segment
+
+
+def normalize_schema_id_part(value: object) -> str:
+    """Normalize a source/provider token into one or more schema-id segments."""
+    raw = unicodedata.normalize("NFKC", str(value)).strip()
+    if not raw:
+        return ""
+    raw = re.sub(r"[\s/\\:]+", ".", raw)
+    raw = re.sub(r"\.+", ".", raw)
+    segments = [
+        normalized
+        for part in raw.split(".")
+        if (normalized := _normalize_identifier_segment(part))
+    ]
+    return ".".join(segments)
+
+
+def make_schema_id(*parts: object, fallback: str = "schema") -> str:
+    """Build a stable Fabric schema id from connector/source tokens."""
+    segments: list[str] = []
+    for part in parts:
+        normalized = normalize_schema_id_part(part)
+        if normalized:
+            segments.extend(normalized.split("."))
+    candidate = ".".join(segments) or normalize_schema_id_part(fallback) or "schema"
+    if re.fullmatch(SCHEMA_ID_PATTERN, candidate) is None:
+        raise ValueError(f"Cannot build valid schema_id from parts: {parts!r}")
+    return candidate
+
+
+def make_field_id(schema_id: str, field_name: str) -> str:
+    """Build a globally stable field id under a schema id."""
+    return make_schema_id(schema_id, field_name)
 
 
 def normalize_unit_id(value: str) -> str:
@@ -122,6 +196,13 @@ class FieldSpec(BaseModel):
         ...,
         pattern=FIELD_NAME_PATTERN,
         description="Field name in snake_case format",
+    )
+    field_id: str | None = Field(
+        default=None,
+        pattern=SCHEMA_ID_PATTERN,
+        description=(
+            "Stable semantic field identity. If omitted, the field name is the local identity."
+        ),
     )
 
     # Type information
@@ -208,6 +289,14 @@ class FieldSpec(BaseModel):
             return UnitRef(unit_id=unit_id)
         raise TypeError("unit must be UnitRef or str")
 
+    @field_validator("field_id", mode="before")
+    @classmethod
+    def _coerce_field_id(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        normalized = str(value).strip()
+        return normalized or None
+
     @field_validator("bounds", mode="before")
     @classmethod
     def _coerce_bounds(cls, value: object) -> tuple[float | None, float | None]:
@@ -251,8 +340,64 @@ class FieldSpec(BaseModel):
         if scale is not None and precision is not None and scale > precision:
             raise ValueError("scale cannot exceed precision")
 
-        if precision != self.precision or scale != self.scale:
-            return self.model_copy(update={"precision": precision, "scale": scale})
+        if precision != self.precision:
+            object.__setattr__(self, "precision", precision)
+        if scale != self.scale:
+            object.__setattr__(self, "scale", scale)
+
+        return self
+
+    @model_validator(mode="after")
+    def validate_semantic_shape(self) -> FieldSpec:
+        """Reject schema declarations whose technical type cannot carry the semantics."""
+        if self.semantic_type is None:
+            return self
+
+        numeric_semantics = {
+            SemanticType.CURRENCY,
+            SemanticType.PERCENTAGE,
+            SemanticType.RATIO,
+            SemanticType.COUNT,
+            SemanticType.RATE,
+            SemanticType.INDEX,
+            SemanticType.POPULATION,
+            SemanticType.AREA,
+            SemanticType.DISTANCE,
+            SemanticType.WEIGHT,
+            SemanticType.LATITUDE,
+            SemanticType.LONGITUDE,
+        }
+        numeric_types = {
+            SchemaType.INT8,
+            SchemaType.INT16,
+            SchemaType.INT32,
+            SchemaType.INT64,
+            SchemaType.UINT8,
+            SchemaType.UINT16,
+            SchemaType.UINT32,
+            SchemaType.UINT64,
+            SchemaType.FLOAT16,
+            SchemaType.FLOAT32,
+            SchemaType.FLOAT64,
+            SchemaType.DECIMAL,
+        }
+        if self.semantic_type in numeric_semantics and self.data_type not in numeric_types:
+            raise ValueError(
+                f"semantic_type {self.semantic_type.value!r} requires a numeric data_type"
+            )
+
+        semantic_min, semantic_max = self.semantic_type.get_validation_bounds()
+        field_min, field_max = self.bounds
+        if semantic_min is not None and field_min is not None and field_min < semantic_min:
+            raise ValueError(
+                f"bounds min {field_min} is outside semantic bounds for "
+                f"{self.semantic_type.value}: {semantic_min}"
+            )
+        if semantic_max is not None and field_max is not None and field_max > semantic_max:
+            raise ValueError(
+                f"bounds max {field_max} is outside semantic bounds for "
+                f"{self.semantic_type.value}: {semantic_max}"
+            )
 
         return self
 
@@ -291,6 +436,11 @@ class FieldSpec(BaseModel):
                 return False
 
         return True
+
+    @property
+    def stable_id(self) -> str:
+        """Return the field identity used for evolution matching."""
+        return self.field_id or self.name
 
     def widen_to(self, other: FieldSpec) -> FieldSpec:
         """

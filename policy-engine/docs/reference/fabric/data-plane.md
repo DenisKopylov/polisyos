@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world_query.py`, `tests/fabric/data_plane/**`, `tests/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 The Fabric data plane coordinates ingestion modes, cursor advancement,
 watermark selection, quarantine/DLQ records, streaming/CDC processing,

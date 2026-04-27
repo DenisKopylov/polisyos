@@ -36,6 +36,9 @@ from polisyos.ir.analytics.hte import (
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
 from polisyos.scientist.causal.validity import persist_causal_validity_bundle
+from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.projections import project_causal_effect_claims
+from polisyos.scientist.claims.validators import is_claim_spine_enabled
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -47,6 +50,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -89,6 +93,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
         f"artifacts_index.{ARTIFACT_HTE_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
         f"artifacts_index.{ARTIFACT_SENSITIVITY_RESULT_REF}",
@@ -99,6 +104,7 @@ _SPEC = NodeSpec(
         ARTIFACT_CAUSAL_METHOD_RESULT_REF,
         ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
         ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+        ARTIFACT_CLAIMS_REF,
         ARTIFACT_HTE_RESULT_REF,
         ARTIFACT_POLICY_RECOMMENDATION_REF,
         ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -735,6 +741,29 @@ class RunCausalEvaluationNode:
                 )
             )
 
+        claims_ref = None
+        if is_claim_spine_enabled(state.params):
+            claim_source_refs = [
+                ref
+                for ref in (
+                    report_ref,
+                    envelope_ref,
+                    _to_core_artifact_ref(result.method_result_ref),
+                    _to_core_artifact_ref(result.method_evidence_ref),
+                    validity_bundle_ref,
+                    sensitivity_ref,
+                    hte_ref,
+                    recommendation_ref,
+                )
+                if ref is not None
+            ]
+            claim_ledger = project_causal_effect_claims(
+                report,
+                run_id=state.run_id,
+                source_artifact_refs=claim_source_refs,
+            )
+            claims_ref = persist_claim_ledger(ctx.store, claim_ledger)
+
         new_state = branch_state(
             state,
             write_paths=(
@@ -744,6 +773,7 @@ class RunCausalEvaluationNode:
                 f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
                 f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF}",
                 f"artifacts_index.{ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
                 f"artifacts_index.{ARTIFACT_HTE_RESULT_REF}",
                 f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
                 f"artifacts_index.{ARTIFACT_SENSITIVITY_RESULT_REF}",
@@ -764,6 +794,8 @@ class RunCausalEvaluationNode:
             )
         if validity_bundle_ref is not None:
             new_state.artifacts_index[ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF] = validity_bundle_ref
+        if claims_ref is not None:
+            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
         if hte_ref is not None:
             new_state.artifacts_index[ARTIFACT_HTE_RESULT_REF] = hte_ref
         if recommendation_ref is not None:
@@ -780,6 +812,8 @@ class RunCausalEvaluationNode:
             produced.append(result.method_evidence_ref)
         if validity_bundle_ref is not None:
             produced.append(validity_bundle_ref)
+        if claims_ref is not None:
+            produced.append(claims_ref)
         if hte_ref is not None:
             produced.append(hte_ref)
         if recommendation_ref is not None:
@@ -799,6 +833,7 @@ class RunCausalEvaluationNode:
                         f"status={report.status.value}, "
                         f"refutation={report.metadata.get('refutation_auto', {}).get('status')}, "
                         f"sensitivity={report.metadata.get('sensitivity_auto', {}).get('status')}, "
+                        f"claims={'yes' if claims_ref is not None else 'no'}, "
                         f"validity_bundle={'yes' if validity_bundle_ref is not None else 'no'}"
                     ),
                 )

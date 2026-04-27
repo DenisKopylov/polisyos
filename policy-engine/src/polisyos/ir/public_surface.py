@@ -131,6 +131,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DataViewRequest": ("polisyos.ir.analytics.data_views", "DataViewRequest"),
     "DataViewType": ("polisyos.ir.analytics.data_views", "DataViewType"),
     "DiagnosticTest": ("polisyos.ir.analytics.causal", "DiagnosticTest"),
+    "DetectorResult": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "DetectorResult",
+    ),
     "DoWhyGraphBridge": (
         "polisyos.ir.analytics.ecosystem_bridges",
         "DoWhyGraphBridge",
@@ -140,6 +144,38 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "DimensionBreakdown",
     ),
     "DistributionFamily": ("polisyos.ir.analytics.uncertainty", "DistributionFamily"),
+    "DependentSensitivityAnalysisBundle": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "DependentSensitivityAnalysisBundle",
+    ),
+    "DependentSensitivityAnalysisBundleRef": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "DependentSensitivityAnalysisBundleRef",
+    ),
+    "DependentSensitivityResult": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "DependentSensitivityResult",
+    ),
+    "DependentSensitivityResultRef": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "DependentSensitivityResultRef",
+    ),
+    "SensitivityAnalysisBundle": (
+        "polisyos.ir.analytics.sensitivity",
+        "SensitivityAnalysisBundle",
+    ),
+    "SensitivityAnalysisIndex": (
+        "polisyos.ir.analytics.sensitivity",
+        "SensitivityAnalysisIndex",
+    ),
+    "load_dependent_sensitivity_result": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "load_dependent_sensitivity_result",
+    ),
+    "persist_dependent_sensitivity_result": (
+        "polisyos.ir.analytics.dependent_sensitivity",
+        "persist_dependent_sensitivity_result",
+    ),
     "DistributionalReport": (
         "polisyos.ir.analytics.distributional",
         "DistributionalReport",
@@ -168,13 +204,61 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.endogenous_inequality",
         "ReferencePopulation",
     ),
+    "OperatingCharacteristicKey": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "OperatingCharacteristicKey",
+    ),
+    "OperatingCharacteristicLibrary": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "OperatingCharacteristicLibrary",
+    ),
+    "OperatingCharacteristicRecord": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "OperatingCharacteristicRecord",
+    ),
+    "ReadinessImpact": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "ReadinessImpact",
+    ),
     "ScalarEstimandEstimate": (
         "polisyos.ir.analytics.endogenous_inequality",
         "ScalarEstimandEstimate",
     ),
+    "ShiftComponent": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "ShiftComponent",
+    ),
+    "ShiftDiagnosticReport": (
+        "polisyos.ir.analytics.shift_diagnostics",
+        "ShiftDiagnosticReport",
+    ),
+    "ShiftDiagnosticReportRef": (
+        "polisyos.ir.refs",
+        "ShiftDiagnosticReportRef",
+    ),
+    "SensitivityAnalysisBundleRef": (
+        "polisyos.ir.refs",
+        "SensitivityAnalysisBundleRef",
+    ),
+    "ExplanationBundleRef": (
+        "polisyos.ir.refs",
+        "ExplanationBundleRef",
+    ),
+    "JudgeVerdictRef": (
+        "polisyos.ir.refs",
+        "JudgeVerdictRef",
+    ),
+    "DriftReadinessRef": (
+        "polisyos.ir.refs",
+        "DriftReadinessRef",
+    ),
     "MetricValidationReport": (
         "polisyos.ir.analytics.metric_validation_report",
         "MetricValidationReport",
+    ),
+    "FairnessAuditReport": (
+        "polisyos.ir.analytics.fairness_audit_report",
+        "FairnessAuditReport",
     ),
     "MissingnessAssessmentProvenance": (
         "polisyos.ir.analytics.administrative_missingness",

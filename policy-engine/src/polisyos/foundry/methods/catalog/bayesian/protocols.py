@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Mapping
-from enum import Enum
+from enum import StrEnum
 from typing import Any, ClassVar
 
 import numpy as np
@@ -29,8 +29,14 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
 
+from .prior_sensitivity import (
+    PriorSensitivityReport,
+    infer_bayesian_policy_model_family,
+    not_run_prior_sensitivity_report,
+)
 
-class TruthfulnessTier(str, Enum):
+
+class TruthfulnessTier(StrEnum):
     """Typed runtime guarantees for posterior summaries."""
 
     EXACT = "EXACT"
@@ -77,6 +83,169 @@ class SimulatorDiagnosticArtifact(BaseModel):
     failure_mode: tuple[str, ...] = ()
     recommended_action: tuple[str, ...] = ()
     artifact_ref: str | None = None
+
+
+class MultimodalityState(StrEnum):
+    """Conservative posterior geometry state for sampled-support diagnostics."""
+
+    NOT_ASSESSED = "not_assessed"
+    INCONCLUSIVE_SAMPLING_GEOMETRY = "inconclusive_sampling_geometry"
+    INCONCLUSIVE_LOW_ESS = "inconclusive_low_ess"
+    INCONCLUSIVE_UNVISITED_MODES_POSSIBLE = "inconclusive_unvisited_modes_possible"
+    NOT_DETECTED_IN_VISITED_SUPPORT = "not_detected_in_visited_support"
+    AMBIGUOUS = "ambiguous"
+    MULTIMODALITY_DETECTED = "multimodality_detected"
+    MULTIMODALITY_DETECTED_POLICY_INVARIANT = "multimodality_detected_policy_invariant"
+    MULTIMODALITY_DETECTED_POLICY_RELEVANT = "multimodality_detected_policy_relevant"
+
+
+class MultimodalityScope(StrEnum):
+    """Draw space used by a multimodality diagnostic."""
+
+    JOINT_UNCONSTRAINED_PARAMETERS = "joint_unconstrained_parameters"
+    SELECTED_PARAMETERS = "selected_parameters"
+    GENERATED_QUANTITIES = "generated_quantities"
+    POLICY_FUNCTIONS = "policy_functions"
+    LP_ENERGY = "lp_energy"
+
+
+class ModeWeightReliability(StrEnum):
+    """Semantics of reported mode weights."""
+
+    RELIABLE_POSTERIOR_MASS = "reliable_posterior_mass"
+    OBSERVED_DRAW_FRACTION_ONLY = "observed_draw_fraction_only"
+    STACKED_PREDICTIVE_ONLY = "stacked_predictive_only"
+    UNKNOWN = "unknown"
+
+
+class PolicyRelevanceClassification(StrEnum):
+    """Whether detected posterior modes affect policy choice."""
+
+    NOT_ASSESSED = "not_assessed"
+    POLICY_INVARIANT = "policy_invariant"
+    POLICY_SENSITIVE = "policy_sensitive"
+    WEIGHT_SENSITIVE = "weight_sensitive"
+    UNKNOWN = "unknown"
+
+
+class PosteriorReadiness(StrEnum):
+    """Readiness downgrade emitted by posterior geometry diagnostics."""
+
+    UNCHANGED = "unchanged"
+    CAUTION = "caution"
+    CONDITIONAL = "conditional"
+    NOT_READY = "not_ready"
+    REFUSE_SINGLE_POLICY = "refuse_single_policy"
+
+
+class MultimodalityTestMetadata(BaseModel):
+    """Configuration and calibration metadata for PMD-HMC-like diagnostics."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str = "PMD-HMC"
+    version: str = "0.1.0"
+    p_global: float | None = None
+    alpha_detect: float = 0.01
+    alpha_warn: float = 0.10
+    view_count: int = 0
+    observer_strategy: str = "not_assessed"
+    projection_strategy: str = "not_assessed"
+    calibration_method: str = "not_assessed"
+    n_eff_used: float | None = None
+    null_reference: tuple[str, ...] = ()
+
+
+class SamplerAdequacyStatus(BaseModel):
+    """Sampler-adequacy gate used before interpreting multimodality evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    rhat_max: float | None = None
+    bulk_ess_min: float | None = None
+    tail_ess_min: float | None = None
+    divergences: float | None = None
+    bfmi_min: float | None = None
+    max_treedepth_saturation_rate: float | None = None
+    passed: bool = False
+
+
+class DetectedModesStatus(BaseModel):
+    """Lower-bound mode-count disclosure for sampled posterior support."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    n_detected_lower_bound: int = 0
+    mode_ids: tuple[str, ...] = ()
+    assignments_available: bool = False
+    mode_weight_reliability: ModeWeightReliability = ModeWeightReliability.UNKNOWN
+
+
+class PolicyRelevanceStatus(BaseModel):
+    """Policy relevance disclosure for detected posterior modes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    assessed: bool = False
+    classification: PolicyRelevanceClassification = PolicyRelevanceClassification.NOT_ASSESSED
+    single_recommendation_allowed: bool = False
+
+
+class MultimodalityDowngrade(BaseModel):
+    """Deterministic readiness policy derived from posterior geometry state."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    posterior_readiness: PosteriorReadiness = PosteriorReadiness.UNCHANGED
+    ordinary_mean_summary_allowed: bool = True
+    mode_conditional_reporting_required: bool = False
+    summary_policy: str = "ordinary_posterior_summaries_allowed"
+    recommendation_policy: str = "single_policy_recommendation_allowed"
+
+
+class MultimodalityStatus(BaseModel):
+    """Contract for sampled-support multimodality and posterior geometry reporting."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    state: MultimodalityState = MultimodalityState.NOT_ASSESSED
+    scope: tuple[MultimodalityScope, ...] = ()
+    test: MultimodalityTestMetadata = Field(default_factory=MultimodalityTestMetadata)
+    sampler_adequacy: SamplerAdequacyStatus = Field(default_factory=SamplerAdequacyStatus)
+    modes: DetectedModesStatus = Field(default_factory=DetectedModesStatus)
+    policy_relevance: PolicyRelevanceStatus = Field(default_factory=PolicyRelevanceStatus)
+    downgrade: MultimodalityDowngrade = Field(default_factory=MultimodalityDowngrade)
+    evidence_strength: str = "not_assessed"
+    limitations: tuple[str, ...] = (
+        "Sample-only test cannot exclude unvisited modes.",
+        "Mode count is a lower bound.",
+    )
+
+
+class PosteriorModeWeight(BaseModel):
+    """Weight disclosure for a detected posterior mode."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    estimate: float
+    ci_90: tuple[float, float] | None = None
+    method: str = "observed_draw_fraction"
+
+
+class PosteriorModeSummary(BaseModel):
+    """Mode-conditional posterior summary carried by PosteriorResult."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    mode_id: str
+    draw_count: int
+    ess_bulk_min: float | None = None
+    weight: PosteriorModeWeight
+    center: dict[str, float] = Field(default_factory=dict)
+    covariance_summary: dict[str, float] = Field(default_factory=dict)
+    parameter_summaries: dict[str, dict[str, float]] = Field(default_factory=dict)
+    policy_summaries: dict[str, Any] = Field(default_factory=dict)
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
 
 
 def validate_simulator_diagnostic_artifact(
@@ -1347,6 +1516,22 @@ def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvid
     )
 
 
+def _ensure_prior_sensitivity_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+    updated = dict(payload)
+    if "prior_sensitivity" in updated:
+        return updated
+    method_name = str(updated.get("method_name", "") or "")
+    family = infer_bayesian_policy_model_family(method_name)
+    updated["prior_sensitivity"] = not_run_prior_sensitivity_report(
+        model_family=family,
+        selected_prior_id="not_declared",
+        admissible_prior_class_id=f"{family.value}_prior_policy_v1"
+        if family.value != "unknown"
+        else "not_declared",
+    ).model_dump(mode="python")
+    return updated
+
+
 class PosteriorResult(BaseModel):
     """Store posterior draws, intervals, diagnostics, and model metadata."""
 
@@ -1371,7 +1556,12 @@ class PosteriorResult(BaseModel):
     warnings: tuple[str, ...] = ()
     status: str = "ok"
     degradation_reason: str | None = None
+    multimodality_status: MultimodalityStatus = Field(default_factory=MultimodalityStatus)
+    modes: tuple[PosteriorModeSummary, ...] = ()
     metadata: dict[str, Any] = Field(default_factory=dict)
+    prior_sensitivity: PriorSensitivityReport = Field(
+        default_factory=not_run_prior_sensitivity_report
+    )
     truthfulness_tier: TruthfulnessTier = TruthfulnessTier.APPROXIMATE_UNCALIBRATED
     truthfulness: TruthfulnessEvidence = Field(default_factory=TruthfulnessEvidence)
     truthfulness_receipt: TruthfulnessReceipt | None = None
@@ -1381,7 +1571,7 @@ class PosteriorResult(BaseModel):
     def _populate_truthfulness(cls, value: Any) -> Any:
         if not isinstance(value, dict):
             return value
-        payload = dict(value)
+        payload = _ensure_prior_sensitivity_payload(value)
         status_override, degradation_reason = _sbi_status_override(payload)
         if status_override is not None and "status" not in payload:
             payload["status"] = status_override
@@ -1497,6 +1687,13 @@ class PosteriorResult(BaseModel):
                 "simulator_diagnostic_ref": self.simulator_diagnostic_ref,
             },
         )
+
+    def to_consensus_target(self, query: Any) -> Any:
+        """Expose this posterior on the canonical cross-method consensus surface."""
+
+        from polisyos.foundry.methods.consensus import target_from_posterior_result
+
+        return target_from_posterior_result(self, query)
 
 
 def credible_interval(samples: np.ndarray, *, credible_mass: float) -> tuple[float, float]:
@@ -1624,8 +1821,22 @@ def metropolis_sample(
 
 
 __all__ = [
+    "DetectedModesStatus",
+    "ModeWeightReliability",
+    "MultimodalityDowngrade",
+    "MultimodalityScope",
+    "MultimodalityState",
+    "MultimodalityStatus",
+    "MultimodalityTestMetadata",
+    "PolicyRelevanceClassification",
+    "PolicyRelevanceStatus",
     "PosteriorResult",
+    "PosteriorModeSummary",
+    "PosteriorModeWeight",
+    "PriorSensitivityReport",
     "SimulatorDiagnosticArtifact",
+    "SamplerAdequacyStatus",
+    "PosteriorReadiness",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "augment_sampler_diagnostics",

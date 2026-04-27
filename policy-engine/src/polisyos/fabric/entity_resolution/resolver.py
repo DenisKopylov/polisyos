@@ -28,8 +28,16 @@ def _jaccard(left: set[str], right: set[str]) -> float:
 class ProbabilisticEntityResolver:
     """Explainable pairwise entity resolver for small-to-medium multi-source batches."""
 
-    def __init__(self, *, method: str = "probabilistic_name_identifier_v1") -> None:
+    def __init__(
+        self,
+        *,
+        method: str = "probabilistic_name_identifier_v1",
+        max_pairs: int = 100_000,
+        max_candidates: int = 10_000,
+    ) -> None:
         self._method = method
+        self._max_pairs = max(1, max_pairs)
+        self._max_candidates = max(1, max_candidates)
 
     @property
     def method(self) -> str:
@@ -40,17 +48,43 @@ class ProbabilisticEntityResolver:
         records: list[EntityRecord],
         *,
         min_confidence: float = 0.55,
+        max_pairs: int | None = None,
+        max_candidates: int | None = None,
     ) -> list[EntityMatchCandidate]:
         matches: list[EntityMatchCandidate] = []
+        pair_limit = self._max_pairs if max_pairs is None else max(1, max_pairs)
+        candidate_limit = (
+            self._max_candidates if max_candidates is None else max(1, max_candidates)
+        )
+        pairs_seen = 0
         for left, right in combinations(records, 2):
+            if pairs_seen >= pair_limit:
+                break
+            pairs_seen += 1
             if left.source == right.source:
                 continue
             candidate = self._compare_pair(left, right)
             if candidate.confidence < min_confidence:
                 continue
-            matches.append(candidate)
+            self._retain_candidate(matches, candidate, candidate_limit)
         matches.sort(key=lambda item: (-item.confidence, item.match_id))
         return matches
+
+    @staticmethod
+    def _retain_candidate(
+        matches: list[EntityMatchCandidate],
+        candidate: EntityMatchCandidate,
+        limit: int,
+    ) -> None:
+        if len(matches) < limit:
+            matches.append(candidate)
+            return
+        worst_index, worst = max(
+            enumerate(matches),
+            key=lambda item: (-item[1].confidence, item[1].match_id),
+        )
+        if (-candidate.confidence, candidate.match_id) < (-worst.confidence, worst.match_id):
+            matches[worst_index] = candidate
 
     def _compare_pair(self, left: EntityRecord, right: EntityRecord) -> EntityMatchCandidate:
         left_names = {left.canonical_name, *left.aliases}

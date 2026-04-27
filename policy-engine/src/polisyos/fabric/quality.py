@@ -55,6 +55,25 @@ def _quality_score_from_indicators(indicators: QualityIndicators) -> float:
     }[level]
 
 
+def _non_finite_numeric_non_null_cells(df: pd.DataFrame) -> int:
+    numeric_frame = df.select_dtypes(include=["number"])
+    if numeric_frame.empty:
+        return 0
+    count = 0
+    for column in numeric_frame.columns:
+        count += int(
+            numeric_frame[column]
+            .map(lambda value: not pd.isna(value) and not is_finite_number(value))
+            .sum()
+        )
+    return count
+
+
+def _duckdb_type_supports_non_finite_check(type_name: str) -> bool:
+    normalized = str(type_name or "").upper()
+    return any(token in normalized for token in ("DOUBLE", "FLOAT", "REAL", "DECIMAL"))
+
+
 @total_ordering
 class QualityLevel(Enum):
     """
@@ -134,8 +153,7 @@ class QualityThresholds:
             "min_row_count",
             "schema_drift_penalty",
         ):
-            if getattr(self, field_name) < 0:
-                raise ValueError(f"{field_name} must be >= 0")
+            ensure_non_negative_finite(getattr(self, field_name), what=field_name)
 
     @classmethod
     def for_profile(cls, profile_level: str | Enum | None) -> QualityThresholds:
@@ -210,10 +228,10 @@ class QualityIndicators:
         self.missingness = ensure_probability(self.missingness, what="missingness")
         self.coverage = ensure_probability(self.coverage, what="coverage")
         self.outlier_ratio = ensure_probability(self.outlier_ratio, what="outlier_ratio")
-        if self.staleness_days < 0:
-            raise ValueError("staleness_days must be >= 0")
-        if self.row_count < 0:
-            raise ValueError("row_count must be >= 0")
+        self.staleness_days = int(
+            ensure_non_negative_finite(self.staleness_days, what="staleness_days")
+        )
+        self.row_count = int(ensure_non_negative_finite(self.row_count, what="row_count"))
 
     def overall_level(
         self,
@@ -424,7 +442,8 @@ def compute_quality_indicators(
     total_cells = row_count * len(df.columns)
     if total_cells > 0:
         null_cells = df.isnull().sum().sum()
-        missingness = float(null_cells) / float(total_cells)
+        non_finite_cells = _non_finite_numeric_non_null_cells(df)
+        missingness = min(1.0, float(null_cells + non_finite_cells) / float(total_cells))
     else:
         missingness = 1.0
 
@@ -520,6 +539,11 @@ def compute_quality_from_duckdb(
         quoted_columns = [
             quote_sql_identifier(column_name, what="DuckDB column") for column_name in column_names
         ]
+        numeric_non_finite_columns = [
+            quote_sql_identifier(str(col[0]), what="DuckDB column")
+            for col in columns_info
+            if _duckdb_type_supports_non_finite_check(str(col[1]))
+        ]
 
         if row_count > 0 and len(column_names) > 0:
             null_checks = " + ".join(
@@ -527,8 +551,18 @@ def compute_quality_from_duckdb(
             )
             null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name
             total_nulls = conn.execute(null_count_query).fetchone()[0] or 0
+            non_finite_cells = 0
+            if numeric_non_finite_columns:
+                non_finite_checks = " + ".join(
+                    [
+                        f"CASE WHEN {col} IS NOT NULL AND NOT isfinite({col}) THEN 1 ELSE 0 END"
+                        for col in numeric_non_finite_columns
+                    ]
+                )
+                non_finite_query = "SELECT SUM(" + non_finite_checks + ") FROM " + safe_table_name
+                non_finite_cells = conn.execute(non_finite_query).fetchone()[0] or 0
             total_cells = row_count * len(column_names)
-            missingness = total_nulls / total_cells
+            missingness = min(1.0, (total_nulls + non_finite_cells) / total_cells)
         else:
             missingness = 1.0
 

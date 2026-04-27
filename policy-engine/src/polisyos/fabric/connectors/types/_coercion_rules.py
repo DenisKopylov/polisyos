@@ -242,8 +242,10 @@ def coerce_to_float(
 
     # From float
     if isinstance(value, float):
+        if not math.isfinite(value):
+            return CoercionResult.fail("float", target_type, f"value {value} must be finite")
         # Check for narrowing
-        if target_bits < 64 and math.isfinite(value):
+        if target_bits < 64:
             # For float64 -> float32, check if value fits
             if target_bits == 32:
                 import struct
@@ -271,8 +273,14 @@ def coerce_to_float(
 
     # From Decimal
     if isinstance(value, Decimal):
+        if not value.is_finite():
+            return CoercionResult.fail("Decimal", target_type, f"value {value} must be finite")
         try:
             float_val = float(value)
+            if not math.isfinite(float_val):
+                return CoercionResult.fail(
+                    "Decimal", target_type, f"Decimal {value} overflows {target_type}"
+                )
             # Check round-trip
             if Decimal(str(float_val)) != value:
                 if policy == CoercionPolicy.STRICT:
@@ -298,6 +306,8 @@ def coerce_to_float(
         decimal_val = parse_decimal_text(value)
         if decimal_val is None:
             return CoercionResult.fail("string", target_type, f"cannot parse '{value}' as float")
+        if not decimal_val.is_finite():
+            return CoercionResult.fail("string", target_type, f"value {value} must be finite")
         return CoercionResult.ok(float(decimal_val), "string", target_type)
 
     return CoercionResult.fail(source_type, target_type, f"unsupported source type {source_type}")
@@ -336,6 +346,8 @@ def coerce_to_decimal(
 
     # From Decimal (identity)
     if isinstance(value, Decimal):
+        if not value.is_finite():
+            return CoercionResult.fail("Decimal", target_type, f"value {value} must be finite")
         return CoercionResult.ok(value, "Decimal", target_type)
 
     # From string
@@ -349,6 +361,8 @@ def coerce_to_decimal(
         decimal_val = parse_decimal_text(cleaned)
         if decimal_val is None:
             return CoercionResult.fail("string", target_type, f"cannot parse '{value}' as Decimal")
+        if not decimal_val.is_finite():
+            return CoercionResult.fail("string", target_type, f"value {value} must be finite")
         return CoercionResult.ok(decimal_val, "string", target_type)
 
     return CoercionResult.fail(source_type, target_type, f"unsupported source type {source_type}")
@@ -380,6 +394,8 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
 
     # From float
     if isinstance(value, float):
+        if not math.isfinite(value):
+            return CoercionResult.fail("float", "boolean", f"value {value} must be finite")
         if value in (0.0, 1.0):
             return CoercionResult.ok(bool(value), "float", "boolean")
         if policy == CoercionPolicy.STRICT:

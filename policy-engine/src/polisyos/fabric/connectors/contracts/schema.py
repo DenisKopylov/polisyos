@@ -22,8 +22,12 @@ from polisyos.fabric.connectors.contracts._schema_errors import (
 )
 from polisyos.fabric.connectors.contracts._schema_field import (
     FIELD_NAME_PATTERN,
+    SCHEMA_ID_PATTERN,
     FieldSpec,
     SchemaVersion,
+    make_field_id,
+    make_schema_id,
+    normalize_schema_id_part,
     normalize_unit_id,
 )
 from polisyos.fabric.connectors.contracts._schema_types import (
@@ -35,15 +39,12 @@ from polisyos.fabric.connectors.contracts._schema_types import (
 )
 
 __all__ = [
-    # Versioning & field spec
     "FIELD_NAME_PATTERN",
-    # Types / enums
+    "SCHEMA_ID_PATTERN",
     "Additivity",
-    # Core schema
     "DataSchema",
     "FieldSpec",
     "GeoGranularity",
-    # Errors
     "JaxTypeError",
     "SchemaCompatibilityError",
     "SchemaError",
@@ -52,5 +53,8 @@ __all__ = [
     "SemanticType",
     "TimeGranularity",
     "TypeCoercionError",
+    "make_field_id",
+    "make_schema_id",
+    "normalize_schema_id_part",
     "normalize_unit_id",
 ]

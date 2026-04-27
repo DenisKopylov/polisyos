@@ -40,6 +40,7 @@ Example ConnectionConfig
 
 from __future__ import annotations
 
+import asyncio
 import time
 from collections.abc import AsyncIterator, Iterable
 from datetime import UTC, datetime
@@ -58,6 +59,8 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.connectors.resilience import (
     with_circuit_breaker,
     with_retry,
@@ -73,6 +76,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
+from polisyos.fabric.safety import safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -84,6 +88,31 @@ from polisyos.ir.connectors import (
 )
 
 logger = get_logger(__name__)
+
+_DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024
+_DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
+_DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
+
+
+def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+    raw = headers.get(header_name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id="reference.sdmx",
+            field=header_name,
+        ) from exc
+    if value <= 0:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id="reference.sdmx",
+            field=header_name,
+        )
+    return value
 
 
 def _join_url(base: str, *parts: str) -> str:
@@ -184,6 +213,8 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     """SDMX REST connector targeting SDMX-JSON data endpoints."""
 
     connector_id: ClassVar[str] = "reference.sdmx"
+    _STATE_SESSION_KEY: ClassVar[str] = "sdmx.http_session"
+    _STATE_SESSION_LOCK_KEY: ClassVar[str] = "sdmx.http_session_lock"
 
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.CATALOG_BROWSE
@@ -220,12 +251,29 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         if dimension_order:
             order = [seg.strip() for seg in dimension_order.split(",") if seg.strip()]
         return {
-            "agency": config.headers.get("X-SDMX-Agency", "ECB"),
-            "version": config.headers.get("X-SDMX-Version", "2"),
-            "data_path": config.headers.get("X-SDMX-DataPath", "data"),
-            "dataflow_path": config.headers.get("X-SDMX-DataflowPath", "dataflow"),
+            "agency": safe_path_segment(config.headers.get("X-SDMX-Agency", "ECB")),
+            "version": safe_path_segment(config.headers.get("X-SDMX-Version", "2")),
+            "data_path": safe_path_segment(config.headers.get("X-SDMX-DataPath", "data")),
+            "dataflow_path": safe_path_segment(
+                config.headers.get("X-SDMX-DataflowPath", "dataflow")
+            ),
             "dimension_order": order,
             "dataflow_detail": config.headers.get("X-SDMX-DataflowDetail", "referencestubs"),
+            "max_response_bytes": _positive_int_header(
+                config.headers,
+                "X-SDMX-MaxResponseBytes",
+                _DEFAULT_MAX_RESPONSE_BYTES,
+            ),
+            "max_json_bytes": _positive_int_header(
+                config.headers,
+                "X-SDMX-MaxJsonBytes",
+                _DEFAULT_MAX_JSON_BYTES,
+            ),
+            "max_decompressed_bytes": _positive_int_header(
+                config.headers,
+                "X-SDMX-MaxDecompressedBytes",
+                _DEFAULT_MAX_DECOMPRESSED_BYTES,
+            ),
         }
 
     @staticmethod
@@ -264,10 +312,35 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             )
         handle = self._create_handle(config)
         handle.set_state("sdmx", self._parse_sdmx_config(config))
+        handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
-        return None
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is not None and not session.closed:
+                await session.close()
+            handle.set_state(self._STATE_SESSION_KEY, None)
+
+    def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
+        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
+        if isinstance(lock, asyncio.Lock):
+            return lock
+        lock = asyncio.Lock()
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
+        return lock
+
+    async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is None or session.closed:
+                timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+                session = aiohttp.ClientSession(timeout=timeout)
+                handle.set_state(self._STATE_SESSION_KEY, session)
+            return session
 
     # ------------------------------------------------------------------
     # Health check
@@ -279,14 +352,12 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         try:
-            async with (
-                aiohttp.ClientSession() as session,
-                session.get(
-                    url,
-                    headers=self._sdmx_structure_headers(handle.config),
-                    timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp,
-            ):
+            session = await self._get_session(handle)
+            async with session.get(
+                url,
+                headers=self._sdmx_structure_headers(handle.config),
+                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+            ) as resp:
                 latency = (time.monotonic() - start) * 1000
                 return HealthStatus(
                     healthy=(resp.status == 200),
@@ -355,7 +426,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     ) -> FetchResult[pd.DataFrame]:
         cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         filter_path = self._build_filter_path(request, cfg.get("dimension_order"))
-        dataflow_key = request.dataset_id
+        dataflow_key = safe_path_segment(request.dataset_id, what="SDMX dataset_id")
         url = _join_url(
             handle.config.url,
             cfg["data_path"],
@@ -404,7 +475,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         return FetchResult(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.{dataflow_key}",
+            schema_id=make_schema_id(self.connector_id, dataflow_key),
             schema_version="1.0.0",
             version=version,
             fetched_at=datetime.now(UTC),
@@ -475,7 +546,8 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         cached_version: DataVersion,
     ) -> FreshnessResult:
         cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
-        url = _join_url(handle.config.url, cfg["data_path"], cfg["agency"], dataset_id)
+        safe_dataset_id = safe_path_segment(dataset_id, what="SDMX dataset_id")
+        url = _join_url(handle.config.url, cfg["data_path"], cfg["agency"], safe_dataset_id)
         headers = self._sdmx_data_headers(handle.config)
 
         try:
@@ -527,12 +599,26 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         parts: list[str] = []
         for dim in order:
             values = filter_map.pop(dim, ())
-            parts.append("+".join(values) if values else "")
+            parts.append(
+                "+".join(
+                    safe_path_segment(value, what=f"SDMX dimension '{dim}'")
+                    for value in values
+                )
+                if values
+                else ""
+            )
 
         if filter_map:
             for dim in sorted(filter_map.keys()):
                 values = filter_map[dim]
-                parts.append("+".join(values) if values else "")
+                parts.append(
+                    "+".join(
+                        safe_path_segment(value, what=f"SDMX dimension '{dim}'")
+                        for value in values
+                    )
+                    if values
+                    else ""
+                )
 
         while parts and parts[-1] == "":
             parts.pop()
@@ -551,14 +637,12 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         *,
         headers: dict[str, str],
     ) -> tuple[dict[str, Any], dict[str, str], int]:
-        async with (
-            aiohttp.ClientSession() as session,
-            session.get(
-                url,
-                headers=headers,
-                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-            ) as resp,
-        ):
+        session = await self._get_session(handle)
+        async with session.get(
+            url,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+        ) as resp:
             if resp.status != 200:
                 error = FetchError(
                     message=f"SDMX fetch returned HTTP {resp.status}",
@@ -567,8 +651,24 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 )
                 error.status_code = resp.status  # type: ignore[attr-defined]
                 raise error
-            raw = await resp.read()
+            cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
+            raw = await read_bounded_response_body(
+                resp,
+                connector_id=self.connector_id,
+                url=url,
+                max_response_bytes=cfg["max_response_bytes"],
+                max_decompressed_bytes=cfg["max_decompressed_bytes"],
+            )
             bytes_xferred = len(raw)
+            if len(raw) > cfg["max_json_bytes"]:
+                raise FetchError(
+                    message=(
+                        "SDMX JSON body exceeds safe limit "
+                        f"({len(raw)} > {cfg['max_json_bytes']} bytes)"
+                    ),
+                    connector_id=self.connector_id,
+                    request_params={"url": url},
+                )
             import json
 
             try:
@@ -596,14 +696,12 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         *,
         headers: dict[str, str],
     ) -> dict[str, str]:
-        async with (
-            aiohttp.ClientSession() as session,
-            session.head(
-                url,
-                headers=headers,
-                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-            ) as resp,
-        ):
+        session = await self._get_session(handle)
+        async with session.head(
+            url,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+        ) as resp:
             return dict(resp.headers)
 
     @classmethod
@@ -615,6 +713,16 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                     severity=ValidationSeverity.ERROR,
                     message="SDMX base URL is required",
                     field="url",
+                )
+            )
+        try:
+            cls._parse_sdmx_config(config)
+        except Exception as exc:
+            issues.append(
+                ValidationIssue(
+                    severity=ValidationSeverity.ERROR,
+                    message=str(exc),
+                    field="headers",
                 )
             )
         if issues:

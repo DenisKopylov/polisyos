@@ -5,14 +5,17 @@ from __future__ import annotations
 import io
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.contracts import infer_schema
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+
+_DEFAULT_MAX_LOCATION_BYTES = 50 * 1024 * 1024
 
 
 def _strip_internal_headers(
@@ -56,6 +59,37 @@ def parse_file_config(config) -> dict[str, str]:
     }
 
 
+def _configured_max_bytes(config, *, prefixes: tuple[str, ...]) -> int:
+    headers = dict(config.headers)
+    for prefix in prefixes:
+        header_name = f"{prefix}MaxBytes"
+        raw = headers.get(header_name)
+        if raw in (None, ""):
+            continue
+        try:
+            value = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{header_name} must be a positive integer") from exc
+        if value <= 0:
+            raise ValueError(f"{header_name} must be a positive integer")
+        return value
+    return _DEFAULT_MAX_LOCATION_BYTES
+
+
+def _safe_local_path(location: str, *, scheme: str) -> Path:
+    raw_path = unquote(urlparse(location).path) if scheme == "file" else location
+    if any(part == ".." for part in Path(raw_path).parts):
+        raise ValueError(f"Unsafe local data path: traversal is not allowed in {location!r}")
+    return Path(raw_path)
+
+
+def _ensure_byte_limit(size: int, *, max_bytes: int, location: str) -> None:
+    if size > max_bytes:
+        raise ValueError(
+            f"Data source {location!r} exceeds safe byte limit ({size} > {max_bytes})"
+        )
+
+
 async def read_location_bytes(
     config, *, prefixes: tuple[str, ...] = ("X-File-",)
 ) -> tuple[bytes, dict[str, str]]:
@@ -64,11 +98,16 @@ async def read_location_bytes(
     url = str(config.url)
     parsed = urlparse(url)
     scheme = parsed.scheme.lower()
+    max_bytes = _configured_max_bytes(config, prefixes=prefixes)
     if scheme in {"", "file"}:
-        path = Path(parsed.path if scheme == "file" else url)
-        return path.read_bytes(), {
+        path = _safe_local_path(url, scheme=scheme)
+        stat = path.stat()
+        _ensure_byte_limit(stat.st_size, max_bytes=max_bytes, location=url)
+        data = path.read_bytes()
+        _ensure_byte_limit(len(data), max_bytes=max_bytes, location=url)
+        return data, {
             "Last-Modified": datetime.fromtimestamp(
-                path.stat().st_mtime,
+                stat.st_mtime,
                 tz=UTC,
             ).isoformat(),
         }
@@ -80,13 +119,13 @@ async def read_location_bytes(
                 f"Reading {scheme}:// locations requires optional dependency 'fsspec'"
             ) from exc
 
-        with fsspec.open(url, "rb") as handle:
-            data = handle.read()
-
         headers: dict[str, str] = {}
         try:
             fs, _token, paths = fsspec.get_fs_token_paths(url)
             info = fs.info(paths[0])
+            size = info.get("size") or info.get("Size")
+            if size is not None:
+                _ensure_byte_limit(int(size), max_bytes=max_bytes, location=url)
             etag = info.get("etag") or info.get("ETag")
             modified = (
                 info.get("LastModified")
@@ -100,6 +139,9 @@ async def read_location_bytes(
                 headers["Last-Modified"] = str(modified)
         except Exception:
             headers = {}
+        with fsspec.open(url, "rb") as handle:
+            data = handle.read(max_bytes + 1)
+        _ensure_byte_limit(len(data), max_bytes=max_bytes, location=url)
         return data, headers
 
     transport_headers = _strip_internal_headers(dict(config.headers), prefixes=prefixes)
@@ -107,7 +149,14 @@ async def read_location_bytes(
     async with aiohttp.ClientSession(timeout=timeout) as session:
         async with session.get(url, headers=transport_headers) as response:
             response.raise_for_status()
-            return await response.read(), dict(response.headers)
+            data = await read_bounded_response_body(
+                response,
+                connector_id="files.location",
+                url=url,
+                max_response_bytes=max_bytes,
+                max_decompressed_bytes=max_bytes,
+            )
+            return data, dict(response.headers)
 
 
 def dataframe_from_bytes(
@@ -147,6 +196,7 @@ def schema_dict_from_dataframe(
         "fields": [
             {
                 "name": field.name,
+                "field_id": field.stable_id,
                 "data_type": field.data_type.value,
                 "nullable": field.nullable,
                 "semantic_type": field.semantic_type.value if field.semantic_type else None,

@@ -32,6 +32,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
     HTTPResilienceProfile,
@@ -237,9 +238,25 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
                     connector_id=self.connector_id,
                     dataset_id=request.dataset_id,
                 )
-            raw = await resp.read()
+            raw = await self._read_response_body(
+                resp,
+                connector_id=self.connector_id,
+                url=url,
+                max_response_bytes=self.resilience_profile.max_response_bytes,
+                max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+            )
 
         duration_ms = self._elapsed_ms(started)
+        if len(raw) > self.resilience_profile.max_json_bytes:
+            raise FetchError(
+                message=(
+                    "SPARQL JSON body exceeds safe limit "
+                    f"({len(raw)} > {self.resilience_profile.max_json_bytes} bytes)"
+                ),
+                connector_id=self.connector_id,
+                dataset_id=request.dataset_id,
+                request_params={"url": url},
+            )
         body = _json.loads(raw)
         df = self._parse_sparql_results(body)
         chash = compute_content_hash(raw, prefix=True)
@@ -247,7 +264,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
         return self._build_fetch_result(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.{request.dataset_id}",
+            schema_id=make_schema_id(self.connector_id, request.dataset_id),
             schema_version="1.0.0",
             quality_tier=QualityTier.BRONZE,
             bytes_transferred=len(raw),

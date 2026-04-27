@@ -283,6 +283,7 @@ class QualityGatePass(ValidatorPass):
         from polisyos.ir.connectors import QualityTier
 
         profile_level = ctx.profile.level.value
+        self._attach_fabric_quality_evidence(data_quality_report, ctx)
 
         if data_quality_report.tier == QualityTier.BRONZE:
             severity = IssueSeverity.BLOCKER if profile_level == "strict" else IssueSeverity.WARNING
@@ -378,6 +379,33 @@ class QualityGatePass(ValidatorPass):
                 )
             )
             return None
+
+    def _attach_fabric_quality_evidence(
+        self,
+        data_quality_report: Any,
+        ctx: PassContext,
+    ) -> None:
+        """Propagate normalized Fabric quality evidence into governance state."""
+
+        try:
+            from polisyos.fabric.connectors.quality.evidence import (
+                build_fabric_quality_governance_evidence,
+            )
+            from polisyos.fabric.connectors.quality.report import DataQualityReport
+
+            if not isinstance(data_quality_report, DataQualityReport):
+                return
+            evidence = build_fabric_quality_governance_evidence(data_quality_report).to_dict()
+        except _QUALITY_GATE_ERRORS:
+            logger.debug("Fabric quality governance evidence could not be built", exc_info=True)
+            return
+
+        ctx.state["fabric_quality_evidence"] = evidence
+        dataset_id = str(evidence.get("dataset_id") or "")
+        if dataset_id:
+            by_dataset = dict(ctx.state.get("fabric_quality_evidence_by_dataset") or {})
+            by_dataset[dataset_id] = evidence
+            ctx.state["fabric_quality_evidence_by_dataset"] = by_dataset
 
     def _build_quality_issue(
         self,

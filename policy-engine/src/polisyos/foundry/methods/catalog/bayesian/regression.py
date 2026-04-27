@@ -27,6 +27,17 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _tabular_payload,
 )
 
+from .prior_sensitivity import (
+    BayesianPolicyModelFamily,
+    PriorSensitivityReport,
+    assemble_prior_sensitivity_report,
+    build_admissible_prior_class,
+    not_run_prior_sensitivity_report,
+    prior_predictive_rank_test,
+    prior_scale_sensitivity_from_samples,
+    prior_scale_sensitivity_records_from_samples,
+    simulate_linear_gaussian_prior_predictive,
+)
 from .protocols import (
     PosteriorResult,
     augment_sampler_diagnostics,
@@ -52,6 +63,98 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
             ),
             SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
         }
+    )
+
+
+def _linear_prior_sensitivity_report(
+    *,
+    design: np.ndarray,
+    features: np.ndarray,
+    target: np.ndarray,
+    draws: np.ndarray,
+    beta_draws: np.ndarray,
+    credible_intervals: Mapping[str, tuple[float, float]],
+    prior_scale: float,
+    credible_mass: float,
+    params: Mapping[str, Any],
+) -> PriorSensitivityReport:
+    seed = int(params.get("__seed__", params.get("seed", 0))) + 8303
+    rng = np.random.default_rng(seed)
+    n_simulations = max(32, int(params.get("prior_predictive_simulations", 128)))
+    plausible_raw = params.get("y_plausible_bounds")
+    plausible_bounds = (
+        (float(plausible_raw[0]), float(plausible_raw[1]))
+        if isinstance(plausible_raw, (list, tuple)) and len(plausible_raw) == 2
+        else None
+    )
+    simulations = simulate_linear_gaussian_prior_predictive(
+        design,
+        prior_scale=prior_scale,
+        n_simulations=n_simulations,
+        rng=rng,
+    )
+    admissible = build_admissible_prior_class(
+        BayesianPolicyModelFamily.LINEAR,
+        hyperparameters={
+            "prior_scale": prior_scale,
+            "sigma_scale": prior_scale,
+            "nu_beta": float(params.get("nu_beta", 10.0)),
+        },
+        policy_context={"y_plausible_bounds": plausible_bounds}
+        if plausible_bounds is not None
+        else {},
+        prior_predictive_simulations=simulations,
+    )
+    prior_predictive = prior_predictive_rank_test(
+        target,
+        simulations,
+        alpha=float(params.get("prior_predictive_alpha", 0.05)),
+        model_family=BayesianPolicyModelFamily.LINEAR,
+        features=features,
+        plausible_bounds=plausible_bounds,
+        conditioned_on=("covariates", "sampling_design"),
+    )
+    estimand_id = "coefficients_0" if "coefficients_0" in credible_intervals else "intercept"
+    samples = {
+        "intercept": beta_draws[:, 0],
+        "log_sigma": draws[:, -1],
+        **{
+            f"coefficients_{idx}": beta_draws[:, idx + 1]
+            for idx in range(max(beta_draws.shape[1] - 1, 0))
+        },
+    }
+    sensitivity = prior_scale_sensitivity_from_samples(
+        samples=samples,
+        estimand_id=estimand_id,
+        baseline_interval=credible_intervals[estimand_id],
+        credible_interval_level=credible_mass,
+        baseline_prior_scale=prior_scale,
+        ess_threshold=float(params["prior_sensitivity_ess_threshold"])
+        if "prior_sensitivity_ess_threshold" in params
+        else None,
+    )
+    sensitivity_records = prior_scale_sensitivity_records_from_samples(
+        samples=samples,
+        credible_intervals=credible_intervals,
+        credible_interval_level=credible_mass,
+        baseline_prior_scale=prior_scale,
+        estimand_ids=tuple(
+            key for key in credible_intervals if key.startswith("coefficients_") or key == "intercept"
+        ),
+        ess_threshold=float(params["prior_sensitivity_ess_threshold"])
+        if "prior_sensitivity_ess_threshold" in params
+        else None,
+    )
+    return assemble_prior_sensitivity_report(
+        model_family=BayesianPolicyModelFamily.LINEAR,
+        selected_prior_id="linear_normal_logsigma_prior_v1",
+        admissible_prior_class=admissible,
+        prior_predictive_check=prior_predictive,
+        sensitivity=sensitivity,
+        sensitivity_by_estimand=sensitivity_records,
+        readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
+        metadata={"estimand_id": estimand_id, "prior_predictive_seed": seed},
+        warnings=sensitivity.warnings,
     )
 
 
@@ -186,6 +289,25 @@ class BayesianLinearRegressionEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        try:
+            prior_sensitivity = _linear_prior_sensitivity_report(
+                design=design,
+                features=x,
+                target=y,
+                draws=draws,
+                beta_draws=beta_draws,
+                credible_intervals=credible_intervals,
+                prior_scale=prior_scale,
+                credible_mass=credible_mass,
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.LINEAR,
+                selected_prior_id="linear_normal_logsigma_prior_v1",
+                admissible_prior_class_id="linear_gaussian_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
 
         prediction_output = _build_prediction_result(
             method_name="bayesian_linear_regression",
@@ -214,6 +336,7 @@ class BayesianLinearRegressionEstimator:
             sampler_family="mcmc",
             sampler_kernel="metropolis",
             metadata={"feature_names": _feature_names(data)},
+            prior_sensitivity=prior_sensitivity,
         )
         return {
             "result": posterior_result,

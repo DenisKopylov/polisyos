@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture_phase1_2",
+  "workflow_id": "scientist_policy_design",
+  "nodes": [
+    {
+      "node_id": "question",
+      "node_type": "question",
+      "run_id": "fixture_phase1_2",
+      "workflow_id": "scientist_policy_design",
+      "producer": "fixture",
+      "summary": "Normalize the policy research request.",
+      "artifact_refs": [],
+      "claim_ids": [],
+      "safety_labels": [],
+      "metadata": {
+        "surface": "public"
+      }
+    },
+    {
+      "node_id": "source",
+      "node_type": "source_read",
+      "run_id": "fixture_phase1_2",
+      "workflow_id": "scientist_policy_design",
+      "producer": "tool:web_fetch",
+      "summary": "Fetched source; raw content redacted.",
+      "artifact_refs": [],
+      "claim_ids": [],
+      "safety_labels": [
+        "raw_content_redacted",
+        "untrusted_tool_output"
+      ],
+      "metadata": {
+        "untrusted_content_char_count": 1842,
+        "untrusted_content_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "untrusted_content_redacted": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source_node_id": "question",
+      "target_node_id": "source",
+      "edge_type": "depends_on",
+      "claim_ids": [],
+      "metadata": {}
+    }
+  ],
+  "hidden_content_redacted": true,
+  "created_at": "2026-04-26T00:00:00Z",
+  "metadata": {
+    "projection_source": "fixture"
+  }
+}

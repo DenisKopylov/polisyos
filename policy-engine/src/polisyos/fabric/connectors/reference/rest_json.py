@@ -59,6 +59,8 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.connectors.resilience import (
     with_circuit_breaker,
     with_rate_limit,
@@ -89,6 +91,38 @@ from polisyos.ir.connectors import (
 )
 
 logger = get_logger(__name__)
+
+_DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024
+_DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
+_DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
+_DEFAULT_MAX_ROWS = 250_000
+_DEFAULT_MAX_PAGES = 1_000
+
+
+def _positive_int_header(
+    headers: dict[str, str] | Any,
+    header_name: str,
+    *,
+    default: int,
+) -> int:
+    raw = headers.get(header_name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id="reference.rest_json",
+            field=header_name,
+        ) from exc
+    if value <= 0:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id="reference.rest_json",
+            field=header_name,
+        )
+    return value
 
 
 def _parse_http_datetime(value: str | None) -> datetime | None:
@@ -176,6 +210,31 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             "cursor_path": validate_data_path(config.headers.get("X-REST-CursorPath", "")),
             "date_start_param": config.headers.get("X-REST-DateStart", "start_date"),
             "date_end_param": config.headers.get("X-REST-DateEnd", "end_date"),
+            "max_response_bytes": _positive_int_header(
+                config.headers,
+                "X-REST-MaxResponseBytes",
+                default=_DEFAULT_MAX_RESPONSE_BYTES,
+            ),
+            "max_json_bytes": _positive_int_header(
+                config.headers,
+                "X-REST-MaxJsonBytes",
+                default=_DEFAULT_MAX_JSON_BYTES,
+            ),
+            "max_decompressed_bytes": _positive_int_header(
+                config.headers,
+                "X-REST-MaxDecompressedBytes",
+                default=_DEFAULT_MAX_DECOMPRESSED_BYTES,
+            ),
+            "max_rows": _positive_int_header(
+                config.headers,
+                "X-REST-MaxRows",
+                default=_DEFAULT_MAX_ROWS,
+            ),
+            "max_pages": _positive_int_header(
+                config.headers,
+                "X-REST-MaxPages",
+                default=_DEFAULT_MAX_PAGES,
+            ),
         }
 
     @staticmethod
@@ -290,8 +349,10 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             params[key] = ",".join(str(value) for value in values)
 
         page_number = 1
+        pages_seen = 0
         cursor: str | None = None
         has_more = True
+        seen_cursors: set[str] = set()
         etag: str | None = None
         last_modified: str | None = None
         etag_mismatch = False
@@ -300,6 +361,12 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         session = await self._get_session(handle)
         request_page = self._decorate_request(self._request_page_raw, handle)
         while has_more:
+            if pages_seen >= cfg["max_pages"]:
+                raise FetchError(
+                    message=f"REST pagination exceeded safe page limit ({cfg['max_pages']})",
+                    connector_id=self.connector_id,
+                    request_params={"url": handle.config.url, "max_pages": cfg["max_pages"]},
+                )
             if cfg["pagination"] == PaginationStrategy.PAGE_NUMBER:
                 params[cfg["page_param"]] = str(page_number)
             elif cursor:
@@ -312,6 +379,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 params,
                 headers,
             )
+            pages_seen += 1
             total_bytes += bytes_xferred
             payload_chunks.append(body["_raw"])
 
@@ -337,7 +405,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     state["rate_limit_remaining"] = None
 
             try:
-                page_data: list[dict[str, Any]] = _extract_nested(body["json"], cfg["data_path"])
+                page_data = _extract_nested(body["json"], cfg["data_path"])
             except (KeyError, TypeError) as exc:
                 raise FetchError(
                     message=f"Data extraction failed at path '{cfg['data_path']}': {exc}",
@@ -345,6 +413,24 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     request_params={"data_path": cfg["data_path"]},
                 ) from exc
 
+            if not isinstance(page_data, list):
+                raise FetchError(
+                    message=f"Data path '{cfg['data_path']}' did not resolve to a row list",
+                    connector_id=self.connector_id,
+                    request_params={"data_path": cfg["data_path"]},
+                )
+            if any(not isinstance(row, dict) for row in page_data):
+                raise FetchError(
+                    message=f"Data path '{cfg['data_path']}' returned non-object rows",
+                    connector_id=self.connector_id,
+                    request_params={"data_path": cfg["data_path"]},
+                )
+            if len(all_rows) + len(page_data) > cfg["max_rows"]:
+                raise FetchError(
+                    message=f"REST row count exceeds safe limit ({cfg['max_rows']})",
+                    connector_id=self.connector_id,
+                    request_params={"url": handle.config.url, "max_rows": cfg["max_rows"]},
+                )
             all_rows.extend(page_data)
 
             if not page_data:
@@ -354,6 +440,14 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 has_more = len(page_data) >= page_size
             else:
                 cursor = self._extract_cursor(body["json"], cfg)
+                if cursor is not None:
+                    if cursor in seen_cursors:
+                        raise FetchError(
+                            message=f"REST cursor pagination repeated cursor {cursor!r}",
+                            connector_id=self.connector_id,
+                            request_params={"url": handle.config.url},
+                        )
+                    seen_cursors.add(cursor)
                 has_more = cursor is not None
 
         duration_ms = (time.monotonic() - start) * 1000
@@ -367,7 +461,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         return FetchResult(
             data=all_rows,
             row_count=len(all_rows),
-            schema_id=f"{self.connector_id}.{request.dataset_id}",
+            schema_id=make_schema_id(self.connector_id, request.dataset_id),
             schema_version="1.0.0",
             version=version,
             fetched_at=datetime.now(UTC),
@@ -473,8 +567,24 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                 error.status_code = resp.status  # type: ignore[attr-defined]
                 raise error
 
-            raw = await resp.read()
+            cfg = self._parse_rest_config(handle.config)
+            raw = await read_bounded_response_body(
+                resp,
+                connector_id=self.connector_id,
+                url=url,
+                max_response_bytes=cfg["max_response_bytes"],
+                max_decompressed_bytes=cfg["max_decompressed_bytes"],
+            )
             bytes_xferred = len(raw)
+            if len(raw) > cfg["max_json_bytes"]:
+                raise FetchError(
+                    message=(
+                        "REST JSON body exceeds safe limit "
+                        f"({len(raw)} > {cfg['max_json_bytes']} bytes)"
+                    ),
+                    connector_id=self.connector_id,
+                    request_params={"url": url},
+                )
             try:
                 body_json = json.loads(raw)
             except json.JSONDecodeError as exc:
@@ -529,6 +639,23 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                         severity=ValidationSeverity.ERROR,
                         message=str(exc),
                         field=field_name,
+                    )
+                )
+        for header_name, default in (
+            ("X-REST-MaxResponseBytes", _DEFAULT_MAX_RESPONSE_BYTES),
+            ("X-REST-MaxJsonBytes", _DEFAULT_MAX_JSON_BYTES),
+            ("X-REST-MaxDecompressedBytes", _DEFAULT_MAX_DECOMPRESSED_BYTES),
+            ("X-REST-MaxRows", _DEFAULT_MAX_ROWS),
+            ("X-REST-MaxPages", _DEFAULT_MAX_PAGES),
+        ):
+            try:
+                _positive_int_header(config.headers, header_name, default=default)
+            except ConfigurationError as exc:
+                issues.append(
+                    ValidationIssue(
+                        severity=ValidationSeverity.ERROR,
+                        message=exc.message,
+                        field=header_name,
                     )
                 )
         if issues:

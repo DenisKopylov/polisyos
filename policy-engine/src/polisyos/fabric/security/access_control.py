@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import threading
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -15,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel
+from polisyos.fabric.io.atomic import append_text_locked
 
 
 class DataClassification(str, Enum):
@@ -133,12 +133,11 @@ class JsonlAccessAuditLog:
     def __init__(self, path: Path) -> None:
         self._path = path
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._lock = threading.Lock()
+        self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
 
     def append(self, event: AccessAuditEvent) -> None:
         line = json.dumps(event.model_dump(mode="json"), sort_keys=True) + "\n"
-        with self._lock, open(self._path, "a", encoding="utf-8") as handle:
-            handle.write(line)
+        append_text_locked(self._path, line, lock_path=self._lock_path)
 
 
 def current_trace_id() -> str:

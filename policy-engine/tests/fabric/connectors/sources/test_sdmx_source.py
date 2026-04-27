@@ -512,7 +512,7 @@ class TestFetch:
 
         result = _run_async(_exercise())
         assert result.row_count == 6
-        assert result.schema_id == "sdmx.source.EXR"
+        assert result.schema_id == "sdmx.source.exr"
         assert result.version.strategy == VersionStrategy.ETAG
         assert result.version.content_hash is not None
         assert result.fetch_duration_ms > 0.0

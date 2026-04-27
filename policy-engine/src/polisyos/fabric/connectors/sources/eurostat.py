@@ -63,7 +63,13 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
     _BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
     _SDMX_BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1"
     _ASYNC_BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/1.0/async"
-    resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(base_delay=1.5)
+    resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(
+        base_delay=1.5,
+        max_response_bytes=50 * 1024 * 1024,
+        max_json_bytes=20 * 1024 * 1024,
+        max_decompressed_bytes=200 * 1024 * 1024,
+        max_rows=500_000,
+    )
 
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.FULL_FETCH
@@ -483,7 +489,14 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
                 )
                 error.status_code = response.status  # type: ignore[attr-defined]
                 raise error
-            return await response.read(), response_headers
+            raw = await self._read_response_body(
+                response,
+                connector_id=connector_id,
+                url=url,
+                max_response_bytes=self.resilience_profile.max_response_bytes,
+                max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+            )
+            return raw, response_headers
 
     @staticmethod
     def _parse_jsonstat(body: dict[str, Any], dataset_id: str) -> pd.DataFrame:

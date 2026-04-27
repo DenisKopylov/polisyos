@@ -17,10 +17,16 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec
+from polisyos.fabric.safety import validate_sql_identifier
 
 
 class ChangeType(str, Enum):
     """Types of schema changes."""
+
+    # Identity changes
+    SCHEMA_ID_CHANGED = "schema_id_changed"
+    FIELD_RENAMED = "field_renamed"
+    FIELD_ID_CHANGED = "field_id_changed"
 
     # Non-breaking (minor version)
     FIELD_ADDED = "field_added"
@@ -67,6 +73,9 @@ class ChangeType(str, Enum):
         """Check if this change type is breaking."""
         return self in {
             ChangeType.FIELD_REMOVED,
+            ChangeType.SCHEMA_ID_CHANGED,
+            ChangeType.FIELD_RENAMED,
+            ChangeType.FIELD_ID_CHANGED,
             ChangeType.FIELD_MADE_REQUIRED,
             ChangeType.TYPE_NARROWED,
             ChangeType.TYPE_CHANGED,
@@ -164,12 +173,24 @@ class MigrationPlan(BaseModel):
     source_schema_id: str
     source_version: str
     target_version: str
+    source_content_hash: str = ""
+    target_content_hash: str = ""
     operations: tuple[MigrationOperation, ...]
     safe_to_apply: bool
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def sql_statements(self) -> tuple[str, ...]:
         return tuple(operation.sql for operation in self.operations if operation.sql)
+
+    @property
+    def evidence_id(self) -> str:
+        """Stable evidence id for replay/audit payloads."""
+        return (
+            f"{self.source_schema_id}:{self.source_version}"
+            f"->{self.target_version}:{self.source_content_hash[:16]}"
+            f":{self.target_content_hash[:16]}"
+        )
 
 
 class SchemaEvolution:
@@ -198,37 +219,87 @@ class SchemaEvolution:
         """
         changes: list[SchemaChange] = []
 
-        source_fields = {f.name: f for f in source.fields}
-        target_fields = {f.name: f for f in target.fields}
+        if source.schema_id != target.schema_id:
+            changes.append(
+                SchemaChange(
+                    change_type=ChangeType.SCHEMA_ID_CHANGED,
+                    field_name=None,
+                    old_value=source.schema_id,
+                    new_value=target.schema_id,
+                    description=(
+                        f"Schema id changed from {source.schema_id!r} "
+                        f"to {target.schema_id!r}"
+                    ),
+                )
+            )
 
-        for name in source_fields:
-            if name not in target_fields:
+        source_fields_by_id = {f.stable_id: f for f in source.fields}
+        target_fields_by_id = {f.stable_id: f for f in target.fields}
+        target_fields_by_name = {f.name: f for f in target.fields}
+        matched_target_ids: set[str] = set()
+
+        for source_id, source_field in source_fields_by_id.items():
+            target_field = target_fields_by_id.get(source_id)
+            if target_field is not None:
+                matched_target_ids.add(target_field.stable_id)
+                if source_field.name != target_field.name:
+                    changes.append(
+                        SchemaChange(
+                            change_type=ChangeType.FIELD_RENAMED,
+                            field_name=target_field.name,
+                            old_value=source_field.name,
+                            new_value=target_field.name,
+                            description=(
+                                f"Field id '{source_id}' was renamed from "
+                                f"'{source_field.name}' to '{target_field.name}'"
+                            ),
+                        )
+                    )
+                changes.extend(self._compare_fields(source_field, target_field))
+                continue
+
+            same_name_target = target_fields_by_name.get(source_field.name)
+            if same_name_target is not None:
+                matched_target_ids.add(same_name_target.stable_id)
                 changes.append(
                     SchemaChange(
-                        change_type=ChangeType.FIELD_REMOVED,
-                        field_name=name,
-                        old_value=source_fields[name].data_type.value,
-                        new_value=None,
-                        description=f"Field '{name}' was removed",
+                        change_type=ChangeType.FIELD_ID_CHANGED,
+                        field_name=source_field.name,
+                        old_value=source_field.stable_id,
+                        new_value=same_name_target.stable_id,
+                        description=(
+                            f"Field '{source_field.name}' stable id changed from "
+                            f"'{source_field.stable_id}' to '{same_name_target.stable_id}'"
+                        ),
                     )
                 )
+                changes.extend(self._compare_fields(source_field, same_name_target))
+                continue
 
-        for name in target_fields:
-            if name not in source_fields:
+            changes.append(
+                SchemaChange(
+                    change_type=ChangeType.FIELD_REMOVED,
+                    field_name=source_field.name,
+                    old_value=source_field.data_type.value,
+                    new_value=None,
+                    description=f"Field '{source_field.name}' was removed",
+                )
+            )
+
+        for target_id, target_field in target_fields_by_id.items():
+            if target_id not in matched_target_ids:
                 changes.append(
                     SchemaChange(
                         change_type=ChangeType.FIELD_ADDED,
-                        field_name=name,
+                        field_name=target_field.name,
                         old_value=None,
-                        new_value=target_fields[name].data_type.value,
-                        description=f"Field '{name}' was added ({target_fields[name].data_type.value})",
+                        new_value=target_field.data_type.value,
+                        description=(
+                            f"Field '{target_field.name}' was added "
+                            f"({target_field.data_type.value})"
+                        ),
                     )
                 )
-
-        for name in source_fields:
-            if name in target_fields:
-                field_changes = self._compare_fields(source_fields[name], target_fields[name])
-                changes.extend(field_changes)
 
         if source.primary_key != target.primary_key:
             changes.append(
@@ -687,6 +758,11 @@ class SchemaEvolution:
 
         report = self.compare(source, target)
         operations: list[MigrationOperation] = []
+        table_sql = validate_sql_identifier(
+            table_name,
+            what="schema migration table",
+            allow_dotted=True,
+        )
 
         for change in report.changes:
             if change.change_type == ChangeType.FIELD_ADDED:
@@ -697,17 +773,42 @@ class SchemaEvolution:
                     MigrationOperation(
                         action="add_column",
                         field_name=change.field_name,
-                        sql=f"ALTER TABLE {table_name} ADD COLUMN {field.to_duckdb_column_def()};",
+                        sql=f"ALTER TABLE {table_sql} ADD COLUMN {field.to_duckdb_column_def()};",
                         safe=True,
                         reason=change.description,
                     )
                 )
+            elif change.change_type == ChangeType.FIELD_RENAMED:
+                old_field_sql = validate_sql_identifier(
+                    change.old_value or "",
+                    what="schema migration old field",
+                )
+                new_field_sql = validate_sql_identifier(
+                    change.new_value or "",
+                    what="schema migration new field",
+                )
+                operations.append(
+                    MigrationOperation(
+                        action="rename_column",
+                        field_name=change.field_name,
+                        sql=(
+                            f"ALTER TABLE {table_sql} RENAME COLUMN "
+                            f"{old_field_sql} TO {new_field_sql};"
+                        ),
+                        safe=False,
+                        reason=change.description,
+                    )
+                )
             elif change.change_type == ChangeType.FIELD_REMOVED:
+                field_sql = validate_sql_identifier(
+                    change.field_name or "",
+                    what="schema migration field",
+                )
                 operations.append(
                     MigrationOperation(
                         action="drop_column",
                         field_name=change.field_name,
-                        sql=f"ALTER TABLE {table_name} DROP COLUMN {change.field_name};",
+                        sql=f"ALTER TABLE {table_sql} DROP COLUMN {field_sql};",
                         safe=False,
                         reason=change.description,
                     )
@@ -721,9 +822,45 @@ class SchemaEvolution:
                         action="alter_column_type",
                         field_name=change.field_name,
                         sql=(
-                            f"ALTER TABLE {table_name} ALTER COLUMN "
-                            f"{change.field_name} TYPE {field.data_type.to_duckdb_type()};"
+                            f"ALTER TABLE {table_sql} ALTER COLUMN "
+                            f"{validate_sql_identifier(change.field_name or '', what='schema migration field')} "
+                            f"TYPE {field.data_type.to_duckdb_type()};"
                         ),
+                        safe=True,
+                        reason=change.description,
+                    )
+                )
+            elif change.change_type == ChangeType.FIELD_MADE_NULLABLE:
+                operations.append(
+                    MigrationOperation(
+                        action="drop_not_null",
+                        field_name=change.field_name,
+                        sql=(
+                            f"ALTER TABLE {table_sql} ALTER COLUMN "
+                            f"{validate_sql_identifier(change.field_name or '', what='schema migration field')} "
+                            "DROP NOT NULL;"
+                        ),
+                        safe=True,
+                        reason=change.description,
+                    )
+                )
+            elif change.change_type in {
+                ChangeType.DESCRIPTION_UPDATED,
+                ChangeType.SOURCE_UPDATED,
+                ChangeType.TAGS_UPDATED,
+                ChangeType.BOUNDS_RELAXED,
+                ChangeType.ALLOWED_VALUES_EXPANDED,
+                ChangeType.PRECISION_WIDENED,
+                ChangeType.SCALE_WIDENED,
+                ChangeType.PATTERN_RELAXED,
+                ChangeType.MAX_LENGTH_RELAXED,
+                ChangeType.REQUIRED_COMPLETENESS_RELAXED,
+                ChangeType.ALLOWED_NULL_FIELDS_EXPANDED,
+            }:
+                operations.append(
+                    MigrationOperation(
+                        action="metadata_or_constraint_relaxation",
+                        field_name=change.field_name,
                         safe=True,
                         reason=change.description,
                     )
@@ -743,6 +880,8 @@ class SchemaEvolution:
             source_schema_id=source.schema_id,
             source_version=str(source.version),
             target_version=str(target.version),
+            source_content_hash=source.content_hash,
+            target_content_hash=target.content_hash,
             operations=tuple(operations),
             safe_to_apply=all(operation.safe for operation in operations),
         )

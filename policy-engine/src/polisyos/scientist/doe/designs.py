@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from .uncertainty import SensitivityUncertaintyBundle, SensitivityUncertaintyConfig
 
 
 class ScenarioSweep(BaseModel):
@@ -23,7 +25,7 @@ class AblationPlan(BaseModel):
     targets: list[str] = Field(default_factory=list)
 
 
-class SensitivityMethod(str, Enum):
+class SensitivityMethod(StrEnum):
     """Sensitivity method public type."""
 
     MORRIS = "morris"
@@ -31,7 +33,7 @@ class SensitivityMethod(str, Enum):
     FAST = "fast"
 
 
-class ParameterDist(str, Enum):
+class ParameterDist(StrEnum):
     """Parameter dist public type."""
 
     UNIFORM = "uniform"
@@ -40,7 +42,7 @@ class ParameterDist(str, Enum):
     TRIANGULAR = "triangular"
 
 
-class RunFailurePolicy(str, Enum):
+class RunFailurePolicy(StrEnum):
     """Policy for handling failed simulator runs inside a DOE batch."""
 
     FAIL_FAST = "fail_fast"
@@ -100,6 +102,9 @@ class SensitivityPlan(BaseModel):
     # Failure handling for partially failed simulations.
     run_failure_policy: RunFailurePolicy = RunFailurePolicy.FAIL_FAST
     min_success_rate: float = Field(default=0.9, gt=0.0, le=1.0)
+    uncertainty: SensitivityUncertaintyConfig = Field(
+        default_factory=SensitivityUncertaintyConfig,
+    )
 
     @property
     def num_parameters(self) -> int:
@@ -163,13 +168,14 @@ class SensitivityResult(BaseModel):
 
     ranking: list[str] = Field(default_factory=list)
     top_interactions: list[tuple[str, str, float]] = Field(default_factory=list)
+    uncertainty: SensitivityUncertaintyBundle | None = None
     total_runs: int = Field(default=0, ge=0)
     successful_runs: int = Field(default=0, ge=0)
     failed_runs: int = Field(default=0, ge=0)
     metadata: dict[str, object] = Field(default_factory=dict)
 
 
-class AdversarialStrategy(str, Enum):
+class AdversarialStrategy(StrEnum):
     """Sampling strategy used to generate adversarial stress scenarios."""
 
     SEARCH_LOOP = "search_loop"

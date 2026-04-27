@@ -28,7 +28,7 @@ import argparse
 import json
 import sys
 from collections.abc import Sequence
-from dataclasses import asdict
+from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
 _CLI_SOFT_FAILURES = (
@@ -45,6 +45,20 @@ _CLI_SOFT_FAILURES = (
 # ---------------------------------------------------------------------------
 # Sub-command handlers
 # ---------------------------------------------------------------------------
+
+
+def _json_ready(value):
+    if value is None or isinstance(value, str | int | float | bool):
+        return value
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    if is_dataclass(value):
+        return _json_ready(asdict(value))
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    return str(value)
 
 
 def _cmd_scaffold(args: argparse.Namespace) -> int:
@@ -306,6 +320,13 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
         runnable_only=not args.include_unrunnable,
     )
     data = DataCharacteristics(n_obs=args.n_obs) if args.n_obs is not None else None
+    cost_budget: dict[str, float] | None = None
+    if args.cost_budget_ms is not None or args.cost_budget_usd is not None:
+        cost_budget = {}
+        if args.cost_budget_ms is not None:
+            cost_budget["max_total_ms"] = float(args.cost_budget_ms)
+        if args.cost_budget_usd is not None:
+            cost_budget["run_budget_usd"] = float(args.cost_budget_usd)
     query = MethodAdvisorQuery(
         criteria=criteria,
         data=data,
@@ -315,6 +336,13 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
         loss_profile_id=args.loss_profile_id,
         coverage_floor=args.coverage_floor,
         confidence_level=args.confidence_level,
+        cost_policy=args.cost_policy,
+        cost_budget=cost_budget,
+        risk_delta=args.risk_delta,
+        return_certificate=args.return_certificate,
+        dominance_mode=args.dominance_mode,
+        allow_heuristic_cost_estimate=not args.no_heuristic_cost_estimate,
+        require_declared_accuracy_estimate=args.require_declared_accuracy_estimate,
     )
     result = advise_methods(snapshot, query)
 
@@ -322,7 +350,7 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
         print(
             json.dumps(
                 {
-                    "query": asdict(result.query),
+                    "query": _json_ready(result.query),
                     "recommended": [entry.model_dump(mode="json") for entry in result.recommended],
                     "payload": list(result.payload),
                     "capability_matrix": list(result.capability_matrix),
@@ -333,6 +361,12 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
                         if result.calibrated_regret_certificate is None
                         else asdict(result.calibrated_regret_certificate)
                     ),
+                    "cross_method_consensus": (
+                        None
+                        if result.cross_method_consensus is None
+                        else asdict(result.cross_method_consensus)
+                    ),
+                    "advisor_optimization": _json_ready(result.advisor_optimization),
                 },
                 indent=2,
                 sort_keys=True,
@@ -471,6 +505,49 @@ def _build_parser() -> argparse.ArgumentParser:
     p_advisor.add_argument("--minimum-fidelity-tier", choices=["low", "medium", "high"])
     p_advisor.add_argument("--n-obs", type=int, help="Observation count available to the method")
     p_advisor.add_argument("--runtime-budget-ms", type=float, help="Runtime budget in milliseconds")
+    p_advisor.add_argument(
+        "--cost-policy",
+        default="ignore",
+        choices=["ignore", "annotate", "filter", "pareto"],
+        help="Optional cost-aware advisor mode",
+    )
+    p_advisor.add_argument(
+        "--cost-budget-ms",
+        type=float,
+        help="Hard method budget in milliseconds for cost-aware modes",
+    )
+    p_advisor.add_argument(
+        "--cost-budget-usd",
+        type=float,
+        help="Hard method budget in USD for cost-aware modes",
+    )
+    p_advisor.add_argument(
+        "--risk-delta",
+        type=float,
+        default=0.05,
+        help="Tail probability used for cost upper bounds",
+    )
+    p_advisor.add_argument(
+        "--dominance-mode",
+        default="point",
+        choices=["point", "robust"],
+        help="Pareto dominance relation for cost-aware modes",
+    )
+    p_advisor.add_argument(
+        "--no-heuristic-cost-estimate",
+        action="store_true",
+        help="Require declared catalog cost estimates instead of heuristic fallback",
+    )
+    p_advisor.add_argument(
+        "--require-declared-accuracy-estimate",
+        action="store_true",
+        help="Require declared catalog accuracy estimates for cost-value selection",
+    )
+    p_advisor.add_argument(
+        "--return-certificate",
+        action="store_true",
+        help="Include a budget certificate for annotate mode",
+    )
     p_advisor.add_argument(
         "--loss-profile-id",
         default="balanced",

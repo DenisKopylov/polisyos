@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
@@ -24,7 +25,15 @@ from polisyos.core.contracts.runtime import (
     QuantityCoverageSummary,
     QuantityValue,
     TemporalRef,
+    TemporalScope,
     UnitRef,
+)
+from polisyos.fabric.decision_data import (
+    FabricDecisionData,
+    FabricDecisionDataCoverage,
+    SourceContractRef,
+    coverage_from_decision_data,
+    from_runtime_quantities,
 )
 
 if TYPE_CHECKING:
@@ -165,7 +174,11 @@ class LineageService:
 
     def build_runtime_lineage_batch(self, lineage_ids: list[str]) -> list[LineageGraphView]:
         """Return runtime lineage graphs preserving request order."""
-        return [self.build_runtime_lineage(lineage_id) for lineage_id in lineage_ids]
+        resolved: dict[str, LineageGraphView] = {}
+        for lineage_id in lineage_ids:
+            if lineage_id not in resolved:
+                resolved[lineage_id] = self.build_runtime_lineage(lineage_id)
+        return [resolved[lineage_id] for lineage_id in lineage_ids]
 
     def build_from_fabric_trace(
         self,
@@ -323,6 +336,61 @@ class LineageService:
             entries.append(_coverage_entry(quantity))
 
         return quantities, _coverage_summary(entries), entries
+
+    def build_fabric_decision_data_for_run(
+        self,
+        run: IndexedRunRecord,
+        *,
+        temporal_scope: TemporalScope | None = None,
+    ) -> tuple[list[FabricDecisionData], FabricDecisionDataCoverage]:
+        """Build Fabric trust envelopes for decision quantities in one run."""
+        quantities, coverage, _entries = self.build_quantity_inventory_for_run(run)
+        return self.build_fabric_decision_data_for_quantities(
+            quantities,
+            coverage,
+            temporal_scope=temporal_scope,
+        )
+
+    def build_fabric_decision_data_for_quantities(
+        self,
+        quantities: list[QuantityValue],
+        coverage: QuantityCoverageSummary,
+        *,
+        temporal_scope: TemporalScope | None = None,
+    ) -> tuple[list[FabricDecisionData], FabricDecisionDataCoverage]:
+        """Project Runtime QuantityValue rows into Fabric trust envelopes."""
+        decision_data = from_runtime_quantities(
+            quantities,
+            source_contract=SourceContractRef(
+                id="runtime.decision_packet.generic",
+                version="0.1.0",
+            ),
+            temporal_scope=temporal_scope,
+        )
+        return (
+            decision_data,
+            coverage_from_decision_data(
+                decision_data,
+                telemetry=coverage.telemetry,
+                layout=coverage.layout,
+                debug=coverage.debug,
+            ),
+        )
+
+    def benchmark_compact_lineage_batch(self, lineage_ids: list[str]) -> dict[str, Any]:
+        """Measure local compact lineage batch lookup latency for acceptance tests."""
+        started = perf_counter()
+        lineages = self.build_runtime_lineage_batch(lineage_ids)
+        elapsed_ms = (perf_counter() - started) * 1000.0
+        return {
+            "count": len(lineage_ids),
+            "unique_count": len(set(lineage_ids)),
+            "p95_ms": elapsed_ms,
+            "status_counts": {
+                status: sum(lineage.status == status for lineage in lineages)
+                for status in sorted({lineage.status for lineage in lineages})
+            },
+        }
 
 
 def _merge_nodes(lhs: ArtifactLineageNode, rhs: ArtifactLineageNode) -> ArtifactLineageNode:

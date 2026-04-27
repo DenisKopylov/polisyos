@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-27.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/connectors/**`, `src/polisyos/fabric/connectors/sources/**`, `tests/fabric/connectors/**`, `pyproject.toml`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric ships 20 concrete connector classes in
 `polisyos.fabric.connectors.sources`. HTTP/open-data families share
@@ -76,7 +77,30 @@ inherits `BaseConnector.fetch_stream()`.
 | Phase 1 | Connector registries, caches, pools, resilience wrappers, and background prefetch state must be locked, bounded, and deterministically closed.                                 |
 | Phase 2 | `FetchResult.schema_id`, `schema_version`, `DataVersion`, units, numeric bounds, and transform outputs must be finite and semantically stable.                                 |
 | Phase 3 | Connector changes that alter schema contracts must pass the schema-governance gate and emit impacted downstream surfaces when compatibility changes.                           |
-| Phase 5 | New families reuse the same registry, profile, contract, fixture, quarantine, and lineage rules; expansion does not bypass hardened HTTP/open-data contracts.                  |
+| Phase 4 | Production connector metadata must carry owner, schema, quality-contract, SLA, access-classification, and retention-compatible governance fields.                              |
+| Phase 5 | New production-visible sources require SourceContract v2, profile compatibility, quality, replay or non-replayable reason, lineage seed, access, SLO, scorecard, and docs evidence. |
+
+## Governance Metadata
+
+`ConnectorMetadataSpec` now exposes structured views for Phase 4 governance:
+
+| View | Fields |
+| ---- | ------ |
+| `metadata.schema_governance` | `schema_id`, `schema_id_template`, `schema_registry_ref` |
+| `metadata.quality_governance` | `quality_tier`, `quality_contract_id`, `quality_contract_ref`, finite-value requirement |
+| `metadata.operations.sla` | availability target, freshness SLO, p95 latency target, replay-success target |
+| `metadata.governance` | owner, trust/quality tier, access classification, column classifications, quality contract id |
+
+`validate_connector_governance_metadata()` is the executable gate used by the
+Phase 4 test suite to ensure every built-in production connector has schema,
+quality, SLA, access, and owner metadata before it can be treated as
+production-ready.
+
+Phase 5 extends that metadata into [source-platform.md](source-platform.md).
+`fabric.connectors.sdk` scaffolds SourceContract v2 authoring artifacts, and
+`fabric.connectors.testing.conformance` validates protocol, profile, schema,
+quality, replay, lineage, access, retention, and SLO evidence before a connector
+is production-visible.
 
 ## Schema Contracts And Compatibility
 
@@ -88,6 +112,7 @@ regeneration commands live in [schema-compatibility.md](schema-compatibility.md)
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `schemas/snapshots/connectors/contracts.json`                | `polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS`                  | `uv run python tools/connectors/check_contracts.py --check`                                                        |
 | `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` plus the same source contracts | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` |
+| `schemas/snapshots/fabric/source_contracts_v2.json`          | `tools/quality/validation/fabric_source_contracts.py`                                 | `uv run python tools/quality/validation/fabric_source_contracts.py --check`                                        |
 | `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models                                   | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
 
 Breaking schema changes require an approved major bump, owner/reviewer

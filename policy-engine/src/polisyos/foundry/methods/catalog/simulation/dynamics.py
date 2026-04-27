@@ -308,7 +308,7 @@ class StockFlowSystemDynamicsEstimator:
 @foundry_method(
     namespace="simulation.dynamical_systems",
     version="1.0.0",
-    tags={"simulation", "system-dynamics", "bifurcation", "attractor"},
+    tags={"simulation", "system-dynamics", "time-series", "bifurcation", "attractor"},
 )
 class CanonicalDynamicalSystemEstimator:
     """Simulate canonical ODE/map benchmarks for attractor and bifurcation validation."""
@@ -349,7 +349,9 @@ class CanonicalDynamicalSystemEstimator:
             "Canonical dynamical-system simulator for Hopf, van der Pol, Lorenz-63, "
             "and logistic-map attractor tests."
         ),
-        tags=frozenset({"simulation", "system-dynamics", "bifurcation", "attractor"}),
+        tags=frozenset(
+            {"simulation", "system-dynamics", "time-series", "bifurcation", "attractor"}
+        ),
         when_to_use="Validation cases for fixed points, limit cycles, chaos, and regime shifts.",
         citations=(
             "Guckenheimer, J., & Holmes, P. (1983). Nonlinear Oscillations, Dynamical Systems, and Bifurcations of Vector Fields.",

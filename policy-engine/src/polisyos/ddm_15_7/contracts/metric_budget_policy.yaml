@@ -1,0 +1,17 @@
+policy_id: ddm_15_7_metric_budget_policy_v1
+required_per_model:
+  - model_id
+  - model_version
+  - primary_metric
+  - metric_direction
+  - reference_value
+  - minimum_acceptable_value_or_maximum_acceptable_value
+  - critical_slices
+rules:
+  higher_is_better_budget: reference_value - minimum_acceptable_value
+  lower_is_better_budget: maximum_acceptable_value - reference_value
+  budget_used_is_clipped_to_unit_interval: true
+  confidence_bound_required: true
+critical_slices:
+  require_floor_or_documented_exemption: true
+  worst_slice_budget_feeds_readiness: true

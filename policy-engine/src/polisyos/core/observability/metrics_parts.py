@@ -331,6 +331,30 @@ class MetricsRegistry(MetricsRegistryBase):
             attrs["tenant_id"] = tenant_id
         self.fabric_dlq_entries.set(max(0.0, float(count)), attrs)
 
+    def record_fabric_slo_assessment(
+        self,
+        *,
+        sli_name: str,
+        observed_value: float | None,
+        burn_ratio: float | None,
+        healthy: bool,
+        priority: str,
+        window: str,
+    ) -> None:
+        """Record Fabric SLI value and SLO burn state."""
+
+        self._ensure_initialized()
+        attrs = {
+            "sli": sli_name,
+            "priority": priority,
+            "window": window,
+            "healthy": str(bool(healthy)).lower(),
+        }
+        if observed_value is not None and self.fabric_sli_value is not None:
+            self.fabric_sli_value.set(max(0.0, float(observed_value)), attrs)
+        if burn_ratio is not None and self.fabric_error_budget_burn_ratio is not None:
+            self.fabric_error_budget_burn_ratio.set(max(0.0, float(burn_ratio)), attrs)
+
     def record_llm_call(
         self,
         model: str,

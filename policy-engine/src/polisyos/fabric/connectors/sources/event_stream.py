@@ -16,7 +16,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts import infer_schema
+from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.sources._file_common import content_version, read_location_bytes
 from polisyos.fabric.connectors.types import (
     DataChunk,
@@ -145,8 +145,10 @@ class EventStreamConnector(BaseConnector[Any]):
         async for chunk in self.fetch_stream(handle, request):
             messages.extend(chunk.data)
 
-        schema_token = str(request.dataset_id or self._topic(handle.config)).replace("-", "_")
-        schema_id = f"{self.connector_id}.{schema_token}"
+        schema_id = make_schema_id(
+            self.connector_id,
+            request.dataset_id or self._topic(handle.config),
+        )
         frame = pd.DataFrame(messages)
         inferred = infer_schema(frame, schema_id=schema_id)
         state = handle.get_state(self._STATE_KEY) or {}
@@ -157,6 +159,7 @@ class EventStreamConnector(BaseConnector[Any]):
             "fields": [
                 {
                     "name": field.name,
+                    "field_id": field.stable_id,
                     "data_type": field.data_type.value,
                     "nullable": field.nullable,
                 }

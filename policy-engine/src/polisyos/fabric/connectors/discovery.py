@@ -49,6 +49,9 @@ BUILTIN_CONNECTOR_MODULES: tuple[str, ...] = (
 
 # Filesystem path discovery is dev-only
 ALLOW_PATHS_ENV = "POLISYOS_ALLOW_CONNECTOR_PATHS"
+MAX_DISCOVERY_ERRORS = 1024
+MAX_ADDITIONAL_MODULES = 512
+MAX_ADDITIONAL_PATHS = 512
 
 
 @dataclass(frozen=True)
@@ -130,12 +133,14 @@ class ConnectorDiscovery:
         with self._state_lock:
             if module_path not in self._additional_modules:
                 self._additional_modules.append(module_path)
+                del self._additional_modules[:-MAX_ADDITIONAL_MODULES]
 
     def add_path(self, path: Path) -> None:
         """Add a filesystem path to scan for connector modules (dev-only)."""
         with self._state_lock:
             if path not in self._additional_paths:
                 self._additional_paths.append(path)
+                del self._additional_paths[:-MAX_ADDITIONAL_PATHS]
 
     def discover_all(
         self,
@@ -203,7 +208,7 @@ class ConnectorDiscovery:
             eps = list_entry_points(group=ENTRY_POINT_GROUP)
         except Exception as e:
             with self._state_lock:
-                self._errors.append(
+                self._record_error_locked(
                     DiscoveryError(
                         source="entrypoint",
                         module_path=ENTRY_POINT_GROUP,
@@ -241,7 +246,7 @@ class ConnectorDiscovery:
                         yield connector_class
                 else:
                     with self._state_lock:
-                        self._errors.append(
+                        self._record_error_locked(
                             DiscoveryError(
                                 source="entrypoint",
                                 module_path=f"{ep.value} ({ep.name})",
@@ -251,7 +256,7 @@ class ConnectorDiscovery:
                         )
             except Exception as e:
                 with self._state_lock:
-                    self._errors.append(
+                    self._record_error_locked(
                         DiscoveryError(
                             source="entrypoint",
                             module_path=f"{ep.value} ({ep.name})",
@@ -330,7 +335,7 @@ class ConnectorDiscovery:
 
         except ImportError as e:
             with self._state_lock:
-                self._errors.append(
+                self._record_error_locked(
                     DiscoveryError(
                         source=source,
                         module_path=module_path,
@@ -346,7 +351,7 @@ class ConnectorDiscovery:
 
         except Exception as e:
             with self._state_lock:
-                self._errors.append(
+                self._record_error_locked(
                     DiscoveryError(
                         source=source,
                         module_path=module_path,
@@ -368,7 +373,7 @@ class ConnectorDiscovery:
         """
         if not path.exists():
             with self._state_lock:
-                self._errors.append(
+                self._record_error_locked(
                     DiscoveryError(
                         source="path",
                         module_path=str(path),
@@ -425,7 +430,7 @@ class ConnectorDiscovery:
                         yield obj
         except Exception as e:
             with self._state_lock:
-                self._errors.append(
+                self._record_error_locked(
                     DiscoveryError(
                         source="path",
                         module_path=str(file_path),
@@ -484,6 +489,10 @@ class ConnectorDiscovery:
         connector_id = getattr(connector_class, "connector_id", "unknown")
         return connector_id
 
+    def _record_error_locked(self, error: DiscoveryError) -> None:
+        self._errors.append(error)
+        del self._errors[:-MAX_DISCOVERY_ERRORS]
+
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton instance (for testing)."""
@@ -536,7 +545,7 @@ def discover_connectors_from_modules(
     for module_path in modules:
         discovery.add_module(module_path)
 
-    yield from discovery._discover_explicit_modules()
+    yield from discovery._discover_explicit_modules(tuple(modules))
 
 
 def get_discovery_errors() -> list[DiscoveryError]:

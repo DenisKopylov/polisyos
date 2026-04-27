@@ -132,6 +132,8 @@ class _MetricsRegistryBase:
     fabric_lineage_graph_edges: GaugeProxy | None = None
     fabric_prefetch_backlog: GaugeProxy | None = None
     fabric_dlq_entries: GaugeProxy | None = None
+    fabric_sli_value: GaugeProxy | None = None
+    fabric_error_budget_burn_ratio: GaugeProxy | None = None
     calibration_loss: GaugeProxy | None = None
     calibration_grad_norm: GaugeProxy | None = None
     calibration_step_duration_seconds: metrics.Histogram | None = None
@@ -663,6 +665,18 @@ class _MetricsRegistryBase:
             self._meter,
             name="polisyos_fabric_dlq_entries",
             description="Fabric dead-letter or quarantined entry count",
+            unit="1",
+        )
+        self.fabric_sli_value = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_sli_value",
+            description="Observed Fabric SLI value by name and rolling window",
+            unit="1",
+        )
+        self.fabric_error_budget_burn_ratio = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_error_budget_burn_ratio",
+            description="Fabric SLO error-budget burn ratio by SLI",
             unit="1",
         )
 

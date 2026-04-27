@@ -7,6 +7,13 @@ import math
 import numpy as np
 
 from .designs import RunFailurePolicy, SensitivityMethod, SensitivityPlan, SensitivityResult
+from .uncertainty import (
+    analyze_morris_trajectory_bootstrap,
+    analyze_sobol_asymptotic_delta,
+    analyze_sobol_paired_bootstrap,
+    morris_elementary_effects_from_samples,
+    sobol_blocks_from_salib_outputs,
+)
 
 
 def analyze_sensitivity(
@@ -39,6 +46,9 @@ def analyze_sensitivity(
             "run_failure_policy": plan.run_failure_policy.value,
             "estimated_runs": plan.estimated_runs,
             "n_trajectories": plan.n_trajectories,
+            "uncertainty_status": (
+                "pending" if plan.uncertainty.enabled else "point_only_incomplete"
+            ),
         },
     )
 
@@ -62,6 +72,7 @@ def analyze_sensitivity(
             if conf is not None:
                 result.mu_star_conf[name] = [float(conf[idx])]
         result.ranking = sorted(names, key=lambda item: result.mu_star.get(item, 0.0), reverse=True)
+        _attach_morris_uncertainty(result, plan, prepared_samples, prepared_outputs)
         return result
 
     if plan.method == SensitivityMethod.SOBOL:
@@ -99,6 +110,7 @@ def analyze_sensitivity(
             interaction_pairs.sort(key=lambda x: abs(x[2]), reverse=True)
             result.top_interactions = interaction_pairs
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
+        _attach_sobol_uncertainty(result, plan, prepared_outputs)
         return result
 
     if plan.method == SensitivityMethod.FAST:
@@ -109,6 +121,8 @@ def analyze_sensitivity(
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
+        if plan.uncertainty.enabled:
+            _append_uncertainty_warning(result, "ci_unavailable_fast")
         return result
 
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
@@ -179,3 +193,56 @@ def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
                 dists.append("unif")
         problem["dists"] = dists
     return problem
+
+
+def _attach_sobol_uncertainty(
+    result: SensitivityResult,
+    plan: SensitivityPlan,
+    outputs: np.ndarray,
+) -> None:
+    if not plan.uncertainty.enabled:
+        return
+    try:
+        blocks = sobol_blocks_from_salib_outputs(
+            outputs,
+            result.parameter_names,
+            calc_second_order=True,
+        )
+        if plan.uncertainty.method.lower() in {"asymptotic", "asymptotic_delta"}:
+            result.uncertainty = analyze_sobol_asymptotic_delta(blocks, plan.uncertainty)
+        else:
+            result.uncertainty = analyze_sobol_paired_bootstrap(blocks, plan.uncertainty)
+        result.metadata["uncertainty_status"] = "ok"
+    except Exception as exc:
+        _append_uncertainty_warning(result, f"sobol_uncertainty_unavailable:{exc}")
+
+
+def _attach_morris_uncertainty(
+    result: SensitivityResult,
+    plan: SensitivityPlan,
+    samples: np.ndarray,
+    outputs: np.ndarray,
+) -> None:
+    if not plan.uncertainty.enabled:
+        return
+    try:
+        elementary_effects = morris_elementary_effects_from_samples(
+            samples,
+            outputs,
+            result.parameter_names,
+        )
+        result.uncertainty = analyze_morris_trajectory_bootstrap(
+            elementary_effects,
+            result.parameter_names,
+            plan.uncertainty,
+        )
+        result.metadata["uncertainty_status"] = "ok"
+    except Exception as exc:
+        _append_uncertainty_warning(result, f"morris_uncertainty_unavailable:{exc}")
+
+
+def _append_uncertainty_warning(result: SensitivityResult, warning: str) -> None:
+    result.metadata["uncertainty_status"] = "unavailable"
+    warnings = result.metadata.setdefault("warnings", [])
+    if isinstance(warnings, list):
+        warnings.append(warning)

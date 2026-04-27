@@ -1,0 +1,53 @@
+policy_id: ddm_15_7_default_readiness_policy_v1
+readiness_states:
+  R4:
+    name: Ready
+    condition: budget_used < 0.25 and no active calibrated shift requiring action
+    promotion_allowed: true
+    required_actions:
+      - continue_monitoring
+  R3:
+    name: Ready-watch
+    condition: calibrated Track 2.2 shift and budget_used < 0.25
+    promotion_allowed: true
+    required_actions:
+      - annotate_dashboard
+      - increase_label_sampling
+  R2:
+    name: Degraded-investigate
+    condition: 0.25 <= budget_used < 0.50 or persistent high-risk calibrated shift
+    promotion_allowed: false
+    required_actions:
+      - open_investigation_ticket
+      - increase_label_sampling
+      - run_shadow_retrain
+  R1:
+    name: Not ready for expansion
+    condition: 0.50 <= budget_used < 1.00 or confirmed critical-slice breach
+    promotion_allowed: false
+    required_actions:
+      - freeze_rollout
+      - trigger_shadow_retrain
+      - require_owner_signoff
+  R0:
+    name: Not production-ready
+    condition: budget_used >= 1.00 or hard data contract failure
+    promotion_allowed: false
+    required_actions:
+      - rollback_or_route_to_fallback
+      - page_model_owner
+      - block_registry_promotion
+risk_combination:
+  formula: max(D_perf, lambda_shift * D_shift, D_dataquality, D_critical_slice)
+  lambda_shift: 0.35
+  high_risk_shift_threshold: 0.80
+metric_budget:
+  higher_is_better:
+    budget: reference_value - minimum_acceptable_value
+    bound: lower_confidence_bound
+  lower_is_better:
+    budget: maximum_acceptable_value - reference_value
+    bound: upper_confidence_bound
+false_positive_policy:
+  drift_only_alerts_cannot_trigger_R0: true
+  diagnostic_shift_alerts_are_not_readiness_gates: true

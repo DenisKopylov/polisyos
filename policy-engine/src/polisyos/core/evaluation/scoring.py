@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -11,7 +12,10 @@ T = TypeVar("T")
 
 def clamp01(value: float) -> float:
     """Clamp an arbitrary numeric score into the normalized ``[0, 1]`` interval."""
-    return max(0.0, min(1.0, float(value)))
+    numeric = float(value)
+    if not math.isfinite(numeric):
+        raise ValueError("score must be finite")
+    return max(0.0, min(1.0, numeric))
 
 
 @dataclass(frozen=True)
@@ -98,7 +102,12 @@ class ThresholdMapper(Generic[T]):
 
 
 def _normalize_weights(weights: Mapping[str, float]) -> dict[str, float]:
-    filtered = {name: max(0.0, float(value)) for name, value in weights.items()}
+    filtered: dict[str, float] = {}
+    for name, value in weights.items():
+        numeric = float(value)
+        if not math.isfinite(numeric):
+            raise ValueError(f"weight {name!r} must be finite")
+        filtered[name] = max(0.0, numeric)
     total = sum(filtered.values())
     if total <= 0.0:
         return {}

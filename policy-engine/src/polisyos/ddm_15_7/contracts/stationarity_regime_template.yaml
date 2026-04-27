@@ -1,0 +1,26 @@
+stationarity_regime:
+  id: SR-1-model_id-version
+  model_id: string
+  model_version: string
+  reference_period:
+    start: "2026-01-01T00:00:00Z"
+    end: "2026-02-01T00:00:00Z"
+  calibration_period:
+    start: "2026-02-01T00:00:00Z"
+    end: "2026-03-01T00:00:00Z"
+  holdout_stationary_period:
+    start: "2026-03-01T00:00:00Z"
+    end: "2026-04-01T00:00:00Z"
+  seasonality_strata:
+    - hour_of_day
+    - day_of_week
+    - region
+  allowed_dependency_model: moving_block_bootstrap
+  block_length: 24
+  label_delay_model: empirical_delay_distribution_v1
+  invalidation_triggers:
+    - model_version_change
+    - feature_transform_change
+    - upstream_schema_change
+    - label_delay_distribution_shift
+    - business_policy_change

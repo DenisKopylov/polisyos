@@ -165,6 +165,15 @@ nav:
           - reference/scientist/calibration-governance.md
           - reference/scientist/agent-search-reasoning.md
           - reference/scientist/reliability-scorecard.md
+          - reference/scientist/claims.md
+          - reference/scientist/research-dag.md
+          - reference/scientist/deep-research-evidence.md
+          - reference/scientist/agent-capability-promotion.md
+          - reference/scientist/benchmark-authority.md
+          - reference/scientist/human-oversight.md
+          - reference/scientist/best-in-class-readiness.md
+          - reference/scientist/best-in-class-wave1-acceptance.md
+          - reference/scientist/scientist-capability-inventory.md
           - Evidence and Acceptance:
               - reference/scientist/remediation-status.md
               - reference/scientist/governance-accountability.md
@@ -182,12 +191,15 @@ nav:
           - reference/lex/interventions.md
       - Fabric:
           - reference/fabric/index.md
+          - reference/fabric/best-in-class-inventory.md
           - reference/fabric/connectors.md
           - reference/fabric/profiles.md
           - reference/fabric/data-plane.md
           - reference/fabric/schema-compatibility.md
           - reference/fabric/lineage.md
           - reference/fabric/quality.md
+          - reference/fabric/observability-governance.md
+          - reference/fabric/source-platform.md
           - reference/fabric/time-travel.md
       - REST API:
           - reference/api/index.md

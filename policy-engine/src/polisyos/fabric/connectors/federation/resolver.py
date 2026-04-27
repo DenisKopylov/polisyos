@@ -8,6 +8,7 @@ overlapping data for the same dimensions.
 from __future__ import annotations
 
 import json
+import threading
 from datetime import datetime
 from typing import Any
 
@@ -44,6 +45,7 @@ class ConflictResolver:
         *,
         tie_breaker_seed: str | None = None,
         store_logs: bool = False,
+        max_log_entries: int = 5_000,
     ) -> None:
         """
         Initialize resolver with a specific policy.
@@ -52,12 +54,17 @@ class ConflictResolver:
             policy: The conflict resolution policy to use
             tie_breaker_seed: Optional seed for deterministic tie-breaking
             store_logs: If True, keep an internal conflict log
+            max_log_entries: Maximum retained internal log entries when
+                store_logs is enabled. Older entries are dropped first.
         """
         self.policy = policy
         self._tie_breaker_seed = tie_breaker_seed
         self._store_logs = store_logs
+        self._max_log_entries = max(0, int(max_log_entries))
         self._resolution_count = 0
+        self._dropped_log_entries = 0
         self._conflict_log: list[MergeLogEntry] = []
+        self._state_lock = threading.RLock()
 
     def resolve_conflict(
         self,
@@ -125,9 +132,10 @@ class ConflictResolver:
             )
             resolution.log_entry = log_entry
             if self._store_logs:
-                self._conflict_log.append(log_entry)
+                self._remember_log_entry(log_entry)
 
-        self._resolution_count += 1
+        with self._state_lock:
+            self._resolution_count += 1
         return resolution
 
     def resolve_batch(
@@ -441,24 +449,43 @@ class ConflictResolver:
 
     def get_conflict_log(self) -> list[MergeLogEntry]:
         """Get all logged conflict resolutions."""
-        return self._conflict_log.copy()
+        with self._state_lock:
+            return self._conflict_log.copy()
 
     def reset_log(self) -> None:
         """Clear conflict log (useful for testing)."""
-        self._conflict_log.clear()
-        self._resolution_count = 0
+        with self._state_lock:
+            self._conflict_log.clear()
+            self._resolution_count = 0
+            self._dropped_log_entries = 0
 
     def get_statistics(self) -> dict[str, Any]:
         """Get statistics about conflict resolutions."""
-        return {
-            "policy": self.policy.value,
-            "total_resolutions": self._resolution_count,
-            "logged_conflicts": len(self._conflict_log),
-            "sources_involved": len(
-                {
-                    source_id
-                    for entry in self._conflict_log
-                    for source_id in [entry.source_a_id, entry.source_b_id]
-                }
-            ),
-        }
+        with self._state_lock:
+            log_snapshot = self._conflict_log.copy()
+            return {
+                "policy": self.policy.value,
+                "total_resolutions": self._resolution_count,
+                "logged_conflicts": len(log_snapshot),
+                "log_entries_retained": len(log_snapshot),
+                "log_entries_dropped": self._dropped_log_entries,
+                "log_entries_truncated": self._dropped_log_entries > 0,
+                "max_log_entries": self._max_log_entries,
+                "sources_involved": len(
+                    {
+                        source_id
+                        for entry in log_snapshot
+                        for source_id in [entry.source_a_id, entry.source_b_id]
+                    }
+                ),
+            }
+
+    def _remember_log_entry(self, entry: MergeLogEntry) -> None:
+        with self._state_lock:
+            if self._max_log_entries == 0:
+                self._dropped_log_entries += 1
+                return
+            self._conflict_log.append(entry)
+            while len(self._conflict_log) > self._max_log_entries:
+                self._conflict_log.pop(0)
+                self._dropped_log_entries += 1

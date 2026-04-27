@@ -94,6 +94,8 @@ class ConnectorCacheStore:
         self._miss_count = 0
         self._eviction_count = 0
         self._stats_lock = threading.Lock()
+        self._lifecycle_lock = threading.RLock()
+        self._eviction_lock = threading.RLock()
         self._metrics = metrics if metrics is not None else _default_metrics()
         self._tracer = tracer if tracer is not None else _default_tracer()
         self._closed = False
@@ -505,18 +507,21 @@ class ConnectorCacheStore:
 
     def close(self) -> None:
         """Close owned cache resources. Idempotent."""
-        if self._closed:
-            return
-        self._index.close()
-        self._closed = True
+        with self._lifecycle_lock:
+            if self._closed:
+                return
+            self._index.close()
+            self._closed = True
 
     @property
     def closed(self) -> bool:
-        return self._closed
+        with self._lifecycle_lock:
+            return self._closed
 
     def _ensure_open(self) -> None:
-        if self._closed:
-            raise RuntimeError(f"ConnectorCacheStore is closed: {self._namespace}")
+        with self._lifecycle_lock:
+            if self._closed:
+                raise RuntimeError(f"ConnectorCacheStore is closed: {self._namespace}")
 
     def __enter__(self) -> ConnectorCacheStore:
         self._ensure_open()
@@ -582,34 +587,35 @@ class ConnectorCacheStore:
             )
 
     def _evict_if_needed(self, policy: CachePolicy) -> None:
-        # LRU policy enforcement
-        max_entries = getattr(policy, "max_entries", None)
-        if max_entries is not None:
-            total_entries = self._index.total_entries()
-            if total_entries > max_entries:
-                to_evict = total_entries - max_entries
-                candidates = self._index.list_lru_candidates(to_evict)
-                for entry in candidates:
-                    self._index.delete_entry(entry.cache_key)
-                self._record_eviction("lru", len(candidates))
+        with self._eviction_lock:
+            # LRU policy enforcement
+            max_entries = getattr(policy, "max_entries", None)
+            if max_entries is not None:
+                total_entries = self._index.total_entries()
+                if total_entries > max_entries:
+                    to_evict = total_entries - max_entries
+                    candidates = self._index.list_lru_candidates(to_evict)
+                    for entry in candidates:
+                        self._index.delete_entry(entry.cache_key)
+                    self._record_eviction("lru", len(candidates))
 
-        # Size-bounded policy enforcement
-        max_size_bytes = getattr(policy, "max_size_bytes", None)
-        if max_size_bytes is not None:
-            total_size = self._index.total_size()
-            if total_size > max_size_bytes:
-                target_count = max(1, self._index.total_entries())
-                reclaim_bytes = 0
-                candidates_to_delete = []
-                for entry in self._index.list_lru_candidates(target_count):
-                    candidates_to_delete.append(entry)
-                    reclaim_bytes += entry.payload_size_bytes
-                    if total_size - reclaim_bytes <= max_size_bytes:
-                        break
+            # Size-bounded policy enforcement
+            max_size_bytes = getattr(policy, "max_size_bytes", None)
+            if max_size_bytes is not None:
+                total_size = self._index.total_size()
+                if total_size > max_size_bytes:
+                    target_count = max(1, self._index.total_entries())
+                    reclaim_bytes = 0
+                    candidates_to_delete = []
+                    for entry in self._index.list_lru_candidates(target_count):
+                        candidates_to_delete.append(entry)
+                        reclaim_bytes += entry.payload_size_bytes
+                        if total_size - reclaim_bytes <= max_size_bytes:
+                            break
 
-                for entry in candidates_to_delete:
-                    self._index.delete_entry(entry.cache_key)
-                self._record_eviction("size", len(candidates_to_delete))
+                    for entry in candidates_to_delete:
+                        self._index.delete_entry(entry.cache_key)
+                    self._record_eviction("size", len(candidates_to_delete))
 
         self._update_cache_gauges()
 

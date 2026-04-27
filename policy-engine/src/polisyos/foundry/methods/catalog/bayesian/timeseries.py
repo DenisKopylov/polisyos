@@ -25,6 +25,17 @@ from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesDa
 from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult
 from polisyos.foundry.methods.catalog.ml.regression import _build_prediction_result
 
+from .prior_sensitivity import (
+    BayesianPolicyModelFamily,
+    PriorSensitivityReport,
+    assemble_prior_sensitivity_report,
+    build_admissible_prior_class,
+    not_run_prior_sensitivity_report,
+    prior_predictive_rank_test,
+    prior_scale_sensitivity_from_samples,
+    prior_scale_sensitivity_records_from_samples,
+    simulate_linear_gaussian_prior_predictive,
+)
 from .protocols import (
     PosteriorResult,
     augment_sampler_diagnostics,
@@ -58,6 +69,84 @@ def _output_slots() -> frozenset[SlotSpec]:
             ),
             SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
         }
+    )
+
+
+def _autoregression_prior_sensitivity_report(
+    *,
+    design: np.ndarray,
+    lagged_features: np.ndarray,
+    target: np.ndarray,
+    draws: np.ndarray,
+    beta_draws: np.ndarray,
+    credible_intervals: Mapping[str, tuple[float, float]],
+    prior_scale: float,
+    credible_mass: float,
+    n_lags: int,
+    params: Mapping[str, Any],
+) -> PriorSensitivityReport:
+    seed = int(params.get("__seed__", params.get("seed", 0))) + 9109
+    rng = np.random.default_rng(seed)
+    n_simulations = max(32, int(params.get("prior_predictive_simulations", 128)))
+    simulations = simulate_linear_gaussian_prior_predictive(
+        design,
+        prior_scale=prior_scale,
+        n_simulations=n_simulations,
+        rng=rng,
+    )
+    admissible = build_admissible_prior_class(
+        BayesianPolicyModelFamily.VAR,
+        hyperparameters={
+            "prior_scale": prior_scale,
+            "lambda": prior_scale,
+            "lag_decay": 1.0,
+        },
+        prior_predictive_simulations=simulations,
+    )
+    prior_predictive = prior_predictive_rank_test(
+        target,
+        simulations,
+        alpha=float(params.get("prior_predictive_alpha", 0.05)),
+        model_family=BayesianPolicyModelFamily.VAR,
+        features=lagged_features,
+        conditioned_on=("initial_lags", "time_index", "sampling_design"),
+    )
+    estimand_id = "phi_0" if "phi_0" in credible_intervals else "intercept"
+    samples = {
+        "intercept": beta_draws[:, 0],
+        "log_sigma": draws[:, -1],
+        **{f"phi_{idx}": beta_draws[:, idx + 1] for idx in range(max(n_lags, 0))},
+    }
+    sensitivity = prior_scale_sensitivity_from_samples(
+        samples=samples,
+        estimand_id=estimand_id,
+        baseline_interval=credible_intervals[estimand_id],
+        credible_interval_level=credible_mass,
+        baseline_prior_scale=prior_scale,
+        ess_threshold=float(params["prior_sensitivity_ess_threshold"])
+        if "prior_sensitivity_ess_threshold" in params
+        else None,
+    )
+    sensitivity_records = prior_scale_sensitivity_records_from_samples(
+        samples=samples,
+        credible_intervals=credible_intervals,
+        credible_interval_level=credible_mass,
+        baseline_prior_scale=prior_scale,
+        estimand_ids=tuple(key for key in credible_intervals if key.startswith("phi_") or key == "intercept"),
+        ess_threshold=float(params["prior_sensitivity_ess_threshold"])
+        if "prior_sensitivity_ess_threshold" in params
+        else None,
+    )
+    return assemble_prior_sensitivity_report(
+        model_family=BayesianPolicyModelFamily.VAR,
+        selected_prior_id="ar_normal_logsigma_prior_v1",
+        admissible_prior_class=admissible,
+        prior_predictive_check=prior_predictive,
+        sensitivity=sensitivity,
+        sensitivity_by_estimand=sensitivity_records,
+        readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
+        metadata={"estimand_id": estimand_id, "n_lags": n_lags, "prior_predictive_seed": seed},
+        warnings=sensitivity.warnings,
     )
 
 
@@ -205,6 +294,26 @@ class BayesianAutoregressionEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        try:
+            prior_sensitivity = _autoregression_prior_sensitivity_report(
+                design=design,
+                lagged_features=x,
+                target=y,
+                draws=draws,
+                beta_draws=beta_draws,
+                credible_intervals=credible_intervals,
+                prior_scale=prior_scale,
+                credible_mass=credible_mass,
+                n_lags=n_lags,
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.VAR,
+                selected_prior_id="ar_normal_logsigma_prior_v1",
+                admissible_prior_class_id="bvar_minnesota_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
 
         prediction_output = _build_prediction_result(
             method_name="bayesian_autoregression",
@@ -229,6 +338,7 @@ class BayesianAutoregressionEstimator:
             sampler_family="mcmc",
             sampler_kernel="metropolis",
             metadata={"n_lags": n_lags},
+            prior_sensitivity=prior_sensitivity,
         )
         return {
             "result": posterior_result,

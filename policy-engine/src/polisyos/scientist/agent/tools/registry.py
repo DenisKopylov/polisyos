@@ -453,6 +453,26 @@ def _validate_schema_value(
                 )
 
     if isinstance(value, list):
+        min_items = schema.get("minItems")
+        if isinstance(min_items, int) and len(value) < min_items:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must contain at least {min_items} items",
+                    expected=f">={min_items}",
+                    actual=len(value),
+                )
+            )
+        max_items = schema.get("maxItems")
+        if isinstance(max_items, int) and len(value) > max_items:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must contain at most {max_items} items",
+                    expected=f"<={max_items}",
+                    actual=len(value),
+                )
+            )
         item_schema = schema.get("items")
         if isinstance(item_schema, dict):
             for index, item in enumerate(value):
@@ -463,6 +483,50 @@ def _validate_schema_value(
                         path=f"{path}[{index}]",
                     )
                 )
+
+    if isinstance(value, str):
+        min_length = schema.get("minLength")
+        if isinstance(min_length, int) and len(value) < min_length:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must be at least {min_length} characters",
+                    expected=f">={min_length}",
+                    actual=len(value),
+                )
+            )
+        max_length = schema.get("maxLength")
+        if isinstance(max_length, int) and len(value) > max_length:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must be at most {max_length} characters",
+                    expected=f"<={max_length}",
+                    actual=len(value),
+                )
+            )
+
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        minimum = schema.get("minimum")
+        if isinstance(minimum, int | float) and value < minimum:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must be >= {minimum}",
+                    expected=f">={minimum}",
+                    actual=value,
+                )
+            )
+        maximum = schema.get("maximum")
+        if isinstance(maximum, int | float) and value > maximum:
+            issues.append(
+                _ToolValidationIssue(
+                    path=path,
+                    message=f"{path} must be <= {maximum}",
+                    expected=f"<={maximum}",
+                    actual=value,
+                )
+            )
 
     return issues
 

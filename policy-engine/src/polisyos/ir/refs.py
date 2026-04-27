@@ -231,6 +231,13 @@ class DataReadinessReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ShiftDiagnosticReportRef(ArtifactRefModel):
+    """Stable handle for persisted distribution-shift diagnostic reports."""
+
+    kind: Literal["ir.shift_diagnostic_report"] = "ir.shift_diagnostic_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class SurveyQualityCertificateRef(ArtifactRefModel):
     """Stable handle for persisted survey-quality certificates."""
 
@@ -242,6 +249,48 @@ class MetricValidationReportRef(ArtifactRefModel):
     """Stable handle for persisted metric-validation reports."""
 
     kind: Literal["scientist.metric_validation_report"] = "scientist.metric_validation_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ValidationReportRef(ArtifactRefModel):
+    """Stable handle for persisted Phase-5-compatible validation reports."""
+
+    kind: Literal["scientist.validation_report"] = "scientist.validation_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class FairnessAuditReportRef(ArtifactRefModel):
+    """Stable handle for persisted validation-stage fairness audit reports."""
+
+    kind: Literal["scientist.fairness_audit_report"] = "scientist.fairness_audit_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SensitivityAnalysisBundleRef(ArtifactRefModel):
+    """Stable handle for persisted canonical Phase-5 sensitivity bundles."""
+
+    kind: Literal["scientist.sensitivity_analysis_bundle"] = "scientist.sensitivity_analysis_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ExplanationBundleRef(ArtifactRefModel):
+    """Stable handle for persisted analyst-facing explanation bundles."""
+
+    kind: Literal["scientist.explanation_bundle"] = "scientist.explanation_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class JudgeVerdictRef(ArtifactRefModel):
+    """Stable handle for persisted six-judge verdicts."""
+
+    kind: Literal["scientist.judge_verdict"] = "scientist.judge_verdict"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DriftReadinessRef(ArtifactRefModel):
+    """Stable handle for persisted drift/readiness state evidence."""
+
+    kind: Literal["scientist.drift_readiness"] = "scientist.drift_readiness"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -877,10 +926,13 @@ __all__ = [
     "DistributionalReportRef",
     "DynamicMicrosimValidationReportRef",
     "DynamicTreatmentRegimeRef",
+    "DriftReadinessRef",
     "EffectTrajectoryBundleRef",
     "EndogenousGroupInequalityDecompositionRef",
     "EstimandASTRef",
     "EvidenceBundleRef",
+    "ExplanationBundleRef",
+    "FairnessAuditReportRef",
     "FiniteStateAbstractionMapRef",
     "FiscalFeedbackLinkRef",
     "ForecastInterventionCertificateRef",
@@ -897,6 +949,7 @@ __all__ = [
     "InterventionCostManifoldRef",
     "InterventionQueryRef",
     "JointDecisionCertificateRef",
+    "JudgeVerdictRef",
     "KernelEstimatorSpecRef",
     "LatentBridgeHypothesisRef",
     "LiteratureCausalPriorRef",
@@ -930,11 +983,13 @@ __all__ = [
     "RegimeShiftIdentificationCertificateRef",
     "RoughPathInterventionCertificateRef",
     "SCMFragmentRef",
+    "ShiftDiagnosticReportRef",
+    "SensitivityAnalysisBundleRef",
     "SimulationCalibrationReceiptRef",
     "SimulationProofBridgeRef",
     "SocialWeightManifestRef",
-    "SpatialHodgeDiagnosticsRef",
     "SpaceTimeCausalCertificateRef",
+    "SpatialHodgeDiagnosticsRef",
     "StrategicPayoffTableRef",
     "StrategicResponseBundleRef",
     "StrategicSCMRef",
@@ -946,6 +1001,7 @@ __all__ = [
     "TransportabilityResultRef",
     "TwinNetworkResultRef",
     "UncertaintyEnvelopeRef",
+    "ValidationReportRef",
     "VariableAlignmentCertificateRef",
     "WelfareBundleRef",
     "WelfareSampleBundleRef",

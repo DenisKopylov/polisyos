@@ -11,6 +11,25 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 
+def _passing_judge_verdict() -> dict[str, object]:
+    return {
+        "per_judge": {
+            name: {"judge_name": name, "passed": True, "is_fatal": True}
+            for name in (
+                "structural",
+                "statistical",
+                "robustness",
+                "governance",
+                "reproducibility",
+                "compute",
+            )
+        },
+        "composite_decision": "promote",
+        "blocking_failures": [],
+        "warnings": [],
+    }
+
+
 def test_report_success(execution_context, minimal_state, artifact_ref_factory):
     """Successfully builds a verified policy report."""
     request_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
@@ -29,6 +48,7 @@ def test_report_success(execution_context, minimal_state, artifact_ref_factory):
     state.policy_request_ref = request_ref
     state.policy_option_set_ref = option_ref
     state.source_verification_report_ref = report_ref
+    state.params["judge_verdict"] = _passing_judge_verdict()
 
     with (
         patch(
@@ -93,6 +113,7 @@ def test_verified_policy_report_uses_branch_state_for_declared_outputs(
     state.policy_option_set_ref = option_ref
     state.source_verification_report_ref = report_ref
     state.params["nested"] = {"baseline": True}
+    state.params["judge_verdict"] = _passing_judge_verdict()
     observed: dict[str, tuple[str, ...]] = {}
 
     def _spy_branch(base_state, *, write_paths=()):
@@ -131,6 +152,8 @@ def test_verified_policy_report_uses_branch_state_for_declared_outputs(
     assert observed["write_paths"] == (
         "verified_policy_report_ref",
         "artifacts_index.verified_policy_report_ref",
+        "artifacts_index.validation_report_ref",
+        "artifacts_index.judge_verdict_ref",
     )
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_VERIFIED_POLICY_REPORT_REF not in state.artifacts_index

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
+from collections import OrderedDict
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -53,6 +54,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.pool import ConnectionPool
 
 logger = get_logger(__name__)
+MAX_CONNECTION_POOLS = 512
 
 
 class ConnectorRegistry(RegistryLifecycleMixin):
@@ -92,7 +94,8 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         )
 
         # Connection pool management (keyed by (fqid, config_fingerprint))
-        self._connection_pools: dict[tuple[str, str], ConnectionPool] = {}
+        self._connection_pools: OrderedDict[tuple[str, str], ConnectionPool] = OrderedDict()
+        self._max_connection_pools = MAX_CONNECTION_POOLS
 
         # Instance lock for thread-safe mutations
         self._instance_lock = threading.RLock()
@@ -670,7 +673,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         pool_key = (fqid, fingerprint)
 
         with self._instance_lock:
-            pool = self._connection_pools.get(pool_key)
+            pool = self._get_connection_pool_locked(pool_key)
 
         if pool is None:
             pool_config = PoolConfig(max_size=effective_config.max_connections)
@@ -710,11 +713,14 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 pool_id=f"pool-{fqid}-{fingerprint[:8]}",
                 circuit_breaker=breaker,
             )
+            evicted_pools: list[ConnectionPool] = []
             with self._instance_lock:
-                pool = self._connection_pools.get(pool_key)
+                pool = self._get_connection_pool_locked(pool_key)
                 if pool is None:
-                    self._connection_pools[pool_key] = new_pool
+                    evicted_pools = self._store_connection_pool_locked(pool_key, new_pool)
                     pool = new_pool
+            for evicted_pool in evicted_pools:
+                await evicted_pool.close_all()
 
         return await pool.acquire()
 
@@ -729,10 +735,15 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         pool_key = (fqid, fingerprint)
 
         with self._instance_lock:
-            pool = self._connection_pools.get(pool_key)
+            pool = self._get_connection_pool_locked(pool_key)
 
         if pool is not None:
             await pool.release(handle)
+            evicted_pools: list[ConnectionPool] = []
+            with self._instance_lock:
+                evicted_pools = self._trim_connection_pools_locked()
+            for evicted_pool in evicted_pools:
+                await evicted_pool.close_all()
         else:
             logger.warning(
                 "Connection pool not found for release",
@@ -745,6 +756,37 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         payload = config.to_dict(redact=False)
         payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
         return content_hash(payload_json, prefix=True)
+
+    def _get_connection_pool_locked(
+        self,
+        pool_key: tuple[str, str],
+    ) -> ConnectionPool | None:
+        pool = self._connection_pools.get(pool_key)
+        if pool is not None:
+            self._connection_pools.move_to_end(pool_key)
+        return pool
+
+    def _store_connection_pool_locked(
+        self,
+        pool_key: tuple[str, str],
+        pool: ConnectionPool,
+    ) -> list[ConnectionPool]:
+        self._connection_pools[pool_key] = pool
+        self._connection_pools.move_to_end(pool_key)
+        return self._trim_connection_pools_locked()
+
+    def _trim_connection_pools_locked(self) -> list[ConnectionPool]:
+        evicted: list[ConnectionPool] = []
+        attempts = len(self._connection_pools)
+        while len(self._connection_pools) > self._max_connection_pools and attempts > 0:
+            attempts -= 1
+            evicted_key, evicted_pool = self._connection_pools.popitem(last=False)
+            if evicted_pool.get_stats().in_use_connections > 0:
+                self._connection_pools[evicted_key] = evicted_pool
+                self._connection_pools.move_to_end(evicted_key)
+                continue
+            evicted.append(evicted_pool)
+        return evicted
 
     # =========================================================================
     # Health Tracking

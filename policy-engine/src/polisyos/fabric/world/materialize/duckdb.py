@@ -17,6 +17,7 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import content_hash
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.safety import quote_sql_identifier
 from polisyos.fabric.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store.segments import load_world_fact_manifests
@@ -181,7 +182,9 @@ def _ensure_column(
 ) -> None:
     if _column_exists(db, table_name, column_name):
         return
-    db.conn.execute(f"ALTER TABLE world.{table_name} ADD COLUMN {column_name} {ddl_type}")
+    table_sql = quote_sql_identifier(f"world.{table_name}", what="world migration table", allow_dotted=True)
+    column_sql = quote_sql_identifier(column_name, what="world migration column")
+    db.conn.execute(f"ALTER TABLE {table_sql} ADD COLUMN {column_sql} {ddl_type}")
 
 
 def _ensure_world_schema_migrations(db: SimulationDB) -> None:
@@ -567,7 +570,9 @@ def _backup_projection_tables(
     for table_name in dict.fromkeys(table_names):
         safe_name = table_name.replace(".", "_").replace("-", "_")
         backup_name = f"tmp_{safe_name}_backup_{uuid.uuid4().hex}"
-        db.conn.execute(f"CREATE TEMP TABLE {backup_name} AS SELECT * FROM {table_name}")
+        backup_sql = quote_sql_identifier(backup_name, what="projection backup table")
+        table_sql = quote_sql_identifier(table_name, what="projection table", allow_dotted=True)
+        db.conn.execute(f"CREATE TEMP TABLE {backup_sql} AS SELECT * FROM {table_sql}")
         backups[table_name] = backup_name
     return backups
 
@@ -575,8 +580,10 @@ def _backup_projection_tables(
 def _restore_projection_tables(db: SimulationDB, backups: dict[str, str]) -> None:
     try:
         for table_name, backup_name in backups.items():
-            db.conn.execute(f"DELETE FROM {table_name}")
-            db.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {backup_name}")
+            table_sql = quote_sql_identifier(table_name, what="projection table", allow_dotted=True)
+            backup_sql = quote_sql_identifier(backup_name, what="projection backup table")
+            db.conn.execute(f"DELETE FROM {table_sql}")
+            db.conn.execute(f"INSERT INTO {table_sql} SELECT * FROM {backup_sql}")
     finally:
         _cleanup_projection_backups(db, backups)
 
@@ -584,7 +591,8 @@ def _restore_projection_tables(db: SimulationDB, backups: dict[str, str]) -> Non
 def _cleanup_projection_backups(db: SimulationDB, backups: dict[str, str]) -> None:
     for backup_name in backups.values():
         try:
-            db.conn.execute(f"DROP TABLE IF EXISTS {backup_name}")
+            backup_sql = quote_sql_identifier(backup_name, what="projection backup table")
+            db.conn.execute(f"DROP TABLE IF EXISTS {backup_sql}")
         except Exception:
             continue
 

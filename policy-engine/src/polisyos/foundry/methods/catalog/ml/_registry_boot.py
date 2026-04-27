@@ -18,9 +18,16 @@ from .regression import (
     GradientBoostingEstimator,
     RandomForestEstimator,
 )
+from .shift_diagnostics import ShiftDiagnosticEstimator
 from .survival import SurvivalAnalysisEstimator
 from .transformers import TabularTransformerEstimator
-from .uncertainty import ConformalPredictionEstimator
+from .uncertainty import (
+    ConformalPredictionEstimator,
+    GraphAwareConformalizer,
+    MondrianAPSRAPSConformalizer,
+    MondrianCQRConformalizer,
+    NormalizedResidualMondrianConformalizer,
+)
 
 
 def register_ml_methods() -> Sequence[type]:
@@ -38,6 +45,11 @@ def register_ml_methods() -> Sequence[type]:
         GraphNeuralNetworkEstimator,
         MaskedAutoencoderEmbeddingEstimator,
         ConformalPredictionEstimator,
+        MondrianCQRConformalizer,
+        NormalizedResidualMondrianConformalizer,
+        MondrianAPSRAPSConformalizer,
+        GraphAwareConformalizer,
+        ShiftDiagnosticEstimator,
         SurvivalAnalysisEstimator,
         PCAEstimator,
         KMeansEstimator,

@@ -41,6 +41,8 @@ from polisyos.ir.refs import (
     OptimizationAmbiguityCertificateRef,
     WelfareBundleRef,
 )
+from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.projections import project_policy_artifact_bundle_claims
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -414,6 +416,7 @@ class PolicyArtifactBundle(ArtifactMinimalityMixin):
     rejected_alternatives_summary_ref: RejectedAlternativesSummaryRef
     replayable_audit_bundle_ref: ReplayableAuditBundleRef
     decision_readiness_contract_ref: DecisionReadinessContractRef | None = None
+    claims_ref: ArtifactRef | None = None
     stress_test_report_ref: StressTestReportRef | None = None
     governance_accountability_artifact_ref: GovernanceAccountabilityArtifactRef | None = None
     phase3_gate: Phase3CertificateStatus = Field(default_factory=Phase3CertificateStatus.missing)
@@ -445,6 +448,7 @@ class PolicyArtifactBuildInput(BaseModel):
     judge_verdict: JudgeVerdict | None = None
     readiness_contract: DecisionReadinessContract | None = None
     readiness_ref: ArtifactRef | None = None
+    claims_ref: ArtifactRef | None = None
     distributional_report: DistributionalReport | None = None
     cross_graph_profile: CrossGraphEvidenceProfile | None = None
     uncertainty_envelope: UncertaintyEnvelope | None = None
@@ -565,20 +569,28 @@ class PolicyArtifactBuilder:
             inputs=_bundle_inputs(source),
         )
 
+        base_refs = {
+            "policy_frontier_report_ref": frontier_ref,
+            "champion_policy_dossier_ref": dossier_ref,
+            "policy_brief_ref": brief_ref,
+            "constraint_satisfaction_report_ref": constraint_ref,
+            "subgroup_impact_report_ref": subgroup_ref,
+            "uncertainty_report_ref": uncertainty_ref,
+            "transportability_report_ref": transport_ref,
+            "governance_gate_packet_ref": gate_ref,
+            "implementation_plan_ref": implementation_ref,
+            "rejected_alternatives_summary_ref": rejected_ref,
+        }
+        claims_ref = source.claims_ref or self._persist_claim_ledger(
+            store=store,
+            source=source,
+            refs=base_refs,
+            phase3_gate=phase3_gate,
+        )
+
         audit_bundle = self._build_replayable_audit_bundle(
             source=source,
-            refs={
-                "policy_frontier_report_ref": frontier_ref,
-                "champion_policy_dossier_ref": dossier_ref,
-                "policy_brief_ref": brief_ref,
-                "constraint_satisfaction_report_ref": constraint_ref,
-                "subgroup_impact_report_ref": subgroup_ref,
-                "uncertainty_report_ref": uncertainty_ref,
-                "transportability_report_ref": transport_ref,
-                "governance_gate_packet_ref": gate_ref,
-                "implementation_plan_ref": implementation_ref,
-                "rejected_alternatives_summary_ref": rejected_ref,
-            },
+            refs={**base_refs, "claims_ref": claims_ref},
             upstream_audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
         )
@@ -605,6 +617,7 @@ class PolicyArtifactBuilder:
                 source.readiness_ref,
                 DecisionReadinessContractRef,
             ),
+            claims_ref=claims_ref,
             stress_test_report_ref=_maybe_validate_ref(
                 source.stress_test_report_ref,
                 StressTestReportRef,
@@ -649,6 +662,7 @@ class PolicyArtifactBuilder:
                 "judge_composite_decision": (
                     source.judge_verdict.composite_decision if source.judge_verdict else None
                 ),
+                "claims_ref": str(claims_ref.artifact_id),
             },
         )
         return persist_policy_artifact_bundle(
@@ -656,6 +670,42 @@ class PolicyArtifactBuilder:
             bundle,
             inputs=_bundle_inputs(source),
         )
+
+    def _persist_claim_ledger(
+        self,
+        *,
+        store: FileSystemCAS,
+        source: PolicyArtifactBuildInput,
+        refs: dict[str, ArtifactRef],
+        phase3_gate: Phase3CertificateStatus,
+    ) -> ArtifactRef:
+        readiness_level = (
+            source.readiness_contract.readiness_level
+            if source.readiness_contract is not None
+            else DecisionReadiness.RESEARCH_ARTIFACT
+        )
+        projection_payload = {
+            "candidate_id": source.candidate.candidate_id,
+            "decision_readiness_contract_ref": (
+                None if source.readiness_ref is None else source.readiness_ref.model_dump(mode="json")
+            ),
+            "phase3_gate": phase3_gate.model_dump(mode="json"),
+            **{key: ref.model_dump(mode="json") for key, ref in refs.items()},
+        }
+        source_refs = _dedupe_artifact_refs(
+            [
+                *refs.values(),
+                *source.audit_refs,
+                *source.actionable_side_information_refs,
+            ]
+        )
+        ledger = project_policy_artifact_bundle_claims(
+            projection_payload,
+            run_id=source.run_id,
+            source_artifact_refs=source_refs,
+            readiness_level=readiness_level,
+        )
+        return persist_claim_ledger(store, ledger, inputs=_bundle_inputs(source))
 
     def _validate_contract_bound_source(
         self,

@@ -1,0 +1,24 @@
+contract_id: ddm_15_7_prediction_logging_contract_v1
+required_fields:
+  - request_id
+  - timestamp
+  - model_id
+  - model_version
+  - features
+  - prediction
+  - prediction_score
+  - decision_threshold
+  - slice_keys
+  - label_join_key
+  - data_quality_status
+field_semantics:
+  request_id: stable id for one served prediction
+  timestamp: prediction-time UTC timestamp
+  features: raw or transformed feature vector, feature profile, or embedding reference
+  prediction_score: probability, logit, score, or regression prediction confidence input
+  slice_keys: declared critical slices used by readiness mapping
+  label_join_key: key used to join delayed outcomes
+  data_quality_status: schema, null, range, type, and freshness summary
+privacy:
+  allow_feature_profile_reference: true
+  raw_features_may_be_redacted: true

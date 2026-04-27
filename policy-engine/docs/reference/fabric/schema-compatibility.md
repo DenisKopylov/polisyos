@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/connectors/contracts/**`, `src/polisyos/fabric/connectors/sources/_contracts/**`, `tools/quality/validation/fabric_schema_governance.py`, `schemas/snapshots/{fabric,connectors}/**`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric schema compatibility is currently enforced at three layers:
 

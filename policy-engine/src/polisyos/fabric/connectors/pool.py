@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import threading
-from collections import deque
+from collections import OrderedDict, deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -121,6 +121,8 @@ class PoolConfig:
     max_connection_age_seconds: float = 3600.0  # 1 hour
     max_idle_seconds: float = 300.0  # 5 minutes
     max_connection_uses: int = 1000
+    max_lifecycle_session_ids: int = 4096
+    max_backpressure_signals: int = 128
 
     # Health checks
     health_check_interval_seconds: float = 60.0
@@ -230,21 +232,27 @@ class ConnectionPool(Generic[ConnectorT]):
         self._connector_factory = connector_factory
         self._connection_config = config
         self._config = pool_config or PoolConfig()
+        if self._config.max_size < 1:
+            raise ValueError("max_size must be >= 1")
+        if self._config.max_lifecycle_session_ids < 1:
+            raise ValueError("max_lifecycle_session_ids must be >= 1")
+        if self._config.max_backpressure_signals < 1:
+            raise ValueError("max_backpressure_signals must be >= 1")
         self._pool_id = pool_id or f"pool-{uuid4().hex[:8]}"
         self._circuit_breaker = circuit_breaker
 
         # Connection storage
         self._idle: deque[PooledConnection] = deque()
         self._in_use: dict[str, PooledConnection] = {}
-        self._released_session_ids: set[str] = set()
-        self._closed_session_ids: set[str] = set()
+        self._released_session_ids: OrderedDict[str, None] = OrderedDict()
+        self._closed_session_ids: OrderedDict[str, None] = OrderedDict()
 
         # Synchronization primitives
         self._lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(self._config.max_size)
         self._closed = False
         self._backpressure_lock = threading.Lock()
-        self._backpressure_signals: dict[str, BackpressureSignal] = {}
+        self._backpressure_signals: OrderedDict[str, BackpressureSignal] = OrderedDict()
 
         # Statistics
         self._stats_lock = threading.Lock()
@@ -330,7 +338,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 # Mark as in-use
                 pooled.mark_used()
                 self._in_use[pooled.handle.session_id] = pooled
-                self._released_session_ids.discard(pooled.handle.session_id)
+                self._released_session_ids.pop(pooled.handle.session_id, None)
 
                 # Update statistics
                 with self._stats_lock:
@@ -391,7 +399,7 @@ class ConnectionPool(Generic[ConnectorT]):
 
                 pooled.mark_used()
                 self._in_use[pooled.handle.session_id] = pooled
-                self._released_session_ids.discard(pooled.handle.session_id)
+                self._released_session_ids.pop(pooled.handle.session_id, None)
 
                 with self._stats_lock:
                     self._total_acquires += 1
@@ -425,7 +433,7 @@ class ConnectionPool(Generic[ConnectorT]):
                     )
                 return
 
-            self._released_session_ids.add(handle.session_id)
+            self._remember_session_id(self._released_session_ids, handle.session_id)
 
             with self._stats_lock:
                 self._total_releases += 1
@@ -592,7 +600,7 @@ class ConnectionPool(Generic[ConnectorT]):
         if pooled.closed or pooled.handle.session_id in self._closed_session_ids:
             return
         pooled.closed = True
-        self._closed_session_ids.add(pooled.handle.session_id)
+        self._remember_session_id(self._closed_session_ids, pooled.handle.session_id)
         try:
             await pooled.connector.disconnect(pooled.handle)
             with self._stats_lock:
@@ -609,7 +617,7 @@ class ConnectionPool(Generic[ConnectorT]):
         """Close a connection handle using a fresh connector instance."""
         if handle.session_id in self._closed_session_ids:
             return
-        self._closed_session_ids.add(handle.session_id)
+        self._remember_session_id(self._closed_session_ids, handle.session_id)
         connector = self._connector_factory()
 
         try:
@@ -642,7 +650,7 @@ class ConnectionPool(Generic[ConnectorT]):
 
             for pooled in list(self._in_use.values()):
                 in_use_to_close.append(pooled)
-                self._released_session_ids.add(pooled.handle.session_id)
+                self._remember_session_id(self._released_session_ids, pooled.handle.session_id)
             self._in_use.clear()
 
         for pooled in idle_to_close:
@@ -701,12 +709,15 @@ class ConnectionPool(Generic[ConnectorT]):
     ) -> None:
         """Register or replace one downstream backpressure signal."""
         with self._backpressure_lock:
+            self._backpressure_signals.pop(source, None)
             self._backpressure_signals[source] = BackpressureSignal(
                 source=source,
                 level=level,
                 reason=reason,
                 pause_seconds=max(0.0, float(pause_seconds)),
             )
+            while len(self._backpressure_signals) > self._config.max_backpressure_signals:
+                self._backpressure_signals.popitem(last=False)
 
     def clear_backpressure(self, *, source: str) -> None:
         """Clear one downstream backpressure signal if present."""
@@ -776,6 +787,12 @@ class ConnectionPool(Generic[ConnectorT]):
                 acquire_wait_time_total_ms=self._acquire_wait_time_total_ms,
                 created_at=self._created_at,
             )
+
+    def _remember_session_id(self, bucket: OrderedDict[str, None], session_id: str) -> None:
+        bucket.pop(session_id, None)
+        bucket[session_id] = None
+        while len(bucket) > self._config.max_lifecycle_session_ids:
+            bucket.popitem(last=False)
 
 
 _BACKPRESSURE_ORDER = {

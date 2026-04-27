@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import pandas as pd
@@ -18,6 +18,7 @@ from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
+    SemanticType,
 )
 from polisyos.fabric.finite import is_finite_number
 
@@ -119,7 +120,7 @@ def validate_dataframe_against_schema(
             null_count = col.isna().sum()
             errors.append(f"Field '{field.name}' has {null_count} null values but is not nullable")
 
-        if field.data_type.is_numeric():
+        if field.data_type.is_numeric() or field.data_type == SchemaType.DECIMAL:
             numeric_col = pd.to_numeric(col, errors="coerce")
             finite_mask = numeric_col.map(is_finite_number)
             nonfinite = numeric_col.notna() & ~finite_mask
@@ -129,7 +130,7 @@ def validate_dataframe_against_schema(
         else:
             numeric_col = None
 
-        if field.data_type.is_numeric() and field.bounds != (None, None):
+        if numeric_col is not None and field.bounds != (None, None):
             min_val, max_val = field.bounds
             if min_val is not None:
                 below = (numeric_col < min_val).sum()
@@ -143,6 +144,31 @@ def validate_dataframe_against_schema(
                     errors.append(
                         f"Field '{field.name}' has {above} values above max bound {max_val}"
                     )
+
+        if field.semantic_type is not None and numeric_col is not None:
+            semantic_min, semantic_max = field.semantic_type.get_validation_bounds()
+            if semantic_min is not None:
+                below = (numeric_col < semantic_min).sum()
+                if below > 0:
+                    errors.append(
+                        f"Field '{field.name}' has {below} values below semantic "
+                        f"{field.semantic_type.value} min {semantic_min}"
+                    )
+            if semantic_max is not None:
+                above = (numeric_col > semantic_max).sum()
+                if above > 0:
+                    errors.append(
+                        f"Field '{field.name}' has {above} values above semantic "
+                        f"{field.semantic_type.value} max {semantic_max}"
+                    )
+
+        if field.semantic_type in {SemanticType.IDENTIFIER, SemanticType.CODE}:
+            values = col.dropna().astype(str).str.strip()
+            empty_count = int((values == "").sum())
+            if empty_count:
+                errors.append(
+                    f"Field '{field.name}' has {empty_count} empty {field.semantic_type.value} values"
+                )
 
         if field.allowed_values is not None:
             invalid = set(col.dropna().astype(str)) - field.allowed_values
@@ -245,8 +271,15 @@ def coerce_dataframe_to_schema(
                 df_work[field.name] = _coerce_boolean(col)
                 coerced_columns.append(field.name)
             elif field.data_type.is_numeric():
-                df_work[field.name] = pd.to_numeric(col, errors="coerce")
-                df_work[field.name] = df_work[field.name].astype(field.data_type.to_pandas_dtype())
+                numeric = pd.to_numeric(col, errors="coerce")
+                non_finite = numeric.notna() & ~numeric.map(is_finite_number)
+                if non_finite.any():
+                    count = int(non_finite.sum())
+                    errors.append(
+                        f"Column '{field.name}' has {count} non-finite values during coercion"
+                    )
+                    numeric = numeric.mask(non_finite, pd.NA)
+                df_work[field.name] = numeric.astype(field.data_type.to_pandas_dtype())
                 coerced_columns.append(field.name)
             elif field.data_type in (SchemaType.DATETIME, SchemaType.TIMESTAMP_TZ):
                 df_work[field.name] = pd.to_datetime(col, errors="coerce", utc=True)
@@ -314,10 +347,17 @@ def _coerce_decimal(value: Any) -> Decimal | None:
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return None
     if isinstance(value, Decimal):
-        return value
+        return value if value.is_finite() else None
+    if isinstance(value, str):
+        from polisyos.fabric._numeric_parsing import parse_decimal_text
+
+        return parse_decimal_text(value)
     try:
-        return Decimal(str(value))
-    except (TypeError, ValueError):
+        parsed = Decimal(str(value))
+        if not parsed.is_finite():
+            return None
+        return parsed
+    except (InvalidOperation, TypeError, ValueError):
         logger.debug(
             "Failed to coerce value %r to Decimal",
             value,

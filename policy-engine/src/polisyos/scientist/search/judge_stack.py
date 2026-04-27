@@ -431,6 +431,11 @@ class JudgeStack:
             warnings=warnings,
         )
 
+    def evaluate_phase5_preflight(self, bundle: JudgeInputBundle) -> JudgeVerdict:
+        """Run the full six-judge stack for Phase-5 analyst-facing preflight."""
+
+        return self.evaluate(bundle, active_judges=set(JudgeName))
+
     def _evaluate_single(
         self,
         judge_name: JudgeName,

@@ -9,6 +9,14 @@ export type JsonValue =
   | { [key: string]: JsonValue }
   | JsonValue[];
 
+export type AccessRef = {
+  classification?: string;
+  pii_tier?: string;
+  policy_ref?: string | null;
+  redaction?: "none" | "masked" | "redacted" | "aggregate_only" | "denied";
+  tenant_scope?: string;
+};
+
 export type AgentPipelineAttempt = {
   attempt: number;
   duration_ms?: number | null;
@@ -348,6 +356,12 @@ export type AuthMeResponse = {
   roles?: Array<string>;
   tenant_id: string;
   user_id: string;
+};
+
+export type AuthoredText = {
+  format?: "plain" | "markdown" | "html" | "json";
+  semantic_type?: string | null;
+  text: string;
 };
 
 export type BasinEstimate = {
@@ -1382,6 +1396,55 @@ export type ExecPlanRef = {
   media_type?: string;
 };
 
+export type FabricDecisionData = {
+  access: AccessRef;
+  gaps?: Array<TypedGap>;
+  id: string;
+  kind?: "quantity" | "authored_text" | "fact" | "event" | "claim";
+  lineage: polisyos__fabric__decision_data__LineageRef;
+  metadata?: {
+  [key: string]: unknown;
+};
+  quality: QualityRef;
+  replay: ReplayRef;
+  source_contract: SourceContractRef;
+  time: polisyos__fabric__decision_data__TemporalRef;
+  value: FabricQuantityValue | AuthoredText | {
+  [key: string]: unknown;
+};
+};
+
+export type FabricDecisionDataCoverage = {
+  debug?: number;
+  decision?: number;
+  layout?: number;
+  naked_decision_values?: number;
+  telemetry?: number;
+  total?: number;
+  traced?: number;
+  transitional_waivers?: number;
+  untraced?: number;
+};
+
+export type FabricDecisionDataResponse = {
+  coverage?: FabricDecisionDataCoverage;
+  decision_data?: Array<FabricDecisionData>;
+  meta: {
+  [key: string]: unknown;
+};
+  run_id: string;
+  source_kind: string;
+  temporal_scope?: polisyos__fabric__decision_data__TemporalRef | null;
+};
+
+export type FabricQuantityValue = {
+  label?: string | null;
+  metric_id?: string | null;
+  point?: number | null;
+  semantic_type?: string | null;
+  unit: polisyos__fabric__decision_data__UnitRef;
+};
+
 export type FeedbackActionResponse = {
   action: "evaluate_feedback" | "reissue";
   compare_report_ref?: ArtifactRef | null;
@@ -1747,20 +1810,6 @@ export type LineageRefInput = {
   trust_metadata?: VerificationMetadata | null;
 };
 
-export type LineageRefOutput = {
-  compact_summary?: Array<LineageCompactSummaryItem>;
-  freshness?: "current" | "stale" | "unknown";
-  hash?: string | null;
-  id: string;
-  reason_code?: string | null;
-  status?: "verified" | "pending" | "disputed" | "untraced";
-  summary?: {
-  [key: string]: string;
-};
-  tracking_issue?: string | null;
-  trust_metadata?: VerificationMetadata | null;
-};
-
 export type LineageResponse = {
   lineage: LineageGraphView;
   meta: ApiMeta;
@@ -2033,6 +2082,15 @@ export type PromotionDecisionResponse = {
   status: "approved" | "rejected";
 };
 
+export type QualityRef = {
+  quality_surface?: string | null;
+  reason_code?: string | null;
+  remediation_link?: string | null;
+  report_ref?: string | null;
+  score?: number | null;
+  status?: "passed" | "warning" | "failed" | "unknown_quality";
+};
+
 export type QuantityCoverageEntry = {
   lineage_id?: string | null;
   metric_id?: string | null;
@@ -2070,20 +2128,28 @@ export type QuantityValueInput = {
   metric_id?: string | null;
   point?: number | null;
   quantity_class?: "decision" | "telemetry" | "layout" | "debug";
-  time?: TemporalRef | null;
+  time?: TemporalRefInput | null;
   uncertainty?: QuantityUncertainty | null;
-  unit: UnitRef;
+  unit: UnitRefInput;
 };
 
 export type QuantityValueOutput = {
   label?: string | null;
-  lineage: LineageRefOutput;
+  lineage: PolisyosCoreContractsRuntimeLineageRefOutput;
   metric_id?: string | null;
   point?: number | null;
   quantity_class?: "decision" | "telemetry" | "layout" | "debug";
-  time?: TemporalRef | null;
+  time?: polisyos__core__contracts__runtime__TemporalRef | null;
   uncertainty?: QuantityUncertainty | null;
-  unit: UnitRef;
+  unit: polisyos__core__contracts__runtime__UnitRef;
+};
+
+export type ReplayRef = {
+  manifest_ref?: string | null;
+  reason_code?: string | null;
+  retention_alternative?: string | null;
+  source_reason?: string | null;
+  status?: "replayable" | "non_replayable" | "unknown";
 };
 
 export type ReproducibilityView = {
@@ -2489,7 +2555,7 @@ export type ScenarioAssumptionOutput = {
   description?: string | null;
   id: string;
   label: string;
-  lineage: LineageRefOutput;
+  lineage: PolisyosCoreContractsRuntimeLineageRefOutput;
   status: "operator_assumption" | "model_assumption" | "observed_evidence" | "disputed";
 };
 
@@ -2572,7 +2638,7 @@ export type ScenarioManifest = {
   assumptions: Array<ScenarioAssumptionOutput>;
   author: string;
   baseline_hash?: string | null;
-  baseline_lineage?: LineageRefOutput | null;
+  baseline_lineage?: PolisyosCoreContractsRuntimeLineageRefOutput | null;
   baseline_run_id: string;
   computed_at?: string | null;
   constraints?: Array<ScenarioConstraintOutput>;
@@ -2582,7 +2648,7 @@ export type ScenarioManifest = {
   lifecycle_status?: "generated" | "draft" | "saved" | "promoted";
   manifest_hash?: string;
   model_family: string;
-  model_lineage: LineageRefOutput;
+  model_lineage: PolisyosCoreContractsRuntimeLineageRefOutput;
   model_version?: string | null;
   phase4_gate_verdict?: {
   [key: string]: unknown;
@@ -2608,7 +2674,7 @@ export type ScenarioRef = {
   assumption_ids: Array<string>;
   baseline_run_id: string;
   id: string;
-  lineage: LineageRefOutput;
+  lineage: PolisyosCoreContractsRuntimeLineageRefOutput;
   manifest_hash?: string | null;
   status: "draft" | "computed" | "stale" | "failed";
   temporal_scope?: TemporalScope | null;
@@ -2618,6 +2684,11 @@ export type SimulationResultRef = {
   artifact_id: ArtifactID;
   kind?: string;
   media_type?: string;
+};
+
+export type SourceContractRef = {
+  id: string;
+  version: string;
 };
 
 export type SourceProfileInfo = {
@@ -2675,7 +2746,7 @@ export type TemporalRange = {
   latest?: string | null;
 };
 
-export type TemporalRef = {
+export type TemporalRefInput = {
   branch?: string | null;
   scenario_id?: string | null;
   snapshot_id?: string | null;
@@ -2697,12 +2768,25 @@ export type TemporalSurfaceCapability = {
   reason_code?: string | null;
   resolution?: string;
   supported: boolean;
-  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content";
+  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content";
   tx_range?: TemporalRange | null;
   valid_range?: TemporalRange | null;
 };
 
-export type UnitRef = {
+export type TypedGap = {
+  access_policy?: string | null;
+  capability_endpoint?: string | null;
+  owner?: string | null;
+  quality_surface?: string | null;
+  reason_code?: string | null;
+  redaction_behavior?: string | null;
+  remediation_link?: string | null;
+  retention_alternative?: string | null;
+  source_reason?: string | null;
+  status: "untraced" | "unknown_quality" | "restricted" | "non_replayable" | "unsupported_temporal_scope";
+};
+
+export type UnitRefInput = {
   code: string;
   display?: string | null;
   system?: string;
@@ -2756,6 +2840,63 @@ export type WorkflowRunRequest = {
   policy_spec_ref?: string | null;
   research_intent_ref?: string | null;
   trinity_bundle_ref?: string | null;
+};
+
+export type PolisyosCoreContractsRuntimeLineageRefOutput = {
+  compact_summary?: Array<LineageCompactSummaryItem>;
+  freshness?: "current" | "stale" | "unknown";
+  hash?: string | null;
+  id: string;
+  reason_code?: string | null;
+  status?: "verified" | "pending" | "disputed" | "untraced";
+  summary?: {
+  [key: string]: string;
+};
+  tracking_issue?: string | null;
+  trust_metadata?: VerificationMetadata | null;
+};
+
+export type polisyos__core__contracts__runtime__TemporalRef = {
+  branch?: string | null;
+  scenario_id?: string | null;
+  snapshot_id?: string | null;
+  tx_at?: string | null;
+  valid_at?: string | null;
+};
+
+export type polisyos__core__contracts__runtime__UnitRef = {
+  code: string;
+  display?: string | null;
+  system?: string;
+};
+
+export type polisyos__fabric__decision_data__LineageRef = {
+  compact_summary_ref?: string | null;
+  export_links?: {
+  [key: string]: string;
+};
+  full_graph_ref?: string | null;
+  hash?: string | null;
+  id: string;
+  owner?: string | null;
+  raw_evidence_refs?: Array<string>;
+  reason_code?: string | null;
+  status?: "verified" | "pending" | "disputed" | "untraced";
+  tracking_issue?: string | null;
+};
+
+export type polisyos__fabric__decision_data__TemporalRef = {
+  branch?: string | null;
+  scenario_id?: string | null;
+  snapshot_id?: string | null;
+  tx_at?: string | null;
+  valid_at?: string | null;
+};
+
+export type polisyos__fabric__decision_data__UnitRef = {
+  code: string;
+  display?: string | null;
+  system?: string;
 };
 
 export interface RuntimeApiClientOptions {
@@ -3358,6 +3499,27 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunEvidenceContextResponse>("GET", path, query);
+  }
+
+  async getRunFabricDecisionData(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<FabricDecisionDataResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/fabric-decision-data`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<FabricDecisionDataResponse>("GET", path, query);
   }
 
   async getRunLineage(params: {

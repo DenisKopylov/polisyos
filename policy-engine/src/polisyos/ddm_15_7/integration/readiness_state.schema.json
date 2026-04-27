@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/readiness_state.schema.json",
+  "title": "DDM-15.7 ReadinessState.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_type",
+    "event_id",
+    "timestamp",
+    "model_id",
+    "model_version",
+    "readiness_state",
+    "readiness_score",
+    "primary_reason",
+    "active_signals",
+    "affected_slices",
+    "required_actions",
+    "promotion_allowed"
+  ],
+  "properties": {
+    "event_type": { "const": "ml.problem_15_7.readiness_state.v1" },
+    "event_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "model_id": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "readiness_state": { "enum": ["R4", "R3", "R2", "R1", "R0"] },
+    "readiness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "primary_reason": { "type": "string", "minLength": 1 },
+    "active_signals": { "type": "array", "items": { "type": "string" } },
+    "affected_slices": { "type": "array", "items": { "type": "string" } },
+    "required_actions": { "type": "array", "items": { "type": "string" } },
+    "expires_at": { "type": ["string", "null"], "format": "date-time" },
+    "promotion_allowed": { "type": "boolean" }
+  }
+}

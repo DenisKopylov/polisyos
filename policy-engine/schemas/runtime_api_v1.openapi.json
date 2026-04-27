@@ -1,6 +1,55 @@
 {
   "components": {
     "schemas": {
+      "AccessRef": {
+        "additionalProperties": false,
+        "description": "Access policy and redaction state for a decision-bearing value.",
+        "properties": {
+          "classification": {
+            "default": "public",
+            "minLength": 1,
+            "title": "Classification",
+            "type": "string"
+          },
+          "pii_tier": {
+            "default": "none",
+            "minLength": 1,
+            "title": "Pii Tier",
+            "type": "string"
+          },
+          "policy_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Ref"
+          },
+          "redaction": {
+            "default": "none",
+            "enum": [
+              "none",
+              "masked",
+              "redacted",
+              "aggregate_only",
+              "denied"
+            ],
+            "title": "Redaction",
+            "type": "string"
+          },
+          "tenant_scope": {
+            "default": "shared_public",
+            "minLength": 1,
+            "title": "Tenant Scope",
+            "type": "string"
+          }
+        },
+        "title": "AccessRef",
+        "type": "object"
+      },
       "AgentPipelineAttempt": {
         "additionalProperties": false,
         "description": "Agent pipeline attempt public type.",
@@ -2003,6 +2052,43 @@
           "tenant_id"
         ],
         "title": "AuthMeResponse",
+        "type": "object"
+      },
+      "AuthoredText": {
+        "additionalProperties": false,
+        "description": "Textual decision surface with the same trust spine as quantities.",
+        "properties": {
+          "format": {
+            "default": "plain",
+            "enum": [
+              "plain",
+              "markdown",
+              "html",
+              "json"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "semantic_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Type"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "AuthoredText",
         "type": "object"
       },
       "BasinEstimate": {
@@ -7974,6 +8060,252 @@
         "title": "ExecPlanRef",
         "type": "object"
       },
+      "FabricDecisionData": {
+        "additionalProperties": false,
+        "description": "Decision-bearing Fabric value plus its trust envelope.",
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/AccessRef"
+          },
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/TypedGap"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "quantity",
+            "enum": [
+              "quantity",
+              "authored_text",
+              "fact",
+              "event",
+              "claim"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "lineage": {
+            "$ref": "#/components/schemas/polisyos__fabric__decision_data__LineageRef"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityRef"
+          },
+          "replay": {
+            "$ref": "#/components/schemas/ReplayRef"
+          },
+          "source_contract": {
+            "$ref": "#/components/schemas/SourceContractRef"
+          },
+          "time": {
+            "$ref": "#/components/schemas/polisyos__fabric__decision_data__TemporalRef"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FabricQuantityValue"
+              },
+              {
+                "$ref": "#/components/schemas/AuthoredText"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "value",
+          "source_contract",
+          "quality",
+          "lineage",
+          "access",
+          "time",
+          "replay"
+        ],
+        "title": "FabricDecisionData",
+        "type": "object"
+      },
+      "FabricDecisionDataCoverage": {
+        "additionalProperties": false,
+        "description": "Coverage report for Fabric-backed decision data.",
+        "properties": {
+          "debug": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Debug",
+            "type": "integer"
+          },
+          "decision": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Decision",
+            "type": "integer"
+          },
+          "layout": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Layout",
+            "type": "integer"
+          },
+          "naked_decision_values": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Naked Decision Values",
+            "type": "integer"
+          },
+          "telemetry": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Telemetry",
+            "type": "integer"
+          },
+          "total": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "traced": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Traced",
+            "type": "integer"
+          },
+          "transitional_waivers": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Transitional Waivers",
+            "type": "integer"
+          },
+          "untraced": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Untraced",
+            "type": "integer"
+          }
+        },
+        "title": "FabricDecisionDataCoverage",
+        "type": "object"
+      },
+      "FabricDecisionDataResponse": {
+        "additionalProperties": false,
+        "description": "Runtime response model for batch Fabric decision-data lookup.",
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/FabricDecisionDataCoverage"
+          },
+          "decision_data": {
+            "items": {
+              "$ref": "#/components/schemas/FabricDecisionData"
+            },
+            "title": "Decision Data",
+            "type": "array"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "title": "Meta",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "temporal_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/polisyos__fabric__decision_data__TemporalRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "source_kind"
+        ],
+        "title": "FabricDecisionDataResponse",
+        "type": "object"
+      },
+      "FabricQuantityValue": {
+        "additionalProperties": false,
+        "description": "Fabric-side quantity value compatible with the Runtime `QuantityValue` shape.",
+        "properties": {
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "metric_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Id"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point"
+          },
+          "semantic_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Type"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/polisyos__fabric__decision_data__UnitRef"
+          }
+        },
+        "required": [
+          "unit"
+        ],
+        "title": "FabricQuantityValue",
+        "type": "object"
+      },
       "FeedbackActionResponse": {
         "additionalProperties": false,
         "description": "Outcome payload returned after evaluating feedback or reissuing a decision.",
@@ -9935,100 +10267,6 @@
         "title": "LineageRef",
         "type": "object"
       },
-      "LineageRef-Output": {
-        "additionalProperties": false,
-        "description": "Typed lineage reference embedded inside `QuantityValue` envelopes.",
-        "properties": {
-          "compact_summary": {
-            "items": {
-              "$ref": "#/components/schemas/LineageCompactSummaryItem"
-            },
-            "title": "Compact Summary",
-            "type": "array"
-          },
-          "freshness": {
-            "default": "unknown",
-            "enum": [
-              "current",
-              "stale",
-              "unknown"
-            ],
-            "title": "Freshness",
-            "type": "string"
-          },
-          "hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Hash"
-          },
-          "id": {
-            "minLength": 1,
-            "title": "Id",
-            "type": "string"
-          },
-          "reason_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Reason Code"
-          },
-          "status": {
-            "default": "untraced",
-            "enum": [
-              "verified",
-              "pending",
-              "disputed",
-              "untraced"
-            ],
-            "title": "Status",
-            "type": "string"
-          },
-          "summary": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "title": "Summary",
-            "type": "object"
-          },
-          "tracking_issue": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Tracking Issue"
-          },
-          "trust_metadata": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/VerificationMetadata"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id"
-        ],
-        "title": "LineageRef",
-        "type": "object"
-      },
       "LineageResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by one runtime lineage lookup.",
@@ -11483,6 +11721,82 @@
         "title": "PromotionDecisionResponse",
         "type": "object"
       },
+      "QualityRef": {
+        "additionalProperties": false,
+        "description": "Quality evidence reference embedded in a Fabric trust envelope.",
+        "properties": {
+          "quality_surface": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Surface"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "remediation_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remediation Link"
+          },
+          "report_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Ref"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "default": "unknown_quality",
+            "enum": [
+              "passed",
+              "warning",
+              "failed",
+              "unknown_quality"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "QualityRef",
+        "type": "object"
+      },
       "QuantityCoverageEntry": {
         "additionalProperties": false,
         "description": "One numeric field discovered by the quantity coverage inventory.",
@@ -11762,7 +12076,7 @@
           "time": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/TemporalRef"
+                "$ref": "#/components/schemas/TemporalRef-Input"
               },
               {
                 "type": "null"
@@ -11780,7 +12094,7 @@
             ]
           },
           "unit": {
-            "$ref": "#/components/schemas/UnitRef"
+            "$ref": "#/components/schemas/UnitRef-Input"
           }
         },
         "required": [
@@ -11806,7 +12120,7 @@
             "title": "Label"
           },
           "lineage": {
-            "$ref": "#/components/schemas/LineageRef-Output"
+            "$ref": "#/components/schemas/polisyos__core__contracts__runtime__LineageRef-Output"
           },
           "metric_id": {
             "anyOf": [
@@ -11844,7 +12158,7 @@
           "time": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/TemporalRef"
+                "$ref": "#/components/schemas/polisyos__core__contracts__runtime__TemporalRef"
               },
               {
                 "type": "null"
@@ -11862,7 +12176,7 @@
             ]
           },
           "unit": {
-            "$ref": "#/components/schemas/UnitRef"
+            "$ref": "#/components/schemas/polisyos__core__contracts__runtime__UnitRef"
           }
         },
         "required": [
@@ -11870,6 +12184,68 @@
           "lineage"
         ],
         "title": "QuantityValue",
+        "type": "object"
+      },
+      "ReplayRef": {
+        "additionalProperties": false,
+        "description": "Replay or retention alternative reference for the value.",
+        "properties": {
+          "manifest_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Ref"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "retention_alternative": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Alternative"
+          },
+          "source_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reason"
+          },
+          "status": {
+            "default": "unknown",
+            "enum": [
+              "replayable",
+              "non_replayable",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "ReplayRef",
         "type": "object"
       },
       "ReproducibilityView": {
@@ -14256,7 +14632,7 @@
             "type": "string"
           },
           "lineage": {
-            "$ref": "#/components/schemas/LineageRef-Output"
+            "$ref": "#/components/schemas/polisyos__core__contracts__runtime__LineageRef-Output"
           },
           "status": {
             "enum": [
@@ -14823,7 +15199,7 @@
           "baseline_lineage": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/LineageRef-Output"
+                "$ref": "#/components/schemas/polisyos__core__contracts__runtime__LineageRef-Output"
               },
               {
                 "type": "null"
@@ -14896,7 +15272,7 @@
             "type": "string"
           },
           "model_lineage": {
-            "$ref": "#/components/schemas/LineageRef-Output"
+            "$ref": "#/components/schemas/polisyos__core__contracts__runtime__LineageRef-Output"
           },
           "model_version": {
             "anyOf": [
@@ -15069,7 +15445,7 @@
             "type": "string"
           },
           "lineage": {
-            "$ref": "#/components/schemas/LineageRef-Output"
+            "$ref": "#/components/schemas/polisyos__core__contracts__runtime__LineageRef-Output"
           },
           "manifest_hash": {
             "anyOf": [
@@ -15135,6 +15511,28 @@
           "artifact_id"
         ],
         "title": "SimulationResultRef",
+        "type": "object"
+      },
+      "SourceContractRef": {
+        "additionalProperties": false,
+        "description": "SourceContract v2 identity carried by decision-bearing values.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "SourceContractRef",
         "type": "object"
       },
       "SourceProfileInfo": {
@@ -15450,7 +15848,7 @@
         "title": "TemporalRange",
         "type": "object"
       },
-      "TemporalRef": {
+      "TemporalRef-Input": {
         "additionalProperties": false,
         "description": "Bitemporal and snapshot scope carried by a decision-bearing value.",
         "properties": {
@@ -15624,6 +16022,7 @@
               "run_timeline",
               "run_lineage",
               "run_quantities",
+              "run_fabric_decision_data",
               "run_compare",
               "run_agents",
               "run_evidence_context",
@@ -15662,7 +16061,128 @@
         "title": "TemporalSurfaceCapability",
         "type": "object"
       },
-      "UnitRef": {
+      "TypedGap": {
+        "additionalProperties": false,
+        "description": "Typed gap state for explicit waivers and unknowns in the trust envelope.",
+        "properties": {
+          "access_policy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Policy"
+          },
+          "capability_endpoint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Endpoint"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "quality_surface": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Surface"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "redaction_behavior": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redaction Behavior"
+          },
+          "remediation_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remediation Link"
+          },
+          "retention_alternative": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Alternative"
+          },
+          "source_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reason"
+          },
+          "status": {
+            "enum": [
+              "untraced",
+              "unknown_quality",
+              "restricted",
+              "non_replayable",
+              "unsupported_temporal_scope"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "TypedGap",
+        "type": "object"
+      },
+      "UnitRef-Input": {
         "additionalProperties": false,
         "description": "Machine-readable unit identity plus a human display label.",
         "properties": {
@@ -16016,6 +16536,403 @@
           "data_source"
         ],
         "title": "WorkflowRunRequest",
+        "type": "object"
+      },
+      "polisyos__core__contracts__runtime__LineageRef-Output": {
+        "additionalProperties": false,
+        "description": "Typed lineage reference embedded inside `QuantityValue` envelopes.",
+        "properties": {
+          "compact_summary": {
+            "items": {
+              "$ref": "#/components/schemas/LineageCompactSummaryItem"
+            },
+            "title": "Compact Summary",
+            "type": "array"
+          },
+          "freshness": {
+            "default": "unknown",
+            "enum": [
+              "current",
+              "stale",
+              "unknown"
+            ],
+            "title": "Freshness",
+            "type": "string"
+          },
+          "hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hash"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "status": {
+            "default": "untraced",
+            "enum": [
+              "verified",
+              "pending",
+              "disputed",
+              "untraced"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Summary",
+            "type": "object"
+          },
+          "tracking_issue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking Issue"
+          },
+          "trust_metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VerificationMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "LineageRef",
+        "type": "object"
+      },
+      "polisyos__core__contracts__runtime__TemporalRef": {
+        "additionalProperties": false,
+        "description": "Bitemporal and snapshot scope carried by a decision-bearing value.",
+        "properties": {
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "tx_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tx At"
+          },
+          "valid_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid At"
+          }
+        },
+        "title": "TemporalRef",
+        "type": "object"
+      },
+      "polisyos__core__contracts__runtime__UnitRef": {
+        "additionalProperties": false,
+        "description": "Machine-readable unit identity plus a human display label.",
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display"
+          },
+          "system": {
+            "default": "ucum",
+            "minLength": 1,
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "UnitRef",
+        "type": "object"
+      },
+      "polisyos__fabric__decision_data__LineageRef": {
+        "additionalProperties": false,
+        "description": "Lineage reference rich enough for compact UI and lazy full graph loading.",
+        "properties": {
+          "compact_summary_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compact Summary Ref"
+          },
+          "export_links": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Export Links",
+            "type": "object"
+          },
+          "full_graph_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Graph Ref"
+          },
+          "hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hash"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "raw_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Raw Evidence Refs",
+            "type": "array"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "status": {
+            "default": "untraced",
+            "enum": [
+              "verified",
+              "pending",
+              "disputed",
+              "untraced"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tracking_issue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking Issue"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "LineageRef",
+        "type": "object"
+      },
+      "polisyos__fabric__decision_data__TemporalRef": {
+        "additionalProperties": false,
+        "description": "Temporal scope echoed by every Fabric trust envelope.",
+        "properties": {
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "tx_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tx At"
+          },
+          "valid_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid At"
+          }
+        },
+        "title": "TemporalRef",
+        "type": "object"
+      },
+      "polisyos__fabric__decision_data__UnitRef": {
+        "additionalProperties": false,
+        "description": "Unit identity for a Fabric decision quantity.",
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display"
+          },
+          "system": {
+            "default": "ucum",
+            "minLength": 1,
+            "title": "System",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "UnitRef",
         "type": "object"
       }
     }
@@ -34414,6 +35331,13 @@
                   "run_id": "$response.body#/run/run_id"
                 }
               },
+              "runFabricDecisionData": {
+                "description": "Inspect Fabric trust envelopes for decision-bearing run values.",
+                "operationId": "get_run_fabric_decision_data",
+                "parameters": {
+                  "run_id": "$response.body#/run/run_id"
+                }
+              },
               "runLineage": {
                 "description": "Traverse lineage rooted at the same run.",
                 "operationId": "get_run_lineage",
@@ -35865,6 +36789,430 @@
           }
         },
         "summary": "Get Run Evidence Context",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/fabric-decision-data": {
+      "get": {
+        "operationId": "get_run_fabric_decision_data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "valid_at",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Valid At"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tx_at",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tx At"
+            }
+          },
+          {
+            "in": "query",
+            "name": "t",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "T"
+            }
+          },
+          {
+            "in": "query",
+            "name": "branch",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Branch"
+            }
+          },
+          {
+            "in": "query",
+            "name": "snapshot_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Snapshot Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scenario_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_fabric_decision_data response example",
+                    "value": {
+                      "coverage": {
+                        "debug": 0,
+                        "decision": 1,
+                        "layout": 0,
+                        "naked_decision_values": 0,
+                        "telemetry": 0,
+                        "total": 1,
+                        "traced": 1,
+                        "transitional_waivers": 0,
+                        "untraced": 0
+                      },
+                      "decision_data": [
+                        {
+                          "access": {
+                            "classification": "public",
+                            "pii_tier": "none",
+                            "policy_ref": null,
+                            "redaction": "none",
+                            "tenant_scope": "shared_public"
+                          },
+                          "gaps": [],
+                          "id": "fabric_decision_data:policy_cost",
+                          "kind": "quantity",
+                          "lineage": {
+                            "compact_summary_ref": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "export_links": {
+                              "openlineage": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/openlineage",
+                              "prov": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/prov"
+                            },
+                            "full_graph_ref": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?view=full",
+                            "hash": null,
+                            "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "owner": null,
+                            "raw_evidence_refs": [
+                              "cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "reason_code": null,
+                            "status": "verified",
+                            "tracking_issue": null
+                          },
+                          "metadata": {
+                            "quantity_class": "decision",
+                            "runtime_metric_id": "policy_cost"
+                          },
+                          "quality": {
+                            "quality_surface": null,
+                            "reason_code": null,
+                            "remediation_link": null,
+                            "report_ref": "runtime://quantity-quality/policy_cost",
+                            "score": 1.0,
+                            "status": "passed"
+                          },
+                          "replay": {
+                            "manifest_ref": "cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "reason_code": null,
+                            "retention_alternative": null,
+                            "source_reason": null,
+                            "status": "replayable"
+                          },
+                          "source_contract": {
+                            "id": "runtime.decision_packet.generic",
+                            "version": "0.1.0"
+                          },
+                          "time": {
+                            "branch": "main",
+                            "scenario_id": null,
+                            "snapshot_id": null,
+                            "tx_at": "2026-02-11T12:01:00Z",
+                            "valid_at": "2026-02-11T12:00:00Z"
+                          },
+                          "value": {
+                            "label": "policy_cost",
+                            "metric_id": "policy_cost",
+                            "point": 100.0,
+                            "semantic_type": "policy_cost",
+                            "unit": {
+                              "code": "[USD]",
+                              "display": "USD",
+                              "system": "ucum"
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "run_id": "R_core_api_001",
+                      "source_kind": "core_run",
+                      "temporal_scope": {
+                        "branch": "main",
+                        "scenario_id": null,
+                        "snapshot_id": null,
+                        "tx_at": "2026-02-11T12:01:00Z",
+                        "valid_at": "2026-02-11T12:00:00Z"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/FabricDecisionDataResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/fabric-decision-data",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Fabric Decision Data",
         "tags": [
           "runtime-runs"
         ]

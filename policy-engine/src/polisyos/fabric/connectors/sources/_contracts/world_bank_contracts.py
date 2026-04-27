@@ -12,14 +12,23 @@ from polisyos.fabric.connectors.contracts import (
     SchemaVersion,
     SemanticType,
     TimeGranularity,
+    make_field_id,
 )
 
+_SCHEMA_ID = "worldbank.wdi.generic"
+
+
+def _field_id(name: str) -> str:
+    return make_field_id(_SCHEMA_ID, name)
+
+
 WDI_GENERIC_SCHEMA = DataSchema(
-    schema_id="worldbank.wdi.generic",
+    schema_id=_SCHEMA_ID,
     version=SchemaVersion(1, 0, 0),
     fields=(
         FieldSpec(
             name="country_code",
+            field_id=_field_id("country_code"),
             data_type=SchemaType.STRING,
             nullable=False,
             semantic_type=SemanticType.CODE,
@@ -27,6 +36,7 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="country_name",
+            field_id=_field_id("country_name"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=256,
@@ -34,12 +44,14 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="indicator_id",
+            field_id=_field_id("indicator_id"),
             data_type=SchemaType.STRING,
             nullable=False,
             max_length=128,
         ),
         FieldSpec(
             name="indicator_name",
+            field_id=_field_id("indicator_name"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=512,
@@ -47,6 +59,7 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="year",
+            field_id=_field_id("year"),
             data_type=SchemaType.INT64,
             nullable=False,
             bounds=(1960, 2100),
@@ -54,6 +67,7 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="value",
+            field_id=_field_id("value"),
             data_type=SchemaType.FLOAT64,
             nullable=True,
             additivity=Additivity.SEMI_ADDITIVE,
@@ -61,6 +75,7 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="unit",
+            field_id=_field_id("unit"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=64,
@@ -68,6 +83,7 @@ WDI_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="decimal",
+            field_id=_field_id("decimal"),
             data_type=SchemaType.INT64,
             nullable=True,
             expected_completeness=0.0,

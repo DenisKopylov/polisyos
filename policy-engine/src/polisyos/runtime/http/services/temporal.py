@@ -36,6 +36,7 @@ _SUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (
     "run_timeline",
     "run_lineage",
     "run_quantities",
+    "run_fabric_decision_data",
     "run_compare",
 )
 _UNSUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (

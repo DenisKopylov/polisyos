@@ -12,15 +12,15 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 
 ## Summary
 
-- Total IR types: `1491`.
-- Public/root-or-package facade types: `618`.
+- Total IR types: `1531`.
+- Public/root-or-package facade types: `631`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 256 |
-| `polisyos.ir.analytics` | 228 |
+| `polisyos.ir` | 270 |
+| `polisyos.ir.analytics` | 243 |
 | `polisyos.ir.artifacts` | 33 |
 | `polisyos.ir.data` | 10 |
 | `polisyos.ir.governance` | 106 |
@@ -36,7 +36,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 900 | 218 | 37 |
+| `analytics` | 938 | 230 | 37 |
 | `artifacts` | 25 | 25 | 0 |
 | `governance` | 95 | 95 | 8 |
 | `kernel` | 39 | 38 | 0 |
@@ -58,7 +58,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `portfolio` | 5 | 4 | 1 |
 | `predicate` | 5 | 0 | 0 |
 | `queries` | 9 | 0 | 0 |
-| `refs` | 111 | 25 | 0 |
+| `refs` | 113 | 26 | 0 |
 | `registry_fragments` | 28 | 0 | 0 |
 | `schema_catalog` | 6 | 6 | 0 |
 | `types` | 6 | 0 | 0 |
@@ -4550,6 +4550,532 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `source_method` | `str` | `yes` | `—` | — |
 | `warnings` | `list[str]` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.dependent_sensitivity.ConditionalSamplerSpec` { #polisyos-ir-analytics-dependent-sensitivity-conditionalsamplerspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Conditional sampler declared by the joint distribution contract.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `exact` | `bool` | `yes` | `—` | — |
+| `supports_coalitions` | `bool` | `yes` | `—` | — |
+| `supports_groups` | `bool` | `no` | `False` | — |
+| `type` | `Literal[analytic_gaussian, analytic_t, inverse_rosenblatt, inverse_nataf, vine_h_function, mcmc, knn_empirical]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec` { #polisyos-ir-analytics-dependent-sensitivity-copulafitspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: How a copula was fixed or fit.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `data_ref` | `str \| NoneType` | `no` | `—` | — |
+| `method` | `Literal[fixed, mle, pseudo_likelihood, rank_inversion, bayesian]` | `no` | `'fixed'` | — |
+| `uncertainty` | `Literal[none, bootstrap, posterior]` | `no` | `'none'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec` { #polisyos-ir-analytics-dependent-sensitivity-copulaparameterspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.PairCopulaSpec`
+- Summary: Copula parameter payload.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `correlation_matrix` | `list[list[float]] \| NoneType` | `no` | `—` | — |
+| `degrees_of_freedom` | `float \| NoneType` | `no` | `—` | — |
+| `pair_copulas` | `list[polisyos.ir.analytics.dependent_sensitivity.PairCopulaSpec]` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.PairCopulaSpec` |
+| `rank_correlation_matrix` | `list[list[float]] \| NoneType` | `no` | `—` | — |
+| `tail_dependence` | `dict[str, float]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.CopulaSpec` { #polisyos-ir-analytics-dependent-sensitivity-copulaspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec`, `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec`, `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy`
+- Summary: Declared copula for a dependent-input sensitivity bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `family` | `Literal[product, gaussian, student_t, clayton, gumbel, frank, vine, empirical, custom]` | `yes` | `—` | — |
+| `fit` | `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec` |
+| `id` | `str` | `yes` | `—` | — |
+| `parameters` | `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec` |
+| `support_policy` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy` { #polisyos-ir-analytics-dependent-sensitivity-copulasupportpolicy }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Policy for reference draws outside the observed support.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `allow_product_reference_outside_observed_support` | `bool` | `no` | `False` | — |
+| `invalid_point_policy` | `Literal[error, reject, project, penalize, user_sampler]` | `no` | `'error'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorBudgetSpec` { #polisyos-ir-analytics-dependent-sensitivity-dependentestimatorbudgetspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Computation budget for dependent-input estimators.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `bootstrap_replicates` | `int \| NoneType` | `no` | `—` | — |
+| `conditional_pairs` | `int \| NoneType` | `no` | `—` | — |
+| `inner_samples` | `int \| NoneType` | `no` | `—` | — |
+| `joint_samples` | `int \| NoneType` | `no` | `—` | — |
+| `permutations` | `int \| NoneType` | `no` | `—` | — |
+| `qmc` | `bool` | `no` | `False` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorComputationalOptions` { #polisyos-ir-analytics-dependent-sensitivity-dependentestimatorcomputationaloptions }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Execution options for dependent sensitivity estimators.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `batching` | `bool` | `no` | `True` | — |
+| `cache_model_evaluations` | `bool` | `no` | `True` | — |
+| `common_random_numbers` | `bool` | `no` | `True` | — |
+| `surrogate` | `Literal[none, gaussian_process, random_forest, pce]` | `no` | `'none'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorSpec` { #polisyos-ir-analytics-dependent-sensitivity-dependentestimatorspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorBudgetSpec`, `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorComputationalOptions`, `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorUncertaintySpec`
+- Summary: Estimator requested by a dependent sensitivity bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `budget` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorBudgetSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorBudgetSpec` |
+| `coalition_mode` | `Literal[inputs, groups, edges]` | `no` | `'inputs'` | — |
+| `computational_options` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorComputationalOptions` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorComputationalOptions` |
+| `contribution_modes` | `list[Literal[full, marginal_reference, structural_delta, edge_structural, latent_innovation]]` | `no` | `—` | — |
+| `family` | `Literal[dependent_shapley_copula, dependent_sobol_copula, copula_edge_shapley, latent_morris, latent_dgsm, knn_shapley_data]` | `yes` | `—` | — |
+| `id` | `str` | `yes` | `—` | — |
+| `reference_copula_id` | `str \| NoneType` | `no` | `—` | — |
+| `target` | `Literal[variance, mean, quantile, tail_probability, welfare_loss, custom]` | `no` | `'variance'` | — |
+| `uncertainty` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorUncertaintySpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorUncertaintySpec` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorUncertaintySpec` { #polisyos-ir-analytics-dependent-sensitivity-dependentestimatoruncertaintyspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Uncertainty policy for one dependent estimator.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `include_copula_parameter_uncertainty` | `bool` | `no` | `False` | — |
+| `interval` | `Literal[none, bootstrap, asymptotic, bayesian]` | `no` | `'none'` | — |
+| `level` | `float` | `no` | `0.95` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityAnalysisBundle` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityanalysisbundle }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DependentSensitivityAnalysisBundle`, `polisyos.ir:DependentSensitivityAnalysisBundle`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorSpec`, `polisyos.ir.analytics.dependent_sensitivity.DiagnosticSpec`, `polisyos.ir.analytics.dependent_sensitivity.IdentifiabilityAssumptionSpec`, `polisyos.ir.analytics.dependent_sensitivity.InputVariableSpec`, `polisyos.ir.analytics.dependent_sensitivity.JointInputDistributionSpec`, `polisyos.ir.analytics.dependent_sensitivity.OutputSpec`, `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec`
+- Summary: First-class bundle contract for dependent and correlated inputs.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `assumptions` | `polisyos.ir.analytics.dependent_sensitivity.IdentifiabilityAssumptionSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.IdentifiabilityAssumptionSpec` |
+| `contract_version` | `Literal[2.0]` | `no` | `'2.0'` | — |
+| `diagnostics` | `polisyos.ir.analytics.dependent_sensitivity.DiagnosticSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DiagnosticSpec` |
+| `estimators` | `list[polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorSpec]` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DependentEstimatorSpec` |
+| `inputs` | `list[polisyos.ir.analytics.dependent_sensitivity.InputVariableSpec]` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.InputVariableSpec` |
+| `joint_distribution` | `polisyos.ir.analytics.dependent_sensitivity.JointInputDistributionSpec` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.JointInputDistributionSpec` |
+| `kind` | `Literal[dependent_copula_sensitivity]` | `no` | `'dependent_copula_sensitivity'` | — |
+| `model` | `dict[str, Any]` | `no` | `—` | — |
+| `outputs` | `list[polisyos.ir.analytics.dependent_sensitivity.OutputSpec]` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.OutputSpec` |
+| `reproducibility` | `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityAnalysisBundleRef` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityanalysisbundleref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DependentSensitivityAnalysisBundleRef`, `polisyos.ir:DependentSensitivityAnalysisBundleRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for a persisted dependent sensitivity bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.dependent_sensitivity_bundle]` | `no` | `'ir.dependent_sensitivity_bundle'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityIndex` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityindex }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.Estimate`
+- Summary: Per-input dependent sensitivity result.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `full` | `dict[str, polisyos.ir.analytics.dependent_sensitivity.Estimate]` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` |
+| `group` | `str \| NoneType` | `no` | `—` | — |
+| `input` | `str` | `yes` | `—` | — |
+| `latent_innovation` | `dict[str, polisyos.ir.analytics.dependent_sensitivity.Estimate]` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` |
+| `marginal_reference` | `dict[str, Any]` | `no` | `—` | — |
+| `structural_delta` | `dict[str, Any]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityModel` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivitymodel }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Base model accepting both Pythonic snake_case and bundle camelCase keys.
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityResult` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityresult }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DependentSensitivityResult`, `polisyos.ir:DependentSensitivityResult`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityIndex`, `polisyos.ir.analytics.dependent_sensitivity.EdgeContribution`, `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec`
+- Summary: Result schema emitted by DC-SAFE estimators.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `bundle_id` | `str \| NoneType` | `no` | `—` | — |
+| `contract_version` | `Literal[2.0]` | `no` | `'2.0'` | — |
+| `diagnostics` | `dict[str, Any]` | `no` | `—` | — |
+| `edge_contributions` | `list[polisyos.ir.analytics.dependent_sensitivity.EdgeContribution]` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.EdgeContribution` |
+| `estimator_family` | `Literal[dependent_shapley_copula, dependent_sobol_copula, copula_edge_shapley, latent_morris, latent_dgsm, knn_shapley_data]` | `no` | `'dependent_shapley_copula'` | — |
+| `identifiability` | `dict[str, Any]` | `no` | `—` | — |
+| `indices` | `list[polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityIndex]` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityIndex` |
+| `kind` | `Literal[dependent_copula_sensitivity]` | `no` | `'dependent_copula_sensitivity'` | — |
+| `output_name` | `str` | `yes` | `—` | — |
+| `reproducibility` | `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec` |
+| `variance` | `dict[str, Any]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DependentSensitivityResultRef` { #polisyos-ir-analytics-dependent-sensitivity-dependentsensitivityresultref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DependentSensitivityResultRef`, `polisyos.ir:DependentSensitivityResultRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for a persisted dependent sensitivity result.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.dependent_sensitivity_result]` | `no` | `'ir.dependent_sensitivity_result'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.DiagnosticSpec` { #polisyos-ir-analytics-dependent-sensitivity-diagnosticspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Static diagnostics requested or already attached to a bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `conditional_sampler_checks` | `list[dict[str, Any]]` | `no` | `—` | — |
+| `convergence` | `dict[str, Any]` | `no` | `—` | — |
+| `copula_fit` | `dict[str, Any]` | `no` | `—` | — |
+| `dependence_matrix` | `list[list[float]] \| NoneType` | `no` | `—` | — |
+| `support_violations` | `int` | `no` | `0` | — |
+| `tail_dependence` | `dict[str, float]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.EdgeContribution` { #polisyos-ir-analytics-dependent-sensitivity-edgecontribution }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.Estimate`
+- Summary: Edge-level structural dependence contribution.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `contribution` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` |
+| `edge` | `str` | `yes` | `—` | — |
+| `interpretation` | `Literal[amplifies_variance, dampens_variance, near_zero]` | `yes` | `—` | — |
+| `normalized_contribution` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.Estimate` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.Estimate` { #polisyos-ir-analytics-dependent-sensitivity-estimate }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Scalar estimate with optional uncertainty metadata.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `ci` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
+| `normalized` | `float \| NoneType` | `no` | `—` | — |
+| `standard_error` | `float \| NoneType` | `no` | `—` | — |
+| `value` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.IdentifiabilityAssumptionSpec` { #polisyos-ir-analytics-dependent-sensitivity-identifiabilityassumptionspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Machine-readable identifiability posture for the bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `conditional_sampler_declared` | `bool` | `no` | `True` | — |
+| `marginals_declared` | `bool` | `no` | `True` | — |
+| `observed_copula_declared` | `bool` | `no` | `True` | — |
+| `reference_copula_declared` | `bool` | `no` | `True` | — |
+| `structural_claim_level` | `Literal[distributional, ordered_generating, causal]` | `no` | `'distributional'` | — |
+| `warnings` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.InputMarginalSpec` { #polisyos-ir-analytics-dependent-sensitivity-inputmarginalspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Marginal distribution for one sensitivity input.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `empirical_sample_ref` | `str \| NoneType` | `no` | `—` | — |
+| `family` | `Literal[empirical, normal, lognormal, beta, gamma, uniform, categorical, custom]` | `yes` | `—` | — |
+| `parameters` | `dict[str, float]` | `no` | `—` | — |
+| `support` | `tuple[float, float] \| list[str]` | `yes` | `—` | — |
+| `transform` | `Literal[identity, log, logit, rank_normal_score]` | `no` | `'identity'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.InputVariableSpec` { #polisyos-ir-analytics-dependent-sensitivity-inputvariablespec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.InputMarginalSpec`
+- Summary: Input exposed to dependent sensitivity analysis.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `dtype` | `Literal[continuous, ordinal, categorical, binary]` | `yes` | `—` | — |
+| `group` | `str \| NoneType` | `no` | `—` | — |
+| `marginal` | `polisyos.ir.analytics.dependent_sensitivity.InputMarginalSpec` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.InputMarginalSpec` |
+| `missing_policy` | `Literal[error, impute, drop, model]` | `no` | `'error'` | — |
+| `name` | `str` | `yes` | `—` | — |
+| `role` | `Literal[policy, behavioral, demographic, economic, technical] \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.JointInputDistributionSpec` { #polisyos-ir-analytics-dependent-sensitivity-jointinputdistributionspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.ConditionalSamplerSpec`, `polisyos.ir.analytics.dependent_sensitivity.CopulaSpec`, `polisyos.ir.analytics.dependent_sensitivity.ReferenceCopulaSpec`, `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphSpec`
+- Summary: Observed and reference copulas plus their conditional sampler.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `conditional_sampler` | `polisyos.ir.analytics.dependent_sensitivity.ConditionalSamplerSpec` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.ConditionalSamplerSpec` |
+| `observed_copula` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSpec` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSpec` |
+| `reference_copulas` | `list[polisyos.ir.analytics.dependent_sensitivity.ReferenceCopulaSpec]` | `yes` | `—` | `polisyos.ir.analytics.dependent_sensitivity.ReferenceCopulaSpec` |
+| `structural_graph` | `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphSpec` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.OutputSpec` { #polisyos-ir-analytics-dependent-sensitivity-outputspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Scalar output target requested by a dependent sensitivity bundle.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `name` | `str` | `yes` | `—` | — |
+| `target` | `Literal[variance, mean, quantile, tail_probability, welfare_loss, custom]` | `no` | `'variance'` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.PairCopulaSpec` { #polisyos-ir-analytics-dependent-sensitivity-paircopulaspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Pair-copula entry for vine or graph-structured copulas.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `family` | `Literal[product, gaussian, student_t, clayton, gumbel, frank, vine, empirical, custom]` | `yes` | `—` | — |
+| `left` | `str` | `yes` | `—` | — |
+| `parameters` | `dict[str, float]` | `no` | `—` | — |
+| `right` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.ReferenceCopulaSpec` { #polisyos-ir-analytics-dependent-sensitivity-referencecopulaspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec`, `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec`, `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy`
+- Summary: Reference dependence structure used for marginal-reference contribution.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `family` | `Literal[product, gaussian, student_t, clayton, gumbel, frank, vine, empirical, custom]` | `yes` | `—` | — |
+| `fit` | `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaFitSpec` |
+| `id` | `str` | `yes` | `—` | — |
+| `parameters` | `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaParameterSpec` |
+| `reference_role` | `Literal[marginal_reference, edge_baseline, support_preserving]` | `no` | `'marginal_reference'` | — |
+| `support_policy` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.CopulaSupportPolicy` |
+
+### `polisyos.ir.analytics.dependent_sensitivity.ReproducibilitySpec` { #polisyos-ir-analytics-dependent-sensitivity-reproducibilityspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Reproducibility metadata for a dependent sensitivity run.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `estimator_version` | `str` | `no` | `'dc-safe-linear-gaussian-1.0'` | — |
+| `input_distribution_hash` | `str \| NoneType` | `no` | `—` | — |
+| `model_hash` | `str \| NoneType` | `no` | `—` | — |
+| `run_timestamp` | `str \| NoneType` | `no` | `—` | — |
+| `seed` | `int` | `no` | `42` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphEdgeSpec` { #polisyos-ir-analytics-dependent-sensitivity-structuralgraphedgespec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One structural dependence edge in a graph or vine declaration.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `baseline` | `Literal[independence, zero_correlation, user_defined]` | `no` | `'independence'` | — |
+| `copula_parameter_ref` | `str \| NoneType` | `no` | `—` | — |
+| `from_` | `str \| NoneType` | `no` | `—` | — |
+| `to` | `str \| NoneType` | `no` | `—` | — |
+| `undirected` | `tuple[str, str] \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphSpec` { #polisyos-ir-analytics-dependent-sensitivity-structuralgraphspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphEdgeSpec`
+- Summary: Optional graph giving stronger semantics to dependence claims.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `claim_level` | `Literal[distributional, ordered_generating, causal]` | `no` | `'distributional'` | — |
+| `edges` | `list[polisyos.ir.analytics.dependent_sensitivity.StructuralGraphEdgeSpec]` | `no` | `—` | `polisyos.ir.analytics.dependent_sensitivity.StructuralGraphEdgeSpec` |
+| `nodes` | `list[str]` | `no` | `—` | — |
+| `order` | `list[str]` | `no` | `—` | — |
+| `rationale` | `str \| NoneType` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.diagnostic_dashboard.DiagnosticDashboardData` { #polisyos-ir-analytics-diagnostic-dashboard-diagnosticdashboarddata }
 
 - Kind: `pydantic_model`
@@ -8162,6 +8688,39 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `spurious_effect` | `float` | `yes` | `—` | — |
 | `tv` | `float` | `yes` | `—` | — |
 | `tv_ci` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.fairness_audit_report.FairnessAuditReport` { #polisyos-ir-analytics-fairness-audit-report-fairnessauditreport }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:FairnessAuditReport`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Validation-stage fairness audit consumed by deployment and runtime gates.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifacts` | `dict[str, object]` | `no` | `—` | — |
+| `audit_id` | `str` | `yes` | `—` | — |
+| `auto_decision_allowed` | `bool` | `yes` | `—` | — |
+| `causal_audits` | `dict[str, object]` | `no` | `—` | — |
+| `config` | `dict[str, object]` | `no` | `—` | — |
+| `created_at` | `str` | `no` | `—` | — |
+| `dataset_id` | `str \| NoneType` | `no` | `—` | — |
+| `deployable` | `bool` | `yes` | `—` | — |
+| `diagnostics` | `list[dict[str, object]]` | `no` | `—` | — |
+| `group_metrics` | `list[dict[str, object]]` | `no` | `—` | — |
+| `input_summary` | `dict[str, object]` | `no` | `—` | — |
+| `kind` | `Literal[scientist.fairness_audit_report]` | `no` | `'scientist.fairness_audit_report'` | — |
+| `limitations` | `list[str]` | `no` | `—` | — |
+| `model_id` | `str \| NoneType` | `no` | `—` | — |
+| `parity_tests` | `list[dict[str, object]]` | `no` | `—` | — |
+| `refusal_policy` | `dict[str, object]` | `no` | `—` | — |
+| `required_actions` | `list[str]` | `no` | `—` | — |
+| `status` | `Literal[PASS, WARN, REFUSE, NOT_COMPUTABLE, NOT_APPLICABLE]` | `yes` | `—` | — |
+| `version` | `str` | `no` | `'1.0.0'` | — |
 
 ### `polisyos.ir.analytics.falsification_report.FalsificationReport` { #polisyos-ir-analytics-falsification-report-falsificationreport }
 
@@ -13935,6 +14494,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `environment_fingerprint` | `str \| NoneType` | `no` | `—` | — |
 | `environment_ref` | `EnvironmentManifestRef \| NoneType` | `no` | `—` | — |
 | `exec_plan_ref` | `ExecPlanRef` | `yes` | `—` | — |
+| `fairness_audit_report_ref` | `FairnessAuditReportRef \| NoneType` | `no` | `—` | — |
 | `feedback_result_ref` | `FeedbackResultRef \| NoneType` | `no` | `—` | — |
 | `identifiability_certificate` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate` |
 | `identifiability_diagnostic_ref` | `IdentifiabilityDiagnosticRef \| NoneType` | `no` | `—` | — |
@@ -16422,6 +16982,243 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `sensitivity_result` | `polisyos.ir.analytics.sensitivity.SensitivityResult` | `yes` | `—` | `polisyos.ir.analytics.sensitivity.SensitivityResult` |
 | `threshold_breaches` | `dict[str, float]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.CalibrationInfo` { #polisyos-ir-analytics-shift-diagnostics-calibrationinfo }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Calibration metadata carried with every shift report.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `calibration_id` | `str` | `yes` | `—` | — |
+| `min_detectable_effect_summary` | `dict[str, Any]` | `no` | `—` | — |
+| `multiplicity_method` | `str \| NoneType` | `no` | `'benjamini_hochberg'` | — |
+| `null_regime` | `str` | `yes` | `—` | — |
+| `operating_characteristic_library_version` | `str` | `yes` | `—` | — |
+| `power_summary` | `dict[str, Any]` | `no` | `—` | — |
+| `reference_comparison_type` | `Literal[training_vs_current, validation_vs_current, stable_recent_vs_current, seasonal_historical_vs_current]` | `yes` | `—` | — |
+| `target_report_fpr` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.DetectorResult` { #polisyos-ir-analytics-shift-diagnostics-detectorresult }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DetectorResult`, `polisyos.ir:DetectorResult`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Raw detector evidence retained for audit and localization.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `calibrated_threshold` | `float \| NoneType` | `no` | `—` | — |
+| `data_view` | `str` | `yes` | `—` | — |
+| `detector_family` | `Literal[schema, univariate, multivariate, classifier_two_sample, mmd, density_ratio, prediction_output, panel_temporal, delayed_label_concept, subgroup]` | `yes` | `—` | — |
+| `detector_name` | `str` | `yes` | `—` | — |
+| `effect_size` | `float \| NoneType` | `no` | `—` | — |
+| `implicated_features` | `tuple[str]` | `no` | `()` | — |
+| `implicated_subgroups` | `tuple[str]` | `no` | `()` | — |
+| `limitations` | `tuple[str]` | `no` | `()` | — |
+| `null_percentile` | `float \| NoneType` | `no` | `—` | — |
+| `operating_characteristic_key` | `str` | `yes` | `—` | — |
+| `p_value` | `float \| NoneType` | `no` | `—` | — |
+| `q_value` | `float \| NoneType` | `no` | `—` | — |
+| `statistic` | `float \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.FeatureShiftDiagnostic` { #polisyos-ir-analytics-shift-diagnostics-featureshiftdiagnostic }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Human-readable feature localization output with model relevance.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `direction_summary` | `str \| NoneType` | `no` | `—` | — |
+| `effect_size` | `float \| NoneType` | `no` | `—` | — |
+| `example_changes` | `tuple[str]` | `no` | `()` | — |
+| `feature_name` | `str` | `yes` | `—` | — |
+| `feature_type` | `Literal[numeric, categorical, binary, text, embedding, missingness_indicator]` | `yes` | `—` | — |
+| `model_relevance` | `float \| NoneType` | `no` | `—` | — |
+| `q_value` | `float \| NoneType` | `no` | `—` | — |
+| `severity_score` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicKey` { #polisyos-ir-analytics-shift-diagnostics-operatingcharacteristickey }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:OperatingCharacteristicKey`, `polisyos.ir:OperatingCharacteristicKey`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Lookup key for calibrated detector operating characteristics.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `calibration_version` | `str` | `yes` | `—` | — |
+| `categorical_cardinality_bucket` | `str` | `yes` | `—` | — |
+| `detector_family` | `Literal[schema, univariate, multivariate, classifier_two_sample, mmd, density_ratio, prediction_output, panel_temporal, delayed_label_concept, subgroup]` | `yes` | `—` | — |
+| `feature_count_bucket` | `str` | `yes` | `—` | — |
+| `label_lag_bucket` | `str` | `yes` | `—` | — |
+| `modality` | `Literal[tabular_administrative, longitudinal_panel, sparse_survey]` | `yes` | `—` | — |
+| `n_current_bucket` | `str` | `yes` | `—` | — |
+| `n_reference_bucket` | `str` | `yes` | `—` | — |
+| `reference_comparison_type` | `Literal[training_vs_current, validation_vs_current, stable_recent_vs_current, seasonal_historical_vs_current]` | `yes` | `—` | — |
+| `sparsity_missingness_bucket` | `str` | `yes` | `—` | — |
+| `task_type` | `Literal[classification, regression, ranking, forecasting]` | `yes` | `—` | — |
+| `windowing_strategy` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicLibrary` { #polisyos-ir-analytics-shift-diagnostics-operatingcharacteristiclibrary }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:OperatingCharacteristicLibrary`, `polisyos.ir:OperatingCharacteristicLibrary`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicRecord`
+- Summary: Versioned, queryable library of detector operating characteristics.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `description` | `str \| NoneType` | `no` | `—` | — |
+| `generated_at` | `str \| NoneType` | `no` | `—` | — |
+| `records` | `tuple[polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicRecord]` | `no` | `()` | `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicRecord` |
+| `version` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicRecord` { #polisyos-ir-analytics-shift-diagnostics-operatingcharacteristicrecord }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:OperatingCharacteristicRecord`, `polisyos.ir:OperatingCharacteristicRecord`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicKey`
+- Summary: Declared false-alert, power, delay, and invalid-regime behavior.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `compute_cost_profile` | `dict[str, Any]` | `no` | `—` | — |
+| `expected_detection_delay` | `dict[str, Any]` | `no` | `—` | — |
+| `false_positive_rate_by_no_shift_regime` | `dict[str, float]` | `no` | `—` | — |
+| `feature_family_false_discovery_rate` | `dict[str, float]` | `no` | `—` | — |
+| `key` | `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicKey` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.OperatingCharacteristicKey` |
+| `known_invalid_regimes` | `tuple[str]` | `no` | `()` | — |
+| `localization_precision_recall` | `dict[str, float]` | `no` | `—` | — |
+| `minimum_detectable_effect` | `dict[str, Any]` | `no` | `—` | — |
+| `power_curve_by_shift_type_and_severity` | `dict[str, dict[str, float]]` | `no` | `—` | — |
+| `recommended_thresholds` | `dict[str, float]` | `no` | `—` | — |
+| `shift_type_attribution_confusion_matrix` | `dict[str, dict[str, float]]` | `no` | `—` | — |
+| `subgroup_power_summary` | `dict[str, Any]` | `no` | `—` | — |
+| `support_overlap_error_profile` | `dict[str, Any]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.ReadinessImpact` { #polisyos-ir-analytics-shift-diagnostics-readinessimpact }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ReadinessImpact`, `polisyos.ir:ReadinessImpact`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Deterministic readiness consequence of a shift report.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `base_readiness` | `Literal[ready, monitor, restricted, blocked]` | `yes` | `—` | — |
+| `downgrade_level` | `int` | `yes` | `—` | — |
+| `downgrade_reasons` | `tuple[str]` | `yes` | `—` | — |
+| `expires_at` | `str \| NoneType` | `no` | `—` | — |
+| `required_actions` | `tuple[str]` | `yes` | `—` | — |
+| `resulting_readiness` | `Literal[ready, monitor, restricted, blocked]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` { #polisyos-ir-analytics-shift-diagnostics-shiftcomponent }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ShiftComponent`, `polisyos.ir:ShiftComponent`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One subtype verdict with calibrated severity and evidence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `confidence_interval` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
+| `effect_size` | `float \| NoneType` | `no` | `—` | — |
+| `notes` | `tuple[str]` | `no` | `()` | — |
+| `p_value` | `float \| NoneType` | `no` | `—` | — |
+| `power` | `float \| NoneType` | `no` | `—` | — |
+| `q_value` | `float \| NoneType` | `no` | `—` | — |
+| `severity_bucket` | `Literal[none, low, moderate, high, severe, unassessable]` | `yes` | `—` | — |
+| `severity_score` | `float \| NoneType` | `no` | `—` | — |
+| `status` | `Literal[not_detected, detected, suspected, confirmed, unassessable_until_labels, insufficient_power]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.shift_diagnostics.ShiftDiagnosticReport` { #polisyos-ir-analytics-shift-diagnostics-shiftdiagnosticreport }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `foundry.shift_diagnostic.v1`
+- Exported from: `polisyos.ir.analytics:ShiftDiagnosticReport`, `polisyos.ir:ShiftDiagnosticReport`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.shift_diagnostics.CalibrationInfo`, `polisyos.ir.analytics.shift_diagnostics.DetectorResult`, `polisyos.ir.analytics.shift_diagnostics.FeatureShiftDiagnostic`, `polisyos.ir.analytics.shift_diagnostics.ReadinessImpact`, `polisyos.ir.analytics.shift_diagnostics.ShiftComponent`
+- Summary: Calibrated, modality-aware distribution-shift diagnostic report.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `calibration` | `polisyos.ir.analytics.shift_diagnostics.CalibrationInfo` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.CalibrationInfo` |
+| `concept_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `current_window_end` | `str` | `yes` | `—` | — |
+| `current_window_id` | `str` | `yes` | `—` | — |
+| `current_window_start` | `str` | `yes` | `—` | — |
+| `decision_context` | `Literal[standard, high_stakes]` | `no` | `'standard'` | — |
+| `detector_results` | `tuple[polisyos.ir.analytics.shift_diagnostics.DetectorResult]` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.DetectorResult` |
+| `effective_n_current` | `float \| NoneType` | `no` | `—` | — |
+| `effective_n_reference` | `float \| NoneType` | `no` | `—` | — |
+| `feature_diagnostics` | `tuple[polisyos.ir.analytics.shift_diagnostics.FeatureShiftDiagnostic]` | `no` | `()` | `polisyos.ir.analytics.shift_diagnostics.FeatureShiftDiagnostic` |
+| `generated_at` | `str` | `yes` | `—` | — |
+| `global_verdict` | `Literal[no_shift_detected, marginal_shift, support_shift, label_prior_shift, concept_shift, mixed_shift, schema_shift, insufficient_power]` | `yes` | `—` | — |
+| `harmful_shift_risk` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `human_summary` | `str` | `yes` | `—` | — |
+| `label_availability` | `Literal[none, proxy, delayed, current]` | `yes` | `—` | — |
+| `label_lag_days` | `int \| NoneType` | `no` | `—` | — |
+| `label_prior_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `limitations` | `tuple[str]` | `yes` | `—` | — |
+| `machine_summary` | `dict[str, Any]` | `no` | `—` | — |
+| `marginal_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `modality` | `Literal[tabular_administrative, longitudinal_panel, sparse_survey]` | `yes` | `—` | — |
+| `model_id` | `str` | `yes` | `—` | — |
+| `model_version` | `str` | `yes` | `—` | — |
+| `n_current` | `int` | `yes` | `—` | — |
+| `n_reference` | `int` | `yes` | `—` | — |
+| `power_status` | `Literal[sufficient, insufficient, unknown]` | `no` | `'unknown'` | — |
+| `prediction_output_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `prediction_result_id` | `str \| NoneType` | `no` | `—` | — |
+| `readiness_impact` | `polisyos.ir.analytics.shift_diagnostics.ReadinessImpact` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ReadinessImpact` |
+| `recommended_next_checks` | `tuple[str]` | `yes` | `—` | — |
+| `report_id` | `str` | `yes` | `—` | — |
+| `schema_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `schema_version` | `Literal[foundry.shift_diagnostic.v1]` | `no` | `'foundry.shift_diagnostic.v1'` | — |
+| `subgroup_diagnostics` | `tuple[dict[str, Any]]` | `no` | `()` | — |
+| `support_shift` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` | `yes` | `—` | `polisyos.ir.analytics.shift_diagnostics.ShiftComponent` |
+| `task_type` | `Literal[classification, regression, ranking, forecasting]` | `yes` | `—` | — |
+| `training_reference_id` | `str` | `yes` | `—` | — |
+| `validation_reference_id` | `str \| NoneType` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.simulation_proof_bridge.SimulationCalibrationReceipt` { #polisyos-ir-analytics-simulation-proof-bridge-simulationcalibrationreceipt }
 
@@ -21562,6 +22359,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | ----- | ---- | -------- | ------- | ------- |
 | `diff_before_after` | `str \| NoneType` | `no` | `—` | — |
 | `error_summary` | `str` | `yes` | `—` | — |
+| `fairness_audit` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `generated_at` | `str` | `no` | `—` | — |
 | `issues` | `list[polisyos.ir.governance.validation.ValidationIssue]` | `yes` | `—` | `polisyos.ir.governance.validation.ValidationIssue` |
 | `normalized_payload` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
@@ -28437,6 +29235,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `kind` | `Literal[fabric.evidence_bundle]` | `no` | `'fabric.evidence_bundle'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.refs.FairnessAuditReportRef` { #polisyos-ir-refs-fairnessauditreportref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted validation-stage fairness audit reports.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.fairness_audit_report]` | `no` | `'scientist.fairness_audit_report'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.refs.FiniteStateAbstractionMapRef` { #polisyos-ir-refs-finitestateabstractionmapref }
 
 - Kind: `pydantic_model`
@@ -29285,6 +30100,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.scm_fragment]` | `no` | `'ir.scm_fragment'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.refs.ShiftDiagnosticReportRef` { #polisyos-ir-refs-shiftdiagnosticreportref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ShiftDiagnosticReportRef`, `polisyos.ir:ShiftDiagnosticReportRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted distribution-shift diagnostic reports.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.shift_diagnostic_report]` | `no` | `'ir.shift_diagnostic_report'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.refs.SimulationCalibrationReceiptRef` { #polisyos-ir-refs-simulationcalibrationreceiptref }

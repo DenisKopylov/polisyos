@@ -1,0 +1,88 @@
+{
+  "batch_lookup": {
+    "benchmark_surface": true,
+    "lineage_route_uses_batch_service": true,
+    "lineage_service_deduplicates_refs": true,
+    "p95_target_ms": 150
+  },
+  "endpoints": [
+    {
+      "classification": "decision",
+      "expected_wrapper": "QuantityValue",
+      "id": "runtime.run_quantities",
+      "operation_id": "get_run_quantities",
+      "operation_present": true,
+      "path": "/api/v1/runs/{run_id}/quantities",
+      "status": "implemented",
+      "wrapper_present": true
+    },
+    {
+      "classification": "decision",
+      "expected_wrapper": "FabricDecisionData",
+      "id": "runtime.run_fabric_decision_data",
+      "operation_id": "get_run_fabric_decision_data",
+      "operation_present": true,
+      "path": "/api/v1/runs/{run_id}/fabric-decision-data",
+      "status": "implemented",
+      "wrapper_present": true
+    },
+    {
+      "classification": "decision",
+      "expected_wrapper": "LineageGraphView",
+      "id": "runtime.lineage_batch",
+      "operation_id": "get_lineage_batch",
+      "operation_present": true,
+      "path": "/api/v1/lineage/batch",
+      "status": "implemented",
+      "wrapper_present": true
+    }
+  ],
+  "generated_at": "2026-04-27T00:00:00Z",
+  "naked_decision_values": [],
+  "required_contracts": {
+    "batch_lineage_lookup": true,
+    "decision_data_module": true,
+    "runtime_decision_data_route": true,
+    "schema_matches_model": true,
+    "temporal_scope_echo": true,
+    "trust_envelope_schema": true,
+    "typed_gap_states": true
+  },
+  "schema_version": "fabric.decision_data_coverage.v1",
+  "summary": {
+    "decision_endpoint_count": 3,
+    "endpoint_count": 3,
+    "naked_decision_value_count": 0,
+    "status": "implemented",
+    "transitional_waiver_count": 0,
+    "typed_gap_state_count": 5
+  },
+  "temporal_echo": {
+    "envelope_temporal_ref": true,
+    "route_temporal_echo": true,
+    "runtime_surface_supported": true
+  },
+  "transitional_waivers": [],
+  "typed_gap_states": [
+    {
+      "state": "untraced",
+      "status": "implemented"
+    },
+    {
+      "state": "unknown_quality",
+      "status": "implemented"
+    },
+    {
+      "state": "restricted",
+      "status": "implemented"
+    },
+    {
+      "state": "non_replayable",
+      "status": "implemented"
+    },
+    {
+      "state": "unsupported_temporal_scope",
+      "status": "implemented"
+    }
+  ]
+}

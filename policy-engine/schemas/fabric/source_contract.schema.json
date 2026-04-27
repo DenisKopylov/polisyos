@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/fabric/source_contract.schema.json",
+  "title": "Fabric SourceContract v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "owner",
+    "reviewer",
+    "source",
+    "schema",
+    "semantics",
+    "security",
+    "quality",
+    "sla",
+    "terms",
+    "replay",
+    "lineage",
+    "source_trust",
+    "status"
+  ],
+  "properties": {
+    "schema_version": { "const": "fabric.source_contract.v2" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "owner": { "type": "string", "minLength": 1 },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connector_id", "dataset_pattern", "profile_id"],
+      "properties": {
+        "connector_id": { "type": "string", "minLength": 1 },
+        "dataset_pattern": { "type": "string", "minLength": 1 },
+        "profile_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "source_name": { "type": "string" },
+        "source_organization": { "type": "string" },
+        "source_url": { "type": ["string", "null"] }
+      }
+    },
+    "schema": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["fields"],
+      "properties": {
+        "schema_id": { "type": ["string", "null"] },
+        "schema_version": { "type": ["string", "null"], "pattern": "^\\d+\\.\\d+(\\.\\d+)?$" },
+        "fields": { "type": "array" },
+        "schema_contract_ref": { "type": ["string", "null"] },
+        "compatibility_status": {
+          "enum": ["contracted", "template_only", "pending_profile_specific_schema"]
+        }
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain"],
+      "properties": {
+        "domain": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "metric_definitions": { "type": "array" },
+        "canonical_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pii_tier", "classification", "tenant_scope"],
+      "properties": {
+        "pii_tier": { "enum": ["none", "low", "moderate", "high", "regulated"] },
+        "classification": {
+          "enum": ["public", "internal", "confidential", "regulated_pii", "sensitive_policy_legal_signal"]
+        },
+        "tenant_scope": { "enum": ["shared_public", "tenant_isolated", "restricted"] },
+        "safe_filters_required": { "type": "boolean" },
+        "audit_required": { "type": "boolean" }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_ref", "required_checks"],
+      "properties": {
+        "contract_ref": { "type": "string", "minLength": 1 },
+        "required_checks": { "type": "array", "items": { "type": "string" } },
+        "min_quality_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "sla": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "refresh_frequency": { "type": "string" },
+        "max_latency": { "type": "string" },
+        "availability_target": { "type": "number", "minimum": 0, "maximum": 1 },
+        "freshness_slo_seconds": { "type": "integer", "minimum": 0 },
+        "p95_latency_ms": { "type": "number", "minimum": 0 },
+        "replay_success_target": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allowed_uses": { "type": "array", "items": { "type": "string" } },
+        "disallowed_uses": { "type": "array", "items": { "type": "string" } },
+        "terms_url": { "type": ["string", "null"] },
+        "attribution_required": { "type": "boolean" }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean" },
+        "fixture_ref": { "type": ["string", "null"] },
+        "non_replayable_reason": { "type": ["string", "null"] },
+        "determinism_key": { "type": ["string", "null"] }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seed_node_kind": { "type": "string", "minLength": 1 },
+        "seed_fields": { "type": "array", "items": { "type": "string" } },
+        "evidence_ref": { "type": ["string", "null"] }
+      }
+    },
+    "source_trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tier": {
+          "enum": ["institutional", "government", "community", "vendor", "internal", "synthetic", "unknown"]
+        },
+        "calibration_status": { "enum": ["measured", "heuristic", "declared", "unknown"] },
+        "rationale": { "type": "string" }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy": { "enum": ["retain", "expire", "source_terms_bound"] },
+        "min_retention_days": { "type": "integer", "minimum": 0 },
+        "artifact_retention_days": { "type": "integer", "minimum": 0 },
+        "cold_storage_required": { "type": "boolean" }
+      }
+    },
+    "docs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reference_page": { "type": "string" },
+        "generated_anchor": { "type": ["string", "null"] }
+      }
+    },
+    "status": { "enum": ["draft", "active", "deprecated", "sunset"] },
+    "deprecation": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "deprecated_at": { "type": ["string", "null"] },
+        "sunset_at": { "type": ["string", "null"] },
+        "replacement_contract_id": { "type": ["string", "null"] },
+        "reason": { "type": "string" },
+        "migration_note": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string" }
+  }
+}

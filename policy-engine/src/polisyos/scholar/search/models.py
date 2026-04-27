@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 
 class SearchBudgetControls(BaseModel):
@@ -207,6 +207,55 @@ class ClaimSupportLink(BaseModel):
     support_score: float = 0.0
     conflict_score: float = 0.0
     uncertainty_note: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_snippet_level_support(self) -> ClaimSupportLink:
+        status = str(self.metadata.get("support_status", "")).strip().lower()
+        if self.source_ids and not self.snippet_ids and status != "unsupported":
+            raise ValueError(
+                "ClaimSupportLink with source_ids must include snippet_ids or be marked unsupported"
+            )
+        if self.support_score > 0 and not self.snippet_ids and status != "unsupported":
+            raise ValueError(
+                "ClaimSupportLink with positive support_score must include snippet_ids"
+            )
+        return self
+
+
+class FetchSafetyEvent(BaseModel):
+    """Machine-readable safety event emitted by safe fetch/extract stages."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: str
+    url: str
+    event_type: Literal[
+        "blocked_private_network",
+        "blocked_domain",
+        "blocked_content_type",
+        "max_bytes_exceeded",
+        "prompt_injection_suspected",
+        "malformed_url",
+        "robots_or_policy_block",
+    ]
+    severity: Literal["info", "warning", "block"]
+    message: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SourceQualitySignal(BaseModel):
+    """Deterministic heuristic source-quality signal for one source."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_id: str
+    authority_score: float = Field(ge=0.0, le=1.0)
+    freshness_score: float = Field(ge=0.0, le=1.0)
+    primary_source_score: float = Field(ge=0.0, le=1.0)
+    anti_seo_score: float = Field(ge=0.0, le=1.0)
+    duplicate_score: float = Field(ge=0.0, le=1.0)
+    reasons: list[str] = Field(default_factory=list)
 
 
 class WebEvidenceBundle(BaseModel):
@@ -222,10 +271,45 @@ class WebEvidenceBundle(BaseModel):
     sources: list[SourceMetadata] = Field(default_factory=list)
     snippets: list[SourceSnippet] = Field(default_factory=list)
     claim_supports: list[ClaimSupportLink] = Field(default_factory=list)
+    fetch_safety_events: list[FetchSafetyEvent] = Field(default_factory=list)
+    source_quality_signals: list[SourceQualitySignal] = Field(default_factory=list)
     uncertainty_notes: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     partial: bool = False
     checkpoint_artifact_id: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_evidence_links(self) -> WebEvidenceBundle:
+        source_ids = {source.source_id for source in self.sources}
+        snippet_ids = {snippet.snippet_id for snippet in self.snippets}
+        duplicate_sources = len(source_ids) != len(self.sources)
+        duplicate_snippets = len(snippet_ids) != len(self.snippets)
+        if duplicate_sources:
+            raise ValueError("WebEvidenceBundle source_id values must be unique")
+        if duplicate_snippets:
+            raise ValueError("WebEvidenceBundle snippet_id values must be unique")
+        for snippet in self.snippets:
+            if source_ids and snippet.source_id not in source_ids:
+                raise ValueError(f"snippet references missing source_id: {snippet.source_id}")
+            if snippet.end_char and snippet.end_char < snippet.start_char:
+                raise ValueError(f"snippet has invalid span: {snippet.snippet_id}")
+        for support in self.claim_supports:
+            missing_snippets = [item for item in support.snippet_ids if item not in snippet_ids]
+            if missing_snippets:
+                raise ValueError(
+                    f"claim support references missing snippet_id: {missing_snippets[0]}"
+                )
+            missing_sources = [
+                item for item in support.source_ids if source_ids and item not in source_ids
+            ]
+            if missing_sources:
+                raise ValueError(
+                    f"claim support references missing source_id: {missing_sources[0]}"
+                )
+        for signal in self.source_quality_signals:
+            if source_ids and signal.source_id not in source_ids:
+                raise ValueError(f"quality signal references missing source_id: {signal.source_id}")
+        return self
 
 
 class ResearchProgressEvent(BaseModel):
@@ -275,6 +359,7 @@ class ResearchJobStatus(BaseModel):
 __all__ = [
     "ClaimSupportLink",
     "FetchResult",
+    "FetchSafetyEvent",
     "QueryGraph",
     "QueryNode",
     "ResearchBrief",
@@ -285,6 +370,7 @@ __all__ = [
     "SearchConstraints",
     "SearchQueryTrace",
     "SourceMetadata",
+    "SourceQualitySignal",
     "SourceSnippet",
     "WebEvidenceBundle",
     "WebSearchHit",

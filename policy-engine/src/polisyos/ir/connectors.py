@@ -13,7 +13,7 @@ from enum import Enum, Flag, IntEnum, auto
 from functools import cached_property
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.refs import EvidenceBundleRef
@@ -557,6 +557,10 @@ class ConnectorGovernanceProfile(BaseModel):
     trust_level: TrustLevel
     quality_tier: QualityTier
     capabilities: int
+    owner: str = "@fabric-owners"
+    data_classification: str = "public"
+    column_classification: dict[str, str] = Field(default_factory=dict)
+    quality_contract_id: str | None = None
 
 
 class ConnectorOperationalProfile(BaseModel):
@@ -567,6 +571,66 @@ class ConnectorOperationalProfile(BaseModel):
     resilience_config: dict[str, Any] | None = None
     last_updated: datetime | None = None
     observed_latency_ms: float | None = None
+    sla: ConnectorSLASpec | None = None
+
+
+class ConnectorSchemaGovernanceSpec(BaseModel):
+    """Schema metadata used by registry, inventory, and compatibility gates."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_id: str | None = Field(
+        default=None,
+        description="Stable default schema id when the connector has a curated schema",
+    )
+    schema_id_template: str | None = Field(
+        default=None,
+        description="Stable schema id template for dataset-dependent schemas",
+    )
+    schema_registry_ref: str = Field(
+        default="schemas/snapshots/fabric/connector_contract_registry.json",
+        description="Repository artifact governing schema compatibility evidence",
+    )
+
+
+class ConnectorQualityGovernanceSpec(BaseModel):
+    """Quality metadata used by Fabric validation and Scientist governance."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    quality_tier: QualityTier
+    quality_contract_id: str | None = None
+    quality_contract_ref: str | None = None
+    finite_values_required: bool = True
+
+
+class ConnectorSLASpec(BaseModel):
+    """Connector-level SLO/SLA metadata for Phase 4 governance."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    availability_target: float = Field(
+        default=0.99,
+        ge=0.0,
+        le=1.0,
+        description="Rolling fetch success target for the connector",
+    )
+    freshness_slo_seconds: int = Field(
+        default=86_400,
+        ge=0,
+        description="Maximum expected age for decision-bearing data",
+    )
+    p95_latency_ms: float = Field(
+        default=2_000.0,
+        ge=0.0,
+        description="Default p95 fetch latency target",
+    )
+    replay_success_target: float = Field(
+        default=0.99,
+        ge=0.0,
+        le=1.0,
+        description="Replay determinism target for recorded fixtures",
+    )
 
 
 class ConnectorDocumentationSpec(BaseModel):
@@ -639,6 +703,36 @@ class ConnectorMetadataSpec(BaseModel):
         default_factory=dict,
         description="Optional per-column governance classification mapping",
     )
+    owner: str = Field(
+        default="@fabric-owners",
+        min_length=1,
+        max_length=128,
+        description="Owning team or handle for connector governance and incidents",
+    )
+    schema_id: str | None = Field(
+        default=None,
+        description="Stable default schema id for curated-schema connectors",
+    )
+    schema_id_template: str | None = Field(
+        default=None,
+        description="Stable schema id template for dataset-dependent connectors",
+    )
+    schema_registry_ref: str = Field(
+        default="schemas/snapshots/fabric/connector_contract_registry.json",
+        description="Schema-governance artifact for compatibility checks",
+    )
+    quality_contract_id: str | None = Field(
+        default=None,
+        description="Declarative quality contract identifier applied by default",
+    )
+    quality_contract_ref: str | None = Field(
+        default=None,
+        description="Optional repository path or URI for the declarative quality contract",
+    )
+    sla: ConnectorSLASpec = Field(
+        default_factory=ConnectorSLASpec,
+        description="Connector SLO/SLA defaults used by Fabric reliability policy",
+    )
 
     # Capabilities
     capabilities: int = Field(
@@ -698,6 +792,78 @@ class ConnectorMetadataSpec(BaseModel):
             return value.replace(tzinfo=UTC)
         return value
 
+    @field_validator("data_classification", mode="after")
+    @classmethod
+    def _validate_data_classification(cls, value: str) -> str:
+        normalized = str(value or "public").strip().lower()
+        allowed = {
+            "public",
+            "internal",
+            "confidential",
+            "regulated_pii",
+            "sensitive_policy_legal_signal",
+        }
+        if normalized not in allowed:
+            raise ValueError(f"Unsupported data classification: {value}")
+        return normalized
+
+    @field_validator("column_classification", mode="after")
+    @classmethod
+    def _validate_column_classification(cls, value: dict[str, str]) -> dict[str, str]:
+        allowed = {
+            "public",
+            "internal",
+            "confidential",
+            "regulated_pii",
+            "sensitive_policy_legal_signal",
+        }
+        normalized: dict[str, str] = {}
+        for column, classification in value.items():
+            column_name = str(column).strip()
+            if not column_name:
+                raise ValueError("column classification names must be non-empty")
+            token = str(classification or "public").strip().lower()
+            if token not in allowed:
+                raise ValueError(f"Unsupported column classification: {classification}")
+            normalized[column_name] = token
+        return normalized
+
+    @field_validator("schema_id", "schema_id_template", mode="after")
+    @classmethod
+    def _validate_schema_reference(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        token = str(value).strip()
+        if not token:
+            return None
+        return token
+
+    @field_validator("quality_contract_id", mode="after")
+    @classmethod
+    def _validate_quality_contract_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        token = str(value).strip()
+        if not token:
+            return None
+        return token
+
+    @model_validator(mode="after")
+    def _fill_phase4_governance_defaults(self) -> ConnectorMetadataSpec:
+        if self.schema_id is None and self.schema_id_template is None:
+            object.__setattr__(
+                self,
+                "schema_id_template",
+                f"{self.namespace}.{self.connector_id}.*",
+            )
+        if self.quality_contract_id is None:
+            object.__setattr__(
+                self,
+                "quality_contract_id",
+                f"fabric.quality.{self.namespace}.{self.connector_id}.default.v1",
+            )
+        return self
+
     def with_capabilities(self, *caps: ConnectorCapability) -> ConnectorMetadataSpec:
         """Create a new spec with additional capabilities."""
         new_caps = self.capabilities
@@ -730,6 +896,10 @@ class ConnectorMetadataSpec(BaseModel):
             trust_level=self.trust_level,
             quality_tier=self.quality_tier,
             capabilities=self.capabilities,
+            owner=self.owner,
+            data_classification=self.data_classification,
+            column_classification=self.column_classification,
+            quality_contract_id=self.quality_contract_id,
         )
 
     @cached_property
@@ -739,6 +909,25 @@ class ConnectorMetadataSpec(BaseModel):
             resilience_config=self.resilience_config,
             last_updated=self.last_updated,
             observed_latency_ms=self.observed_latency_ms,
+            sla=self.sla,
+        )
+
+    @cached_property
+    def schema_governance(self) -> ConnectorSchemaGovernanceSpec:
+        """Structured schema-governance profile for contracts and docs."""
+        return ConnectorSchemaGovernanceSpec(
+            schema_id=self.schema_id,
+            schema_id_template=self.schema_id_template,
+            schema_registry_ref=self.schema_registry_ref,
+        )
+
+    @cached_property
+    def quality_governance(self) -> ConnectorQualityGovernanceSpec:
+        """Structured quality-governance profile for validation and Scientist gates."""
+        return ConnectorQualityGovernanceSpec(
+            quality_tier=self.quality_tier,
+            quality_contract_id=self.quality_contract_id,
+            quality_contract_ref=self.quality_contract_ref,
         )
 
     @cached_property

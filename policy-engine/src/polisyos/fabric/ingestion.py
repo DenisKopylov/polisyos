@@ -447,26 +447,6 @@ def _rows_to_payload(kind: str, rows: list[Any], columns: list[str] | None) -> A
     return rows
 
 
-def _looks_metric_field(field_name: str) -> bool:
-    lowered = str(field_name).strip().lower()
-    if lowered in {"value", "metric", "score", "rate", "total", "count"}:
-        return True
-    markers = (
-        "metric",
-        "score",
-        "value",
-        "amount",
-        "rate",
-        "count",
-        "total",
-        "mean",
-        "avg",
-        "sum",
-        "index",
-    )
-    return any(marker in lowered for marker in markers)
-
-
 def _non_finite_fields(row: dict[str, Any]) -> list[str]:
     fields: list[str] = []
     for key, value in row.items():
@@ -475,10 +455,7 @@ def _non_finite_fields(row: dict[str, Any]) -> list[str]:
         if not isinstance(value, (int, float)):
             continue
         numeric = float(value)
-        if math.isinf(numeric):
-            fields.append(str(key))
-            continue
-        if math.isnan(numeric) and _looks_metric_field(str(key)):
+        if not math.isfinite(numeric):
             fields.append(str(key))
     return fields
 

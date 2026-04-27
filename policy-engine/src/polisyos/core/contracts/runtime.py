@@ -88,6 +88,7 @@ TemporalSurfaceSupport = Literal[
     "run_timeline",
     "run_lineage",
     "run_quantities",
+    "run_fabric_decision_data",
     "run_compare",
     "run_agents",
     "run_evidence_context",

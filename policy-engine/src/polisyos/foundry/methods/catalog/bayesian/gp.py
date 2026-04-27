@@ -41,6 +41,17 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 
+from .prior_sensitivity import (
+    BayesianPolicyModelFamily,
+    PriorSensitivityReport,
+    SensitivityCurvePoint,
+    assemble_prior_sensitivity_report,
+    build_admissible_prior_class,
+    build_sensitivity_record_from_intervals,
+    not_run_prior_sensitivity_report,
+    prior_predictive_rank_test,
+    simulate_gp_prior_predictive,
+)
 from .protocols import PosteriorResult
 
 # ---------------------------------------------------------------------------
@@ -118,6 +129,106 @@ def _gp_posterior(
         var = np.maximum(K_ss_diag - np.sum((K_sn @ K_nn_inv) * K_sn, axis=1), 1e-10)
 
     return mean, var
+
+
+def _gp_prior_sensitivity_report(
+    *,
+    x_all: np.ndarray,
+    y_all: np.ndarray,
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    x_test: np.ndarray,
+    kernel: str,
+    lengthscale: float,
+    signal_variance: float,
+    noise_variance: float,
+    baseline_interval: tuple[float, float],
+    params: Mapping[str, Any],
+) -> PriorSensitivityReport:
+    seed = int(params.get("__seed__", params.get("seed", 0))) + 7001
+    rng = np.random.default_rng(seed)
+    n_simulations = max(32, int(params.get("prior_predictive_simulations", 96)))
+    simulations = simulate_gp_prior_predictive(
+        x_all,
+        kernel=kernel,
+        lengthscale=lengthscale,
+        signal_variance=signal_variance,
+        noise_variance=noise_variance,
+        n_simulations=n_simulations,
+        rng=rng,
+    )
+    admissible = build_admissible_prior_class(
+        BayesianPolicyModelFamily.GP,
+        hyperparameters={
+            "kernel": kernel,
+            "lengthscale": lengthscale,
+            "signal_variance": signal_variance,
+            "noise_variance": noise_variance,
+        },
+        policy_context={"features": x_all},
+        prior_predictive_simulations=simulations,
+    )
+    prior_predictive = prior_predictive_rank_test(
+        y_all,
+        simulations,
+        alpha=float(params.get("prior_predictive_alpha", 0.05)),
+        model_family=BayesianPolicyModelFamily.GP,
+        features=x_all,
+        conditioned_on=("covariates", "sampling_design"),
+    )
+    points: list[SensitivityCurvePoint] = []
+    for hyperparameter, base_value in (
+        ("rho", lengthscale),
+        ("alpha", signal_variance),
+        ("sigma", noise_variance),
+    ):
+        for multiplier in (0.5, 2.0):
+            candidate_lengthscale = lengthscale
+            candidate_signal_variance = signal_variance
+            candidate_noise_variance = noise_variance
+            if hyperparameter == "rho":
+                candidate_lengthscale = max(float(base_value) * multiplier, 1e-6)
+            elif hyperparameter == "alpha":
+                candidate_signal_variance = max(float(base_value) * multiplier, 1e-8)
+            else:
+                candidate_noise_variance = max(float(base_value) * multiplier, 1e-10)
+            mean, var = _gp_posterior(
+                x_train,
+                y_train,
+                x_test,
+                kernel,
+                candidate_lengthscale,
+                candidate_signal_variance,
+                candidate_noise_variance,
+            )
+            std = np.sqrt(var)
+            interval = (
+                float(np.mean(mean - 1.96 * std)),
+                float(np.mean(mean + 1.96 * std)),
+            )
+            points.append(
+                SensitivityCurvePoint(
+                    hyperparameter=hyperparameter,
+                    multiplier=multiplier,
+                    interval=interval,
+                    half_width=max((interval[1] - interval[0]) / 2.0, 0.0),
+                )
+            )
+    sensitivity = build_sensitivity_record_from_intervals(
+        estimand_id="gp_predictive_mean",
+        baseline_interval=baseline_interval,
+        perturbation_intervals=points,
+        credible_interval_level=0.95,
+    )
+    return assemble_prior_sensitivity_report(
+        model_family=BayesianPolicyModelFamily.GP,
+        selected_prior_id=f"gp_{kernel}_fixed_hyperprior_v1",
+        admissible_prior_class=admissible,
+        prior_predictive_check=prior_predictive,
+        sensitivity=sensitivity,
+        readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
+        metadata={"estimand_id": "gp_predictive_mean", "prior_predictive_seed": seed},
+    )
 
 
 def _output_slots() -> frozenset[SlotSpec]:
@@ -287,6 +398,32 @@ class GaussianProcessRegressionEstimator:
             },
             metadata={"kernel": kernel},
         )
+        try:
+            prior_sensitivity = _gp_prior_sensitivity_report(
+                x_all=X,
+                y_all=y,
+                x_train=X_tr,
+                y_train=y_tr,
+                x_test=X_te,
+                kernel=kernel,
+                lengthscale=ls,
+                signal_variance=sv,
+                noise_variance=nv,
+                baseline_interval=result.credible_intervals["mean"],
+                params=params,
+            )
+            result = result.model_copy(update={"prior_sensitivity": prior_sensitivity})
+        except Exception as exc:
+            result = result.model_copy(
+                update={
+                    "prior_sensitivity": not_run_prior_sensitivity_report(
+                        model_family=BayesianPolicyModelFamily.GP,
+                        selected_prior_id=f"gp_{kernel}_fixed_hyperprior_v1",
+                        admissible_prior_class_id="gp_kernel_policy_v1",
+                        reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+                    )
+                }
+            )
 
         pred_result = _build_prediction_result(
             method_name="gp_regression",

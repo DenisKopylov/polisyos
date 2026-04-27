@@ -27,6 +27,7 @@ from polisyos.fabric.connectors.resilience import (
 from polisyos.fabric.connectors.sources.http_common import (
     build_data_version,
     quality_flags_from_source_metadata,
+    read_bounded_response_body,
     retry_after_seconds,
     safe_int,
 )
@@ -322,48 +323,14 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         max_decompressed_bytes: int | None = None,
     ) -> bytes:
         """Read a response body in bounded chunks instead of one blind read."""
-        content_length = safe_int(response.headers.get("Content-Length"))
-        if (
-            max_response_bytes is not None
-            and content_length is not None
-            and content_length > max_response_bytes
-        ):
-            raise FetchError(
-                message=(
-                    "HTTP response body exceeds safe limit "
-                    f"({content_length} > {max_response_bytes} bytes)"
-                ),
-                connector_id=connector_id,
-                request_params={"url": url},
-            )
-
-        raw = bytearray()
-        content = getattr(response, "content", None)
-        if content is not None and hasattr(content, "iter_chunked"):
-            async for chunk in content.iter_chunked(self._READ_CHUNK_SIZE):
-                raw.extend(chunk)
-                if max_decompressed_bytes is not None and len(raw) > max_decompressed_bytes:
-                    raise FetchError(
-                        message=(
-                            "Decoded HTTP body exceeds safe limit "
-                            f"({len(raw)} > {max_decompressed_bytes} bytes)"
-                        ),
-                        connector_id=connector_id,
-                        request_params={"url": url},
-                    )
-            return bytes(raw)
-
-        fallback = await response.read()
-        if max_decompressed_bytes is not None and len(fallback) > max_decompressed_bytes:
-            raise FetchError(
-                message=(
-                    "Decoded HTTP body exceeds safe limit "
-                    f"({len(fallback)} > {max_decompressed_bytes} bytes)"
-                ),
-                connector_id=connector_id,
-                request_params={"url": url},
-            )
-        return fallback
+        return await read_bounded_response_body(
+            response,
+            connector_id=connector_id,
+            url=url,
+            max_response_bytes=max_response_bytes,
+            max_decompressed_bytes=max_decompressed_bytes,
+            chunk_size=self._READ_CHUNK_SIZE,
+        )
 
     @staticmethod
     def _build_auth_headers(

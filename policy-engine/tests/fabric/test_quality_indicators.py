@@ -301,6 +301,21 @@ class TestDuckDBQualityComputation:
         assert indicators.metric_id == "metric.duckdb"
         assert metrics.calls
 
+    def test_duckdb_quality_counts_non_finite_as_missingness(self, tmp_path) -> None:
+        duckdb = pytest.importorskip("duckdb")
+        db_path = tmp_path / "quality.duckdb"
+        with duckdb.connect(str(db_path)) as conn:
+            conn.execute("CREATE TABLE safe_table (value DOUBLE, label VARCHAR)")
+            conn.execute("INSERT INTO safe_table VALUES (1.0, 'ok'), ('Infinity'::DOUBLE, 'bad')")
+
+        indicators = compute_quality_from_duckdb(
+            str(db_path),
+            "safe_table",
+            "metric.duckdb.non_finite",
+        )
+
+        assert indicators.missingness == pytest.approx(0.25)
+
 
 class TestQualityGatePassIntegration:
     """Test QualityGatePass integration with validation pipeline."""

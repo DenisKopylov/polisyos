@@ -6,11 +6,13 @@ import hashlib
 import json
 import math
 from collections import defaultdict
-from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import asdict, dataclass, field
-from typing import Any
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import asdict, dataclass, field, is_dataclass, replace
+from typing import Any, Literal
 
+from polisyos.common.timestamps import utc_now
 from polisyos.core.contracts.execution_plan import (
+    BudgetSpec,
     MethodCatalogEntry,
     MethodCatalogSnapshot,
     MethodDagNode,
@@ -20,9 +22,17 @@ from polisyos.core.observability.truthfulness import (
     reconcile_truthfulness_tiers,
     truthfulness_depth,
 )
+from polisyos.foundry.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.catalog_snapshot import build_method_capability_matrix
+from polisyos.foundry.methods.consensus import (
+    ConsensusTarget,
+    CrossMethodConsensus,
+    SupportsConsensusTarget,
+    run_cross_method_consensus,
+)
 from polisyos.foundry.methods.linker import check_linkable
+from polisyos.foundry.methods.plan_optimizer import MethodCostModel
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.selection_history import (
     ADVISOR_EXECUTION_CONTEXT_PARAM,
@@ -60,6 +70,29 @@ _MIN_LOGGING_SUFFICIENCY = 0.35
 _SHIFT_POSSIBLE_THRESHOLD = 0.18
 _SHIFT_DETECTED_THRESHOLD = 0.30
 _TIER_SOURCE_RUNTIME = "runtime_validated"
+
+AdvisorCostPolicy = Literal["ignore", "annotate", "filter", "pareto"]
+AdvisorDominanceMode = Literal["point", "robust"]
+AdvisorOptimizationStatus = Literal[
+    "PARETO_OPTIMAL",
+    "INFEASIBLE_BUDGET",
+    "NO_CANDIDATES",
+    "NO_COST_MODEL",
+    "ALL_COSTS_UNKNOWN",
+    "COST_MODEL_OUT_OF_SCOPE",
+    "NO_ACCURACY_ESTIMATE",
+    "COST_MODEL_UNCERTAIN",
+    "DEGRADED_NO_COST_MODEL",
+    "ANNOTATED",
+    "FILTERED",
+]
+CostBoundType = Literal[
+    "EXACT_BOUND",
+    "CALIBRATED_PROBABILISTIC_BOUND",
+    "HEURISTIC_POINT_ESTIMATE",
+    "UNKNOWN",
+]
+_COST_CERTIFIER_VERSION = "advisor-budget-certificate.v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -225,6 +258,104 @@ class MethodAdvisorQuery:
     loss_profile_id: str = "balanced"
     coverage_floor: float | None = None
     confidence_level: float = _DEFAULT_REGRET_CONFIDENCE
+    cost_policy: AdvisorCostPolicy = "ignore"
+    cost_budget: CostBudget | BudgetSpec | Mapping[str, Any] | None = None
+    risk_delta: float = 0.05
+    return_certificate: bool = False
+    dominance_mode: AdvisorDominanceMode = "point"
+    allow_heuristic_cost_estimate: bool = True
+    require_declared_accuracy_estimate: bool = False
+    require_cross_method_consensus: bool = False
+    minimum_consensus_methods: int = 2
+
+
+@dataclass(frozen=True, slots=True)
+class AdvisorValuePolicy:
+    """Monotone scalar value policy applied only after Pareto frontier construction."""
+
+    accuracy_weight: float = 1.0
+    compute_weight: float = 0.0
+    spend_weight: float = 0.0
+    slack_weight: float = 0.0
+
+    def value(self, score: CandidateScore) -> float:
+        value = self.accuracy_weight * float(score.accuracy)
+        value -= self.compute_weight * float(score.compute_upper)
+        value -= self.spend_weight * float(score.spend_upper)
+        if score.budget_slack is not None:
+            value += self.slack_weight * float(score.budget_slack)
+        return float(value)
+
+
+@dataclass(frozen=True, slots=True)
+class CandidateScore:
+    """Cost/value score vector for one advisor candidate."""
+
+    method_id: str
+    accuracy: float
+    accuracy_lower: float
+    accuracy_upper: float
+    advisor_score: float
+    truthfulness_depth_score: int
+    cost: CostEstimate
+    spend_upper: float
+    spend_lower: float
+    compute_upper: float
+    compute_lower: float
+    budget_slack: float | None
+    feasible: bool
+    violations: tuple[str, ...] = ()
+    constraint_violations: dict[str, float] = field(default_factory=dict)
+    rank: int = 0
+    bound_type: CostBoundType = "UNKNOWN"
+    cost_known: bool = True
+    cost_out_of_scope: bool = False
+    accuracy_known: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class BudgetCertificate:
+    """Optimization-style certificate for cost-aware method advice."""
+
+    certificate_id: str
+    selected_method_id: str | None
+    budget: dict[str, object]
+    estimated_cost_point: float
+    estimated_cost_upper: float
+    estimated_compute_upper: float | None
+    slack_lower_bound: float | None
+    feasible: bool
+    confidence: float | None
+    delta: float | None
+    bound_type: CostBoundType
+    cost_model_version: str
+    cost_model_hash: str | None
+    calibration_scope: str | None
+    assumptions: tuple[str, ...]
+    frontier_method_ids: tuple[str, ...]
+    dominated_method_ids: tuple[str, ...]
+    infeasible_method_ids: tuple[str, ...]
+    constraint_violations: dict[str, float]
+    proof_obligations: tuple[str, ...]
+    verifier_version: str = _COST_CERTIFIER_VERSION
+    created_at: str = field(default_factory=lambda: utc_now().isoformat())
+
+
+@dataclass(frozen=True, slots=True)
+class AdvisorOptimizationResult:
+    """SciPy OptimizeResult-style surface for the cost-aware advisor layer."""
+
+    x: str | None
+    success: bool
+    status: AdvisorOptimizationStatus
+    message: str
+    fun: float | None
+    pareto_front: tuple[CandidateScore, ...]
+    candidates: tuple[CandidateScore, ...]
+    certificate: BudgetCertificate | None
+    nfev: int
+    maxcv: float
+    diagnostics: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -238,6 +369,8 @@ class MethodAdvisorResult:
     family_summary: tuple[dict[str, object], ...]
     calibrated_regret_certificate: CalibratedRegretCertificate | None = None
     score_trace: tuple[MethodScoreTraceEntry, ...] = ()
+    advisor_optimization: AdvisorOptimizationResult | None = None
+    cross_method_consensus: CrossMethodConsensus | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -270,8 +403,40 @@ def advise_methods(
     *,
     history: SelectionHistoryStore | None = None,
     runtime_predictor: RuntimePredictor | None = None,
+    cost_policy: AdvisorCostPolicy | None = None,
+    budget: CostBudget | BudgetSpec | Mapping[str, Any] | None = None,
+    risk_delta: float | None = None,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    return_certificate: bool | None = None,
+    method_cost_model: MethodCostModel | None = None,
+    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]] | None = None,
 ) -> MethodAdvisorResult:
     """Answer “which methods apply to my problem?” with ranked code-facing artifacts."""
+    if (
+        cost_policy is not None
+        or budget is not None
+        or risk_delta is not None
+        or return_certificate is not None
+    ):
+        query = replace(
+            query,
+            cost_policy=cost_policy if cost_policy is not None else query.cost_policy,
+            cost_budget=budget if budget is not None else query.cost_budget,
+            risk_delta=risk_delta if risk_delta is not None else query.risk_delta,
+            return_certificate=(
+                return_certificate
+                if return_certificate is not None
+                else query.return_certificate
+            ),
+        )
+    if query.cost_policy != "ignore" and query.cost_policy not in {
+        "annotate",
+        "filter",
+        "pareto",
+    }:
+        raise ValueError(f"Unknown advisor cost_policy: {query.cost_policy!r}")
+    if query.dominance_mode not in {"point", "robust"}:
+        raise ValueError(f"Unknown advisor dominance_mode: {query.dominance_mode!r}")
     criteria = query.criteria
     if query.runnable_only and not criteria.runnable_only:
         criteria = MethodSelectionCriteria(
@@ -300,7 +465,49 @@ def advise_methods(
         runtime_predictor=runtime_predictor,
         runtime_budget_ms=query.runtime_budget_ms,
     )
-    recommended = tuple(entry for entry, _ in scored_entries[: max(0, int(query.limit))])
+    advisor_optimization: AdvisorOptimizationResult | None = None
+    cost_lookup: dict[str, CandidateScore] = {}
+    if query.cost_policy != "ignore":
+        scored_entries, advisor_optimization, cost_lookup = _apply_advisor_cost_policy(
+            scored_entries,
+            query=query,
+            method_cost_model=method_cost_model,
+            value_policy=value_policy,
+        )
+    candidate_recommended = tuple(entry for entry, _ in scored_entries[: max(0, int(query.limit))])
+    consensus_input = tuple(consensus_results or ())
+    cross_method_consensus = (
+        None
+        if consensus_results is None and not query.require_cross_method_consensus
+        else run_cross_method_consensus(query, consensus_input)
+    )
+    if query.require_cross_method_consensus and cross_method_consensus is not None:
+        insufficient = (
+            len(consensus_input) < max(2, int(query.minimum_consensus_methods))
+            or cross_method_consensus.status in {"not_enough_methods", "not_comparable", "not_run"}
+        )
+        if insufficient or not cross_method_consensus.recommendation_allowed:
+            cross_method_consensus = replace(
+                cross_method_consensus,
+                recommendation_allowed=False,
+                developer_message=(
+                    f"{cross_method_consensus.developer_message}; strict_phase5_consensus_required"
+                ),
+                remediation=tuple(
+                    dict.fromkeys(
+                        (
+                            *cross_method_consensus.remediation,
+                            "Run at least two comparable methods before issuing analyst-facing advice.",
+                        )
+                    )
+                ),
+            )
+    recommended = (
+        ()
+        if cross_method_consensus is not None
+        and not cross_method_consensus.recommendation_allowed
+        else candidate_recommended
+    )
     score_trace = tuple(
         MethodScoreTraceEntry(
             rank=index + 1,
@@ -316,7 +523,10 @@ def advise_methods(
         for index, (entry, score) in enumerate(scored_entries)
     )
     score_lookup = {entry.fqn: score for entry, score in scored_entries}
-    payload = tuple(method_selection_payload(recommended, score_lookup=score_lookup))
+    payload_rows = method_selection_payload(recommended, score_lookup=score_lookup)
+    if cost_lookup:
+        _annotate_payload_with_costs(payload_rows, cost_lookup)
+    payload = tuple(payload_rows)
     enriched_catalog = catalog.model_copy(update={"entries": list(enriched_entries)})
     capability_rows = build_method_capability_matrix(
         enriched_catalog, runnable_only=query.runnable_only
@@ -350,7 +560,7 @@ def advise_methods(
         catalog_size=len(catalog.entries),
         query=query,
         scored_entries=scored_entries,
-        recommended=recommended,
+        recommended=candidate_recommended,
         history=history,
         runtime_predictor=runtime_predictor,
     )
@@ -363,7 +573,46 @@ def advise_methods(
         ),
         family_summary=family_summary,
         calibrated_regret_certificate=certificate,
+        cross_method_consensus=cross_method_consensus,
         score_trace=score_trace,
+        advisor_optimization=advisor_optimization,
+    )
+
+
+def advise_methods_for_analyst(
+    catalog: MethodCatalogSnapshot,
+    query: MethodAdvisorQuery,
+    *,
+    history: SelectionHistoryStore | None = None,
+    runtime_predictor: RuntimePredictor | None = None,
+    budget: CostBudget | BudgetSpec | Mapping[str, Any] | None = None,
+    risk_delta: float | None = None,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    return_certificate: bool | None = None,
+    method_cost_model: MethodCostModel | None = None,
+    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]] | None = None,
+) -> MethodAdvisorResult:
+    """Strict Phase-5 advisor surface for analyst-facing recommendations."""
+
+    effective_budget = budget if budget is not None else query.cost_budget
+    analyst_query = replace(
+        query,
+        require_cross_method_consensus=True,
+        minimum_consensus_methods=max(2, int(query.minimum_consensus_methods)),
+        cost_policy="pareto" if effective_budget is not None else "annotate",
+        cost_budget=effective_budget,
+    )
+    return advise_methods(
+        catalog,
+        analyst_query,
+        history=history,
+        runtime_predictor=runtime_predictor,
+        budget=effective_budget,
+        risk_delta=risk_delta,
+        value_policy=value_policy,
+        return_certificate=return_certificate,
+        method_cost_model=method_cost_model,
+        consensus_results=consensus_results,
     )
 
 
@@ -510,6 +759,1089 @@ def _rank_entries_with_scores(
 
     scored.sort(key=lambda item: (-item[0].truthfulness_depth, -item[0].score_rest, item[0].fqn))
     return [(entry, rank_key.score_rest) for rank_key, entry in scored]
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedAdvisorBudget:
+    spend_limit: float | None
+    spend_unit: str
+    compute_limit_ms: float | None
+    run_limit_ms: float | None
+    compile_limit_ms: float | None
+    memory_limit_mb: float | None
+    cost_per_ms: float
+    payload: dict[str, object]
+
+    @property
+    def has_constraints(self) -> bool:
+        return any(
+            value is not None
+            for value in (
+                self.spend_limit,
+                self.compute_limit_ms,
+                self.run_limit_ms,
+                self.compile_limit_ms,
+                self.memory_limit_mb,
+            )
+        )
+
+
+def _apply_advisor_cost_policy(
+    scored_entries: Sequence[tuple[MethodCatalogEntry, float]],
+    *,
+    query: MethodAdvisorQuery,
+    method_cost_model: MethodCostModel | None,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+) -> tuple[
+    list[tuple[MethodCatalogEntry, float]],
+    AdvisorOptimizationResult,
+    dict[str, CandidateScore],
+]:
+    budget = _resolve_advisor_budget(query)
+    if not scored_entries:
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="NO_CANDIDATES",
+            message="No candidate methods were available for cost-aware advice.",
+            fun=None,
+            pareto_front=(),
+            candidates=(),
+            certificate=None,
+            nfev=0,
+            maxcv=0.0,
+            diagnostics={"cost_policy": query.cost_policy, "budget": budget.payload},
+        )
+        return [], result, {}
+    if (
+        query.cost_policy in {"filter", "pareto"}
+        and not query.allow_heuristic_cost_estimate
+        and not any(_declared_cost_metadata(entry) is not None for entry, _ in scored_entries)
+    ):
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="NO_COST_MODEL",
+            message=(
+                "No declared cost estimates are available and heuristic cost estimates "
+                "are disabled for this advisor query."
+            ),
+            fun=None,
+            pareto_front=(),
+            candidates=(),
+            certificate=None,
+            nfev=0,
+            maxcv=0.0,
+            diagnostics={"cost_policy": query.cost_policy, "budget": budget.payload},
+        )
+        return [], result, {}
+    if (
+        query.cost_policy in {"filter", "pareto"}
+        and query.require_declared_accuracy_estimate
+        and not any(_declared_accuracy_metadata(entry) is not None for entry, _ in scored_entries)
+    ):
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="NO_ACCURACY_ESTIMATE",
+            message="No declared accuracy estimates are available for cost-value selection.",
+            fun=None,
+            pareto_front=(),
+            candidates=(),
+            certificate=None,
+            nfev=0,
+            maxcv=0.0,
+            diagnostics={"cost_policy": query.cost_policy, "budget": budget.payload},
+        )
+        return [], result, {}
+    candidates = tuple(
+        _candidate_score_from_entry(
+            entry=entry,
+            advisor_score=score,
+            rank=index + 1,
+            query=query,
+            budget=budget,
+            method_cost_model=method_cost_model,
+        )
+        for index, (entry, score) in enumerate(scored_entries)
+    )
+    cost_lookup = {candidate.method_id: candidate for candidate in candidates}
+    if query.cost_policy in {"filter", "pareto"} and all(
+        not candidate.cost_known for candidate in candidates
+    ):
+        certificate = _build_budget_certificate(
+            selected=None,
+            frontier=(),
+            candidates=candidates,
+            budget=budget,
+            delta=query.risk_delta,
+        )
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="ALL_COSTS_UNKNOWN",
+            message="All candidates have unknown cost bounds; no budget-feasible choice is certified.",
+            fun=None,
+            pareto_front=(),
+            candidates=candidates,
+            certificate=certificate,
+            nfev=len(candidates),
+            maxcv=max((_max_constraint_violation(item) for item in candidates), default=0.0),
+            diagnostics=_cost_policy_diagnostics(
+                candidates=candidates,
+                frontier=(),
+                budget=budget,
+                cost_policy=query.cost_policy,
+            ),
+        )
+        return [], result, cost_lookup
+
+    if query.cost_policy == "annotate":
+        selected = candidates[0]
+        certificate = (
+            _build_budget_certificate(
+                selected=selected,
+                frontier=(),
+                candidates=candidates,
+                budget=budget,
+                delta=query.risk_delta,
+            )
+            if query.return_certificate
+            else None
+        )
+        result = AdvisorOptimizationResult(
+            x=selected.method_id,
+            success=True,
+            status="ANNOTATED",
+            message="Cost estimates were attached without filtering or Pareto pruning.",
+            fun=None,
+            pareto_front=(),
+            candidates=candidates,
+            certificate=certificate,
+            nfev=len(candidates),
+            maxcv=_max_constraint_violation(selected),
+            diagnostics={"cost_policy": query.cost_policy, "budget": budget.payload},
+        )
+        return list(scored_entries), result, cost_lookup
+
+    feasible = tuple(candidate for candidate in candidates if candidate.feasible)
+    if feasible and all(candidate.cost_out_of_scope for candidate in feasible):
+        certificate = _build_budget_certificate(
+            selected=None,
+            frontier=(),
+            candidates=candidates,
+            budget=budget,
+            delta=query.risk_delta,
+        )
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="COST_MODEL_OUT_OF_SCOPE",
+            message="All budget-feasible candidates are outside their declared cost scope.",
+            fun=None,
+            pareto_front=(),
+            candidates=candidates,
+            certificate=certificate,
+            nfev=len(candidates),
+            maxcv=max((_max_constraint_violation(item) for item in candidates), default=0.0),
+            diagnostics=_cost_policy_diagnostics(
+                candidates=candidates,
+                frontier=(),
+                budget=budget,
+                cost_policy=query.cost_policy,
+            ),
+        )
+        return [], result, cost_lookup
+    if not feasible:
+        certificate = _build_budget_certificate(
+            selected=None,
+            frontier=(),
+            candidates=candidates,
+            budget=budget,
+            delta=query.risk_delta,
+        )
+        result = AdvisorOptimizationResult(
+            x=None,
+            success=False,
+            status="INFEASIBLE_BUDGET",
+            message="No candidate satisfies the declared budget bound.",
+            fun=None,
+            pareto_front=(),
+            candidates=candidates,
+            certificate=certificate,
+            nfev=len(candidates),
+            maxcv=max((_max_constraint_violation(item) for item in candidates), default=0.0),
+            diagnostics=_cost_policy_diagnostics(
+                candidates=candidates,
+                frontier=(),
+                budget=budget,
+                cost_policy=query.cost_policy,
+            ),
+        )
+        return [], result, cost_lookup
+
+    if query.cost_policy == "filter":
+        feasible_ids = {candidate.method_id for candidate in feasible}
+        filtered_entries = [
+            (entry, score) for entry, score in scored_entries if entry.fqn in feasible_ids
+        ]
+        selected = feasible[0]
+        certificate = _build_budget_certificate(
+            selected=selected,
+            frontier=feasible,
+            candidates=candidates,
+            budget=budget,
+            delta=query.risk_delta,
+        )
+        result = AdvisorOptimizationResult(
+            x=selected.method_id,
+            success=True,
+            status="FILTERED",
+            message="Over-budget candidates were filtered before returning advisor rankings.",
+            fun=None,
+            pareto_front=feasible,
+            candidates=candidates,
+            certificate=certificate,
+            nfev=len(candidates),
+            maxcv=_max_constraint_violation(selected),
+            diagnostics=_cost_policy_diagnostics(
+                candidates=candidates,
+                frontier=feasible,
+                budget=budget,
+                cost_policy=query.cost_policy,
+            ),
+        )
+        return filtered_entries, result, cost_lookup
+
+    frontier = _pareto_front(feasible, dominance_mode=query.dominance_mode)
+    selected = _select_frontier_candidate(frontier, value_policy=value_policy)
+    frontier_ids = {candidate.method_id for candidate in frontier}
+    ordered_frontier_ids = [selected.method_id] + [
+        candidate.method_id for candidate in frontier if candidate.method_id != selected.method_id
+    ]
+    order_lookup = {method_id: index for index, method_id in enumerate(ordered_frontier_ids)}
+    frontier_entries = [
+        (entry, score) for entry, score in scored_entries if entry.fqn in frontier_ids
+    ]
+    frontier_entries.sort(key=lambda item: order_lookup[item[0].fqn])
+    fun = _evaluate_value_policy(selected, value_policy)
+    certificate = _build_budget_certificate(
+        selected=selected,
+        frontier=frontier,
+        candidates=candidates,
+        budget=budget,
+        delta=query.risk_delta,
+    )
+    result = AdvisorOptimizationResult(
+        x=selected.method_id,
+        success=True,
+        status="PARETO_OPTIMAL",
+        message=(
+            "Selected method is budget-feasible and Pareto efficient under declared estimates."
+        ),
+        fun=fun,
+        pareto_front=frontier,
+        candidates=candidates,
+        certificate=certificate,
+        nfev=len(candidates),
+        maxcv=_max_constraint_violation(selected),
+        diagnostics=_cost_policy_diagnostics(
+            candidates=candidates,
+            frontier=frontier,
+            budget=budget,
+            cost_policy=query.cost_policy,
+        ),
+    )
+    return frontier_entries, result, cost_lookup
+
+
+def pareto_advise_methods(
+    catalog: MethodCatalogSnapshot,
+    query: MethodAdvisorQuery,
+    *,
+    history: SelectionHistoryStore | None = None,
+    runtime_predictor: RuntimePredictor | None = None,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    method_cost_model: MethodCostModel | None = None,
+) -> AdvisorOptimizationResult:
+    """Return only the cost-aware Pareto optimization result for a finite candidate set."""
+    result = advise_methods(
+        catalog,
+        replace(query, cost_policy="pareto"),
+        history=history,
+        runtime_predictor=runtime_predictor,
+        value_policy=value_policy,
+        method_cost_model=method_cost_model,
+    )
+    if result.advisor_optimization is None:
+        raise RuntimeError("Pareto advisor did not produce an optimization result.")
+    return result.advisor_optimization
+
+
+def _candidate_score_from_entry(
+    *,
+    entry: MethodCatalogEntry,
+    advisor_score: float,
+    rank: int,
+    query: MethodAdvisorQuery,
+    budget: _ResolvedAdvisorBudget,
+    method_cost_model: MethodCostModel | None,
+) -> CandidateScore:
+    cost = _estimate_method_cost(entry, query=query, method_cost_model=method_cost_model)
+    bound_type = _normalize_bound_type(cost.bound_type)
+    cost_known = bound_type != "UNKNOWN" and math.isfinite(cost.upper_bound(delta=query.risk_delta))
+    cost_out_of_scope = _cost_estimate_out_of_scope(cost)
+    accuracy, accuracy_lower, accuracy_upper, accuracy_known = _advisor_accuracy_interval(
+        entry,
+        advisor_score,
+        require_declared=query.require_declared_accuracy_estimate,
+    )
+    compute_upper = float(cost.compute_upper_bound(delta=query.risk_delta))
+    compute_lower = _compute_lower_bound(cost, delta=query.risk_delta)
+    spend_upper = _spend_upper(cost, budget=budget, delta=query.risk_delta)
+    spend_lower = _spend_lower(cost, budget=budget, delta=query.risk_delta)
+    budget_slack = None
+    violations: list[str] = []
+    constraint_violations: dict[str, float] = {}
+    if not cost_known:
+        violations.append("cost_unknown")
+        constraint_violations["cost_unknown"] = float("inf")
+    if cost_out_of_scope:
+        constraint_violations["cost_model_out_of_scope"] = 0.0
+    if not accuracy_known:
+        violations.append("accuracy_unknown")
+        constraint_violations["accuracy_unknown"] = float("inf")
+    if budget.spend_limit is not None:
+        budget_slack = float(budget.spend_limit - spend_upper)
+        violation = spend_upper - budget.spend_limit
+        if violation > 0.0:
+            violations.append("spend_limit")
+            constraint_violations["spend_limit"] = float(violation)
+    if budget.compute_limit_ms is not None:
+        violation = compute_upper - budget.compute_limit_ms
+        if budget_slack is None:
+            budget_slack = float(budget.compute_limit_ms - compute_upper)
+        if violation > 0.0:
+            violations.append("compute_limit")
+            constraint_violations["compute_limit"] = float(violation)
+    vector = cost.resource_vector(delta=query.risk_delta)
+    for label, limit, actual_key in (
+        ("run_limit", budget.run_limit_ms, "run_ms"),
+        ("compile_limit", budget.compile_limit_ms, "compile_ms"),
+        ("memory_limit", budget.memory_limit_mb, "memory_mb"),
+    ):
+        if limit is None:
+            continue
+        violation = float(vector[actual_key]) - float(limit)
+        if violation > 0.0:
+            violations.append(label)
+            constraint_violations[label] = float(violation)
+
+    return CandidateScore(
+        method_id=entry.fqn,
+        accuracy=accuracy,
+        accuracy_lower=accuracy_lower,
+        accuracy_upper=accuracy_upper,
+        advisor_score=float(advisor_score),
+        truthfulness_depth_score=_truthfulness_depth_score(entry.truthfulness_tier),
+        cost=cost,
+        spend_upper=float(spend_upper),
+        spend_lower=float(spend_lower),
+        compute_upper=float(compute_upper),
+        compute_lower=float(compute_lower),
+        budget_slack=budget_slack,
+        feasible=not violations,
+        violations=tuple(violations),
+        constraint_violations=constraint_violations,
+        rank=int(rank),
+        bound_type=bound_type,
+        cost_known=cost_known,
+        cost_out_of_scope=cost_out_of_scope,
+        accuracy_known=accuracy_known,
+    )
+
+
+def _estimate_method_cost(
+    entry: MethodCatalogEntry,
+    *,
+    query: MethodAdvisorQuery,
+    method_cost_model: MethodCostModel | None,
+) -> CostEstimate:
+    declared = _declared_cost_metadata(entry)
+    if declared is not None:
+        return _cost_estimate_from_metadata(entry, declared)
+    if not query.allow_heuristic_cost_estimate:
+        return _unknown_method_cost(entry)
+
+    model = method_cost_model or MethodCostModel()
+    n_obs = _cost_model_n_obs(entry, query)
+    estimated_ms, complexity_class = model.estimate(entry.fqn, {"observations": (n_obs,)})
+    total_ms = max(0, int(math.ceil(estimated_ms)))
+    return CostEstimate(
+        point=float(total_ms),
+        unit="ms",
+        components={"estimated_ms": float(total_ms)},
+        estimated_compile_ms=0,
+        estimated_run_ms=total_ms,
+        estimated_total_ms=total_ms,
+        estimated_memory_mb=0,
+        estimated_flops=0,
+        confidence="low",
+        lower=float(total_ms),
+        upper=float(total_ms),
+        bound_type="HEURISTIC_POINT_ESTIMATE",
+        estimator_version="foundry.methods.MethodCostModel.v1",
+        assumptions=[
+            "Method-level heuristic from FQN complexity class and observed-row proxy; "
+            "no calibrated coverage guarantee."
+        ],
+        valid_for={
+            "method_fqn": entry.fqn,
+            "n_obs": n_obs,
+            "complexity_class": complexity_class,
+        },
+        includes_advisor_overhead=False,
+    )
+
+
+def _unknown_method_cost(entry: MethodCatalogEntry) -> CostEstimate:
+    return CostEstimate(
+        point=0.0,
+        unit="ms",
+        components={},
+        estimated_compile_ms=0,
+        estimated_run_ms=0,
+        estimated_total_ms=0,
+        estimated_memory_mb=0,
+        estimated_flops=0,
+        confidence="low",
+        lower=0.0,
+        upper=0.0,
+        bound_type="UNKNOWN",
+        estimator_version="none",
+        assumptions=[f"No cost estimate is declared for {entry.fqn}."],
+        valid_for={"method_fqn": entry.fqn},
+        includes_advisor_overhead=False,
+    )
+
+
+def _declared_cost_metadata(entry: MethodCatalogEntry) -> Mapping[str, Any] | None:
+    for source in (entry.capability_matrix, entry.dependency_posture, entry.effect_semantics):
+        nested = source.get("advisor_cost") or source.get("cost_estimate")
+        if isinstance(nested, Mapping):
+            return nested
+        if any(key in source for key in ("estimated_total_ms", "total_ms", "cost_ms")):
+            return source
+    return None
+
+
+def _cost_estimate_from_metadata(
+    entry: MethodCatalogEntry,
+    metadata: Mapping[str, Any],
+) -> CostEstimate:
+    total_ms = _metadata_float(
+        metadata,
+        "estimated_total_ms",
+        "total_ms",
+        "cost_ms",
+        "estimated_ms",
+    )
+    run_ms = _metadata_float(metadata, "estimated_run_ms", "run_ms")
+    compile_ms = _metadata_float(metadata, "estimated_compile_ms", "compile_ms")
+    if total_ms is None:
+        total_ms = float((run_ms or 0.0) + (compile_ms or 0.0))
+    if run_ms is None:
+        run_ms = max(float(total_ms) - float(compile_ms or 0.0), 0.0)
+    if compile_ms is None:
+        compile_ms = max(float(total_ms) - float(run_ms or 0.0), 0.0)
+    memory_mb = _metadata_float(metadata, "estimated_memory_mb", "memory_mb") or 0.0
+    flops = _metadata_float(metadata, "estimated_flops", "flops") or 0.0
+    upper = _metadata_float(metadata, "upper_ms", "total_ms_upper", "upper")
+    lower = _metadata_float(metadata, "lower_ms", "total_ms_lower", "lower")
+    coverage_confidence = _metadata_float(metadata, "coverage_confidence", "confidence_level")
+    delta = _metadata_float(metadata, "delta")
+    bound_type = _normalize_bound_type(str(metadata.get("bound_type", "HEURISTIC_POINT_ESTIMATE")))
+    assumptions_raw = metadata.get("assumptions", ())
+    assumptions = (
+        tuple(str(item) for item in assumptions_raw)
+        if isinstance(assumptions_raw, Sequence) and not isinstance(assumptions_raw, str)
+        else (str(assumptions_raw),)
+        if assumptions_raw
+        else ()
+    )
+    raw_components = metadata.get("components", {})
+    components = raw_components if isinstance(raw_components, Mapping) else {}
+    raw_valid_for = metadata.get("valid_for", {})
+    valid_for = dict(raw_valid_for) if isinstance(raw_valid_for, Mapping) else {}
+    valid_for.setdefault("method_fqn", entry.fqn)
+    if metadata.get("out_of_scope") is not None:
+        valid_for["out_of_scope"] = bool(metadata.get("out_of_scope"))
+    return CostEstimate(
+        point=float(total_ms),
+        unit=str(metadata.get("unit", "ms")),
+        components={
+            str(key): float(value)
+            for key, value in components.items()
+            if isinstance(value, int | float)
+        },
+        estimated_compile_ms=max(0, int(math.ceil(compile_ms))),
+        estimated_run_ms=max(0, int(math.ceil(run_ms))),
+        estimated_total_ms=max(0, int(math.ceil(total_ms))),
+        estimated_memory_mb=max(0, int(math.ceil(memory_mb))),
+        estimated_flops=max(0, int(math.ceil(flops))),
+        confidence=str(metadata.get("confidence", "low"))
+        if str(metadata.get("confidence", "low")) in {"low", "medium", "high"}
+        else "low",
+        lower=lower if lower is not None else float(total_ms),
+        upper=upper if upper is not None else float(total_ms),
+        coverage_confidence=coverage_confidence,
+        delta=delta,
+        bound_type=bound_type,
+        calibration_scope=(
+            None
+            if metadata.get("calibration_scope") is None
+            else str(metadata.get("calibration_scope"))
+        ),
+        estimator_version=str(metadata.get("estimator_version", "catalog.advisor_cost.v1")),
+        estimator_hash=(
+            None if metadata.get("estimator_hash") is None else str(metadata.get("estimator_hash"))
+        ),
+        assumptions=list(assumptions),
+        valid_for=valid_for,
+        includes_advisor_overhead=bool(metadata.get("includes_advisor_overhead", False)),
+    )
+
+
+def _metadata_float(metadata: Mapping[str, Any], *keys: str) -> float | None:
+    for key in keys:
+        value = metadata.get(key)
+        if value is None:
+            continue
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _cost_model_n_obs(entry: MethodCatalogEntry, query: MethodAdvisorQuery) -> int:
+    if query.data is not None and query.data.n_obs is not None:
+        return max(1, int(query.data.n_obs))
+    if entry.typical_min_obs is not None:
+        return max(1, int(entry.typical_min_obs))
+    return 1000
+
+
+def _resolve_advisor_budget(query: MethodAdvisorQuery) -> _ResolvedAdvisorBudget:
+    raw_budget = query.cost_budget
+    cost_per_ms = _budget_float(raw_budget, "cost_per_ms") or COST_PER_MS
+    spend_limit = _budget_float(raw_budget, "spend_limit", "run_budget_usd")
+    spend_unit = str(_budget_raw(raw_budget, "spend_unit", "unit") or "USD")
+    compute_limit_ms = _budget_float(
+        raw_budget,
+        "compute_limit",
+        "compute_limit_ms",
+        "max_total_ms",
+        "max_wall_time_ms",
+    )
+    if compute_limit_ms is None and query.runtime_budget_ms is not None:
+        compute_limit_ms = float(query.runtime_budget_ms)
+    if spend_limit is None and compute_limit_ms is not None:
+        spend_limit = compute_limit_ms
+        spend_unit = "ms"
+    run_limit_ms = _budget_float(raw_budget, "max_run_ms", "run_limit_ms")
+    compile_limit_ms = _budget_float(raw_budget, "max_compile_ms", "compile_limit_ms")
+    memory_limit_mb = _budget_float(raw_budget, "max_memory_mb", "memory_limit_mb")
+    payload: dict[str, object] = {
+        "spend_limit": spend_limit,
+        "spend_unit": spend_unit,
+        "compute_limit_ms": compute_limit_ms,
+        "run_limit_ms": run_limit_ms,
+        "compile_limit_ms": compile_limit_ms,
+        "memory_limit_mb": memory_limit_mb,
+        "cost_per_ms": cost_per_ms,
+    }
+    if raw_budget is not None:
+        payload["source_type"] = type(raw_budget).__name__
+    return _ResolvedAdvisorBudget(
+        spend_limit=spend_limit,
+        spend_unit=spend_unit,
+        compute_limit_ms=compute_limit_ms,
+        run_limit_ms=run_limit_ms,
+        compile_limit_ms=compile_limit_ms,
+        memory_limit_mb=memory_limit_mb,
+        cost_per_ms=cost_per_ms,
+        payload=payload,
+    )
+
+
+def _budget_raw(budget: Any, *names: str) -> Any:
+    if budget is None:
+        return None
+    for name in names:
+        value = budget.get(name) if isinstance(budget, Mapping) else getattr(budget, name, None)
+        if value is not None:
+            return value
+    return None
+
+
+def _budget_float(budget: Any, *names: str) -> float | None:
+    value = _budget_raw(budget, *names)
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _spend_upper(cost: CostEstimate, *, budget: _ResolvedAdvisorBudget, delta: float) -> float:
+    upper = float(cost.upper_bound(delta=delta))
+    if budget.spend_unit.upper() == "USD" and cost.unit == "ms":
+        return upper * float(budget.cost_per_ms)
+    return upper
+
+
+def _spend_lower(cost: CostEstimate, *, budget: _ResolvedAdvisorBudget, delta: float) -> float:
+    lower = float(cost.lower_bound(delta=delta))
+    if budget.spend_unit.upper() == "USD" and cost.unit == "ms":
+        return lower * float(budget.cost_per_ms)
+    return lower
+
+
+def _compute_lower_bound(cost: CostEstimate, *, delta: float) -> float:
+    if cost.unit == "ms":
+        return float(cost.lower_bound(delta=delta))
+    return float(cost.estimated_total_ms)
+
+
+def _advisor_accuracy(entry: MethodCatalogEntry, advisor_score: float) -> float:
+    return float(
+        _truthfulness_depth_score(entry.truthfulness_tier) * 1000.0
+        + _implementation_depth_score(entry.implementation_depth_tier) * 100.0
+        + advisor_score
+    )
+
+
+def _declared_accuracy_metadata(entry: MethodCatalogEntry) -> Mapping[str, Any] | None:
+    for source in (entry.capability_matrix, entry.effect_semantics, entry.shape_semantics):
+        nested = source.get("advisor_accuracy") or source.get("accuracy_estimate")
+        if isinstance(nested, Mapping):
+            return nested
+        if any(key in source for key in ("accuracy", "accuracy_point", "accuracy_lower")):
+            return source
+    return None
+
+
+def _advisor_accuracy_interval(
+    entry: MethodCatalogEntry,
+    advisor_score: float,
+    *,
+    require_declared: bool,
+) -> tuple[float, float, float, bool]:
+    fallback = _advisor_accuracy(entry, advisor_score)
+    metadata = _declared_accuracy_metadata(entry)
+    if metadata is None:
+        return fallback, fallback, fallback, not require_declared
+    point = _metadata_float(metadata, "accuracy", "accuracy_point", "point")
+    lower = _metadata_float(metadata, "accuracy_lower", "lower")
+    upper = _metadata_float(metadata, "accuracy_upper", "upper")
+    if point is None:
+        point = fallback
+    if lower is None:
+        lower = point
+    if upper is None:
+        upper = point
+    return float(point), float(lower), float(upper), True
+
+
+def _cost_estimate_out_of_scope(cost: CostEstimate) -> bool:
+    return bool(cost.valid_for.get("out_of_scope") or cost.valid_for.get("in_scope") is False)
+
+
+def _pareto_front(
+    candidates: Sequence[CandidateScore],
+    *,
+    dominance_mode: AdvisorDominanceMode = "point",
+) -> tuple[CandidateScore, ...]:
+    frontier: list[CandidateScore] = []
+    for candidate in candidates:
+        if any(
+            other is not candidate
+            and _dominates(other, candidate, dominance_mode=dominance_mode)
+            for other in candidates
+        ):
+            continue
+        frontier.append(candidate)
+    frontier.sort(
+        key=lambda item: (-item.accuracy, item.spend_upper, item.compute_upper, item.method_id)
+    )
+    return tuple(frontier)
+
+
+def _dominates(
+    left: CandidateScore,
+    right: CandidateScore,
+    *,
+    dominance_mode: AdvisorDominanceMode = "point",
+) -> bool:
+    if dominance_mode == "robust":
+        return _robustly_dominates(left, right)
+    weakly_better = (
+        left.accuracy >= right.accuracy
+        and left.compute_upper <= right.compute_upper
+        and left.spend_upper <= right.spend_upper
+    )
+    strictly_better = (
+        left.accuracy > right.accuracy
+        or left.compute_upper < right.compute_upper
+        or left.spend_upper < right.spend_upper
+    )
+    return weakly_better and strictly_better
+
+
+def _robustly_dominates(left: CandidateScore, right: CandidateScore) -> bool:
+    weakly_better = (
+        left.accuracy_lower >= right.accuracy_upper
+        and left.compute_upper <= right.compute_lower
+        and left.spend_upper <= right.spend_lower
+    )
+    strictly_better = (
+        left.accuracy_lower > right.accuracy_upper
+        or left.compute_upper < right.compute_lower
+        or left.spend_upper < right.spend_lower
+    )
+    return weakly_better and strictly_better
+
+
+def _select_frontier_candidate(
+    frontier: Sequence[CandidateScore],
+    *,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+) -> CandidateScore:
+    if not frontier:
+        raise ValueError("Cannot select from an empty Pareto frontier.")
+    if value_policy is not None:
+        return max(
+            frontier,
+            key=lambda item: (
+                _evaluate_value_policy(item, value_policy),
+                item.accuracy,
+                -item.spend_upper,
+                item.method_id,
+            ),
+        )
+    scored = [
+        (
+            _normalized_frontier_knee_score(candidate, frontier),
+            candidate.accuracy,
+            -candidate.spend_upper,
+            candidate.method_id,
+            candidate,
+        )
+        for candidate in frontier
+    ]
+    scored.sort(reverse=True)
+    return scored[0][4]
+
+
+def _evaluate_value_policy(
+    candidate: CandidateScore,
+    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+) -> float | None:
+    if value_policy is None:
+        return None
+    if isinstance(value_policy, AdvisorValuePolicy):
+        return value_policy.value(candidate)
+    if isinstance(value_policy, Mapping):
+        policy = AdvisorValuePolicy(
+            accuracy_weight=float(value_policy.get("accuracy_weight", 1.0)),
+            compute_weight=float(value_policy.get("compute_weight", 0.0)),
+            spend_weight=float(value_policy.get("spend_weight", 0.0)),
+            slack_weight=float(value_policy.get("slack_weight", 0.0)),
+        )
+        return policy.value(candidate)
+    return float(value_policy(candidate))
+
+
+def _normalized_frontier_knee_score(
+    candidate: CandidateScore,
+    frontier: Sequence[CandidateScore],
+) -> float:
+    accuracies = [item.accuracy for item in frontier]
+    spends = [item.spend_upper for item in frontier]
+    computes = [item.compute_upper for item in frontier]
+    slacks = [item.budget_slack for item in frontier if item.budget_slack is not None]
+    score = _normalize(candidate.accuracy, accuracies)
+    score += 1.0 - _normalize(candidate.spend_upper, spends)
+    score += 1.0 - _normalize(candidate.compute_upper, computes)
+    if candidate.budget_slack is not None and slacks:
+        score += _normalize(candidate.budget_slack, slacks)
+    return float(score)
+
+
+def _normalize(value: float, values: Sequence[float]) -> float:
+    lo = min(values)
+    hi = max(values)
+    if math.isclose(lo, hi):
+        return 1.0
+    return (float(value) - lo) / (hi - lo)
+
+
+def _build_budget_certificate(
+    *,
+    selected: CandidateScore | None,
+    frontier: Sequence[CandidateScore],
+    candidates: Sequence[CandidateScore],
+    budget: _ResolvedAdvisorBudget,
+    delta: float,
+) -> BudgetCertificate:
+    representative = selected or min(
+        candidates,
+        key=lambda item: (item.spend_upper, item.compute_upper, item.method_id),
+        default=None,
+    )
+    if representative is None:
+        estimated_cost_point = 0.0
+        estimated_cost_upper = 0.0
+        estimated_compute_upper = None
+        slack_lower_bound = None
+        bound_type: CostBoundType = "UNKNOWN"
+        assumptions: tuple[str, ...] = ()
+        cost_model_version = "unknown"
+        cost_model_hash = None
+        calibration_scope = None
+        confidence = None
+    else:
+        estimated_cost_point = _spend_point(representative.cost, budget=budget)
+        estimated_cost_upper = float(representative.spend_upper)
+        estimated_compute_upper = float(representative.compute_upper)
+        slack_lower_bound = representative.budget_slack
+        bound_type = representative.bound_type
+        assumptions = tuple(representative.cost.assumptions)
+        cost_model_version = representative.cost.estimator_version
+        cost_model_hash = representative.cost.estimator_hash
+        calibration_scope = representative.cost.calibration_scope
+        confidence = _certificate_confidence(representative, delta)
+    frontier_ids = tuple(item.method_id for item in frontier)
+    infeasible_ids = tuple(item.method_id for item in candidates if not item.feasible)
+    dominated_ids = tuple(
+        item.method_id
+        for item in candidates
+        if item.feasible and item.method_id not in set(frontier_ids)
+    )
+    constraint_violations = {
+        f"{candidate.method_id}:{name}": float(value)
+        for candidate in candidates
+        for name, value in candidate.constraint_violations.items()
+    }
+    certificate_id = _budget_certificate_id(
+        selected_id=None if selected is None else selected.method_id,
+        budget=budget,
+        candidates=candidates,
+        frontier_ids=frontier_ids,
+    )
+    return BudgetCertificate(
+        certificate_id=certificate_id,
+        selected_method_id=None if selected is None else selected.method_id,
+        budget=budget.payload,
+        estimated_cost_point=estimated_cost_point,
+        estimated_cost_upper=estimated_cost_upper,
+        estimated_compute_upper=estimated_compute_upper,
+        slack_lower_bound=slack_lower_bound,
+        feasible=bool(selected is not None and selected.feasible),
+        confidence=confidence,
+        delta=delta if confidence is not None else None,
+        bound_type=bound_type,
+        cost_model_version=cost_model_version,
+        cost_model_hash=cost_model_hash,
+        calibration_scope=calibration_scope,
+        assumptions=assumptions,
+        frontier_method_ids=frontier_ids,
+        dominated_method_ids=dominated_ids,
+        infeasible_method_ids=infeasible_ids,
+        constraint_violations=constraint_violations,
+        proof_obligations=_budget_proof_obligations(bound_type),
+    )
+
+
+def _certificate_confidence(candidate: CandidateScore, delta: float) -> float | None:
+    if candidate.bound_type == "CALIBRATED_PROBABILISTIC_BOUND":
+        return candidate.cost.coverage_confidence or (1.0 - float(delta))
+    if candidate.bound_type == "EXACT_BOUND":
+        return 1.0
+    return None
+
+
+def _spend_point(cost: CostEstimate, *, budget: _ResolvedAdvisorBudget) -> float:
+    point = float(cost.point if cost.point is not None else cost.estimated_total_ms)
+    if budget.spend_unit.upper() == "USD" and cost.unit == "ms":
+        return point * float(budget.cost_per_ms)
+    return point
+
+
+def _budget_proof_obligations(bound_type: CostBoundType) -> tuple[str, ...]:
+    if bound_type == "EXACT_BOUND":
+        return (
+            "CostEstimate.upper_bound(delta) must be a deterministic upper bound.",
+            "Budget and cost units must be comparable.",
+        )
+    if bound_type == "CALIBRATED_PROBABILISTIC_BOUND":
+        return (
+            "CostEstimate.upper_bound(delta) must be calibrated on the declared scope.",
+            "The problem must be inside the calibration scope.",
+            "Multiple-candidate claims require joint calibration or union-bound delta allocation.",
+        )
+    return (
+        "Estimate is heuristic; no deterministic or probabilistic budget-feasibility guarantee.",
+        "Budget and cost units must be comparable.",
+    )
+
+
+def _budget_certificate_id(
+    *,
+    selected_id: str | None,
+    budget: _ResolvedAdvisorBudget,
+    candidates: Sequence[CandidateScore],
+    frontier_ids: Sequence[str],
+) -> str:
+    payload = {
+        "selected": selected_id,
+        "budget": budget.payload,
+        "candidates": [
+            {
+                "method_id": item.method_id,
+                "spend_upper": item.spend_upper,
+                "compute_upper": item.compute_upper,
+                "feasible": item.feasible,
+            }
+            for item in candidates
+        ],
+        "frontier": list(frontier_ids),
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()[:16]
+
+
+def _cost_policy_diagnostics(
+    *,
+    candidates: Sequence[CandidateScore],
+    frontier: Sequence[CandidateScore],
+    budget: _ResolvedAdvisorBudget,
+    cost_policy: AdvisorCostPolicy,
+) -> dict[str, object]:
+    feasible = [item for item in candidates if item.feasible]
+    infeasible = [item for item in candidates if not item.feasible]
+    cheapest = min(candidates, key=lambda item: (item.spend_upper, item.method_id), default=None)
+    cheapest_point = None if cheapest is None else _spend_point(cheapest.cost, budget=budget)
+    highest_accuracy_over_budget = max(
+        infeasible,
+        key=lambda item: (item.accuracy, -item.spend_upper, item.method_id),
+        default=None,
+    )
+    relaxations = _closest_feasible_relaxations(infeasible, budget=budget)
+    return {
+        "cost_policy": cost_policy,
+        "budget": budget.payload,
+        "candidate_count": len(candidates),
+        "feasible_count": len(feasible),
+        "frontier_count": len(frontier),
+        "infeasible_method_ids": [item.method_id for item in infeasible],
+        "unknown_cost_method_ids": [item.method_id for item in candidates if not item.cost_known],
+        "out_of_scope_method_ids": [
+            item.method_id for item in candidates if item.cost_out_of_scope
+        ],
+        "min_required_budget_point": cheapest_point,
+        "min_required_budget_upper": None if cheapest is None else cheapest.spend_upper,
+        "closest_feasible_relaxations": relaxations,
+        "cheapest_candidate": None if cheapest is None else cheapest.method_id,
+        "highest_accuracy_over_budget_candidate": (
+            None if highest_accuracy_over_budget is None else highest_accuracy_over_budget.method_id
+        ),
+    }
+
+
+def _closest_feasible_relaxations(
+    candidates: Sequence[CandidateScore],
+    *,
+    budget: _ResolvedAdvisorBudget,
+) -> list[dict[str, object]]:
+    rows: list[tuple[float, str, dict[str, object]]] = []
+    for candidate in candidates:
+        if not candidate.constraint_violations:
+            continue
+        required: dict[str, float] = {}
+        if "spend_limit" in candidate.constraint_violations:
+            required[f"{budget.spend_unit}_limit"] = float(candidate.spend_upper)
+        if "compute_limit" in candidate.constraint_violations:
+            required["compute_limit_ms"] = float(candidate.compute_upper)
+        if "run_limit" in candidate.constraint_violations:
+            required["run_limit_ms"] = float(candidate.cost.resource_vector()["run_ms"])
+        if "compile_limit" in candidate.constraint_violations:
+            required["compile_limit_ms"] = float(candidate.cost.resource_vector()["compile_ms"])
+        if "memory_limit" in candidate.constraint_violations:
+            required["memory_limit_mb"] = float(candidate.cost.resource_vector()["memory_mb"])
+        finite_violations = [
+            value
+            for value in candidate.constraint_violations.values()
+            if math.isfinite(float(value))
+        ]
+        distance = sum(max(float(value), 0.0) for value in finite_violations)
+        if not finite_violations and candidate.constraint_violations:
+            distance = float("inf")
+        rows.append(
+            (
+                distance,
+                candidate.method_id,
+                {
+                    "method_id": candidate.method_id,
+                    "violations": dict(candidate.constraint_violations),
+                    "required_budget": required,
+                    "estimated_cost_upper": candidate.spend_upper,
+                    "estimated_compute_upper_ms": candidate.compute_upper,
+                },
+            )
+        )
+    rows.sort(key=lambda item: (item[0], item[1]))
+    return [row for _, _, row in rows[:3]]
+
+
+def _max_constraint_violation(candidate: CandidateScore) -> float:
+    return max(candidate.constraint_violations.values(), default=0.0)
+
+
+def _normalize_bound_type(value: str) -> CostBoundType:
+    if value in {
+        "EXACT_BOUND",
+        "CALIBRATED_PROBABILISTIC_BOUND",
+        "HEURISTIC_POINT_ESTIMATE",
+        "UNKNOWN",
+    }:
+        return value  # type: ignore[return-value]
+    return "UNKNOWN"
+
+
+def _annotate_payload_with_costs(
+    payload: list[dict[str, object]],
+    cost_lookup: Mapping[str, CandidateScore],
+) -> None:
+    for item in payload:
+        fqn = item.get("fqn")
+        if not isinstance(fqn, str) or fqn not in cost_lookup:
+            continue
+        score = cost_lookup[fqn]
+        item["cost_estimate"] = {
+            "point": score.cost.point,
+            "unit": score.cost.unit,
+            "spend_upper": score.spend_upper,
+            "compute_upper_ms": score.compute_upper,
+            "budget_slack": score.budget_slack,
+            "feasible": score.feasible,
+            "violations": list(score.violations),
+            "bound_type": score.bound_type,
+            "cost_known": score.cost_known,
+            "cost_out_of_scope": score.cost_out_of_scope,
+        }
 
 
 def suggest_alternative_methods(
@@ -1060,6 +2392,20 @@ def _query_fingerprint(query: MethodAdvisorQuery) -> str:
         "coverage_floor": query.coverage_floor,
         "confidence_level": query.confidence_level,
     }
+    if (
+        query.cost_policy != "ignore"
+        or query.cost_budget is not None
+        or query.return_certificate
+    ):
+        payload["cost"] = {
+            "cost_policy": query.cost_policy,
+            "cost_budget": _jsonable(query.cost_budget),
+            "risk_delta": query.risk_delta,
+            "return_certificate": query.return_certificate,
+            "dominance_mode": query.dominance_mode,
+            "allow_heuristic_cost_estimate": query.allow_heuristic_cost_estimate,
+            "require_declared_accuracy_estimate": query.require_declared_accuracy_estimate,
+        }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()[:16]
 
@@ -1577,6 +2923,20 @@ def _normalize_tokens(values: Iterable[str] | None) -> tuple[str, ...]:
     return tuple(result)
 
 
+def _jsonable(value: Any) -> Any:
+    if value is None or isinstance(value, str | int | float | bool):
+        return value
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    if is_dataclass(value):
+        return _jsonable(asdict(value))
+    if isinstance(value, Mapping):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return [_jsonable(item) for item in value]
+    return str(value)
+
+
 def _signature_for_node(
     registry: MethodRegistry,
     node: MethodDagNode | None,
@@ -1714,9 +3074,14 @@ def compute_voi(
 
 __all__ = [
     "COST_PER_MS",
+    "AdvisorOptimizationResult",
+    "AdvisorValuePolicy",
     "ActiveSetSummary",
+    "BudgetCertificate",
     "CalibratedRegretCertificate",
+    "CandidateScore",
     "ConfidenceSequence",
+    "CrossMethodConsensus",
     "DataCharacteristics",
     "MethodAdvisorQuery",
     "MethodAdvisorResult",
@@ -1724,11 +3089,13 @@ __all__ = [
     "MethodScoreTraceEntry",
     "MethodSelectionCriteria",
     "advise_methods",
+    "advise_methods_for_analyst",
     "attach_advisor_execution_context",
     "authoring_catalog_payload",
     "build_advisor_execution_context",
     "compute_voi",
     "method_selection_payload",
+    "pareto_advise_methods",
     "rank_method_catalog_entries",
     "suggest_adapter_methods",
     "suggest_alternative_methods",

@@ -36,6 +36,16 @@ from polisyos.scientist.engine.telemetry import (
 )
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy
 from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
+)
+from polisyos.scientist.research_dag.persistence import persist_research_dag
+from polisyos.scientist.research_dag.projections import (
+    SELECTED_RESEARCH_DAG_WORKFLOWS,
+    is_research_dag_enabled,
+    project_workflow_execution_to_research_dag,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -846,11 +856,40 @@ class WorkflowExecutor:
         )
 
         report_ref = self._persist_report(report)
+        research_dag_ref: ArtifactRef | None = None
+        if (
+            workflow.workflow_id in SELECTED_RESEARCH_DAG_WORKFLOWS
+            and is_research_dag_enabled(state.params)
+        ):
+            try:
+                research_dag = project_workflow_execution_to_research_dag(
+                    run_id=state.run_id,
+                    workflow_id=workflow.workflow_id,
+                    records=records,
+                    state=state,
+                    claim_ledger_ref=state.artifacts_index.get(ARTIFACT_CLAIMS_REF),
+                )
+                research_dag_ref = persist_research_dag(self._ctx.store, research_dag)
+                self._ctx.run.add_output(research_dag_ref)
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                _executor_degraded(
+                    operation="persist_research_dag",
+                    reason="research_dag_sidecar_failed",
+                    exc=exc,
+                    details={"workflow_id": workflow.workflow_id},
+                )
+                research_dag_ref = None
+
+        final_write_paths = ["reports_index.workflow_report"]
+        if research_dag_ref is not None:
+            final_write_paths.append(f"artifacts_index.{ARTIFACT_RESEARCH_DAG_REF}")
         final_state = branch_state(
             state,
-            write_paths=("reports_index.workflow_report",),
+            write_paths=tuple(final_write_paths),
         ).state
         final_state.reports_index["workflow_report"] = report_ref
+        if research_dag_ref is not None:
+            final_state.artifacts_index[ARTIFACT_RESEARCH_DAG_REF] = research_dag_ref
         final_state_ref = self._persist_state(final_state)
 
         self._ctx.run.add_output(final_state_ref)

@@ -9,6 +9,7 @@ semantic type detection, and time/geo dimension detection.
 from __future__ import annotations
 
 import re
+import unicodedata
 
 import pandas as pd
 
@@ -714,10 +715,19 @@ class SchemaInference:
             "countryCode" -> "country_code"
             "UNEMPLOYMENT_RATE" -> "unemployment_rate"
         """
-        normalized = re.sub(r"[\s\-]+", "_", name)
+        normalized = unicodedata.normalize("NFKC", name)
+        normalized = re.sub(r"[\s\-]+", "_", normalized)
         normalized = re.sub(r"([a-z])([A-Z])", r"\1_\2", normalized)
-        normalized = normalized.lower()
-        normalized = re.sub(r"[^a-z0-9_]", "", normalized)
+        normalized = normalized.casefold()
+        encoded_chars: list[str] = []
+        for char in normalized:
+            if char.isascii():
+                encoded_chars.append(char if char.isalnum() or char == "_" else "_")
+            elif unicodedata.category(char)[:1] in {"L", "N"}:
+                encoded_chars.append(f"u{ord(char):04x}")
+            else:
+                encoded_chars.append("_")
+        normalized = "".join(encoded_chars)
         normalized = re.sub(r"_+", "_", normalized)
         normalized = normalized.strip("_")
 

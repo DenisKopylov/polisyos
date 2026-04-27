@@ -97,6 +97,10 @@ class TestCostModelBudget:
         assert estimate.exceeds_budget is False
         assert len(estimate.budget_violations) == 0
         assert estimate.budget_utilization < 1.0
+        assert estimate.upper_bound() == estimate.estimated_total_ms
+        assert estimate.compute_upper_bound() == estimate.estimated_total_ms
+        assert estimate.supports_budget(budget)
+        assert estimate.resource_vector()["total_ms_upper"] == estimate.estimated_total_ms
 
     def test_exceeds_budget(self) -> None:
         model = CostModel()
@@ -108,6 +112,7 @@ class TestCostModelBudget:
         assert estimate.exceeds_budget is True
         assert len(estimate.budget_violations) > 0
         assert estimate.budget_utilization > 1.0
+        assert not estimate.supports_budget(budget)
 
 
 class TestCostModelCalibration:

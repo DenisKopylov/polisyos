@@ -60,6 +60,40 @@ def _make_source_metadata(
     )
 
 
+def test_conflict_resolver_internal_log_is_bounded():
+    now = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, now)
+    meta_b = _make_source_metadata("source_b", TrustLevel.MEDIUM, now - timedelta(days=1))
+    request = CompositionRequest(
+        dataset_pattern="phase2.conflicts",
+        strategy=CompositionStrategy.OVERLAY,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        audit_level=AuditLevel.FULL,
+    )
+    context = ConflictContext(request=request, column="value")
+    resolver = ConflictResolver(
+        policy=ConflictPolicy.TRUST_HIGHEST,
+        store_logs=True,
+        max_log_entries=2,
+    )
+
+    for index in range(5):
+        resolver.resolve_conflict(
+            [
+                ConflictCandidate("source_a", index, meta_a),
+                ConflictCandidate("source_b", index + 100, meta_b),
+            ],
+            context,
+        )
+
+    stats = resolver.get_statistics()
+    assert len(resolver.get_conflict_log()) == 2
+    assert stats["total_resolutions"] == 5
+    assert stats["log_entries_retained"] == 2
+    assert stats["log_entries_truncated"] is True
+    assert stats["log_entries_dropped"] == 3
+
+
 def test_union_overlap_uses_key_columns():
     source_a = pd.DataFrame(
         {

@@ -93,6 +93,8 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_r
 - Outputs:
   - `frontend/runtime-api-client/runtimeApiClient.ts`
   - `frontend/runtime-api-client/runtimeApiClient.js`
+- Runtime Fabric coverage: includes `getRunFabricDecisionData`, generated from
+  `/api/v1/runs/{run_id}/fabric-decision-data`.
 
 Canonical regeneration commands:
 

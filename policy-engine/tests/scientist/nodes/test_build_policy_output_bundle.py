@@ -54,6 +54,7 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
     ARTIFACT_POLICY_BRIEF_REF,
@@ -85,6 +86,25 @@ from polisyos.scientist.search import (
 from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
 from polisyos.scientist.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
 from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
+
+
+def _passing_judge_verdict() -> dict[str, object]:
+    return {
+        "per_judge": {
+            name: {"judge_name": name, "passed": True, "is_fatal": True}
+            for name in (
+                "structural",
+                "statistical",
+                "robustness",
+                "governance",
+                "reproducibility",
+                "compute",
+            )
+        },
+        "composite_decision": "promote",
+        "blocking_failures": [],
+        "warnings": [],
+    }
 
 
 def _bundle() -> TrinityBundle:
@@ -302,6 +322,7 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
         }
     )
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
@@ -311,12 +332,14 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
 
     assert outcome.status == "ok"
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
+    assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
     assert ARTIFACT_POLICY_BRIEF_REF in outcome.state.artifacts_index
     bundle = load_policy_artifact_bundle(
         cas_store,
         outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
     )
     assert bundle.policy_brief_ref is not None
+    assert bundle.claims_ref == outcome.state.artifacts_index[ARTIFACT_CLAIMS_REF]
     assert bundle.welfare_bundle_ref == welfare_ref
     assert bundle.ambiguity_certificate_ref == ambiguity_ref
     assert (
@@ -368,6 +391,7 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
             "funnel_outcome": funnel_outcome,
         }
     )
@@ -419,6 +443,7 @@ def test_build_policy_output_bundle_refuses_when_phase3_gate_missing(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
         }
     )
 
@@ -499,6 +524,7 @@ def test_build_policy_output_bundle_embeds_calibration_validation_summary(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
         }
     )
     state.artifacts_index[ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF] = calibration_validation_ref
@@ -540,6 +566,7 @@ def test_build_policy_output_bundle_degrades_invalid_distributional_report(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
         }
     )
     state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF] = invalid_ref
@@ -578,6 +605,7 @@ def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
         }
     )
     state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = invalid_ref
@@ -611,6 +639,7 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
             "policy_brief": _policy_brief().model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
             "nested": {"baseline": True},
         }
     )
@@ -636,6 +665,7 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
         "artifacts_index.policy_output_bundle_ref",
         "artifacts_index.policy_frontier_report_ref",
         "artifacts_index.champion_policy_dossier_ref",
+        "artifacts_index.claims_ref",
         "artifacts_index.policy_brief_ref",
         "artifacts_index.constraint_satisfaction_report_ref",
         "artifacts_index.subgroup_impact_report_ref",
@@ -646,6 +676,8 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
         "artifacts_index.rejected_alternatives_summary_ref",
         "artifacts_index.replayable_audit_bundle_ref",
         "artifacts_index.decision_readiness_contract_ref",
+        "artifacts_index.validation_report_ref",
+        "artifacts_index.judge_verdict_ref",
     )
     assert state.params["nested"] == {"baseline": True}
     assert state.policy_output_bundle_ref is None
@@ -738,10 +770,10 @@ def test_decision_packet_records_degraded_path_for_invalid_policy_bundle(tmp_pat
             INPUT_TRINITY_BUNDLE_REF: trinity_ref,
             INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
-        },
-        artifacts_index={ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: invalid_policy_bundle_ref},
-        params={"random_seed": 1},
-    )
+            },
+            artifacts_index={ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: invalid_policy_bundle_ref},
+            params={"random_seed": 1, "judge_verdict": _passing_judge_verdict()},
+        )
 
     outcome = BuildDecisionPacketNode().execute(ctx, state)
     payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))

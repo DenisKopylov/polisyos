@@ -12,14 +12,23 @@ from polisyos.fabric.connectors.contracts import (
     SchemaVersion,
     SemanticType,
     TimeGranularity,
+    make_field_id,
 )
 
+_SCHEMA_ID = "wvs.wave7.generic"
+
+
+def _field_id(name: str) -> str:
+    return make_field_id(_SCHEMA_ID, name)
+
+
 WVS_GENERIC_SCHEMA = DataSchema(
-    schema_id="wvs.wave7.generic",
+    schema_id=_SCHEMA_ID,
     version=SchemaVersion(1, 0, 0),
     fields=(
         FieldSpec(
             name="country_code",
+            field_id=_field_id("country_code"),
             data_type=SchemaType.STRING,
             nullable=False,
             semantic_type=SemanticType.CODE,
@@ -27,6 +36,7 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="country_name",
+            field_id=_field_id("country_name"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=256,
@@ -34,6 +44,7 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="survey_year",
+            field_id=_field_id("survey_year"),
             data_type=SchemaType.INT64,
             nullable=False,
             semantic_type=SemanticType.TEMPORAL,
@@ -41,6 +52,7 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="wave",
+            field_id=_field_id("wave"),
             data_type=SchemaType.INT64,
             nullable=False,
             semantic_type=SemanticType.INDEX,
@@ -48,12 +60,14 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="indicator_code",
+            field_id=_field_id("indicator_code"),
             data_type=SchemaType.STRING,
             nullable=False,
             max_length=64,
         ),
         FieldSpec(
             name="indicator_label",
+            field_id=_field_id("indicator_label"),
             data_type=SchemaType.STRING,
             nullable=True,
             max_length=512,
@@ -61,6 +75,7 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="value",
+            field_id=_field_id("value"),
             data_type=SchemaType.FLOAT64,
             nullable=True,
             additivity=Additivity.SEMI_ADDITIVE,
@@ -68,6 +83,7 @@ WVS_GENERIC_SCHEMA = DataSchema(
         ),
         FieldSpec(
             name="sample_size",
+            field_id=_field_id("sample_size"),
             data_type=SchemaType.INT64,
             nullable=True,
             expected_completeness=0.20,

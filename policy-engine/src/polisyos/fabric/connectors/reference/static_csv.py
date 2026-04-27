@@ -33,11 +33,13 @@ Example ConnectionConfig
 
 from __future__ import annotations
 
+import asyncio
 import io
 import time
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
+import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash
@@ -49,7 +51,8 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts import infer_schema
+from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
+from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.connectors.resilience import (
     with_circuit_breaker,
     with_retry,
@@ -79,6 +82,31 @@ def _bool_from_header(value: str | None, default: bool = True) -> bool:
     return normalized in {"1", "true", "yes", "y", "t"}
 
 
+_DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
+_DEFAULT_MAX_DECOMPRESSED_BYTES = 100 * 1024 * 1024
+
+
+def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+    raw = headers.get(header_name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id=StaticCSVConnector.connector_id,
+            field=header_name,
+        ) from exc
+    if value <= 0:
+        raise ConfigurationError(
+            message=f"{header_name} must be a positive integer",
+            connector_id=StaticCSVConnector.connector_id,
+            field=header_name,
+        )
+    return value
+
+
 def _handle_state(handle: ConnectionHandle) -> dict[str, Any]:
     state = handle.setdefault_state("static_csv", {})
     state.setdefault("schema_by_dataset", {})
@@ -92,6 +120,8 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
     """Fetch and parse a static CSV hosted at a stable URL."""
 
     connector_id: ClassVar[str] = "reference.static_csv"
+    _STATE_SESSION_KEY: ClassVar[str] = "static_csv.http_session"
+    _STATE_SESSION_LOCK_KEY: ClassVar[str] = "static_csv.http_session_lock"
 
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.FULL_FETCH | ConnectorCapability.SCHEMA_INTROSPECTION
@@ -120,6 +150,16 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
             "delimiter": config.headers.get("X-CSV-Delimiter", ","),
             "encoding": config.headers.get("X-CSV-Encoding", "utf-8"),
             "has_header": _bool_from_header(config.headers.get("X-CSV-HasHeader"), True),
+            "max_response_bytes": _positive_int_header(
+                config.headers,
+                "X-CSV-MaxResponseBytes",
+                _DEFAULT_MAX_RESPONSE_BYTES,
+            ),
+            "max_decompressed_bytes": _positive_int_header(
+                config.headers,
+                "X-CSV-MaxDecompressedBytes",
+                _DEFAULT_MAX_DECOMPRESSED_BYTES,
+            ),
         }
 
     @staticmethod
@@ -138,10 +178,35 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
             )
         handle = self._create_handle(config)
         _handle_state(handle)
+        handle.set_state(self._STATE_SESSION_KEY, None)
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, asyncio.Lock())
         return handle
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
-        return None
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is not None and not session.closed:
+                await session.close()
+            handle.set_state(self._STATE_SESSION_KEY, None)
+
+    def _session_lock(self, handle: ConnectionHandle) -> asyncio.Lock:
+        lock = handle.get_state(self._STATE_SESSION_LOCK_KEY)
+        if isinstance(lock, asyncio.Lock):
+            return lock
+        lock = asyncio.Lock()
+        handle.set_state(self._STATE_SESSION_LOCK_KEY, lock)
+        return lock
+
+    async def _get_session(self, handle: ConnectionHandle) -> aiohttp.ClientSession:
+        lock = self._session_lock(handle)
+        async with lock:
+            session: aiohttp.ClientSession | None = handle.get_state(self._STATE_SESSION_KEY)
+            if session is None or session.closed:
+                timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
+                session = aiohttp.ClientSession(timeout=timeout)
+                handle.set_state(self._STATE_SESSION_KEY, session)
+            return session
 
     # ------------------------------------------------------------------
     # Health check
@@ -149,19 +214,15 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
     @with_retry(max_attempts=3, base_delay=1.0)
     @with_circuit_breaker()
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        import aiohttp
-
         start = time.monotonic()
         headers = self._http_headers(handle.config)
         try:
-            async with (
-                aiohttp.ClientSession() as session,
-                session.head(
-                    handle.config.url,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp,
-            ):
+            session = await self._get_session(handle)
+            async with session.head(
+                handle.config.url,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+            ) as resp:
                 latency = (time.monotonic() - start) * 1000
                 return HealthStatus(
                     healthy=(resp.status == 200),
@@ -181,8 +242,6 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
-        import aiohttp
-
         csv_opts = self._parse_csv_config(handle.config)
         headers = self._http_headers(handle.config)
         state = _handle_state(handle)
@@ -199,14 +258,12 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
 
         start = time.monotonic()
         try:
-            async with (
-                aiohttp.ClientSession() as session,
-                session.get(
-                    handle.config.url,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp,
-            ):
+            session = await self._get_session(handle)
+            async with session.get(
+                handle.config.url,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+            ) as resp:
                 duration_ms = (time.monotonic() - start) * 1000
 
                 if resp.status == 304:
@@ -222,7 +279,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
                     return FetchResult(
                         data=pd.DataFrame(),
                         row_count=0,
-                        schema_id=f"{self.connector_id}.{dataset_id}",
+                        schema_id=make_schema_id(self.connector_id, dataset_id),
                         schema_version="1.0.0",
                         version=version,
                         fetched_at=datetime.now(UTC),
@@ -243,7 +300,13 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
                     error.status_code = resp.status  # type: ignore[attr-defined]
                     raise error
 
-                body = await resp.read()
+                body = await read_bounded_response_body(
+                    resp,
+                    connector_id=self.connector_id,
+                    url=handle.config.url,
+                    max_response_bytes=csv_opts["max_response_bytes"],
+                    max_decompressed_bytes=csv_opts["max_decompressed_bytes"],
+                )
                 bytes_xferred = len(body)
 
                 etag_map[dataset_id] = resp.headers.get("ETag")
@@ -284,7 +347,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
         return FetchResult(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.{dataset_id}",
+            schema_id=make_schema_id(self.connector_id, dataset_id),
             schema_version="1.0.0",
             version=version,
             fetched_at=datetime.now(UTC),
@@ -312,13 +375,14 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
     # Internal helpers
     # ------------------------------------------------------------------
     def _infer_schema(self, df: pd.DataFrame, dataset_id: str) -> dict[str, Any]:
-        schema = infer_schema(df, schema_id=f"{self.connector_id}.{dataset_id}")
+        schema = infer_schema(df, schema_id=make_schema_id(self.connector_id, dataset_id))
         return {
             "schema_id": schema.schema_id,
             "version": str(schema.version),
             "fields": [
                 {
                     "name": field.name,
+                    "field_id": field.stable_id,
                     "data_type": field.data_type.value,
                     "nullable": field.nullable,
                     "semantic_type": field.semantic_type.value if field.semantic_type else None,
@@ -379,6 +443,16 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
                     severity=ValidationSeverity.ERROR,
                     message="url must be http or https",
                     field="url",
+                )
+            )
+        try:
+            cls._parse_csv_config(config)
+        except ConfigurationError as exc:
+            issues.append(
+                ValidationIssue(
+                    severity=ValidationSeverity.ERROR,
+                    message=exc.message,
+                    field=exc.field or "headers",
                 )
             )
         if issues:

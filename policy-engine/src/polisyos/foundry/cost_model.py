@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.common.timestamps import utc_now
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.foundry import ProgramGraph, ProgramNode
@@ -15,6 +18,17 @@ class CostEstimate(BaseModel):
     """Estimated execution cost with confidence metrics."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+    point: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Optional scalar point estimate in the declared unit.",
+    )
+    unit: str = Field(default="ms", min_length=1, description="Scalar estimate unit.")
+    components: dict[str, float] = Field(
+        default_factory=dict,
+        description="Named scalar cost components in the declared unit.",
+    )
 
     estimated_compile_ms: int = Field(..., ge=0, description="Estimated JAX/XLA compilation time")
     estimated_run_ms: int = Field(..., ge=0, description="Estimated execution time per call")
@@ -44,6 +58,104 @@ class CostEstimate(BaseModel):
         pattern=r"^(low|medium|high)$",
         description="Estimate confidence based on historical calibration",
     )
+    lower: float | None = Field(default=None, ge=0.0, description="Optional scalar lower bound.")
+    upper: float | None = Field(default=None, ge=0.0, description="Optional scalar upper bound.")
+    coverage_confidence: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Coverage confidence for calibrated probabilistic bounds.",
+    )
+    delta: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Tail probability associated with probabilistic bounds.",
+    )
+    bound_type: str = Field(
+        default="HEURISTIC_POINT_ESTIMATE",
+        pattern=r"^(EXACT_BOUND|CALIBRATED_PROBABILISTIC_BOUND|HEURISTIC_POINT_ESTIMATE|UNKNOWN)$",
+        description="Semantics of lower/upper bounds for certificate generation.",
+    )
+    calibration_scope: str | None = Field(
+        default=None,
+        description="Domain where the calibration claim is valid.",
+    )
+    estimator_version: str = Field(
+        default="foundry.cost_model.v1",
+        description="Version label for the estimator that produced this estimate.",
+    )
+    estimator_hash: str | None = Field(default=None, description="Optional estimator artifact hash.")
+    assumptions: list[str] = Field(
+        default_factory=list,
+        description="Assumptions required for the estimate or bound claim.",
+    )
+    valid_for: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Input/task/method domain where this estimate is intended to apply.",
+    )
+    includes_advisor_overhead: bool = Field(
+        default=False,
+        description="Whether advisor and feature extraction overhead are included.",
+    )
+    created_at: datetime = Field(default_factory=utc_now)
+
+    def upper_bound(self, delta: float | None = None) -> float:
+        """Return the scalar upper cost bound used for budget feasibility checks."""
+        del delta
+        if self.upper is not None:
+            return float(self.upper)
+        if self.point is not None:
+            return float(self.point)
+        return float(self.estimated_total_ms)
+
+    def lower_bound(self, delta: float | None = None) -> float:
+        """Return the scalar lower cost bound when available, else the point estimate."""
+        del delta
+        if self.lower is not None:
+            return float(self.lower)
+        if self.point is not None:
+            return float(self.point)
+        return float(self.estimated_total_ms)
+
+    def compute_upper_bound(self, delta: float | None = None) -> float:
+        """Return an execution-time upper bound in milliseconds."""
+        if self.unit == "ms":
+            return self.upper_bound(delta=delta)
+        return float(self.estimated_total_ms)
+
+    def resource_vector(self, delta: float | None = None) -> dict[str, float]:
+        """Return machine-readable resource costs for multi-resource budget checks."""
+        vector = {
+            "compile_ms": float(self.estimated_compile_ms),
+            "run_ms": float(self.estimated_run_ms),
+            "total_ms": float(self.estimated_total_ms),
+            "memory_mb": float(self.estimated_memory_mb),
+            "flops": float(self.estimated_flops),
+        }
+        vector.update({str(key): float(value) for key, value in self.components.items()})
+        vector["total_ms_upper"] = float(self.compute_upper_bound(delta))
+        return vector
+
+    def supports_budget(self, budget: Any, delta: float | None = None) -> bool:
+        """Return whether the estimate satisfies a CostBudget/BudgetSpec-like object."""
+        vector = self.resource_vector(delta)
+        max_total_ms = _budget_value(
+            budget,
+            "max_total_ms",
+            "max_wall_time_ms",
+            "spend_limit",
+            "compute_limit",
+        )
+        max_memory_mb = _budget_value(budget, "max_memory_mb")
+        max_compile_ms = _budget_value(budget, "max_compile_ms")
+        if max_total_ms is not None and vector["total_ms_upper"] > max_total_ms:
+            return False
+        if max_memory_mb is not None and vector["memory_mb"] > max_memory_mb:
+            return False
+        if max_compile_ms is not None and vector["compile_ms"] > max_compile_ms:
+            return False
+        return True
 
 
 @dataclass
@@ -54,6 +166,19 @@ class CostBudget:
     max_memory_mb: int = 8_192
     max_compile_ms: int = 30_000
     max_per_mechanism_ms: int = 10_000
+
+
+def _budget_value(budget: Any, *names: str) -> float | None:
+    if budget is None:
+        return None
+    for name in names:
+        if isinstance(budget, dict):
+            value = budget.get(name)
+        else:
+            value = getattr(budget, name, None)
+        if value is not None:
+            return float(value)
+    return None
 
 
 class CostModel:
@@ -159,6 +284,13 @@ class CostModel:
         )
 
         return CostEstimate(
+            point=float(total_ms),
+            components={
+                "compile_ms": float(compile_ms),
+                "run_ms": float(run_ms),
+                "total_ms": float(total_ms),
+                "memory_mb": float(memory_mb),
+            },
             estimated_compile_ms=compile_ms,
             estimated_run_ms=run_ms,
             estimated_total_ms=total_ms,
@@ -169,6 +301,11 @@ class CostModel:
             budget_utilization=utilization,
             budget_violations=violations,
             confidence=confidence,
+            lower=float(total_ms),
+            upper=float(total_ms),
+            bound_type="HEURISTIC_POINT_ESTIMATE",
+            assumptions=["Static heuristic estimate; no calibrated coverage guarantee."],
+            includes_advisor_overhead=False,
         )
 
     def _is_mechanism_node(self, node: ProgramNode) -> bool:

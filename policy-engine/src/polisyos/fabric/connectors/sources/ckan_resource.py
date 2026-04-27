@@ -29,6 +29,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
     HTTPResilienceProfile,
@@ -167,7 +168,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         return self._build_fetch_result(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.resource",
+            schema_id=make_schema_id(self.connector_id, "resource"),
             schema_version="1.0.0",
             quality_tier=QualityTier.SILVER,
             bytes_transferred=len(raw),
@@ -197,7 +198,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
     ) -> dict[str, Any]:
         return {
-            "schema_id": f"{self.connector_id}.{dataset_id}",
+            "schema_id": make_schema_id(self.connector_id, dataset_id),
             "version": "1.0.0",
             "format": "dynamic",
             "notes": "Schema depends on the resource format and content.",

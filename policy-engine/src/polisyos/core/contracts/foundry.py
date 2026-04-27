@@ -13,7 +13,7 @@ from polisyos.ir.refs import WelfareBundleRef
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
 from .distributional import DistributionalReportRef
-from .scientist import MetricValidationReportRef
+from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -1707,6 +1707,7 @@ class SimulationResult(BaseModel):
     welfare_bundle_ref: WelfareBundleRef | None = None
     welfare_bound_refs: Mapping[str, WelfareBoundReportRef] | None = None
     metric_validation_report_ref: MetricValidationReportRef | None = None
+    fairness_audit_report_ref: FairnessAuditReportRef | None = None
     propagation_config_ref: ArtifactRef | None = None
     propagation_report_ref: ArtifactRef | None = None
     feedback_result_ref: FeedbackResultRef | None = None

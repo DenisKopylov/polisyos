@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/provenance/lineage.py`, `src/polisyos/fabric/observability.py`, `tests/fabric/test_lineage.py`, `tests/fabric/test_fabric_observability.py`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric lineage is currently a provenance-graph layer built around
 `FabricLineageTracker`. It records how source datasets and fields flow through

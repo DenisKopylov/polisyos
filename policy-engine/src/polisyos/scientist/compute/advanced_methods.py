@@ -78,7 +78,7 @@ _METHOD_MODULES = {
     "optimization.bilevel": "polisyos.foundry.methods.catalog.optimization.advanced_stochastic",
     "econometrics.selection": "polisyos.foundry.methods.catalog.econometrics.selection",
     "ml.survival": "polisyos.foundry.methods.catalog.ml.survival",
-    "sensitivity.global": "polisyos.foundry.methods.catalog.sensitivity.sobol",
+    "sensitivity.global": "polisyos.foundry.methods.catalog.sensitivity",
     "sensitivity.specification": "polisyos.foundry.methods.catalog.sensitivity.specification",
 }
 _METHOD_MODULE_LOAD_LOCK = threading.RLock()

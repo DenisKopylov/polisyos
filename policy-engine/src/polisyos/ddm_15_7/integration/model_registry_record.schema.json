@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/model_registry_record.schema.json",
+  "title": "DDM-15.7 ModelRegistryReadinessRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "model_id",
+    "model_version",
+    "stationarity_regime_id",
+    "calibration_id",
+    "system_fp_budget",
+    "empirical_fp_certificate",
+    "primary_metric_budget",
+    "readiness_state",
+    "readiness_score",
+    "promotion_allowed"
+  ],
+  "properties": {
+    "model_id": { "type": "string", "minLength": 1 },
+    "model_version": { "type": "string", "minLength": 1 },
+    "stationarity_regime_id": { "type": "string", "minLength": 1 },
+    "calibration_id": { "type": "string", "minLength": 1 },
+    "system_fp_budget": { "type": "object" },
+    "empirical_fp_certificate": { "type": "boolean" },
+    "primary_metric_budget": { "type": "object" },
+    "readiness_state": { "enum": ["R4", "R3", "R2", "R1", "R0"] },
+    "readiness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "last_shift_event": { "type": ["string", "null"] },
+    "last_degradation_event": { "type": ["string", "null"] },
+    "required_action": { "type": ["string", "null"] },
+    "active_incident_id": { "type": ["string", "null"] },
+    "promotion_allowed": { "type": "boolean" }
+  }
+}

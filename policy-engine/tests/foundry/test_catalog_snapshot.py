@@ -143,6 +143,7 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     # Phase 4: Sensitivity expansion
     assert "sensitivity.global.morris@1.0.0" in fqns
     assert "sensitivity.specification.specification_curve@1.0.0" in fqns
+    assert "sensitivity.global.dependent_copula_sensitivity@1.0.0" in fqns
 
     # Phase 5: Survey expansion
     assert "survey.adaptive.adaptive_calibrated_ipw@1.0.0" in fqns

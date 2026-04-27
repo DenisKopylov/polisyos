@@ -170,6 +170,41 @@ class SensitivityResultRef(ScientistArtifactRef):
     media_type: str = "application/json"
 
 
+class SensitivityAnalysisBundleRef(ScientistArtifactRef):
+    """Reference to a stored canonical Phase-5 sensitivity bundle artifact."""
+
+    kind: str = "scientist.sensitivity_analysis_bundle"
+    media_type: str = "application/json"
+
+
+class ShiftDiagnosticReportRef(ScientistArtifactRef):
+    """Reference to a stored Phase-5 shift diagnostic report artifact."""
+
+    kind: str = "ir.shift_diagnostic_report"
+    media_type: str = "application/json"
+
+
+class ExplanationBundleRef(ScientistArtifactRef):
+    """Reference to a stored analyst-facing explanation bundle artifact."""
+
+    kind: str = "scientist.explanation_bundle"
+    media_type: str = "application/json"
+
+
+class JudgeVerdictRef(ScientistArtifactRef):
+    """Reference to a stored Phase-5 six-judge verdict artifact."""
+
+    kind: str = "scientist.judge_verdict"
+    media_type: str = "application/json"
+
+
+class DriftReadinessRef(ScientistArtifactRef):
+    """Reference to persisted drift/readiness state evidence."""
+
+    kind: str = "scientist.drift_readiness"
+    media_type: str = "application/json"
+
+
 class StressTestReportRef(ScientistArtifactRef):
     """Reference to a stored stress-test report artifact."""
 
@@ -188,6 +223,20 @@ class MetricValidationReportRef(ScientistArtifactRef):
     """Reference to a stored formal metric-validation report artifact."""
 
     kind: str = "scientist.metric_validation_report"
+    media_type: str = "application/json"
+
+
+class ValidationReportRef(ScientistArtifactRef):
+    """Reference to a stored Phase-5-compatible validation report artifact."""
+
+    kind: str = "scientist.validation_report"
+    media_type: str = "application/json"
+
+
+class FairnessAuditReportRef(ScientistArtifactRef):
+    """Reference to a stored validation-stage fairness audit report artifact."""
+
+    kind: str = "scientist.fairness_audit_report"
     media_type: str = "application/json"
 
 
@@ -476,10 +525,13 @@ __all__ = [
     "DiscoveryAuditBundleRef",
     "DiscoveryTaskProfileRef",
     "DownstreamUtilityReportRef",
+    "DriftReadinessRef",
     "EdgeConfidenceMatrixRef",
     "ExperimentStateRef",
+    "ExplanationBundleRef",
     "FailureCardLike",
     "FailureCardRef",
+    "FairnessAuditReportRef",
     "GovernanceAccountabilityArtifactRef",
     "GovernanceGatePacketRef",
     "GovernanceReportRef",
@@ -487,6 +539,7 @@ __all__ = [
     "GraphHypothesisSetRef",
     "GraphPriorBundleRef",
     "ImplementationPlanRef",
+    "JudgeVerdictRef",
     "LegalCandidatePackRef",
     "LegalSourcePackRef",
     "MetricValidationReportRef",
@@ -502,7 +555,9 @@ __all__ = [
     "ReplayableAuditBundleRef",
     "ReproducibilityReportRef",
     "ScientistArtifactRef",
+    "SensitivityAnalysisBundleRef",
     "SensitivityResultRef",
+    "ShiftDiagnosticReportRef",
     "SourceVerificationReportRef",
     "StressTestReportRef",
     "SubgroupImpactReportRef",
@@ -510,5 +565,6 @@ __all__ = [
     "TransportabilityReportRef",
     "TrinityIRRef",
     "UncertaintyReportRef",
+    "ValidationReportRef",
     "VerifiedPolicyReportRef",
 ]

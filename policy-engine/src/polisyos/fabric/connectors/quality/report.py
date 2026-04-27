@@ -58,11 +58,9 @@ class FreshnessStatus:
 
     def __post_init__(self) -> None:
         for name in ("cache_age_seconds", "ttl_seconds"):
-            value = getattr(self, name)
-            if value < 0:
-                raise ValueError(f"{name} must be >= 0")
-        if self.data_age_seconds is not None and self.data_age_seconds < 0:
-            raise ValueError("data_age_seconds must be >= 0")
+            ensure_non_negative_finite(getattr(self, name), what=name)
+        if self.data_age_seconds is not None:
+            ensure_non_negative_finite(self.data_age_seconds, what="data_age_seconds")
 
     @property
     def is_fresh(self) -> bool:
@@ -189,10 +187,11 @@ class DataQualityReport:
             self.consistency_score,
             what="quality consistency_score",
         )
-        if self.row_count < 0:
-            raise ValueError("row_count must be >= 0")
-        if self.sample_size is not None and self.sample_size < 0:
-            raise ValueError("sample_size must be >= 0")
+        self.row_count = int(ensure_non_negative_finite(self.row_count, what="row_count"))
+        if self.sample_size is not None:
+            self.sample_size = int(
+                ensure_non_negative_finite(self.sample_size, what="sample_size")
+            )
         if self.avg_latency_ms is not None:
             self.avg_latency_ms = ensure_non_negative_finite(
                 self.avg_latency_ms,
@@ -228,6 +227,13 @@ class DataQualityReport:
                 "contract_failures": (
                     self.quality_contract_result.failed_rules if self.quality_contract_result else 0
                 ),
+                "quality_indicators": (
+                    self.quality_indicators.to_dict()
+                    if hasattr(self.quality_indicators, "to_dict")
+                    else self.quality_indicators
+                    if isinstance(self.quality_indicators, dict)
+                    else None
+                ),
             },
             "content_hash": self._compute_hash(),
         }
@@ -250,6 +256,13 @@ class DataQualityReport:
                 for v in self.violations
             ],
             "component_scores": dict(self.component_scores),
+            "quality_indicators": (
+                self.quality_indicators.to_dict()
+                if hasattr(self.quality_indicators, "to_dict")
+                else self.quality_indicators
+                if isinstance(self.quality_indicators, dict)
+                else None
+            ),
             "anomaly_findings": (
                 [finding.to_dict() for finding in self.anomaly_report.findings]
                 if self.anomaly_report

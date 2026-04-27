@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import time
 from collections.abc import AsyncIterator
@@ -18,13 +19,14 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts import infer_schema
+from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
     ValidationIssue,
     ValidationResult,
     ValidationSeverity,
 )
+from polisyos.fabric.safety import UnsafeFilterExpressionError, quote_sql_identifier
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -40,10 +42,35 @@ def _safe_identifier(name: str) -> str:
     token = str(name).strip()
     if not token:
         raise ValueError("dataset_id must not be empty")
-    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.$")
-    if any(ch not in allowed for ch in token):
-        raise ValueError(f"unsafe SQL identifier: {name!r}")
-    return token
+    return quote_sql_identifier(token, what="SQL table", allow_dotted=True)
+
+
+_SQL_WRITE_OR_CONTROL_RE = re.compile(
+    r"\b("
+    r"ALTER|ATTACH|CALL|COPY|CREATE|DELETE|DETACH|DROP|EXEC|EXECUTE|GRANT|INSERT|"
+    r"MERGE|PRAGMA|REPLACE|REVOKE|TRUNCATE|UPDATE|VACUUM"
+    r")\b",
+    flags=re.IGNORECASE,
+)
+
+
+def _validate_read_only_query(query: str) -> str:
+    candidate = str(query or "").strip()
+    if not candidate:
+        raise UnsafeFilterExpressionError("SQL query must not be empty")
+    if ";" in candidate:
+        raise UnsafeFilterExpressionError("SQL query must be a single read-only statement")
+    if "--" in candidate or "/*" in candidate or "*/" in candidate:
+        raise UnsafeFilterExpressionError("SQL comments are not allowed in connector queries")
+    normalized = re.sub(r"\s+", " ", candidate).strip().upper()
+    if not normalized.startswith(("SELECT ", "WITH ")):
+        raise UnsafeFilterExpressionError("SQL query must start with SELECT or WITH")
+    match = _SQL_WRITE_OR_CONTROL_RE.search(candidate)
+    if match:
+        raise UnsafeFilterExpressionError(
+            f"SQL query contains unsafe statement token: {match.group(1).upper()}"
+        )
+    return candidate
 
 
 class SQLQueryConnector(BaseConnector[Any]):
@@ -108,8 +135,10 @@ class SQLQueryConnector(BaseConnector[Any]):
     def _query(self, config: ConnectionConfig, request: FetchRequest) -> str:
         query = str(config.headers.get("X-SQL-Query", "")).strip()
         if query:
-            return query
+            return _validate_read_only_query(query)
         table = _safe_identifier(str(config.headers.get("X-SQL-Table") or request.dataset_id))
+        if request.page_size is not None and int(request.page_size) <= 0:
+            raise ValueError("page_size must be positive")
         limit = f" LIMIT {int(request.page_size)}" if request.page_size else ""
         return f"SELECT * FROM {table}{limit}"
 
@@ -177,7 +206,7 @@ class SQLQueryConnector(BaseConnector[Any]):
         payload_hash = "sha256:" + content_hash(
             frame.to_json(orient="records", date_format="iso").encode("utf-8")
         )
-        schema_id = f"{self.connector_id}.{request.dataset_id or 'query'}"
+        schema_id = make_schema_id(self.connector_id, request.dataset_id or "query")
         schema = infer_schema(frame, schema_id=schema_id)
 
         state = handle.get_state(self._STATE_KEY) or {}
@@ -188,6 +217,7 @@ class SQLQueryConnector(BaseConnector[Any]):
             "fields": [
                 {
                     "name": field.name,
+                    "field_id": field.stable_id,
                     "data_type": field.data_type.value,
                     "nullable": field.nullable,
                 }
@@ -259,6 +289,17 @@ class SQLQueryConnector(BaseConnector[Any]):
                 )
         query = str(config.headers.get("X-SQL-Query", "")).strip()
         table = str(config.headers.get("X-SQL-Table", "")).strip()
+        if query:
+            try:
+                _validate_read_only_query(query)
+            except UnsafeFilterExpressionError as exc:
+                issues.append(
+                    ValidationIssue(
+                        severity=ValidationSeverity.ERROR,
+                        field="X-SQL-Query",
+                        message=str(exc),
+                    )
+                )
         if not query and not table:
             issues.append(
                 ValidationIssue(

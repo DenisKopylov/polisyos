@@ -12,6 +12,10 @@ from .completeness import (
     SamplingStrategy,
 )
 from .consistency import ConsistencyChecker, ConsistencyResult
+from .evidence import (
+    FabricQualityGovernanceEvidence,
+    build_fabric_quality_governance_evidence,
+)
 from .freshness import (
     DEFAULT_POLICIES,
     FreshnessChecker,
@@ -63,6 +67,7 @@ __all__ = [
     "DateGap",
     "DriftFinding",
     "DriftReport",
+    "FabricQualityGovernanceEvidence",
     "FreshnessChecker",
     "FreshnessLevel",
     "FreshnessPolicy",
@@ -79,6 +84,7 @@ __all__ = [
     "SamplingConfig",
     "SamplingStrategy",
     "TopValue",
+    "build_fabric_quality_governance_evidence",
     "build_quality_series_key",
     "build_quality_trend_report",
     "detect_anomalies",

@@ -134,6 +134,10 @@ from polisyos.scientist.governance.calibration_validation import (
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
+from polisyos.scientist.human_review.audit import signature_for_decision
+from polisyos.scientist.human_review.decisions import persist_review_decision
+from polisyos.scientist.human_review.models import HumanReviewDecision, ReviewAction
+from polisyos.scientist.human_review.packets import build_review_packet, persist_review_packet
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -145,10 +149,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIMS_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_HUMAN_REVIEW_DECISION_REF,
+    ARTIFACT_HUMAN_REVIEW_PACKET_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
@@ -158,6 +165,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
@@ -166,6 +174,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
+)
+from polisyos.scientist.policy_verified.models import (
+    VerifiedPolicyReport,
+    persist_verified_policy_report,
 )
 from polisyos.scientist.search.readiness import (
     DecisionReadiness,
@@ -244,6 +256,9 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["diagnostics_summary"]["transport_status"] == "not_run"
     assert payload["analysis_limits"]["partial_replay_readiness"] is True
     assert payload["analysis_limits"]["missing_uncertainty_artifact"] is True
+    assert payload["claims_ref"] == payload["artifacts"][ARTIFACT_CLAIMS_REF]
+    assert payload["claim_ledger_status"] == "available"
+    assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
     assert payload["feedback_loop"]["anchor_at"] is not None
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
     assert payload["feedback_loop"]["latest_monitoring_report_ref"] is None
@@ -255,6 +270,69 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "input.data_snapshot_ref" in roles
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
+    assert "claims" in roles
+
+
+def test_build_decision_packet_blocks_naked_recommendation_when_claim_gate_enabled(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_naked_claim_gate",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.naked_claim_gate"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    verified_policy_ref = persist_verified_policy_report(
+        store,
+        VerifiedPolicyReport(
+            request_id="request_naked_claim_gate",
+            executive_summary="Adopt the candidate policy.",
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_naked_claim_gate",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_VERIFIED_POLICY_REPORT_REF: verified_policy_ref},
+        params={
+            "workflow_id": "scientist_policy_design",
+            "scientist.best_in_class.wave1.phase1_1.claim_spine": False,
+            "scientist.best_in_class.wave1.phase1_1.fail_on_naked_claims": True,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "claim_spine_validation_failed"
+    assert outcome.error.details["claim_ledger_status"] == "legacy_missing"
+    assert outcome.error.details["violations"] == [
+        "missing_claims_ref_for_decision_bearing_payload"
+    ]
 
 
 def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -> None:
@@ -587,6 +665,27 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
             ],
         ),
     )
+    review_packet = build_review_packet(
+        run_id="R_packet_diag",
+        decision_payload={"policy_summary": {"title": "diagnostics fixture"}},
+    )
+    review_packet_ref = persist_review_packet(store, review_packet)
+    review_decision_ref = persist_review_decision(
+        store,
+        HumanReviewDecision(
+            decision_id="decision_packet_diag",
+            packet_id=review_packet.packet_id,
+            run_id="R_packet_diag",
+            reviewer_id="reviewer_diag",
+            action=ReviewAction.APPROVE,
+            rationale="Reviewed legal diagnostic packet.",
+            signature=signature_for_decision(
+                reviewer_id="reviewer_diag",
+                attestation="I reviewed the packet.",
+            ),
+            packet_ref=review_packet_ref,
+        ),
+    )
 
     state = ExperimentState(
         run_id="R_packet_diag",
@@ -601,6 +700,10 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
             REPORT_CHANGE_PROPOSAL_REF: change_proposal_ref,
             REPORT_LINK_REPORT_REF: link_report_ref,
             REPORT_COMPILE_REPORT_REF: compile_report_ref,
+        },
+        artifacts_index={
+            ARTIFACT_HUMAN_REVIEW_PACKET_REF: review_packet_ref,
+            ARTIFACT_HUMAN_REVIEW_DECISION_REF: review_decision_ref,
         },
     )
 

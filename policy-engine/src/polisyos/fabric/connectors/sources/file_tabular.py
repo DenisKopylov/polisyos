@@ -17,6 +17,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.sources._file_common import (
     content_version,
     dataframe_from_bytes,
@@ -174,9 +175,10 @@ class FileTabularConnector(BaseConnector[Any]):
         state = handle.get_state(self._STATE_KEY) or {}
         schema_by_dataset = dict(state.get("schema_by_dataset", {}))
         version_by_dataset = dict(state.get("version_by_dataset", {}))
+        schema_id = make_schema_id(self.connector_id, dataset_id)
         schema_by_dataset[dataset_id] = schema_dict_from_dataframe(
             frame,
-            schema_id=f"{self.connector_id}.{dataset_id}",
+            schema_id=schema_id,
             extras=self._schema_extras(
                 handle=handle,
                 version=version,
@@ -195,7 +197,7 @@ class FileTabularConnector(BaseConnector[Any]):
         return FetchResult(
             data=frame if isinstance(frame, pd.DataFrame) else pd.DataFrame(frame),
             row_count=len(frame),
-            schema_id=f"{self.connector_id}.{dataset_id}",
+            schema_id=schema_id,
             schema_version="1.0.0",
             version=version,
             fetched_at=datetime.now(UTC),

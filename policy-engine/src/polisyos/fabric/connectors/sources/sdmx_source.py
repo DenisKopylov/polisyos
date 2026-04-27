@@ -32,6 +32,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.contracts import make_schema_id
 from polisyos.fabric.connectors.resilience import apply_resilience
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
@@ -529,7 +530,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         return self._build_fetch_result(
             data=df,
             row_count=len(df),
-            schema_id=f"{self.connector_id}.{dataflow_key}",
+            schema_id=make_schema_id(self.connector_id, dataflow_key),
             schema_version="1.0.0",
             quality_tier=QualityTier.GOLD,
             bytes_transferred=len(raw),

@@ -326,6 +326,19 @@ else:
                 del count, queue_name, tenant_id
                 return None
 
+            def record_fabric_slo_assessment(
+                self,
+                *,
+                sli_name: str,
+                observed_value: float | None,
+                burn_ratio: float | None,
+                healthy: bool,
+                priority: str,
+                window: str,
+            ) -> None:
+                del sli_name, observed_value, burn_ratio, healthy, priority, window
+                return None
+
             def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
                 return None
 

@@ -2,10 +2,11 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Freshness: 2026-04-17.
+Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/connectors/profiles/**`, `tests/fabric/connectors/profiles/test_source_profiles.py`, `tests/fabric/test_retrieval_service_catalog.py`
+Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 `SourceProfile` describes a source endpoint in planner-friendly terms, while
 `SourceExecutionPolicy` is the normalized runtime subset used by schedulers,

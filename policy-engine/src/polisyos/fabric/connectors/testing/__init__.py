@@ -6,6 +6,12 @@ automatic protocol compliance, schema validation, resilience verification,
 and consumer-contract checking without boilerplate.
 """
 
+from polisyos.fabric.connectors.testing.conformance import (
+    ConformanceIssue,
+    ConformanceReport,
+    ConnectorConformanceHarnessV2,
+    validate_source_conformance_v2,
+)
 from polisyos.fabric.connectors.testing.contracts import (
     ContractViolation,
     assert_schema_compliance,
@@ -27,6 +33,9 @@ from polisyos.fabric.connectors.testing.simulator import (
 __all__ = [
     # Simulator -- record / replay / synthetic API mocking
     "APISimulator",
+    "ConformanceIssue",
+    "ConformanceReport",
+    "ConnectorConformanceHarnessV2",
     # Harness -- the primary entry-point for connector developers
     "ConnectorTestHarness",
     "ContractViolation",
@@ -40,4 +49,5 @@ __all__ = [
     "SimulatorMode",
     # Contract verification
     "assert_schema_compliance",
+    "validate_source_conformance_v2",
 ]

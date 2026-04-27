@@ -149,6 +149,7 @@ def test_run_governance_uses_branch_state_for_params_and_report(tmp_path) -> Non
         "params.validation_trace",
         "params.human_review_request",
         "params.human_review_request_ref",
+        "artifacts_index.claims_ref",
         "reports_index.governance_report_ref",
     )
     assert REPORT_GOVERNANCE_REPORT_REF not in state.reports_index

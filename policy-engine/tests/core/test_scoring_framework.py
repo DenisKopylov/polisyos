@@ -50,3 +50,11 @@ def test_weighted_scorer_extreme_weights_are_normalized() -> None:
 def test_weighted_scorer_all_zero_weights_rejected() -> None:
     with pytest.raises(ValueError, match="weights cannot be empty"):
         WeightedScorer({"a": 0.0, "b": 0.0})
+
+
+def test_weighted_scorer_rejects_non_finite_scores_and_weights() -> None:
+    with pytest.raises(ValueError, match="score must be finite"):
+        WeightedScorer({"a": 1.0}).score({"a": float("nan")})
+
+    with pytest.raises(ValueError, match="weight 'a' must be finite"):
+        WeightedScorer({"a": float("inf")})

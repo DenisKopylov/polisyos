@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -12,6 +13,7 @@ __all__ = [
     "FrontierRuntimeConfig",
     "FrontierRuntimeReport",
     "build_frontier_runtime_report",
+    "summarize_agent_promotion_frontier_status",
 ]
 
 
@@ -58,6 +60,9 @@ class FrontierRuntimeConfig(BaseModel):
     benchmark_pack_ref: str | None = None
     default_enable_requested: bool = False
     allow_baseline_replacement: bool = False
+    require_benchmark_authority: bool = False
+    benchmark_authority_default_enable_allowed: bool | None = None
+    benchmark_authority_ref: str | None = None
     rationale: str = (
         "Phase 4 frontier capabilities stay feature-flagged until offline validation "
         "and benchmark packs prove they beat or safely complement the baseline path."
@@ -91,6 +96,12 @@ class FrontierRuntimeReport(BaseModel):
     default_enable_eligible: bool = False
     default_enable_blockers: list[str] = Field(default_factory=list)
     capabilities: list[FrontierCapability] = Field(default_factory=list)
+    claim_projection: dict[str, str] = Field(
+        default_factory=lambda: {
+            "status": "available",
+            "owner": "polisyos.scientist.claims.projections.project_frontier_runtime_claims",
+        }
+    )
     rationale: str = Field(min_length=1)
 
 
@@ -108,6 +119,13 @@ def build_frontier_runtime_report(
         blockers.append("missing_benchmark_pack_ref")
     if resolved.default_enable_requested and not resolved.allow_baseline_replacement:
         blockers.append("baseline_replacement_not_approved")
+    if (
+        requested
+        and resolved.default_enable_requested
+        and resolved.require_benchmark_authority
+        and resolved.benchmark_authority_default_enable_allowed is not True
+    ):
+        blockers.append("benchmark_authority_not_allowed")
 
     capabilities = [
         _capability(
@@ -203,6 +221,10 @@ def build_frontier_runtime_report(
         requested
         and not blockers
         and all(cap.default_enable_eligible for cap in capabilities if cap.enabled)
+        and (
+            not resolved.require_benchmark_authority
+            or resolved.benchmark_authority_default_enable_allowed is True
+        )
     )
     return FrontierRuntimeReport(
         requested_capabilities=requested,
@@ -213,6 +235,29 @@ def build_frontier_runtime_report(
         capabilities=capabilities,
         rationale=resolved.rationale,
     )
+
+
+def summarize_agent_promotion_frontier_status(report: Any) -> FrontierCapabilityStatus:
+    """Summarize a Phase 1.4 agent promotion report in frontier-runtime vocabulary."""
+
+    if bool(getattr(report, "default_enable_eligible", False)):
+        return FrontierCapabilityStatus.AVAILABLE_OFFLINE
+    statuses: list[FrontierCapabilityStatus] = []
+    for item in getattr(report, "capabilities", []):
+        raw_status = getattr(item, "status", None)
+        try:
+            statuses.append(FrontierCapabilityStatus(str(raw_status)))
+        except ValueError:
+            return FrontierCapabilityStatus.EXPERIMENTAL_NOT_WIRED
+    if not statuses:
+        return FrontierCapabilityStatus.DISABLED
+    if any(status == FrontierCapabilityStatus.OFFLINE_GATED for status in statuses):
+        return FrontierCapabilityStatus.OFFLINE_GATED
+    if any(status == FrontierCapabilityStatus.EXPERIMENTAL_NOT_WIRED for status in statuses):
+        return FrontierCapabilityStatus.EXPERIMENTAL_NOT_WIRED
+    if all(status == FrontierCapabilityStatus.DISABLED for status in statuses):
+        return FrontierCapabilityStatus.DISABLED
+    return FrontierCapabilityStatus.AVAILABLE_OFFLINE
 
 
 def _capability(
@@ -254,6 +299,12 @@ def _capability(
         offline_validation_ref=config.offline_validation_ref,
         benchmark_pack_ref=config.benchmark_pack_ref,
         default_enable_requested=config.default_enable_requested,
-        default_enable_eligible=default_enable_eligible,
+        default_enable_eligible=bool(
+            default_enable_eligible
+            and (
+                not config.require_benchmark_authority
+                or config.benchmark_authority_default_enable_allowed is True
+            )
+        ),
         rationale=rationale,
     )

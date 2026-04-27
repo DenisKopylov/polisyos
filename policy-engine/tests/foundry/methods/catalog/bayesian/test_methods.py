@@ -26,6 +26,7 @@ from polisyos.foundry.methods.catalog.bayesian.frontier import (
     _sbi_regime_training_view,
     _simulation_regimes_from_sources,
 )
+from polisyos.foundry.methods.catalog.bayesian.protocols import MultimodalityState
 from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 from polisyos.foundry.methods.ml import TabularData
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -450,6 +451,11 @@ def test_bayesian_hmc_reference_contract_marks_gate_failures_in_status(
     assert posterior.status == "diagnostics_failed"
     assert posterior.diagnostic_gates["minimum_chains"] is False
     assert "diagnostic_gate_failed:minimum_chains" in posterior.warnings
+    assert (
+        posterior.multimodality_status.state
+        is MultimodalityState.INCONCLUSIVE_SAMPLING_GEOMETRY
+    )
+    assert "posterior_geometry:inconclusive_sampling_geometry" in posterior.warnings
 
 
 def test_bayesian_nuts_auto_backend_degrades_from_exact_contract(

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/ddm_15_7/calibration_report.schema.json",
+  "title": "DDM-15.7 CalibrationReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "detector_id",
+    "stationarity_regime_id",
+    "fp_target",
+    "threshold",
+    "time_varying_thresholds",
+    "empirical_stationary_holdout",
+    "detection_delay_tests",
+    "expiration",
+    "calibration_method",
+    "random_seed",
+    "block_length"
+  ],
+  "properties": {
+    "detector_id": { "type": "string", "minLength": 1 },
+    "stationarity_regime_id": { "type": "string", "minLength": 1 },
+    "fp_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["horizon", "alpha"],
+      "properties": {
+        "horizon": { "type": "string", "minLength": 1 },
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "ert": { "type": ["number", "null"], "exclusiveMinimum": 0 }
+      }
+    },
+    "threshold": { "type": "number" },
+    "time_varying_thresholds": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "observed_average_run_length": { "type": ["number", "null"], "minimum": 0 },
+    "empirical_stationary_holdout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alerts", "windows", "empirical_fp_rate", "confidence_interval_95", "pass"],
+      "properties": {
+        "alerts": { "type": "integer", "minimum": 0 },
+        "windows": { "type": "integer", "minimum": 0 },
+        "empirical_fp_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confidence_interval_95": {
+          "type": "array",
+          "prefixItems": [{ "type": "number" }, { "type": "number" }],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "pass": { "type": "boolean" }
+      }
+    },
+    "detection_delay_tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["synthetic_covariate_shift", "synthetic_concept_shift"],
+      "properties": {
+        "synthetic_covariate_shift": { "$ref": "#/$defs/delay" },
+        "synthetic_concept_shift": { "$ref": "#/$defs/delay" }
+      }
+    },
+    "expiration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid_until", "invalidation_triggers"],
+      "properties": {
+        "valid_until": { "type": "string", "format": "date-time" },
+        "invalidation_triggers": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "calibration_method": { "type": "string", "minLength": 1 },
+    "random_seed": { "type": "integer" },
+    "block_length": { "type": "integer", "minimum": 1 }
+  },
+  "$defs": {
+    "delay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_detectable_shift", "median_delay_windows"],
+      "properties": {
+        "min_detectable_shift": { "type": "number", "minimum": 0 },
+        "median_delay_windows": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

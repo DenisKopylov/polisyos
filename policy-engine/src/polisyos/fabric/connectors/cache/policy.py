@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import threading
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -45,9 +47,18 @@ class CachePolicy(ABC):
 class TTLPolicy(CachePolicy):
     """Simple time-to-live policy."""
 
-    def __init__(self, ttl: timedelta, policy_id: str = "ttl_default") -> None:
+    def __init__(
+        self,
+        ttl: timedelta,
+        policy_id: str = "ttl_default",
+        *,
+        max_entries: int | None = 10000,
+    ) -> None:
         self._ttl = ttl
         self._policy_id = policy_id
+        if max_entries is not None and max_entries < 1:
+            raise ValueError("max_entries must be >= 1")
+        self.max_entries = max_entries
 
     @property
     def policy_id(self) -> str:
@@ -67,6 +78,11 @@ class StaticDataPolicy(CachePolicy):
 
     policy_id = "static_eternal"
 
+    def __init__(self, *, max_entries: int | None = 10000) -> None:
+        if max_entries is not None and max_entries < 1:
+            raise ValueError("max_entries must be >= 1")
+        self.max_entries = max_entries
+
     def is_valid(self, metadata: CacheMetadata) -> bool:
         return True
 
@@ -79,8 +95,11 @@ class VolatileDataPolicy(CachePolicy):
 
     policy_id = "volatile_shortlived"
 
-    def __init__(self, ttl_minutes: int = 5) -> None:
+    def __init__(self, ttl_minutes: int = 5, *, max_entries: int | None = 10000) -> None:
         self._ttl = timedelta(minutes=ttl_minutes)
+        if max_entries is not None and max_entries < 1:
+            raise ValueError("max_entries must be >= 1")
+        self.max_entries = max_entries
 
     def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
@@ -95,6 +114,11 @@ class SmartExpiryPolicy(CachePolicy):
     """Adaptive TTL based on data characteristics."""
 
     policy_id = "smart_adaptive"
+
+    def __init__(self, *, max_entries: int | None = 10000) -> None:
+        if max_entries is not None and max_entries < 1:
+            raise ValueError("max_entries must be >= 1")
+        self.max_entries = max_entries
 
     def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
@@ -177,7 +201,13 @@ class SizeBoundedPolicy(CachePolicy):
 class PolicyRegistry:
     """Maps connectors/datasets to cache policies."""
 
-    def __init__(self, default_policy: CachePolicy | None = None) -> None:
+    def __init__(
+        self,
+        default_policy: CachePolicy | None = None,
+        *,
+        max_connector_policy_mappings: int = 4096,
+        max_dataset_policy_mappings: int = 4096,
+    ) -> None:
         default_policy = default_policy or TTLPolicy(ttl=timedelta(hours=24))
         self._policies: dict[str, CachePolicy] = {
             default_policy.policy_id: default_policy,
@@ -186,30 +216,68 @@ class PolicyRegistry:
             "volatile": VolatileDataPolicy(ttl_minutes=5),
             "smart": SmartExpiryPolicy(),
         }
-        self._connector_policies: dict[str, str] = {}
-        self._dataset_policies: dict[str, str] = {}
+        self._connector_policies: OrderedDict[str, str] = OrderedDict()
+        self._dataset_policies: OrderedDict[str, str] = OrderedDict()
+        self._max_connector_policy_mappings = self._validate_mapping_limit(
+            "max_connector_policy_mappings",
+            max_connector_policy_mappings,
+        )
+        self._max_dataset_policy_mappings = self._validate_mapping_limit(
+            "max_dataset_policy_mappings",
+            max_dataset_policy_mappings,
+        )
+        self._lock = threading.RLock()
 
     def register_policy(self, policy: CachePolicy) -> None:
-        self._policies[policy.policy_id] = policy
+        with self._lock:
+            self._policies[policy.policy_id] = policy
 
     def set_connector_policy(self, connector_id: str, policy_id: str) -> None:
-        if policy_id not in self._policies:
-            raise KeyError(f"Unknown policy_id: {policy_id}")
-        self._connector_policies[connector_id] = policy_id
+        with self._lock:
+            if policy_id not in self._policies:
+                raise KeyError(f"Unknown policy_id: {policy_id}")
+            self._connector_policies[connector_id] = policy_id
+            self._connector_policies.move_to_end(connector_id)
+            self._trim_mapping_locked(
+                self._connector_policies,
+                self._max_connector_policy_mappings,
+            )
 
     def set_dataset_policy(self, dataset_id: str, policy_id: str) -> None:
-        if policy_id not in self._policies:
-            raise KeyError(f"Unknown policy_id: {policy_id}")
-        self._dataset_policies[dataset_id] = policy_id
+        with self._lock:
+            if policy_id not in self._policies:
+                raise KeyError(f"Unknown policy_id: {policy_id}")
+            self._dataset_policies[dataset_id] = policy_id
+            self._dataset_policies.move_to_end(dataset_id)
+            self._trim_mapping_locked(
+                self._dataset_policies,
+                self._max_dataset_policy_mappings,
+            )
 
     def get_policy(self, request: FetchRequest, *, connector_id: str | None = None) -> CachePolicy:
-        if request.dataset_id in self._dataset_policies:
-            return self._policies[self._dataset_policies[request.dataset_id]]
+        with self._lock:
+            if request.dataset_id in self._dataset_policies:
+                self._dataset_policies.move_to_end(request.dataset_id)
+                return self._policies[self._dataset_policies[request.dataset_id]]
 
-        if connector_id and connector_id in self._connector_policies:
-            return self._policies[self._connector_policies[connector_id]]
+            if connector_id and connector_id in self._connector_policies:
+                self._connector_policies.move_to_end(connector_id)
+                return self._policies[self._connector_policies[connector_id]]
 
-        return self._policies["default"]
+            return self._policies["default"]
 
     def get_policy_by_id(self, policy_id: str) -> CachePolicy | None:
-        return self._policies.get(policy_id) or self._policies.get("default")
+        with self._lock:
+            return self._policies.get(policy_id) or self._policies.get("default")
+
+    @staticmethod
+    def _validate_mapping_limit(name: str, value: int) -> int:
+        limit = int(value)
+        if limit < 1:
+            raise ValueError(f"{name} must be >= 1")
+        return limit
+
+    @staticmethod
+    def _trim_mapping_locked(mapping: OrderedDict[str, str], limit: int) -> None:
+        while len(mapping) > limit:
+            mapping.popitem(last=False)

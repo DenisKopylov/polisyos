@@ -349,6 +349,7 @@ class GovernanceAccountabilityInput(BaseModel):
     causal_fairness_report: CausalFairnessReport | None = None
     tail_risk_summary: TailRiskDeltaSummary | None = None
     threshold_overrides: dict[str, float] = Field(default_factory=dict)
+    claims_ref: ArtifactRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -583,6 +584,9 @@ def build_governance_accountability_artifact(
         metadata={
             "eligible_for_promotion": eligible_for_promotion,
             "composite_score": composite_score,
+            "claims_ref": (
+                None if payload.claims_ref is None else str(payload.claims_ref.artifact_id)
+            ),
             "threshold_override_count": len(payload.threshold_overrides),
         },
     )

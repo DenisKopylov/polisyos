@@ -192,7 +192,7 @@ class DuckDBStorageAdapter(StoragePort):
 def _validate_identifier(value: str, *, what: str) -> str:
     if not _IDENT_RE.fullmatch(value):
         raise ValueError(f"Invalid {what}: {value!r}")
-    return value
+    return f'"{value}"'
 
 
 __all__ = ["DuckDBStorageAdapter"]

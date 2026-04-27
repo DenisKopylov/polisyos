@@ -32,6 +32,25 @@ from polisyos.scientist.search.readiness import (
 )
 
 
+def _passing_judge_verdict() -> dict[str, object]:
+    return {
+        "per_judge": {
+            name: {"judge_name": name, "passed": True, "is_fatal": True}
+            for name in (
+                "structural",
+                "statistical",
+                "robustness",
+                "governance",
+                "reproducibility",
+                "compute",
+            )
+        },
+        "composite_decision": "promote",
+        "blocking_failures": [],
+        "warnings": [],
+    }
+
+
 def _readiness_contract() -> DecisionReadinessContract:
     return DecisionReadinessContract(
         readiness_level=DecisionReadiness.SIMULATION_READY,
@@ -150,6 +169,7 @@ def test_policy_translation_uses_branch_state_for_declared_outputs(
 
     state = minimal_state.model_copy(deep=True)
     state.params["nested"] = {"baseline": True}
+    state.params["judge_verdict"] = _passing_judge_verdict()
     observed: dict[str, tuple[str, ...]] = {}
 
     def _spy_branch(base_state, *, write_paths=()):
@@ -201,6 +221,8 @@ def test_policy_translation_uses_branch_state_for_declared_outputs(
         "params.policy_brief",
         "policy_brief_ref",
         "artifacts_index.policy_brief_ref",
+        "artifacts_index.validation_report_ref",
+        "artifacts_index.judge_verdict_ref",
     )
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_POLICY_BRIEF_REF not in state.artifacts_index

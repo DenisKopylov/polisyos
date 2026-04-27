@@ -16,7 +16,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts import infer_schema
+from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
 from polisyos.fabric.connectors.sources._file_common import content_version, read_location_bytes
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
@@ -147,7 +147,10 @@ class GeoJSONConnector(BaseConnector[Any]):
             "content_hash": version.content_hash,
         }
 
-        schema_id = f"{self.connector_id}.{request.dataset_id or 'feature_collection'}"
+        schema_id = make_schema_id(
+            self.connector_id,
+            request.dataset_id or "feature_collection",
+        )
         schema = infer_schema(frame, schema_id=schema_id)
         state = handle.get_state(self._STATE_KEY) or {}
         schema_by_dataset = dict(state.get("schema_by_dataset", {}))
@@ -157,6 +160,7 @@ class GeoJSONConnector(BaseConnector[Any]):
             "fields": [
                 {
                     "name": field.name,
+                    "field_id": field.stable_id,
                     "data_type": field.data_type.value,
                     "nullable": field.nullable,
                 }

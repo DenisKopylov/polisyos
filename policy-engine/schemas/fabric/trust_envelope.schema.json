@@ -1,0 +1,751 @@
+{
+  "$defs": {
+    "AccessRef": {
+      "additionalProperties": false,
+      "description": "Access policy and redaction state for a decision-bearing value.",
+      "properties": {
+        "classification": {
+          "default": "public",
+          "minLength": 1,
+          "title": "Classification",
+          "type": "string"
+        },
+        "pii_tier": {
+          "default": "none",
+          "minLength": 1,
+          "title": "Pii Tier",
+          "type": "string"
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        },
+        "redaction": {
+          "default": "none",
+          "enum": [
+            "none",
+            "masked",
+            "redacted",
+            "aggregate_only",
+            "denied"
+          ],
+          "title": "Redaction",
+          "type": "string"
+        },
+        "tenant_scope": {
+          "default": "shared_public",
+          "minLength": 1,
+          "title": "Tenant Scope",
+          "type": "string"
+        }
+      },
+      "title": "AccessRef",
+      "type": "object"
+    },
+    "AuthoredText": {
+      "additionalProperties": false,
+      "description": "Textual decision surface with the same trust spine as quantities.",
+      "properties": {
+        "format": {
+          "default": "plain",
+          "enum": [
+            "plain",
+            "markdown",
+            "html",
+            "json"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "semantic_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Type"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "AuthoredText",
+      "type": "object"
+    },
+    "FabricQuantityValue": {
+      "additionalProperties": false,
+      "description": "Fabric-side quantity value compatible with the Runtime `QuantityValue` shape.",
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "metric_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Id"
+        },
+        "point": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Point"
+        },
+        "semantic_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Type"
+        },
+        "unit": {
+          "$ref": "#/$defs/UnitRef"
+        }
+      },
+      "required": [
+        "unit"
+      ],
+      "title": "FabricQuantityValue",
+      "type": "object"
+    },
+    "LineageRef": {
+      "additionalProperties": false,
+      "description": "Lineage reference rich enough for compact UI and lazy full graph loading.",
+      "properties": {
+        "compact_summary_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compact Summary Ref"
+        },
+        "export_links": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Export Links",
+          "type": "object"
+        },
+        "full_graph_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Full Graph Ref"
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hash"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "raw_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Raw Evidence Refs",
+          "type": "array"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "status": {
+          "default": "untraced",
+          "enum": [
+            "verified",
+            "pending",
+            "disputed",
+            "untraced"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "tracking_issue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tracking Issue"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "LineageRef",
+      "type": "object"
+    },
+    "QualityRef": {
+      "additionalProperties": false,
+      "description": "Quality evidence reference embedded in a Fabric trust envelope.",
+      "properties": {
+        "quality_surface": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quality Surface"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "remediation_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation Link"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Report Ref"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "status": {
+          "default": "unknown_quality",
+          "enum": [
+            "passed",
+            "warning",
+            "failed",
+            "unknown_quality"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "title": "QualityRef",
+      "type": "object"
+    },
+    "ReplayRef": {
+      "additionalProperties": false,
+      "description": "Replay or retention alternative reference for the value.",
+      "properties": {
+        "manifest_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Ref"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "retention_alternative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retention Alternative"
+        },
+        "source_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Reason"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "replayable",
+            "non_replayable",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "title": "ReplayRef",
+      "type": "object"
+    },
+    "SourceContractRef": {
+      "additionalProperties": false,
+      "description": "SourceContract v2 identity carried by decision-bearing values.",
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "SourceContractRef",
+      "type": "object"
+    },
+    "TemporalRef": {
+      "additionalProperties": false,
+      "description": "Temporal scope echoed by every Fabric trust envelope.",
+      "properties": {
+        "branch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Branch"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        },
+        "snapshot_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Snapshot Id"
+        },
+        "tx_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tx At"
+        },
+        "valid_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid At"
+        }
+      },
+      "title": "TemporalRef",
+      "type": "object"
+    },
+    "TypedGap": {
+      "additionalProperties": false,
+      "description": "Typed gap state for explicit waivers and unknowns in the trust envelope.",
+      "properties": {
+        "access_policy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Policy"
+        },
+        "capability_endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capability Endpoint"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "quality_surface": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quality Surface"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "redaction_behavior": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Redaction Behavior"
+        },
+        "remediation_link": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Remediation Link"
+        },
+        "retention_alternative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retention Alternative"
+        },
+        "source_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Reason"
+        },
+        "status": {
+          "enum": [
+            "untraced",
+            "unknown_quality",
+            "restricted",
+            "non_replayable",
+            "unsupported_temporal_scope"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "TypedGap",
+      "type": "object"
+    },
+    "UnitRef": {
+      "additionalProperties": false,
+      "description": "Unit identity for a Fabric decision quantity.",
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "display": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display"
+        },
+        "system": {
+          "default": "ucum",
+          "minLength": 1,
+          "title": "System",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "UnitRef",
+      "type": "object"
+    }
+  },
+  "$id": "https://polisyos.dev/schemas/fabric/trust_envelope.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Decision-bearing Fabric value plus its trust envelope.",
+  "properties": {
+    "access": {
+      "$ref": "#/$defs/AccessRef"
+    },
+    "gaps": {
+      "items": {
+        "$ref": "#/$defs/TypedGap"
+      },
+      "title": "Gaps",
+      "type": "array"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "default": "quantity",
+      "enum": [
+        "quantity",
+        "authored_text",
+        "fact",
+        "event",
+        "claim"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "lineage": {
+      "$ref": "#/$defs/LineageRef"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "quality": {
+      "$ref": "#/$defs/QualityRef"
+    },
+    "replay": {
+      "$ref": "#/$defs/ReplayRef"
+    },
+    "source_contract": {
+      "$ref": "#/$defs/SourceContractRef"
+    },
+    "time": {
+      "$ref": "#/$defs/TemporalRef"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FabricQuantityValue"
+        },
+        {
+          "$ref": "#/$defs/AuthoredText"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        }
+      ],
+      "title": "Value"
+    }
+  },
+  "required": [
+    "id",
+    "value",
+    "source_contract",
+    "quality",
+    "lineage",
+    "access",
+    "time",
+    "replay"
+  ],
+  "title": "FabricDecisionData",
+  "type": "object",
+  "x-schema-version": "fabric.trust_envelope.v1"
+}

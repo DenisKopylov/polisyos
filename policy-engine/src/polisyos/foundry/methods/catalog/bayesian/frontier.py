@@ -25,6 +25,17 @@ from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult, Tabu
 from polisyos.foundry.methods.catalog.ml.regression import _build_prediction_result, _feature_names
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
 
+from .prior_sensitivity import (
+    BayesianPolicyModelFamily,
+    DataConditioningMode,
+    SensitivityCurvePoint,
+    assemble_prior_sensitivity_report,
+    build_admissible_prior_class,
+    build_sensitivity_record_from_intervals,
+    not_run_prior_sensitivity_report,
+    prior_predictive_rank_test,
+    simulate_bart_prior_predictive,
+)
 from .protocols import (
     PosteriorResult,
     SimulatorDiagnosticArtifact,
@@ -1727,6 +1738,95 @@ class SimulationBasedNREEstimator(_SBIBase):
         return SimulationBasedNREEstimator._run(state, params, algorithm="nre")
 
 
+def _bart_prior_sensitivity_report(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    predictive_mean_draws: np.ndarray,
+    credible_intervals: Mapping[str, tuple[float, float]],
+    num_trees: int,
+    credible_mass: float,
+    params: Mapping[str, Any],
+) -> Any:
+    seed = int(params.get("__seed__", params.get("seed", 0))) + 4409
+    rng = np.random.default_rng(seed)
+    n_simulations = max(32, int(params.get("prior_predictive_simulations", 96)))
+    function_scale = max(float(np.std(y, ddof=1)) if y.shape[0] > 1 else 1.0, 1e-3)
+    simulations, tree_summary = simulate_bart_prior_predictive(
+        x,
+        num_trees=num_trees,
+        tree_split_alpha=float(params.get("tree_split_alpha", params.get("a", 0.95))),
+        tree_split_beta=float(params.get("tree_split_beta", params.get("b", 2.0))),
+        leaf_scale_k=float(params.get("leaf_scale_k", params.get("k", 2.0))),
+        function_scale=function_scale,
+        noise_scale=function_scale,
+        n_simulations=n_simulations,
+        rng=rng,
+    )
+    conditioning_mode = DataConditioningMode(
+        str(params.get("data_conditioning_mode", DataConditioningMode.INVALID.value))
+    )
+    admissible = build_admissible_prior_class(
+        BayesianPolicyModelFamily.BART,
+        hyperparameters={
+            **tree_summary,
+            "uses_outcome_to_set_prior": True,
+            "data_conditioning_mode": conditioning_mode,
+        },
+        policy_context={
+            "terminal_nodes_max": float(params.get("terminal_nodes_max", 8.0)),
+            "auditable": True,
+        },
+        prior_predictive_simulations=simulations,
+    )
+    prior_predictive = prior_predictive_rank_test(
+        y,
+        simulations,
+        alpha=float(params.get("prior_predictive_alpha", 0.05)),
+        model_family=BayesianPolicyModelFamily.BART,
+        features=x,
+        conditioned_on=("covariates", "sampling_design"),
+    )
+    baseline_interval = credible_intervals["posterior_predictive_mean"]
+    baseline_center = (baseline_interval[0] + baseline_interval[1]) / 2.0
+    baseline_half_width = max((baseline_interval[1] - baseline_interval[0]) / 2.0, 1e-12)
+    points = tuple(
+        SensitivityCurvePoint(
+            hyperparameter="leaf_scale_k",
+            multiplier=multiplier,
+            interval=(
+                float(baseline_center - baseline_half_width * multiplier),
+                float(baseline_center + baseline_half_width * multiplier),
+            ),
+            half_width=float(baseline_half_width * multiplier),
+            refit_required=True,
+        )
+        for multiplier in (0.5, 2.0)
+    )
+    sensitivity = build_sensitivity_record_from_intervals(
+        estimand_id="posterior_predictive_mean",
+        baseline_interval=baseline_interval,
+        perturbation_intervals=points,
+        credible_interval_level=credible_mass,
+    ).model_copy(update={"warnings": ("bart_prior_sensitivity_requires_refit",)})
+    return assemble_prior_sensitivity_report(
+        model_family=BayesianPolicyModelFamily.BART,
+        selected_prior_id="bart_response_scaled_sum_of_trees_prior_v1",
+        admissible_prior_class=admissible,
+        prior_predictive_check=prior_predictive,
+        sensitivity=sensitivity,
+        readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
+        uses_outcome_to_set_prior=True,
+        data_conditioning_mode=conditioning_mode,
+        metadata={
+            "estimand_id": "posterior_predictive_mean",
+            "prior_predictive_seed": seed,
+            "predictive_draws": int(predictive_mean_draws.shape[0]),
+        },
+        warnings=sensitivity.warnings,
+    )
+
+
 @foundry_method(
     namespace="bayesian.nonparametric",
     version="1.0.0",
@@ -1898,6 +1998,23 @@ class BayesianBARTRegressorEstimator:
             num_samples=num_samples,
             credible_mass=credible_mass,
         )
+        try:
+            prior_sensitivity = _bart_prior_sensitivity_report(
+                x=x,
+                y=y,
+                predictive_mean_draws=predictive_mean_draws,
+                credible_intervals=credible_intervals,
+                num_trees=num_trees,
+                credible_mass=credible_mass,
+                params=params,
+            )
+        except Exception as exc:
+            prior_sensitivity = not_run_prior_sensitivity_report(
+                model_family=BayesianPolicyModelFamily.BART,
+                selected_prior_id="bart_response_scaled_sum_of_trees_prior_v1",
+                admissible_prior_class_id="bart_sum_of_trees_policy_v1",
+                reason=f"prior_sensitivity_gate_error:{type(exc).__name__}",
+            )
         posterior = PosteriorResult(
             method_name="bayesian_bart_regression",
             posterior_means=posterior_means,
@@ -1911,6 +2028,7 @@ class BayesianBARTRegressorEstimator:
                 "uncertainty_decomposition": decomposition.as_dict(),
                 "runtime_backend_used": "pymc_bart",
             },
+            prior_sensitivity=prior_sensitivity,
         )
         return {
             "result": posterior,

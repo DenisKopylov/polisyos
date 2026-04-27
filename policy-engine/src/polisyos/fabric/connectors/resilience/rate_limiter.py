@@ -134,7 +134,7 @@ class RateLimiter:
 
     def _refill_tokens(self, now: float) -> None:
         """Refill tokens based on elapsed time (monotonic)."""
-        elapsed = now - self._last_refill
+        elapsed = max(0.0, now - self._last_refill)
         new_tokens = elapsed * self.rate_limit_rps
 
         self._tokens = min(self._tokens + new_tokens, self.burst_size)
@@ -171,6 +171,8 @@ class RateLimiter:
         """Acquire tokens, waiting if necessary."""
         if tokens <= 0:
             raise ValueError("tokens must be > 0")
+        if tokens > self.burst_size:
+            raise ValueError("tokens must be <= burst_size")
 
         with self._tracer.start_as_current_span(
             FABRIC_TRACE_NAMES["rate_limit_acquire"],

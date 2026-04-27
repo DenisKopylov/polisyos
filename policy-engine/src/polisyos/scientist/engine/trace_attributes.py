@@ -27,6 +27,11 @@ ATTR_CELL_ID = "polisyos.cell_id"
 # --- Runner attributes ---
 ATTR_RUNNER_BACKEND = "polisyos.scientist.runner_backend"
 
+# --- Research DAG sidecar attributes ---
+ATTR_RESEARCH_DAG_REF = "polisyos.scientist.research_dag_ref"
+ATTR_RESEARCH_DAG_ENABLED = "polisyos.scientist.research_dag_enabled"
+ATTR_RESEARCH_DAG_STATUS = "polisyos.scientist.research_dag_status"
+
 # --- Status attributes ---
 ATTR_NODE_STATUS = "polisyos.scientist.node_status"
 ATTR_DURATION_MS = "polisyos.scientist.duration_ms"
@@ -96,4 +101,25 @@ def enrich_node_span_result(
     attrs[ATTR_DURATION_MS] = duration_ms
     attrs[ATTR_CACHE_HIT] = cache_hit
     attrs[ATTR_RETRY_COUNT] = retry_count
+    return attrs
+
+
+def build_research_dag_span_attributes(
+    *,
+    run_id: str,
+    workflow_id: str,
+    enabled: bool,
+    status: str,
+    research_dag_ref: str | None = None,
+) -> dict[str, str | int | bool]:
+    """Build OTel attributes for the Phase 1.2 research DAG sidecar."""
+
+    attrs: dict[str, str | int | bool] = {
+        ATTR_RUN_ID: run_id,
+        ATTR_WORKFLOW_ID: workflow_id,
+        ATTR_RESEARCH_DAG_ENABLED: enabled,
+        ATTR_RESEARCH_DAG_STATUS: status,
+    }
+    if research_dag_ref:
+        attrs[ATTR_RESEARCH_DAG_REF] = research_dag_ref
     return attrs

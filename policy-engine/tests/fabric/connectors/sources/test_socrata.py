@@ -181,7 +181,7 @@ class TestSocrataFetch:
         result = _run_async(_exercise())
         assert result.row_count == 3
         assert "borough" in result.data.columns
-        assert result.schema_id == "socrata.soda.abc1-2345"
+        assert result.schema_id == "socrata.soda.abc1_2345"
 
 
 # ---------------------------------------------------------------------------

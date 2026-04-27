@@ -47,6 +47,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
 )
+from polisyos.scientist.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
 from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
 from polisyos.scientist.workflows.default import default_workflow_spec
 from polisyos.scientist.workflows.discovery import discovery_workflow_spec
@@ -193,6 +194,8 @@ def _prepare_workflow_state(initial_state: ExperimentState, *, workflow_id: str)
     if not state.run_id:
         state = state.model_copy(update={"run_id": new_run_id()})
     state.params["workflow_id"] = workflow_id
+    if "research_dag_enabled" in state.params and RESEARCH_DAG_FEATURE_FLAG not in state.params:
+        state.params[RESEARCH_DAG_FEATURE_FLAG] = state.params["research_dag_enabled"]
     return state
 
 

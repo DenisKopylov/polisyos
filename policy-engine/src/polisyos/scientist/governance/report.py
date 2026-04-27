@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.contracts.scientist import (
     SourceVerificationReportRef,
@@ -34,6 +35,9 @@ class GovernanceReportLinks(BaseModel):
     change_proposal_ref: ChangeProposalRef | None = None
     source_verification_report_ref: SourceVerificationReportRef | None = None
     verified_policy_report_ref: VerifiedPolicyReportRef | None = None
+    claims_ref: ArtifactRef | None = None
+    human_review_packet_ref: ArtifactRef | None = None
+    human_review_decision_ref: ArtifactRef | None = None
 
 
 class GovernanceReport(BaseModel):

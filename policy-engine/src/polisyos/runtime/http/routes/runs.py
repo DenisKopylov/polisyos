@@ -31,6 +31,12 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     TemporalSurfaceSupport,
 )
+from polisyos.fabric.decision_data import (
+    FabricDecisionDataResponse,
+)
+from polisyos.fabric.decision_data import (
+    TemporalRef as FabricTemporalRef,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -849,6 +855,72 @@ if router is not None:
             quantities=quantities,
             coverage=coverage,
             entries=entries,
+        )
+
+    @router.get(
+        "/{run_id}/fabric-decision-data",
+        response_model=FabricDecisionDataResponse,
+        operation_id="get_run_fabric_decision_data",
+    )
+    def get_run_fabric_decision_data(
+        run_id: str,
+        request: Request,
+        response: Response,
+        valid_at: datetime | None = Query(default=None),
+        tx_at: datetime | None = Query(default=None),
+        t: datetime | None = Query(default=None, alias="t"),
+        branch: str | None = Query(default=None),
+        snapshot_id: str | None = Query(default=None),
+        scenario_id: str | None = Query(default=None),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> FabricDecisionDataResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_fabric_decision_data",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_fabric_decision_data",
+        )
+        quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        quantities, runtime_coverage, _entries = ctx.temporal.project_quantities(
+            quantities,
+            entries,
+            temporal_scope,
+        )
+        decision_data, coverage = ctx.lineage.build_fabric_decision_data_for_quantities(
+            quantities,
+            runtime_coverage,
+            temporal_scope=temporal_scope,
+        )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={
+                "decision_data_count": len(decision_data),
+                "untraced": coverage.untraced,
+            },
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return FabricDecisionDataResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]).model_dump(mode="json"),
+            run_id=run_id,
+            source_kind=run.source_kind,
+            temporal_scope=FabricTemporalRef.from_runtime_scope(temporal_scope),
+            decision_data=decision_data,
+            coverage=coverage,
         )
 
     @router.get(

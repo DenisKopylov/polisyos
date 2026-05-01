@@ -10,6 +10,10 @@ import {
 } from "@/app/realtime/ReviewCollaborationIndicators";
 import { buildGovernanceReviewId } from "@/app/realtime/reviewIds";
 import { useReviewCollaborationSurface } from "@/app/realtime/useReviewCollaborationSurface";
+import { DisputeRegistryPanel } from "@/features/runs/components/DisputeRegistryPanel";
+import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
+import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
+import { normalizeGovernanceIssues } from "@/lib/domain/governance";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { useI18n } from "@/i18n/LocaleProvider";
 import {
@@ -23,7 +27,11 @@ const GovernanceReport = lazy(
 );
 
 function GovernanceTabContent({ runId }: { runId: string }) {
+  const summary = useRunInspector();
   const governanceQuery = useSuspenseGovernanceDebug(runId);
+  const governanceIssues = normalizeGovernanceIssues(
+    governanceQuery.data.debug.issues,
+  );
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const collaborationEnabled = useReviewCollaborationEnabled();
   const collaboration = useReviewCollaborationSurface({
@@ -61,6 +69,8 @@ function GovernanceTabContent({ runId }: { runId: string }) {
       ) : null}
       <ReviewCursorLayer cursors={collaboration.cursors} />
       <GovernanceReport data={governanceQuery.data.debug} />
+      <DisputeRegistryPanel issues={governanceIssues} runId={runId} />
+      <PublicSectorReadinessPanel runId={runId} summary={summary} />
     </div>
   );
 }

@@ -32,6 +32,7 @@ from polisyos.runtime.http.routes.artifacts import router as artifacts_router
 from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
+from polisyos.runtime.http.routes.fabric import router as fabric_router
 from polisyos.runtime.http.routes.health import router as health_router
 from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
@@ -219,6 +220,8 @@ def create_runtime_api_app(
         app.include_router(scenarios_router)
     if temporal_router is not None:
         app.include_router(temporal_router)
+    if fabric_router is not None:
+        app.include_router(fabric_router)
     if debug_router is not None:
         app.include_router(debug_router)
     if artifacts_router is not None:

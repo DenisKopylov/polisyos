@@ -243,6 +243,24 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Cap number of provision spans per document for SPO.",
     )
     run_p.add_argument(
+        "--graph-amendment-workers",
+        type=int,
+        default=1,
+        help="Process workers for amendment scan/enrichment during graph build.",
+    )
+    run_p.add_argument(
+        "--graph-amendment-task-chunk",
+        type=int,
+        default=64,
+        help="Provision JSONL files per amendment worker task.",
+    )
+    run_p.add_argument(
+        "--graph-amendment-progress-interval",
+        type=int,
+        default=100,
+        help="Log amendment scan/enrichment progress every N provision files; 0 disables.",
+    )
+    run_p.add_argument(
         "--llm-gate-enabled",
         dest="llm_gate_enabled",
         action="store_true",
@@ -714,6 +732,9 @@ def _cmd_run(args: argparse.Namespace) -> None:
         spo_skip_trivial=not args.no_spo_skip_trivial,
         spo_verify_mode=args.spo_verify_mode,
         spo_max_provisions_per_doc=args.spo_max_provisions_per_doc,
+        graph_amendment_workers=args.graph_amendment_workers,
+        graph_amendment_task_chunk=args.graph_amendment_task_chunk,
+        graph_amendment_progress_interval=args.graph_amendment_progress_interval,
         jurisdiction=args.jurisdiction,
         pattern_feedback_enabled=args.pattern_feedback_enabled,
         llm_gate_enabled=args.llm_gate_enabled,

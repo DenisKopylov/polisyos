@@ -19,3 +19,14 @@ def test_detect_amendments_skips_bare_low_signal_fallbacks() -> None:
     amendments = detect_amendments("Виключено")
 
     assert amendments == []
+
+
+def test_detect_amendments_keeps_v_variant_editorial_clause_after_prefilter() -> None:
+    amendments = detect_amendments(
+        "Статтю 12 викласти в такій редакції:\n"
+        "Стаття 12. Нова редакція положення застосовується з дня опублікування."
+    )
+
+    assert len(amendments) == 1
+    assert amendments[0].amendment_type == "modify_provision"
+    assert amendments[0].target_anchor == "article:12"

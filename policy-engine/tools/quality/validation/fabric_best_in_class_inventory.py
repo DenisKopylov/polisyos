@@ -111,6 +111,49 @@ def _snapshot_records(path: Path, key: str) -> dict[str, dict[str, Any]]:
     }
 
 
+def _source_contract_field_ids(contract: Mapping[str, Any]) -> set[str]:
+    schema = contract.get("schema", {})
+    if not isinstance(schema, Mapping):
+        return set()
+    fields = schema.get("fields", [])
+    if not isinstance(fields, list):
+        return set()
+    field_ids: set[str] = set()
+    for field in fields:
+        if not isinstance(field, Mapping):
+            continue
+        field_id = field.get("field_id") or field.get("name")
+        if field_id:
+            field_ids.add(str(field_id))
+    return field_ids
+
+
+def _source_contract_field_policy_ids(contract: Mapping[str, Any]) -> set[str]:
+    security = contract.get("security", {})
+    if not isinstance(security, Mapping):
+        return set()
+    policies = security.get("field_policies", [])
+    if not isinstance(policies, list):
+        return set()
+    return {
+        str(policy.get("field_id"))
+        for policy in policies
+        if isinstance(policy, Mapping) and policy.get("field_id")
+    }
+
+
+def _source_contract_has_complete_field_policy_coverage(
+    contract: Mapping[str, Any],
+) -> bool:
+    policy_ids = _source_contract_field_policy_ids(contract)
+    if not policy_ids:
+        return False
+    if "*" in policy_ids:
+        return True
+    field_ids = _source_contract_field_ids(contract)
+    return bool(field_ids) and field_ids.issubset(policy_ids)
+
+
 def _source_contract_files(contract_id: str, connector_id: str) -> list[str]:
     module_by_connector = {
         "eurostat.data": ("eurostat.py", "eurostat_contracts.py"),
@@ -234,6 +277,14 @@ def _has_token(path: Path, token: str) -> bool:
     return token in _read_text(path)
 
 
+def _client_operation_token(operation_id: str) -> str:
+    parts = operation_id.split("_")
+    return "".join(
+        part if index == 0 else part[:1].upper() + part[1:]
+        for index, part in enumerate(parts)
+    )
+
+
 def _surface(
     *,
     surface_id: str,
@@ -322,6 +373,57 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "schemas"
         / "fabric"
         / "source_contract.schema.json",
+        "processing_guarantees": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "processing_guarantees.py",
+        "processing_guarantee_schema": repo_root
+        / "schemas"
+        / "fabric"
+        / "processing_guarantee.schema.json",
+        "processing_guarantees_validator": repo_root
+        / "tools"
+        / "quality"
+        / "validation"
+        / "fabric_processing_guarantees.py",
+        "processing_guarantees_doc": repo_root
+        / "docs"
+        / "reference"
+        / "fabric"
+        / "processing-guarantees.md",
+        "catalog_discovery": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "catalog"
+        / "discovery.py",
+        "entity_resolution_models": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "entity_resolution"
+        / "models.py",
+        "entity_resolution_store": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "entity_resolution"
+        / "store.py",
+        "discovery_intelligence_validator": repo_root
+        / "tools"
+        / "quality"
+        / "validation"
+        / "fabric_discovery_intelligence.py",
+        "discovery_eval_fixture": repo_root
+        / "tests"
+        / "fixtures"
+        / "fabric_discovery_eval.json",
+        "discovery_intelligence_doc": repo_root
+        / "docs"
+        / "reference"
+        / "fabric"
+        / "discovery-intelligence.md",
         "source_scorecard_schema": repo_root
         / "schemas"
         / "fabric"
@@ -341,6 +443,11 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_source_contracts.py",
+        "wave2_strict_validator": repo_root
+        / "tools"
+        / "quality"
+        / "validation"
+        / "fabric_wave2_strict_closure.py",
         "connector_sdk": repo_root
         / "src"
         / "polisyos"
@@ -375,6 +482,62 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_decision_data_coverage.json",
+        "product_integration": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "product_integration.py",
+        "compatibility": repo_root / "src" / "polisyos" / "fabric" / "compatibility.py",
+        "product_integration_validator": repo_root
+        / "tools"
+        / "quality"
+        / "validation"
+        / "fabric_product_integration.py",
+        "product_integration_doc": repo_root
+        / "docs"
+        / "reference"
+        / "fabric"
+        / "product-api-integration.md",
+        "runtime_openapi": repo_root / "schemas" / "runtime_api_v1.openapi.json",
+        "runtime_client_ts": repo_root
+        / "frontend"
+        / "runtime-api-client"
+        / "runtimeApiClient.ts",
+        "dashboard_fixture_registry": repo_root
+        / "frontend"
+        / "runtime-dashboard"
+        / "src"
+        / "test"
+        / "contracts"
+        / "runtimeContractFixtures.ts",
+        "dashboard_validators": repo_root
+        / "frontend"
+        / "runtime-dashboard"
+        / "src"
+        / "api"
+        / "validators.ts",
+        "dashboard_fabric_decision_adapter": repo_root
+        / "frontend"
+        / "runtime-dashboard"
+        / "src"
+        / "shared"
+        / "ui"
+        / "quantity"
+        / "fabric-decision-data.ts",
+        "dashboard_fabric_decision_hook": repo_root
+        / "frontend"
+        / "runtime-dashboard"
+        / "src"
+        / "api"
+        / "hooks"
+        / "useRunFabricDecisionData.ts",
+        "dashboard_fixture_dir": repo_root
+        / "frontend"
+        / "runtime-dashboard"
+        / "src"
+        / "test"
+        / "contracts"
+        / "fixtures",
         "source_platform_doc": repo_root
         / "docs"
         / "reference"
@@ -440,6 +603,9 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_schema_governance.py",
+        "streaming": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "streaming.py",
+        "benchmarks": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "benchmarks.py",
+        "orchestrator": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "orchestrator.py",
         "replay_store": repo_root
         / "src"
         / "polisyos"
@@ -473,6 +639,37 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "world"
         / "store"
         / "snapshots.py",
+        "world_segments": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "world"
+        / "store"
+        / "segments.py",
+        "world_emit": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "world"
+        / "store"
+        / "emit.py",
+        "world_kuzu": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "world"
+        / "materialize"
+        / "kuzu.py",
+        "retention": repo_root / "src" / "polisyos" / "fabric" / "security" / "retention.py",
+        "world_branch_schema": repo_root / "schemas" / "fabric" / "world_branch.schema.json",
+        "scenario_branch_schema": repo_root / "schemas" / "fabric" / "scenario_branch.schema.json",
+        "world_duckdb_ddl": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "world"
+        / "ddl"
+        / "duckdb_world.sql",
         "temporal_route": repo_root
         / "src"
         / "polisyos"
@@ -508,6 +705,51 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "http"
         / "services"
         / "lineage.py",
+        "fabric_route": repo_root
+        / "src"
+        / "polisyos"
+        / "runtime"
+        / "http"
+        / "routes"
+        / "fabric.py",
+        "fabric_service": repo_root
+        / "src"
+        / "polisyos"
+        / "runtime"
+        / "http"
+        / "services"
+        / "fabric.py",
+        "scientist_fabric_trust_gate": repo_root
+        / "src"
+        / "polisyos"
+        / "scientist"
+        / "governance"
+        / "passes"
+        / "fabric_trust_gate_pass.py",
+        "scientist_readiness": repo_root
+        / "src"
+        / "polisyos"
+        / "scientist"
+        / "search"
+        / "readiness.py",
+        "scholar_provenance": repo_root
+        / "src"
+        / "polisyos"
+        / "scholar"
+        / "provenance.py",
+        "lex_provenance": repo_root / "src" / "polisyos" / "lex" / "provenance.py",
+        "foundry_calibration_fabric": repo_root
+        / "src"
+        / "polisyos"
+        / "foundry"
+        / "calibration"
+        / "fabric_quality.py",
+        "foundry_uncertainty_fabric": repo_root
+        / "src"
+        / "polisyos"
+        / "foundry"
+        / "uncertainty"
+        / "fabric_quality.py",
         "access_control": repo_root
         / "src"
         / "polisyos"
@@ -534,16 +776,23 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/fabric/connectors/test_registry.py",
             "tests/fabric/connectors/test_source_contract_v2.py",
             "tests/fabric/connectors/profiles/test_source_profiles.py",
+            "tests/fabric/data_plane/test_processing_guarantees.py",
             "tests/tools/test_fabric_schema_governance.py",
             "tests/tools/test_fabric_source_contracts.py",
+            "tests/tools/test_fabric_processing_guarantees.py",
         ],
         "evidence": [
             "tests/fabric/data_plane/test_record_replay.py",
             "tests/fabric/data_plane/test_quarantine.py",
+            "tests/fabric/data_plane/test_streaming_runtime.py",
+            "tests/fabric/data_plane/test_processing_guarantees.py",
+            "tests/fabric/data_plane/test_benchmarks.py",
+            "tests/fabric/data_plane/test_orchestrator.py",
             "tests/fabric/test_ingestion_quarantine.py",
             "tests/fabric/test_provenance.py",
             "tests/fabric/connectors/test_source_contract_v2.py",
             "tests/tools/test_fabric_source_contracts.py",
+            "tests/tools/test_fabric_processing_guarantees.py",
         ],
         "semantics": [
             "tests/fabric/test_quality_indicators.py",
@@ -551,12 +800,18 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/fabric/connectors/test_quality_statistics.py",
             "tests/fabric/connectors/test_schema_system.py",
             "tests/fabric/connectors/test_source_contract_v2.py",
+            "tests/fabric/test_discovery_intelligence.py",
+            "tests/fabric/test_entity_resolution.py",
             "tests/tools/test_fabric_schema_governance.py",
             "tests/tools/test_fabric_source_contracts.py",
+            "tests/tools/test_fabric_discovery_intelligence.py",
         ],
         "world": [
             "tests/fabric/test_world_time_travel.py",
             "tests/fabric/test_world_materialization.py",
+            "tests/fabric/test_world_branch_governance.py",
+            "tests/fabric/test_world_temporal_capabilities.py",
+            "tests/fabric/test_entity_resolution.py",
             "tests/fabric/test_world_query_multibackend.py",
             "tests/runtime/http/test_temporal_api.py",
             "tests/runtime/http/test_temporal_routes.py",
@@ -567,6 +822,8 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/fabric/test_fabric_observability.py",
             "tests/fabric/test_observability_governance_quality_phase4.py",
             "tests/fabric/test_provenance.py",
+            "tests/fabric/test_discovery_intelligence.py",
+            "tests/fabric/test_entity_resolution.py",
             "tests/fabric/test_access_control.py",
             "tests/fabric/test_duckdb_storage_access_control.py",
             "tests/fabric/test_world_query_column_masking.py",
@@ -575,6 +832,15 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/runtime/http/test_lineage_routes.py",
             "tests/tools/test_fabric_source_contracts.py",
             "tests/tools/test_fabric_decision_data_coverage.py",
+            "tests/tools/test_fabric_discovery_intelligence.py",
+            "tests/tools/test_fabric_product_integration.py",
+            "tests/fabric/test_product_integration.py",
+            "tests/runtime/http/test_fabric_integration_routes.py",
+            "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+            "tests/scholar/test_fabric_provenance.py",
+            "tests/lex/test_fabric_provenance.py",
+            "tests/foundry/calibration/test_fabric_quality.py",
+            "tests/foundry/uncertainty/test_fabric_quality.py",
         ],
     }
     return {plane: _existing_paths(repo_root, paths) for plane, paths in raw.items()}
@@ -612,6 +878,23 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         and isinstance(contract.get("security"), Mapping)
         and contract["security"].get("classification")
     )
+    source_v2_field_policy_contract_count = sum(
+        1
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+        and bool(_source_contract_field_policy_ids(contract))
+    )
+    source_v2_field_policy_count = sum(
+        len(_source_contract_field_policy_ids(contract))
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+    )
+    source_v2_field_policy_coverage_count = sum(
+        1
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+        and _source_contract_has_complete_field_policy_coverage(contract)
+    )
     source_v2_bounded_read_count = sum(
         1
         for contract in source_contract_v2_payloads
@@ -622,6 +905,31 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             str(check).casefold()
             for check in contract["quality"].get("required_checks", [])
         }
+    )
+    source_v2_processing_count = sum(
+        1
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+        and isinstance(contract.get("processing"), Mapping)
+        and contract["processing"].get("guarantee")
+    )
+    source_v2_dedupe_window_count = sum(
+        1
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+        and isinstance(contract.get("processing"), Mapping)
+        and isinstance(contract["processing"].get("idempotency"), Mapping)
+        and int(contract["processing"]["idempotency"].get("dedupe_window_seconds") or 0)
+        > 0
+    )
+    source_v2_replay_retention_count = sum(
+        1
+        for contract in source_contract_v2_payloads
+        if isinstance(contract, Mapping)
+        and isinstance(contract.get("processing"), Mapping)
+        and isinstance(contract["processing"].get("idempotency"), Mapping)
+        and int(contract["processing"]["idempotency"].get("replay_retention_days") or 0)
+        > 0
     )
     source_v2_owner_reviewer_count = sum(
         1
@@ -664,6 +972,24 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests/tools/test_fabric_source_contracts.py",
         ],
     )
+    processing_tests = _existing_paths(
+        repo_root,
+        [
+            "tests/fabric/data_plane/test_processing_guarantees.py",
+            "tests/fabric/data_plane/test_streaming_runtime.py",
+            "tests/fabric/data_plane/test_benchmarks.py",
+            "tests/fabric/data_plane/test_orchestrator.py",
+            "tests/tools/test_fabric_processing_guarantees.py",
+        ],
+    )
+    discovery_tests = _existing_paths(
+        repo_root,
+        [
+            "tests/fabric/test_discovery_intelligence.py",
+            "tests/fabric/test_entity_resolution.py",
+            "tests/tools/test_fabric_discovery_intelligence.py",
+        ],
+    )
     profile_tests = _existing_paths(
         repo_root, ["tests/fabric/connectors/profiles/test_source_profiles.py"]
     )
@@ -691,6 +1017,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         [
             "tests/fabric/test_world_time_travel.py",
             "tests/fabric/test_world_materialization.py",
+            "tests/fabric/test_world_branch_governance.py",
+            "tests/fabric/test_world_temporal_capabilities.py",
             "tests/runtime/http/test_temporal_api.py",
             "tests/runtime/http/test_temporal_routes.py",
         ],
@@ -728,6 +1056,89 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests/tools/test_fabric_decision_data_coverage.py",
         ],
     )
+    product_integration_tests = _existing_paths(
+        repo_root,
+        [
+            "tests/runtime/http/test_fabric_integration_routes.py",
+            "tests/tools/test_fabric_product_integration.py",
+            "tests/fabric/test_product_integration.py",
+            "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+            "tests/scientist/search/test_phase_b_policy_runtime.py",
+            "tests/scholar/test_fabric_provenance.py",
+            "tests/lex/test_fabric_provenance.py",
+            "tests/foundry/calibration/test_fabric_quality.py",
+            "tests/foundry/uncertainty/test_fabric_quality.py",
+        ],
+    )
+    product_fixture_names = [
+        "run-quantities.json",
+        "run-fabric-decision-data.json",
+        "lineage.json",
+        "lineage-batch.json",
+        "temporal-capabilities.json",
+        "compare-run.json",
+        "counterfactual-metrics.json",
+        "fabric-source-scorecards.json",
+        "fabric-quality-batch.json",
+        "fabric-trust-batch.json",
+        "fabric-replay.json",
+        "fabric-impact.json",
+    ]
+    product_fixture_count = sum(
+        1 for name in product_fixture_names if (paths["dashboard_fixture_dir"] / name).exists()
+    )
+    product_runtime_operation_ids = [
+        "get_fabric_source_scorecards",
+        "get_fabric_quality_batch",
+        "get_fabric_trust_batch",
+        "get_fabric_run_replay",
+        "analyze_fabric_impact",
+    ]
+    runtime_product_status = _status_if(
+        paths["fabric_route"].exists()
+        and paths["fabric_service"].exists()
+        and all(_has_token(paths["fabric_route"], operation) for operation in product_runtime_operation_ids)
+        and all(_has_token(paths["runtime_openapi"], operation) for operation in product_runtime_operation_ids)
+        and all(
+            _has_token(paths["runtime_client_ts"], _client_operation_token(operation))
+            for operation in product_runtime_operation_ids
+        )
+        and "tests/runtime/http/test_fabric_integration_routes.py" in product_integration_tests
+    )
+    frontend_product_status = _status_if(
+        product_fixture_count == len(product_fixture_names)
+        and all(_has_token(paths["dashboard_fixture_registry"], name) for name in product_fixture_names)
+        and _has_token(paths["dashboard_validators"], "fabricImpactAnalysisSchema")
+        and _has_token(paths["dashboard_fabric_decision_adapter"], "fabricDecisionDataToQuantityValue")
+        and _has_token(paths["dashboard_fabric_decision_adapter"], "fabric_trust_envelope")
+        and _has_token(paths["dashboard_fabric_decision_hook"], "useRunFabricDecisionData")
+    )
+    scientist_product_status = _status_if(
+        paths["scientist_fabric_trust_gate"].exists()
+        and _has_token(paths["scientist_fabric_trust_gate"], "FabricTrustGatePass")
+        and _has_token(paths["scientist_readiness"], "fabric_readiness_cap")
+        and "tests/scientist/governance/test_fabric_trust_gate_pass.py" in product_integration_tests
+    )
+    product_adapter_status = _status_if(
+        paths["product_integration"].exists()
+        and paths["scholar_provenance"].exists()
+        and paths["lex_provenance"].exists()
+        and paths["foundry_calibration_fabric"].exists()
+        and paths["foundry_uncertainty_fabric"].exists()
+        and _has_token(paths["product_integration"], "FabricProductEvidencePath")
+        and _has_token(paths["scholar_provenance"], "ScholarFabricCitation")
+        and _has_token(paths["lex_provenance"], "LexFabricEvidencePath")
+        and _has_token(paths["foundry_calibration_fabric"], "FabricCalibrationContext")
+        and _has_token(paths["foundry_uncertainty_fabric"], "FabricUncertaintyContext")
+    )
+    compatibility_status = _status_if(
+        paths["compatibility"].exists()
+        and _has_token(paths["compatibility"], "FABRIC_COMPATIBILITY_BRIDGES")
+        and _has_token(paths["compatibility"], "sunset_date")
+        and _has_token(paths["compatibility"], "migration_issue")
+        and paths["product_integration_validator"].exists()
+        and paths["product_integration_doc"].exists()
+    )
     decision_data_report = _load_json(paths["decision_data_coverage_report"])
     decision_data_status = (
         "implemented"
@@ -736,6 +1147,11 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         and paths["decision_data_coverage"].exists()
         and decision_data_report.get("summary", {}).get("status") == "implemented"
         else "missing"
+    )
+    discovery_eval_payload = _load_json(paths["discovery_eval_fixture"])
+    discovery_eval_cases = discovery_eval_payload.get("cases", [])
+    discovery_eval_case_count = (
+        len(discovery_eval_cases) if isinstance(discovery_eval_cases, list) else 0
     )
 
     surfaces = [
@@ -782,6 +1198,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 and paths["source_contract_schema"].exists()
                 and bool(source_contract_v2_ids)
                 and source_v2_bounded_read_count == len(source_contract_v2_ids)
+                and source_v2_replay_fixture_count == len(source_contract_v2_ids)
+                and source_v2_non_replayable_reason_count == 0
+                and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
                 and paths["source_contracts_validator"].exists()
                 and bool(source_platform_tests)
             ),
@@ -808,6 +1227,48 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "source_contract_v2_count": len(source_contract_v2_ids),
                 "source_contract_v2_ids": source_contract_v2_ids,
                 "bounded_read_evidence_count": source_v2_bounded_read_count,
+                "replay_fixture_count": source_v2_replay_fixture_count,
+                "non_replayable_reason_count": source_v2_non_replayable_reason_count,
+                "field_policy_coverage_count": source_v2_field_policy_coverage_count,
+            },
+        ),
+        _surface(
+            surface_id="source.processing_guarantee_contracts",
+            plane="source",
+            status=_status_if(
+                paths["processing_guarantees"].exists()
+                and paths["processing_guarantee_schema"].exists()
+                and paths["processing_guarantees_validator"].exists()
+                and source_v2_processing_count == len(source_contract_v2_ids)
+                and source_v2_dedupe_window_count == len(source_contract_v2_ids)
+                and source_v2_replay_retention_count == len(source_contract_v2_ids)
+                and bool(processing_tests)
+            ),
+            priority="P1",
+            title="Processing guarantee, dedupe, and replay-retention contracts",
+            description=(
+                "SourceContract v2 carries honest batch/stream/CDC/replay guarantee "
+                "labels plus idempotency, dedupe-window, replay-retention, "
+                "backpressure, and out-of-order policies."
+            ),
+            source_files=[
+                _rel(paths["processing_guarantees"], repo_root),
+                _rel(paths["processing_guarantee_schema"], repo_root),
+                _rel(paths["source_contract_v2"], repo_root),
+                _rel(paths["source_contract_snapshot_v2"], repo_root),
+                _rel(paths["processing_guarantees_validator"], repo_root),
+            ],
+            tests=processing_tests,
+            docs=[
+                "docs/reference/fabric/processing-guarantees.md",
+                "docs/reference/fabric/source-platform.md",
+            ],
+            evidence={
+                "processing_contract_count": source_v2_processing_count,
+                "dedupe_window_count": source_v2_dedupe_window_count,
+                "replay_retention_count": source_v2_replay_retention_count,
+                "schema": _rel(paths["processing_guarantee_schema"], repo_root),
+                "validator": _rel(paths["processing_guarantees_validator"], repo_root),
             },
         ),
         _surface(
@@ -924,14 +1385,18 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         _surface(
             surface_id="source.entrypoint_coverage.direct_import_families",
             plane="source",
-            status="partial"
-            if len(concrete_connectors) > len(entrypoints)
-            else _status_if(bool(entrypoints)),
+            status=_status_if(
+                bool(source_contract_v2_ids)
+                and len(source_contract_v2_ids) == len(concrete_connectors)
+                and paths["source_contracts_validator"].exists()
+            ),
             priority="P2",
-            title="Entry-point coverage for direct-import connector families",
+            title="Governed production visibility for connector families",
             description=(
-                "The entry-point group covers production HTTP/open-data components; "
-                "additional connector families are currently direct-import/registry surfaces."
+                "Production-visible connector families are admitted through governed "
+                "components and SourceContract v2 evidence. Families without a public "
+                "plugin entry point are explicit internal-support surfaces, not ungated "
+                "production paths."
             ),
             source_files=["pyproject.toml", _rel(paths["source_init"], repo_root)],
             tests=_existing_paths(
@@ -945,11 +1410,14 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             evidence={
                 "entrypoint_count": len(entrypoints),
                 "concrete_connector_count": len(concrete_connectors),
-                "direct_import_family_count": max(
+                "governed_component_count": len(source_contract_v2_ids),
+                "internal_support_only_count": max(
                     0, len(concrete_connectors) - len(entrypoints)
                 ),
+                "production_visibility_source": (
+                    "__polisyos_components__ plus SourceContract v2 snapshot"
+                ),
             },
-            follow_up="Phase 5: decide which direct-import families require entry-point registration.",
         ),
         _surface(
             surface_id="source.builtin_source_profiles",
@@ -1027,18 +1495,15 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             plane="evidence",
             status=_status_if(
                 bool(source_contract_v2_ids)
-                and (
-                    source_v2_replay_fixture_count
-                    + source_v2_non_replayable_reason_count
-                )
-                == len(source_contract_v2_ids),
+                and source_v2_replay_fixture_count == len(source_contract_v2_ids)
+                and source_v2_non_replayable_reason_count == 0,
                 partial_when_false=True,
             ),
             priority="P1",
-            title="Replay fixture or explicit non-replayable matrix",
+            title="Production source replay fixture matrix",
             description=(
-                "SourceContract v2 records either replay fixtures or explicit "
-                "non-replayable reasons for production source contracts."
+                "Every production SourceContract v2 carries a deterministic replay "
+                "fixture; non-replayable reasons are excluded from strict Wave 2 closure."
             ),
             source_files=[
                 _rel(paths["replay_store"], repo_root),
@@ -1058,9 +1523,105 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "record_replay_tests_present": bool(replay_tests),
             },
             follow_up=(
-                "Phase 5: add replay fixtures for sources currently carrying "
-                "explicit non-replayable reasons."
+                None
+                if source_v2_replay_fixture_count == len(source_contract_v2_ids)
+                and source_v2_non_replayable_reason_count == 0
+                else "Strict Wave 2: replace non-replayable reasons with replay fixtures."
             ),
+        ),
+        _surface(
+            surface_id="evidence.streaming_scale_semantics",
+            plane="evidence",
+            status=_status_if(
+                paths["streaming"].exists()
+                and _has_token(paths["streaming"], "processing_contract_snapshot")
+                and _has_token(paths["streaming"], "_apply_out_of_order_policy")
+                and _has_token(paths["streaming"], "classify_cdc_schema_change")
+                and bool(processing_tests)
+            ),
+            priority="P1",
+            title="Streaming, CDC, backpressure, and out-of-order semantics",
+            description=(
+                "Streaming runtime persists the effective processing contract on "
+                "chunks, windows, checkpoints, cursors, and CDC events while "
+                "counting late/dropped/quarantined rows."
+            ),
+            source_files=[
+                _rel(paths["streaming"], repo_root),
+                _rel(paths["processing_guarantees"], repo_root),
+            ],
+            tests=processing_tests,
+            docs=["docs/reference/fabric/processing-guarantees.md"],
+            evidence={
+                "processing_artifact_metadata": _has_token(
+                    paths["streaming"], "processing_contract_snapshot"
+                ),
+                "out_of_order_policy": _has_token(
+                    paths["streaming"], "_apply_out_of_order_policy"
+                ),
+                "cdc_compatibility": _has_token(
+                    paths["streaming"], "classify_cdc_schema_change"
+                ),
+                "backpressure_contract": _has_token(
+                    paths["streaming"], "backpressure.strategy"
+                ),
+            },
+        ),
+        _surface(
+            surface_id="evidence.distributed_execution_trust_gate",
+            plane="evidence",
+            status=_status_if(
+                paths["orchestrator"].exists()
+                and _has_token(paths["orchestrator"], "DistributedExecutionTrustContract")
+                and _has_token(paths["orchestrator"], "_validate_distributed_execution_trust")
+                and "tests/fabric/data_plane/test_orchestrator.py" in processing_tests
+            ),
+            priority="P1",
+            title="Distributed execution trust gate",
+            description=(
+                "Dask/Ray/Celery partition execution fails closed unless lineage, "
+                "quality, access, and replay/non-replayable evidence are present."
+            ),
+            source_files=[_rel(paths["orchestrator"], repo_root)],
+            tests=_existing_paths(repo_root, ["tests/fabric/data_plane/test_orchestrator.py"]),
+            docs=["docs/reference/fabric/processing-guarantees.md"],
+            evidence={
+                "trust_contract": _has_token(
+                    paths["orchestrator"], "DistributedExecutionTrustContract"
+                ),
+                "fail_closed_gate": _has_token(
+                    paths["orchestrator"], "_validate_distributed_execution_trust"
+                ),
+            },
+        ),
+        _surface(
+            surface_id="evidence.fabric_scale_benchmark_suite",
+            plane="evidence",
+            status=_status_if(
+                paths["benchmarks"].exists()
+                and _has_token(paths["benchmarks"], "latency_quantiles_ms")
+                and _has_token(paths["benchmarks"], "correctness_counters")
+                and _has_token(paths["benchmarks"], "benchmark_query_execution")
+                and "tests/fabric/data_plane/test_benchmarks.py" in processing_tests
+            ),
+            priority="P2",
+            title="Scale benchmark reports for ingestion, streaming, materialization, and query",
+            description=(
+                "Benchmark reports include p50/p95/p99 latency, memory, and "
+                "correctness counters for Fabric scale paths."
+            ),
+            source_files=[_rel(paths["benchmarks"], repo_root)],
+            tests=_existing_paths(repo_root, ["tests/fabric/data_plane/test_benchmarks.py"]),
+            docs=["docs/reference/fabric/processing-guarantees.md"],
+            evidence={
+                "latency_quantiles": _has_token(paths["benchmarks"], "latency_quantiles_ms"),
+                "correctness_counters": _has_token(
+                    paths["benchmarks"], "correctness_counters"
+                ),
+                "query_benchmark": _has_token(
+                    paths["benchmarks"], "benchmark_query_execution"
+                ),
+            },
         ),
         _surface(
             surface_id="evidence.cas_evidence_bundle",
@@ -1185,6 +1746,102 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             },
         ),
         _surface(
+            surface_id="semantics.semantic_dataset_catalog",
+            plane="semantics",
+            status=_status_if(
+                paths["catalog_discovery"].exists()
+                and _has_token(paths["catalog_discovery"], "class SemanticDatasetCatalog")
+                and _has_token(paths["catalog_discovery"], "DatasetDiscoveryEvidence")
+                and _has_token(paths["catalog_discovery"], "SourceContract")
+                and paths["discovery_intelligence_doc"].exists()
+                and bool(discovery_tests)
+            ),
+            priority="P1",
+            title="SourceContract-backed semantic dataset catalog",
+            description=(
+                "Offline-first catalog builds one explainable discovery document per "
+                "production SourceContract and carries source, profile, quality, access, "
+                "trust, owner, and reviewer evidence on each ranked candidate."
+            ),
+            source_files=[
+                _rel(paths["catalog_discovery"], repo_root),
+                _rel(paths["source_contract_snapshot_v2"], repo_root),
+                _rel(paths["discovery_intelligence_validator"], repo_root),
+            ],
+            tests=discovery_tests,
+            docs=["docs/reference/fabric/discovery-intelligence.md"],
+            evidence={
+                "source_contract_v2_count": len(source_contract_v2_ids),
+                "embedding_model": "hashing-bow-dataset-v1",
+                "llm_calls": 0,
+                "candidate_evidence": _has_token(
+                    paths["catalog_discovery"], "DatasetDiscoveryEvidence"
+                ),
+            },
+        ),
+        _surface(
+            surface_id="semantics.stale_embedding_invalidation",
+            plane="semantics",
+            status=_status_if(
+                paths["catalog_discovery"].exists()
+                and _has_token(paths["catalog_discovery"], "def mark_stale")
+                and _has_token(paths["catalog_discovery"], "def refresh")
+                and _has_token(paths["catalog_discovery"], "fingerprint")
+                and _has_token(paths["catalog_discovery"], "stale_filter")
+                and bool(discovery_tests)
+            ),
+            priority="P1",
+            title="Stale semantic-vector invalidation",
+            description=(
+                "Dataset vectors are rebuilt when SourceContract, source metadata, profile, "
+                "quality, access, or trust evidence changes; stale entries are filtered by "
+                "default and labelled when explicitly requested."
+            ),
+            source_files=[_rel(paths["catalog_discovery"], repo_root)],
+            tests=discovery_tests,
+            docs=["docs/reference/fabric/discovery-intelligence.md"],
+            evidence={
+                "mark_stale": _has_token(paths["catalog_discovery"], "def mark_stale"),
+                "refresh": _has_token(paths["catalog_discovery"], "def refresh"),
+                "fingerprint": _has_token(paths["catalog_discovery"], "fingerprint"),
+                "stale_filter": _has_token(paths["catalog_discovery"], "stale_filter"),
+            },
+        ),
+        _surface(
+            surface_id="semantics.nl_to_dataset_resolution_eval",
+            plane="semantics",
+            status=_status_if(
+                paths["catalog_discovery"].exists()
+                and paths["discovery_intelligence_validator"].exists()
+                and paths["discovery_eval_fixture"].exists()
+                and discovery_eval_case_count > 0
+                and _has_token(paths["catalog_discovery"], "DatasetResolutionPlan")
+                and _has_token(paths["catalog_discovery"], "evaluate_benchmark")
+                and bool(discovery_tests)
+            ),
+            priority="P1",
+            title="Explainable NL-to-dataset resolution and eval pack",
+            description=(
+                "Natural-language discovery returns ranked candidates with deterministic "
+                "lexical fallback, no LLM calls, relevance cases, and false-positive budget."
+            ),
+            source_files=[
+                _rel(paths["catalog_discovery"], repo_root),
+                _rel(paths["discovery_eval_fixture"], repo_root),
+                _rel(paths["discovery_intelligence_validator"], repo_root),
+            ],
+            tests=discovery_tests,
+            docs=["docs/reference/fabric/discovery-intelligence.md"],
+            evidence={
+                "eval_case_count": discovery_eval_case_count,
+                "minimum_pass_rate": discovery_eval_payload.get("minimum_pass_rate"),
+                "maximum_false_positive_failures": discovery_eval_payload.get(
+                    "maximum_false_positive_failures"
+                ),
+                "llm_calls": 0,
+            },
+        ),
+        _surface(
             surface_id="semantics.schema_governance_snapshot_gate",
             plane="semantics",
             status=_status_if(paths["schema_governance"].exists() and bool(source_contract_tests)),
@@ -1264,17 +1921,73 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 paths["snapshots"].exists()
                 and _has_token(paths["snapshots"], "create_world_branch")
                 and _has_token(paths["snapshots"], "merge_world_branch")
+                and _has_token(paths["snapshots"], "update_world_branch_head")
+                and _has_token(paths["snapshots"], "delete_world_branch")
+                and paths["world_branch_schema"].exists()
+                and paths["scenario_branch_schema"].exists()
+                and _has_token(paths["snapshots"], "_validate_snapshot_retention_governance")
+                and _has_token(paths["retention"], "SnapshotDeletionImpact")
             ),
             priority="P1",
-            title="Snapshot, branch, merge, and retention surface",
-            description="World snapshot store supports retained snapshots, branches, merge policy, and GC metadata.",
-            source_files=[_rel(paths["snapshots"], repo_root)],
+            title="Snapshot, branch, merge, governance, and retention surface",
+            description=(
+                "World snapshot store supports retained snapshots, governed branches, "
+                "merge policy, scenario contracts, and GC metadata."
+            ),
+            source_files=[
+                _rel(paths["snapshots"], repo_root),
+                _rel(paths["retention"], repo_root),
+                _rel(paths["world_branch_schema"], repo_root),
+                _rel(paths["scenario_branch_schema"], repo_root),
+            ],
             tests=temporal_tests,
             docs=["docs/reference/fabric/time-travel.md"],
             evidence={
                 "create_world_branch": _has_token(paths["snapshots"], "create_world_branch"),
                 "merge_world_branch": _has_token(paths["snapshots"], "merge_world_branch"),
+                "update_world_branch_head": _has_token(
+                    paths["snapshots"], "update_world_branch_head"
+                ),
+                "delete_world_branch": _has_token(paths["snapshots"], "delete_world_branch"),
+                "export_world_branch_governance": _has_token(
+                    paths["snapshots"], "export_world_branch_governance"
+                ),
                 "gc_world_snapshots": _has_token(paths["snapshots"], "gc_world_snapshots"),
+                "world_branch_schema": paths["world_branch_schema"].exists(),
+                "scenario_branch_schema": paths["scenario_branch_schema"].exists(),
+                "legal_hold_encryption_gate": _has_token(
+                    paths["snapshots"], "_validate_snapshot_retention_governance"
+                ),
+                "deletion_impact_record": _has_token(paths["retention"], "SnapshotDeletionImpact"),
+            },
+        ),
+        _surface(
+            surface_id="world.correction_revocation_mutations",
+            plane="world",
+            status=_status_if(
+                paths["world_segments"].exists()
+                and _has_token(paths["world_segments"], "WorldMutationKind")
+                and _has_token(paths["world_segments"], "parse_world_mutation_notes")
+                and _has_token(paths["world_emit"], "mutation_kind")
+            ),
+            priority="P1",
+            title="Append-only correction and revocation metadata",
+            description=(
+                "World fact emission can attach typed correction, revocation, branch, "
+                "and scenario mutation metadata without overwriting prior facts."
+            ),
+            source_files=[_rel(paths["world_segments"], repo_root), _rel(paths["world_emit"], repo_root)],
+            tests=_existing_paths(repo_root, ["tests/fabric/test_world_branch_governance.py"]),
+            docs=["docs/reference/fabric/time-travel.md"],
+            evidence={
+                "mutation_enum": _has_token(paths["world_segments"], "WorldMutationKind"),
+                "correction_required_fields": _has_token(
+                    paths["world_segments"], "WorldMutationKind.CORRECTION"
+                ),
+                "revocation_required_fields": _has_token(
+                    paths["world_segments"], "WorldMutationKind.REVOCATION"
+                ),
+                "emitter_support": _has_token(paths["world_emit"], "mutation_kind"),
             },
         ),
         _surface(
@@ -1283,7 +1996,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             status=_status_if(
                 paths["temporal_route"].exists()
                 and paths["temporal_service"].exists()
-                and "tests/runtime/http/test_temporal_api.py" in temporal_tests
+                and "tests/runtime/http/test_temporal_routes.py" in temporal_tests
+                and _has_token(paths["temporal_service"], "slow_query_evidence")
             ),
             priority="P1",
             title="Runtime temporal API adapter",
@@ -1292,22 +2006,97 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 _rel(paths["temporal_route"], repo_root),
                 _rel(paths["temporal_service"], repo_root),
             ],
-            tests=_existing_paths(repo_root, ["tests/runtime/http/test_temporal_api.py"]),
+            tests=_existing_paths(
+                repo_root,
+                [
+                    "tests/runtime/http/test_temporal_api.py",
+                    "tests/runtime/http/test_temporal_routes.py",
+                    "tests/fabric/test_world_temporal_capabilities.py",
+                ],
+            ),
             docs=["docs/reference/fabric/time-travel.md", "docs/reference/api/index.md"],
             evidence={
                 "route": paths["temporal_route"].exists(),
                 "service": paths["temporal_service"].exists(),
+                "supported_tables": _has_token(paths["temporal_service"], "supported_tables"),
+                "slow_query_evidence": _has_token(
+                    paths["temporal_service"], "slow_query_evidence"
+                ),
+                "branch_support": _has_token(paths["temporal_service"], "branch_support"),
+            },
+        ),
+        _surface(
+            surface_id="world.kuzu_temporal_scope_capability",
+            plane="world",
+            status="partial"
+            if paths["world_kuzu"].exists()
+            and _has_token(paths["world_kuzu"], "WorldKuzuTemporalCapability")
+            and _has_token(paths["world_kuzu"], 'graph_temporal_scope: Literal["full", "partial", "unsupported"]')
+            else "missing",
+            priority="P2",
+            title="Kuzu temporal graph parity marker",
+            description=(
+                "Kuzu exports carry edge valid/tx metadata, while full bitemporal graph "
+                "traversal is explicitly labelled partial and linked to R3."
+            ),
+            source_files=[_rel(paths["world_kuzu"], repo_root)],
+            tests=_existing_paths(repo_root, ["tests/fabric/test_world_temporal_capabilities.py"]),
+            docs=["docs/reference/fabric/time-travel.md"],
+            evidence={
+                "temporal_capability": _has_token(paths["world_kuzu"], "WorldKuzuTemporalCapability"),
+                "partial_scope": _has_token(paths["world_kuzu"], "graph_temporal_scope"),
+                "research_track": _has_token(paths["world_kuzu"], "R3"),
+            },
+            follow_up="R3: prove full bitemporal Kuzu traversal semantics before marking implemented.",
+        ),
+        _surface(
+            surface_id="world.discovery_graph_reasoning",
+            plane="world",
+            status=_status_if(
+                paths["world_kuzu"].exists()
+                and _has_token(paths["world_kuzu"], "query_world_origin_trace")
+                and _has_token(paths["world_kuzu"], "query_world_source_overlap")
+                and _has_token(paths["world_kuzu"], "query_world_conflict_neighborhood")
+                and _has_token(paths["world_kuzu"], "query_world_policy_impact")
+                and _has_token(paths["world_kuzu"], "query_world_entity_neighborhood")
+                and bool(discovery_tests)
+            ),
+            priority="P1",
+            title="Discovery graph reasoning helpers",
+            description=(
+                "World graph helpers answer origin, source-overlap, conflict-neighborhood, "
+                "source-to-policy impact, and entity-neighborhood questions over in-memory "
+                "fixtures and live Kuzu traversals."
+            ),
+            source_files=[_rel(paths["world_kuzu"], repo_root)],
+            tests=discovery_tests,
+            docs=[
+                "docs/reference/fabric/discovery-intelligence.md",
+                "docs/reference/fabric/time-travel.md",
+            ],
+            evidence={
+                "origin_trace": _has_token(paths["world_kuzu"], "query_world_origin_trace"),
+                "source_overlap": _has_token(paths["world_kuzu"], "query_world_source_overlap"),
+                "conflict_neighborhood": _has_token(
+                    paths["world_kuzu"], "query_world_conflict_neighborhood"
+                ),
+                "policy_impact": _has_token(paths["world_kuzu"], "query_world_policy_impact"),
+                "entity_neighborhood": _has_token(
+                    paths["world_kuzu"], "query_world_entity_neighborhood"
+                ),
+                "kuzu_helpers": _has_token(paths["world_kuzu"], "query_world_kuzu_origin_trace"),
             },
         ),
         _surface(
             surface_id="world.future_table_snapshot_adapters",
             plane="world",
-            status="accepted_risk",
+            status="not_applicable",
             priority="P2",
-            title="Future table-format snapshot adapters",
+            title="External table-format adapters excluded from Wave 2 production",
             description=(
-                "Iceberg/Delta-style external adapters are metadata-visible but fail closed "
-                "until runtime support is implemented."
+                "Iceberg/Delta-style adapters are metadata-only future surfaces. Wave 2 "
+                "strict closure proves they are not production-visible and local runtime "
+                "create/query paths fail closed."
             ),
             source_files=[_rel(paths["snapshots"], repo_root), _rel(paths["world_query"], repo_root)],
             tests=temporal_tests,
@@ -1318,15 +2107,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 ),
                 "runtime_rejection_test": "tests/fabric/test_world_time_travel.py"
                 in temporal_tests,
-            },
-            accepted_risk={
-                "owner": OWNER,
-                "reason": (
-                    "External table-format adapters are discoverable for planning, "
-                    "while runtime query/create paths reject unsupported adapters."
-                ),
-                "review_date": "2026-05-31",
-                "expiry_date": "2026-07-31",
+                "production_visible": False,
+                "strict_wave2_scope": "not_applicable",
             },
         ),
         _surface(
@@ -1554,19 +2336,69 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             },
         ),
         _surface(
+            surface_id="trust.entity_resolution_override_governance",
+            plane="trust",
+            status=_status_if(
+                paths["entity_resolution_models"].exists()
+                and paths["entity_resolution_store"].exists()
+                and _has_token(paths["entity_resolution_models"], "EntityOverrideAuditRecord")
+                and _has_token(paths["entity_resolution_models"], "EntityOverrideEnvelope")
+                and _has_token(paths["entity_resolution_store"], "merge_governance_ref")
+                and _has_token(paths["entity_resolution_store"], "list_override_audit")
+                and bool(discovery_tests)
+            ),
+            priority="P1",
+            title="Entity override provenance and merge governance",
+            description=(
+                "Entity matches remain candidates until an accepted/rejected override is "
+                "persisted with actor, reason, provenance, append-only audit evidence, "
+                "and merge-governance reference for accepted canonical writes."
+            ),
+            source_files=[
+                _rel(paths["entity_resolution_models"], repo_root),
+                _rel(paths["entity_resolution_store"], repo_root),
+            ],
+            tests=discovery_tests,
+            docs=["docs/reference/fabric/discovery-intelligence.md"],
+            evidence={
+                "override_audit_model": _has_token(
+                    paths["entity_resolution_models"], "EntityOverrideAuditRecord"
+                ),
+                "override_envelope": _has_token(
+                    paths["entity_resolution_models"], "EntityOverrideEnvelope"
+                ),
+                "merge_governance_required": _has_token(
+                    paths["entity_resolution_store"], "merge_governance_ref"
+                ),
+                "append_only_index": _has_token(
+                    paths["entity_resolution_store"], "entity_resolution_overrides.jsonl"
+                ),
+            },
+        ),
+        _surface(
             surface_id="trust.access_classification",
             plane="trust",
-            status="partial",
+            status=_status_if(
+                paths["access_control"].exists()
+                and paths["column_mask"].exists()
+                and paths["pii_stage"].exists()
+                and bool(source_contract_v2_ids)
+                and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
+                and bool(access_tests)
+            ),
             priority="P1",
-            title="Access classification and masking inventory",
+            title="Field-level access classification and masking inventory",
             description=(
-                "Access policies, column masking, and PII staging exist; source contracts "
-                "do not yet prove classification coverage for every decision-bearing field."
+                "Access policies, column masking, PII staging, and SourceContract v2 "
+                "field policies prove classification coverage for every production "
+                "schema field or a wildcard template surface."
             ),
             source_files=[
                 _rel(paths["access_control"], repo_root),
                 _rel(paths["column_mask"], repo_root),
                 _rel(paths["pii_stage"], repo_root),
+                _rel(paths["source_contract_v2"], repo_root),
+                _rel(paths["source_contract_snapshot_v2"], repo_root),
             ],
             tests=access_tests,
             docs=["docs/reference/fabric/time-travel.md", "docs/reference/fabric/quality.md"],
@@ -1574,9 +2406,12 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "access_control_module": paths["access_control"].exists(),
                 "column_mask_module": paths["column_mask"].exists(),
                 "pii_stage_module": paths["pii_stage"].exists(),
+                "source_contract_v2_count": len(source_contract_v2_ids),
+                "field_access_policy_contract_count": source_v2_field_policy_contract_count,
+                "field_access_policy_count": source_v2_field_policy_count,
+                "field_policy_coverage_count": source_v2_field_policy_coverage_count,
                 "access_tests": access_tests,
             },
-            follow_up="Phase 5/6: require contract/profile-level classification coverage for decision-bearing fields.",
         ),
         _surface(
             surface_id="trust.fabric_decision_envelope",
@@ -1636,6 +2471,154 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 if decision_data_status == "implemented"
                 else "Phase 6 ratchet: add reason-code taxonomy and CI check."
             ),
+        ),
+        _surface(
+            surface_id="trust.runtime_fabric_product_api",
+            plane="trust",
+            status=runtime_product_status,
+            priority="P1",
+            title="Runtime Fabric product API endpoints",
+            description=(
+                "Runtime exposes source scorecards, quality/trust batch lookup, replay, "
+                "and impact analysis through additive Fabric endpoints published in "
+                "OpenAPI and the generated client."
+            ),
+            source_files=[
+                _rel(paths["fabric_route"], repo_root),
+                _rel(paths["fabric_service"], repo_root),
+                _rel(paths["runtime_openapi"], repo_root),
+                _rel(paths["runtime_client_ts"], repo_root),
+            ],
+            tests=product_integration_tests,
+            docs=["docs/reference/fabric/product-api-integration.md"],
+            evidence={
+                "operation_ids": product_runtime_operation_ids,
+                "route": paths["fabric_route"].exists(),
+                "service": paths["fabric_service"].exists(),
+                "openapi": paths["runtime_openapi"].exists(),
+                "client": paths["runtime_client_ts"].exists(),
+            },
+        ),
+        _surface(
+            surface_id="trust.frontend_fabric_contract_fixtures",
+            plane="trust",
+            status=frontend_product_status,
+            priority="P1",
+            title="Frontend Fabric product contract fixtures",
+            description=(
+                "Dashboard contract fixtures cover Quantity, provenance hover, Trust "
+                "View, temporal scrubber, policy diff, counterfactual layer, scorecards, "
+                "replay, and impact analysis payloads."
+            ),
+            source_files=[
+                _rel(paths["dashboard_fixture_registry"], repo_root),
+                _rel(paths["dashboard_validators"], repo_root),
+                _rel(paths["dashboard_fabric_decision_adapter"], repo_root),
+                _rel(paths["dashboard_fabric_decision_hook"], repo_root),
+            ],
+            tests=_existing_paths(
+                repo_root,
+                [
+                    "frontend/runtime-dashboard/src/test/contracts/contractFixtures.test.ts",
+                    "frontend/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+                    "frontend/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+                ],
+            ),
+            docs=["docs/reference/fabric/product-api-integration.md"],
+            evidence={
+                "fixture_count": product_fixture_count,
+                "required_fixture_count": len(product_fixture_names),
+                "fixtures": product_fixture_names,
+                "fabric_decision_data_adapter": _has_token(
+                    paths["dashboard_fabric_decision_adapter"],
+                    "fabricDecisionDataToQuantityValue",
+                ),
+                "fabric_decision_data_hook": _has_token(
+                    paths["dashboard_fabric_decision_hook"], "useRunFabricDecisionData"
+                ),
+            },
+        ),
+        _surface(
+            surface_id="trust.scientist_fabric_trust_governance",
+            plane="trust",
+            status=scientist_product_status,
+            priority="P1",
+            title="Scientist readiness cap from Fabric trust metadata",
+            description=(
+                "Scientist governance consumes Fabric quality, lineage, freshness, "
+                "access, and source-trust metadata to cap decision readiness."
+            ),
+            source_files=[
+                _rel(paths["scientist_fabric_trust_gate"], repo_root),
+                _rel(paths["scientist_readiness"], repo_root),
+            ],
+            tests=product_integration_tests,
+            docs=["docs/reference/fabric/product-api-integration.md"],
+            evidence={
+                "pass": paths["scientist_fabric_trust_gate"].exists(),
+                "readiness_cap": _has_token(paths["scientist_readiness"], "fabric_readiness_cap"),
+            },
+        ),
+        _surface(
+            surface_id="trust.product_evidence_adapters",
+            plane="trust",
+            status=product_adapter_status,
+            priority="P2",
+            title="Scholar, Lex, and Foundry Fabric evidence adapters",
+            description=(
+                "Shared Fabric evidence paths feed Scholar citations, Lex evidence, "
+                "Foundry calibration weights, and uncertainty inflation."
+            ),
+            source_files=[
+                _rel(paths["product_integration"], repo_root),
+                _rel(paths["scholar_provenance"], repo_root),
+                _rel(paths["lex_provenance"], repo_root),
+                _rel(paths["foundry_calibration_fabric"], repo_root),
+                _rel(paths["foundry_uncertainty_fabric"], repo_root),
+            ],
+            tests=product_integration_tests,
+            docs=["docs/reference/fabric/product-api-integration.md"],
+            evidence={
+                "fabric_evidence_path": _has_token(
+                    paths["product_integration"], "FabricProductEvidencePath"
+                ),
+                "scholar": _has_token(paths["scholar_provenance"], "ScholarFabricCitation"),
+                "lex": _has_token(paths["lex_provenance"], "LexFabricEvidencePath"),
+                "foundry_calibration": _has_token(
+                    paths["foundry_calibration_fabric"], "FabricCalibrationContext"
+                ),
+                "foundry_uncertainty": _has_token(
+                    paths["foundry_uncertainty_fabric"], "FabricUncertaintyContext"
+                ),
+            },
+        ),
+        _surface(
+            surface_id="trust.fabric_compatibility_bridges",
+            plane="trust",
+            status=compatibility_status,
+            priority="P2",
+            title="Fabric compatibility bridge governance",
+            description=(
+                "Temporary product/API bridges carry owner, reason, sunset date, and "
+                "migration issue metadata while root Fabric facade exports stay stable."
+            ),
+            source_files=[
+                _rel(paths["compatibility"], repo_root),
+                _rel(paths["product_integration_validator"], repo_root),
+                _rel(paths["product_integration_doc"], repo_root),
+            ],
+            tests=product_integration_tests,
+            docs=["docs/reference/fabric/product-api-integration.md"],
+            evidence={
+                "bridge_registry": _has_token(
+                    paths["compatibility"], "FABRIC_COMPATIBILITY_BRIDGES"
+                ),
+                "sunset_dates": _has_token(paths["compatibility"], "sunset_date"),
+                "migration_issues": _has_token(paths["compatibility"], "migration_issue"),
+                "root_facade_unchanged": not _has_token(
+                    paths["fabric_facade"], "FabricProductEvidencePath"
+                ),
+            },
         ),
         _surface(
             surface_id="trust.public_facade_exports",
@@ -1715,6 +2698,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             if source_contract_v2_ids
             and len(source_scorecard_records) == len(source_contract_v2_ids)
             and source_v2_bounded_read_count == len(source_contract_v2_ids)
+            and source_v2_replay_fixture_count == len(source_contract_v2_ids)
+            and source_v2_non_replayable_reason_count == 0
+            and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
             and paths["source_contracts_validator"].exists()
             else "missing",
             "source_contract_v2_count": len(source_contract_v2_ids),
@@ -1722,8 +2708,29 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "replay_fixture_count": source_v2_replay_fixture_count,
             "non_replayable_reason_count": source_v2_non_replayable_reason_count,
             "classification_count": source_v2_classification_count,
+            "field_access_policy_contract_count": source_v2_field_policy_contract_count,
+            "field_access_policy_count": source_v2_field_policy_count,
+            "field_policy_coverage_count": source_v2_field_policy_coverage_count,
             "bounded_read_evidence_count": source_v2_bounded_read_count,
             "tests": source_platform_tests,
+        },
+        "processing_guarantees": {
+            "status": "implemented"
+            if source_contract_v2_ids
+            and source_v2_processing_count == len(source_contract_v2_ids)
+            and source_v2_dedupe_window_count == len(source_contract_v2_ids)
+            and source_v2_replay_retention_count == len(source_contract_v2_ids)
+            and paths["processing_guarantees_validator"].exists()
+            else "missing",
+            "processing_contract_count": source_v2_processing_count,
+            "dedupe_window_count": source_v2_dedupe_window_count,
+            "replay_retention_count": source_v2_replay_retention_count,
+            "streaming_runtime": paths["streaming"].exists(),
+            "distributed_trust_gate": _has_token(
+                paths["orchestrator"], "DistributedExecutionTrustContract"
+            ),
+            "benchmark_suite": _has_token(paths["benchmarks"], "benchmark_query_execution"),
+            "tests": processing_tests,
         },
         "source_profiles": {
             "status": "implemented" if profile_ids else "missing",
@@ -1734,10 +2741,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         "replay_fixtures": {
             "status": "implemented"
             if source_contract_v2_ids
-            and (
-                source_v2_replay_fixture_count + source_v2_non_replayable_reason_count
-            )
-            == len(source_contract_v2_ids)
+            and source_v2_replay_fixture_count == len(source_contract_v2_ids)
+            and source_v2_non_replayable_reason_count == 0
             else "partial",
             "record_replay_store": paths["replay_store"].exists(),
             "quarantine_module": paths["quarantine"].exists(),
@@ -1775,10 +2780,20 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests": temporal_tests,
         },
         "access_classification": {
-            "status": "partial",
+            "status": "implemented"
+            if paths["access_control"].exists()
+            and paths["column_mask"].exists()
+            and paths["pii_stage"].exists()
+            and source_contract_v2_ids
+            and source_v2_field_policy_coverage_count == len(source_contract_v2_ids)
+            else "partial",
             "access_control_module": paths["access_control"].exists(),
             "column_mask_module": paths["column_mask"].exists(),
             "pii_stage_module": paths["pii_stage"].exists(),
+            "source_contract_v2_count": len(source_contract_v2_ids),
+            "field_access_policy_contract_count": source_v2_field_policy_contract_count,
+            "field_access_policy_count": source_v2_field_policy_count,
+            "field_policy_coverage_count": source_v2_field_policy_coverage_count,
             "tests": access_tests,
         },
         "observability_governance": {
@@ -1806,6 +2821,51 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 if isinstance(row, Mapping)
             ],
             "tests": decision_data_tests,
+        },
+        "discovery_intelligence": {
+            "status": "implemented"
+            if paths["catalog_discovery"].exists()
+            and paths["entity_resolution_models"].exists()
+            and paths["entity_resolution_store"].exists()
+            and paths["discovery_intelligence_validator"].exists()
+            and paths["discovery_eval_fixture"].exists()
+            and paths["discovery_intelligence_doc"].exists()
+            and bool(discovery_tests)
+            else "missing",
+            "semantic_catalog": paths["catalog_discovery"].exists(),
+            "source_contract_v2_count": len(source_contract_v2_ids),
+            "eval_case_count": discovery_eval_case_count,
+            "stale_invalidation": _has_token(paths["catalog_discovery"], "stale_filter"),
+            "entity_override_audit": _has_token(
+                paths["entity_resolution_models"], "EntityOverrideAuditRecord"
+            )
+            and _has_token(paths["entity_resolution_store"], "list_override_audit"),
+            "graph_reasoning": _has_token(paths["world_kuzu"], "query_world_origin_trace")
+            and _has_token(paths["world_kuzu"], "query_world_policy_impact"),
+            "llm_calls": 0,
+            "tests": discovery_tests,
+        },
+        "product_api_integration": {
+            "status": "implemented"
+            if all(
+                status == "implemented"
+                for status in (
+                    runtime_product_status,
+                    frontend_product_status,
+                    scientist_product_status,
+                    product_adapter_status,
+                    compatibility_status,
+                )
+            )
+            else "missing",
+            "runtime_endpoints": product_runtime_operation_ids,
+            "frontend_fixture_count": product_fixture_count,
+            "required_frontend_fixture_count": len(product_fixture_names),
+            "scientist_trust_gate": paths["scientist_fabric_trust_gate"].exists(),
+            "product_adapters": product_adapter_status,
+            "compatibility_bridges": compatibility_status,
+            "validator": _rel(paths["product_integration_validator"], repo_root),
+            "tests": product_integration_tests,
         },
         "public_facade_exports": {
             "status": "implemented" if public_exports else "missing",
@@ -2055,6 +3115,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
         for key in (
             "source_contracts",
             "source_platform",
+            "processing_guarantees",
             "source_profiles",
             "replay_fixtures",
             "quality_contracts",
@@ -2062,6 +3123,9 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
             "temporal_support",
             "access_classification",
             "observability_governance",
+            "decision_data_envelope",
+            "discovery_intelligence",
+            "product_api_integration",
             "public_facade_exports",
         ):
             item = coverage.get(key, {})
@@ -2176,6 +3240,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
             "## Validation",
             "",
             "```bash",
+            "uv run python tools/quality/validation/fabric_wave2_strict_closure.py --check",
             "uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check",
             "uv run bash tools/quality/validation/run_fabric_best_in_class_inventory.sh",
             "uv run pytest tests/tools/test_fabric_best_in_class_inventory.py -q",

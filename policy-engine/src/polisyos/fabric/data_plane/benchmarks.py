@@ -45,6 +45,8 @@ class FabricBenchmarkReport:
     units_processed: int
     unit_name: str
     throughput_per_second: float
+    latency_quantiles_ms: dict[str, float] = field(default_factory=dict)
+    correctness_counters: dict[str, int] = field(default_factory=dict)
     labels: dict[str, str] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -59,6 +61,8 @@ class FabricBenchmarkReport:
             "units_processed": self.units_processed,
             "unit_name": self.unit_name,
             "throughput_per_second": self.throughput_per_second,
+            "latency_quantiles_ms": dict(self.latency_quantiles_ms),
+            "correctness_counters": dict(self.correctness_counters),
             "labels": dict(self.labels),
             "metadata": dict(self.metadata),
         }
@@ -119,6 +123,12 @@ def benchmark_partitioned_ingestion(
             "failed_partitions": sum(1 for result in results if result.status == "failed"),
             "skipped_partitions": sum(1 for result in results if result.status == "skipped"),
         },
+        correctness_counters={
+            "partitions_expected": len(plan.partitions),
+            "partitions_succeeded": len(succeeded),
+            "partitions_failed": sum(1 for result in results if result.status == "failed"),
+            "partitions_skipped": sum(1 for result in results if result.status == "skipped"),
+        },
     )
     return results, report
 
@@ -168,6 +178,19 @@ async def benchmark_stream_processing(
             "quarantined_rows": result.quarantined_rows,
             "dedupe_dropped": result.dedupe_dropped,
             "backpressure_events": result.backpressure_events,
+            "processing_guarantee": result.processing_guarantee,
+            "out_of_order_rows": result.out_of_order_rows,
+            "late_rows_dropped": result.late_rows_dropped,
+            "late_rows_quarantined": result.late_rows_quarantined,
+        },
+        correctness_counters={
+            "chunks_processed": result.chunks_processed,
+            "rows_emitted": result.rows_emitted,
+            "windows_emitted": len(result.window_refs),
+            "cdc_events": len(result.cdc_event_refs),
+            "dedupe_dropped": result.dedupe_dropped,
+            "quarantined_rows": result.quarantined_rows,
+            "out_of_order_rows": result.out_of_order_rows,
         },
     )
     return result, report
@@ -215,8 +238,43 @@ def benchmark_world_materialization(
             "edges_inserted": stats.edges_inserted,
             "projections_updated": stats.projections_updated,
         },
+        correctness_counters={
+            "segments_total": stats.segments_total,
+            "segments_applied": stats.segments_applied,
+            "segments_skipped": stats.segments_skipped,
+            "facts_inserted": stats.facts_inserted,
+            "edges_inserted": stats.edges_inserted,
+        },
     )
     return stats, report
+
+
+def benchmark_query_execution(
+    *,
+    query_id: str,
+    operation: Callable[[], Any],
+    unit_name: str = "rows",
+    labels: dict[str, str] | None = None,
+) -> tuple[Any, FabricBenchmarkReport]:
+    """Run a Fabric query path and capture latency/memory/correctness counters."""
+
+    result, started_at, elapsed_seconds, peak_memory_bytes = _capture_sync(operation)
+    units_processed = _count_query_units(result)
+    report = _build_report(
+        benchmark_kind="query",
+        started_at=started_at,
+        elapsed_seconds=elapsed_seconds,
+        peak_memory_bytes=peak_memory_bytes,
+        units_processed=units_processed,
+        unit_name=unit_name,
+        labels={"query_id": query_id, **dict(labels or {})},
+        metadata={"query_id": query_id},
+        correctness_counters={
+            "rows_returned": units_processed,
+            "non_empty_result": int(units_processed > 0),
+        },
+    )
+    return result, report
 
 
 def persist_fabric_benchmark_report(
@@ -293,6 +351,7 @@ def _build_report(
     unit_name: str,
     labels: dict[str, str],
     metadata: dict[str, Any],
+    correctness_counters: dict[str, int] | None = None,
 ) -> FabricBenchmarkReport:
     finished_at = datetime.now(UTC)
     throughput = (
@@ -310,14 +369,48 @@ def _build_report(
         units_processed=max(0, int(units_processed)),
         unit_name=str(unit_name),
         throughput_per_second=throughput,
+        latency_quantiles_ms=_latency_quantiles_from_samples(
+            [float(elapsed_seconds) * 1000.0]
+        ),
+        correctness_counters=dict(correctness_counters or {}),
         labels=dict(labels),
         metadata=dict(metadata),
     )
 
 
+def _latency_quantiles_from_samples(samples_ms: Sequence[float]) -> dict[str, float]:
+    if not samples_ms:
+        return {"p50": 0.0, "p95": 0.0, "p99": 0.0}
+    ordered = sorted(float(sample) for sample in samples_ms)
+
+    def _quantile(q: float) -> float:
+        if len(ordered) == 1:
+            return ordered[0]
+        index = min(len(ordered) - 1, round((len(ordered) - 1) * q))
+        return ordered[index]
+
+    return {"p50": _quantile(0.50), "p95": _quantile(0.95), "p99": _quantile(0.99)}
+
+
+def _count_query_units(result: Any) -> int:
+    if result is None:
+        return 0
+    if hasattr(result, "shape"):
+        shape = result.shape
+        if shape:
+            return int(shape[0])
+    if hasattr(result, "__len__"):
+        try:
+            return len(result)
+        except TypeError:
+            return 0
+    return 1
+
+
 __all__ = [
     "FabricBenchmarkReport",
     "benchmark_partitioned_ingestion",
+    "benchmark_query_execution",
     "benchmark_stream_processing",
     "benchmark_world_materialization",
     "persist_fabric_benchmark_report",

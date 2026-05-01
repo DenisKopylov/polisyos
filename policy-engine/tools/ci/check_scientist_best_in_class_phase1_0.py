@@ -203,7 +203,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         "Phase 1.0",
         "Phase 1.1",
         "Phase 1.7",
-        "Phase 2.9",
+        "Phase 2.8",
     )
     active_index_missing = [
         token for token in active_plan_tokens if not _contains_token(readiness_text, token)

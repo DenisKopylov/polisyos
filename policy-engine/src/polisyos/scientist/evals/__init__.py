@@ -7,9 +7,21 @@ from polisyos.scientist.evals.authority import (
     BenchmarkAuthorityVerdict,
     PromotionEvidenceRequest,
 )
+from polisyos.scientist.evals.challenge_factory import (
+    ChallengeFactoryReport,
+    ChallengeSeed,
+    ChallengeSeedKind,
+    ChallengeStatus,
+    GeneratedChallenge,
+)
 
 __all__ = [
     "BenchmarkAuthority",
     "BenchmarkAuthorityVerdict",
+    "ChallengeFactoryReport",
+    "ChallengeSeed",
+    "ChallengeSeedKind",
+    "ChallengeStatus",
+    "GeneratedChallenge",
     "PromotionEvidenceRequest",
 ]

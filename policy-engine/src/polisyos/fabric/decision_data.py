@@ -9,7 +9,7 @@ context without knowing how the UI renders that value.
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from datetime import UTC, datetime
 from typing import Any, Literal
 
@@ -163,6 +163,37 @@ class AccessRef(BaseModel):
         return self
 
 
+def access_ref_from_source_field_policy(
+    source_contract: Any,
+    *,
+    field_id: str,
+) -> AccessRef:
+    """Resolve a Fabric access ref from a SourceContract field policy."""
+
+    security = getattr(source_contract, "security", None)
+    policies = tuple(getattr(security, "field_policies", ()) or ())
+    selected = next(
+        (policy for policy in policies if getattr(policy, "field_id", None) == field_id),
+        None,
+    )
+    if selected is None:
+        selected = next(
+            (policy for policy in policies if getattr(policy, "field_id", None) == "*"),
+            None,
+        )
+    if selected is None and policies:
+        selected = policies[0]
+    if selected is None:
+        return AccessRef()
+    return AccessRef(
+        classification=str(selected.classification),
+        pii_tier=str(selected.pii_tier),
+        tenant_scope=str(selected.tenant_scope),
+        redaction=selected.redaction,
+        policy_ref=getattr(selected, "policy_ref", None),
+    )
+
+
 class ReplayRef(BaseModel):
     """Replay or retention alternative reference for the value."""
 
@@ -311,6 +342,7 @@ def from_runtime_quantity(
     index: int,
     source_contract: SourceContractRef,
     temporal_scope: Any | None,
+    access: AccessRef | None = None,
     owner: str = "@fabric-owners",
 ) -> FabricDecisionData:
     """Build a Fabric trust envelope from a Runtime `QuantityValue` instance."""
@@ -345,7 +377,7 @@ def from_runtime_quantity(
         source_contract=source_contract,
         quality=quality,
         lineage=lineage,
-        access=AccessRef(),
+        access=access or AccessRef(),
         time=time,
         replay=replay,
         gaps=gaps,
@@ -361,6 +393,7 @@ def from_runtime_quantities(
     *,
     source_contract: SourceContractRef,
     temporal_scope: Any | None = None,
+    access_resolver: Callable[[Any, int], AccessRef | None] | None = None,
     owner: str = "@fabric-owners",
 ) -> list[FabricDecisionData]:
     """Project decision-class Runtime quantities into Fabric trust envelopes."""
@@ -375,6 +408,7 @@ def from_runtime_quantities(
             index=index,
             source_contract=source_contract,
             temporal_scope=temporal_scope,
+            access=access_resolver(quantity, index) if access_resolver else None,
             owner=owner,
         )
         for index, quantity in enumerate(decision_quantities)
@@ -649,6 +683,7 @@ __all__ = [
     "TypedGap",
     "TypedGapState",
     "UnitRef",
+    "access_ref_from_source_field_policy",
     "coverage_from_decision_data",
     "fabric_claim_to_authored_text",
     "fabric_event_to_authored_text",

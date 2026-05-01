@@ -4,6 +4,8 @@ export {
   runDeckRouteHandle,
   runDetailRouteHandle,
   runReportRouteHandle,
+  publicDecisionViewerRouteHandle,
+  publicDecisionViewerRoute,
   runsCompareRouteHandle,
   runsListRouteHandle,
   runsRoutes,

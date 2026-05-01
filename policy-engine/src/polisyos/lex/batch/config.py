@@ -255,6 +255,9 @@ class BatchConfig:
     spo_skip_trivial: bool = True
     spo_verify_mode: str = "code"
     graph_insert_batch: int = 10_000
+    graph_amendment_workers: int = 1
+    graph_amendment_task_chunk: int = 64
+    graph_amendment_progress_interval: int = 100
     jurisdiction: str = "UA"
     pattern_feedback_enabled: bool = True
 
@@ -391,6 +394,12 @@ class BatchConfig:
             raise ValueError("spo_extract_mode must be one of: light, full")
         if self.spo_verify_mode not in {"llm", "code"}:
             raise ValueError("spo_verify_mode must be one of: llm, code")
+        if self.graph_amendment_workers < 1:
+            raise ValueError("graph_amendment_workers must be >= 1")
+        if self.graph_amendment_task_chunk < 1:
+            raise ValueError("graph_amendment_task_chunk must be >= 1")
+        if self.graph_amendment_progress_interval < 0:
+            raise ValueError("graph_amendment_progress_interval must be >= 0")
         if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
             raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
         if self.llm_gap_fill_mode not in {"off", "narrow", "wide"}:

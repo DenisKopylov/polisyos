@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "run_id": "R_core_api_001",
+  "source_kind": "core_run",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "decision_data": [
+    {
+      "id": "fabric_decision_data:policy_cost",
+      "kind": "quantity",
+      "value": {
+        "point": 100,
+        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "semantic_type": "policy_cost",
+        "metric_id": "policy_cost",
+        "label": "Policy cost"
+      },
+      "source_contract": {"id": "worldbank.wdi.generic", "version": "1.1.0"},
+      "quality": {
+        "status": "passed",
+        "score": 1,
+        "report_ref": "runtime://quantity-quality/policy_cost",
+        "reason_code": null,
+        "quality_surface": null,
+        "remediation_link": null
+      },
+      "lineage": {
+        "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "verified",
+        "hash": null,
+        "compact_summary_ref": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "full_graph_ref": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?view=full",
+        "raw_evidence_refs": ["cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+        "export_links": {
+          "openlineage": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/openlineage",
+          "prov": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/prov"
+        },
+        "reason_code": null,
+        "owner": null,
+        "tracking_issue": null
+      },
+      "access": {
+        "classification": "public",
+        "pii_tier": "none",
+        "tenant_scope": "shared_public",
+        "redaction": "none",
+        "policy_ref": null
+      },
+      "time": {
+        "valid_at": "2026-02-11T12:00:00Z",
+        "tx_at": "2026-02-11T12:01:00Z",
+        "branch": "main",
+        "snapshot_id": null,
+        "scenario_id": null
+      },
+      "replay": {
+        "status": "replayable",
+        "manifest_ref": "cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "reason_code": null,
+        "source_reason": null,
+        "retention_alternative": null
+      },
+      "gaps": [],
+      "metadata": {"quantity_class": "decision", "runtime_metric_id": "policy_cost"}
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "decision": 1,
+    "telemetry": 0,
+    "layout": 0,
+    "debug": 0,
+    "traced": 1,
+    "untraced": 0,
+    "naked_decision_values": 0,
+    "transitional_waivers": 0
+  }
+}

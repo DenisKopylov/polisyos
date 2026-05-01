@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": []
+  },
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "lineages": [
+    {
+      "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "verified",
+      "hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "freshness": "current",
+      "compact_summary": [{"kind": "result", "label": "Policy cost", "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+      "nodes": [],
+      "edges": [],
+      "exports": {
+        "openlineage": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/openlineage",
+        "prov": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/prov"
+      },
+      "metadata": {},
+      "trust_metadata": null
+    }
+  ]
+}

@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from pydantic import ValidationError
 
+from polisyos.fabric.connectors.contracts import SourceFieldAccessPolicy
 from polisyos.fabric.decision_data import (
     AccessRef,
     FabricDecisionData,
@@ -18,6 +20,7 @@ from polisyos.fabric.decision_data import (
     TemporalRef,
     TypedGap,
     UnitRef,
+    access_ref_from_source_field_policy,
     fabric_claim_to_authored_text,
     fabric_event_to_authored_text,
     fabric_fact_to_quantity_value,
@@ -131,6 +134,31 @@ def test_envelope_requires_matching_gap_for_unknown_states() -> None:
 def test_temporal_ref_rejects_naive_datetime() -> None:
     with pytest.raises(ValidationError, match="timezone-aware"):
         TemporalRef(valid_at=datetime(2026, 4, 15, 12))
+
+
+def test_access_ref_can_be_derived_from_source_field_policy() -> None:
+    contract = SimpleNamespace(
+        security=SimpleNamespace(
+            field_policies=(
+                SourceFieldAccessPolicy(
+                    field_id="worldbank.wdi.generic.value",
+                    classification="confidential",
+                    redaction="masked",
+                    policy_ref="fabric.access.policy.value",
+                    reason="Restricted decision-bearing field.",
+                ),
+            )
+        )
+    )
+
+    access = access_ref_from_source_field_policy(
+        contract,
+        field_id="worldbank.wdi.generic.value",
+    )
+
+    assert access.classification == "confidential"
+    assert access.redaction == "masked"
+    assert access.policy_ref == "fabric.access.policy.value"
 
 
 def test_fabric_fact_event_and_claim_mapping_helpers() -> None:

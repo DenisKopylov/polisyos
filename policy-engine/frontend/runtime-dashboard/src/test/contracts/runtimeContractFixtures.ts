@@ -6,15 +6,27 @@ import type { ZodType } from "zod";
 import {
   authMeSchema,
   capabilityManifestSchema,
+  compareRunsSchema,
+  counterfactualMetricsSchema,
+  fabricImpactAnalysisSchema,
+  fabricQualityBatchSchema,
+  fabricReplaySchema,
+  fabricSourceScorecardsSchema,
+  fabricTrustBatchSchema,
   governanceDebugSchema,
   healthSchema,
+  lineageBatchResponseSchema,
+  lineageResponseSchema,
   lexSearchResponseSchema,
   promotionCandidatesSchema,
   promotionDecisionResponseSchema,
+  runFabricDecisionDataSchema,
   runDetailsSchema,
   runEvidenceContextSchema,
+  runQuantitiesSchema,
   runsListSchema,
   runTimelineSchema,
+  temporalCapabilitiesSchema,
 } from "../../api/validators";
 
 type RecordContext = {
@@ -40,16 +52,28 @@ export type RuntimeContractFixtureDefinition = {
   key:
     | "auth-me"
     | "capabilities"
+    | "compare-run"
+    | "counterfactual-metrics"
+    | "fabric-impact"
+    | "fabric-quality-batch"
+    | "fabric-replay"
+    | "fabric-source-scorecards"
+    | "fabric-trust-batch"
     | "governance-debug"
     | "health"
+    | "lineage"
+    | "lineage-batch"
     | "lex-search"
     | "promotion-approve"
     | "promotion-candidates"
     | "promotion-reject"
     | "run-details"
     | "run-evidence-context"
+    | "run-fabric-decision-data"
+    | "run-quantities"
     | "run-timeline"
-    | "runs-list";
+    | "runs-list"
+    | "temporal-capabilities";
   matcher: RegExp;
   method: "GET" | "POST";
   mswPath: string;
@@ -135,6 +159,154 @@ export const runtimeContractFixtureDefinitions: RuntimeContractFixtureDefinition
         path: `/api/v1/runs/${runId}/timeline`,
       }),
       schema: runTimelineSchema,
+    },
+    {
+      fileName: "run-quantities.json",
+      key: "run-quantities",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/quantities$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/quantities",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/quantities`,
+      }),
+      schema: runQuantitiesSchema,
+    },
+    {
+      fileName: "run-fabric-decision-data.json",
+      key: "run-fabric-decision-data",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/fabric-decision-data$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/fabric-decision-data",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/fabric-decision-data`,
+      }),
+      schema: runFabricDecisionDataSchema,
+    },
+    {
+      fileName: "lineage.json",
+      key: "lineage",
+      matcher: /^\/api\/v1\/lineage\/[^/]+$/,
+      method: "GET",
+      mswPath: "*/api/v1/lineage/:lineageId",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/lineage/artifact:${runId}`,
+      }),
+      schema: lineageResponseSchema,
+    },
+    {
+      fileName: "lineage-batch.json",
+      key: "lineage-batch",
+      matcher: /^\/api\/v1\/lineage\/batch$/,
+      method: "POST",
+      mswPath: "*/api/v1/lineage/batch",
+      record: ({ runId }) => ({
+        body: { lineage_ids: [`artifact:${runId}`] },
+        method: "POST",
+        path: "/api/v1/lineage/batch",
+      }),
+      schema: lineageBatchResponseSchema,
+    },
+    {
+      fileName: "temporal-capabilities.json",
+      key: "temporal-capabilities",
+      matcher: /^\/api\/v1\/temporal\/capabilities$/,
+      method: "GET",
+      mswPath: "*/api/v1/temporal/capabilities",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/temporal/capabilities?run_id=${runId}`,
+      }),
+      schema: temporalCapabilitiesSchema,
+    },
+    {
+      fileName: "compare-run.json",
+      key: "compare-run",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/compare\/[^/]+$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/compare/:otherRunId",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/compare/${runId}`,
+      }),
+      schema: compareRunsSchema,
+    },
+    {
+      fileName: "counterfactual-metrics.json",
+      key: "counterfactual-metrics",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/metrics$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/metrics",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/metrics?scenario_id=scn_fixture_001`,
+      }),
+      schema: counterfactualMetricsSchema,
+    },
+    {
+      fileName: "fabric-source-scorecards.json",
+      key: "fabric-source-scorecards",
+      matcher: /^\/api\/v1\/fabric\/source-scorecards$/,
+      method: "GET",
+      mswPath: "*/api/v1/fabric/source-scorecards",
+      record: {
+        method: "GET",
+        path: "/api/v1/fabric/source-scorecards",
+      },
+      schema: fabricSourceScorecardsSchema,
+    },
+    {
+      fileName: "fabric-quality-batch.json",
+      key: "fabric-quality-batch",
+      matcher: /^\/api\/v1\/fabric\/quality\/batch$/,
+      method: "POST",
+      mswPath: "*/api/v1/fabric/quality/batch",
+      record: ({ runId }) => ({
+        body: { run_id: runId },
+        method: "POST",
+        path: "/api/v1/fabric/quality/batch",
+      }),
+      schema: fabricQualityBatchSchema,
+    },
+    {
+      fileName: "fabric-trust-batch.json",
+      key: "fabric-trust-batch",
+      matcher: /^\/api\/v1\/fabric\/trust\/batch$/,
+      method: "POST",
+      mswPath: "*/api/v1/fabric/trust/batch",
+      record: ({ runId }) => ({
+        body: { run_id: runId },
+        method: "POST",
+        path: "/api/v1/fabric/trust/batch",
+      }),
+      schema: fabricTrustBatchSchema,
+    },
+    {
+      fileName: "fabric-replay.json",
+      key: "fabric-replay",
+      matcher: /^\/api\/v1\/fabric\/runs\/[^/]+\/replay$/,
+      method: "GET",
+      mswPath: "*/api/v1/fabric/runs/:runId/replay",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/fabric/runs/${runId}/replay`,
+      }),
+      schema: fabricReplaySchema,
+    },
+    {
+      fileName: "fabric-impact.json",
+      key: "fabric-impact",
+      matcher: /^\/api\/v1\/fabric\/impact$/,
+      method: "POST",
+      mswPath: "*/api/v1/fabric/impact",
+      record: ({ runId }) => ({
+        body: { run_id: runId, source_contract_ids: ["worldbank.wdi.generic"] },
+        method: "POST",
+        path: "/api/v1/fabric/impact",
+      }),
+      schema: fabricImpactAnalysisSchema,
     },
     {
       fileName: "governance-debug.json",

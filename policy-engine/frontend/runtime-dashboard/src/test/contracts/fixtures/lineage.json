@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": []
+  },
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "lineage": {
+    "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status": "verified",
+    "hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "freshness": "current",
+    "compact_summary": [
+      {"kind": "source", "label": "Fabric evidence", "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+      {"kind": "result", "label": "Policy cost", "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+    ],
+    "nodes": [
+      {
+        "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "scientist.decision_packet",
+        "label": "scientist.decision_packet",
+        "timestamp": null,
+        "metadata": {"status": "present", "depth": 0}
+      }
+    ],
+    "edges": [],
+    "exports": {
+      "openlineage": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/openlineage",
+      "prov": "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/export/prov"
+    },
+    "metadata": {"total_nodes": 1, "total_edges": 0},
+    "trust_metadata": {
+      "hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "verification_status": "verified",
+      "verified_by": "PolicyOSLineageVerifier@1.0",
+      "verified_at": "2026-02-11T12:00:00Z",
+      "verification_method": "lineage_hash_match",
+      "freshness": "current",
+      "dispute_status": "none",
+      "temporal_scope": {
+        "valid_at": "2026-02-11T12:00:00Z",
+        "tx_at": "2026-02-11T12:01:00Z",
+        "branch": "main",
+        "snapshot_id": null,
+        "scenario_id": null
+      }
+    }
+  }
+}

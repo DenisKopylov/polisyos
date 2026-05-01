@@ -17,8 +17,11 @@ from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.safety import quote_sql_identifier
 from polisyos.fabric.security import (
+    ArtifactGovernanceError,
     DataClassification,
     RetentionScope,
+    SnapshotRetentionClass,
+    classify_snapshot_retention,
     resolve_artifact_governance,
     validate_artifact_governance,
 )
@@ -33,6 +36,7 @@ _SNAPSHOT_STORAGE_ADAPTER = "duckdb_native_file_copy"
 _DEFAULT_BRANCH = "main"
 _ICEBERG_SNAPSHOT_ADAPTER = "iceberg_table"
 _DELTA_SNAPSHOT_ADAPTER = "delta_table"
+_LEGAL_HOLD_TAGS = frozenset({"legal_hold", "legal-retention", "legal_retention"})
 _IMMUTABLE_MERGE_TABLES = frozenset({"world.world_facts", "world.world_edges"})
 _MERGEABLE_WORLD_TABLES = (
     "world._meta_world_segments",
@@ -54,6 +58,40 @@ _MERGEABLE_WORLD_TABLES = (
 
 class WorldSnapshotAdapterError(ValueError):
     """Raised when snapshot storage adapters cannot satisfy one requested operation."""
+
+
+class WorldBranchMergeConflictError(ValueError):
+    """Typed, exportable branch-merge conflict."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        table_name: str,
+        merge_policy: str,
+        conflict_keys: Sequence[Sequence[Any]] = (),
+        conflict_summary: WorldBranchConflictSummary | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.table_name = table_name
+        self.merge_policy = merge_policy
+        self.conflict_keys = tuple(tuple(key) for key in conflict_keys)
+        self.conflict_summary = conflict_summary or WorldBranchConflictSummary(
+            conflict_count=len(self.conflict_keys),
+            conflict_types=("row_conflict",),
+            table_names=(table_name,),
+            unresolved=True,
+        )
+
+    def export_payload(self) -> dict[str, Any]:
+        """Return a machine-readable conflict payload for reviews and audits."""
+
+        return {
+            "table_name": self.table_name,
+            "merge_policy": self.merge_policy,
+            "conflict_keys": [list(key) for key in self.conflict_keys],
+            "conflict_summary": asdict(self.conflict_summary),
+        }
 
 
 def _world_table_sql(table_name: str) -> str:
@@ -146,6 +184,37 @@ class WorldSnapshotRecord:
 
 
 @dataclass(frozen=True)
+class WorldBranchConflictSummary:
+    """Reviewable summary of merge conflicts on a world branch."""
+
+    conflict_count: int = 0
+    conflict_types: tuple[str, ...] = ()
+    table_names: tuple[str, ...] = ()
+    unresolved: bool = False
+    notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class WorldBranchGovernanceEvidence:
+    """One branch governance event retained with branch metadata."""
+
+    event_kind: str
+    actor: str
+    reason: str
+    created_at: str
+    target_branch: str | None = None
+    source_branch: str | None = None
+    target_snapshot_id: str | None = None
+    source_snapshot_id: str | None = None
+    merge_strategy: str | None = None
+    retained_audit_ref: str | None = None
+    conflict_summary: WorldBranchConflictSummary = field(
+        default_factory=WorldBranchConflictSummary
+    )
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class WorldBranchRecord:
     """Metadata for one logical scenario-analysis branch."""
 
@@ -155,6 +224,14 @@ class WorldBranchRecord:
     created_at: str
     merge_policy: str = "fail_on_conflict"
     provenance: dict[str, Any] = field(default_factory=dict)
+    branch_kind: str = "observed"
+    observed_state: str = "observed"
+    scenario_ref: str | None = None
+    actor: str = "fabric.system"
+    reason: str = "branch_registered"
+    retained_audit_ref: str | None = None
+    governance_events: tuple[WorldBranchGovernanceEvidence, ...] = ()
+    deleted_at: str | None = None
 
 
 @dataclass(frozen=True)
@@ -187,6 +264,10 @@ class WorldBranchMergeReport:
     merge_policy: str
     merged_snapshot: WorldSnapshotRecord
     resolved_conflicts: tuple[WorldMergeConflictResolution, ...] = ()
+    conflict_summary: WorldBranchConflictSummary = field(
+        default_factory=WorldBranchConflictSummary
+    )
+    governance_evidence: WorldBranchGovernanceEvidence | None = None
 
 
 def list_world_snapshot_adapters() -> tuple[WorldSnapshotAdapterSpec, ...]:
@@ -248,6 +329,17 @@ def create_world_snapshot(
 
     root = Path(snapshot_root) if snapshot_root is not None else default_world_snapshot_root(db)
     _ensure_snapshot_layout(root)
+    snapshot_tags = _normalize_snapshot_tags(tags)
+    _enforce_legal_hold_encryption_metadata(
+        tags=snapshot_tags,
+        encrypted_at_rest=encrypted_at_rest,
+        field_level_encrypted=field_level_encrypted,
+        encryption_key_reference=encryption_key_reference,
+    )
+    governance_classification = _snapshot_governance_classification(
+        classification=classification,
+        tags=snapshot_tags,
+    )
 
     snap_id = snapshot_id or _new_snapshot_id()
     created_at = utc_now().isoformat().replace("+00:00", "Z")
@@ -271,13 +363,13 @@ def create_world_snapshot(
         as_of_tx_time=tx_time,
         as_of_valid_time=valid_time,
         merge_policy=merge_policy,
-        tags=tuple(dict.fromkeys(str(tag) for tag in tags if str(tag).strip())),
+        tags=snapshot_tags,
         provenance=dict(provenance or {}),
         storage_adapter=adapter_spec.adapter_name,
         adapter_config=dict(adapter_config or {}),
         governance=resolve_artifact_governance(
-            scope=RetentionScope.WORLD_PROJECTION,
-            classification=classification,
+            scope=RetentionScope.WORLD_SNAPSHOT,
+            classification=governance_classification,
             column_classification=column_classification,
             encrypted_at_rest=encrypted_at_rest,
             field_level_encrypted=field_level_encrypted,
@@ -296,6 +388,7 @@ def register_world_snapshot_record(
     root = Path(snapshot_root)
     _ensure_snapshot_layout(root)
     adapter_spec = get_world_snapshot_adapter(record.storage_adapter)
+    snapshot_tags = _normalize_snapshot_tags(record.tags)
     snapshot_path = str(record.snapshot_path).strip()
     if not snapshot_path:
         raise WorldSnapshotAdapterError("world snapshot path must not be empty")
@@ -306,7 +399,7 @@ def register_world_snapshot_record(
     governance = record.governance
     if governance is None:
         governance = resolve_artifact_governance(
-            scope=RetentionScope.WORLD_PROJECTION,
+            scope=RetentionScope.WORLD_SNAPSHOT,
             classification=DataClassification.PUBLIC,
         )
         record = WorldSnapshotRecord(
@@ -318,7 +411,7 @@ def register_world_snapshot_record(
             as_of_tx_time=record.as_of_tx_time,
             as_of_valid_time=record.as_of_valid_time,
             merge_policy=record.merge_policy,
-            tags=record.tags,
+            tags=snapshot_tags,
             provenance=dict(record.provenance),
             storage_adapter=record.storage_adapter,
             adapter_config=dict(record.adapter_config),
@@ -326,19 +419,72 @@ def register_world_snapshot_record(
         )
     else:
         validate_artifact_governance(governance)
+        record = WorldSnapshotRecord(
+            snapshot_id=record.snapshot_id,
+            snapshot_path=record.snapshot_path,
+            created_at=record.created_at,
+            branch_name=record.branch_name,
+            base_snapshot_id=record.base_snapshot_id,
+            as_of_tx_time=record.as_of_tx_time,
+            as_of_valid_time=record.as_of_valid_time,
+            merge_policy=record.merge_policy,
+            tags=snapshot_tags,
+            provenance=dict(record.provenance),
+            storage_adapter=record.storage_adapter,
+            adapter_config=dict(record.adapter_config),
+            governance=governance,
+        )
+    _validate_snapshot_retention_governance(record)
 
     atomic_write_json(
         _snapshot_meta_file(root, record.snapshot_id), _snapshot_record_payload(record)
+    )
+    existing_branch = _maybe_get_world_branch(root, record.branch_name)
+    event_kind = "branch_created" if existing_branch is None else "branch_head_updated"
+    actor = str(record.provenance.get("actor") or getattr(existing_branch, "actor", "fabric.system"))
+    reason = str(
+        record.provenance.get("reason")
+        or ("snapshot_registered" if existing_branch is None else "snapshot_head_registered")
+    )
+    governance_event = _build_branch_governance_event(
+        event_kind=event_kind,
+        actor=actor,
+        reason=reason,
+        target_branch=record.branch_name,
+        target_snapshot_id=record.snapshot_id,
+        retained_audit_ref=record.provenance.get("retained_audit_ref"),
     )
     _upsert_branch(
         root,
         WorldBranchRecord(
             branch_name=record.branch_name,
-            base_snapshot_id=record.base_snapshot_id or record.snapshot_id,
+            base_snapshot_id=(
+                existing_branch.base_snapshot_id
+                if existing_branch is not None
+                else record.base_snapshot_id or record.snapshot_id
+            ),
             head_snapshot_id=record.snapshot_id,
-            created_at=record.created_at,
+            created_at=(
+                existing_branch.created_at if existing_branch is not None else record.created_at
+            ),
             merge_policy=record.merge_policy,
             provenance=dict(record.provenance),
+            branch_kind=getattr(existing_branch, "branch_kind", "observed"),
+            observed_state=getattr(existing_branch, "observed_state", "observed"),
+            scenario_ref=getattr(existing_branch, "scenario_ref", None),
+            actor=actor,
+            reason=reason,
+            retained_audit_ref=(
+                str(record.provenance.get("retained_audit_ref"))
+                if record.provenance.get("retained_audit_ref") is not None
+                else getattr(existing_branch, "retained_audit_ref", None)
+            ),
+            governance_events=(
+                (*existing_branch.governance_events, governance_event)
+                if existing_branch is not None
+                else (governance_event,)
+            ),
+            deleted_at=getattr(existing_branch, "deleted_at", None),
         ),
     )
     return record
@@ -351,19 +497,72 @@ def create_world_branch(
     base_snapshot_id: str,
     merge_policy: str = "fail_on_conflict",
     provenance: Mapping[str, Any] | None = None,
+    actor: str = "fabric.system",
+    reason: str = "branch_created",
+    retained_audit_ref: str | None = None,
+    branch_kind: str = "observed",
+    scenario_ref: str | None = None,
+    assumption_lineage_refs: Sequence[str] = (),
+    model_lineage_refs: Sequence[str] = (),
+    valid_from: str | None = None,
+    valid_to: str | None = None,
 ) -> WorldBranchRecord:
     """Register a logical branch that starts from an existing base snapshot."""
 
     root = Path(snapshot_root)
     _ensure_snapshot_layout(root)
     _load_snapshot(root, base_snapshot_id)
+    normalized_kind = _normalize_branch_kind(branch_kind)
+    if normalized_kind == "scenario" and not str(scenario_ref or "").strip():
+        raise ValueError("scenario branches require scenario_ref")
+    if normalized_kind == "scenario" and not any(
+        str(ref).strip() for ref in assumption_lineage_refs
+    ):
+        raise ValueError("scenario branches require assumption lineage")
+    if normalized_kind == "scenario" and not str(valid_from or "").strip():
+        raise ValueError("scenario branches require valid_from")
+    observed_state = "simulated" if normalized_kind == "scenario" else "observed"
+    branch_provenance = dict(provenance or {})
+    if normalized_kind == "scenario":
+        branch_provenance["scenario_contract"] = {
+            "scenario_ref": str(scenario_ref),
+            "assumption_lineage_refs": [
+                str(ref).strip() for ref in assumption_lineage_refs if str(ref).strip()
+            ],
+            "model_lineage_refs": [
+                str(ref).strip() for ref in model_lineage_refs if str(ref).strip()
+            ],
+            "valid_from": valid_from,
+            "valid_to": valid_to,
+            "observed_state": observed_state,
+            "source_marker": "scenario_state_not_observed_world",
+        }
+    governance_event = _build_branch_governance_event(
+        event_kind="branch_created",
+        actor=actor,
+        reason=reason,
+        target_branch=branch_name,
+        target_snapshot_id=base_snapshot_id,
+        retained_audit_ref=retained_audit_ref,
+        metadata={
+            "branch_kind": normalized_kind,
+            "scenario_ref": scenario_ref,
+        },
+    )
     record = WorldBranchRecord(
         branch_name=branch_name,
         base_snapshot_id=base_snapshot_id,
         head_snapshot_id=base_snapshot_id,
         created_at=utc_now().isoformat().replace("+00:00", "Z"),
         merge_policy=merge_policy,
-        provenance=dict(provenance or {}),
+        provenance=branch_provenance,
+        branch_kind=normalized_kind,
+        observed_state=observed_state,
+        scenario_ref=str(scenario_ref) if scenario_ref is not None else None,
+        actor=actor,
+        reason=reason,
+        retained_audit_ref=retained_audit_ref,
+        governance_events=(governance_event,),
     )
     _upsert_branch(root, record)
     return record
@@ -390,14 +589,7 @@ def get_world_branch(snapshot_root: Path, branch_name: str) -> WorldBranchRecord
     if not branch_path.exists():
         raise FileNotFoundError(f"world branch not found: {branch_name}")
     payload = json.loads(branch_path.read_text("utf-8"))
-    return WorldBranchRecord(
-        branch_name=str(payload["branch_name"]),
-        base_snapshot_id=str(payload["base_snapshot_id"]),
-        head_snapshot_id=str(payload["head_snapshot_id"]),
-        created_at=str(payload["created_at"]),
-        merge_policy=str(payload.get("merge_policy", "fail_on_conflict")),
-        provenance=dict(payload.get("provenance", {})),
-    )
+    return _branch_from_payload(payload)
 
 
 def resolve_world_snapshot(
@@ -417,7 +609,13 @@ def resolve_world_snapshot(
     resolved_branch = branch_name or _DEFAULT_BRANCH
     if as_of_tx_time is None and as_of_valid_time is None:
         branch = get_world_branch(root, resolved_branch)
+        if branch.deleted_at is not None:
+            raise FileNotFoundError(f"world branch was deleted: {resolved_branch}")
         return _load_snapshot(root, branch.head_snapshot_id)
+
+    branch = get_world_branch(root, resolved_branch)
+    if branch.deleted_at is not None:
+        raise FileNotFoundError(f"world branch was deleted: {resolved_branch}")
 
     candidates = [
         snapshot
@@ -464,17 +662,25 @@ def gc_world_snapshots(
     *,
     keep_latest: int = 0,
     keep_since: str | None = None,
-    retain_tags: Sequence[str] = ("audit",),
+    retain_tags: Sequence[str] = ("audit", "legal_hold", "legal-retention"),
     dry_run: bool = False,
 ) -> WorldSnapshotGCReport:
-    """Delete expired snapshots while retaining branch heads and tagged/audit snapshots."""
+    """Delete expired snapshots while retaining branch heads, audit, and legal-hold snapshots."""
 
     root = Path(snapshot_root)
     snapshots = list_world_snapshots(root)
     retained_tags = {str(tag).strip() for tag in retain_tags if str(tag).strip()}
     keep_since_dt = parse_datetime_utc(keep_since, what="keep_since") if keep_since else None
 
-    protected_ids = {branch.head_snapshot_id for branch in _list_branches(root)}
+    protected_ids = {
+        branch.head_snapshot_id for branch in _list_branches(root) if branch.deleted_at is None
+    }
+    protected_ids.update(
+        snapshot.snapshot_id
+        for snapshot in snapshots
+        if classify_snapshot_retention(tags=snapshot.tags)
+        in {SnapshotRetentionClass.AUDIT_TAGGED, SnapshotRetentionClass.LEGAL_HOLD}
+    )
     if keep_latest > 0:
         protected_ids.update(snapshot.snapshot_id for snapshot in snapshots[-keep_latest:])
     if retained_tags:
@@ -525,6 +731,9 @@ def merge_world_branch(
     merge_policy: str | None = None,
     provenance: Mapping[str, Any] | None = None,
     tags: Sequence[str] = (),
+    actor: str = "fabric.system",
+    reason: str = "branch_merge",
+    retained_audit_ref: str | None = None,
 ) -> WorldBranchMergeReport:
     """Merge one branch head into another with explicit conflict policy."""
 
@@ -541,6 +750,10 @@ def merge_world_branch(
     )
     if resolved_policy not in {"fail_on_conflict", "branch_wins", "target_wins"}:
         raise ValueError(f"unsupported merge_policy: {resolved_policy!r}")
+    if source_branch.deleted_at is not None:
+        raise FileNotFoundError(f"world branch was deleted: {branch_name}")
+    if target_branch.deleted_at is not None:
+        raise FileNotFoundError(f"world branch was deleted: {target_branch_name}")
 
     source_snapshot = _load_snapshot(root, source_branch.head_snapshot_id)
     target_snapshot = _load_snapshot(root, target_branch.head_snapshot_id)
@@ -557,6 +770,7 @@ def merge_world_branch(
 
     conflict_resolutions: list[WorldMergeConflictResolution] = []
     merged_snapshot: WorldSnapshotRecord | None = None
+    merge_governance: WorldBranchGovernanceEvidence | None = None
     try:
         with (
             SimulationDB(db_path=str(temp_db_path)) as merged_db,
@@ -601,6 +815,19 @@ def merge_world_branch(
                 merged_db.conn.execute("ROLLBACK")
                 raise
 
+            conflict_summary = _conflict_summary_from_resolutions(conflict_resolutions)
+            merge_governance = _build_branch_governance_event(
+                event_kind="branch_merged",
+                actor=actor,
+                reason=reason,
+                target_branch=target_branch_name,
+                source_branch=branch_name,
+                target_snapshot_id=target_snapshot.snapshot_id,
+                source_snapshot_id=source_snapshot.snapshot_id,
+                merge_strategy=resolved_policy,
+                retained_audit_ref=retained_audit_ref,
+                conflict_summary=conflict_summary,
+            )
             merged_snapshot = create_world_snapshot(
                 merged_db,
                 snapshot_root=root,
@@ -614,11 +841,17 @@ def merge_world_branch(
                         "source_snapshot_id": source_snapshot.snapshot_id,
                         "target_snapshot_id": target_snapshot.snapshot_id,
                         "resolved_conflicts": len(conflict_resolutions),
+                        "conflict_summary": asdict(conflict_summary),
+                        "governance": asdict(merge_governance),
                     },
+                    "actor": actor,
+                    "reason": reason,
+                    "retained_audit_ref": retained_audit_ref,
                     **dict(provenance or {}),
                 },
                 tags=tags,
             )
+            _append_branch_governance_event(root, target_branch_name, merge_governance)
     finally:
         if temp_db_path.exists():
             temp_db_path.unlink()
@@ -633,7 +866,105 @@ def merge_world_branch(
         merge_policy=resolved_policy,
         merged_snapshot=merged_snapshot,
         resolved_conflicts=tuple(conflict_resolutions),
+        conflict_summary=_conflict_summary_from_resolutions(conflict_resolutions),
+        governance_evidence=merge_governance,
     )
+
+
+def update_world_branch_head(
+    snapshot_root: Path,
+    *,
+    branch_name: str,
+    head_snapshot_id: str,
+    actor: str,
+    reason: str,
+    retained_audit_ref: str | None = None,
+) -> WorldBranchRecord:
+    """Move a branch head with explicit governance evidence."""
+
+    root = Path(snapshot_root)
+    _ensure_snapshot_layout(root)
+    _load_snapshot(root, head_snapshot_id)
+    branch = get_world_branch(root, branch_name)
+    if branch.deleted_at is not None:
+        raise FileNotFoundError(f"world branch was deleted: {branch_name}")
+    event = _build_branch_governance_event(
+        event_kind="branch_head_updated",
+        actor=actor,
+        reason=reason,
+        target_branch=branch_name,
+        target_snapshot_id=head_snapshot_id,
+        retained_audit_ref=retained_audit_ref,
+    )
+    updated = WorldBranchRecord(
+        branch_name=branch.branch_name,
+        base_snapshot_id=branch.base_snapshot_id,
+        head_snapshot_id=head_snapshot_id,
+        created_at=branch.created_at,
+        merge_policy=branch.merge_policy,
+        provenance=dict(branch.provenance),
+        branch_kind=branch.branch_kind,
+        observed_state=branch.observed_state,
+        scenario_ref=branch.scenario_ref,
+        actor=actor,
+        reason=reason,
+        retained_audit_ref=retained_audit_ref or branch.retained_audit_ref,
+        governance_events=(*branch.governance_events, event),
+        deleted_at=branch.deleted_at,
+    )
+    _upsert_branch(root, updated)
+    return updated
+
+
+def delete_world_branch(
+    snapshot_root: Path,
+    *,
+    branch_name: str,
+    actor: str,
+    reason: str,
+    retained_audit_ref: str | None = None,
+) -> WorldBranchRecord:
+    """Mark a branch deleted while retaining exportable governance evidence."""
+
+    root = Path(snapshot_root)
+    branch = get_world_branch(root, branch_name)
+    deleted_at = utc_now().isoformat().replace("+00:00", "Z")
+    event = _build_branch_governance_event(
+        event_kind="branch_deleted",
+        actor=actor,
+        reason=reason,
+        target_branch=branch_name,
+        target_snapshot_id=branch.head_snapshot_id,
+        retained_audit_ref=retained_audit_ref,
+    )
+    updated = WorldBranchRecord(
+        branch_name=branch.branch_name,
+        base_snapshot_id=branch.base_snapshot_id,
+        head_snapshot_id=branch.head_snapshot_id,
+        created_at=branch.created_at,
+        merge_policy=branch.merge_policy,
+        provenance=dict(branch.provenance),
+        branch_kind=branch.branch_kind,
+        observed_state=branch.observed_state,
+        scenario_ref=branch.scenario_ref,
+        actor=actor,
+        reason=reason,
+        retained_audit_ref=retained_audit_ref or branch.retained_audit_ref,
+        governance_events=(*branch.governance_events, event),
+        deleted_at=deleted_at,
+    )
+    _upsert_branch(root, updated)
+    return updated
+
+
+def export_world_branch_governance(
+    snapshot_root: Path,
+    branch_name: str,
+) -> dict[str, Any]:
+    """Export branch governance evidence as stable JSON-ready data."""
+
+    branch = get_world_branch(Path(snapshot_root), branch_name)
+    return asdict(branch)
 
 
 def _new_snapshot_id() -> str:
@@ -682,6 +1013,65 @@ def _snapshot_record_payload(record: WorldSnapshotRecord) -> dict[str, Any]:
     return payload
 
 
+def _normalize_snapshot_tags(tags: Sequence[str]) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(str(tag).strip() for tag in tags if str(tag).strip()))
+
+
+def _enforce_legal_hold_encryption_metadata(
+    *,
+    tags: Sequence[str],
+    encrypted_at_rest: bool,
+    field_level_encrypted: bool,
+    encryption_key_reference: str | None,
+) -> None:
+    retention_class = classify_snapshot_retention(tags=tuple(tags))
+    if retention_class != SnapshotRetentionClass.LEGAL_HOLD:
+        return
+    if not (encrypted_at_rest or field_level_encrypted):
+        raise ArtifactGovernanceError(
+            "world_snapshot legal retention requires verified encryption metadata"
+        )
+    if not str(encryption_key_reference or "").strip():
+        raise ArtifactGovernanceError(
+            "world_snapshot legal retention requires encryption_key_reference"
+        )
+
+
+def _validate_snapshot_retention_governance(record: WorldSnapshotRecord) -> None:
+    retention_class = classify_snapshot_retention(tags=record.tags)
+    if retention_class != SnapshotRetentionClass.LEGAL_HOLD:
+        return
+    governance = record.governance
+    encryption = governance.encryption if governance is not None else None
+    if (
+        encryption is None
+        or not encryption.enforced
+        or not encryption.verified
+        or not str(encryption.key_reference or "").strip()
+    ):
+        raise ArtifactGovernanceError(
+            "world_snapshot legal retention requires verified encryption metadata"
+        )
+
+
+def _snapshot_governance_classification(
+    *,
+    classification: DataClassification | str | None,
+    tags: Sequence[str],
+) -> DataClassification | str | None:
+    if classify_snapshot_retention(tags=tuple(tags)) != SnapshotRetentionClass.LEGAL_HOLD:
+        return classification
+    if classification is None:
+        return DataClassification.INTERNAL
+    try:
+        resolved = DataClassification(str(classification).strip().lower())
+    except ValueError:
+        return classification
+    if resolved == DataClassification.PUBLIC:
+        return DataClassification.INTERNAL
+    return classification
+
+
 def _snapshot_from_payload(payload: str) -> WorldSnapshotRecord:
     raw = json.loads(payload)
     return WorldSnapshotRecord(
@@ -703,6 +1093,133 @@ def _snapshot_from_payload(payload: str) -> WorldSnapshotRecord:
             else None
         ),
     )
+
+
+def _branch_from_payload(payload: Mapping[str, Any]) -> WorldBranchRecord:
+    governance_events = tuple(
+        _branch_governance_from_payload(item)
+        for item in payload.get("governance_events", ())
+        if isinstance(item, Mapping)
+    )
+    return WorldBranchRecord(
+        branch_name=str(payload["branch_name"]),
+        base_snapshot_id=str(payload["base_snapshot_id"]),
+        head_snapshot_id=str(payload["head_snapshot_id"]),
+        created_at=str(payload["created_at"]),
+        merge_policy=str(payload.get("merge_policy", "fail_on_conflict")),
+        provenance=dict(payload.get("provenance", {})),
+        branch_kind=str(payload.get("branch_kind", "observed")),
+        observed_state=str(payload.get("observed_state", "observed")),
+        scenario_ref=payload.get("scenario_ref"),
+        actor=str(payload.get("actor", "fabric.system")),
+        reason=str(payload.get("reason", "branch_registered")),
+        retained_audit_ref=payload.get("retained_audit_ref"),
+        governance_events=governance_events,
+        deleted_at=payload.get("deleted_at"),
+    )
+
+
+def _branch_governance_from_payload(payload: Mapping[str, Any]) -> WorldBranchGovernanceEvidence:
+    return WorldBranchGovernanceEvidence(
+        event_kind=str(payload["event_kind"]),
+        actor=str(payload["actor"]),
+        reason=str(payload["reason"]),
+        created_at=str(payload.get("created_at") or utc_now().isoformat().replace("+00:00", "Z")),
+        target_branch=payload.get("target_branch"),
+        source_branch=payload.get("source_branch"),
+        target_snapshot_id=payload.get("target_snapshot_id"),
+        source_snapshot_id=payload.get("source_snapshot_id"),
+        merge_strategy=payload.get("merge_strategy"),
+        retained_audit_ref=payload.get("retained_audit_ref"),
+        conflict_summary=_conflict_summary_from_payload(payload.get("conflict_summary", {})),
+        metadata=dict(payload.get("metadata", {})),
+    )
+
+
+def _conflict_summary_from_payload(payload: object) -> WorldBranchConflictSummary:
+    if not isinstance(payload, Mapping):
+        return WorldBranchConflictSummary()
+    return WorldBranchConflictSummary(
+        conflict_count=int(payload.get("conflict_count", 0)),
+        conflict_types=tuple(str(item) for item in payload.get("conflict_types", ())),
+        table_names=tuple(str(item) for item in payload.get("table_names", ())),
+        unresolved=bool(payload.get("unresolved", False)),
+        notes=tuple(str(item) for item in payload.get("notes", ())),
+    )
+
+
+def _build_branch_governance_event(
+    *,
+    event_kind: str,
+    actor: str,
+    reason: str,
+    target_branch: str | None = None,
+    source_branch: str | None = None,
+    target_snapshot_id: str | None = None,
+    source_snapshot_id: str | None = None,
+    merge_strategy: str | None = None,
+    retained_audit_ref: object = None,
+    conflict_summary: WorldBranchConflictSummary | None = None,
+    metadata: Mapping[str, Any] | None = None,
+) -> WorldBranchGovernanceEvidence:
+    if not str(actor or "").strip():
+        raise ValueError("branch governance evidence requires actor")
+    if not str(reason or "").strip():
+        raise ValueError("branch governance evidence requires reason")
+    return WorldBranchGovernanceEvidence(
+        event_kind=str(event_kind),
+        actor=str(actor).strip(),
+        reason=str(reason).strip(),
+        created_at=utc_now().isoformat().replace("+00:00", "Z"),
+        target_branch=target_branch,
+        source_branch=source_branch,
+        target_snapshot_id=target_snapshot_id,
+        source_snapshot_id=source_snapshot_id,
+        merge_strategy=merge_strategy,
+        retained_audit_ref=str(retained_audit_ref) if retained_audit_ref is not None else None,
+        conflict_summary=conflict_summary or WorldBranchConflictSummary(),
+        metadata=dict(metadata or {}),
+    )
+
+
+def _append_branch_governance_event(
+    snapshot_root: Path,
+    branch_name: str,
+    event: WorldBranchGovernanceEvidence,
+) -> WorldBranchRecord:
+    branch = get_world_branch(snapshot_root, branch_name)
+    updated = WorldBranchRecord(
+        branch_name=branch.branch_name,
+        base_snapshot_id=branch.base_snapshot_id,
+        head_snapshot_id=branch.head_snapshot_id,
+        created_at=branch.created_at,
+        merge_policy=branch.merge_policy,
+        provenance=dict(branch.provenance),
+        branch_kind=branch.branch_kind,
+        observed_state=branch.observed_state,
+        scenario_ref=branch.scenario_ref,
+        actor=event.actor,
+        reason=event.reason,
+        retained_audit_ref=event.retained_audit_ref or branch.retained_audit_ref,
+        governance_events=(*branch.governance_events, event),
+        deleted_at=branch.deleted_at,
+    )
+    _upsert_branch(snapshot_root, updated)
+    return updated
+
+
+def _maybe_get_world_branch(snapshot_root: Path, branch_name: str) -> WorldBranchRecord | None:
+    try:
+        return get_world_branch(snapshot_root, branch_name)
+    except FileNotFoundError:
+        return None
+
+
+def _normalize_branch_kind(value: str) -> str:
+    normalized = str(value or "observed").strip().lower()
+    if normalized not in {"observed", "scenario"}:
+        raise ValueError("world branch kind must be 'observed' or 'scenario'")
+    return normalized
 
 
 def _load_snapshot(snapshot_root: Path, snapshot_id: str) -> WorldSnapshotRecord:
@@ -796,14 +1313,34 @@ def _merge_table_frames(
         conflicts.append((key, target_row, source_row))
 
     if conflicts and table_name in _IMMUTABLE_MERGE_TABLES:
-        raise ValueError(
+        keys = [key for key, _, _ in conflicts]
+        raise WorldBranchMergeConflictError(
             f"immutable merge conflict in {table_name} for keys: "
-            + ", ".join(repr(key) for key, _, _ in conflicts)
+            + ", ".join(repr(key) for key in keys),
+            table_name=table_name,
+            merge_policy=merge_policy,
+            conflict_keys=keys,
+            conflict_summary=WorldBranchConflictSummary(
+                conflict_count=len(keys),
+                conflict_types=("immutable_row_conflict",),
+                table_names=(table_name,),
+                unresolved=True,
+            ),
         )
     if conflicts and merge_policy == "fail_on_conflict":
-        raise ValueError(
+        keys = [key for key, _, _ in conflicts]
+        raise WorldBranchMergeConflictError(
             f"merge conflict in {table_name} for keys: "
-            + ", ".join(repr(key) for key, _, _ in conflicts)
+            + ", ".join(repr(key) for key in keys),
+            table_name=table_name,
+            merge_policy=merge_policy,
+            conflict_keys=keys,
+            conflict_summary=WorldBranchConflictSummary(
+                conflict_count=len(keys),
+                conflict_types=("row_conflict",),
+                table_names=(table_name,),
+                unresolved=True,
+            ),
         )
     if conflicts and merge_policy == "branch_wins":
         for key, _, source_row in conflicts:
@@ -857,8 +1394,18 @@ def _resolve_world_kind_fact_conflicts(
         if len(values) <= 1:
             continue
         if merge_policy == "fail_on_conflict":
-            raise ValueError(
-                f"world.kind conflict for subject_id={subject_id!r}: {', '.join(values)}"
+            raise WorldBranchMergeConflictError(
+                f"world.kind conflict for subject_id={subject_id!r}: {', '.join(values)}",
+                table_name="world.world_facts",
+                merge_policy=merge_policy,
+                conflict_keys=((subject_id, WORLD_KIND),),
+                conflict_summary=WorldBranchConflictSummary(
+                    conflict_count=1,
+                    conflict_types=("world_kind",),
+                    table_names=("world.world_facts",),
+                    unresolved=True,
+                    notes=(f"values={','.join(values)}",),
+                ),
             )
         winner_value = _winner_world_kind_value(
             subject_id=str(subject_id),
@@ -884,6 +1431,23 @@ def _resolve_world_kind_fact_conflicts(
         drop=True
     )
     return filtered, resolutions
+
+
+def _conflict_summary_from_resolutions(
+    resolutions: Sequence[WorldMergeConflictResolution],
+) -> WorldBranchConflictSummary:
+    if not resolutions:
+        return WorldBranchConflictSummary()
+    return WorldBranchConflictSummary(
+        conflict_count=len(resolutions),
+        conflict_types=("world_kind",),
+        table_names=("world.world_facts",),
+        unresolved=False,
+        notes=tuple(
+            f"{resolution.subject_id}:{resolution.predicate_id}"
+            for resolution in resolutions
+        ),
+    )
 
 
 def _winner_world_kind_value(
@@ -1004,6 +1568,9 @@ def _temporal_lte(candidate: str | int, target: str | int, *, label: str) -> boo
 
 
 __all__ = [
+    "WorldBranchConflictSummary",
+    "WorldBranchGovernanceEvidence",
+    "WorldBranchMergeConflictError",
     "WorldBranchMergeReport",
     "WorldBranchRecord",
     "WorldMergeConflictResolution",
@@ -1014,6 +1581,8 @@ __all__ = [
     "create_world_branch",
     "create_world_snapshot",
     "default_world_snapshot_root",
+    "delete_world_branch",
+    "export_world_branch_governance",
     "gc_world_snapshots",
     "get_world_branch",
     "get_world_snapshot_adapter",
@@ -1022,4 +1591,5 @@ __all__ = [
     "merge_world_branch",
     "register_world_snapshot_record",
     "resolve_world_snapshot",
+    "update_world_branch_head",
 ]

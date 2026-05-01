@@ -1,0 +1,48 @@
+{
+  "connector_id": "worldbank.wdi",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "country_code": "country_code_sample",
+      "country_name": "country_name_sample",
+      "decimal": 2026,
+      "indicator_id": "indicator_id_sample",
+      "indicator_name": "indicator_name_sample",
+      "unit": "unit_sample",
+      "value": 1.0,
+      "year": 2026
+    }
+  ],
+  "profile_id": "worldbank_wdi",
+  "replay_checksum": "sha256:d6d351363402e2dff18fc7b096280553e6fd1a3c352ae146584c5e6e35ba60e0",
+  "schema_checksum": "sha256:5361359ae083181d3a0af6f63ceb663a77988e8b3e37aa04211aa80915104cce",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "worldbank.wdi.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "worldbank.wdi",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "worldbank_wdi",
+      "url": "fabric://worldbank.wdi/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "country_code": "country_code_sample",
+            "country_name": "country_name_sample",
+            "decimal": 2026,
+            "indicator_id": "indicator_id_sample",
+            "indicator_name": "indicator_name_sample",
+            "unit": "unit_sample",
+            "value": 1.0,
+            "year": 2026
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

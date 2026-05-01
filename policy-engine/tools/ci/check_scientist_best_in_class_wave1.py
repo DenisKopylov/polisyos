@@ -82,6 +82,7 @@ DECISION_PACKET_TOKENS: dict[Path, tuple[str, ...]] = {
     ),
     Path("tests/scientist/test_decision_packet_node_v3.py"): (
         'payload["claims_ref"]',
+        'payload["research_dag_ref"]',
         "missing_claims_ref_for_decision_bearing_payload",
     ),
     Path("tests/scientist/research_dag/test_workflow_integration.py"): (
@@ -155,6 +156,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.scientist.claims.validators import (
             SELECTED_FAIL_CLOSED_WORKFLOWS,
             validate_naked_decision_claims,
+            validate_state_claim_projection,
         )
         from polisyos.scientist.evals.authority import (
             BenchmarkAuthority,
@@ -173,9 +175,15 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.human_review.oversight_policy import (
             evaluate_human_review_requirement,
+            human_review_section,
             validate_human_reviewed_readiness,
         )
         from polisyos.scientist.human_review.packets import build_review_packet
+        from polisyos.scientist.nodes.builtins.state_keys import (
+            ARTIFACT_CLAIMS_REF,
+            ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+            ARTIFACT_RESEARCH_DAG_REF,
+        )
         from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"wave1_import_failed:{exc.__class__.__name__}:{exc}"]
@@ -216,6 +224,36 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         if not covered.passed:
             notes.append(f"{workflow_id}:decision_payload_with_claims_ref_blocked")
+        state_blocked = validate_state_claim_projection(
+            workflow_id=workflow_id,
+            artifacts_index={
+                ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: ref(
+                    f"{workflow_id}:policy_output",
+                    kind="scientist.policy_output_bundle",
+                )
+            },
+            fail_on_naked_claims=True,
+        )
+        if state_blocked.passed:
+            notes.append(f"{workflow_id}:decision_bearing_state_without_claims_did_not_block")
+        if "missing_claims_ref_for_decision_bearing_state" not in state_blocked.violations:
+            notes.append(f"{workflow_id}:missing_state_claim_projection_violation_not_reported")
+        state_covered = validate_state_claim_projection(
+            workflow_id=workflow_id,
+            artifacts_index={
+                ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: ref(
+                    f"{workflow_id}:policy_output",
+                    kind="scientist.policy_output_bundle",
+                ),
+                ARTIFACT_CLAIMS_REF: ref(
+                    f"{workflow_id}:state_claims",
+                    kind="scientist.claim_ledger",
+                ),
+            },
+            fail_on_naked_claims=True,
+        )
+        if not state_covered.passed:
+            notes.append(f"{workflow_id}:decision_bearing_state_with_claims_ref_blocked")
 
     claims_ref = ref("claims", kind="scientist.claim_ledger")
     research_dag_ref = ref("research_dag", kind="scientist.research_dag")
@@ -223,13 +261,16 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         "claims_ref": str(claims_ref.artifact_id),
         "research_dag_ref": str(research_dag_ref.artifact_id),
         "artifacts": {
-            "claims_ref": str(claims_ref.artifact_id),
-            "research_dag_ref": str(research_dag_ref.artifact_id),
+            ARTIFACT_CLAIMS_REF: str(claims_ref.artifact_id),
+            ARTIFACT_RESEARCH_DAG_REF: str(research_dag_ref.artifact_id),
         },
     }
-    if packet_payload["claims_ref"] != packet_payload["artifacts"]["claims_ref"]:
+    if packet_payload["claims_ref"] != packet_payload["artifacts"][ARTIFACT_CLAIMS_REF]:
         notes.append("decision_packet_claims_ref_not_projected_into_artifacts")
-    if packet_payload["research_dag_ref"] != packet_payload["artifacts"]["research_dag_ref"]:
+    if (
+        packet_payload["research_dag_ref"]
+        != packet_payload["artifacts"][ARTIFACT_RESEARCH_DAG_REF]
+    ):
         notes.append("decision_packet_research_dag_ref_not_projected_into_artifacts")
 
     tool_summary = summarize_tool_contracts(
@@ -313,6 +354,17 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     )
     if missing_review.passed:
         notes.append("high_risk_human_reviewed_without_refs_did_not_block")
+    missing_review_section = human_review_section(
+        requirement=requirement,
+        packet=review_packet,
+        decisions=[],
+    )
+    if missing_review_section.get("status") != HumanReviewStatus.PENDING.value:
+        notes.append("high_risk_human_review_section_missing_pending_status")
+    if missing_review_section.get("risk_tier") != "public_sector_high":
+        notes.append("high_risk_human_review_section_missing_risk_tier")
+    if missing_review_section.get("required_reviewer_count") != 2:
+        notes.append("high_risk_human_review_section_missing_two_person_requirement")
     decision_a = HumanReviewDecision(
         decision_id="decision_a",
         packet_id=review_packet.packet_id,
@@ -355,6 +407,15 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         is not HumanReviewStatus.APPROVED
     ):
         notes.append("two_person_review_did_not_approve")
+    approved_review_section = human_review_section(
+        requirement=requirement,
+        review_packet_ref=ref("human_review_packet", kind="scientist.human_review_packet"),
+        review_decision_ref=ref("human_review_decision", kind="scientist.human_review_decision"),
+        decisions=[decision_a, decision_b],
+        packet=review_packet,
+    )
+    if approved_review_section.get("status") != HumanReviewStatus.APPROVED.value:
+        notes.append("approved_high_risk_human_review_section_missing_status")
 
     return not notes, notes
 

@@ -1,6 +1,7 @@
 """Expose uncertainty propagation helpers used around Foundry simulation outputs."""
 
 from .config import AdaptiveStoppingConfig, PropagationConfig
+from .fabric_quality import FabricUncertaintyContext, fabric_uncertainty_context_from_decision_data
 from .protocol import PropagationResult, PropagationStrategy
 
 try:  # pragma: no cover - optional numeric stack dependency
@@ -18,6 +19,7 @@ except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pra
 __all__ = [
     "AdaptiveStoppingConfig",
     "AggregationStrategy",
+    "FabricUncertaintyContext",
     "PropagationConfig",
     "PropagationDispatcher",
     "PropagationResult",
@@ -25,4 +27,5 @@ __all__ = [
     "QuasiMCSampler",
     "aggregate_envelopes",
     "compute_first_order_indices",
+    "fabric_uncertainty_context_from_decision_data",
 ]

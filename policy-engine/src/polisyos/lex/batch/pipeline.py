@@ -1387,6 +1387,9 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             if config.pattern_feedback_enabled
             else None,
             insert_batch_size=config.graph_insert_batch,
+            amendment_workers=config.graph_amendment_workers,
+            amendment_task_chunk=config.graph_amendment_task_chunk,
+            amendment_progress_interval=config.graph_amendment_progress_interval,
         )
         stats.entities = graph_stats.entities
         stats.facts = graph_stats.facts

@@ -1,2792 +1,1684 @@
-# PolicyOS — План радикального улучшения дизайна и фронтенда
+# PolicyOS Atlas - Best-in-Class Design Roadmap
 
-> План построен как **две волны**, каждая — последовательность фаз.
-> Волна 1 закрывает шесть критических SOTA-пробелов.
-> Волна 2 внедряет best-in-class примитивы, которые делают PolicyOS
-> категорией, а не конкурентом на рынке.
->
-> Дата: 2026-04-22 · Статус: active · Владелец: Denis Kopylov
-> Версия: 2.0 (two-wave phased-by-design)
-
----
-
-## Оглавление
-
-- [0. TL;DR и тезис](#0-tldr-и-тезис)
-- [1. Диагноз текущего состояния](#1-диагноз-текущего-состояния)
-- [2. Сквозные инварианты плана (non-goals)](#2-сквозные-инварианты-плана-non-goals)
-- [3. Архитектура двух волн](#3-архитектура-двух-волн)
-- **Волна 1 — SOTA Gap Closure**
-  - [Фаза 1.0 — Foundations](#фаза-10--foundations)
-  - [Фаза 1.1 — Visual language (Janus + Glyphs + Sigil + Provenance Strip)](#фаза-11--visual-language)
-  - [Фаза 1.2 — Uncertainty visualization (G1)](#фаза-12--uncertainty-visualization-g1)
-  - [Фаза 1.3 — Accessibility WCAG 2.2 AA+ (G2)](#фаза-13--accessibility-wcag-22-aa-g2)
-  - [Фаза 1.4 — Dark theme v2 + density modes (G3)](#фаза-14--dark-theme-v2--density-modes-g3)
-  - [Фаза 1.5 — Prose system для decision packets (G4)](#фаза-15--prose-system-для-decision-packets-g4)
-  - [Фаза 1.6 — AI-authorship registry (G5)](#фаза-16--ai-authorship-registry-g5)
-  - [Фаза 1.7 — i18n UA/RU typography (G6)](#фаза-17--i18n-uaru-typography-g6)
-  - [Фаза 1.8 — Wave 1 closeout](#фаза-18--wave-1-closeout)
-- **Волна 2 — Best-in-class primitives**
-  - [Фаза 2.0 — Provenance law foundations](#фаза-20--provenance-law-foundations)
-  - [Фаза 2.1 — Time-as-primitive (B1)](#фаза-21--time-as-primitive-b1)
-  - [Фаза 2.2 — Provenance-on-hover (B2)](#фаза-22--provenance-on-hover-b2)
-  - [Фаза 2.3 — Policy diff (B3)](#фаза-23--policy-diff-b3)
-  - [Фаза 2.4 — Counterfactual layer (B4)](#фаза-24--counterfactual-layer-b4)
-  - [Фаза 2.5 — Native bureaucratic rendering (B5)](#фаза-25--native-bureaucratic-rendering-b5)
-  - [Фаза 2.6 — Trust view (B6)](#фаза-26--trust-view-b6)
-  - [Фаза 2.7 — System polish](#фаза-27--system-polish)
-- [4. Success metrics](#4-success-metrics)
-- [5. Risks & mitigations](#5-risks--mitigations)
-- [6. Owner matrix](#6-owner-matrix)
-- [7. Anchor artifacts](#7-anchor-artifacts)
+> Дата: 2026-04-29
+> Статус: active
+> Версия: 3.0, post-implementation frontier plan
+> Владелец: Denis Kopylov
+> Scope: `policy-engine/frontend/runtime-dashboard/`, `policy-engine/docs/brand/`,
+> `policy-engine/docs/compliance/`, runtime/fabric/scientist API contracts
 
 ---
 
-## 0. TL;DR и тезис
+## 0. Зачем обновлен этот план
 
-Разница между **SOTA** и **best-in-class** — не количественная. SOTA догоняет лучшее на рынке; best-in-class **изобретает примитив**, которому потом подчиняется вся категория (Linear — feel скорости; Figma — multiplayer-as-medium; Notion — block; Observable — reactive document).
+Предыдущий `DESIGN_BEST_IN_CLASS_PLAN.md` описывал две волны: закрытие SOTA
+пробелов и внедрение первых best-in-class примитивов. Эта работа теперь
+считается baseline. В репозитории уже есть Atlas shell, брендовые глифы,
+темы, density modes, accessibility tooling, provenance/quantity слой,
+counterfactual controls, bitemporal scope, trust view, bureaucratic rendering,
+reading view, chart primitives, Storybook и визуальные проверки.
 
-PolicyOS в этом плане получает два несводимых примитива, но реализует их не как
-ещё две UI-фичи, а как новый системный закон:
+Новый файл больше не планирует уже реализованное. Он планирует следующий слой:
 
-- **B1** Time-as-primitive — бимпоральный курсор: `valid_at` (когда факт
-  действовал) + `tx_at` (когда система это знала), показанный оператору как
-  единое глобальное измерение интерфейса.
-- **B2** Provenance-on-hover — progressive disclosure за каждым decision-bearing
-  числом: inline cue → compact provenance popover → deep-dive graph/export.
+1. Принять новый архив `PolicyOS Atlas Design System-4.zip` как дизайн-спеку
+   и прототипный источник, но не копировать его React/inline-style код в
+   production.
+2. Реализовать поверхности, которые есть в новом дизайн-пакете, но отсутствуют
+   или существуют только частично в репозитории.
+3. Спроектировать и реализовать настоящую best-in-class систему поверх Atlas:
+   causal/scientific UX, Fabric operations, trust/accountability, run
+   choreography, comprehension, publication-grade output и operator craft.
 
-Волна 2 начинается с spine 2.0–2.2: **no naked decision numbers**,
-**time is bitemporal**, **provenance is progressive disclosure**. Вокруг этого
-достраиваются ещё четыре примитива (policy diff, counterfactual layer, native
-bureaucratic rendering, trust view) и закрываются шесть SOTA-пробелов — всё
-поверх существующей Atlas-системы без слома её лексического и хроматического
-ядра.
-
-**План построен как две волны. Каждая — последовательность фаз. Фазы упорядочены по зависимостям, а не по темам.** Каждая фаза содержит: тезис, preconditions, scope, deliverables с точными путями, контракты backend-API, acceptance criteria, тесты, риски. Между волнами — gate с ревью.
-
-Общий бюджет: **~32 недели** (Волна 1 — 14 недель; Волна 2 — 18 недель). Рассчитано на одного fullstack-инженера + подключаемые: design-review, legal (для жанров), DBA (для `TemporalScope`/bitemporal-контрактов).
-
----
-
-## 1. Диагноз текущего состояния
-
-### 1.1. Капитал — что **не трогаем**
-
-| Слой                           | Состояние                                                                                               | Почему капитал                              |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| Лексическая дисциплина         | 29-терминный домен, запрет `you`, sentence case, no emoji                                               | Редчайший уровень в AI-продуктах 2025–26    |
-| Хроматическая палитра          | Sandstone + graphite без синевы                                                                         | Осознанное меньшинственное позиционирование |
-| Glass-панели с inset rim-light | Сквозной мотив                                                                                          | Узнаваемая подпись                          |
-| Сигнальная триада              | teal=verified, ember=blocked, gold=pending                                                              | Жёсткая семантика                           |
-| Типография                     | Manrope 800 / IBM Plex Mono / Instrument Serif                                                          | Профессиональный контроль регистров         |
-| UI-база                        | 70+ шаренных компонентов в `src/shared/ui/`, `.a11y.test.tsx` рядом                                     | Готовая техническая основа                  |
-| Chart-база                     | 20+ компонентов в `src/shared/charts/` (ConfidenceDial, ForestPlot, GradedErrorBar, UncertaintyDisplay) | Частично покрывает §1.2                     |
-| Токены                         | `designTokens.ts` (evidence/governance/severity/status/transport)                                       | Готовые семантические шкалы                 |
-| Дата-слой                      | 50+ React Query хуков, openapi-typescript, SSE runsLiveMachine                                          | Фундамент для реактивных примитивов         |
-| Fabric provenance/time-travel  | `FabricLineageTracker`, OpenLineage export, bitemporal `world_query`, snapshots/branches                | Готовое backend-ядро для Wave 2 spine       |
-
-### 1.2. Шесть критических SOTA-пробелов (Wave 1 scope)
-
-| #   | Пробел                                                                                   | Последствие                                                                     | Фаза |
-| --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---- |
-| G1  | Визуальный язык **неопределённости** не систематизирован (есть примитивы, нет языка)     | PolicyOS показывает CI/identifiability/counterfactual spreads как плоские числа | 1.2  |
-| G2  | **Accessibility** (WCAG 2.2 AA) не задокументирована, нет pattern-fills для колор-блайнд | Блокер для процурмента в ЕС/укр. госсектор                                      | 1.3  |
-| G3  | Нет **dark theme v2** и **density modes**                                                | Аналитики в 8-часовых сессиях уйдут в нативный терминал                         | 1.4  |
-| G4  | **Prose system** для decision packets пуст                                               | Разрыв между «что показывает» и «что производит»                                | 1.5  |
-| G5  | Нет регистра для **AI-authored** текста (vs цитата vs оператор)                          | В 2026 — определяющий SOTA-признак для AI-продуктов                             | 1.6  |
-| G6  | **i18n** под украинско-русскую реальность не специфицирован                              | Ломается плюрализация, типографика, даты, валюта                                | 1.7  |
-
-### 1.3. Шесть best-in-class примитивов (Wave 2 scope)
-
-| #   | Примитив                      | Конкурентный анализ                                      | Фаза |
-| --- | ----------------------------- | -------------------------------------------------------- | ---- |
-| B1  | Time-as-primitive             | Ни одного govtech-инструмента с bitemporal UX            | 2.1  |
-| B2  | Provenance-on-hover           | Observable флиртует, никто не коммитится на каждое число | 2.2  |
-| B3  | Policy diff (каузальный)      | Чистое поле                                              | 2.3  |
-| B4  | Counterfactual layer          | Никто                                                    | 2.4  |
-| B5  | Native bureaucratic rendering | Все GPT-обёртки рендерят generic markdown                | 2.5  |
-| B6  | Trust view                    | Никто                                                    | 2.6  |
+**Главная формула:** PolicyOS должен перестать быть "dashboard around policy
+runs" и стать **операционной средой доказуемой политики**, где causal graph,
+time, provenance, uncertainty, trust, objections, publication и reviewer craft
+являются первичными объектами интерфейса.
 
 ---
 
-## 2. Сквозные инварианты плана (non-goals)
+## 1. Текущий baseline: что уже считается реализованным
 
-Применяются ко **всем** фазам. Любой PR, нарушающий их, блокируется на review.
+Эти слои не планируются заново. Их можно расширять, но нельзя ломать без ADR и
+миграции.
 
-- **Не** добавляем маскота. Роль исполняют **глифы** (§1.1) и **AuthoredText registry** (§1.6).
-- **Не** отходим от sandstone + graphite. Никакого синего. Никаких градиентов свыше двухцветных rim-light.
-- **Не** расширяем сигнальную триаду teal/ember/gold. Новые семантики ищут форму внутри неё (pattern-fills, глифы, диакритика).
-- **Не** заменяем Atlas-mark на чистого Януса — Janus это второй слой, не замена.
-- **Не** добавляем 3D-рендеры, сургучные печати, тяжёлые bevel/emboss.
-- **Не** делаем glyph-алфавит на 60+ знаков. Десять радикалов — жёсткий лимит.
-- **Не** вводим emoji ни в каком регистре (включая служебные сообщения CLI).
-- **Не** ломаем OpenAPI-контракты без миграции — все backend-изменения через additive fields + deprecation window ≥ 2 релиза.
-- **Не** отключаем `eslint-plugin-boundaries` и `dependency-cruiser`-правила — новые компоненты обязаны вписаться в feature-slice архитектуру.
+### 1.1. Design-system foundation
 
----
+| Слой                                         | Production anchor                                               | Статус                                 |
+| -------------------------------------------- | --------------------------------------------------------------- | -------------------------------------- |
+| Atlas shell, sandstone/glass/graphite layout | `frontend/runtime-dashboard/src/styles.css`                     | done                                   |
+| Light theme tokens                           | `src/styles/theme-light.css`                                    | done                                   |
+| Dark theme tokens                            | `src/styles/theme-dark.css`                                     | done, но требует v4 canonical decision |
+| High contrast / forced colors                | `src/styles/theme-high-contrast.css`                            | done                                   |
+| Motion/reduced motion                        | `src/styles/motion.css`, `tools/design/check-reduced-motion.ts` | done                                   |
+| Density modes                                | `src/styles/density-*.css`, `DensityProvider`                   | done                                   |
+| Print/export styling                         | `src/styles/print.css`                                          | done                                   |
+| Tailwind v4/shadcn token bridge              | `@theme inline` in `src/styles.css`                             | done                                   |
 
-## 3. Архитектура двух волн
+### 1.2. Brand and glyph foundation
 
-### 3.1. Критерии перехода между волнами (gate)
+| Слой                         | Production anchor                                   | Статус |
+| ---------------------------- | --------------------------------------------------- | ------ |
+| Atlas assets                 | `public/atlas/`                                     | done   |
+| Janus mark                   | `src/shared/brand/JanusGlyph.tsx`                   | done   |
+| Atlas wordmark/mark resolver | `src/shared/brand/AtlasBrand.tsx`                   | done   |
+| Ten-radical glyph alphabet   | `src/shared/brand/Glyph.tsx`, `glyph-vocabulary.ts` | done   |
+| Glyph accessibility          | `Glyph.a11y.test.tsx`                               | done   |
+| Evidence sigil               | `src/shared/brand/EvidenceSigil.tsx`                | done   |
+| Provenance strip             | `src/shared/ui/ProvenanceStrip.tsx`                 | done   |
 
-Wave 1 → Wave 2 допускается только при одновременном выполнении:
+### 1.3. Decision-bearing number spine
 
-- Все G1–G6 closed (acceptance criteria каждой фазы).
-- Storybook visual regression — 0 unexpected diffs.
-- `pnpm test` + a11y — зелёно.
-- WCAG audit report подписан (§1.3).
-- VPAT документ опубликован в `docs/compliance/VPAT.md`.
-- Feature flags всех Wave 1 фич выключены по умолчанию в production, но включены в staging; нет P1/P0 багов 14 дней подряд.
+| Слой                                     | Production anchor                                                              | Статус |
+| ---------------------------------------- | ------------------------------------------------------------------------------ | ------ |
+| Quantity primitives                      | `src/shared/ui/quantity/`                                                      | done   |
+| Provenance popover/deep dive             | `src/shared/ui/quantity/ProvenancePopover.tsx`, `ProvenanceDeepDiveDialog.tsx` | done   |
+| Counterfactual quantity                  | `src/shared/ui/quantity/CounterfactualQuantity.tsx`                            | done   |
+| Fabric decision data adapter             | `src/shared/ui/quantity/fabric-decision-data.ts`                               | done   |
+| API hooks for run quantities/fabric data | `src/api/hooks/useRunQuantities.ts`, `useRunFabricDecisionData.ts`             | done   |
+| Trust view                               | `src/shared/ui/trust-view/`                                                    | done   |
 
-### 3.2. Параллелизация
+### 1.4. Existing high-value feature surfaces
 
-Внутри волны некоторые фазы можно вести параллельно:
+| Surface                   | Production anchor                                       | Статус                                    |
+| ------------------------- | ------------------------------------------------------- | ----------------------------------------- |
+| Command Center            | `src/features/dashboard/routes/DashboardPage.tsx`       | done, needs Atlas v4 expansion            |
+| Scenario Composer         | `src/features/composer/routes/LaunchRunPage.tsx`        | done                                      |
+| Runs / Decision Workspace | `src/features/runs/routes/RunDetailLayout.tsx` and tabs | done                                      |
+| Evidence Fabric           | `src/features/evidence/routes/EvidenceFabricPage.tsx`   | done, needs Fabric v4 surfaces            |
+| Causal canvas primitives  | `src/features/causal/`                                  | partial                                   |
+| Counterfactual controls   | `src/shared/ui/counterfactual/`                         | done                                      |
+| Policy diff               | `src/features/runs/compare/`                            | done, needs causal/dependency integration |
+| Bureaucratic artifacts    | `src/features/artifacts/bureaucratic/`                  | done, needs editable forms                |
+| Reading/monograph view    | `src/features/artifacts/reading-view/`                  | done                                      |
+| Collaboration indicators  | `src/features/collaboration/`, `src/app/realtime/`      | partial                                   |
+| Onboarding tours          | `src/features/onboarding/`                              | partial                                   |
 
-- Wave 1: **1.2 || 1.3 || 1.4** после 1.0 и 1.1.
-- Wave 1: **1.5 || 1.6** после 1.1 (требуют глифов) и 1.4 (требуют dark theme для prose reader).
-- Wave 1: **1.7** может идти параллельно любому этапу после 1.0.
-- Wave 2 spine: **2.0 → 2.1 → 2.2** задаёт обязательный порядок для
-  decision-bearing numbers. Внутри spine можно параллелить workstream'ы
-  (backend contracts, UI fixtures, codemod, perf/a11y harness), но нельзя
-  выпускать downstream-фазы поверх неполного quantity/temporal/lineage
-  контракта.
-- Wave 2 после spine: **2.3** и **2.4** начинаются только после 2.1 + 2.2;
-  **2.6** начинается после 2.2; **2.5** можно вести отдельным
-  publications/legal-потоком после 1.5 + 1.6, но интеграцию с trust/lineage
-  закрывать после 2.2.
-- Wave 2: **2.7** остаётся хвостовым polish, но его независимые части (CLI,
-  print, OG/email templates) можно подбирать opportunistically.
+### 1.5. Quality gates already available
 
-### 3.3. Feature flags
-
-Каждая фаза ≥ 1.2 вводит один feature flag в `src/app/providers/feature-flags` формата `design.wave{N}.phase{Y}.{slug}`:
-
-- По умолчанию `off` в production.
-- `on` в development и staging после acceptance.
-- Постепенный rollout через manifest после 14 дней стабильности.
-- Flag удаляется через релиз после 100% rollout — не остаётся as dead code.
-
----
-
-## Волна 1 — SOTA Gap Closure
-
-## Фаза 1.0 — Foundations
-
-**Длительность:** 2 недели.
-**Тезис:** ничего не меняется в UI, но закладывается весь документный и токен-фундамент, без которого последующие фазы будут изобретать формат на ходу.
-
-### Preconditions
-
-- Свежий main, все CI-пайплайны зелёные.
-- Выделены ~10% времени дизайнера-консультанта на review ADR-ов.
-
-### Scope
-
-Документная архитектура + contrast matrix + glyph spec + uncertainty language spec + motion spec foundation + ADR-ы.
-
-### Deliverables
-
-**Папки и файлы:**
-
-```text
-policy-engine/docs/brand/
-├── GLYPH_SPECIFICATION.md           — геометрия, штрих, диакритика, грамматика
-├── UNCERTAINTY_LANGUAGE.md          — паттерны, окраска, do/don't
-├── A11Y_CONTRAST.md                 — WCAG 2.2 AA matrix со всеми парами
-├── MOTION.md                        — кривые, длительности, state transitions
-├── COMPOSITION_RULES.md             — anti-patterns и правила соседства
-└── TYPOGRAPHY_UA_RU.md              — кириллическая типографика, плюрализация
-
-policy-engine/docs/adr/
-├── ADR-042-janus-atlas-dual-brand.md
-├── ADR-043-provenance-law.md
-├── ADR-044-time-as-primitive.md
-├── ADR-045-glyph-alphabet-limit-10.md
-└── ADR-046-authored-text-registry.md
-
-policy-engine/docs/compliance/
-└── VPAT.md                          — Voluntary Product Accessibility Template (skeleton)
-```
-
-**Конкретные артефакты:**
-
-- `docs/compliance/A11Y_CONTRAST.md` — канонический auto-generated артефакт со всеми парами `(background-token, foreground-token)` и contrast ratio; `docs/brand/A11Y_CONTRAST.md` остаётся spec/index-страницей.
-- `GLYPH_SPECIFICATION.md` — сетка 5×5, stroke-width 1.25–1.5, список всех 10 радикалов с геометрическим описанием.
-- `UNCERTAINTY_LANGUAGE.md` — 7 паттернов с SVG-превью и указанием каких именно chart-компонентов затрагивает.
-- `MOTION.md` — `--motion-duration-*` и `--motion-ease-*` tokens, правила для reduced-motion, конкретные transitions для каждого state change.
-- Все 5 ADR-ов следуют шаблону `docs/adr/_template.md` (если нет — создать).
-
-### Acceptance criteria
-
-- [ ] Все 11 файлов существуют, прошли `markdownlint`.
-- [ ] `docs/compliance/A11Y_CONTRAST.md` auto-generated и проверен `tools/design/check-contrast.ts` на 100% обязательных пар — нет пропусков.
-- [ ] 5 ADR имеют статус `Approved` и проходят `adr-lint`.
-- [ ] В `docs/README.md` добавлена секция `brand/` и `compliance/` с ссылками.
-- [ ] Создан `.cursor/rules/design-system.mdc` (или эквивалент в `CLAUDE.md`), ссылающийся на эти документы, чтобы будущие генерации не уходили в сторону.
-
-### Testing
-
-- Скрипт `tools/design/check-contrast.ts` — генерирует `docs/compliance/A11Y_CONTRAST.md` из токенов и валидирует обязательные пары на пороги WCAG 2.2 AA; drift артефакта блокирует CI.
-- Markdown-lint + link-check (`lychee`) в CI.
-
-### Risks
-
-| Риск                                          | Mitigation                                                                                         |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| ADR-ы уходят в абстракцию без привязки к коду | Каждый ADR завершается секцией «Concrete impact» со списком файлов, которые будут созданы/изменены |
-| Contrast matrix устаревает при смене токенов  | Генерировать из `designTokens.ts` автоматически, не руками                                         |
+| Gate                  | Anchor                                                | Must remain green |
+| --------------------- | ----------------------------------------------------- | ----------------- |
+| Component/unit tests  | `npm run test:components`                             | yes               |
+| A11y suite            | `npm run test:a11y`, `tools/design/check-contrast.ts` | yes               |
+| Design polish suite   | `npm run design:polish`                               | yes               |
+| Visual snapshots      | `npm run test:visual`                                 | yes               |
+| Architecture checks   | `npm run check:architecture`                          | yes               |
+| Glyph vocabulary gate | `npm run test:glyph-vocabulary`                       | yes               |
+| Quantity coverage     | `npm run quantity:coverage`                           | yes               |
 
 ---
 
-## Фаза 1.1 — Visual language
+## 2. Что дает новый Atlas Design System v4
 
-**Длительность:** 3 недели.
-**Тезис:** у PolicyOS появляется собственный визуальный словарь — не один лого, а система знаков, встроенная в каждый artefact системы.
+Архив `PolicyOS Atlas Design System-4.zip` содержит не production replacement,
+а три полезных слоя.
 
-### Preconditions
+### 2.1. Canonical reference layer
 
-- Фаза 1.0 завершена (`GLYPH_SPECIFICATION.md` существует).
+| Из архива             | Как использовать                                                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `README.md`           | Перенести в `docs/brand/ATLAS_DESIGN_SYSTEM.md` как живую спецификацию, сверенную с production tokens |
+| `SKILL.md`            | Использовать как agent-facing summary, но после удаления прототипных неточностей                      |
+| `colors_and_type.css` | Использовать как token fixture для drift-check, не импортировать напрямую в app                       |
+| `preview/*.html`      | Превратить в Storybook/design-reference stories                                                       |
+| `assets/`             | Сравнить с `public/atlas/`; менять только если геометрия/семантика реально отличаются                 |
+| `fonts/`              | Не использовать напрямую: app уже self-hosts via `@fontsource`                                        |
 
-### Scope
+### 2.2. Prototype layer
 
-1. Atlas mark перечитан как Janus-gate (минимальная правка).
-2. Отдельный `logo-janus.svg` как glyph-mark движка.
-3. 10 семантических глифов в `public/atlas/glyphs/` + React-компонент.
-4. EvidenceSigil (детерминированный генератор по хэшу).
-5. ProvenanceStrip — новая основная компонента для eyebrow.
-6. Типографический `)·(` как editorial-punctuation.
+`ui_kits/dashboard/` содержит high-fidelity prototype screens. Часть из них
+совпадает с текущими workspaces, часть является новым backlog.
 
-### Deliverables
+| Prototype screen             | Track in this plan    | Production route strategy                                                                |
+| ---------------------------- | --------------------- | ---------------------------------------------------------------------------------------- |
+| `CausalAtlas.jsx`            | A1                    | Extend `features/causal`, nested inside Decision Workspace and Evidence/Science surfaces |
+| `IdentifiabilitySurface.jsx` | A2                    | New `features/causal/identifiability`                                                    |
+| `SensitivityRotor.jsx`       | A3 / G1               | Shared global threshold + causal sensitivity surface                                     |
+| `CohortTimeTraveler.jsx`     | A4                    | New `features/cohorts` or nested under Scenario/Decision                                 |
+| `StressTestTheatre.jsx`      | A5                    | New run evaluation tab and decision packet block                                         |
+| `FreshnessBraid.jsx`         | B1                    | Evidence Fabric data-plane panel                                                         |
+| `ConnectorCards.jsx`         | B2                    | Evidence Fabric connectors panel                                                         |
+| `SchemaMigration.jsx`        | B3                    | Evidence Fabric schema/storyboard panel                                                  |
+| `QualityBudget.jsx`          | B4                    | Evidence Fabric quality/SLO panel                                                        |
+| `ProfileDriftNarrative.jsx`  | B5                    | Evidence Fabric drift narrative card                                                     |
+| `LineageGravityMap.jsx`      | B6 / D4               | Shared lineage/dependency map                                                            |
+| `DisputeLedger.jsx`          | C1                    | Decision Workspace trust/governance tab                                                  |
+| `StakeholderLens.jsx`        | C2                    | Decision packet lens layer                                                               |
+| `FairnessAudit.jsx`          | C3 / G4               | Decision packet fairness block                                                           |
+| `EmbargoManager.jsx`         | C5                    | Global data masking overlay + Evidence Fabric panel                                      |
+| `RunChoreography.jsx`        | D1                    | Runs detail operations tab                                                               |
+| `LiveRunMonitor.jsx`         | D5                    | Ambient telemetry HUD and run monitor                                                    |
+| `ProvenanceCertificate.jsx`  | D2                    | Export artifact from completed runs                                                      |
+| `ArgumentMap.jsx`            | E1                    | Decision packet reasoning tab/block                                                      |
+| `ReasoningChain.jsx`         | E1 / E6               | Extend existing reasoning display                                                        |
+| `CounterfactualExplorer.jsx` | A3 / 2.4 continuation | Expand counterfactual controls                                                           |
 
-**Ассеты:**
+### 2.3. Known v4 conflicts to resolve before adoption
 
-```text
-frontend/runtime-dashboard/public/atlas/
-├── logo-mark.svg                    — обновлённый (Janus-прочтение)
-├── logo-mark-inverse.svg            — для dark background
-├── logo-janus.svg                   — новый glyph-mark движка
-├── favicon.svg                      — Janus-line на 16 px
-└── glyphs/
-    ├── intervention.svg             — ⊙
-    ├── evidence.svg                 — ▲
-    ├── provenance.svg               — ⟿
-    ├── transport.svg                — ⇄
-    ├── counterfactual.svg           — ⋌
-    ├── identifiability.svg          — ≔
-    ├── reproducibility.svg          — ⟳
-    ├── governance-pass.svg          — ◫
-    ├── blocker.svg                  — ⊘
-    └── freshness.svg                — ◷
-```
-
-Все SVG: 24-px viewBox, stroke 1.25–1.5, `currentColor` как stroke, никаких fills кроме `none` (кроме центров-точек где явно нужно).
-
-**React-компоненты:**
-
-```text
-frontend/runtime-dashboard/src/shared/brand/
-├── AtlasBrand.tsx                   — существующий, без изменений API
-├── AtlasBrand.test.tsx
-├── JanusGlyph.tsx                   — новый
-├── JanusGlyph.test.tsx
-├── JanusGlyph.stories.tsx
-├── Glyph.tsx                        — новый, универсальная обёртка
-├── Glyph.test.tsx
-├── Glyph.stories.tsx
-├── glyph-vocabulary.ts              — map: domainTerm → glyphName
-├── EvidenceSigil.tsx                — новый
-├── EvidenceSigil.test.tsx
-├── EvidenceSigil.stories.tsx
-└── serif-punctuation.tsx            — компонент `<PolicyPropositionMark />`
-```
-
-**Компоненты в `shared/ui`:**
-
-```text
-frontend/runtime-dashboard/src/shared/ui/
-├── ProvenanceStrip.tsx              — новая eyebrow-компонента
-├── ProvenanceStrip.test.tsx
-├── ProvenanceStrip.a11y.test.tsx
-└── ProvenanceStrip.stories.tsx
-```
-
-**API компонентов:**
-
-```tsx
-<JanusGlyph
-  size={16 | 24 | 32}
-  variant="mark" | "line" | "serif-punctuation"
-  intent="default" | "verified" | "blocked" | "pending"
-  inverted={boolean}
-/>
-
-<Glyph
-  name="intervention" | "evidence" | ... // 10 радикалов
-  size={12 | 14 | 16 | 24}               // default 14
-  intent="default" | "verified" | "blocked" | "pending"
-  strokeStyle="solid" | "dashed" | "double"  // semantic: observed/hypothetical/proved
-  diacritic?: "strict" | "assumed" | "scoped"  // только в TrustView, см. 2.6
-/>
-
-<EvidenceSigil
-  bundleHash={string}                   // детерминирует форму
-  frescProfile={FrescProfile}           // 5 уровней
-  identifiability={number}              // 0..1, окраска периметра
-  size={48 | 64 | 96}
-/>
-
-<ProvenanceStrip
-  items={ProvenanceItem[]}              // array 3..8
-  density="comfortable" | "compact"     // будущая интеграция с 1.4
-/>
-
-<PolicyPropositionMark>  {/* )·( */}
-  SME support under martial law
-</PolicyPropositionMark>
-```
-
-### Integration
-
-- `features/evidence/components/EvidenceFabric.jsx` → заменить eyebrow на `<ProvenanceStrip />`.
-- `features/runs/.../RunDetail.jsx` → то же.
-- `features/dashboard/DecisionCard.tsx` → eyebrow + `<EvidenceSigil />` в правом углу.
-- `features/landing/*` → показать Janus-mark в hero для publicity (если landing сохраняется).
-- Storybook: новая категория `Brand/` с страницами `Atlas`, `Janus`, `Glyphs`, `Provenance Strip`, `Evidence Sigil`.
-
-### Backend contract changes
-
-Нет изменений в Wave 1 — `ProvenanceStrip` получает готовые данные клиентской композицией из уже существующих полей:
-
-- `EvidenceFabricItem.fresh_at` → `freshness` глиф.
-- `EvidenceFabricItem.governance_pass` → `governance-pass` или `blocker`.
-- `EvidenceFabricItem.intervention_type` → `intervention`.
-- `EvidenceFabricItem.evidence_strength ∈ {strong, weak}` → `evidence` + modifier.
-
-Адаптер: `src/shared/brand/provenance-adapter.ts` преобразует `EvidenceFabricItem` → `ProvenanceItem[]`. Unit-tested.
-
-### Acceptance criteria
-
-- [ ] 10 SVG-глифов существуют, прошли `svgo` + визуальный review, зарендерены в Storybook на 12/14/16/24 px.
-- [ ] `logo-janus.svg` в 16 px зафиксирован recognizability evidence sheet + visual regression baseline для favicon state.
-- [ ] `ProvenanceStrip` заменил eyebrow в 3 местах без регрессий (visual regression test).
-- [ ] `EvidenceSigil` детерминирован: `render(hash_A) === render(hash_A)` в snapshot-тесте, `render(hash_A) !== render(hash_B)` в 100/100 случаев.
-- [ ] `glyph-vocabulary.ts` покрыт 100% канонического 29-терминного домена, unit-test проверяет соответствие.
-- [ ] ESLint-правило `no-raw-emoji-in-jsx` работает (как замена попыткам вставить `⊙` напрямую).
-
-### Testing
-
-- Storybook + visual regression (Playwright + Percy или Chromatic).
-- `.a11y.test.tsx` для `ProvenanceStrip` и `Glyph` (axe-core).
-- Unit-test `EvidenceSigil` определённость: 1000 random bundles, уникальность ≥ 99.9%.
-- `pnpm test:glyph-vocabulary` — скрипт, парсит `docs/brand/GLYPH_SPECIFICATION.md`, сравнивает с `glyph-vocabulary.ts`, падает при расхождении.
-
-### Risks
-
-| Риск                               | Mitigation                                                                                 |
-| ---------------------------------- | ------------------------------------------------------------------------------------------ |
-| Глифы засоряют интерфейс           | `glyph-vocabulary.ts` — whitelist; PR добавляющий глиф в новое место требует design-review |
-| `EvidenceSigil` даёт коллизии хэша | 48-bit entropy минимум; periodic collision audit                                           |
-
-### Effort
-
-- SVG-ассеты: 1 неделя (с итерациями).
-- React-компоненты + тесты: 1.5 недели.
-- Интеграция в 3 feature: 0.5 недели.
+| Conflict             | Current repo                                            | Archive v4                          | Decision needed                                                                 |
+| -------------------- | ------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| Dark palette         | Warm dark paper/sepia                                   | Blue graphite dark                  | ADR required: keep warm dark unless procurement/testing proves blue is superior |
+| `--panel` light      | `rgba(255,255,255,0.85)`                                | `rgba(251,248,242,0.82)`            | Decide by contrast and visual regression                                        |
+| `--chart-secondary`  | semantic `color-mix`                                    | hard/blue-ish fallback in prototype | Keep semantic mix; no new blue category                                         |
+| Density modes        | implemented                                             | documented as planned               | Update docs to "implemented"                                                    |
+| Sidebar prototype    | 30+ flat nav items, raw Unicode symbols                 | current six workspaces              | Do not adopt flat nav; use nested surfaces                                      |
+| Prototype components | inline styles, duplicate ids, no routing/a11y contracts | production components exist         | Rebuild using existing shared UI                                                |
 
 ---
 
-## Фаза 1.2 — Uncertainty visualization (G1)
-
-**Длительность:** 3 недели.
-**Тезис:** неопределённость — first-class объект в PolicyOS, и визуальный язык должен это выражать.
-
-### Preconditions
-
-- Фаза 1.1 завершена (глифы доступны).
-- Фаза 1.0 завершена (`UNCERTAINTY_LANGUAGE.md` существует).
-
-### Scope
-
-Семь паттернов визуализации неопределённости, расширение существующих chart-компонентов, правила окраски, pattern-fills, правила анимации.
-
-**Существующие компоненты для рефакторинга** (не пересоздаём с нуля):
-
-- `shared/charts/ConfidenceDial.tsx`
-- `shared/charts/ConfidenceGauge.tsx`
-- `shared/charts/ForestPlot.tsx`
-- `shared/charts/GradedErrorBar.tsx`
-- `shared/charts/UncertaintyDisplay.tsx`
-
-**Новые компоненты:**
-
-- `UncertaintyBand.tsx` — generic wrapper для линейных графиков с confidence bands.
-- `FanChart.tsx` — прогнозные распределения с квантилями 10/25/50/75/90.
-- `QuantileDotplot.tsx` — реализация Hullman et al.
-- `HypotheticalOutcomePlot.tsx` — анимированные sample realisations (HOPs), с reduced-motion fallback на static fan chart.
-- `UncertaintyPatterns.tsx` — SVG-паттерны для identified / estimated / assumed регионов.
-- `DisputedMarker.tsx` — глиф `⋌` c `--ember`, hover показывает кто и почему disputed.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/shared/charts/
-├── UncertaintyBand.tsx              — new
-├── UncertaintyBand.test.tsx
-├── UncertaintyBand.stories.tsx
-├── FanChart.tsx                     — new
-├── FanChart.test.tsx
-├── FanChart.stories.tsx
-├── QuantileDotplot.tsx              — new
-├── QuantileDotplot.test.tsx
-├── QuantileDotplot.stories.tsx
-├── HypotheticalOutcomePlot.tsx      — new
-├── HypotheticalOutcomePlot.test.tsx
-├── HypotheticalOutcomePlot.stories.tsx
-├── patterns/
-│   ├── UncertaintyPatterns.tsx      — SVG <pattern> defs (identified/estimated/assumed)
-│   ├── UncertaintyPatterns.test.tsx
-│   └── index.ts
-├── DisputedMarker.tsx               — new
-├── DisputedMarker.test.tsx
-├── uncertainty-tokens.ts            — новые semantic tokens (cross-ref designTokens)
-└── uncertainty-tokens.test.ts
-```
-
-**Tokens, добавляемые в `designTokens.ts`:**
-
-```ts
-export const uncertaintyTokens = {
-  pointEstimate: "var(--ink)",
-  confidenceInterval: "color-mix(in oklch, var(--slate), transparent 65%)",
-  counterfactualInterval: "color-mix(in oklch, var(--slate), transparent 75%)", // dashed
-  disputed: "var(--ember)",
-  identified: { fill: "solid", pattern: "none" },
-  estimated: { fill: "var(--slate)", pattern: "diagonal-lines" },
-  assumed: { fill: "transparent", pattern: "dots" },
-} as const;
-```
-
-### Chart refactoring tasks
-
-| Component            | Change                                                              |         |             |                                   |
-| -------------------- | ------------------------------------------------------------------- | ------- | ----------- | --------------------------------- |
-| `ConfidenceDial`     | Использует `uncertaintyTokens`; добавляет prop `disputed?: boolean` |         |             |                                   |
-| `ConfidenceGauge`    | То же + pattern-fill для estimated regions                          |         |             |                                   |
-| `ForestPlot`         | Confidence intervals теперь gradient-filled (была solid line)       |         |             |                                   |
-| `GradedErrorBar`     | Использует `uncertaintyTokens.estimated.pattern`                    |         |             |                                   |
-| `UncertaintyDisplay` | Становится dispatcher: принимает тип (`band` \                      | `fan` \ | `dotplot` \ | `hops`), рендерит соответствующий |
-
-### API
-
-```tsx
-<UncertaintyBand
-  data={SeriesPoint[]}
-  lower={0.1}       // quantile
-  upper={0.9}
-  counterfactual?={SeriesPoint[]}
-  disputed?={Disputes}
-/>
-
-<FanChart
-  quantiles={[0.1, 0.25, 0.5, 0.75, 0.9]}
-  data={QuantileSeries[]}
-  asOf?={ISO8601}   // подготовка к B1
-/>
-
-<QuantileDotplot
-  samples={number[]}
-  bins={20}
-  orientation="horizontal" | "vertical"
-/>
-
-<HypotheticalOutcomePlot
-  samples={SampleRealization[]}
-  framesPerSecond={2}  // slow Hullman default
-  reducedMotionFallback="fan-chart" | "quantile-dotplot"
-/>
-```
-
-### Backend contract changes
-
-Новое поле на metric-ответах (все endpoints возвращающие scalar):
-
-```jsonc
-// Было:
-{ "effect_size": 0.23 }
-
-// Стало:
-{
-  "effect_size": {
-    "point": 0.23,
-    "ci_80": [0.15, 0.31],
-    "ci_95": [0.09, 0.37],
-    "quantiles": { "p10": 0.12, "p50": 0.23, "p90": 0.34 },
-    "identifiability": "identified" | "estimated" | "assumed",
-    "disputed": boolean | null,
-    "method": "bootstrap" | "analytic" | "bayesian-posterior"
-  }
-}
-```
-
-- Additive изменение: старое поле остаётся как alias 2 релиза.
-- OpenAPI schema обновляется, типы регенерируются через `npx openapi-typescript`.
-- Backend задача для policy-engine — отдельный ticket `policy-engine#uncertainty-contract`.
-
-### Acceptance criteria
-
-- [ ] Все 7 паттернов задокументированы в `UNCERTAINTY_LANGUAGE.md` с живыми Storybook-ссылками.
-- [ ] Существующие chart-компоненты рефакторнуты без регрессий (visual regression).
-- [ ] HOPs имеет reduced-motion fallback (автоматически переключается при `prefers-reduced-motion: reduce`).
-- [ ] `uncertainty-tokens.ts` покрыт 100% в unit-тестах.
-- [ ] 3 реальных Run Detail страницы используют `UncertaintyBand` вместо плоских чисел.
-- [ ] Pattern-fills различимы для deuteranope / protanope / tritanope (deterministic in-repo simulation in Storybook).
-
-### Testing
-
-- Visual regression в Storybook (3 themes × 3 densities × 3 deterministic color-blind simulations).
-- Unit: quantile correctness, reduced-motion fallback.
-- Integration: e2e Playwright сценарий «открыл Run Detail → увидел fan chart → переключил режим reduced-motion → увидел static fan».
-
-### Risks
-
-| Риск                                      | Mitigation                                                                    |
-| ----------------------------------------- | ----------------------------------------------------------------------------- |
-| Backend не готов расширить контракт       | Clientsidе имеет fallback adapter: `legacy_number → { point: legacy_number }` |
-| HOPs раздражает — слишком быстро/медленно | Hullman default 2.5 fps, user preference в Settings                           |
-| Pattern-fills «шумные»                    | Opacity 0.18 по умолчанию; только внутри CI-band, не на основной линии        |
-
-### Effort
-
-- 3 новых компонента: 1 неделя.
-- Pattern-fills + tokens: 2 дня.
-- Рефакторинг 5 существующих: 1 неделя.
-- Backend coordination + types regen: 3 дня.
-- Тесты + docs: 3 дня.
-
----
-
-## Фаза 1.3 — Accessibility WCAG 2.2 AA+ (G2)
-
-**Длительность:** 2 недели.
-**Тезис:** без формализованной accessibility инфраструктуры закрыт рынок ЕС и украинского госсектора; это процурментный блокер, не косметика.
-
-### Preconditions
-
-- Фаза 1.0 завершена (contrast matrix готов).
-- Фазы 1.1 и 1.2 завершены (все новые компоненты должны пройти a11y-ворота).
-
-### Scope
-
-- Contrast sweep + automated enforcement.
-- Pattern-fills для колор-блайнд dispatch (gold vs ember, teal vs slate).
-- `prefers-reduced-motion` сквозной аудит.
-- `prefers-contrast: more` — high-contrast variant глифов, provenance strip, charts.
-- Focus-order контракты для новых компонентов.
-- Screen-reader announcements infrastructure.
-- VPAT публикация.
-- Keyboard-only e2e suite.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/shared/a11y/
-├── ContrastEnforcer.tsx              — dev-only overlay, показывает warnings
-├── HighContrastProvider.tsx          — media query → [data-contrast="more"]
-├── ReducedMotionProvider.tsx         — существующий, расширить API
-├── LiveAnnouncer.tsx                 — существующий, централизовать вызовы
-├── useFocusTrap.ts
-├── useRovingTabindex.ts
-└── index.ts
-
-frontend/runtime-dashboard/src/test/a11y/
-├── keyboard-journeys.spec.ts         — Playwright e2e
-├── screen-reader-snapshots.spec.ts
-└── color-blind-simulation.spec.ts    — deterministic simulation + axe
-
-policy-engine/docs/compliance/
-├── VPAT.md                           — full document
-├── A11Y_CONTRAST.md                  — auto-generated from tokens
-└── A11Y_AUDIT_2026Q2.md              — external audit report (scheduled)
-
-tools/design/
-├── check-contrast.ts                 — pre-commit hook
-├── check-reduced-motion.ts           — grep all transitions, flag non-respecting
-└── check-color-blind.ts              — axe + deterministic Coblis-equivalent simulation
-```
-
-**CSS additions** (в `styles.css` или эквиваленте):
-
-```css
-@media (prefers-contrast: more) {
-  :root {
-    --ink: #000000;
-    --surface: #ffffff;
-    /* all borders +50% opacity */
-  }
-  .glyph {
-    stroke-width: 2;
-  }
-  .provenance-strip .glyph + .glyph {
-    margin-inline-start: 0.75ch;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-  .hops {
-    display: none;
-  }
-  .hops + .hops-static-fallback {
-    display: block;
-  }
-}
-```
-
-### Backend contract changes
-
-Нет (a11y — чисто client-side).
-
-### Acceptance criteria
-
-- [ ] WCAG 2.2 AA автоматизированный аудит (`axe-core`) — 0 violations на всех маршрутах.
-- [ ] Manual audit по WCAG 2.2 AA checklist — 0 P0, ≤ 3 P1.
-- [ ] VPAT.md опубликован, signed, версия закоммичена.
-- [ ] Все 70+ компонентов в `shared/ui/` имеют `.a11y.test.tsx`.
-- [ ] Keyboard-only journey: «старт → открыть run → скачать decision packet» — проходится без мыши за ≤ 20 tab-stop'ов.
-- [ ] Deterministic color-blind simulation — все сигнальные различения остаются читаемыми в deuteranope/protanope/tritanope.
-- [ ] Pre-commit hook `check-contrast` работает, падает на PR с плохими парами.
-
-### Testing
-
-- CI: axe-core на Storybook + 5 ключевых маршрутов.
-- Weekly: full WCAG 2.2 AA automated report → dashboard.
-- Quarterly: external audit (бюджет зарезервировать).
-
-### Risks
-
-| Риск                                                     | Mitigation                                                                |
-| -------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Contrast enforcement ломает кастомные визуальные решения | Opt-out через `data-a11y-exempt` c обязательным комментарием-обоснованием |
-| VPAT устаревает между релизами                           | Auto-regenerate из тестов + manual review quarterly                       |
-
-### Effort
-
-- Pattern-fills + tokens: 3 дня.
-- ReducedMotion audit: 3 дня.
-- VPAT: 2 дня.
-- Tests + CI integration: 1 неделя.
-
----
-
-## Фаза 1.4 — Dark theme v2 + density modes (G3)
-
-**Длительность:** 2 недели.
-**Тезис:** graphite rail — это не dark mode. Нужен полноценный тёмный режим с переосмысленной семантикой стекла, плюс 3 density-модели для аналитических сессий.
-
-### Preconditions
-
-- Фаза 1.0 (tokens inventory).
-- Фаза 1.1 (для тестирования глифов в тёмной теме).
-- Фаза 1.2 (charts должны адаптироваться).
-- Фаза 1.3 (оба режима должны соответствовать WCAG).
-
-### Scope
-
-- Полноценная dark theme: rim-light инвертируется осмысленно (не просто negative), glass-panels переосмыслены для тёмного фона.
-- Density modes: comfortable (default), compact (×0.75), condensed (×0.5).
-- Toggle UI в Settings + Command Palette.
-- Storybook покрытие всех компонентов в 3 темах × 3 плотностях.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/styles/
-├── theme-light.css                   — extract from globals
-├── theme-dark.css                    — new, полноценный
-├── theme-high-contrast.css           — forwards 1.3
-├── density-comfortable.css
-├── density-compact.css
-└── density-condensed.css
-
-frontend/runtime-dashboard/src/app/providers/
-├── ThemeProvider.tsx                 — существующий, расширить
-├── DensityProvider.tsx               — new
-└── DensityProvider.test.tsx
-
-frontend/runtime-dashboard/src/features/platform/settings/
-├── ThemeToggle.tsx
-├── DensityToggle.tsx
-└── AppearanceSection.tsx             — объединяет оба
-```
-
-**Токены:**
-
-```ts
-// designTokens.ts additions
-export const densityScale = {
-  comfortable: { space: 1.0, fontStep: 0, rowHeight: 1.0 },
-  compact: { space: 0.75, fontStep: -1, rowHeight: 0.85 },
-  condensed: { space: 0.5, fontStep: -2, rowHeight: 0.7 },
-} as const;
-```
-
-**CSS custom properties:**
-
-```css
-:root[data-density="compact"] {
-  --space-scale: 0.75;
-  --font-scale-step: -1;
-  --row-height-scale: 0.85;
-}
-/* все spacing-tokens рассчитываются относительно --space-scale */
-```
-
-**Dark theme specifics:**
-
-- Rim-light (inset top-border) — в светлой теме светлый штрих; в тёмной — еле заметный warm-ink штрих, создающий обратный «pressed» эффект.
-- Glass-panels: в светлой теме — белый с 0.85 opacity; в тёмной — warm-graphite с 0.92 opacity, noise-texture сохраняется.
-- Teal/ember/gold остаются теми же hex'ами, но имеют tuned `color-mix` алиасы для тёмного фона чтобы сохранить контраст.
-- Все chart-линии — `currentColor` чтобы автоматически адаптироваться.
-
-### Command Palette actions
-
-- `Cmd+Shift+L` / `Theme: toggle light/dark`.
-- `Cmd+Shift+D` / `Density: cycle comfortable/compact/condensed`.
-
-### Acceptance criteria
-
-- [ ] Dark theme проходит WCAG 2.2 AA на всех маршрутах.
-- [ ] Condensed density: на экране 40+ scenarios без ощущения каши (manual review от power-user).
-- [ ] Storybook: 100% компонентов задокументированы в 3×3 матрице.
-- [ ] Visual regression — 0 unexpected diffs в светлой теме; дефолтные snapshots для тёмной и compact — подписаны.
-- [ ] Preference persisted в `localStorage` + synced в `workspaces.ts`.
-- [ ] Прозрачная деградация: если user overrides `color-scheme`, система respects.
-
-### Backend contract changes
-
-Нет.
-
-### Risks
-
-| Риск                                                       | Mitigation                                                                          |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Dark theme требует пересчёта rim-light во всех компонентах | CSS custom property `--rim-light-color` — один источник правды                      |
-| Condensed mode ломает table layouts                        | Явные min-width'ы в DataTable + horizontal scroll                                   |
-| Двойные CI-прогоны × 3 density удорожают testing           | Выборочно: только критические смоки в compact/condensed, full suite — в comfortable |
-
-### Effort
-
-- Dark theme v2: 1 неделя.
-- Density modes: 3 дня.
-- Storybook coverage: 2 дня.
-- Toggle UI + persistence: 2 дня.
-
----
-
-## Фаза 1.5 — Prose system для decision packets (G4)
-
-**Длительность:** 2 недели.
-**Тезис:** PolicyOS производит документы на 5–40 страниц. Дашборд-оптимизированная типографика не справляется с длинной прозой — нужен отдельный reading view уровня Stripe Press / Observable notebook.
-
-### Preconditions
-
-- Фаза 1.1 (глифы для table of contents).
-- Фаза 1.4 (reading view должен поддерживать light/dark).
-
-### Scope
-
-- Monograph-like layout (отдельный `MonographLayout`) без dashboard-хрома.
-- Оптимальная ширина строки 60–72 ch.
-- Типографика: цитаты (Instrument Serif), сноски, списки определений, margin notes.
-- Оглавление с глифами-маркерами для каждой секции.
-- Toggle «Reading view» в Decision Workspace.
-- Print stylesheet.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/features/artifacts/reading-view/
-├── MonographLayout.tsx
-├── MonographLayout.test.tsx
-├── MonographLayout.stories.tsx
-├── MarginNotes.tsx
-├── MarginNotes.test.tsx
-├── Footnote.tsx
-├── DefinitionList.tsx
-├── PullQuote.tsx
-├── TableOfContentsGlyphed.tsx
-├── ReadingViewToggle.tsx
-├── reading-view-tokens.ts
-├── hooks/
-│   ├── useReadingProgress.ts
-│   └── useMarginNoteAnchors.ts
-└── prose.css
-
-frontend/runtime-dashboard/src/styles/
-└── print.css                         — dedicated print stylesheet
-```
-
-**Типографические правила:**
-
-```css
-.prose {
-  max-width: 68ch;
-  font-family: "Manrope", system-ui;
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--ink);
-}
-.prose > p + p {
-  margin-block-start: 1em;
-  text-indent: 0;
-}
-.prose blockquote {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  border-inline-start: 2px solid var(--gold);
-  padding-inline-start: 1.5ch;
-  color: color-mix(in oklch, var(--ink), transparent 15%);
-}
-.prose .definition-term {
-  font-variant: small-caps;
-  letter-spacing: 0.05em;
-}
-.prose .footnote-ref {
-  font-feature-settings: "sups";
-  color: var(--teal);
-}
-.prose .margin-note {
-  position: absolute;
-  inset-inline-start: calc(100% + 2ch);
-  inline-size: 18ch;
-  font-size: 13px;
-  color: var(--slate);
-  font-family: "IBM Plex Mono";
-}
-```
-
-**Print CSS:**
-
-```css
-@page {
-  margin: 2.5cm 2cm;
-  size: A4;
-}
-@media print {
-  nav,
-  aside.dashboard-shell,
-  .reading-view-toggle {
-    display: none;
-  }
-  .prose {
-    max-width: none;
-  }
-  h1,
-  h2,
-  h3 {
-    break-after: avoid;
-  }
-  .fan-chart,
-  .uncertainty-band {
-    break-inside: avoid;
-  }
-  .provenance-strip::after {
-    content: " [" attr(data-glyph-summary) "]";
-  }
-}
-```
-
-### Integration
-
-- Decision Workspace получает toggle (floating top-right button или `r` keyboard shortcut).
-- В reading view остаётся sidebar с оглавлением + Janus-medallion вверху.
-- Provenance strip сохраняется под каждой major section'ой.
-
-### Acceptance criteria
-
-- [ ] Reading view работает на любом decision packet длиной от 1 до 40 страниц.
-- [ ] Print: decision packet печатается на A4 без визуальных артефактов, pagination корректная.
-- [ ] Table of contents автоматически собирает глифы из семантики секций.
-- [ ] Margin notes не ломаются на mobile (degrade to inline footnotes).
-- [ ] Reading view проходит WCAG 2.2 AA.
-
-### Backend contract changes
-
-- Decision packet API возвращает поле `section_type: "problem" | "intervention" | "evidence" | "policy" | "governance" | ...` — чтобы TOC мог назначить глиф.
-- Additive, backward compatible.
-
-### Risks
-
-| Риск                                              | Mitigation                                               |
-| ------------------------------------------------- | -------------------------------------------------------- |
-| Margin notes не помещаются на узких экранах       | Responsive: < 1400px → inline footnote; > 1400 → margin  |
-| Print не даёт pixel-perfect результатов в Firefox | Primary: Chrome headless; Firefox — graceful degradation |
-
-### Effort
-
-- Layout + tokens: 3 дня.
-- TOC + margin notes: 3 дня.
-- Print stylesheet: 2 дня.
-- Integration + tests: 4 дня.
-
----
-
-## Фаза 1.6 — AI-authorship registry (G5)
-
-**Длительность:** 2 недели.
-**Тезис:** в 2026 году пользователь обязан мгновенно отличить текст закона от операторского комментария от AI-generated narrative. Это визуальное различение — определяющий SOTA-признак.
-
-### Preconditions
-
-- Фаза 1.1 (нужны глифы `⊙`, `≔`, `⋌`).
-- Фаза 1.5 (для интеграции в prose system).
-
-### Scope
-
-Пять визуальных регистров авторства, обязательная обёртка для всех текстовых блоков, toggle «Highlight authorship» для аудита, backend contract для author metadata.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/shared/ui/authored-text/
-├── AuthoredText.tsx
-├── AuthoredText.test.tsx
-├── AuthoredText.a11y.test.tsx
-├── AuthoredText.stories.tsx
-├── AuthorshipProvider.tsx            — toggle highlight mode
-├── AuthorBadge.tsx                   — inline mini-label
-├── author-registry.ts                — типы и константы
-└── index.ts
-```
-
-**Регистры:**
-
-| Регистр      | Источник                   | Визуал                                                       | Screen reader                |
-| ------------ | -------------------------- | ------------------------------------------------------------ | ---------------------------- |
-| `citation`   | Цитата из закона/источника | `Instrument Serif italic`, тонкий `--gold` left-border (2px) | «Quoted text from {source}»  |
-| `human`      | Написал оператор-человек   | `Manrope 400`, без маркера                                   | (default)                    |
-| `drafter`    | AI-агент Drafter           | `--teal` left-border (1px), глиф `⊙` в начале параграфа      | «AI-generated by Drafter»    |
-| `formalizer` | AI-агент Formalizer        | `--slate` left-border, глиф `≔`                              | «AI-generated by Formalizer» |
-| `critic`     | AI-агент Critic            | `--ember` left-border, глиф `⋌`                              | «AI review by Critic»        |
-
-### API
-
-```tsx
-<AuthoredText
-  author="drafter" | "formalizer" | "critic" | "human" | "citation"
-  sourceRef?={string}  // для citation: ссылка на закон/источник
-  timestamp?={ISO8601}
-  confidence?={number}  // 0..1, показывается только в trust-view (2.6)
->
-  {children}
-</AuthoredText>
-
-<AuthorshipProvider highlightMode="off" | "subtle" | "prominent">
-  {/* off — только визуально; subtle (default) — with borders and glyphs;
-      prominent — full sidebar with author timeline */}
-</AuthorshipProvider>
-```
-
-### Backend contract changes
-
-```jsonc
-// Narrative blocks теперь возвращаются как:
-{
-  "blocks": [
-    {
-      "id": "block_123",
-      "content": "The policy requires ...",
-      "author": "drafter",
-      "author_agent_version": "drafter@1.4.2",
-      "sources": [{ "kind": "evidence_bundle", "ref": "eb_abc" }],
-      "timestamp": "2026-04-22T...",
-      "confidence": 0.82,
-      "reviewed_by_human": false,
-    },
-  ],
-}
-```
-
-- Additive изменение к `DecisionPacket`, `NarrativeRationale`, `EvidenceSummary` endpoints.
-- Миграция: без `author` → default `"human"`.
-
-### Integration
-
-- Decision Workspace narrative — все блоки через `AuthoredText`.
-- Reading view (1.5) — то же.
-- Chat / Clerk mode — каждое сообщение агента помечено.
-- Evidence fabric — citations из источников через `author="citation"`.
-
-### Acceptance criteria
-
-- [ ] 100% текстовых блоков в Decision Workspace помечены авторством (automated check: любой `<p>` внутри `article` без `<AuthoredText>` даёт ESLint warning).
-- [ ] Toggle «Highlight authorship» работает на всех 3 уровнях.
-- [ ] Screen reader корректно объявляет автора перед каждым блоком (VoiceOver + NVDA test).
-- [ ] Citation links кликабельны, ведут к evidence bundle.
-- [ ] Prominent режим добавляет authorship timeline на правой стороне (кто когда что написал).
-
-### Testing
-
-- Storybook: каждый регистр на 5 примерах.
-- E2E: «открыть packet → включить prominent → увидеть timeline → кликнуть citation → попасть на evidence».
-- Unit: все 5 регистров корректно рендерятся для screen readers.
-
-### Risks
-
-| Риск                                       | Mitigation                                                |
-| ------------------------------------------ | --------------------------------------------------------- |
-| Слишком «шумный» UI с 4 разными border'ами | Subtle mode по умолчанию, границы 1px, off в reading view |
-| Backend не готов отдавать author           | Default `"human"`, адаптер на клиенте для legacy блоков   |
-| Citation source broken                     | `sourceRef` optional, UI graceful degrade                 |
-
-### Effort
-
-- Компоненты + тесты: 1 неделя.
-- Интеграция в 4 места: 3 дня.
-- Backend coordination: 2 дня.
-
----
-
-## Фаза 1.7 — i18n UA/RU typography (G6)
-
-**Длительность:** 1.5 недели.
-**Тезис:** PolicyOS работает в украинском бюрократическом контексте; без корректной плюрализации, «ёлочек», неразрывных пробелов и plex-cyrillic metrics система воспринимается как иностранный product.
-
-### Preconditions
-
-- Фаза 1.0 (`TYPOGRAPHY_UA_RU.md` готов).
-
-### Scope
-
-- Плюрализация через ICU MessageFormat (`one/few/many/other`).
-- Кириллическая типографика: «ёлочки», неразрывные пробелы после коротких предлогов.
-- Plex Mono cyrillic metrics fix.
-- Форматы валют (₴/€/$), дат, чисел.
-- ESLint-правила для enforcement.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/i18n/
-├── LocaleProvider.tsx                — существующий, расширить
-├── locales/
-│   ├── en.json
-│   ├── uk.json                       — переразметить под ICU
-│   └── ru.json
-├── typography/
-│   ├── quoteMarks.ts                 — «ёлочки» по locale
-│   ├── nonBreakingSpaces.ts          — автоматическая вставка
-│   ├── plexCyrillicFix.css
-│   └── typography.test.ts
-├── formatters/
-│   ├── currency.ts                   — ₴, €, $
-│   ├── date.ts                       — укр длинный, ISO mono
-│   ├── number.ts                     — разделители тысяч по locale
-│   └── formatters.test.ts
-└── icu-messages.ts                   — helpers for plural
-
-frontend/runtime-dashboard/.eslintrc.js
-
-  - no-hardcoded-strings                — новое правило
-  - require-non-breaking-space-for-short-prepositions
-```
-
-**ICU example:**
-
-```jsonc
-// uk.json
-{
-  "scenarios.count": "{count, plural, =0 {Немає сценаріїв} one {# сценарій} few {# сценарії} many {# сценаріїв} other {# сценарію}}",
-  "policy.applied": "Політику <b>{name}</b> застосовано о {time, time, short}",
-}
-```
-
-**CSS fix:**
-
-```css
-/* Plex Mono cyrillic metrics компенсация */
-:lang(uk),
-:lang(ru) {
-  --plex-mono-cyrillic-offset: 0.02em;
-}
-.mono:is(:lang(uk), :lang(ru)) {
-  letter-spacing: var(--plex-mono-cyrillic-offset);
-}
-```
-
-**Non-breaking spaces enforcement:**
-
-Auto-insert после: `в, у, з, і, й, та, на, до, від, за, під, над, про` (uk) и `в, у, о, к, с, и, а, но` (ru). Реализовать как ESLint autofix + runtime через `<Text>` wrapper.
-
-### Backend contract changes
-
-Нет — всё client-side.
-
-### Acceptance criteria
-
-- [ ] 100% строк в `en.json` / `uk.json` / `ru.json` используют ICU plural где применимо.
-- [ ] Все валюты рендерятся через `formatCurrency`, даты через `formatDate`, числа через `formatNumber`.
-- [ ] ESLint-правило `no-hardcoded-strings` пройдено (0 violations).
-- [ ] Neбьющиеся пробелы автоматически вставляются в prose блоках (unit test покрывает 20 примеров).
-- [ ] Визуальная разница в Plex Mono metrics между en и uk устранена (eyeball review).
-
-### Testing
-
-- Unit: все форматтеры на 30+ cases (edge: `0, 1, 2, 5, 11, 21, 101`).
-- Visual regression: Storybook stories с uk locale включая кириллицу во всех типах mono-labels.
-
-### Risks
-
-| Риск                                           | Mitigation                                           |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| Авто-вставка NBSP ломает существующие переводы | Opt-in per-string через конфиг; постепенная миграция |
-| ICU plural усложняет разработку                | Краткий styleguide + ESLint-hint                     |
-
-### Effort
-
-- Форматтеры: 3 дня.
-- ICU plural migration: 2 дня.
-- Typography fixes: 2 дня.
-- ESLint rules: 2 дня.
-
----
-
-## Фаза 1.8 — Wave 1 closeout
-
-**Длительность:** 1 неделя.
-**Тезис:** интеграционный прогон всех Wave 1 фич, снятие feature-flags, релиз, ревью перед Wave 2.
-
-### Scope
-
-- Snapshot ревью: все anchor artifacts (§7) достижимы.
-- Feature flags Wave 1 выставлены в `"all_on"` в staging.
-- 2-недельное наблюдение (идёт параллельно началу Wave 2 Phase 2.0).
-- Release notes / changelog.
-- Design review с external consultant (если бюджет позволяет).
-- `CHANGELOG-DESIGN.md` выделенный для дизайн-изменений.
-
-### Deliverables
-
-- `docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md`.
-- `CHANGELOG-DESIGN.md` update.
-- Session recording (Figma или screencast) для onboarding команды.
-- Архивный snapshot Storybook в `docs/brand/storybook-wave1-snapshot/`.
-
-### Acceptance criteria
-
-- [ ] Все anchor artifacts 1–4, 7–10 (§7) воспроизводятся на staging.
-- [ ] Bug count from Wave 1 fixes: 0 P0, ≤ 2 P1, ≤ 5 P2 за 14 дней.
-- [ ] VPAT document signed.
-- [ ] Storybook published as immutable CI artifact/preview URL и зафиксирован в release notes для stakeholder review.
-
----
-
-## Волна 2 — Best-in-class primitives
-
-> Начинать только после gate (см. §3.1).
-
-## Фаза 2.0 — Provenance law foundations
-
-**Длительность:** 2 недели.
-**Тезис:** Provenance law (B2) начинается не с hover-popover, а с закона данных:
-в PolicyOS не должно быть naked decision numbers. Любое число, влияющее на
-решение, должно приходить как `QuantityValue`: значение, единица, uncertainty,
-temporal scope, lineage и verification status.
-
-### Preconditions
-
-- Wave 1 gate passed.
-- Fabric lineage и time-travel не переписываются с нуля: использовать текущие
-  `FabricLineageTracker`, `world_query` bitemporal semantics, snapshots/branches
-  и OpenLineage/PROV exports как backend-ядро.
-
-### Scope
-
-- Canonical `QuantityValue` envelope для всех decision-bearing чисел.
-- `LineageRef`, `TemporalRef`, `VerificationStatus`, `UnitRef` runtime contracts.
-- Lineage API: single + batch lookup, compact summary + full graph.
-- Coverage inventory: какие числовые поля уже traced / untraced / telemetry-only.
-- ESLint-правило `policyos/quantity-must-be-wrapped` с классификацией чисел:
-  `decision`, `telemetry`, `layout`, `debug`.
-- `<Quantity>` skeleton принимает envelope целиком, не `value + lineageId`
-  отдельными props.
-- Migration strategy: phased warn → error по feature-slice, а не один PR на все
-  числа.
-
-### Deliverables
-
-```text
-policy-engine/docs/adr/ADR-043-provenance-law.md       — финализация
-policy-engine/docs/brand/PROVENANCE_INTERACTION.md     — UX law: inline → popover → deep dive
-policy-engine/docs/reference/runtime/quantity-values.md — API semantics + migration rules
-
-policy-engine/src/polisyos/core/contracts/runtime.py
-  — добавить QuantityValue, UnitRef, LineageRef, TemporalRef, VerificationStatus
-
-policy-engine/src/polisyos/runtime/http/routes/lineage.py
-  — GET /api/v1/lineage/{lineage_id}
-  — POST /api/v1/lineage/batch
-
-policy-engine/src/polisyos/runtime/http/services/lineage.py
-  — adapter: FabricLineageTracker / artifact lineage → runtime lineage views
-
-policy-engine/src/polisyos/runtime/http/routes/runs.py
-  — GET /api/v1/runs/{run_id}/quantities (inventory/debug endpoint)
-
-policy-engine/src/polisyos/fabric/provenance/lineage.py
-  — only additive metadata if needed: verification, freshness, compact summary
-
-frontend/runtime-dashboard/src/shared/ui/quantity/
-├── Quantity.tsx                     — skeleton (full impl в 2.2), accepts QuantityValue
-├── Quantity.test.tsx
-├── Quantity.stories.tsx
-├── quantity.types.ts
-└── quantity-format.ts               — unit/precision/locale formatting
-
-frontend/runtime-dashboard/eslint-rules/
-├── quantity-must-be-wrapped.ts
-└── quantity-must-be-wrapped.test.ts
-
-tools/design/
-├── migrate-numbers-to-quantity.ts    — codemod helper
-└── report-quantity-coverage.ts       — traced/untraced/telemetry/layout inventory
-```
-
-### Backend contract
-
-```jsonc
-// Decision-bearing numeric fields become QuantityValue envelopes.
-{
-  "effect_size": {
-    "point": 0.23,
-    "unit": {
-      "code": "1",
-      "system": "ucum",
-      "display": "ratio"
-    },
-    "metric_id": "employment_rate_delta",
-    "lineage": {
-      "id": "lin_abc123",
-      "hash": "sha256:...",
-      "status": "verified",
-      "freshness": "current",
-      "summary": {
-        "source": "QES 2024 Q3",
-        "method": "DoubleML v2.1",
-        "agent": "Formalizer@1.4"
-      }
-    },
-    "uncertainty": {
-      "ci_95": [0.15, 0.31],
-      "method": "bootstrap",
-      "identifiability": "estimated",
-      "disputed": false
-    },
-    "time": {
-      "valid_at": "2026-04-15T12:00:00Z",
-      "tx_at": "2026-04-16T09:20:00Z"
-    }
-  }
-}
-```
-
-```http
-GET /api/v1/lineage/{lineage_id} →
-```
-
-```jsonc
-{
-  "id": "lin_abc123",
-  "status": "verified",
-  "hash": "sha256:...",
-  "freshness": "current",
-  "compact_summary": [
-    { "kind": "source", "label": "QES 2024 Q3" },
-    { "kind": "transform", "label": "Winsorize 1-99%" },
-    { "kind": "model", "label": "DoubleML v2.1" },
-    { "kind": "result", "label": "effect_size" }
-  ],
-  "nodes": [
-    { "id": "n1", "kind": "dataset", "label": "QES 2024 Q3", "timestamp": "..." }
-  ],
-  "edges": [],
-  "exports": {
-    "openlineage": "/api/v1/lineage/lin_abc123/export/openlineage",
-    "prov": "/api/v1/lineage/lin_abc123/export/prov"
-  }
-}
-```
-
-### Quantity classification
-
-| Class       | Examples                              | Rule                                                                 |
-| ----------- | ------------------------------------- | -------------------------------------------------------------------- |
-| `decision`  | effect size, budget, confidence, risk | Must be `QuantityValue`; UI must render through `<Quantity>`.        |
-| `telemetry` | latency, cache hits, event counts     | May remain primitive but must be explicitly annotated as telemetry.  |
-| `layout`    | pixel sizes, animation durations      | Excluded from provenance law.                                        |
-| `debug`     | local mock values, Storybook fixtures | Allowed only in test/story files or explicit fixture modules.        |
-
-### Research anchors
-
-- W3C PROV-DM / PROV-O semantics for entities, activities, agents and relations.
-- OpenLineage for external lineage interoperability.
-- UCUM/QUDT-style unit discipline: machine unit code and human display are separate.
-- Existing Fabric docs: `docs/reference/fabric/lineage.md` and
-  `docs/reference/fabric/time-travel.md`.
-
-### Acceptance criteria
-
-- [ ] ADR-043 approved, merged.
-- [ ] `QuantityValue` и related contracts специфицированы в Pydantic/OpenAPI,
-      types сгенерированы.
-- [ ] `GET /api/v1/lineage/{lineage_id}` и `POST /api/v1/lineage/batch`
-      возвращают compact + full graph payloads.
-- [ ] `GET /api/v1/runs/{run_id}/quantities` выдаёт coverage report:
-      traced / untraced / telemetry / layout / debug.
-- [ ] ESLint-правило работает в `warn` режиме и показывает class-aware warnings,
-      а не одну плоскую массу нарушений.
-- [ ] Codemod мигрирует ≥ 50% simple decision-number cases автоматически и не
-      трогает layout/telemetry без explicit opt-in.
-- [ ] `lineage_id: "untraced"` разрешён только как typed `LineageRef.status =
-      "untraced"` с обязательным `reason_code` и tracking issue.
-
-### Risks
-
-| Риск                                               | Mitigation                                                                                          |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `lineage_id` превращается в декоративное поле      | Quantity envelope: значение, unit, uncertainty, time, lineage и status идут одним атомом.           |
-| Backend не готов отдать lineage для всех чисел     | Typed `untraced` status + reason code + endpoint-level remediation ticket; visible coverage report. |
-| 3000 warnings демотивируют                         | Class-aware inventory + phased rollout по feature-slice; сначала decision surfaces.                 |
-| Unit/format drift между backend и frontend         | UCUM/QUDT-style `UnitRef`; display formatting централизовано в `quantity-format.ts`.                |
-| Lineage graph слишком тяжёлый для hover            | Batch endpoint + compact summary в 2.0; full graph lazy-load only в 2.2.                            |
-
-### Effort
-
-- Runtime contracts + OpenAPI: 3 дня.
-- Lineage routes + Fabric adapter: 4 дня.
-- ESLint rule + codemod + coverage report: 4 дня.
-- Quantity skeleton + docs: 2 дня.
-
----
-
-## Фаза 2.1 — Time-as-primitive (B1)
-
-**Длительность:** 4 недели.
-**Тезис:** Time-as-primitive не должен быть простым `as_of`. PolicyOS должен
-различать policy/world time (`valid_at`) и knowledge/record time (`tx_at`).
-Оператор двигает один понятный scrubber, но система воспроизводит точный
-bitemporal state: «что действовало тогда» и «что было известно тогда».
-
-### Preconditions
-
-- Фаза 2.0 завершена: `QuantityValue.time` и lineage endpoint готовы.
-- Фаза 1.2 завершена: uncertainty charts умеют принимать temporal scope.
-- Fabric `world_query` bitemporal semantics доступны как backend source of truth.
-
-### Scope
-
-- `TemporalScope` как canonical state: `validAt`, `txAt`, `branch`,
-  `snapshotId`, `scenarioId`.
-- `TemporalCursorProvider` как глобальный state + URL serializer.
-- `TemporalScrubber` UI в Atlas shell header.
-- `withTemporalCursor` HOC / hook для синхронизации графиков и quantities.
-- Backend contract: `valid_at` + `tx_at` параметры на time-sensitive endpoints.
-- Temporal capability endpoint: range, resolution, supported surfaces, gaps.
-- React Query/cache discipline: temporal scope входит в every query key and ETag.
-- Keyboard shortcuts + screen reader announcements.
-- URL deep-linking времени, snapshot/branch context.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/app/providers/
-├── TemporalCursorProvider.tsx
-├── TemporalCursorProvider.test.tsx
-├── temporal-scope.ts                — parse/serialize/compare TemporalScope
-├── temporal-url.ts                  — ?t= shorthand + canonical params
-└── useTemporalCursor.ts
-
-frontend/runtime-dashboard/src/shared/ui/temporal/
-├── TemporalScrubber.tsx              — UI в header
-├── TemporalScrubber.test.tsx
-├── TemporalScrubber.a11y.test.tsx
-├── TemporalScrubber.stories.tsx
-├── TemporalCursorMarker.tsx          — вертикальная линия для графиков
-├── TemporalLegend.tsx                — observed vs simulated indicator
-├── TemporalCapabilityBanner.tsx      — unsupported/gap states
-├── useTemporalRange.ts
-└── withTemporalCursor.tsx            — HOC
-
-frontend/runtime-dashboard/src/api/
-├── hooks/
-│   ├── useTemporalQuery.ts           — wrapper React Query c TemporalScope
-│   └── useTemporalRange.ts           — определение allowed range для run
-└── queryKeys.ts                      — include TemporalScope in keys
-
-policy-engine/src/polisyos/runtime/http/routes/
-├── runs.py                           — valid_at / tx_at on run detail, timeline, lineage
-└── temporal.py                       — GET /api/v1/temporal/capabilities
-
-policy-engine/src/polisyos/runtime/http/services/
-└── temporal.py                       — maps TemporalScope → Fabric world_query/snapshots
-
-policy-engine/src/polisyos/fabric/world_query.py
-└── no semantic rewrite; additive adapter tests for runtime endpoint behavior
-```
-
-### UI spec
-
-- **Расположение:** горизонтальный scrubber под верхним rail'ом Atlas shell'а, height 32 px.
-- **Основная ось:** `valid_at` (когда факт/политика действовали).
-- **Вторичная ось:** `tx_at` (когда система знала запись) скрыта в обычном
-  режиме, но видна в Trust View / advanced temporal mode.
-- **Индикаторы:** тонкая timeline с маркерами событий (run starts, policy
-  changes, late-arriving evidence, corrections); сплошная часть = observed,
-  пунктирная = simulated/future; «сейчас» = вертикальная линия `--gold`.
-- **Взаимодействие:**
-  - drag → локальный scrub на `requestAnimationFrame`, network fetch только
-    после debounce/commit;
-  - `←/→` → ±1 day step;
-  - `Shift+←/→` → ±1 week;
-  - `Alt+←/→` → ±1 hour;
-  - `PageUp/PageDown` → ±1 month;
-  - `Home` → earliest; `End` → latest; `N` / `Now` → «сейчас».
-- **Screen reader:** slider uses `aria-valuetext`; committed changes announce
-  `"Policy time moved to April 15, 2026; knowledge as of April 16, 2026"`.
-- **Reduced motion:** drag preview snaps to known event points; no continuous
-  chart morphing.
-
-### Backend contract
-
-Canonical query params:
-
-- `valid_at`: RFC 3339 timestamp, required for explicit time travel.
-- `tx_at`: RFC 3339 timestamp, optional; defaults to latest known transaction.
-- `branch`: optional retained branch name.
-- `snapshot_id`: optional retained snapshot.
-- `scenario_id`: optional future/counterfactual scenario, used fully in 2.4.
-
-Compatibility shorthand:
-
-- `?t=2026-04-15T12:00:00Z` maps to `valid_at` with latest `tx_at`.
-
-Endpoints:
-
-- `GET /api/v1/runs/{id}?valid_at=...&tx_at=...`
-- `GET /api/v1/runs/{id}/timeline?valid_at=...&tx_at=...`
-- `GET /api/v1/runs/{id}/lineage?valid_at=...&tx_at=...`
-- `GET /api/v1/temporal/capabilities?run_id=...`
-
-Поведение:
-
-- Если `valid_at` в прошлом — возвращается world/policy state на этот valid-time.
-- Если `tx_at` задан — возвращается только то, что система знала на этот
-  transaction-time; late-arriving evidence после `tx_at` исключается.
-- Если `valid_at`/`tx_at` вне допустимого range — 422 с `valid_range`,
-  `tx_range`, `nearest_event_points`.
-- Если endpoint ещё не поддерживает temporal scope — 200 с current behavior
-  запрещён; должен быть 409/422 с typed `temporal_surface_unsupported`, чтобы
-  UI мог показать honest gap.
-
-Additive: без temporal params — текущее поведение. Индексы на `created_at`,
-`updated_at`, `valid_from`, `valid_to`, `tx_time`, `valid_time` обязательны
-(DBA task).
-
-### URL deep-linking
-
-- Human shorthand: `?t=2026-04-15T12:00:00Z`.
-- Canonical advanced form:
-  `?valid_at=2026-04-15T12:00:00Z&tx_at=2026-04-16T09:20:00Z&branch=main`.
-- `<Link>` компоненты вне TemporalScope явно решают: preserve, reset, or inherit.
-- Share URL must reproduce the same quantities, lineage summaries, uncertainty
-  and selected branch/snapshot.
-
-### Acceptance criteria
-
-- [ ] Скрабинг на 60 fps в desktop Chrome; ≤ 30 fps acceptable на mobile.
-- [ ] Drag updates local preview on animation frame; backend fetch happens on
-      debounced commit ≤ 150 ms after stop.
-- [ ] Every time-sensitive React Query key includes full `TemporalScope`.
-- [ ] Все графики на Run Detail странице синхронно ре-рендерятся.
-- [ ] Quantities, lineage summaries and uncertainty values reproduce the same
-      state from a shared URL.
-- [ ] `prefers-reduced-motion` → скрабинг заменяется на snap-to-point.
-- [ ] Keyboard-only navigation соответствует WAI-ARIA slider pattern.
-- [ ] Screen reader корректно объявляет при каждом изменении (throttled 500 ms).
-- [ ] `GET /api/v1/temporal/capabilities` перечисляет supported/unsupported
-      surfaces и usable range для реального run.
-- [ ] Bitemporal test case: поздно пришедшая correction видна при позднем
-      `tx_at` и не видна при раннем `tx_at`, при том же `valid_at`.
-
-### Testing
-
-- Unit: `TemporalCursorProvider` state transitions.
-- Unit: `temporal-scope.ts` parse/serialize/compare; timezone normalization.
-- E2E: «открыть run → скрабить → увидеть изменение CI/Quantity → копировать URL
-  → open in incognito → увидеть тот же state».
-- Backend: runtime endpoint test using Fabric bitemporal fixture from
-  `tests/fabric/test_world_time_travel.py`.
-- Performance: Chrome DevTools performance profile на 60 fps.
-- A11y: keyboard-only journey пройдена axe + manual VoiceOver.
-
-### Risks
-
-| Риск                                                       | Mitigation                                                                                                          |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Команда упрощает bitemporal model до одного `as_of`        | Public API фиксирует `valid_at` + `tx_at`; `?t=` только shorthand.                                                  |
-| Backend не справляется с temporal scope для всех endpoints | Capability endpoint + explicit unsupported state; rollout: run detail → timeline → lineage → evidence/decisions.    |
-| DB без time-series индексов становится медленной           | DBA task: indices на valid/tx columns; slow-query audit; snapshot fallback for projection tables.                   |
-| Timezone drift между UI и API                              | Internal UTC/RFC 3339; display через locale/timezone; URL never stores locale-formatted dates.                      |
-| «Будущее» — сложная симуляция                              | В 2.1 only observed/present + scenario placeholder; future simulation fully in 2.4.                                 |
-
-### Effort
-
-- TemporalScope contracts + URL/query-key discipline: 4 дня.
-- Provider + scrubber UI: 1 неделя.
-- Backend temporal adapter + capability endpoint: 1 неделя.
-- Run Detail/chart/Quantity integration: 1 неделя.
-- Bitemporal tests + perf/a11y polish: 3 дня.
-
----
-
-## Фаза 2.2 — Provenance-on-hover (B2)
-
-**Длительность:** 3 недели.
-**Тезис:** Provenance-on-hover — это не tooltip. Это проверяемая цепочка
-объяснения: inline cue сообщает статус, popover отвечает «откуда это число?»,
-deep-dive даёт полный graph, raw sources и export.
-
-### Preconditions
-
-- Фаза 2.0 завершена: `QuantityValue` envelope + lineage batch endpoint.
-- Фаза 2.1 завершена: `TemporalScope` стабилен; lineage/quantity responses
-  воспроизводятся для выбранного `valid_at`/`tx_at`.
-
-### Scope
-
-- Полная реализация `<Quantity>` как renderer одного `QuantityValue`.
-- `<ProvenancePopover>` как interactive popover, не tooltip.
-- `<ProvenanceDeepDiveDialog>` для full graph + raw source links + exports.
-- `ProvenanceMiniGraph` с graph summarization: максимум 5–7 видимых узлов,
-  aggregation по source/transform/model/agent/result.
-- `useLineage` и `useLineageBatch` hooks с lazy load and cache.
-- Миграция всех числовых значений в JSX через codemod + manual review.
-- ESLint-правило переводится `warn → error` сначала для `decision` class.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/shared/ui/quantity/
-├── Quantity.tsx                     — full implementation
-├── Quantity.test.tsx
-├── Quantity.a11y.test.tsx
-├── Quantity.stories.tsx
-├── ProvenancePopover.tsx
-├── ProvenancePopover.test.tsx
-├── ProvenancePopover.a11y.test.tsx
-├── ProvenanceMiniGraph.tsx          — summarized graph, 5–7 visible nodes
-├── ProvenanceMiniGraph.test.tsx
-├── ProvenanceDeepDiveDialog.tsx
-├── ProvenanceDeepDiveDialog.test.tsx
-├── lineage-summary.ts               — source/transform/model/agent/result aggregation
-├── useLineage.ts                    — React Query hook
-├── useLineageBatch.ts               — batch prefetch for visible quantities
-└── index.ts
-
-frontend/runtime-dashboard/eslint-rules/
-└── quantity-must-be-wrapped.ts      — decision class warn → error
-
-policy-engine/src/polisyos/runtime/http/routes/lineage.py
-└── add export routes if not shipped in 2.0:
-    GET /api/v1/lineage/{lineage_id}/export/openlineage
-    GET /api/v1/lineage/{lineage_id}/export/prov
-```
-
-### API
-
-```tsx
-<Quantity
-  value={quantityValue}              // QuantityValue envelope from 2.0
-  format?="decimal" | "percent" | "currency" | "scientific" | "compact"
-  precision?={number}
-  variant?="inline" | "table" | "hero" | "dense"
-  provenanceMode?="auto" | "always" | "off"
-  temporalScope?={TemporalScope}     // optional override; default from provider
-/>
-```
-
-Важно: `<Quantity>` не принимает `value` и `lineageId` как отдельные props.
-Иначе UI может случайно смешать число из одного response и lineage из другого.
-
-### UX spec
-
-- **Inline cue:** small provenance mark near the number:
-  `verified`, `pending`, `disputed`, `stale`, `untraced`.
-- **Hover/focus:** after 150 ms opens interactive popover. It must be hoverable,
-  dismissible (`Esc`), persistent while focused, and never steal pointer drag
-  from charts.
-- **Popover content:** compact answer:
-  source → transform → model/method → result, with freshness, verification,
-  uncertainty and temporal scope.
-- **Keyboard:** focus on Quantity announces value + unit + CI + provenance
-  availability; `Enter` / `Space` opens popover; `Esc` closes; `D` opens
-  deep-dive when popover is active.
-- **Mini graph:** maximum 5–7 visible nodes; hidden nodes summarized as
-  `+N transforms` / `+N sources`; full graph only in dialog.
-- **Deep dive:** modal/dialog with full lineage, raw source links, export
-  OpenLineage/PROV, downstream impact when available.
-- **Untraced:** render with blocker glyph and reason; no silent fallback.
-- **Batch performance:** visible quantities may batch-fetch compact summaries,
-  but full graph is lazy-loaded on popover/deep-dive.
-
-### Миграция
-
-- `decision` class: ESLint `error` after codemod + manual review.
-- `telemetry` class: warning allowed with explicit annotation.
-- `layout` class: ignored.
-- `debug` class: allowed only in stories/tests/fixtures.
-- PR-check: невозможно merge нового decision number без `<Quantity>`.
-
-### Acceptance criteria
-
-- [ ] 100% decision-bearing числовых значений в UI обёрнуты в `<Quantity>`
-      (ESLint enforces).
-- [ ] Popover появляется за ≤ 200 ms от hover/focus start.
-- [ ] Mini graph читается на 320 px ширину экрана.
-- [ ] Screen reader описание: `"Effect size 0.23 ratio, 95 percent confidence
-      interval 0.15 to 0.31, verified provenance available"`.
-- [ ] Deep-dive dialog показывает full lineage, raw source links,
-      OpenLineage/PROV exports.
-- [ ] 3-click rule: от видимого числа до raw source/method/agent/timestamp за
-      ≤ 3 intentional actions.
-- [ ] WCAG hover/focus behavior: dismissible, hoverable, persistent.
-- [ ] Performance: 100+ `<Quantity>` на странице без visible lag.
-- [ ] Temporal correctness: popover lineage соответствует активному
-      `TemporalScope`, не latest by accident.
-
-### Backend contract
-
-Основной контракт зафиксирован в 2.0. В 2.2 backend должен дополнительно
-гарантировать:
-
-- batch endpoint p95 ≤ 150 ms for 50 compact lineage refs;
-- full graph lazy endpoint p95 ≤ 500 ms for typical run lineage;
-- OpenLineage/PROV export routes return deterministic payloads;
-- lineage response includes `temporal_scope` echo for cache correctness.
-
-### Risks
-
-| Риск                                          | Mitigation                                                                                           |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Perf regression при 100+ Quantity на странице | Compact batch summaries; full graph lazy-load; virtualized tables do not pre-render popovers.        |
-| Mini graph превращается в нечитаемый hairball | Mandatory summarization; 5–7 visible nodes; aggregation by source/transform/model/agent/result.      |
-| Popover нарушает WCAG hover/focus             | Use interactive popover/dialog pattern, not tooltip; `Esc`, hoverable surface, focus management.     |
-| `untraced` режет UX                           | Make it visible as governance debt; track endpoint-level remediation; never pretend verified.        |
-| Temporal mismatch                             | Every lineage fetch includes `TemporalScope`; response echoes scope; query key includes scope.       |
-
-### Effort
-
-- `Quantity` full renderer + formatting: 4 дня.
-- Popover + mini graph + summarization: 1 неделя.
-- Deep-dive dialog + exports integration: 4 дня.
-- Migration + ESLint error rollout: 1 неделя.
-- A11y/perf/temporal correctness tests: 3 дня.
-
----
-
-## Фаза 2.3 — Policy diff (B3)
-
-**Длительность:** 3 недели.
-**Тезис:** Policy diff не должен быть word-diff'ом и не должен быть набором
-случайных "before/after" карточек. Best-in-class версия сравнивает две policy
-через общий `ComparisonFrame`: что изменилось в эффекте, для кого, с какой
-уверенностью, при каких assumptions, и почему этому можно доверять.
-
-### Preconditions
-
-- Фаза 2.1 завершена: обе стороны diff используют один `TemporalScope`
-  (`valid_at`, `tx_at`, branch/snapshot/scenario).
-- Фаза 2.2 завершена: все decision quantities имеют lineage и provenance
-  доступен из diff-view без latest-by-accident.
-- Фаза 1.2 завершена: uncertainty charts умеют визуализировать CI/distribution
-  и не сводят diff к одному point estimate.
-
-### Product law
-
-PolicyOS сравнивает только сопоставимое. Перед diff всегда выполняется
-`comparability_check`: одинаковый problem frame, совместимые units, overlapping
-population, comparable temporal scope, compatible model family или явное
-предупреждение, почему сравнение является exploratory.
-
-### Scope
-
-- Canonical `ComparisonFrame`: `run_a`, `run_b`, `metric_set`, `population`,
-  `unit_policy`, `temporal_scope`, `scenario_scope`, `assumption_set`.
-- `CompareRunResponse`: all headline deltas are `QuantityValue` envelopes, not
-  naked numbers.
-- `DeltaQuantity`: `a`, `b`, `delta_absolute`, `delta_relative`,
-  `delta_distribution`, `significance`, `dominance`, `lineage_delta`.
-- Pre-flight comparability report: `compatible`, `warning`, `blocked`.
-- Split-pane Run Detail with synchronized scroll and synchronized temporal
-  cursor.
-- Causal delta strip: ranked deltas by magnitude, uncertainty and decision
-  salience.
-- Delta widgets: distribution, budget, governance, identifiability, provenance,
-  assumptions and subgroup heterogeneity.
-- Command palette action: compare current run with previous, selected, baseline
-  or recommended comparator.
-- Deep-link URL `/compare/:runA/:runB` reproduces temporal scope, scenario scope,
-  selected metrics and visible panels.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/features/runs/compare/
-├── PolicyDiffView.tsx
-├── PolicyDiffView.test.tsx
-├── PolicyDiffView.a11y.test.tsx
-├── PolicyDiffView.stories.tsx
-├── PolicyDiffLayout.tsx              — split-pane + responsive single-column
-├── ComparisonFramePanel.tsx          — comparability + scope summary
-├── CausalDeltaStrip.tsx              — central ranked delta rail
-├── CompareCommandDialog.tsx          — choose baseline / previous / selected run
-├── delta-widgets/
-│   ├── OutcomeDelta.tsx              — point + CI + practical significance
-│   ├── DistributionDelta.tsx         — quantile/histogram/wasserstein-style delta
-│   ├── SubgroupDeltaMatrix.tsx       — who gains/loses
-│   ├── IdentifiabilityTrajectory.tsx
-│   ├── GovernanceRadarDiff.tsx
-│   ├── BudgetFlowDiff.tsx
-│   ├── ProvenanceDrift.tsx           — source/model/agent/verification drift
-│   └── AssumptionDiff.tsx
-├── compare-types.ts
-├── compare-math.ts                   — normalize units, CI overlap, effect labels
-├── useCompareRuns.ts
-└── route.tsx                         — /compare/:runA/:runB
-
-frontend/runtime-dashboard/src/api/
-├── hooks/useCompareRuns.ts
-└── queryKeys.ts                      — compare keys include TemporalScope + scenarios
-
-policy-engine/src/polisyos/core/contracts/runtime.py
-  — ComparisonFrame, CompareRunResponse, DeltaQuantity, ComparabilityReport
-
-policy-engine/src/polisyos/runtime/http/routes/runs.py
-  — GET /api/v1/runs/compare
-  — GET /api/v1/runs/{run_id}/compare-candidates
-
-policy-engine/src/polisyos/runtime/http/services/compare.py
-  — maps run metrics/lineage/uncertainty into normalized diff payloads
-
-policy-engine/docs/reference/runtime/policy-diff.md
-```
-
-### UX spec
-
-- **Layout:** desktop uses two equal run panes with a central delta rail; tablet
-  switches to stacked panes with sticky delta rail; mobile defaults to "changed
-  metrics first" cards and keeps raw side-by-side behind tabs.
-- **Central rail:** 120-160 px, sorted by decision salience: materiality,
-  uncertainty, affected population, governance risk.
-- **Comparability gate:** before rendering deltas, show a compact badge:
-  `Comparable`, `Comparable with warnings`, or `Blocked`.
-- **Delta language:** every change is labeled as `improved`, `worsened`,
-  `mixed`, `uncertain`, or `not comparable`; color is never the only channel.
-- **Temporal:** one `TemporalCursor` applies to both panes. Scenario and branch
-  differences are explicit chips in the comparison frame.
-- **Provenance:** every delta can open a mini provenance diff: source changes,
-  model changes, verification changes, late-arriving evidence.
-- **Command palette:** `Compare with baseline`, `Compare with previous run`,
-  `Compare with selected run`.
-
-### Backend contract
-
-```http
-GET /api/v1/runs/compare?a={run_a}&b={run_b}&valid_at=...&tx_at=...&scenario_id=...
-```
-
-```jsonc
-{
-  "comparison_frame": {
-    "run_a": "run_1",
-    "run_b": "run_2",
-    "temporal_scope": { "valid_at": "...", "tx_at": "..." },
-    "population": "national_workforce",
-    "unit_policy": "canonical"
-  },
-  "comparability": {
-    "status": "compatible",
-    "warnings": [],
-    "blocked_reasons": []
-  },
-  "deltas": [
-    {
-      "metric_id": "employment_rate_delta",
-      "label": "Employment rate",
-      "a": { "$ref": "QuantityValue" },
-      "b": { "$ref": "QuantityValue" },
-      "delta_absolute": { "$ref": "QuantityValue" },
-      "delta_relative": { "$ref": "QuantityValue" },
-      "significance": "uncertain",
-      "decision_salience": 0.82,
-      "lineage_delta": {
-        "source_changed": true,
-        "model_changed": false,
-        "verification_changed": "pending_to_verified"
-      }
-    }
-  ]
-}
-```
-
-If backend precompute is unavailable, the endpoint may return
-`status: "client_computable"` with normalized run payload URLs. UI fallback is
-allowed only for compatible runs and must keep `TemporalScope` in every fetch.
-
-### Research anchors
-
-- GitHub/GitLab diff ergonomics: stable orientation, small change chunks,
-  explicit conflict/compatibility states.
-- NIST AI RMF and Microsoft HAX: communicate uncertainty, limitations and
-  appropriate reliance.
-- Google PAIR: compare model outputs by user task, not only by aggregate metric.
-- Data-viz best practice: distributional deltas beat single-number deltas for
-  heterogeneous policy impact.
-
-### Acceptance criteria
-
-- [ ] Opening diff for two compatible real runs returns meaningful comparison
-      in ≤ 2 s p95 with backend precompute, ≤ 4 s fallback.
-- [ ] Incompatible runs never render misleading deltas; they show typed
-      `comparability.blocked_reasons`.
-- [ ] Every decision-bearing delta is a `QuantityValue` with lineage and
-      temporal echo.
-- [ ] Distribution delta correctly visualizes at least quantiles, mean/median
-      shift and uncertainty overlap.
-- [ ] Governance radar diff remains readable under color-blind simulation and
-      in high-contrast mode.
-- [ ] Deep-link reproduces compare state: runs, temporal scope, scenario scope,
-      metric filters and scroll anchor.
-- [ ] Command palette can compare current run with baseline/previous/selected.
-- [ ] Screen reader can traverse changed metrics in salience order and hear
-      whether the change is improved/worsened/mixed/uncertain.
-
-### Testing
-
-- Unit: `compare-math.ts` normalization, CI overlap, delta labels.
-- Unit: comparability report generation for compatible, warning and blocked
-  examples.
-- Component: split-pane sync scroll and mobile stacked layout.
-- Backend: compare endpoint with bitemporal fixture; same `valid_at`, different
-  `tx_at` changes only late evidence.
-- A11y: keyboard traversal through central rail and delta widgets.
-- Visual regression: 5 compare fixtures, including color-blind and high-contrast
-  modes.
-
-### Risks
-
-| Риск                                             | Mitigation                                                                                           |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Diff для разных problem frames выглядит точным   | Mandatory `ComparisonFrame` + typed comparability gate before any delta rendering.                   |
-| Point estimates скрывают heterogeneous harm      | Distribution and subgroup deltas are first-class widgets; headline delta links to subgroup matrix.   |
-| Provenance drift теряется за numeric delta       | `ProvenanceDrift` is part of default delta rail for any source/model/verification change.            |
-| Compare endpoint становится тяжёлым              | Precompute popular pairs; cache by `ComparisonFrame`; client fallback only for normalized payloads.  |
-| Цветовые diff-сигналы недоступны                 | Shape, label and ordering duplicate color meaning; WCAG/high-contrast tests required.                |
-
-### Effort
-
-- Contracts + backend compare service: 4 дня.
-- Comparability gate + compare data hooks: 3 дня.
-- Layout + command dialog + deep-linking: 4 дня.
-- Delta widgets: 1 неделя.
-- A11y/perf/visual tests: 3 дня.
-
----
-
-## Фаза 2.4 — Counterfactual layer (B4)
-
-**Длительность:** 4 недели.
-**Тезис:** Counterfactual layer не должен быть `?cf=1`. Это управляемый
-`ScenarioRef`: набор assumptions, interventions, constraints, temporal scope,
-lineage и policy question. UI показывает real и counterfactual как две
-связанные реальности, а не как декоративную пунктирную линию.
-
-### Preconditions
-
-- Фаза 2.1 завершена: `TemporalScope` поддерживает observed/present/future
-  marker и сценарный placeholder.
-- Фаза 2.2 завершена: provenance различает observed evidence, model-derived
-  projection and counterfactual assumption.
-- Фаза 1.2 завершена: uncertainty charts поддерживают multiple series,
-  confidence intervals и explicit assumption labels.
-
-### Product law
-
-No anonymous counterfactuals. Любой CF-value обязан ссылаться на
-`ScenarioRef`, а scenario обязан иметь manifest: interventions, assumptions,
-validity window, baseline, author, model lineage, verification status and known
-limitations.
-
-### Scope
-
-- Canonical `ScenarioManifest`: baseline, interventions, assumptions,
-  constraints, affected population, temporal window, model family, status.
-- `CounterfactualProvider` stores selected scenario, comparison mode and URL
-  serialization.
-- Scenario capability endpoint: list available scenarios and unsupported
-  surfaces per run.
-- `CounterfactualToggle` becomes mode switch: `actual`, `actual_vs_scenario`,
-  `scenario_only`.
-- Dual controls for scenario authoring/editing: one visible baseline value and
-  one scenario intervention value.
-- `CounterfactualQuantity`: actual + counterfactual + delta, all as
-  `QuantityValue`.
-- Charts show actual, scenario and delta with uncertainty and assumption badges.
-- Provenance popover/deep-dive shows assumption lineage and model lineage.
-- Scenario persistence: shareable URL, saved scenario draft, promoted scenario.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/app/providers/
-├── CounterfactualProvider.tsx
-├── CounterfactualProvider.test.tsx
-├── scenario-scope.ts                 — parse/serialize/compare ScenarioScope
-└── useCounterfactual.ts
-
-frontend/runtime-dashboard/src/shared/ui/counterfactual/
-├── CounterfactualModeSwitch.tsx
-├── CounterfactualBadge.tsx
-├── ScenarioPicker.tsx
-├── ScenarioManifestPanel.tsx
-├── AssumptionPill.tsx
-├── DualSelector.tsx
-├── DualSlider.tsx
-├── DualInput.tsx
-├── CounterfactualDelta.tsx
-└── counterfactual-colors.ts
-
-frontend/runtime-dashboard/src/shared/ui/quantity/
-└── CounterfactualQuantity.tsx        — actual + scenario + delta renderer
-
-frontend/runtime-dashboard/src/features/whatif/
-├── ScenarioWorkbench.tsx             — integrates existing What-if features
-├── ScenarioInterventionEditor.tsx
-└── ScenarioValidationPanel.tsx
-
-frontend/runtime-dashboard/src/api/hooks/
-├── useScenarioCapabilities.ts
-├── useScenarioManifest.ts
-└── useCounterfactualMetrics.ts
-
-policy-engine/src/polisyos/core/contracts/runtime.py
-  — ScenarioRef, ScenarioManifest, CounterfactualMetric, ScenarioCapability
-
-policy-engine/src/polisyos/runtime/http/routes/
-├── scenarios.py
-└── runs.py                           — scenario-aware metrics/run detail
-
-policy-engine/src/polisyos/runtime/http/services/
-└── scenarios.py                      — maps scenario manifest to model/fabric execution
-
-policy-engine/docs/reference/runtime/counterfactual-layer.md
-```
-
-### UX spec
-
-- **Mode switch:** Atlas shell exposes a compact segmented control:
-  `Actual`, `Actual + Scenario`, `Scenario`.
-- **Scenario picker:** disabled state explains why run has no scenario support;
-  enabled state shows scenario status (`draft`, `computed`, `stale`, `failed`).
-- **On-canvas language:** every scenario value carries an assumption badge and
-  a delta label. No naked "future" numbers.
-- **Color/pattern:** scenario line is patterned as well as colored; `--gold` is
-  reserved for decision salience and deltas, not for every CF mark.
-- **Controls:** DualSlider/DualInput show current baseline on the same scale as
-  the intervention; invalid combinations explain constraints immediately.
-- **Reduced motion:** switching modes fades labels only; charts do not morph
-  continuously.
-- **A11y:** screen reader announces "scenario value", "baseline value" and
-  "difference" separately.
-
-### Backend contract
-
-```http
-GET /api/v1/runs/{run_id}/scenarios
-GET /api/v1/scenarios/{scenario_id}
-POST /api/v1/runs/{run_id}/scenarios
-GET /api/v1/runs/{run_id}/metrics?scenario_id=...&valid_at=...&tx_at=...
-GET /api/v1/scenarios/{scenario_id}/capabilities
-```
-
-```jsonc
-{
-  "scenario": {
-    "id": "scn_rate_cut_25bps",
-    "baseline_run_id": "run_actual",
-    "status": "computed",
-    "temporal_scope": { "valid_at": "...", "tx_at": "..." },
-    "interventions": [
-      { "field": "policy_rate", "operator": "set", "value": { "$ref": "QuantityValue" } }
-    ],
-    "assumptions": [
-      {
-        "id": "asm_no_external_shock",
-        "label": "No external demand shock",
-        "status": "operator_assumption",
-        "lineage": { "$ref": "LineageRef" }
-      }
-    ]
-  },
-  "metrics": {
-    "employment_rate_delta": {
-      "actual": { "$ref": "QuantityValue" },
-      "counterfactual": { "$ref": "QuantityValue" },
-      "delta": { "$ref": "QuantityValue" },
-      "scenario_ref": "scn_rate_cut_25bps"
-    }
-  }
-}
-```
-
-### Research anchors
-
-- Rubin causal model / potential outcomes framing: always name baseline,
-  treatment/intervention and target estimand.
-- NIST AI RMF: counterfactual output must expose assumptions, limitations and
-  intended use.
-- Google PAIR and Microsoft HAX: keep people oriented when AI output is
-  simulated, uncertain or inappropriate for reliance.
-
-### Acceptance criteria
-
-- [ ] No scenario value can render without `ScenarioRef` and assumption lineage.
-- [ ] URL reproduces selected scenario, temporal scope and mode.
-- [ ] Toggle between Actual and Actual + Scenario updates visible values in
-      ≤ 200 ms after data is cached.
-- [ ] Scenario capability endpoint lists supported/unsupported surfaces and
-      reasons for unsupported metrics.
-- [ ] Counterfactual metrics do not double-fetch actual values; shared batch
-      payload or normalized cache is used.
-- [ ] Screen reader announces actual, scenario and delta distinctly.
-- [ ] Provenance deep-dive shows assumption nodes and model/source lineage for
-      scenario values.
-- [ ] Stale scenario state is visible when baseline evidence or model version
-      changed after scenario computation.
-
-### Testing
-
-- Unit: `scenario-scope.ts` URL roundtrip and equality.
-- Unit: invalid intervention constraints and scenario stale detection.
-- Component: mode switch, scenario picker, dual controls, quantity renderer.
-- Backend: scenario capability + metrics response with temporal echo.
-- E2E: create scenario → inspect deltas → share URL → reopen same state.
-- A11y: keyboard-only scenario selection and DualSlider operation.
-
-### Risks
-
-| Риск                                             | Mitigation                                                                                         |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `?cf=1` создаёт анонимные simulations            | `ScenarioManifest` is mandatory; anonymous CF values fail validation.                              |
-| Cognitive overload from two realities            | Default mode is Actual; Actual + Scenario requires explicit user action and shows manifest summary. |
-| Scenario data becomes stale silently             | Scenario includes baseline hashes and model version; stale badge blocks "verified" language.       |
-| Backend не поддерживает CF для всех metrics      | Capability endpoint + honest unsupported state; no silent fallback to actual.                      |
-| Цвет/паттерн конфликтует с provenance statuses   | Dedicated counterfactual tokens and composition rules; high-contrast/CB tests required.            |
-
-### Effort
-
-- Scenario contracts + backend capability/manifest: 1 неделя.
-- Provider + URL/query-key discipline: 3 дня.
-- Mode switch + scenario picker + dual controls: 1 неделя.
-- Quantity/chart/what-if integration: 1 неделя.
-- Provenance/a11y/perf tests: 3 дня.
-
----
-
-## Фаза 2.5 — Native bureaucratic rendering (B5)
-
-**Длительность:** 4 недели.
-**Тезис:** Бюрократический render должен быть не "красивым PDF", а
-машино-проверяемым документом: canonical Document AST → jurisdictional renderer
-→ accessible HTML/PDF/DOCX, with provenance, authorship, watermark and template
-version. Так PolicyOS выглядит легитимно не потому, что имитирует форму, а
-потому что честно показывает draft status, источники и ответственность.
-
-### Preconditions
-
-- Фаза 1.5 завершена: prose/reading system can render long-form artifacts.
-- Фаза 1.6 завершена: narrative blocks have authorship and model/evidence
-  attribution.
-- Фаза 2.2 завершена: numbers in documents render through `<Quantity>` and
-  provenance survives export.
-- External review slot reserved: Ukrainian legal/document specialist validates
-  templates and disclaimers.
-
-### Product law
-
-Every official-looking artifact is a draft until signed outside PolicyOS.
-Generated documents must carry visible and machine-readable watermark:
-`Generated by PolicyOS / Draft / Not an official state document`, template
-version, render timestamp and packet hash.
-
-### Scope
-
-Four first-class genres:
-
-- **Постанова КМУ**
-- **Законопроект**
-- **Експертний висновок**
-- **Аналітична записка**
-
-Core approach:
-
-- Canonical `BureaucraticDocumentAST` independent of React/PDF renderer.
-- Jurisdictional templates versioned by genre and jurisdiction:
-  `ua.kmu.postanova.v1`, `ua.rada.zakonoproekt.v1`, etc.
-- Structured sections: header, реквізити, preamble, legal basis, operative
-  clauses, annexes, signatures, epistemic appendix.
-- Strict numbering engine: Розділ/Глава/Стаття/Пункт/Підпункт and annex labels.
-- Epistemic map: evidence-filled / model-generated / operator-filled /
-  imported-from-source per block.
-- Accessible HTML first; PDF/DOCX generated from same AST with parity checks.
-- Asset/legal audit: only public domain/licensed symbols; seal placeholders
-  never pretend to be official signatures.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/features/artifacts/bureaucratic/
-├── BureaucraticArtifactView.tsx
-├── BureaucraticArtifactView.test.tsx
-├── BureaucraticArtifactView.a11y.test.tsx
-├── BureaucraticGenrePicker.tsx
-├── BureaucraticTemplateBadge.tsx
-├── ast/
-│   ├── bureaucratic-document-ast.ts
-│   ├── bureaucratic-document-ast.test.ts
-│   ├── numbering.ts
-│   ├── numbering.test.ts
-│   └── epistemic-map.ts
-├── renderers/
-│   ├── PostanovaKMURenderer.tsx
-│   ├── ZakonoproektRenderer.tsx
-│   ├── ExpertVysnovokRenderer.tsx
-│   ├── AnalitichnaZapyskaRenderer.tsx
-│   └── shared/
-│       ├── BureaucraticHeader.tsx
-│       ├── BureaucraticNumbering.tsx
-│       ├── BureaucraticWatermark.tsx
-│       ├── EpistemicLegend.tsx
-│       ├── SignatureBlock.tsx
-│       └── bureaucratic-tokens.ts
-└── export/
-    ├── export-html.ts
-    ├── export-pdf.ts                 — browser print pipeline / Playwright PDF
-    ├── export-docx.ts                — optional if dependency accepted
-    └── parity-check.ts
-
-frontend/runtime-dashboard/public/bureaucracy/
-├── tryzub.svg                        — public domain/licensed audit required
-├── draft-watermark.svg
-└── README.md                         — asset provenance and license notes
-
-policy-engine/src/polisyos/core/contracts/runtime.py
-  — BureaucraticDocument, BureaucraticBlock, BureaucraticTemplateRef
-
-policy-engine/src/polisyos/runtime/http/routes/artifacts.py
-  — POST /api/v1/artifacts/{packet_id}/render
-  — GET /api/v1/artifacts/{packet_id}/export
-
-policy-engine/src/polisyos/runtime/http/services/bureaucratic_rendering.py
-  — packet → BureaucraticDocumentAST mapping
-
-policy-engine/docs/brand/BUREAUCRATIC_RENDERING.md
-policy-engine/docs/reference/runtime/bureaucratic-rendering.md
-```
-
-### UX spec
-
-- **Entry point:** Artifact viewer exposes `Render as...` with four genres.
-- **Genre switch:** changing genre preserves decision packet content, not manual
-  layout edits.
-- **Document chrome:** official-looking header, реквізити and numbering, but
-  persistent draft watermark and template/version badge.
-- **Trust layer:** quantities keep provenance cues; authored blocks keep
-  author/timestamp; Trust View expands hashes inside the document.
-- **Epistemic legend:** first page or appendix shows how much content is
-  evidence-filled, model-generated, operator-filled and imported.
-- **Export preview:** user sees print margins/page breaks before export.
-- **Accessibility:** headings, lists, tables and footnotes are semantic in HTML;
-  PDF export must preserve reading order as far as chosen pipeline allows.
-
-### Backend contract
-
-```http
-POST /api/v1/artifacts/{packet_id}/render
-Content-Type: application/json
-{
-  "genre": "postanova_kmu",
-  "jurisdiction": "ua",
-  "template_version": "ua.kmu.postanova.v1",
-  "temporal_scope": { "valid_at": "...", "tx_at": "..." },
-  "trust_view": false
-}
-```
-
-```jsonc
-{
-  "document": {
-    "id": "doc_123",
-    "packet_id": "pkt_123",
-    "genre": "postanova_kmu",
-    "template": { "id": "ua.kmu.postanova.v1", "version": "1.0.0" },
-    "status": "draft",
-    "watermark": "Generated by PolicyOS / Draft / Not an official state document",
-    "blocks": [],
-    "epistemic_summary": {
-      "evidence_filled": 0.54,
-      "model_generated": 0.22,
-      "operator_filled": 0.18,
-      "imported": 0.06
-    }
-  }
-}
-```
-
-### Research anchors
-
-- ДСТУ 4163:2020 and Ukrainian Verkhovna Rada drafting rules: реквізити,
-  structure, numbering and formal document style.
-- GOV.UK Design System and USWDS: government service clarity, accessibility,
-  plain-language patterns and print discipline.
-- PDF/UA and WCAG principles: semantic reading order, text alternatives and
-  keyboard-accessible HTML preview.
-
-### Acceptance criteria
-
-- [ ] Legal/document specialist signs off all 4 template drafts and watermark
-      language.
-- [ ] Same `BureaucraticDocumentAST` renders to HTML and PDF with no missing
-      blocks across 10 real decision packets.
-- [ ] PDF export has stable page breaks and no overlapping headers/footers in
-      Chrome; Firefox/Safari preview parity ≥ 95%.
-- [ ] Every decision-bearing number inside document uses `<Quantity>` and keeps
-      provenance/deep-dive path in HTML view.
-- [ ] Draft watermark appears visually and in exported metadata.
-- [ ] Epistemic legend matches block-level authorship/provenance counts.
-- [ ] Asset license audit exists for all public symbols/placeholders.
-- [ ] Print/export works in Ukrainian, English and Russian locales where
-      translation exists.
-
-### Testing
-
-- Unit: AST schema validation, numbering, epistemic summary.
-- Component: each renderer with dense, long, missing-field and annex-heavy
-  fixtures.
-- Export: PDF snapshot/parity checks for 10 packets.
-- A11y: HTML document heading order, table semantics and keyboard navigation.
-- Legal review checklist: template structure, watermark, prohibited claims.
-
-### Risks
-
-| Риск                                                    | Mitigation                                                                                              |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Official-looking render can be mistaken for state act   | Persistent watermark, metadata, draft badge and export disclaimer; no real seals/signatures by default. |
-| Templates drift when rules change                       | Versioned templates and migration notes; template id included in every export.                          |
-| Pixel-perfect PDF fights accessible HTML                | HTML-first AST; PDF parity tests; inaccessible PDF features blocked unless reviewed.                     |
-| Manual template tweaks fork the source of truth         | AST is canonical; renderer-specific overrides must be typed and audited.                                |
-| Asset licensing risk                                    | Asset provenance file required; only public domain/licensed assets.                                     |
-
-### Effort
-
-- Document AST + numbering + epistemic map: 1 неделя.
-- Four renderers + shared components: 1.5 недели, parallelizable.
-- Backend rendering contract + artifact mapping: 4 дня.
-- PDF/export pipeline + parity checks: 4 дня.
-- Legal/accessibility review and polish: 3 дня.
-
----
-
-## Фаза 2.6 — Trust view (B6)
-
-**Длительность:** 2 недели.
-**Тезис:** Trust View — это audit rendering mode, not a separate tab. Он
-включает доказательства прямо там, где принимается решение: hash, verifier,
-timestamp, provenance status, authorship, uncertainty method and temporal scope.
-
-### Preconditions
-
-- Фаза 2.2 завершена: every decision number has provenance and deep-dive.
-- Фаза 1.6 завершена: narrative/authored blocks have author registry and
-  timestamps.
-- Фаза 2.1 завершена: temporal scope can be rendered and echoed by backend.
-
-### Product law
-
-Trust View must not fetch a different truth. It is a rendering mode over the
-same data and cache keys. If additional verification metadata is needed, it is
-prefetched/batched and tied to the same `TemporalScope`.
-
-### Scope
-
-- `TrustViewProvider`: mode (`off`, `compact`, `expanded`), density-aware.
-- `TrustViewToggle` in Atlas shell + keyboard shortcut.
-- `TrustInspector`: side panel for selected Quantity/AuthoredText/Artifact.
-- Inline trust metadata for Quantity, AuthoredText, ProvenanceStrip, charts and
-  bureaucratic documents.
-- Hash chips: deterministic truncate/copy/open deep-dive.
-- Verification metadata: `verified_by`, `verified_at`, `verification_method`,
-  `dispute_status`, `freshness`, `temporal_scope`.
-- Diacritic glyph modifiers: status additions without new icon explosion.
-- Trust View CSS cascade: additive overlays, no layout reflow beyond defined
-  density budget.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/app/providers/
-├── TrustViewProvider.tsx
-├── TrustViewProvider.test.tsx
-└── useTrustView.ts
-
-frontend/runtime-dashboard/src/shared/ui/trust-view/
-├── TrustViewToggle.tsx
-├── TrustViewToggle.test.tsx
-├── TrustViewBadge.tsx
-├── TrustInspector.tsx
-├── TrustInspector.test.tsx
-├── TrustMetadata.tsx
-├── HashChip.tsx
-├── VerificationStatus.tsx
-├── DisputeBadge.tsx
-├── TemporalScopeChip.tsx
-├── trust-glyphs.ts
-└── trust-view.css
-
-frontend/runtime-dashboard/src/shared/ui/quantity/
-└── Quantity.tsx                      — compact/expanded trust rendering
-
-frontend/runtime-dashboard/src/shared/ui/authored-text/
-└── AuthoredText.tsx                  — author/timestamp/model/source metadata
-
-frontend/runtime-dashboard/src/shared/charts/
-└── uncertainty-rendering.ts          — CI method labels in Trust View
-
-policy-engine/src/polisyos/core/contracts/runtime.py
-  — VerificationMetadata, TrustMetadataRef
-
-policy-engine/src/polisyos/runtime/http/routes/lineage.py
-  — batch verification metadata if not already included
-
-policy-engine/docs/brand/TRUST_VIEW.md
-```
-
-### UX spec
-
-- **Toggle:** shell button plus `Cmd/Ctrl+Shift+T`; cycles `off → compact →
-  expanded`.
-- **Compact:** numbers show status glyph + short hash chip where space allows;
-  charts show CI method only on focus/hover.
-- **Expanded:** inline second row with source/method/verifier/time for decision
-  surfaces; dense tables use row-level inspector instead of expanding every cell.
-- **TrustInspector:** opens from hash chip, status glyph or keyboard command;
-  shows selected element, provenance summary, verification metadata, temporal
-  scope and deep-dive/export actions.
-- **No layout surprise:** trust metadata uses reserved slots or overlays; if it
-  cannot fit, it collapses to inspector affordance.
-- **Copy:** hash chips support copy hash and copy audit link.
-- **A11y:** metadata is reachable by keyboard and announced without duplicating
-  entire provenance graph for every cell.
-
-### Backend contract
-
-Trust metadata may be embedded in existing lineage/quantity payloads or fetched
-through batch endpoint, but every response must echo `temporal_scope`.
-
-```jsonc
-{
-  "trust_metadata": {
-    "hash": "sha256:...",
-    "verification_status": "verified",
-    "verified_by": "RiskReviewBot@2.0",
-    "verified_at": "2026-04-16T09:20:00Z",
-    "verification_method": "lineage_hash_match",
-    "freshness": "current",
-    "dispute_status": "none",
-    "temporal_scope": { "valid_at": "...", "tx_at": "..." }
-  }
-}
-```
-
-### Research anchors
-
-- NIST AI RMF: trustworthiness as governance, measurement, transparency and
-  accountability, not a decorative confidence badge.
-- Microsoft HAX: support appropriate reliance and show system limits at the
-  moment of use.
-- OpenTelemetry semantic conventions: consistent metadata naming for observable
-  systems.
-- WCAG hover/focus and keyboard guidance: audit metadata must be dismissible,
-  reachable and persistent.
-
-### Acceptance criteria
-
-- [ ] Toggle works globally and state is preserved in URL/user preference.
-- [ ] Trust View reuses same run/quantity/lineage data and never drops
-      `TemporalScope` from query keys.
-- [ ] Compact mode adds ≤ 50 ms render overhead on Run Detail with 100+
-      quantities.
-- [ ] Expanded mode does not create incoherent overlap in dashboard, table,
-      chart or bureaucratic document views.
-- [ ] Hash chips open deep-dive or TrustInspector and support copy hash.
-- [ ] Verification metadata is visible for quantities, authored text and
-      bureaucratic document blocks.
-- [ ] Keyboard-only audit journey works from visible number → trust metadata →
-      provenance deep-dive → export.
-- [ ] Visual regression passes for normal, compact, expanded, high-contrast and
-      condensed density modes.
-
-### Testing
-
-- Unit: provider modes, URL/preference serialization, hash truncation.
-- Component: Quantity/AuthoredText/chart/document trust overlays.
-- Performance: render budget with 100+ quantities and dense table fixture.
-- A11y: keyboard traversal and screen-reader labels for trust metadata.
-- Backend: verification metadata response includes temporal echo and stable hash.
-
-### Risks
-
-| Риск                                                | Mitigation                                                                                         |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Trust View becomes visual noise                     | Compact/expanded modes, density-aware collapse, inspector for dense surfaces.                      |
-| Trust metadata triggers mass refetch                | Batch metadata, same cache keys, no separate "trust truth" endpoint.                               |
-| Hash chips break layout                             | Reserved slots, truncation, copy/open actions, collapse in condensed density.                      |
-| Users confuse verification with policy correctness  | Labels distinguish verification of lineage/hash from endorsement of policy recommendation.          |
-| Accessibility duplication becomes overwhelming      | Summarized labels by default; full metadata available on demand through inspector.                  |
-
-### Effort
-
-- Provider + toggle + URL/preference: 2 дня.
-- Trust metadata components + inspector: 4 дня.
-- Quantity/AuthoredText/chart/document integration: 4 дня.
-- Backend metadata additions + tests: 2 дня.
-- Visual/a11y/perf polish: 3 дня.
-
----
-
-## Фаза 2.7 — System polish
-
-**Длительность:** 2 недели.
-**Тезис:** Polish is not "nice to have". Это hardening слоя, который превращает
-набор сильных primitives в систему: print, CLI, motion, categorical palettes,
-small multiples, OG/email templates, final composition rules and quality gates.
-
-### Preconditions
-
-- Фазы 2.0-2.2 завершены; ideally 2.3-2.6 have at least one vertical slice.
-- Wave 1 brand/a11y/density/motion decisions exist and are not being rewritten.
-- Build/test/storybook infrastructure can run targeted visual/a11y checks.
-
-### Scope
-
-- Print/PDF refinement over Reading View and bureaucratic renders.
-- CLI styleguide for `@polisyos/cli`: tokens, severity, progress, tables,
-  provenance/trust output.
-- Motion spec finalization: durations, easing, reduced motion, forbidden motion.
-- Composition rules finalization: glyph density, provenance/counterfactual/trust
-  stacking, color hierarchy, anti-patterns.
-- Categorical-8 and Categorical-12 palettes with color-blind/high-contrast
-  checks.
-- `SmallMultiples` for regional/sectoral comparison.
-- OG/social cards and email templates for shareable runs/compare/scenario links.
-- Quality gates: print snapshots, palette checks, reduced-motion checks,
-  design lint for forbidden color/motion/card patterns.
-
-### Deliverables
-
-```text
-frontend/runtime-dashboard/src/styles/
-├── print.css                         — refined print/long-form rules
-├── motion.css                        — canonical motion tokens
-└── media.css                         — reduced motion / high contrast / print helpers
-
-policy-engine/docs/brand/
-├── CLI_STYLEGUIDE.md
-├── MOTION.md                         — expanded + reduced motion law
-├── COMPOSITION_RULES.md              — finalized stacking/anti-patterns
-├── PRINT_AND_EXPORT.md
-├── EMAIL_TEMPLATES.md
-└── SOCIAL_TEMPLATES.md
-
-frontend/runtime-dashboard/src/shared/charts/
-├── categorical-palettes.ts           — 8 + 12 palettes + semantic names
-├── categorical-palettes.test.ts
-├── SmallMultiples.tsx
-├── SmallMultiples.test.tsx
-└── SmallMultiples.stories.tsx
-
-frontend/runtime-dashboard/src/features/export/social/
-├── OGCard.tsx
-├── OGCard.test.tsx
-├── OGCard.stories.tsx
-├── generate-og.ts                    — Satori/HTML-to-image pipeline
-├── EmailSummary.tsx
-└── email-fixtures.ts
-
-packages/cli/src/styleguide/
-├── tokens.ts
-├── format-status.ts
-├── format-table.ts
-├── format-provenance.ts
-└── README.md
-
-tools/design/
-├── check-categorical-palettes.ts
-├── check-motion-tokens.ts
-├── check-print-snapshots.ts
-└── check-composition-rules.ts
-```
-
-### UX spec
-
-- **Print:** dashboard chrome disappears; document metadata, provenance summary,
-  page numbers and source appendix survive.
-- **CLI:** output uses the same semantic statuses as UI: verified/pending/stale/
-  disputed/untraced, but in ASCII-safe tokens and accessible contrast.
-- **Motion:** temporal scrubbing and popovers remain responsive; no motion is
-  essential for understanding; reduced-motion mode is a first-class path.
-- **Palettes:** categorical colors are not variations of one hue; pattern/shape
-  fallback exists for dense charts.
-- **Small multiples:** optimized for scanning: stable axes, clear selected
-  region/sector, keyboard traversal, no decorative card nesting.
-- **OG/email:** generated previews include run title, key quantity, trust status,
-  temporal scope and draft/verified state; no private source data leaks.
-
-### Research anchors
-
-- USWDS/GOV.UK: service consistency, print clarity and accessible government
-  communication.
-- WCAG 2.2: non-text contrast, focus visibility, reduced motion and hover/focus
+## 3. Non-negotiable product laws
+
+These rules apply to every item in Tracks A-G.
+
+### 3.1. Design laws
+
+- No raw decision-bearing numbers. Any number that can affect a decision uses
+  `Quantity`, provenance, temporal scope, uncertainty and trust metadata.
+- No new domain colors. Teal/ember/gold plus neutral remain the signal system.
+  New distinctions use pattern, shape, density, glyph intent, diacritic or
+  layout.
+- No new domain glyphs without ADR retiring an existing radical. The
+  ten-radical alphabet remains closed.
+- No flat sidebar expansion. New surfaces live as nested panels, tabs, command
+  palette entries, contextual deep links or workspace subroutes.
+- No prototype inline-style adoption. Prototype screens are inspiration only;
+  production uses shared components, CSS tokens and feature-slice boundaries.
+- No dashboard vanity metrics. Every card must answer an operator question:
+  "what changed?", "what is blocked?", "what should I inspect?", or "what is
+  safe to approve?"
+
+### 3.2. Engineering laws
+
+- Every new surface has an explicit contract: schema, validator, fixture,
+  React Query hook, empty/error/loading state and tests.
+- Every new visualization has a non-visual fallback and screen-reader summary.
+- Every interaction that changes interpretation must be URL-stable or
+  replay-recordable.
+- Every new route/panel gets Storybook stories, a11y tests and at least one
+  visual snapshot if it changes layout materially.
+- Every new backend field is additive for at least two releases before old
+  fields can be deprecated.
+- Every global overlay has escape behavior, focus behavior and reduced-motion
   behavior.
-- OpenTelemetry: consistent status/severity naming for CLI and system output.
-- Satori/OG rendering practice: deterministic, font-pinned social previews.
 
-### Acceptance criteria
+### 3.3. Procurement and public-sector laws
 
-- [ ] Five real decision packets print without clipped content, overlapping
-      headers or missing provenance summary.
-- [ ] CLI verbose output uses tokenized statuses and aligns with UI trust/
-      provenance vocabulary.
-- [ ] Motion tokens are centralized; reduced-motion mode passes targeted checks
-      for scrubber, popover, dialogs and compare view.
-- [ ] `Categorical-8` and `Categorical-12` pass color-blind simulation and
-      high-contrast review; charts also have non-color distinction where needed.
-- [ ] `SmallMultiples` handles 8 regions × 12 sectors without visible lag and
-      with stable axes.
-- [ ] OG cards generate for run, compare and scenario URLs with correct temporal
-      scope and no confidential raw-source leakage.
-- [ ] Email templates render in narrow/mobile and desktop widths and include
-      accessible plain-text fallback.
-- [ ] Composition rules have concrete anti-pattern examples and a design-lint
-      check for at least the highest-risk violations.
-
-### Testing
-
-- Print snapshot checks for Run Detail, Reading View and bureaucratic document.
-- Palette simulation checks and contrast checks.
-- Component tests for SmallMultiples and OG card fixtures.
-- CLI snapshot tests for success/warning/error/provenance output.
-- Email rendering checks for mobile/desktop widths and plain-text fallback.
-- Reduced-motion manual pass and automated CSS/token check.
-
-### Risks
-
-| Риск                                          | Mitigation                                                                                          |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Polish becomes a grab bag without ownership   | Split into five tracks: print/export, CLI, motion/composition, charts, social/email.                |
-| OG/email leak private evidence                | Use explicit public summary payloads; never render raw-source text unless share policy allows it.   |
-| Palette looks pretty but fails accessibility  | Automated simulation + human review; pattern fallback for high-density charts.                      |
-| CLI drifts from UI vocabulary                 | Shared status glossary and snapshot fixtures for CLI/UI examples.                                  |
-| Print fixes regress screen UI                 | Print-only stylesheet and snapshot gate; no global layout hacks.                                   |
-
-### Effort
-
-- Print/export hardening: 3 дня.
-- CLI styleguide and utilities: 2 дня.
-- Motion/composition docs + checks: 3 дня.
-- Palettes + SmallMultiples: 3 дня.
-- OG/email templates: 3 дня.
-- Cross-track QA and final design review: 2 дня.
+- EU AI Act readiness is a first-class design constraint: harm, fairness,
+  traceability, human review, revocation and auditability must be visible, not
+  only logged.
+- Ukrainian bureaucratic register is not an export-only concern. Input,
+  review and render surfaces must share one AST.
+- Public viewer surfaces must be immutable, signed, read-only and provenance
+  preserving.
 
 ---
 
-## 4. Success metrics
+## 4. Implementation architecture for all new tracks
 
-| Слой           | Метрика                              | Целевое значение                                          | Замер              |
-| -------------- | ------------------------------------ | --------------------------------------------------------- | ------------------ |
-| **Wave 1**     |                                      |                                                           |                    |
-| Бренд          | Blind recognition test               | ≥ 80% узнают Janus-glyph как PolicyOS                     | After 1.1          |
-| A11y           | WCAG 2.2 AA automated audit          | 0 blockers                                                | After 1.3          |
-| Uncertainty    | % metric-рендеров с CI               | ≥ 90%                                                     | After 1.2          |
-| Theme          | Storybook coverage                   | 100% компонентов × 3 themes × 3 densities                 | After 1.4          |
-| Prose          | Reading view usage                   | ≥ 30% operators открывают ≥ 1×/week                       | 3 months after 1.5 |
-| Authorship     | Text coverage                        | 100% narrative blocks have `author`                       | After 1.6          |
-| i18n           | Plural/typography correctness        | 100% ICU + 100% NBSP rules                                | After 1.7          |
-| **Wave 2**     |                                      |                                                           |                    |
-| Quantity law   | Decision numbers as `QuantityValue`  | 100% decision-bearing, 0 silent naked values              | After 2.2          |
-| Provenance law | Traceability coverage                | ≥ 95% traced, 100% untraced with reason code              | After 2.2          |
-| Time cursor    | Endpoints supporting `TemporalScope` | ≥ 90% time-sensitive with `valid_at` + `tx_at`            | After 2.1          |
-| Bitemporal UX  | Reproducible shared URLs             | 100% Run Detail quantities/charts/lineage reproduce state | After 2.1          |
-| Policy diff    | Comparable diffs                     | 100% diff views gated by `ComparisonFrame`                | After 2.3          |
-| Policy diff    | Diff view usage                      | ≥ 20% reviewers use ≥ 1×/week                             | 3 months after 2.3 |
-| CF layer       | Scenario manifests                   | 100% CF values have `ScenarioRef` + assumption lineage    | After 2.4          |
-| CF layer       | Coverage                             | ≥ 80% decision packets offer ≥ 1 scenario                 | After 2.4          |
-| Bureaucratic   | Native document AST                  | ≥ 4 genres render from one canonical AST                  | After 2.5          |
-| Bureaucratic   | Export parity                        | HTML/PDF no missing blocks across 10 real packets         | After 2.5          |
-| Trust view     | Audit flow time                      | −40% vs current audit UX                                  | After 2.6          |
-| Trust view     | Metadata coverage                    | 100% quantities/authored blocks show trust metadata       | After 2.6          |
-| Polish         | Design-system gates                  | Print, palette, motion, OG/email checks in CI            | After 2.7          |
+Each capability follows the same implementation ladder.
 
----
+### 4.1. Capability ladder
 
-## 5. Risks & mitigations
+1. **Contract first** - schema under `schemas/` or OpenAPI extension, runtime
+   types in `src/api/types.ts`, zod validator in `src/api/validators.ts`.
+2. **Fixture second** - deterministic fixture in
+   `src/test/contracts/fixtures/`.
+3. **Data hook** - `src/api/hooks/use*.ts`, suspense and non-suspense variants
+   where appropriate.
+4. **Domain adapter** - pure functions under feature `domain/`; no React.
+5. **Visualization primitive** - reusable chart/map/control under
+   `src/shared/charts/`, `src/shared/ui/`, or feature-local if domain-specific.
+6. **Surface shell** - page/tab/panel with loading/error/empty/degraded states.
+7. **Storybook + a11y** - stories, component a11y tests, screen-reader summary.
+8. **Route/deep link** - route manifest, command palette entry, prefetch link.
+9. **Telemetry** - time-to-insight and interaction events via
+   `shared/telemetry/performance`.
+10. **Docs and acceptance** - design reference story, plan checkbox, operator
+    acceptance narrative.
 
-| Level            | Risk                                            | Mitigation                                                              |
-| ---------------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
-| **Program**      | Wave 2 стартует без закрытого Wave 1            | Gate §3.1 с жёстким checklist                                           |
-| **Program**      | Один инженер перегорает на 32 недели            | Планировать каждую 8-ю неделю как light (docs/refactor)                 |
-| **Architecture** | Provenance law ломает миллион мест              | Quantity classification + phased warn → error + codemod (2.0)           |
-| **Architecture** | `QuantityValue` становится тяжёлым envelope     | Compact summary by default; full graph lazy-load; batch lookup          |
-| **Architecture** | `valid_at` + `tx_at` требуют DB-миграций        | DBA task в 2.1, начать заранее; reuse Fabric bitemporal query semantics |
-| **Design**       | Глифы «засоряют»                                | 10-лимит + whitelist (1.1) + composition rules (1.0)                    |
-| **Design**       | Maskot или bureaucratic render срывается в китч | Non-goals §2 + design-review gate                                       |
-| **Backend**      | Coordination с policy-engine медленна           | Contracts как ADR в начале каждой фазы                                  |
-| **Legal**        | Bureaucratic genres под угрозой подделки формы  | Watermark + legal review (2.5)                                          |
-| **Performance**  | Temporal scrubbing не 60 fps                    | Perf budget в CI (2.1), Lighthouse regression checks                    |
-| **A11y**         | Новые компоненты ломают a11y                    | `.a11y.test.tsx` обязателен в PR checklist                              |
-
----
-
-## 6. Owner matrix
-
-| Область                      | Артефакты                                                                | Ответственный слой   |
-| ---------------------------- | ------------------------------------------------------------------------ | -------------------- |
-| Бренд, глифы, sigil          | `shared/brand/*`, `public/atlas/*`, `docs/brand/*`                       | Design system        |
-| Токены (dark, density, a11y) | `shared/ui/designTokens.ts`, `styles/*.css`                              | Design system        |
-| Charts (uncertainty, deltas) | `shared/charts/*`                                                        | Data-viz             |
-| Провайдеры (time, cf, trust) | `app/providers/*`                                                        | App shell            |
-| Прозаические артефакты       | `features/artifacts/reading-view/*`                                      | Publications         |
-| Bureaucratic renderers       | `features/artifacts/bureaucratic/*`                                      | Publications + legal |
-| i18n                         | `i18n/*`                                                                 | Localization         |
-| A11y infra                   | `shared/a11y/*`, `tools/design/*`                                        | Quality              |
-| Quantity/provenance UI       | `shared/ui/quantity/*`, `eslint-rules/*`                                 | App shell + Quality  |
-| Backend contracts            | `policy-engine/src/polisyos/runtime/http/*`, `core/contracts/runtime.py` | Runtime API          |
-| Fabric lineage/time-travel   | `policy-engine/src/polisyos/fabric/*`                                    | Fabric               |
-| CLI styleguide               | `packages/cli/*`                                                         | DX                   |
-
----
-
-## 7. Anchor artifacts
-
-Конкретные наблюдаемые артефакты, которыми меряется «готово». Группированы по волнам.
-
-### Wave 1
-
-1. **Обновлённый favicon** — Janus-glyph узнаётся в 16 px.
-2. **Decision packet cover page** — Janus-medallion сверху, ProvenanceStrip ниже, EvidenceSigil в углу.
-3. **Uncertainty showcase** — Run Detail с живым fan chart + CI bands + pattern-fills для identified/estimated/assumed.
-4. **WCAG 2.2 AA report** — PDF с 0 P0.
-5. **VPAT** — публично доступен по URL.
-6. **Dark theme demo** — все 70+ компонентов в Storybook.
-7. **Density "Condensed"** — 40+ scenarios на экран.
-8. **Reading view** — decision packet выглядит как Stripe Press.
-9. **AuthoredText mix** — narrative с 5 регистрами одновременно видимыми.
-10. **UA locale** — корректная плюрализация + ₴ + «ёлочки» + NBSP.
-
-### Wave 2
-
-1. **Bitemporal scrubber** — скрабинг на 60 fps, `valid_at` + `tx_at` reproduce state.
-2. **Quantity hover** — в любом decision number появляется compact provenance за 150 ms.
-3. **Lineage trace** — от финального числа до raw source / method / agent / timestamp за 3 клика.
-4. **Policy diff** — два run'а, `ComparisonFrame`, comparability gate, causal delta strip.
-5. **Scenario Manifest** — real + counterfactual + delta, assumptions and lineage visible.
-6. **Постанова КМУ render** — canonical AST, правильная шапка, нумерация, watermark, epistemic legend.
-7. **Trust view** — compact/expanded audit mode, hashes, verifier, timestamps and temporal scope inline.
-8. **System polish kit** — print, CLI, palettes, motion, small multiples, OG/email gates.
-
----
-
-## Appendix A — Critical path dependency graph
+### 4.2. Suggested frontend file layout
 
 ```text
-1.0 Foundations
-  ├─ 1.1 Visual language
-  │   ├─ 1.2 Uncertainty (also needs 1.0)
-  │   ├─ 1.3 A11y (also needs 1.2)
-  │   ├─ 1.4 Dark/density (also needs 1.3)
-  │   ├─ 1.5 Prose (needs 1.1, 1.4)
-  │   └─ 1.6 Authorship (needs 1.1, 1.5)
-  └─ 1.7 i18n (parallel to everything)
-           ↓
-        1.8 Closeout gate → Wave 2
-           ↓
-      2.0 Provenance foundations
-           ↓
-      2.1 Time-as-primitive
-           ↓
-      2.2 Provenance-on-hover
-           ├─ 2.3 Policy diff (needs 2.1, 2.2)
-           ├─ 2.4 Counterfactual (needs 2.1, 2.2, 1.2)
-           ├─ 2.6 Trust view (needs 2.2, 1.6)
-           └─ 2.7 Polish (parallel after at least one 2.3-2.6 vertical slice)
-
-      2.5 Bureaucratic can run as a parallel publications/legal stream after
-      1.5 + 1.6, but final trust/provenance integration waits for 2.2.
+frontend/runtime-dashboard/src/features/
+├── causal/                         # Track A causal/scientific layer
+│   ├── atlas/
+│   ├── identifiability/
+│   ├── sensitivity/
+│   └── stress-test/
+├── cohorts/                        # A4 cohort time-traveler
+├── evidence/                       # Track B Fabric/data-plane surfaces
+│   ├── freshness/
+│   ├── connectors/
+│   ├── schema-migration/
+│   ├── quality-budget/
+│   ├── drift/
+│   └── lineage-gravity/
+├── governance/                     # Track C trust/accountability surfaces
+│   ├── disputes/
+│   ├── stakeholder-lens/
+│   ├── fairness/
+│   ├── harms/
+│   ├── embargo/
+│   ├── slow-review/
+│   └── revocation/
+├── operations/                     # Track D run operations
+│   ├── choreography/
+│   ├── reproducibility/
+│   ├── replay/
+│   ├── dependency-graph/
+│   └── telemetry-hud/
+├── comprehension/                  # Track E explanation and learning layer
+│   ├── argument-map/
+│   ├── semantic-overlay/
+│   ├── narrate-provenance/
+│   ├── glossary-lens/
+│   ├── confidence-navigation/
+│   └── deterministic-explanation/
+├── publication/                    # Track F public/editorial-grade surfaces
+│   ├── model-cards/
+│   ├── public-viewer/
+│   ├── coverage-map/
+│   ├── threshold-contracts/
+│   └── bureaucratic-forms/
+└── operator-craft/                 # Track G personal reviewer layer
+    ├── trust-threshold/
+    ├── annotations/
+    ├── evidence-wallet/
+    └── onboarding/
 ```
 
-## Appendix B — Definition of Done (применяется к каждой фазе)
+Actual implementation may reuse existing folders when a feature already has a
+home. The rule is architectural clarity, not directory proliferation.
 
-Phase is Done when:
+### 4.3. Workspace strategy
 
-- [ ] All Deliverables exist and are committed to main.
-- [ ] All Acceptance criteria pass.
-- [ ] `pnpm test` green.
-- [ ] `pnpm test:a11y` green.
-- [ ] Visual regression — 0 unexpected diffs (or all diffs signed off).
-- [ ] Storybook updated for any new public API.
-- [ ] Feature flag configured.
-- [ ] ADR referenced if applicable.
-- [ ] CHANGELOG-DESIGN.md entry.
-- [ ] No new ESLint/TypeScript errors.
-- [ ] `pnpm run check:contrast` green.
-- [ ] Backend contract changes documented in OpenAPI + types regenerated.
-- [ ] If phase touches decision-bearing numbers: quantity coverage report updated,
-      no silent naked decision values.
-- [ ] If phase touches time-sensitive surfaces: `TemporalScope` is included in
-      URL, query keys, ETags/cache keys, and API response echo.
-- [ ] Demo recorded (screencast) for stakeholder review.
+Keep the current top-level workspaces:
 
-## Appendix C — Immediate next actions (kick-off неделя)
+- Command Center
+- Scenario Composer
+- Runs / Decisions
+- Evidence Fabric
+- Knowledge
+- Platform
 
-1. Создать ветку `design/wave1-phase-0-foundations`.
-2. Скопировать шаблон ADR из `docs/adr/_template.md` (создать если нет).
-3. Написать ADR-042 (Janus/Atlas dual brand) — draft.
-4. Написать skeleton `docs/brand/GLYPH_SPECIFICATION.md` — геометрия сетки.
-5. Настроить `tools/design/check-contrast.ts` — стартовая версия.
-6. Создать tracking issue в project board (Linear/GitHub) с структурой этого плана.
-7. Забукать 30-минутный review slot с внешним design-consultant на конец Phase 1.0.
+New surfaces enter through:
 
-### Wave 2 spine kick-off после gate
+- tabs inside Run Detail / Decision Workspace;
+- nested panels inside Evidence Fabric;
+- command palette actions;
+- contextual deep links from Quantity/Provenance/Trust popovers;
+- public read-only routes under a dedicated immutable viewer namespace.
 
-1. Зафиксировать ADR-043 как `QuantityValue + TemporalScope + progressive provenance`, не как простой `lineage_id`.
-2. Сделать inventory decision-bearing чисел: `decision / telemetry / layout / debug`.
-3. Спроектировать `QuantityValue`, `LineageRef`, `TemporalRef`, `UnitRef`, `VerificationStatus` в runtime contracts.
-4. Поднять `GET /api/v1/lineage/{lineage_id}` и `POST /api/v1/lineage/batch` поверх существующего Fabric lineage.
-5. Добавить `GET /api/v1/runs/{run_id}/quantities` как coverage/debug endpoint.
-6. Создать `TemporalScope` spec: `valid_at`, `tx_at`, `branch`, `snapshot_id`, `scenario_id`, URL serializer.
-7. Собрать one-run vertical slice: одно decision number → `QuantityValue` → temporal scrub → provenance popover fixture.
+---
+
+## 5. Track A - Causal and Scientific layer
+
+**Thesis:** PolicyOS wins by turning causal inference into an operator-grade
+interface. The DAG, identification status, sensitivity, cohort movement and
+stress tests must be primary UX objects, not backend footnotes.
+
+### A1. Causal Atlas - editable DAG as primary object
+
+**Source:** v4 `CausalAtlas.jsx` plus existing `features/causal/`.
+
+**Current baseline:** There is a causal graph canvas, nodes, edges, layout
+algorithms and overlays, but no first-class editable DAG, no bitemporal model
+version cursor, and no adversarial identification mode.
+
+**Build:**
+
+- Extend `features/causal/components/CausalGraphCanvas.tsx` into an editable
+  DAG mode: add node, edit node role, draw edge, delete edge, annotate edge.
+- Add domain types for cause, mediator, confounder, collider, instrument,
+  treatment, outcome and policy intervention.
+- Add edge hover panel that explains identification path:
+  back-door, front-door, IV, RDD, DiD, synthetic control, interrupted time
+  series, or "not identified".
+- Add adversarial mode that highlights open back-door paths and unblocked
+  colliders in ember, with a "why this path is open" explanation.
+- Add model version timeline: `model_valid_at`, `model_tx_at`,
+  `graph_version_id`, `policy_version_id`.
+- Add DAG diff between versions: added/removed nodes, edge sign changes,
+  changed assumptions, changed estimand.
+- Add export into decision packet: graph snapshot hash, selected adjustment set,
+  identification method and unresolved assumptions.
+
+**Backend/API contract:**
+
+- `GET /api/v1/causal/graphs/{graph_id}`
+- `PATCH /api/v1/causal/graphs/{graph_id}`
+- `GET /api/v1/causal/graphs/{graph_id}/identification`
+- `GET /api/v1/causal/graphs/{graph_id}/versions`
+- Add `causal_graph_ref` and `identification_summary` to run detail payloads.
+
+**Acceptance:**
+
+- Operator can edit a DAG without losing layout or provenance.
+- Hovering an edge gives a deterministic identification explanation.
+- Adversarial mode exposes at least one unblockable/open path in fixture data.
+- Switching bitemporal cursor changes graph version and emits a visible diff.
+- Every displayed estimand links to Quantity/provenance where available.
+- Graph is keyboard navigable: node list, edge list, selected path list.
+
+**Tests:**
+
+- `CausalAtlas.test.tsx` for edit operations.
+- `CausalAtlas.a11y.test.tsx` for keyboard and screen-reader summary.
+- Contract fixture for graph versions and adversarial paths.
+- Visual snapshot for normal, adversarial and diff modes.
+
+### A2. Identifiability Surface - landscape of what is provable
+
+**Source:** v4 `IdentifiabilitySurface.jsx`.
+
+**Current baseline:** Identifiability appears in glyph language and some causal
+components, but not as a full operator surface.
+
+**Build:**
+
+- Heat-map matrix of model parameters or claims:
+  point-identified, partially identified, set-identified, not identified.
+- Hover/click cell reveals bounds: Manski, Robins, IV bounds, monotonicity
+  assumptions, sample restrictions and required estimand.
+- Add "what would identify this?" wizard:
+  dataset needed, RCT needed, valid IV needed, additional covariate needed,
+  longer panel needed, better measurement needed.
+- Connect gaps to Evidence Fabric: source profile, connector, schema and
+  freshness constraints.
+- Add decision impact: "this gap affects N decision-bearing quantities and M
+  policy recommendations."
+
+**Backend/API contract:**
+
+- `GET /api/v1/causal/identifiability/{run_id}`
+- `GET /api/v1/causal/identifiability/{run_id}/remedies`
+- Add `identifiability_state`, `bounds`, `assumptions`, `remedy_refs` to
+  Quantity metadata.
+
+**Acceptance:**
+
+- Operator can sort by weakest identifiability, highest decision impact and
+  easiest remedy.
+- Bounds are rendered as intervals, not prose-only.
+- Remedy wizard creates an evidence need or scenario requirement.
+- No cell relies only on color; pattern/label/glyph encode state.
+
+### A3. Sensitivity Rotor - E-value crank
+
+**Source:** v4 `SensitivityRotor.jsx`; extends current counterfactual and
+uncertainty components.
+
+**Current baseline:** There are uncertainty bands and counterfactual controls,
+but no global sensitivity threshold that extinguishes claims live.
+
+**Build:**
+
+- Add global rotor control with E-value/sensitivity threshold.
+- As threshold increases, decision-bearing quantities below robustness
+  threshold fade, collapse or switch to "not decision-bearing".
+- Show live counters: remaining claims, extinguished claims, policy verdict
+  changed/not changed, fairness gate changed/not changed.
+- Provide deterministic explanation per extinguished claim:
+  "E-value 1.3 below threshold 1.8; hidden from decision view."
+- Integrate with Track G1 global trust threshold while keeping sensitivity and
+  confidence distinct controls.
+
+**Backend/API contract:**
+
+- Add `sensitivity` object to Quantity:
+  `e_value`, `robustness_class`, `threshold_effects`, `claim_refs`.
+- `GET /api/v1/runs/{run_id}/sensitivity`.
+
+**Acceptance:**
+
+- Rotor movement updates charts and decision packet sections in under 100 ms
+  for fixture-scale data.
+- Reduced-motion mode uses instant state changes, not animation.
+- Rotor state is URL-stable and replay-recordable.
+
+### A4. Cohort Time-Traveler
+
+**Source:** v4 `CohortTimeTraveler.jsx`.
+
+**Current baseline:** Temporal cursor exists; cohort movement across valid time
+does not.
+
+**Build:**
+
+- Filter-builder for cohorts: geography, protected class, eligibility,
+  exposure, baseline status, evidence coverage, policy version.
+- Valid-time scrubber showing cohort membership changes.
+- Sankey/alluvial flow between cohort states across time.
+- Overlay policy effect: "this cohort would pass/fail under policy v3.4."
+- Save cohort definitions as stable refs used by decisions and public viewer.
+
+**Backend/API contract:**
+
+- `POST /api/v1/cohorts/query`
+- `GET /api/v1/cohorts/{cohort_id}/timeline`
+- `GET /api/v1/cohorts/{cohort_id}/policy-effect`
+- Add `cohort_ref` to scenario and decision packets.
+
+**Acceptance:**
+
+- Cohort query is reproducible from URL and saved definition.
+- Sankey has text fallback table of state transitions.
+- Policy overlay distinguishes observed membership from counterfactual
+  eligibility.
+
+### A5. Stress-Test Theatre
+
+**Source:** v4 `StressTestTheatre.jsx`.
+
+**Current baseline:** Backend has eval/challenge concepts in scientist area,
+but runtime UI lacks theatre metaphor and decision-packet references.
+
+**Build:**
+
+- Scene sequence: boring case, missing data, adversarial labels, OOD source,
+  legal blocker, fairness blocker, stale evidence.
+- Each scene shows input fixture, expected reaction, actual reaction and diff
+  from baseline run.
+- Scene can be attached to decision packet as evidence of robustness/failure.
+- Add "failure dramaturgy" summary: what failed, why, whether policy changed.
+
+**Backend/API contract:**
+
+- `GET /api/v1/runs/{run_id}/stress-scenes`
+- `POST /api/v1/runs/{run_id}/stress-scenes/{scene_id}/replay`
+- Add `stress_scene_refs` to decision packet artifacts.
+
+**Acceptance:**
+
+- Decision packet can cite a scene by immutable ref.
+- Scenes are navigable by keyboard and screen-reader summary.
+- Failures are not hidden behind green aggregate status.
+
+---
+
+## 6. Track B - Fabric and data plane
+
+**Thesis:** Evidence Fabric must feel like an operational data plane, not a
+source list. Freshness, connector behavior, schema drift, quality budgets and
+lineage criticality become primary operational objects.
+
+### B1. Freshness Braid
+
+**Source:** v4 `FreshnessBraid.jsx`.
+
+**Current baseline:** `DataFreshnessBadge` is point-level; there is no
+multi-source freshness braid.
+
+**Build:**
+
+- Render each source as a thread: thickness = volume, color/texture =
+  lag-vs-SLA, knots = joins/derived facts.
+- Show governing lag: the slowest upstream source that determines derived fact
+  freshness.
+- Connect braid segments to source profiles, connector cards and lineage refs.
+- Add compact braid preview in Evidence Fabric hero and full view panel.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/freshness-braid`
+- Fields: `source_id`, `volume`, `lag_ms`, `sla_ms`, `governing_lag`,
+  `join_nodes`, `derived_fact_refs`.
+
+**Acceptance:**
+
+- Operator can identify the governing lag source in one interaction.
+- Braid has tabular fallback: source, lag, SLA, volume, derived facts.
+- Color-blind simulation passes for ok/warn/fail threads.
+
+### B2. Connector Character Cards
+
+**Source:** v4 `ConnectorCards.jsx`.
+
+**Current baseline:** Connectors exist through hooks and Evidence Fabric, but
+not as operational fingerprints.
+
+**Build:**
+
+- Card per connector with p50/p95 latency, cost, error budget burn,
+  retry profile, last-green pull, auth state and data domains served.
+- Show "facts through this connector" and "decision packets depending on this
+  connector."
+- Add lineage badges: every fact can reveal connector path.
+- Add connector compare mode for redundant sources.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/connectors/scorecards`
+- Add connector id and connector version to lineage compact summary.
+
+**Acceptance:**
+
+- Connector card answers "what should I fix first?" without opening logs.
+- Degraded connector propagates visible risk into related quantities.
+
+### B3. Schema Migration Storyboard
+
+**Source:** v4 `SchemaMigration.jsx`.
+
+**Current baseline:** Schema files and validation exist; UI does not narrate
+schema history or downstream impact.
+
+**Build:**
+
+- Chapter-by-chapter schema version timeline.
+- Each chapter shows diff: added column, removed column, type change,
+  semantic change, soft-deprecation, hard break.
+- Downstream impact: runs, quantities, decision packets and public exports
+  still using old version.
+- Replay button scrubs through migrations and updates affected lineage graph.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/schemas/{schema_id}/migrations`
+- `GET /api/v1/fabric/schemas/{schema_id}/migration-impact`
+
+**Acceptance:**
+
+- Operator can see whether a schema change is cosmetic, semantic or breaking.
+- Replay is URL-stable and emits replay events for Track D3.
+
+### B4. Quality Budget Dashboard
+
+**Source:** v4 `QualityBudget.jsx`.
+
+**Current baseline:** Quality signals exist in validation/fabric tools, but not
+as SRE-style budgets in product UI.
+
+**Build:**
+
+- Budgets by dimension: completeness, consistency, accuracy, timeliness,
+  reproducibility, identifiability coverage.
+- Burn-rate chart, forecast exhaustion, owner/source that spent budget.
+- Quarterly baseline and policy-domain comparison.
+- Budget depletion can block or warn governance pass.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/quality-budgets`
+- `GET /api/v1/fabric/quality-budgets/{budget_id}/burn`
+- Add `quality_budget_refs` to governance report.
+
+**Acceptance:**
+
+- Budget panel supports "who spent the budget?" and "when will it exhaust?"
+- Governance blockers link back to exact budget dimension.
+
+### B5. Profile Drift as Narrative
+
+**Source:** v4 `ProfileDriftNarrative.jsx`.
+
+**Current baseline:** Drift signals are scattered; no narrative with
+citation-grade micro-visuals.
+
+**Build:**
+
+- Deterministic narrative sentence blocks generated from drift stats.
+- Embedded micro-viz per claim: sparkline, histogram, KS marker, missingness
+  badge, cardinality change.
+- Hover over each claim reveals raw stat, sample window, test method and
+  source profile.
+- Narrative can be inserted into decision packet evidence caveat.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/profiles/{profile_id}/drift-narrative`
+- Drift stat schema with `stat_ref`, `method`, `window`, `p_value`,
+  `effect_size`, `raw_metric`.
+
+**Acceptance:**
+
+- Narrative is deterministic and reproducible without LLM.
+- Every sentence has a citation-grade hover.
+
+### B6. Lineage Gravity Map
+
+**Source:** v4 `LineageGravityMap.jsx`.
+
+**Current baseline:** Lineage graphs and provenance popovers exist; no
+force-directed criticality map.
+
+**Build:**
+
+- Force-directed map where node mass = downstream decision dependency.
+- Hover answers: "how many decision packets/quantities fail if this source
+  degrades?"
+- Gravity mode by source, connector, schema, model card, policy and run.
+- Integrate with D4 living dependency graph.
+
+**Backend/API contract:**
+
+- `GET /api/v1/fabric/lineage-gravity`
+- Fields: `node_id`, `node_type`, `mass`, `blast_radius`, `downstream_refs`,
+  `degradation_scenarios`.
+
+**Acceptance:**
+
+- Operator can rank top 10 repair priorities by blast radius.
+- Map has accessible list/table and deterministic layout seed.
+
+---
+
+## 7. Track C - Trust, governance and accountability
+
+**Thesis:** A public-sector policy system is not best-in-class unless
+objections, fairness, harm, embargo, review friction and revocation are
+first-class UX objects.
+
+### C1. Dispute / Objection Registry
+
+**Source:** v4 `DisputeLedger.jsx`.
+
+**Build:**
+
+- Registry timeline for each decision: who objected, when, legal/policy/data
+  basis, affected claims, current status and resolution.
+- Decision packet embeds open objections as a first-class block.
+- Objection can target number, chart, paragraph, causal edge, dataset, model
+  card or policy recommendation.
+
+**Contracts:** `GET/POST /api/v1/decisions/{decision_id}/objections`.
+
+**Acceptance:** An unresolved critical objection blocks approval unless a
+policy-specific override reason is recorded and visible in audit trail.
+
+### C2. Stakeholder Lens Switcher
+
+**Source:** v4 `StakeholderLens.jsx`.
+
+**Build:**
+
+- Lenses: operator, regulator, appellant, data scientist, public viewer.
+- Lens changes emphasis, terminology expansion, collapsed sections and risk
+  order while deriving from one Decision AST.
+- Add lens-diff test to prove no lens invents content.
+
+**Contracts:** Add `decision_ast`, `lens_projection`, `lens_policy` to
+decision packet render API.
+
+**Acceptance:** Same decision hash, different lens projections; all projections
+trace to same AST nodes.
+
+### C3. Fairness / Bias Audit Panel
+
+**Source:** v4 `FairnessAudit.jsx`; also Track G4 sentinel.
+
+**Build:**
+
+- Protected attribute slicing, disparate-impact ratio, 4/5ths rule,
+  group-conditional confidence intervals, calibration-by-group.
+- First-class block in decision packet and compact status in review header.
+- Links to harmed cohort and coverage caveat.
+
+**Contracts:** `GET /api/v1/runs/{run_id}/fairness-audit`.
+
+**Acceptance:** Failing fairness criterion can block approval and creates
+visible sentinel banner.
+
+### C4. Ethics and Harm Surface
+
+**Source:** not in repo, not in v4; required for serious procurement.
+
+**Build:**
+
+- Expected harm x likelihood x mitigation matrix tied to policy version.
+- Required mitigations and residual risk statement.
+- Gate integration: no approval until required harm sections are completed.
+- EU AI Act mapping: risk class, human oversight, transparency, redress path.
+
+**Contracts:** `GET/PATCH /api/v1/policies/{policy_id}/harm-assessment`.
+
+**Acceptance:** A policy cannot enter approval-ready state with incomplete
+critical harm controls.
+
+### C5. Embargo / Blackout Overlay
+
+**Source:** v4 `EmbargoManager.jsx`.
+
+**Build:**
+
+- Global overlay masks embargoed data while preserving structure, layout,
+  reason code and unlock condition.
+- Reversible reveal after embargo date/approval without changing node identity.
+- Embargo awareness in public viewer and exports.
+
+**Contracts:** Add `embargo_state`, `masking_policy`, `unlock_at`,
+`reason_code` to data/quantity/lineage payloads.
+
+**Acceptance:** No embargoed value appears in DOM/text export before unlock.
+
+### C6. Slow Review Mode
+
+**Source:** not in repo, not in v4; required to fight approve-by-reflex.
+
+**Build:**
+
+- Review progress shows required sections opened, scrolled, dwelled and
+  acknowledged.
+- Critical sections: objections, fairness, harm, provenance, uncertainty,
+  identifiability, revocation impact.
+- No modal. This is an explicit review lane with visible progress.
+
+**Contracts:** `POST /api/v1/reviews/{review_id}/attention-events`.
+
+**Acceptance:** Approval disabled until critical review requirements are met;
+events are audit-grade and replayable.
+
+### C7. Revocation Ledger
+
+**Source:** not in repo, not in v4; required for policy lifecycle.
+
+**Build:**
+
+- Trace policy predecessor/successor chain, revoked runs, reprocessed
+  decisions, public notices and replacement rationale.
+- Bitemporal cursor shows what was valid then vs what is known now.
+- Decision packet surfaces "this policy supersedes/revokes..." block.
+
+**Contracts:** `GET /api/v1/policies/{policy_id}/revocation-ledger`.
+
+**Acceptance:** Public viewer can show immutable revocation chain without
+login.
+
+---
+
+## 8. Track D - Run choreography and operations
+
+**Thesis:** Long-running policy simulations need operational clarity. The user
+should see a run as a score, not a spinner.
+
+### D1. Run Choreography
+
+**Source:** v4 `RunChoreography.jsx`.
+
+**Build:**
+
+- Replace/extend linear timeline with score view:
+  parse, plan, check, execute, audit, publish.
+- Separate lanes for retries, branches, merges, SSE events, artifact creation,
+  connector pulls and governance gates.
+- Scrub through run time; selected timestamp updates visible artifacts.
+
+**Contracts:** `GET /api/v1/runs/{run_id}/choreography`.
+
+**Acceptance:** Operator can answer "where is the run stuck?" in one glance.
+
+### D2. Reproducibility Certificate
+
+**Source:** v4 `ProvenanceCertificate.jsx`.
+
+**Build:**
+
+- Generated recipe after run completion: manifest, inputs hashes, policy
+  version, connector versions, scenario refs, model refs, environment hash.
+- Export as JSON/PDF; signed and verifiable.
+- Certificate becomes first-class artifact and public viewer block.
+
+**Contracts:** `POST /api/v1/runs/{run_id}/reproducibility-certificate`.
+
+**Acceptance:** Certificate can be verified offline against artifact hashes.
+
+### D3. Replay Primitive
+
+**Source:** not in v4; extends temporal/provenance work.
+
+**Build:**
+
+- Record drill-downs, threshold changes, scenario explored, lens changes,
+  review attention and hover-to-narrate interactions.
+- Replay URL reconstructs UX timeline deterministically.
+- Use for audit, training and public education.
+
+**Contracts:** `POST /api/v1/replay/sessions`,
+`GET /api/v1/replay/sessions/{session_id}`.
+
+**Acceptance:** A replay can be opened in a fresh browser and land on the same
+visual states without server-side hidden context.
+
+### D4. Living Dependency Graph
+
+**Source:** extension of B6.
+
+**Build:**
+
+- Mid-level graph: dataset -> connector -> schema -> model card -> policy ->
+  run -> decision packet.
+- Time-travel aware and gravity-aware.
+- Supports "impact of degradation" and "why is this policy coupled to that
+  dataset?"
+
+**Contracts:** `GET /api/v1/platform/dependency-graph`.
+
+**Acceptance:** Graph distinguishes field-level lineage from architecture-level
+dependency.
+
+### D5. Ambient Telemetry HUD
+
+**Source:** v4 `LiveRunMonitor.jsx`, plus existing run live provider.
+
+**Build:**
+
+- Small always-on dock: SSE pulse, transport health, temporal scope, trust
+  threshold, feature flags, API state, offline queue.
+- Non-interruptive, collapsible, keyboard reachable.
+- Integrates with global sensitivity/trust controls.
+
+**Contracts:** Extend runtime health/capabilities/live status payloads.
+
+**Acceptance:** HUD never obscures primary action and has compact mobile mode.
+
+---
+
+## 9. Track E - Reasoning and comprehension
+
+**Thesis:** Best-in-class means the interface can explain itself. Provenance is
+not enough; users need semantic narration, argument structure and deterministic
+explanations.
+
+### E1. Argument Map (Toulmin)
+
+**Source:** v4 `ArgumentMap.jsx`, `ReasoningChain.jsx`.
+
+**Build:** Claim -> grounds -> warrant -> backing -> rebuttal graph. Operator
+can attack a node; reviewer can certify a branch. Decision packet references
+branches by stable ids.
+
+**Contracts:** `GET/PATCH /api/v1/decisions/{decision_id}/argument-map`.
+
+**Acceptance:** Any final recommendation has at least one claim path and
+explicit rebuttal status.
+
+### E2. Comprehension Layer
+
+**Source:** not in v4; required for onboarding and accessibility.
+
+**Build:** Global `?` / command action overlays every chart, badge, glyph and
+quantity with semantic explanation: what it means, source, update time,
+uncertainty and why it matters.
+
+**Contracts:** Frontend semantic registry first; backend annotations later.
+
+**Acceptance:** Every shared visualization registers a comprehension descriptor.
+
+### E3. Hover-to-Narrate Provenance
+
+**Source:** extension of existing provenance popover.
+
+**Build:** Hover over a number animates or steps through lineage nodes in-place:
+"show how this was derived." Reduced-motion mode uses stepped highlights.
+
+**Contracts:** Add ordered derivation path to quantity lineage response.
+
+**Acceptance:** Derivation path is visible both as animation and textual list.
+
+### E4. Glossary Lens
+
+**Source:** not in v4; extends lexical discipline.
+
+**Build:** All canonical terms become hover/clickable. Definition carries ADR
+source, date fixed, owner and related primitives.
+
+**Contracts:** `docs/brand/LEXICON.md` -> generated JSON vocabulary.
+
+**Acceptance:** No duplicate ad-hoc definitions in UI; glossary is generated
+from one source.
+
+### E5. Confidence Ladder Navigation
+
+**Source:** not in v4; extends Trust View.
+
+**Build:** Navigate decision packet by strongest claim, weakest link, disputed,
+untraced, low-confidence, high-blast-radius.
+
+**Contracts:** Add ranked claim index to decision AST.
+
+**Acceptance:** Reviewer can jump directly to weakest decision-bearing claim.
+
+### E6. Conversation-grade Deterministic Explanation
+
+**Source:** not in v4; extends deterministic narratives.
+
+**Build:** Every number can generate a non-LLM explanation:
+"0.43 because X contributed 45%, Y 32%, residual 23%; vs Q3 dropped 0.07
+because X moved +0.2."
+
+**Contracts:** `explanation_parts` attached to Quantity and chart series.
+
+**Acceptance:** Same input always produces same text; text links to raw parts.
+
+---
+
+## 10. Track F - Editorial and publication-grade surfaces
+
+**Thesis:** PolicyOS output must stand up in public, academic and bureaucratic
+contexts. It needs not only dashboards, but publishable artifacts.
+
+### F1. Citation-grade Model Cards
+
+**Build:** Academic-style model cards with footnotes, sidenotes, per-section
+provenance and bibliography-grade references.
+
+**Contracts:** `GET /api/v1/models/{model_id}/card`.
+
+**Acceptance:** Model card can render as app view, print view and public
+read-only view with same refs.
+
+### F2. Public Viewer / Provenance Theatre
+
+**Build:** No-login immutable signed URL for decision packet. Same primitives,
+read-only, lens-aware, embargo-aware.
+
+**Contracts:** `GET /public/decisions/{signed_id}` route plus signature
+verification.
+
+**Acceptance:** Public viewer never calls privileged APIs and preserves
+provenance/trust context.
+
+### F3. Live Coverage Map
+
+**Build:** Geographic evidence coverage map: evidence density, low-coverage
+regions and decision caveats.
+
+**Contracts:** `GET /api/v1/evidence/coverage-map`.
+
+**Acceptance:** Decision packet embeds coverage caveat when affected geography
+has low evidence density.
+
+### F4. Threshold Microcontract Overlay
+
+**Build:** For policies with cutoffs, show density around threshold, edge
+cases, appellants near line and calibration caveat.
+
+**Contracts:** `GET /api/v1/policies/{policy_id}/threshold-contract`.
+
+**Acceptance:** Reviewer can inspect all cases within configurable epsilon of
+threshold.
+
+### F5. Locale-aware Bureaucratic Forms
+
+**Build:** Input surfaces for Ukrainian legal forms: наказ, розпорядження,
+постанова, висновок. Edit surface and render surface share one AST.
+
+**Contracts:** Extend bureaucratic rendering API with editable AST patches.
+
+**Acceptance:** UA/RU/EN forms preserve ICU plurals, cyrillic typography and
+legal section ordering.
+
+---
+
+## 11. Track G - Operator craft and personal reviewer layer
+
+**Thesis:** The system should make expert reviewers more capable over time.
+Personal thresholds, annotations, evidence collections and onboarding are part
+of the product, not nice-to-have UX.
+
+### G1. Global Sensitivity / Trust Dial
+
+**Build:** HUD slider: hide or de-emphasize everything below confidence/trust
+threshold. Distinct from causal E-value rotor but visually coordinated.
+
+**Contracts:** Frontend preference plus optional server-saved reviewer profile.
+
+**Acceptance:** Raising threshold updates all visible decision-bearing content
+and shows how much remains.
+
+### G2. Annotation Surface
+
+**Build:** Reviewer can annotate any number, chart, paragraph, causal edge or
+artifact. Annotation stores bitemporal snapshot and becomes audit-trail entry.
+
+**Contracts:** `GET/POST /api/v1/annotations`.
+
+**Acceptance:** Annotation reopens the exact snapshot the reviewer saw.
+
+### G3. Evidence Wallet
+
+**Build:** Personal collection of evidence refs, comments and cross-run saved
+items. Citation-manager-like, decision-grade.
+
+**Contracts:** `GET/POST /api/v1/evidence-wallet`.
+
+**Acceptance:** Evidence wallet item can be inserted into review, objection or
+decision packet note with provenance intact.
+
+### G4. Fairness Sentinel Banner
+
+**Build:** Automatic decision packet banner when fairness threshold fails.
+Example: disparate impact ratio below 0.8 for group X blocks approval.
+
+**Contracts:** Uses C3 fairness audit; no separate source of truth.
+
+**Acceptance:** Sentinel cannot be dismissed without creating an audit event.
+
+### G5. Reading-grade Onboarding Flow
+
+**Build:** First-run guided reading, not tooltip tour. Uses glossary lens,
+comprehension layer, hover-to-narrate and confidence ladder.
+
+**Contracts:** `onboarding_progress` in preferences; fixture run for training.
+
+**Acceptance:** Measure time-to-first-safe-approval and comprehension task
+completion, not click-through.
+
+---
+
+## 12. Phasing and priority
+
+### 12.1. Phase 3.0 - Atlas v4 canonicalization
+
+**Implementation status:** Completed on 2026-04-29.
+
+**Duration:** 1-2 weeks.
+
+**Deliverables:**
+
+- `docs/brand/ATLAS_DESIGN_SYSTEM.md` generated/adapted from v4 README and
+  corrected against production.
+- `docs/brand/ATLAS_V4_ADOPTION.md` with token conflicts and decisions.
+- Storybook reference stories for color, type, shadows, glyphs, buttons,
+  badges and cards.
+- Drift check comparing `colors_and_type.css` reference tokens with production
+  tokens, with intentional differences allowlisted.
+- ADR for dark theme canonical choice.
+
+**Acceptance:** Docs and production tokens agree or every difference has an
+explicit design decision.
+
+**Implemented artefacts:**
+
+- `docs/brand/ATLAS_DESIGN_SYSTEM.md`
+- `docs/brand/ATLAS_V4_ADOPTION.md`
+- `docs/brand/atlas-v4/colors_and_type.css`
+- `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md`
+- `frontend/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx`
+- `tools/design/check-atlas-v4-token-drift.ts`
+- `frontend/runtime-dashboard/package.json` script `design:atlas-v4`
+
+### 12.2. Phase 3.1 - Surface infrastructure
+
+**Implementation status:** Completed on 2026-04-29.
+
+**Duration:** 2 weeks.
+
+**Deliverables:**
+
+- Surface registry for nested workspace panels/tabs.
+- Command palette entries for new surfaces.
+- Shared semantic explanation registry for Track E2.
+- Replay event envelope for Track D3.
+- Visual fixture harness for large graph/time visualizations.
+
+**Acceptance:** New surfaces can be added without expanding top-level sidebar.
+
+**Implemented artefacts:**
+
+- `frontend/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts` defines the
+  canonical workspace, run-tab and nested-panel registry, including parent
+  surfaces, command metadata, route resolution, glyphs, permissions,
+  capabilities, semantic explanation ids and visual fixture classification.
+- `frontend/runtime-dashboard/src/features/runs/domain/runDetailTabs.ts` now
+  derives run inspector tabs from the surface registry instead of maintaining a
+  separate tab source of truth.
+- `frontend/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx`
+  renders navigation, contextual run surfaces and workspace nested surfaces
+  from the registry, with route context, feature flags, capabilities and
+  permissions applied before entries are shown. Surface commands include
+  labels, ids, route ids, aliases and legacy aliases in their searchable command
+  value.
+- `frontend/runtime-dashboard/src/app/surfaces/semanticExplanationRegistry.ts`
+  provides the shared Track E2 explanation registry for surfaces, confidence
+  intervals, Atlas glyphs and threshold controls.
+- `frontend/runtime-dashboard/src/app/surfaces/replayEvents.ts` defines the
+  Track D3 replay event envelope with stable ids, route context, actor context,
+  temporal scope, first-class `surface.opened` events and runtime validation
+  for replay import.
+- `frontend/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts`
+  provides deterministic large-graph and temporal fixtures for graph/time
+  visualization stories and tests, including lookup by registered surface
+  visualization metadata.
+- `frontend/runtime-dashboard/src/app/workspaces.ts` imports run sample query
+  options directly to avoid a feature barrel import cycle in surface
+  infrastructure.
+- Locale keys for command groups and registered nested surfaces are present in
+  English, Ukrainian and Russian catalogs.
+
+**Verification:**
+
+- `npm exec vitest run src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/semanticExplanationRegistry.test.ts src/app/surfaces/replayEvents.test.ts src/app/surfaces/visualFixtureHarness.test.ts src/features/commandPalette/CommandPalette.test.tsx`
+  plus `src/features/runs/routes/useRunDetailSummary.test.tsx` passed: 26
+  tests.
+- `npm run typecheck` passed.
+- Targeted `eslint` for surface infrastructure, command palette, run tabs and
+  workspace import boundaries passed.
+- Phase 3.1 locale keys are present in `en`, `uk` and `ru`; full
+  `src/i18n/parity.test.ts` still fails on pre-existing unrelated
+  `policyDiff`, `counterfactual` and `quantity.miniGraph.hidden` catalog
+  issues.
+
+### 12.3. Phase 3.2 - First production slice
+
+**Duration:** 4-6 weeks.
+
+Implement the smallest cross-track slice that proves the architecture:
+
+1. B1 Freshness Braid.
+2. B2 Connector Character Cards.
+3. D1 Run Choreography.
+4. D5 Ambient Telemetry HUD.
+5. A1 Causal Atlas read/edit MVP.
+6. C1 Dispute Registry MVP.
+
+**Acceptance:** A run can be inspected through data freshness, connector
+health, causal graph, choreography and objection status without leaving Atlas.
+
+**Implementation status:** Complete as of 2026-04-29.
+
+**Implemented production slice:**
+
+- B1 Freshness Braid is implemented in the Evidence Fabric workspace through
+  `surface=freshness-braid`, using existing connector, source-profile and run
+  evidence context hooks. `productionSlice.ts` derives thread volume,
+  lag-vs-SLA state, governing lag, join nodes and decision-bearing derived fact
+  pressure. It also falls back to source-profile-only braid threads when the
+  connector inventory endpoint is empty or temporarily unavailable.
+- B2 Connector Character Cards are implemented in the same Evidence Fabric
+  surface switcher through `surface=connector-cards`, with connector
+  fingerprint cards for loaded state, namespace/version, latency p50/p95, cost
+  tier, error-budget burn, retry posture, profiles, datasets and facts routed
+  through the connector.
+- Phase 3.2 panel surfaces are registered in the Phase 3.1 surface registry and
+  command palette. When opened from an active run, Freshness Braid and
+  Connector Character Cards preserve `runId` in the `/evidence` URL so the
+  operator lands on run-specific Fabric context.
+- D1 Run Choreography is implemented in the run workflow tab, above the
+  existing workflow DAG and lineage graph. The choreography adapter merges
+  runtime timeline events and workflow nodes into stage lanes with timestamps,
+  duration, artifact movement, retries, blocked/running/complete status and
+  critical path context, plus branch/retry/artifact signals from span metadata.
+- D5 Ambient Telemetry HUD is implemented inside the run detail layout as a
+  fixed operator dock. It shows live/degraded transport, runtime transport
+  status, temporal scope, active feature-flag posture and current surface while
+  the operator remains inside the run inspector.
+- A1 Causal Atlas read/edit MVP is implemented in the causal tab. Existing
+  causal artifacts are loaded as the graph source; missing artifacts now open a
+  draft scaffold instead of an empty state. The MVP supports adding causal
+  nodes, selecting node kind, adding directed edges, recomputing simple paths
+  and adversarial highlighting for non-identified edges. Draft causal edits are
+  persisted locally per run until a canonical causal artifact exists.
+- C1 Dispute Registry MVP is implemented in the governance tab. Governance
+  issues are projected into objection records and reviewers can add local
+  run-scoped objections with basis, target, status, opened timestamp and
+  timeline rendering. Reviewer-added objections are persisted locally per run
+  until the registry receives a write API.
+
+**Acceptance route proof:**
+
+- Data freshness and connector health are inspectable inside
+  `/evidence?runId=:runId` through the Phase 3.2 production slice surface
+  switcher.
+- Causal graph inspection/editing remains inside `/runs/:runId/causal`.
+- Choreography, workflow DAG and lineage remain inside `/runs/:runId/workflow`.
+- Objection status remains inside `/runs/:runId/governance`.
+- The ambient telemetry HUD follows the run detail shell, so operators keep
+  transport and temporal confidence while moving across the Atlas run surfaces.
+
+**Verification:**
+
+- `npx vitest run src/app/surfaces/surfaceRegistry.test.ts src/features/evidence/domain/productionSlice.test.ts src/features/runs/domain/runChoreography.test.ts src/features/evidence/routes/EvidenceFabricPage.test.tsx src/features/runs/routes/runDetailSurfaces.test.tsx`
+  passed: 27 tests.
+- `npm run typecheck` passed.
+- Targeted `eslint` passed for Phase 3.2 domain adapters, panels, routes,
+  i18n-consuming components and route tests.
+- `src/i18n/parity.test.ts` still fails on pre-existing unrelated locale
+  catalog drift (`policyDiff`, `counterfactual`, and
+  `shared.ui.quantity.miniGraph.hidden`). The new `phase32` keys are present in
+  English, Ukrainian and Russian catalogs and do not introduce additional
+  count-sensitive parity failures.
+
+### 12.4. Phase 3.3 - Scientific depth
+
+**Implementation status:** Complete as of 2026-04-29.
+
+**Duration:** 6-8 weeks.
+
+Implement A2, A3, A4, A5 with deterministic data contracts and decision packet
+integration.
+
+**Acceptance:** A decision packet can show what is identified, what fails under
+sensitivity, which cohort changes over time and which stress scene justifies a
+block/warning.
+
+**Implemented production slice:**
+
+- A2 Identifiability Surface is implemented through
+  `frontend/runtime-dashboard/src/features/runs/domain/scientificDepth.ts` and
+  rendered inside the Atlas decision packet by
+  `ScientificDepthPanel.tsx`. Decision metrics are projected into a
+  deterministic surface with `point`, `partial`, `set` and `not_identified`
+  cells, confidence/Manski/Robins-style bounds method, assumption count,
+  decision-impact pressure and a concrete remedy reference derived from the run
+  evidence context. Each selected cell also exposes the deterministic
+  "what would identify this?" wizard with dataset, covariate, panel, IV, RCT or
+  measurement-audit candidates. The weakest cell is computed by identifiability
+  rank and decision impact, so reviewer attention goes to the least defensible
+  decision-bearing number first.
+- A3 Sensitivity Rotor is implemented as a deterministic E-value threshold
+  control inside the same packet. Each decision-bearing metric receives a
+  reproducible sensitivity score from effect size, uncertainty, statistical
+  support and assumption warnings. Moving the rotor live-recomputes which
+  claims extinguish, what share of decision-bearing quantities disappears,
+  whether an approval verdict would no longer survive and whether
+  fairness-related governance gates are affected.
+- A4 Cohort Time Traveler is implemented from distributional decision rows and
+  the decision timestamp. The panel exposes a valid-time cursor with baseline,
+  decision and policy-overlay points, then renders cohort flows with baseline,
+  observed and overlay shares from coverage state to policy outcome state.
+  Cohort filters and policy-overlay refs are explicit and deterministic, so the
+  same decision packet always yields the same time-flow explanation.
+- A5 Stress-Test Theatre is implemented as a fixed set of deterministic scenes:
+  boring baseline, missing data, adversarial labels, out-of-distribution source,
+  legal blocker, fairness blocker and stale evidence. Governance issues and
+  evidence-context warnings are matched to scenes by code/message/pass id,
+  scene outcomes are classified as pass/warn/block, each scene shows act,
+  reaction, diff-vs-baseline and issue refs, and the packet cites the strongest
+  immutable stress ref that justifies a warning or block.
+- The Phase 3.3 surfaces are registered in the Phase 3.1 surface registry and
+  command palette as nested Atlas panels:
+  `runs.identifiabilitySurface`, `runs.sensitivityRotor`,
+  `runs.cohortTimeTraveler` and `runs.stressTestTheatre`. They resolve into the
+  run overview with stable `surface=` query parameters instead of expanding the
+  top-level sidebar.
+- English, Ukrainian and Russian locale catalogs include the Phase 3.3 panel
+  labels, descriptions and decision-packet copy. The implementation uses
+  deterministic front-end adapters over the current decision packet,
+  governance-issue and evidence-context contracts; when runtime endpoints start
+  emitting canonical A2-A5 artefacts, the same panel can swap the adapter input
+  without changing the decision-packet surface.
+
+**Acceptance route proof:**
+
+- What is identified appears in `/runs/:runId/overview` inside the decision
+  packet under the Identifiability Surface, with per-metric state, bounds,
+  remedy, wizard options and impact.
+- What fails under sensitivity appears in the Sensitivity Rotor, where the
+  E-value threshold live-updates extinguished and remaining claims, the
+  decision-bearing share removed, verdict effects and fairness-gate effects.
+- Which cohort changes over time appears in the Cohort Time Traveler, where the
+  valid-time cursor and distributional cohort flows show baseline, observed and
+  policy-overlay outcomes.
+- Which stress scene justifies a block/warning appears in Stress-Test Theatre as
+  an immutable `stress:{runId}:{sceneId}` citation embedded in the decision
+  packet, with scene act, reaction, diff and issue refs visible in the packet.
+
+**Verification:**
+
+- `npx vitest run src/features/runs/domain/scientificDepth.test.ts src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/semanticExplanationRegistry.test.ts src/app/surfaces/visualFixtureHarness.test.ts src/features/runs/routes/runDetailSurfaces.test.tsx`
+  passed: 29 tests covering deterministic A2-A5 contracts, registry command
+  routing, semantic explanation coverage, fixture backing and decision packet
+  rendering.
+- `npm run typecheck` passed.
+- Targeted `eslint` passed for the Phase 3.3 domain adapter, panel, registry and
+  route test files.
+- Phase 3.3 locale keys are present and structurally matched across English,
+  Ukrainian and Russian catalogs: `phase33` has 100 matched keys and each new
+  surface-registry panel has matching label/description keys. Full
+  `src/i18n/parity.test.ts` still fails on pre-existing unrelated catalog drift
+  in `policyDiff`, `counterfactual` and `shared.ui.quantity.miniGraph.hidden`.
+
+### 12.5. Phase 3.4 - Governance and public-sector readiness
+
+**Implementation status:** Complete as of 2026-04-29.
+
+**Duration:** 6-8 weeks.
+
+Implement C2-C7 plus G4. Focus on EU AI Act, objections, fairness, harm,
+embargo, slow review and revocation.
+
+**Acceptance:** Approval flow can be blocked by fairness, harm, open objection,
+embargo violation or insufficient review attention, with every block visible
+and auditable.
+
+**Implemented production slice:**
+
+- C2 Stakeholder Lens Switcher is implemented in
+  `frontend/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts`
+  and rendered by `PublicSectorReadinessPanel.tsx`. Operator, regulator,
+  appellant, data-scientist and public-viewer projections all derive from the
+  same deterministic decision hash; each lens changes emphasis, collapsed
+  sections, terminology and risk ordering without inventing new content.
+- C3 Fairness / Bias Audit Panel and G4 Fairness Sentinel Banner are implemented
+  in the same readiness adapter. Distributional rows are projected into
+  protected-group audit rows with disparate-impact ratio, 4/5ths threshold,
+  group confidence band, calibration delta and status. A failed criterion emits
+  a first-class sentinel banner and an approval block with an audit ref.
+- C4 Ethics and Harm Surface is implemented as an EU AI Act readiness gate with
+  expected harm, likelihood, mitigation, residual risk, human oversight,
+  transparency and redress path. Critical controls remain blocking until the
+  harm review section is acknowledged and no blocking harm issue remains.
+- C5 Embargo / Blackout Overlay is implemented as a masking model that preserves
+  skeleton refs, reason codes, unlock metadata and audit refs while keeping raw
+  embargoed values out of the overlay model. Active embargo masks block approval
+  and public export readiness.
+- C6 Slow Review Mode is implemented as a run-scoped attention lane with
+  required sections for objections, fairness, harm, provenance, uncertainty,
+  identifiability and revocation. Each section records open/acknowledge events,
+  dwell seconds and replay-grade refs in local storage until the review API is
+  available. Approval remains disabled until all required sections are opened,
+  dwelled and acknowledged.
+- C7 Revocation Ledger is implemented as a deterministic bitemporal policy chain
+  with predecessor, current and successor entries, valid/known times, impacted
+  runs and replacement rationale. Superseded/revoked policy states become
+  visible approval blockers.
+- C1 objections are now shared through
+  `frontend/runtime-dashboard/src/features/runs/domain/disputes.ts`, so the
+  Phase 3.2 Dispute Registry and Phase 3.4 approval gate use the same local
+  objection store and governance issue projection.
+- The Phase 3.4 nested surfaces are registered in the Phase 3.1 surface registry
+  and command palette: `runs.stakeholderLens`, `runs.fairnessAudit`,
+  `runs.harmSurface`, `runs.embargoOverlay`, `runs.slowReviewMode` and
+  `runs.revocationLedger`.
+
+**Acceptance route proof:**
+
+- Fairness blocks are visible in `/runs/:runId/overview` and
+  `/runs/:runId/governance` through the fairness sentinel banner, fairness audit
+  panel and approval blocker list.
+- Harm blocks are visible through the EU AI Act harm surface, including
+  oversight, transparency and redress controls.
+- Open objections block approval through the shared Dispute Registry records and
+  the readiness blocker list.
+- Embargo violations block approval through masked skeleton rows that expose
+  reason/unlock/audit metadata without rendering raw restricted values.
+- Insufficient review attention blocks approval through Slow Review Mode until
+  every critical section is opened, dwelled and acknowledged.
+- Revocation/supersession blocks are visible in the Revocation Ledger with
+  bitemporal predecessor/current/successor entries and impacted run refs.
+- Completeness hardening on 2026-04-29 tightened three production edge cases:
+  missing protected-group fairness evidence is itself a fairness blocker,
+  embargo masks clear only after `unlock_at` and never expose raw restricted
+  values in the readiness model, and revocation chains prefer governance
+  metadata for `policy_ref`, predecessor/successor refs, `valid_at`,
+  `known_at` and impacted runs before falling back to deterministic local refs.
+
+**Verification:**
+
+- `npx vitest run src/features/runs/domain/publicSectorReadiness.test.ts src/features/runs/domain/scientificDepth.test.ts src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/semanticExplanationRegistry.test.ts src/app/surfaces/visualFixtureHarness.test.ts src/features/runs/routes/runDetailSurfaces.test.tsx`
+  passed: 36 tests covering C2-C7/G4 blockers, lens hash invariants, embargo
+  masking, shared objection projection, registry routing, semantic explanation
+  coverage, fixture backing and decision packet/governance rendering.
+- `npm run typecheck` passed.
+- Targeted `eslint` passed for the Phase 3.4 domain adapters, panels, registry,
+  governance tab and route tests.
+- Phase 3.4 locale keys are present in English, Ukrainian and Russian catalogs.
+  Full `src/i18n/parity.test.ts` still fails on pre-existing unrelated catalog
+  drift in `policyDiff`, `counterfactual` and
+  `shared.ui.quantity.miniGraph.hidden`.
+
+### 12.6. Phase 3.5 - Explanation and publication
+
+**Implementation status:** Complete as of 2026-04-29.
+
+**Duration:** 6-8 weeks.
+
+Implement E1-E6 and F1-F5.
+
+**Acceptance:** A signed public viewer can present a decision, model card,
+coverage caveat, threshold contract and deterministic explanations without
+private context.
+
+**Implemented production slice:**
+
+- E1 Argument Map is implemented in
+  `frontend/runtime-dashboard/src/features/runs/domain/publicationPacket.ts` as
+  a deterministic Toulmin graph: claim, grounds, warrant, backing and rebuttal
+  nodes with stable ids, statuses and public refs.
+- E2 Comprehension Layer is implemented through the Phase 3.1 semantic surface
+  registry plus packet-level descriptors for argument map, deterministic
+  explanations and public viewer blocks.
+- E3 Hover-to-Narrate Provenance is represented as ordered derivation paths for
+  every deterministic explanation. The UI renders the public source -> artifact
+  -> model -> publication path as a reduced-motion-safe textual sequence.
+- E4 Glossary Lens is implemented as a canonical public glossary with term
+  definition, owner, fixed date and provenance ref.
+- E5 Confidence Ladder Navigation is implemented as ranked public attention
+  targets: strongest claim, weakest link, disputed, untraced, low-confidence
+  and high-blast-radius.
+- E6 Conversation-grade Deterministic Explanation is implemented without LLMs:
+  each published number renders a stable narrative from point estimate,
+  uncertainty and public provenance parts.
+- F1 Citation-grade Model Cards are generated in the same publication adapter
+  with sections, footnote refs, provenance refs and bibliography-style
+  references.
+- F2 Public Viewer / Provenance Theatre is implemented as
+  `/public/decisions/:signedId`, backed by a signed, verifiable public payload
+  and no privileged run/evidence/governance hooks.
+- F3 Live Coverage Map is implemented as a publication-grade coverage caveat:
+  geography/evidence density regions mark low-coverage public warnings.
+- F4 Threshold Microcontract Overlay is implemented with cutoff, epsilon,
+  above/below counts, near-line count, edge cases and calibration caveat.
+- F5 Locale-aware Bureaucratic Forms are implemented as public form input specs
+  for `Наказ`, `Розпорядження`, `Постанова` and `Висновок`, all sharing a
+  `bureaucratic_ast_patch.v1` contract and Ukrainian legal ordering.
+- The run decision packet now renders `PublicationReadinessPanel.tsx` after the
+  scientific and public-sector readiness gates, exposing the signed public URL
+  and all publication blocks inside Atlas.
+- Completeness hardening on 2026-04-29 moved `/public/decisions/:signedId` out
+  of the runtime/private provider route, so the public viewer is not mounted
+  under `RuntimeApiProvider`, `RunsLiveProvider` or the product shell. Public
+  route tests assert that no product shell or route telemetry is mounted for
+  signed public decisions.
+- The publication adapter now applies public-redaction to decision summary text,
+  metric labels, cohort labels, coverage region labels and public refs. SSN-like
+  ids, long raw numbers, emails, private-reviewer wording, secret/confidential
+  wording and raw restricted phrases are redacted before the packet is signed.
+- Phase 3.5 surfaces are registered for command palette/deep-link discovery:
+  `runs.argumentMap`, `runs.comprehensionLayer`, `runs.glossaryLens`,
+  `runs.confidenceLadder`, `runs.modelCard`, `runs.publicViewer`,
+  `runs.coverageMap`, `runs.thresholdContract` and `runs.bureaucraticForms`.
+
+**Acceptance route proof:**
+
+- A signed packet created by `buildSignedPublicDecisionPacket` verifies through
+  `verifySignedPublicDecisionPacket` and opens at `/public/decisions/:signedId`.
+- The public viewer renders the signed decision summary, model card, coverage
+  caveat, threshold contract, deterministic explanations, argument map,
+  confidence ladder, glossary lens and bureaucratic form specs from the signed
+  payload only.
+- The publication adapter strips raw governance issue text and raw restricted
+  values; tests assert that private strings such as SSN-like values, long raw
+  ids, secret/confidential wording and private-reviewer wording do not survive
+  in the public packet model.
+- Invalid or tampered signed ids are rejected with an explicit invalid-signature
+  public state.
+
+**Verification:**
+
+- `npx vitest run src/features/runs/domain/publicationPacket.test.ts src/features/runs/routes/PublicDecisionViewerPage.test.tsx src/features/runs/domain/publicSectorReadiness.test.ts src/features/runs/domain/scientificDepth.test.ts src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/semanticExplanationRegistry.test.ts src/app/surfaces/visualFixtureHarness.test.ts src/app/routes/routeModules.test.ts src/app/routes/routes.test.tsx src/app/providers/RouteIconProvider.test.tsx src/features/runs/routes/runDetailSurfaces.test.tsx`
+  passed: 55 tests covering E1-E6/F1-F5 packet construction, public redaction,
+  signing, verification, isolated public rendering, command surfaces,
+  route/provider boundaries and run-detail integration.
+- `npm run typecheck` passed.
+- Targeted `eslint` passed for Phase 3.5 domain, components, routes, surface
+  registry and route metadata.
+- Phase 3.5 locale keys are present in English, Ukrainian and Russian catalogs.
+  Full `src/i18n/parity.test.ts` still fails on pre-existing unrelated catalog
+  drift in `policyDiff`, `counterfactual` and
+  `shared.ui.quantity.miniGraph.hidden`.
+
+### 12.7. Phase 3.6 - Operator craft
+
+**Implementation status:** Complete as of 2026-04-29.
+
+**Duration:** 4-6 weeks.
+
+Implement G1-G3 and G5. Tighten personal reviewer workflows and onboarding.
+
+**Acceptance:** Reviewer can set threshold, annotate a snapshot, save evidence
+to wallet and complete a reading-grade onboarding run.
+
+**Implemented production slice:**
+
+- G1 Global Sensitivity / Trust Dial is implemented in
+  `frontend/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` and
+  rendered in both `OperatorCraftPanel.tsx` and the always-on
+  `AmbientTelemetryHud.tsx`. The reviewer threshold is versioned in local
+  storage, emits a `threshold.changed` replay envelope and recomputes visible
+  vs hidden confidence-ladder claims from the signed decision packet.
+- The ambient HUD now includes a compact trust slider next to SSE transport,
+  temporal scope, feature flags and active surface. This makes the threshold a
+  persistent reviewer control rather than a buried panel-only setting.
+- G2 Annotation Surface is implemented as snapshot-bound reviewer annotations.
+  Each annotation stores body, target kind/ref, reviewer id, `packetHash`,
+  signed id, `validAt`, `txAt`, surface id and an `annotation.created` replay
+  audit event. Targets are derived from verdict, argument-map nodes,
+  deterministic explanations, coverage caveat, threshold contract and model
+  card refs.
+- G3 Evidence Wallet is implemented as a personal saved-evidence store with
+  deduplication by evidence ref and packet hash. Wallet candidates are derived
+  from public model-card references, deterministic explanation subjects,
+  coverage regions and threshold edge cases; saved items keep snapshot refs and
+  an `evidence.saved` replay audit event.
+- G5 Reading-grade Onboarding Flow is implemented as a run-scoped, versioned
+  onboarding state. Steps cover reading the decision packet, inspecting the
+  argument map, narrating provenance, opening glossary lens, setting the
+  threshold, saving evidence, annotating the packet snapshot and completing safe
+  approval. Completion records time-to-first-safe-approval.
+- Completeness hardening on 2026-04-29 made onboarding steps explicit rather
+  than auto-completed from packet availability. The domain layer now blocks
+  `safe_approval` until every required reading, provenance, glossary,
+  threshold, wallet and annotation step is complete, and each completed step is
+  preserved as an `onboarding.step.completed` replay audit event in the
+  run-scoped onboarding state.
+- Phase 3.6 replay support extends the Phase 3.1 envelope with
+  `annotation.created`, `evidence.saved` and `onboarding.step.completed` event
+  kinds, while retaining `threshold.changed` for the global trust dial.
+- Phase 3.6 surfaces are registered for command palette/deep-link discovery:
+  `runs.globalTrustDial`, `runs.annotationSurface`, `runs.evidenceWallet` and
+  `runs.readingOnboarding`. All remain nested panels under existing run
+  workspaces, so new reviewer craft does not expand the top-level sidebar.
+- English, Ukrainian and Russian locale catalogs include Phase 3.6 copy and
+  surface-registry labels/descriptions.
+
+**Acceptance route proof:**
+
+- A reviewer can set the threshold from the ambient HUD or the Operator Craft
+  panel in `/runs/:runId/overview`; hidden and visible claims update against
+  the signed packet's confidence ladder.
+- A reviewer can create an annotation on a specific packet target; the stored
+  record includes the exact packet hash, signed id and bitemporal snapshot
+  timestamps.
+- A reviewer can save evidence to the wallet from model-card, explanation,
+  coverage and threshold candidates; repeated saves dedupe to the same wallet
+  item for that packet.
+- A reviewer can start and complete the reading-grade onboarding flow, with
+  progress visible in the decision packet and time-to-first-safe-approval
+  persisted after completion.
+
+**Verification:**
+
+- `npx vitest run src/features/runs/domain/operatorCraft.test.ts src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/replayEvents.test.ts src/features/runs/routes/runDetailSurfaces.test.tsx`
+  passed: 27 tests covering threshold persistence, hidden claims, snapshot
+  annotations, wallet dedupe, onboarding timing, replay event validation,
+  surface registration and run-detail rendering.
+- `npm run typecheck` passed.
+- Targeted `eslint` passed for Phase 3.6 domain, component, HUD, route,
+  replay-event and surface-registry files.
+- Phase 3.6 locale keys are present and structurally matched across English,
+  Ukrainian and Russian catalogs: `phase36` has 40 matched keys.
+- Full `src/i18n/parity.test.ts` still fails on pre-existing unrelated catalog
+  drift in `policyDiff`, `counterfactual` and
+  `shared.ui.quantity.miniGraph.hidden`; Phase 3.6 keys are not part of that
+  failure.
+
+---
+
+## 13. Success metrics
+
+### 13.1. Operator comprehension
+
+- New analyst completes first safe review in under 35 minutes.
+- 90% of tested reviewers correctly explain provenance of a selected number.
+- 90% correctly identify weakest claim in a decision packet.
+- 85% correctly distinguish observed, counterfactual and embargo-masked data.
+
+### 13.2. Scientific rigor
+
+- 100% decision-bearing claims expose identification status.
+- 100% causal recommendations link to DAG version and adjustment rationale.
+- 100% sensitivity-hidden claims explain threshold failure.
+- 0 untraced decision-bearing quantities in release gate.
+
+### 13.3. Operational clarity
+
+- Time to identify degraded upstream source under 20 seconds in Freshness Braid.
+- Time to identify stuck run stage under 15 seconds in Run Choreography.
+- Top 10 lineage blast-radius nodes visible in one view.
+- Connector degradation propagates to affected quantities within one refresh.
+
+### 13.4. Governance and audit
+
+- 100% approvals have completed slow-review critical path.
+- 100% overrides have reason, actor, timestamp and affected AST refs.
+- 100% public exports have signature, revocation status and provenance refs.
+- 0 embargoed values leak into public viewer or text export.
+
+### 13.5. Design quality
+
+- `npm run test:a11y` green.
+- `npm run design:polish` green.
+- Visual snapshots reviewed for every new surface.
+- No new domain color outside token allowlist.
+- No raw Unicode domain symbols in production JSX except documented anchors.
+
+---
+
+## 14. Risk register
+
+| Risk                                        | Why it matters                                          | Mitigation                                                               |
+| ------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Prototype screens copied directly           | Inline styles and raw symbols bypass production quality | Rebuild via shared UI, route contracts and tests                         |
+| Sidebar bloat                               | 30+ surfaces destroy orientation                        | Nested surfaces, command palette, contextual links                       |
+| Graph visualizations become inaccessible    | Causal/lineage maps are visually dense                  | Mandatory list/table fallback and keyboard graph model                   |
+| Too many global controls                    | HUD, trust dial, sensitivity rotor can compete          | Clear separation: trust filters confidence, sensitivity tests robustness |
+| Backend contracts lag design                | Screens become mock-only                                | Contract-first ladder and fixture gate                                   |
+| Public viewer leaks private data            | Procurement/legal blocker                               | Signed immutable payloads, embargo masking, no privileged API calls      |
+| Slow review feels punitive                  | Reviewers may work around it                            | Visible progress, reasoned friction, no surprise modal gates             |
+| Harm/fairness gates become checkbox theater | Trust erodes                                            | Tie every gate to evidence, metric, owner and override audit             |
+| Dark theme drift                            | v4 archive and repo disagree                            | ADR, token diff, visual snapshots                                        |
+
+---
+
+## 15. Immediate checklist
+
+- [x] Create `docs/brand/ATLAS_DESIGN_SYSTEM.md` from v4 archive, corrected for
+      production reality.
+- [x] Create `docs/brand/ATLAS_V4_ADOPTION.md` documenting token and dark-theme
+      decisions.
+- [x] Add Storybook reference stories for v4 preview categories.
+- [x] Add token drift check between v4 reference and production tokens.
+- [x] Define surface registry and command palette integration for nested
+      surfaces.
+- [x] Implement B1 Freshness Braid fixture, hook and panel.
+- [x] Implement B2 Connector Character Cards fixture, hook and panel.
+- [x] Implement D1 Run Choreography fixture, hook and panel.
+- [x] Implement D5 Ambient Telemetry HUD MVP.
+- [x] Implement A1 Causal Atlas editable MVP.
+- [x] Implement C1 Dispute Registry MVP.
+
+---
+
+## 16. Definition of "best-in-class"
+
+PolicyOS Atlas reaches the next best-in-class bar when an external reviewer can
+open a decision, move through the same evidence as the internal operator, see
+the causal graph and its identification status, understand which numbers are
+robust, inspect objections and fairness/harm gates, replay the run
+choreography, verify reproducibility, and read a public signed version without
+losing provenance.
+
+At that point the product is no longer competing on "better dashboard." It is
+competing on a stronger primitive: **policy as inspectable, replayable,
+contestable evidence machinery**.

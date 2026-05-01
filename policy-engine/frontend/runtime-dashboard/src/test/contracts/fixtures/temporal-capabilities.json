@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "capabilities": {
+    "run_id": "R_core_api_001",
+    "default_scope": {
+      "valid_at": "2026-02-11T12:00:00Z",
+      "tx_at": "2026-02-11T12:01:00Z",
+      "branch": "main",
+      "snapshot_id": null,
+      "scenario_id": null
+    },
+    "valid_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:00:00Z"},
+    "tx_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:01:00Z"},
+    "resolution": "event",
+    "surfaces": [
+      {
+        "surface": "run_fabric_decision_data",
+        "supported": true,
+        "resolution": "event",
+        "reason_code": null,
+        "valid_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:00:00Z"},
+        "tx_range": {"earliest": "2026-02-11T11:59:00Z", "latest": "2026-02-11T12:01:00Z"},
+        "nearest_event_points": [],
+        "gaps": []
+      }
+    ],
+    "event_points": [
+      {
+        "id": "R_core_api_001:start",
+        "timestamp": "2026-02-11T11:59:00Z",
+        "kind": "run_start",
+        "label": "Run started",
+        "valid_at": "2026-02-11T11:59:00Z",
+        "tx_at": "2026-02-11T11:59:00Z",
+        "observed": true
+      }
+    ]
+  }
+}

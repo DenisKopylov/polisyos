@@ -131,6 +131,11 @@ docs/archive/reports/**
 !docs/connectors/**
 !docs/brand/
 docs/brand/*
+!docs/brand/README.md
+!docs/brand/ATLAS_DESIGN_SYSTEM.md
+!docs/brand/ATLAS_V4_ADOPTION.md
+!docs/brand/atlas-v4/
+!docs/brand/atlas-v4/**
 !docs/brand/BUREAUCRATIC_RENDERING.md
 !docs/brand/CLI_STYLEGUIDE.md
 !docs/brand/COMPOSITION_RULES.md

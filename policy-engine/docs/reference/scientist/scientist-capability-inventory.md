@@ -1,10 +1,10 @@
 # Scientist Capability Inventory
 
-Related references: [Scientist](index.md), [Best-in-class readiness](best-in-class-readiness.md), [Remediation status](remediation-status.md), [Workflows](workflows.md), [Nodes](nodes.md).
+Related references: [Scientist](index.md), [Best-in-class readiness](best-in-class-readiness.md), [Wave 2 runtime contracts](wave2-runtime-contracts.md), [Remediation status](remediation-status.md), [Workflows](workflows.md), [Nodes](nodes.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/**`, `tests/scientist/**`, `docs/reference/scientist/**`, `docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`, `docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md`, `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md`, `docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md`, `tools/ci/check_scientist_best_in_class_phase1_0.py`, `tools/ci/check_scientist_best_in_class_phase1_1.py`, `tools/ci/check_scientist_best_in_class_phase1_2.py`, `tools/ci/check_scientist_best_in_class_phase1_3.py`, `tools/ci/check_scientist_best_in_class_phase1_4.py`, `tools/ci/check_scientist_benchmark_authority.py`, `tools/ci/check_scientist_best_in_class_phase1_6.py`, and `tools/ci/check_scientist_best_in_class_wave1.py`
+Source of truth: `src/polisyos/scientist/**`, `tests/scientist/**`, `docs/reference/scientist/**`, `docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`, `docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md`, `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md`, `docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md`, `tools/ci/check_scientist_best_in_class_phase1_0.py`, `tools/ci/check_scientist_best_in_class_phase1_1.py`, `tools/ci/check_scientist_best_in_class_phase1_2.py`, `tools/ci/check_scientist_best_in_class_phase1_3.py`, `tools/ci/check_scientist_best_in_class_phase1_4.py`, `tools/ci/check_scientist_benchmark_authority.py`, `tools/ci/check_scientist_best_in_class_phase1_6.py`, `tools/ci/check_scientist_best_in_class_wave1.py`, `tools/ci/check_scientist_best_in_class_phase2_0.py`, `tools/ci/check_scientist_best_in_class_phase2_1.py`, `tools/ci/check_scientist_best_in_class_phase2_2.py`, `tools/ci/check_scientist_best_in_class_phase2_3.py`, `tools/ci/check_scientist_best_in_class_phase2_4.py`, `tools/ci/check_scientist_best_in_class_phase2_5.py`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tools/ci/check_scientist_best_in_class_wave2.py`
 
 This inventory is the Phase 1.0 reconciliation layer for the Scientist
 best-in-class plan. It records what exists now, which tests and references own
@@ -15,32 +15,35 @@ of truth. It intentionally does not add new runtime implementation.
 
 | Surface | Source roots | Current role | Reference and tests |
 | --- | --- | --- | --- |
-| `root_facade` | `src/polisyos/scientist/api.py`, `src/polisyos/scientist/__init__.py`, `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/remediation_status.py`, `src/polisyos/scientist/reliability_scorecard.py` | Stable public facade, publishing, remediation report, and scorecard. | [index.md](index.md), [remediation-status.md](remediation-status.md), `tests/scientist/test_api.py`, `tests/scientist/test_remediation_status.py`, `tests/scientist/test_reliability_scorecard.py` |
+| `root_facade` | `src/polisyos/scientist/api.py`, `src/polisyos/scientist/__init__.py`, `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/remediation_status.py`, `src/polisyos/scientist/reliability_scorecard.py` | Stable public facade, publishing, remediation report, scorecard and Phase 2.7 decision-grade compiler. | [index.md](index.md), [decision-grade-compiler.md](decision-grade-compiler.md), [remediation-status.md](remediation-status.md), `tests/scientist/test_api.py`, `tests/scientist/test_decision_grade_compiler.py`, `tests/scientist/test_remediation_status.py`, `tests/scientist/test_reliability_scorecard.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py` |
+| `wave2_closeout` | `tools/ci/check_scientist_best_in_class_wave2.py`, `docs/reference/scientist/best-in-class-wave2-acceptance.md`, `docs/reference/scientist/best-in-class-maturity.md`, `docs/reference/scientist/wave2-migration-notes.md` | Phase 2.8 gate aggregator, cross-phase invariant fixture, migration notes, maturity model and measured shadow evidence closeout. | [best-in-class-wave2-acceptance.md](best-in-class-wave2-acceptance.md), [best-in-class-maturity.md](best-in-class-maturity.md), [wave2-migration-notes.md](wave2-migration-notes.md), `tests/tools/test_scientist_best_in_class_wave2.py`, `tools/ci/check_scientist_best_in_class_wave2.py` |
 | `adapters` | `src/polisyos/scientist/adapters/**` | Bridges to Foundry and Fabric surfaces. | `tests/scientist/adapters/**` |
 | `agent` | `src/polisyos/scientist/agent/**`, `src/polisyos/scientist/agent/tools/**` | Drafter, supervisor, reasoning, tool loop, knowledge tools, persistent memory. | [agent-search-reasoning.md](agent-search-reasoning.md), `tests/scientist/agent/**` |
 | `autotune` | `src/polisyos/scientist/autotune/**` | Candidate execution, calibration, warm start, Pareto and Hyperband support. | `tests/scientist/autotune/**`, search strategy tests |
 | `backtesting` | `src/polisyos/scientist/backtesting/**` | Backtesting helpers, temporal checks, bootstrap, calibration and adversarial tests. | `tests/scientist/backtesting/**` |
 | `causal` | `src/polisyos/scientist/causal/**` | Causal execution/readiness/validity helpers. | [causal.md](causal.md), [causal-validity.md](causal-validity.md), `tests/scientist/causal/**` |
-| `claims` | `src/polisyos/scientist/claims/**` | Phase 1.1 claim/evidence/readiness spine, ledger persistence, projections and naked-claim validators. | [claims.md](claims.md), `tests/scientist/claims/**`, `tools/ci/check_scientist_best_in_class_phase1_1.py` |
+| `claims` | `src/polisyos/scientist/claims/**` | Phase 1.1 claim/evidence/readiness spine plus Phase 2.1 Claim Ledger lifecycle, append-only audit, diff, export and packet summaries; Phase 2.7 adds expert claim export for decision-grade tiers. | [claims.md](claims.md), [claim-ledger.md](claim-ledger.md), [decision-grade-compiler.md](decision-grade-compiler.md), `tests/scientist/claims/**`, `tests/scientist/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase1_1.py`, `tools/ci/check_scientist_best_in_class_phase2_1.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py` |
+| `continuous_governance` | `src/polisyos/scientist/continuous_governance/**` | Phase 2.6 living-decision monitor events, source invalidation bridge, reissue packets, incidents, withdrawal records and public/internal validity reports. | [continuous-governance.md](continuous-governance.md), `tests/scientist/continuous_governance/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py` |
 | `compute` | `src/polisyos/scientist/compute/**` | Compute-facing Scientist helpers. | `tests/scientist/compute/**` |
 | `cross_graph` | `src/polisyos/scientist/cross_graph/**`, `src/polisyos/scientist/cross_graph/gatherers/**` | Cross-graph evidence gathering, conflict detection, budget and transfer context. | `tests/scientist/cross_graph/**`, `tests/scientist/test_cross_graph_evidence.py` |
 | `discovery` | `src/polisyos/scientist/discovery/**`, `src/polisyos/scientist/discovery/workers/**` | Discovery schemas, priors, portfolios, workers, stability and utility judging. | [latent-discovery-producers.md](latent-discovery-producers.md), `tests/scientist/discovery/**` |
 | `doe` | `src/polisyos/scientist/doe/**` | Design-of-experiments helpers. | `tests/scientist/doe/**` |
 | `engine` | `src/polisyos/scientist/engine/**`, `src/polisyos/scientist/engine/runner/**`, `src/polisyos/scientist/engine/locks/**` | Workflow execution, async execution, budgets, checkpoints, runners, telemetry, retry, locks and state merge. | [workflows.md](workflows.md), [phase4-acceptance.md](phase4-acceptance.md), `tests/scientist/engine/**`, checkpoint tests |
-| `evals` | `src/polisyos/scientist/evals/**` | Phase 1.5 benchmark authority facade, split taxonomy, staleness, leakage, grader metadata, frozen-web and policy-case contracts. | [benchmark-authority.md](benchmark-authority.md), `tests/scientist/evals/**`, `tools/ci/check_scientist_benchmark_authority.py` |
-| `evidence` | `src/polisyos/scientist/evidence/**`, `src/polisyos/scholar/search/models.py`, `src/polisyos/scientist/agent/tools/scholar_search_tools.py` | Phase 1.3 deep-research evidence stack: safe fetch, source quality, snippet ledger, claim support, cache, verifier and tool caps. | [deep-research-evidence.md](deep-research-evidence.md), `tests/scientist/evidence/**`, `tools/ci/check_scientist_best_in_class_phase1_3.py` |
+| `evals` | `src/polisyos/scientist/evals/**` | Phase 1.5 benchmark authority facade, split taxonomy, staleness, leakage, grader metadata, frozen-web/policy-case contracts, plus Phase 2.5 adversarial challenge factory, sentinel/red-team metadata, rotation lineage and near-frontier fresh rotating challenge checks. | [benchmark-authority.md](benchmark-authority.md), [adversarial-challenge-factory.md](adversarial-challenge-factory.md), `tests/scientist/evals/**`, `tools/ci/check_scientist_benchmark_authority.py`, `tools/ci/check_scientist_best_in_class_phase2_5.py` |
+| `evidence` | `src/polisyos/scientist/evidence/**`, `src/polisyos/scholar/search/models.py`, `src/polisyos/scientist/agent/tools/scholar_search_tools.py` | Phase 1.3 deep-research evidence stack plus Phase 2.3 source verification VOI for unsupported/contested claims. | [deep-research-evidence.md](deep-research-evidence.md), [voi-scheduler.md](voi-scheduler.md), `tests/scientist/evidence/**`, `tools/ci/check_scientist_best_in_class_phase1_3.py`, `tools/ci/check_scientist_best_in_class_phase2_3.py` |
 | `governance` | `src/polisyos/scientist/governance/**`, `src/polisyos/scientist/governance/passes/**`, `src/polisyos/scientist/governance/legal/**` | Governance pass pipeline, accountability, legal and human-review gates. | [governance-passes.md](governance-passes.md), [governance-accountability.md](governance-accountability.md), governance tests |
-| `human_review` | `src/polisyos/scientist/human_review/**` | Phase 1.6 human oversight control plane: review packets, queue assignments, review decisions, policy gates and audit helpers. | [human-oversight.md](human-oversight.md), `tests/scientist/human_review/**`, `tools/ci/check_scientist_best_in_class_phase1_6.py` |
+| `human_review` | `src/polisyos/scientist/human_review/**` | Phase 1.6 human oversight control plane plus Phase 2.3 auditable human escalation VOI. | [human-oversight.md](human-oversight.md), [voi-scheduler.md](voi-scheduler.md), `tests/scientist/human_review/**`, `tools/ci/check_scientist_best_in_class_phase1_6.py`, `tools/ci/check_scientist_best_in_class_phase2_3.py` |
 | `kernel` | `src/polisyos/scientist/kernel/**` | Gate protocol, guards, budget and finite-state-machine helpers. | `tests/scientist/kernel/**` |
 | `llm` | `src/polisyos/scientist/llm/**`, `src/polisyos/scientist/llm/profiles/**` | LLM gateway, routing, provider profiles and budget-facing helpers. | `tests/scientist/llm/**`, [agent-search-reasoning.md](agent-search-reasoning.md) |
+| `memory` | `src/polisyos/scientist/memory/**`, `src/polisyos/scientist/search/failure_cards.py`, `src/polisyos/scientist/search/lessons.py`, `src/polisyos/scientist/research_dag/projections.py` | Phase 2.4 reflexive memory wraps existing failure lessons with applicability scope, contamination guards, warning-only retrieval, revocation and Research DAG attribution. | [reflexive-memory.md](reflexive-memory.md), `tests/scientist/memory/**`, `tools/ci/check_scientist_best_in_class_phase2_4.py` |
 | `nodes` | `src/polisyos/scientist/nodes/**`, `src/polisyos/scientist/nodes/builtins/**` | Builtin node catalog for planning, data, compile, causal, simulate, governance and decide stages. | [nodes.md](nodes.md), `tests/scientist/nodes/**`, root node tests |
-| `orchestrator` | `src/polisyos/scientist/orchestrator/**` | Decision-card and orchestration support. | `tests/scientist/test_decision_card.py`, `tests/scientist/test_decision_card_uncertainty_render.py` |
+| `orchestrator` | `src/polisyos/scientist/orchestrator/**` | Decision-card and orchestration support, including Phase 2.7 compiler-backed `TrustProvenanceSummary` bridge. | [decision-grade-compiler.md](decision-grade-compiler.md), `tests/scientist/test_decision_card.py`, `tests/scientist/test_decision_card_uncertainty_render.py`, `tests/scientist/test_decision_grade_compiler.py` |
 | `policy_design` | `src/polisyos/scientist/policy_design/**` | Policy candidate schema, search, translation, critique, output bundles and Phase 3 certificates. | `tests/scientist/policy_design/**`, decision/output-bundle tests |
 | `policy_verified` | `src/polisyos/scientist/policy_verified/**` | Verified-policy service and models. | `tests/scientist/test_policy_verified_nodes.py`, `tests/scientist/test_policy_verified_workflow_guard.py`, `tests/scientist/test_policy_verified_workflow_e2e.py` |
 | `provenance` | `src/polisyos/scientist/provenance/**` | Run DAG/provenance JSON support. | [proof-trace-composability.md](proof-trace-composability.md), `tests/scientist/provenance/**` |
-| `research_dag` | `src/polisyos/scientist/research_dag/**` | Phase 1.2 typed research DAG sidecar, CAS persistence, replay, diff and projections. | [research-dag.md](research-dag.md), `tests/scientist/research_dag/**`, `tools/ci/check_scientist_best_in_class_phase1_2.py` |
+| `research_dag` | `src/polisyos/scientist/research_dag/**` | Phase 1.2 typed research DAG sidecar plus Phase 2.2 replay plans, trajectory comparison and source invalidation propagation. | [research-dag.md](research-dag.md), [research-dag-replay.md](research-dag-replay.md), `tests/scientist/research_dag/**`, `tools/ci/check_scientist_best_in_class_phase1_2.py`, `tools/ci/check_scientist_best_in_class_phase2_2.py` |
 | `replay` | `src/polisyos/scientist/replay/**`, `src/polisyos/scientist/replay_backend.py` | Replay comparison, verification and backend support. | replay tests, [phase4-acceptance.md](phase4-acceptance.md) |
-| `search` | `src/polisyos/scientist/search/**`, `src/polisyos/scientist/search/funnel/**`, `src/polisyos/scientist/search/strategies/**` | Multi-fidelity search, benchmark registry, frontier gates, strategies, VOI and promotion support. | [frontier-runtime.md](frontier-runtime.md), [calibration-governance.md](calibration-governance.md), `tests/scientist/search/**` |
+| `search` | `src/polisyos/scientist/search/**`, `src/polisyos/scientist/search/funnel/**`, `src/polisyos/scientist/search/strategies/**` | Multi-fidelity search, benchmark registry, frontier gates, strategies, Phase 2.3 VOI decision/report contracts, `voi_run_report_ref` sidecars, calibration/regret and promotion support. | [frontier-runtime.md](frontier-runtime.md), [calibration-governance.md](calibration-governance.md), [voi-scheduler.md](voi-scheduler.md), `tests/scientist/search/**`, `tools/ci/check_scientist_best_in_class_phase2_3.py` |
 | `validation` | `src/polisyos/scientist/validation/**` | Fairness, metric validation, benchmark and preflight validation surfaces. | validation tests, [calibration-governance.md](calibration-governance.md) |
 | `verification` | `src/polisyos/scientist/verification/**`, `src/polisyos/scientist/verification/ic/**` | Exact implementation-conformance verification. | `tests/scientist/test_ic_verification.py`, `tests/scientist/test_ic_conformance.py` |
 | `workflows` | `src/polisyos/scientist/workflows/**` | Five builtin workflow specs, routing and workflow builder/runtime dispatch. | [workflows.md](workflows.md), `tests/scientist/workflows/**`, workflow selection tests |
@@ -50,31 +53,35 @@ of truth. It intentionally does not add new runtime implementation.
 | Test surface | Coverage role |
 | --- | --- |
 | `tests/scientist/test_*.py` | Root-level facade, node, decision packet, causal, policy, replay and governance regressions. |
+| `tests/scientist/test_decision_grade_compiler.py` | Phase 2.7 public/reviewer/expert/machine compiler tiers, public redaction, omission rules, machine trust fields and decision-card bridge. |
 | `tests/scientist/adapters/**` | Foundry/Fabric adapter contract tests. |
 | `tests/scientist/agent/**`, `tests/scientist/agent/tools/**` | Agent runtime, supervisor, reasoning, tool loop and knowledge-tool tests. |
 | `tests/scientist/autotune/**` | Autotune, Pareto, calibration, Hyperband and warm-start tests. |
 | `tests/scientist/backtesting/**` | Backtesting, masking, bootstrap, temporal and adversarial tests. |
 | `tests/scientist/causal/**` | Causal readiness and execution tests. |
-| `tests/scientist/claims/**` | Claim model, readiness, ledger persistence, projection and validator tests. |
+| `tests/scientist/claims/**` | Claim model, readiness, ledger persistence, projection, validator, lifecycle, audit, diff and export tests. |
+| `tests/scientist/continuous_governance/**` | Continuous governance monitors, source invalidation bridge, reissue packets, incidents, reports and governance-link tests. |
 | `tests/scientist/compute/**` | Compute helper tests. |
 | `tests/scientist/cross_graph/**` | Cross-graph protocols, cache, budget, conflict and gatherer tests. |
 | `tests/scientist/discovery/**` | Discovery schema, active learning, workers, stability and utility tests. |
 | `tests/scientist/doe/**` | DOE tests. |
 | `tests/scientist/engine/**` | Engine, async executor, runner, lock, budget, telemetry, state and checkpoint tests. |
 | `tests/scientist/evals/**` | Benchmark authority, split staleness, leakage redaction, grader metadata, frozen-web and policy-case tests. |
-| `tests/scientist/evidence/**` | Deep-research evidence stack tests for safety events, source quality, snippets, claim support, cache, verifier, tools and DAG projection. |
+| `tests/scientist/evidence/**` | Deep-research evidence stack tests for safety events, source quality, snippets, claim support, source verification VOI, cache, verifier, tools and DAG projection. |
 | `tests/scientist/governance/**` | Governance pass, accountability, legal, human-review and quality gate tests. |
-| `tests/scientist/human_review/**` | Human-review packet, decision, queue, governance and decision-packet integration tests. |
+| `tests/scientist/human_review/**` | Human-review packet, decision, queue, governance, VOI escalation and decision-packet integration tests. |
 | `tests/scientist/integration/**` | Checkpoint resume, workflow tracing and reliability scenario tests. |
 | `tests/scientist/kernel/**` | Kernel FSM, guards, budgets and gate protocol tests. |
 | `tests/scientist/llm/**` | LLM gateway, provider, budget and routing tests. |
 | `tests/scientist/nodes/**` | Builtin node tests. |
 | `tests/scientist/policy_design/**` | Policy design, hierarchical search, phase certificates and output tests. |
 | `tests/scientist/provenance/**` | Provenance DAG and JSON tests. |
-| `tests/scientist/research_dag/**` | Research DAG model, builder, CAS persistence, replay, diff, projection and workflow sidecar tests. |
+| `tests/scientist/research_dag/**` | Research DAG model, builder, CAS persistence, replay, replay planning, trajectory comparison, source invalidation, diff, projection and workflow sidecar tests. |
 | `tests/scientist/replay/**` | Replay and comparison tests. |
-| `tests/scientist/search/**`, `tests/scientist/search/funnel/**`, `tests/scientist/search/strategies/**` | Search controller, funnel, strategy, benchmark and promotion tests. |
+| `tests/scientist/search/**`, `tests/scientist/search/funnel/**`, `tests/scientist/search/strategies/**` | Search controller, funnel, strategy, benchmark, VOI models/reports/calibration and promotion tests. |
 | `tests/scientist/validation/**` | Validation, fairness and metric tests. |
+| `tests/scientist/wave2/**` | Wave 2 runtime compatibility, additive packet and feature-flag contract tests. |
+| `tests/tools/test_scientist_best_in_class_wave2.py` | Phase 2.8 Wave 2 gate regression, missing phase-gate failure path, migration-token check, public hidden-ref export block, VOI human-review suppression block, memory canary block, reissue-link block and unexplained-claim-change invariant. |
 | `tests/scientist/workflows/**` | Workflow specs and builder pinning tests. |
 
 ## Reference Inventory
@@ -85,11 +92,16 @@ of truth. It intentionally does not add new runtime implementation.
 | [benchmark-authority.md](benchmark-authority.md) | Benchmark authority, hidden eval packs, leakage, staleness and promotion evidence policy. |
 | [best-in-class-readiness.md](best-in-class-readiness.md) | Canonical best-in-class readiness and active phase index. |
 | [best-in-class-wave1-acceptance.md](best-in-class-wave1-acceptance.md) | Wave 1 acceptance gate over phases 1.0-1.6, claim/DAG refs, benchmark authority and high-risk human review. |
+| [best-in-class-wave2-acceptance.md](best-in-class-wave2-acceptance.md) | Wave 2 acceptance gate over phases 2.0-2.7, cross-phase invariants and measured shadow evidence. |
+| [best-in-class-maturity.md](best-in-class-maturity.md) | Best-in-class maturity levels after Wave 2 closeout. |
 | [calibration-governance.md](calibration-governance.md) | Calibration, fairness and governance validation posture. |
 | [causal-validity-acceptance.md](causal-validity-acceptance.md) | Causal-validity acceptance surface. |
 | [causal-validity.md](causal-validity.md) | Causal-validity diagnostics and source of truth. |
 | [causal.md](causal.md) | Causal Scientist reference. |
+| [claim-ledger.md](claim-ledger.md) | Claim Ledger lifecycle, append-only audit, claim-level diff, export and packet blocked-claim summaries. |
 | [claims.md](claims.md) | Claim/evidence/readiness spine, `claims_ref` integrations and naked-claim validators. |
+| [continuous-governance.md](continuous-governance.md) | Continuous governance monitor events, source invalidation bridge, reissue/withdrawal semantics and validity report redaction. |
+| [decision-grade-compiler.md](decision-grade-compiler.md) | Decision-grade compiler output tiers, omissions, public redaction and frontend trust/provenance hooks. |
 | [deep-research-evidence.md](deep-research-evidence.md) | Deep-research evidence stack, safe fetch, source quality, snippets and claim-support mapping. |
 | [frontier-runtime.md](frontier-runtime.md) | Frontier capability rollout contract. |
 | [governance-accountability.md](governance-accountability.md) | Governance accountability artifacts. |
@@ -104,9 +116,15 @@ of truth. It intentionally does not add new runtime implementation.
 | [phase4-acceptance.md](phase4-acceptance.md) | Phase 4 distributed/frontier acceptance evidence. |
 | [proof-trace-composability.md](proof-trace-composability.md) | Proof trace and provenance composability. |
 | [research-dag.md](research-dag.md) | Research DAG sidecar, `research_dag_ref`, replay/diff and redaction guarantees. |
+| [research-dag-replay.md](research-dag-replay.md) | Research DAG replay plans, trajectory comparison, source invalidation and audit-safe replay exports. |
+| [voi-scheduler.md](voi-scheduler.md) | VOI decision/report contracts, scheduler report emission, source verification, human escalation, calibration/regret and mandatory-gate rules. |
+| [reflexive-memory.md](reflexive-memory.md) | Reflexive-memory failure lessons, applicability, contamination guards, warning-only retrieval, revocation and Research DAG memory attribution. |
+| [adversarial-challenge-factory.md](adversarial-challenge-factory.md) | Phase 2.5 challenge generation from failure cards, review-before-hidden, sentinel/red-team metadata, rotating pack lineage and benchmark-authority near-frontier checks. |
 | [reliability-scorecard.md](reliability-scorecard.md) | Reliability scorecard and gates. |
 | [remediation-status.md](remediation-status.md) | Machine-readable remediation closure report. |
 | [scientist-capability-inventory.md](scientist-capability-inventory.md) | This Phase 1.0 source/test/reference/historical inventory. |
+| [wave2-runtime-contracts.md](wave2-runtime-contracts.md) | Phase 2.0 Scientist OS foundation: ADRs, package boundaries, additive artifact versioning, feature-flag defaults and compatibility gate. |
+| [wave2-migration-notes.md](wave2-migration-notes.md) | Wave 2 public fields, flags, dual-read migration rules and rollback notes. |
 | [workflows.md](workflows.md) | Workflow surface, routing and builtin DAGs. |
 
 ## Active Workflow And Node Surface
@@ -116,7 +134,7 @@ of truth. It intentionally does not add new runtime implementation.
 | Builtin workflows | `scientist_default`, `scientist_discovery`, `scientist_causal_full`, `scientist_policy_verified`, `scientist_policy_design`. |
 | Builtin node families | `planning`, `data`, `compile`, `causal`, `simulate`, `governance`, `decide`, plus engine builtins. |
 | Decision-bearing hot paths | `scientist_policy_design`, `scientist_policy_verified`, `scientist_causal_full`, and default governed simulation decision packets. |
-| Explicitly gated surfaces | Frontier causal/search methods, advanced agent reasoning/search policies, deep research evidence hardening, claim ledger lifecycle expansion, Research DAG publication requirement, and future human-review VOI escalation. |
+| Explicitly gated surfaces | Frontier causal/search methods, advanced agent reasoning/search policies, deep research evidence hardening, Claim Ledger v2 production enforcement, Research DAG publication/replay requirement, source invalidation reissue triggers, VOI default-enable, challenge factory hidden admission/default use, continuous-governance withdrawal and Wave 2 closeout production promotion. |
 
 ## Historical Roadmap Reconciliation
 

@@ -9,12 +9,18 @@ import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSourceProfiles } from "@/api/hooks/useSourceProfiles";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { parseEvidenceSearchParams } from "@/features/evidence/domain/searchParams";
+import { ConnectorCharacterCards } from "@/features/evidence/components/ConnectorCharacterCards";
 import DataIntelligencePanel from "@/features/evidence/components/DataIntelligencePanel";
+import { FreshnessBraidPanel } from "@/features/evidence/components/FreshnessBraidPanel";
 import {
   EVIDENCE_FOCUSES,
   dedupeEvidenceArtifactRefs,
   parseEvidenceFocus,
 } from "@/features/evidence/domain/context";
+import {
+  buildConnectorCharacterCards,
+  buildFreshnessBraidView,
+} from "@/features/evidence/domain/productionSlice";
 import { useI18n } from "@/i18n/LocaleProvider";
 import {
   type EvidenceArtifactRef,
@@ -75,6 +81,7 @@ export default function EvidenceFabric() {
     planId,
     promotionId,
     runId,
+    surface,
   } = parseEvidenceSearchParams(searchParams);
 
   const requestedFocus = parsedFocus ? parseEvidenceFocus(parsedFocus) : null;
@@ -160,6 +167,37 @@ export default function EvidenceFabric() {
           0,
         ) / featuredPromotions.length
       : 0;
+  const freshnessBraid = useMemo(
+    () =>
+      buildFreshnessBraidView({
+        connectors,
+        generatedAt:
+          runContextQuery.data?.meta?.generated_at ??
+          promotionCandidatesQuery.data?.meta?.generated_at ??
+          connectorsQuery.data?.meta?.generated_at ??
+          null,
+        profiles,
+        runContext,
+      }),
+    [
+      connectors,
+      connectorsQuery.data?.meta?.generated_at,
+      profiles,
+      promotionCandidatesQuery.data?.meta?.generated_at,
+      runContext,
+      runContextQuery.data?.meta?.generated_at,
+    ],
+  );
+  const connectorCards = useMemo(
+    () =>
+      buildConnectorCharacterCards({
+        connectors,
+        profiles,
+        runContext,
+      }),
+    [connectors, profiles, runContext],
+  );
+  const activeProductionSurface = surface ?? "freshness-braid";
 
   const degradedMessages: string[] = [];
   if (runId && needId && !selectedNeed) {
@@ -371,6 +409,41 @@ export default function EvidenceFabric() {
           </div>
         </section>
       ) : null}
+
+      <Card>
+        <div
+          className="flex flex-wrap gap-2"
+          aria-label={t("phase32.surfaceNav")}
+        >
+          {[
+            ["freshness-braid", t("phase32.freshness.title")],
+            ["connector-cards", t("phase32.connectors.title")],
+          ].map(([surfaceId, surfaceLabel]) => (
+            <button
+              key={surfaceId}
+              type="button"
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.set("surface", surfaceId);
+                setSearchParams(next);
+              }}
+              className={
+                activeProductionSurface === surfaceId
+                  ? "border-accent/30 bg-accent/10 text-accent rounded-full border px-3 py-1.5 text-xs font-semibold"
+                  : "border-line bg-surface text-muted rounded-full border px-3 py-1.5 text-xs font-semibold"
+              }
+            >
+              {surfaceLabel}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      {activeProductionSurface === "connector-cards" ? (
+        <ConnectorCharacterCards cards={connectorCards} />
+      ) : (
+        <FreshnessBraidPanel view={freshnessBraid} />
+      )}
 
       {isMobile ? (
         <section className="grid gap-3" data-testid="evidence-mobile-overview">

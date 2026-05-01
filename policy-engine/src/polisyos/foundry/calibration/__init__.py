@@ -21,6 +21,11 @@ from .dp_ci import (
     required_n_kernel,
     resolve_ci_threshold_policy,
 )
+from .fabric_quality import (
+    FabricCalibrationContext,
+    fabric_calibration_context_from_decision_data,
+    fabric_calibration_context_from_evidence_paths,
+)
 from .identifiability import (
     IdentifiabilityDiagnosticConfig,
     IdentifiabilityDiagnosticResult,
@@ -120,6 +125,7 @@ __all__ = [
     "CalibratorInputs",
     "DPContext",
     "DefaultMeasurementAwareLossAdapter",
+    "FabricCalibrationContext",
     "HessianResult",
     "IdentifiabilityDiagnosticConfig",
     "IdentifiabilityDiagnosticResult",
@@ -153,6 +159,8 @@ __all__ = [
     "effective_privacy_xi",
     "envelope_from_calibration_param",
     "envelopes_from_calibration",
+    "fabric_calibration_context_from_decision_data",
+    "fabric_calibration_context_from_evidence_paths",
     "gaussian_parametric_radius",
     "identifiability_diagnostic",
     "inverse_bijector",

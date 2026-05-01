@@ -10,12 +10,25 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.foundry.methods.selection_history import (
     MethodExecutionRecord,
     RuntimePredictor,
     SelectionHistoryStore,
 )
 from polisyos.scientist.engine.budget import BudgetState
+from polisyos.scientist.search.voi_models import (
+    VOIDecisionRecord,
+    VOIDecisionType,
+    VOIRunReport,
+    stable_voi_decision_id,
+)
+
+VOI_RUN_REPORT_KIND = "scientist.voi_run_report"
+VOI_RUN_REPORT_SCHEMA_NAME = "polisyos.scientist.search.VOIRunReport"
+VOI_RUN_REPORT_SCHEMA_VERSION = "1.0"
 
 
 class ParetoSnapshot(BaseModel):
@@ -197,6 +210,48 @@ class SimpleVOIScheduler:
             for ticket in candidates
         ]
         return sorted(decisions, key=lambda item: item.priority, reverse=True)
+
+    def report_for_decisions(
+        self,
+        *,
+        run_id: str,
+        decisions: Sequence[SchedulingDecision],
+        calibration_status: str = "shadow_unvalidated",
+        shadow_baseline_ref: ArtifactRef | None = None,
+        input_refs_by_candidate_id: Mapping[str, Sequence[ArtifactRef]] | None = None,
+        extra_decisions: Sequence[VOIDecisionRecord] = (),
+        metadata: Mapping[str, Any] | None = None,
+    ) -> VOIRunReport:
+        """Project scheduler decisions into a persisted VOI report contract."""
+
+        return build_voi_run_report(
+            run_id=run_id,
+            scheduling_decisions=decisions,
+            calibration_status=calibration_status,
+            shadow_baseline_ref=shadow_baseline_ref,
+            input_refs_by_candidate_id=input_refs_by_candidate_id,
+            extra_decisions=extra_decisions,
+            metadata=metadata,
+        )
+
+    def report_for_candidates(
+        self,
+        *,
+        run_id: str,
+        candidates: Sequence[Any],
+        budget_remaining: BudgetState,
+        frontier: ParetoSnapshot | None = None,
+        calibration_status: str = "shadow_unvalidated",
+        shadow_baseline_ref: ArtifactRef | None = None,
+    ) -> VOIRunReport:
+        """Prioritize candidates and return the corresponding VOI run report."""
+
+        return self.report_for_decisions(
+            run_id=run_id,
+            decisions=self.prioritize(candidates, budget_remaining, frontier),
+            calibration_status=calibration_status,
+            shadow_baseline_ref=shadow_baseline_ref,
+        )
 
     def _prioritize_single(
         self,
@@ -986,6 +1041,254 @@ def prediction_bool_to_probability(value: float) -> float:
     return max(0.0, min(1.0, value))
 
 
+def scheduling_decision_to_voi_record(
+    decision: SchedulingDecision,
+    *,
+    run_id: str,
+    sequence: int = 0,
+    input_refs: Sequence[ArtifactRef] = (),
+) -> VOIDecisionRecord:
+    """Project an existing candidate scheduling decision into the Wave 2.3 VOI contract."""
+
+    economics = decision.economics
+    expected_cost = max(economics.estimated_cost_usd, economics.replay_cost_usd, 0.0)
+    expected_value = (
+        economics.expected_improvement_per_usd * max(expected_cost, 1e-9)
+        + economics.expected_falsification_value
+        + economics.expected_governance_value
+        + economics.exploration_bonus
+        - expected_cost
+        - economics.calibration_debt
+    )
+    if decision.recommended_action in {"reject", "defer"}:
+        expected_value = min(expected_value, 0.0)
+    return VOIDecisionRecord(
+        decision_id=stable_voi_decision_id(
+            run_id=run_id,
+            decision_type=VOIDecisionType.CANDIDATE_EVALUATION,
+            subject_id=decision.candidate_id,
+            sequence=sequence,
+        ),
+        run_id=run_id,
+        decision_type=VOIDecisionType.CANDIDATE_EVALUATION,
+        recommended_action=decision.recommended_action,
+        expected_value=expected_value,
+        expected_cost=expected_cost,
+        expected_risk_reduction=max(
+            economics.expected_falsification_value + economics.expected_governance_value,
+            0.0,
+        ),
+        explanation=(
+            f"{decision.reason}: {decision.recommended_action} candidate "
+            f"{decision.candidate_id} with priority {decision.priority:.6f}."
+        ),
+        input_refs=list(input_refs),
+        metadata={
+            "candidate_id": decision.candidate_id,
+            "priority": decision.priority,
+            "next_level": decision.next_level,
+            "current_pareto_position": economics.current_pareto_position,
+            "promotion_likelihood": economics.promotion_likelihood,
+            "scheduler_mode": economics.scheduler_mode,
+            "timeout_risk": economics.timeout_risk,
+            "estimated_wall_seconds": economics.estimated_wall_seconds,
+        },
+    )
+
+
+def build_voi_run_report(
+    *,
+    run_id: str,
+    scheduling_decisions: Sequence[SchedulingDecision] = (),
+    calibration_status: str = "shadow_unvalidated",
+    shadow_baseline_ref: ArtifactRef | None = None,
+    input_refs_by_candidate_id: Mapping[str, Sequence[ArtifactRef]] | None = None,
+    extra_decisions: Sequence[VOIDecisionRecord] = (),
+    metadata: Mapping[str, Any] | None = None,
+) -> VOIRunReport:
+    """Build a run-level VOI report from scheduler and advisory decisions."""
+
+    refs_by_candidate = input_refs_by_candidate_id or {}
+    decision_records = [
+        scheduling_decision_to_voi_record(
+            decision,
+            run_id=run_id,
+            sequence=index,
+            input_refs=refs_by_candidate.get(decision.candidate_id, ()),
+        )
+        for index, decision in enumerate(scheduling_decisions)
+    ]
+    decision_records.extend(extra_decisions)
+    total_expected_cost = sum(record.expected_cost for record in decision_records)
+    return VOIRunReport(
+        run_id=run_id,
+        decisions=decision_records,
+        total_expected_cost=total_expected_cost,
+        calibration_status=calibration_status,
+        shadow_baseline_ref=shadow_baseline_ref,
+        metadata={
+            "scheduler_decision_count": len(scheduling_decisions),
+            "extra_decision_count": len(extra_decisions),
+            **dict(metadata or {}),
+        },
+    )
+
+
+def build_stop_search_voi_decision(
+    *,
+    run_id: str,
+    marginal_expected_improvement: float,
+    expected_cost_to_continue: float,
+    safety_regression_risk: float = 0.0,
+    input_refs: Sequence[ArtifactRef] = (),
+    sequence: int = 0,
+) -> VOIDecisionRecord:
+    """Explain whether the next search step has enough VOI to continue."""
+
+    expected_cost = max(float(expected_cost_to_continue), 0.0)
+    expected_risk = max(float(safety_regression_risk), 0.0)
+    expected_value = float(marginal_expected_improvement) - expected_cost - expected_risk
+    action = "continue_search" if expected_value >= 0.0 else "stop_search"
+    return VOIDecisionRecord(
+        decision_id=stable_voi_decision_id(
+            run_id=run_id,
+            decision_type=VOIDecisionType.STOP_SEARCH,
+            subject_id=f"continue_cost:{expected_cost:.6f}",
+            sequence=sequence,
+        ),
+        run_id=run_id,
+        decision_type=VOIDecisionType.STOP_SEARCH,
+        recommended_action=action,
+        expected_value=expected_value,
+        expected_cost=expected_cost,
+        expected_risk_reduction=max(expected_risk, 0.0),
+        explanation=(
+            f"{action}: marginal_expected_improvement="
+            f"{float(marginal_expected_improvement):.6f}, "
+            f"expected_cost_to_continue={expected_cost:.6f}, "
+            f"safety_regression_risk={expected_risk:.6f}."
+        ),
+        input_refs=list(input_refs),
+        metadata={
+            "marginal_expected_improvement": float(marginal_expected_improvement),
+            "safety_regression_risk": expected_risk,
+        },
+    )
+
+
+def build_adversarial_challenge_voi_decision(
+    *,
+    run_id: str,
+    candidate_id: str,
+    promotion_likelihood: float,
+    impact_score: float,
+    expected_challenge_cost: float,
+    expected_failure_discovery_value: float | None = None,
+    input_refs: Sequence[ArtifactRef] = (),
+    sequence: int = 0,
+) -> VOIDecisionRecord:
+    """Recommend adversarial challenge when a candidate is near promotion or high impact."""
+
+    bounded_promotion = max(0.0, min(1.0, float(promotion_likelihood)))
+    bounded_impact = max(0.0, min(1.0, float(impact_score)))
+    expected_cost = max(float(expected_challenge_cost), 0.0)
+    discovery_value = (
+        max(float(expected_failure_discovery_value), 0.0)
+        if expected_failure_discovery_value is not None
+        else max(bounded_promotion, bounded_impact) * (0.5 + (0.5 * bounded_impact))
+    )
+    expected_risk_reduction = max(0.0, min(1.0, discovery_value))
+    expected_value = expected_risk_reduction - expected_cost
+    near_promotion_or_high_impact = bounded_promotion >= 0.7 or bounded_impact >= 0.7
+    action = (
+        "run_adversarial_challenge"
+        if expected_value >= 0.0 and near_promotion_or_high_impact
+        else "defer"
+    )
+    if expected_value < 0.0:
+        action = "defer"
+    return VOIDecisionRecord(
+        decision_id=stable_voi_decision_id(
+            run_id=run_id,
+            decision_type=VOIDecisionType.ADVERSARIAL_CHALLENGE,
+            subject_id=candidate_id,
+            sequence=sequence,
+        ),
+        run_id=run_id,
+        decision_type=VOIDecisionType.ADVERSARIAL_CHALLENGE,
+        recommended_action=action,
+        expected_value=expected_value,
+        expected_cost=expected_cost,
+        expected_risk_reduction=expected_risk_reduction,
+        explanation=(
+            f"{action}: candidate={candidate_id}, "
+            f"promotion_likelihood={bounded_promotion:.6f}, "
+            f"impact_score={bounded_impact:.6f}, "
+            f"expected_challenge_cost={expected_cost:.6f}."
+        ),
+        input_refs=list(input_refs),
+        metadata={
+            "candidate_id": candidate_id,
+            "promotion_likelihood": bounded_promotion,
+            "impact_score": bounded_impact,
+            "near_promotion_or_high_impact": near_promotion_or_high_impact,
+        },
+    )
+
+
+def voi_run_report_inputs(
+    report: VOIRunReport,
+) -> list[InputRef]:
+    """Build manifest lineage inputs for a persisted VOI run report."""
+
+    inputs: list[InputRef] = []
+    seen: set[tuple[str, str]] = set()
+
+    def add(ref: ArtifactRef, role: str) -> None:
+        key = (str(ref.artifact_id), role)
+        if key in seen:
+            return
+        seen.add(key)
+        inputs.append(InputRef(artifact_id=ref.artifact_id, role=role))
+
+    if report.shadow_baseline_ref is not None:
+        add(report.shadow_baseline_ref, "shadow_baseline")
+    for decision_index, decision in enumerate(report.decisions):
+        for ref_index, ref in enumerate(decision.input_refs):
+            add(ref, f"voi_decision[{decision_index}].input[{ref_index}]")
+    return inputs
+
+
+def persist_voi_run_report(
+    store: Any,
+    report: VOIRunReport,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRef:
+    """Persist a VOIRunReport as a first-class Scientist CAS artifact."""
+
+    return store.put_json(
+        report,
+        PutOptions(
+            kind=VOI_RUN_REPORT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=VOI_RUN_REPORT_SCHEMA_NAME,
+                version=VOI_RUN_REPORT_SCHEMA_VERSION,
+            ),
+            inputs=list(inputs) if inputs is not None else voi_run_report_inputs(report),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def load_voi_run_report(store: Any, ref: ArtifactRef) -> VOIRunReport:
+    """Load a persisted VOI run report from CAS."""
+
+    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    return VOIRunReport.model_validate(payload)
+
+
 __all__ = [
     "ComputeEconomicsDecision",
     "ParetoSnapshot",
@@ -993,8 +1296,21 @@ __all__ = [
     "PromotionObservation",
     "SchedulingDecision",
     "SimpleVOIScheduler",
+    "VOI_RUN_REPORT_KIND",
+    "VOI_RUN_REPORT_SCHEMA_NAME",
+    "VOI_RUN_REPORT_SCHEMA_VERSION",
+    "VOIDecisionRecord",
+    "VOIDecisionType",
     "VOIModelSnapshot",
     "VOIModelStatus",
     "VOIObservation",
+    "VOIRunReport",
     "VOITrainingConfig",
+    "build_adversarial_challenge_voi_decision",
+    "build_stop_search_voi_decision",
+    "build_voi_run_report",
+    "load_voi_run_report",
+    "persist_voi_run_report",
+    "scheduling_decision_to_voi_record",
+    "voi_run_report_inputs",
 ]

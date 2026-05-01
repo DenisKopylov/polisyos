@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "impacts": [
+    {
+      "subject_id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "subject_kind": "lineage",
+      "lineage_status": "verified",
+      "quality_status": "passed",
+      "replay_status": "replayable",
+      "downstream_refs": [],
+      "upstream_refs": [],
+      "affected_decision_data_ids": ["fabric_decision_data:policy_cost"],
+      "source_contract_ids": ["worldbank.wdi.generic"],
+      "evidence_refs": ["cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "notes": ["lineage graph loaded lazily through /api/v1/lineage/{lineage_id}"]
+    },
+    {
+      "subject_id": "worldbank.wdi.generic",
+      "subject_kind": "source_contract",
+      "lineage_status": "verified",
+      "quality_status": "passed",
+      "replay_status": "replayable",
+      "downstream_refs": [],
+      "upstream_refs": [],
+      "affected_decision_data_ids": ["fabric_decision_data:policy_cost"],
+      "source_contract_ids": ["worldbank.wdi.generic"],
+      "evidence_refs": ["sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"],
+      "notes": ["source scorecard grade=A"]
+    }
+  ],
+  "summary": {
+    "run_id": "R_core_api_001",
+    "lineage_count": 1,
+    "source_contract_count": 1,
+    "decision_data_count": 1,
+    "impact_count": 2
+  }
+}

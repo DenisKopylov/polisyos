@@ -211,10 +211,15 @@ __all__ = [
     "VOIModelSnapshot",
     "VOIModelStatus",
     "VOIObservation",
+    "VOIRunReport",
     "VOITrainingConfig",
+    "VOIDecisionRecord",
+    "VOIDecisionType",
     "VulnerabilityFound",
     "assess_latent_governance",
     "build_cp_basis_design_plan",
+    "build_adversarial_challenge_voi_decision",
+    "build_stop_search_voi_decision",
     "enrich_context_with_diversity",
     "extract_sentinel_metadata",
     "latent_governance_metadata",
@@ -235,6 +240,10 @@ __all__ = [
     "scientist_blueprint_compliance_audit",
     "strip_internal_candidate_metadata",
     "success_lesson_from_outcome",
+    "build_voi_run_report",
+    "load_voi_run_report",
+    "persist_voi_run_report",
+    "scheduling_decision_to_voi_record",
 ]
 
 try:
@@ -378,12 +387,26 @@ def __getattr__(name: str) -> Any:
         "PromotionObservation",
         "SchedulingDecision",
         "SimpleVOIScheduler",
+        "VOIDecisionRecord",
+        "VOIDecisionType",
         "VOIModelSnapshot",
         "VOIModelStatus",
         "VOIObservation",
+        "VOIRunReport",
         "VOITrainingConfig",
+        "build_adversarial_challenge_voi_decision",
+        "build_stop_search_voi_decision",
+        "build_voi_run_report",
+        "load_voi_run_report",
+        "persist_voi_run_report",
+        "scheduling_decision_to_voi_record",
     }:
-        module = importlib.import_module("polisyos.scientist.search.voi_scheduler")
+        module_name = (
+            "polisyos.scientist.search.voi_models"
+            if name in {"VOIDecisionRecord", "VOIDecisionType", "VOIRunReport"}
+            else "polisyos.scientist.search.voi_scheduler"
+        )
+        module = importlib.import_module(module_name)
         return getattr(module, name)
     if name in {
         "CPBASISConfig",

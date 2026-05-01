@@ -117,6 +117,7 @@ LineageSummaryKind = Literal[
     "method",
     "unknown",
 ]
+FabricImpactSubjectKind = Literal["lineage", "source_contract", "run", "decision_data"]
 
 
 def _utc_now() -> datetime:
@@ -254,6 +255,20 @@ class TemporalSurfaceCapability(BaseModel):
     gaps: list[TemporalGapRange] = Field(default_factory=list)
 
 
+class TemporalIndexEvidence(BaseModel):
+    """Index and slow-query evidence for temporal world lookups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    table: str
+    adapter: str = "duckdb"
+    index_name: str
+    columns: list[str] = Field(default_factory=list)
+    status: Literal["implemented", "recommended", "missing", "not_applicable"] = "implemented"
+    slow_query_gate_ms: int = Field(default=500, ge=1)
+    evidence_ref: str | None = None
+
+
 class TemporalCapabilitiesView(BaseModel):
     """Temporal capability manifest for one run or the runtime as a whole."""
 
@@ -266,6 +281,14 @@ class TemporalCapabilitiesView(BaseModel):
     resolution: str = "event"
     surfaces: list[TemporalSurfaceCapability] = Field(default_factory=list)
     event_points: list[TemporalEventPoint] = Field(default_factory=list)
+    nearest_event_points: list[TemporalEventPoint] = Field(default_factory=list)
+    supported_tables: list[str] = Field(default_factory=list)
+    unsupported_surfaces: list[TemporalSurfaceSupport] = Field(default_factory=list)
+    branch_support: bool = False
+    snapshot_support: bool = False
+    scenario_branch_support: Literal["explicit_only", "unsupported"] = "unsupported"
+    graph_temporal_scope: Literal["full", "partial", "unsupported"] = "unsupported"
+    slow_query_evidence: list[TemporalIndexEvidence] = Field(default_factory=list)
 
 
 class TemporalCapabilitiesResponse(BaseModel):
@@ -275,6 +298,106 @@ class TemporalCapabilitiesResponse(BaseModel):
 
     meta: ApiMeta
     capabilities: TemporalCapabilitiesView
+
+
+class FabricSourceScorecardsResponse(BaseModel):
+    """Response envelope for generated Fabric source scorecards."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    schema_version: str = "fabric.source_scorecard.v1"
+    generated_at: datetime | None = None
+    count: int = Field(default=0, ge=0)
+    scorecards: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+
+class FabricQualityTrustBatchRequest(BaseModel):
+    """Run-scoped batch request for Fabric quality/trust metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(min_length=1)
+    decision_data_ids: list[str] = Field(default_factory=list, max_length=100)
+    temporal_scope: TemporalScope | None = None
+
+
+class FabricQualityBatchResponse(BaseModel):
+    """Batch response for Fabric quality refs without client-side N+1 fetches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    temporal_scope: TemporalScope | None = None
+    quality_refs: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    coverage: dict[str, Any] = Field(default_factory=dict)
+
+
+class FabricTrustBatchResponse(BaseModel):
+    """Batch response for Fabric trust-envelope refs without client-side N+1 fetches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    temporal_scope: TemporalScope | None = None
+    trust_refs: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    coverage: dict[str, Any] = Field(default_factory=dict)
+
+
+class FabricReplayRunResponse(BaseModel):
+    """Run-scoped replay metadata extracted from Fabric decision-data envelopes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    temporal_scope: TemporalScope | None = None
+    replay_refs: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    status_counts: dict[str, int] = Field(default_factory=dict)
+    coverage: dict[str, Any] = Field(default_factory=dict)
+
+
+class FabricImpactAnalysisRequest(BaseModel):
+    """Request body for Fabric-backed impact analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str | None = None
+    lineage_ids: list[str] = Field(default_factory=list, max_length=100)
+    source_contract_ids: list[str] = Field(default_factory=list, max_length=100)
+    temporal_scope: TemporalScope | None = None
+    max_depth: int = Field(default=2, ge=1, le=8)
+
+
+class FabricImpactRecord(BaseModel):
+    """One origin/impact row for a Fabric lineage or source-contract subject."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str
+    subject_kind: FabricImpactSubjectKind
+    lineage_status: VerificationStatus = "untraced"
+    quality_status: str | None = None
+    replay_status: str | None = None
+    downstream_refs: list[str] = Field(default_factory=list)
+    upstream_refs: list[str] = Field(default_factory=list)
+    affected_decision_data_ids: list[str] = Field(default_factory=list)
+    source_contract_ids: list[str] = Field(default_factory=list)
+    evidence_refs: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class FabricImpactAnalysisResponse(BaseModel):
+    """Response envelope for Fabric impact analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    temporal_scope: TemporalScope | None = None
+    impacts: list[FabricImpactRecord] = Field(default_factory=list)
+    summary: dict[str, Any] = Field(default_factory=dict)
 
 
 class VerificationMetadata(BaseModel):
@@ -2016,6 +2139,15 @@ __all__ = [
     "DisputeStatus",
     "EvaluatorReportView",
     "EvaluatorScoresView",
+    "FabricImpactAnalysisRequest",
+    "FabricImpactAnalysisResponse",
+    "FabricImpactRecord",
+    "FabricImpactSubjectKind",
+    "FabricQualityBatchResponse",
+    "FabricQualityTrustBatchRequest",
+    "FabricReplayRunResponse",
+    "FabricSourceScorecardsResponse",
+    "FabricTrustBatchResponse",
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
@@ -2095,8 +2227,8 @@ __all__ = [
     "ScenarioCreateRequest",
     "ScenarioIntervention",
     "ScenarioInterventionOperator",
-    "ScenarioListResponse",
     "ScenarioLifecycleStatus",
+    "ScenarioListResponse",
     "ScenarioManifest",
     "ScenarioManifestResponse",
     "ScenarioRef",
@@ -2108,6 +2240,7 @@ __all__ = [
     "TemporalEventKind",
     "TemporalEventPoint",
     "TemporalGapRange",
+    "TemporalIndexEvidence",
     "TemporalRange",
     "TemporalRef",
     "TemporalScope",

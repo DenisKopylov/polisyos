@@ -66,3 +66,31 @@ def test_review_packet_and_decision_persist_and_load_from_cas(tmp_path) -> None:
     decision_manifest = store.get_manifest(decision_ref.artifact_id)
     assert "claims" in {item.role for item in packet_manifest.inputs}
     assert "review_packet" in {item.role for item in decision_manifest.inputs}
+
+
+def test_review_packet_prefers_claim_ledger_v2_summary_and_blocked_details() -> None:
+    packet = build_review_packet(
+        run_id="run_1",
+        workflow_id="scientist_policy_design",
+        decision_payload={
+            "schema_version": "3.4",
+            "run_id": "run_1",
+            "claim_readiness_summary": {"blocked_claim_ids": ["legacy_claim"]},
+            "claim_ledger_summary": {
+                "lifecycle_status": "available",
+                "blocked_claim_ids": ["claim_a"],
+            },
+            "blocked_claim_summary": {
+                "blocked_claims": [
+                    {
+                        "claim_id": "claim_a",
+                        "blocked_reasons": ["counterevidence_found"],
+                    }
+                ]
+            },
+            "policy_summary": {"title": "Policy"},
+        },
+    )
+
+    assert packet.claim_ledger_summary["lifecycle_status"] == "available"
+    assert packet.blocked_claim_ids == ["claim_a"]

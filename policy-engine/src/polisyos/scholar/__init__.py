@@ -23,11 +23,13 @@ __all__ = [
     "ScholarDiscoverError",
     "ScholarDocsError",
     "ScholarError",
+    "ScholarFabricCitation",
     "ScholarPolicy",
     "ScholarReconcileError",
     "ScholarService",
     "ScholarValidationError",
     "enrich_topic",
+    "scholar_citation_from_fabric_decision_data",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -42,6 +44,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ScholarReconcileError": ("polisyos.scholar.errors", "ScholarReconcileError"),
     "ScholarValidationError": ("polisyos.scholar.errors", "ScholarValidationError"),
     "ScholarPolicy": ("polisyos.scholar.policies", "ScholarPolicy"),
+    "ScholarFabricCitation": ("polisyos.scholar.provenance", "ScholarFabricCitation"),
+    "scholar_citation_from_fabric_decision_data": (
+        "polisyos.scholar.provenance",
+        "scholar_citation_from_fabric_decision_data",
+    ),
     "EnrichResultV1": ("polisyos.scholar.types", "EnrichResultV1"),
     "EnrichmentReportV1": ("polisyos.scholar.types", "EnrichmentReportV1"),
     "KnowledgeBundlePayloadV1": ("polisyos.scholar.types", "KnowledgeBundlePayloadV1"),

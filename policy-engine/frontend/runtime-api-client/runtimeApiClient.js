@@ -271,10 +271,81 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async analyzeFabricImpact(params) {
+    const path = `/api/v1/fabric/impact`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('POST', path, query, params?.body);
+  }
+
+  async getFabricQualityBatch(params) {
+    const path = `/api/v1/fabric/quality/batch`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('POST', path, query, params?.body);
+  }
+
+  async getFabricRunReplay(params) {
+    const path = `/api/v1/fabric/runs/${encodeURIComponent(String(params.run_id))}/replay`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getFabricSourceScorecards() {
+    const path = `/api/v1/fabric/source-scorecards`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getFabricTrustBatch(params) {
+    const path = `/api/v1/fabric/trust/batch`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('POST', path, query, params?.body);
+  }
+
   async runtimeApiHealth() {
     const path = `/api/v1/health`;
     const query = undefined;
     return this.request('GET', path, query);
+  }
+
+  async getLineageBatch(params) {
+    const path = `/api/v1/lineage/batch`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      t: params?.t,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+    });
+    return this.request('POST', path, query, params?.body);
   }
 
   async getLineage(params) {

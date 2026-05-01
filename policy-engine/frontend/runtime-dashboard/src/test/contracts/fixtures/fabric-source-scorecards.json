@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": []
+  },
+  "schema_version": "fabric.source_scorecard.v1",
+  "generated_at": "2026-02-11T12:00:00Z",
+  "count": 1,
+  "scorecards": {
+    "worldbank.wdi.generic": {
+      "schema_version": "fabric.source_scorecard.v1",
+      "source_contract_id": "worldbank.wdi.generic",
+      "connector_id": "worldbank.wdi",
+      "profile_id": "worldbank.default",
+      "generated_at": "2026-02-11T12:00:00Z",
+      "window": "rolling_30d",
+      "metrics": [
+        {
+          "name": "quality",
+          "score": 0.97,
+          "observed_value": 0.97,
+          "target_value": 0.8,
+          "status": "healthy",
+          "reason": ""
+        },
+        {
+          "name": "replay_success",
+          "score": 1,
+          "observed_value": 1,
+          "target_value": 0.99,
+          "status": "healthy",
+          "reason": ""
+        }
+      ],
+      "overall_score": 0.93,
+      "grade": "A",
+      "status": "healthy",
+      "evidence": {
+        "source_contract_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "replay_fixture": "tests/fixtures/fabric/worldbank/wdi.replay.json"
+      }
+    }
+  }
+}

@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import concurrent.futures
 import hashlib
 import json
+import multiprocessing
+import os
 import re
+import sys
+import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -120,6 +125,21 @@ _DERIVATIVE_ACT_TITLE_RE = re.compile(
     r"порядок\s+введення\s+в\s+дію|визнання\s+(?:таким|такими)[^.;]{0,80}?чинність)",
     re.IGNORECASE,
 )
+_AMENDMENT_TITLE_MATCH_STOP_TOKENS = {
+    "до",
+    "та",
+    "і",
+    "в",
+    "у",
+    "на",
+    "з",
+    "із",
+    "про",
+    "що",
+    "від",
+    "за",
+    "або",
+}
 _UK_MONTHS = {
     "січня": "01",
     "лютого": "02",
@@ -839,6 +859,9 @@ def build_graph(
     resolution_cards_path: Path | None = None,
     feedback_queue_path: Path | None = None,
     insert_batch_size: int = 10_000,
+    amendment_workers: int = 1,
+    amendment_task_chunk: int = 64,
+    amendment_progress_interval: int = 100,
 ) -> GraphStats:
     """Read SPO/provision files and stream rows to DuckDB."""
     stats = GraphStats()
@@ -929,6 +952,9 @@ def build_graph(
             resolution_doc_metadata=resolution_doc_metadata,
             resolution_cards_path=resolution_cards_path,
             insert_batch_size=insert_batch_size,
+            workers=amendment_workers,
+            task_chunk=amendment_task_chunk,
+            progress_interval=amendment_progress_interval,
         )
         _enrich_fact_domains(con)
         _populate_fact_partitions(con=con, stats=stats)
@@ -2298,6 +2324,340 @@ def _stream_pattern_feedback_to_duckdb(
         stats.pattern_feedback_queue += len(batch)
 
 
+@dataclass
+class _AmendmentExtractionResult:
+    rows: list[tuple[Any, ...]]
+    docs_scanned: int = 0
+    amendments_with_target: int = 0
+    amendment_docs_total: int = 0
+    amendment_docs_with_target: int = 0
+
+
+_AMENDMENT_WORKER_CONTEXT: dict[str, Any] = {}
+
+
+def _init_amendment_worker(
+    doc_index: DocResolutionIndex,
+    doc_metadata: dict[str, dict[str, Any]],
+    references_dir: str | None,
+) -> None:
+    """Initialize process-local immutable context for amendment workers."""
+
+    global _AMENDMENT_WORKER_CONTEXT
+    _AMENDMENT_WORKER_CONTEXT = {
+        "doc_index": doc_index,
+        "doc_metadata": doc_metadata,
+        "references_dir": Path(references_dir) if references_dir else None,
+    }
+
+
+def _chunk_paths(paths: list[Path], chunk_size: int) -> list[list[Path]]:
+    chunk_size = max(1, int(chunk_size))
+    return [paths[index : index + chunk_size] for index in range(0, len(paths), chunk_size)]
+
+
+def _extract_amendment_rows_for_batch_worker(paths: list[str]) -> _AmendmentExtractionResult:
+    ctx = _AMENDMENT_WORKER_CONTEXT
+    if not ctx:
+        raise RuntimeError("amendment worker context was not initialized")
+    return _extract_amendment_rows_for_batch(
+        provision_files=[Path(path) for path in paths],
+        doc_metadata=ctx["doc_metadata"],
+        references_dir=ctx["references_dir"],
+        doc_index=ctx["doc_index"],
+    )
+
+
+def _extract_amendment_rows_for_batch(
+    *,
+    provision_files: list[Path],
+    doc_metadata: dict[str, dict[str, Any]],
+    references_dir: Path | None,
+    doc_index: DocResolutionIndex,
+) -> _AmendmentExtractionResult:
+    result = _AmendmentExtractionResult(rows=[])
+    for jsonl_file in provision_files:
+        partial = _extract_amendment_rows_for_file(
+            jsonl_file=jsonl_file,
+            doc_metadata=doc_metadata,
+            references_dir=references_dir,
+            doc_index=doc_index,
+        )
+        result.docs_scanned += partial.docs_scanned
+        result.rows.extend(partial.rows)
+        result.amendments_with_target += partial.amendments_with_target
+        result.amendment_docs_total += partial.amendment_docs_total
+        result.amendment_docs_with_target += partial.amendment_docs_with_target
+    return result
+
+
+def _extract_amendment_rows_for_file(
+    *,
+    jsonl_file: Path,
+    doc_metadata: dict[str, dict[str, Any]],
+    references_dir: Path | None,
+    doc_index: DocResolutionIndex,
+) -> _AmendmentExtractionResult:
+    doc_id = jsonl_file.stem
+    meta = doc_metadata.get(doc_id, {})
+    result = _AmendmentExtractionResult(rows=[], docs_scanned=1)
+    doc_amendment_count = 0
+    doc_targeted_amendment_count = 0
+    first_anchor = ""
+    first_text = ""
+    amendment_target_hints = _load_amendment_target_hints_for_doc(
+        references_dir=references_dir,
+        doc_id=doc_id,
+    )
+    doc_scope = _analyze_amendment_doc_scope(
+        source_doc_id=doc_id,
+        doc_meta=meta,
+        target_hints=amendment_target_hints,
+        doc_index=doc_index,
+    )
+    default_target_hint = (
+        dict(doc_scope.default_hint)
+        if doc_scope.default_hint is not None
+        else {
+            "source": doc_scope.default_target.source,
+            "target_doc_id": doc_scope.default_target.doc_id,
+            "target_doc_name": doc_scope.default_target.doc_name,
+            "score": round(doc_scope.default_target.score, 4),
+            "target_resolution_candidates_count": doc_scope.default_target.candidate_count,
+        }
+        if doc_scope.default_target is not None
+        else {}
+    )
+    seen_doc_signatures: set[tuple[str, ...]] = set()
+    with open(jsonl_file, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            text = str(row.get("text") or "")
+            if not text:
+                continue
+            if not first_anchor:
+                first_anchor = str(row.get("anchor_path") or "")
+                first_text = text[:500]
+            amendments = detect_amendments(text)
+            for idx, amendment in enumerate(amendments, start=1):
+                raw_signature = (
+                    amendment.amendment_type,
+                    amendment.target_anchor,
+                    _normalize_signature_text(amendment.old_text_uk),
+                    _normalize_signature_text(amendment.new_text_uk),
+                    _normalize_signature_text(amendment.source_text),
+                )
+                if raw_signature in seen_doc_signatures:
+                    continue
+                seen_doc_signatures.add(raw_signature)
+                if doc_scope.single_target_expected and doc_scope.default_target is not None:
+                    amended_doc_id = doc_scope.default_target.doc_id
+                    target_hint = dict(default_target_hint)
+                elif not doc_scope.is_amendment_doc and not amendment_target_hints:
+                    inferred_from_source = (
+                        _infer_amendment_target_from_source_text(
+                            source_doc_id=doc_id,
+                            source_text=amendment.source_text,
+                            target_anchor=amendment.target_anchor,
+                            doc_index=doc_index,
+                        )
+                        if _source_text_has_target_signal(amendment.source_text)
+                        else None
+                    )
+                    if inferred_from_source is None:
+                        continue
+                    amended_doc_id = inferred_from_source.doc_id
+                    target_hint = {
+                        "source": inferred_from_source.source,
+                        "target_doc_id": inferred_from_source.doc_id,
+                        "target_doc_name": inferred_from_source.doc_name,
+                        "score": round(inferred_from_source.score, 4),
+                        "target_resolution_candidates_count": inferred_from_source.candidate_count,
+                    }
+                elif doc_scope.scope_kind == "multi_target_title" and not amendment_target_hints:
+                    inferred_from_source = (
+                        _infer_amendment_target_from_source_text(
+                            source_doc_id=doc_id,
+                            source_text=amendment.source_text,
+                            target_anchor=amendment.target_anchor,
+                            doc_index=doc_index,
+                        )
+                        if _source_text_has_target_signal(amendment.source_text)
+                        else None
+                    )
+                    amended_doc_id = (
+                        inferred_from_source.doc_id if inferred_from_source is not None else ""
+                    )
+                    target_hint = (
+                        {
+                            "source": inferred_from_source.source,
+                            "target_doc_id": inferred_from_source.doc_id,
+                            "target_doc_name": inferred_from_source.doc_name,
+                            "score": round(inferred_from_source.score, 4),
+                            "target_resolution_candidates_count": inferred_from_source.candidate_count,
+                        }
+                        if inferred_from_source is not None
+                        else {}
+                    )
+                else:
+                    amended_doc_id, target_hint = _select_amendment_target(
+                        source_doc_id=doc_id,
+                        doc_meta=meta,
+                        target_hints=amendment_target_hints,
+                        source_text=amendment.source_text,
+                        target_anchor=amendment.target_anchor,
+                        doc_index=doc_index,
+                    )
+                if not amended_doc_id and not doc_scope.is_amendment_doc:
+                    continue
+                target_resolution_expected = bool(amended_doc_id) or doc_scope.single_target_expected
+                doc_amendment_count += 1
+                if amended_doc_id:
+                    doc_targeted_amendment_count += 1
+                target_source = str(target_hint.get("source") or "").strip().lower()
+                detected_by = "pattern"
+                if target_source:
+                    if target_source.startswith("doc_title"):
+                        detected_by = "pattern+title"
+                    elif target_source.startswith("doc_metadata"):
+                        detected_by = "pattern+metadata"
+                    elif target_source.startswith("source_text"):
+                        detected_by = "pattern+source_text"
+                    else:
+                        detected_by = "pattern+refs"
+                result.rows.append(
+                    (
+                        _stable_hash(
+                            doc_id,
+                            row.get("anchor_path", ""),
+                            amendment.amendment_type,
+                            str(idx),
+                            size=24,
+                        ),
+                        doc_id,
+                        amended_doc_id,
+                        target_resolution_expected,
+                        amendment.amendment_type,
+                        amendment.target_anchor,
+                        amendment.old_text_uk,
+                        amendment.new_text_uk,
+                        amendment.effective_from,
+                        detected_by,
+                        amendment.confidence,
+                        json.dumps(
+                            {
+                                "source_anchor": str(row.get("anchor_path") or ""),
+                                "source_text": amendment.source_text,
+                                "doc_scope_kind": doc_scope.scope_kind,
+                                "target_resolution_expected": target_resolution_expected,
+                                "target_resolution_method": str(target_hint.get("source") or ""),
+                                "target_resolution_score": float(target_hint.get("score") or 0.0),
+                                "target_resolution_candidates_count": int(
+                                    target_hint.get("target_resolution_candidates_count") or 0
+                                ),
+                                "target_hint": target_hint,
+                            },
+                            ensure_ascii=False,
+                        ),
+                    )
+                )
+    if doc_amendment_count == 0 and doc_scope.is_amendment_doc:
+        amended_doc_id = (
+            doc_scope.default_target.doc_id if doc_scope.default_target is not None else ""
+        )
+        target_resolution_expected = bool(amended_doc_id) or doc_scope.single_target_expected
+        target_hint = (
+            dict(default_target_hint)
+            if default_target_hint
+            else {
+                "source": doc_scope.scope_kind,
+                "target_doc_id": amended_doc_id,
+                "target_doc_name": doc_scope.default_target.doc_name
+                if doc_scope.default_target is not None
+                else "",
+                "score": round(doc_scope.default_target.score, 4)
+                if doc_scope.default_target is not None
+                else 0.0,
+                "target_resolution_candidates_count": doc_scope.default_target.candidate_count
+                if doc_scope.default_target is not None
+                else 0,
+            }
+        )
+        result.rows.append(
+            (
+                _stable_hash(
+                    doc_id, first_anchor or "doc_scope", "general_amendment_fallback", size=24
+                ),
+                doc_id,
+                amended_doc_id,
+                target_resolution_expected,
+                "general_amendment",
+                "",
+                "",
+                "",
+                "",
+                (
+                    "pattern+title"
+                    if doc_scope.scope_kind
+                    in {
+                        "single_target_title",
+                        "multi_target_title",
+                        "amendment_title_unresolved",
+                    }
+                    else "pattern+metadata"
+                    if doc_scope.scope_kind == "explicit_target"
+                    else "pattern+refs"
+                ),
+                0.68,
+                json.dumps(
+                    {
+                        "source_anchor": first_anchor,
+                        "source_text": first_text or str(meta.get("name") or ""),
+                        "doc_scope_kind": doc_scope.scope_kind,
+                        "target_resolution_expected": target_resolution_expected,
+                        "target_resolution_method": str(target_hint.get("source") or ""),
+                        "target_resolution_score": float(target_hint.get("score") or 0.0),
+                        "target_resolution_candidates_count": int(
+                            target_hint.get("target_resolution_candidates_count") or 0
+                        ),
+                        "target_hint": target_hint,
+                        "fallback_generated": True,
+                    },
+                    ensure_ascii=False,
+                ),
+            )
+        )
+        doc_amendment_count = 1
+        if amended_doc_id:
+            doc_targeted_amendment_count = 1
+    if doc_amendment_count > 0:
+        result.amendment_docs_total = 1
+        if doc_targeted_amendment_count > 0:
+            result.amendment_docs_with_target = 1
+        result.amendments_with_target = doc_targeted_amendment_count
+    return result
+
+
+def _insert_amendment_rows(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    sql: str,
+    batch: list[tuple[Any, ...]],
+    rows: list[tuple[Any, ...]],
+    insert_batch_size: int,
+) -> None:
+    batch.extend(rows)
+    while len(batch) >= insert_batch_size:
+        to_insert = batch[:insert_batch_size]
+        del batch[:insert_batch_size]
+        con.executemany(sql, to_insert)
+        stats.amendments += len(to_insert)
+
+
 def _stream_amendments_to_duckdb(
     *,
     con: duckdb.DuckDBPyConnection,
@@ -2308,6 +2668,9 @@ def _stream_amendments_to_duckdb(
     resolution_doc_metadata: dict[str, dict[str, Any]] | None,
     resolution_cards_path: Path | None,
     insert_batch_size: int,
+    workers: int = 1,
+    task_chunk: int = 64,
+    progress_interval: int = 100,
 ) -> None:
     provision_files = sorted(provisions_dir.glob("**/*.jsonl"))
     if not provision_files:
@@ -2326,262 +2689,90 @@ def _stream_amendments_to_duckdb(
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     batch: list[tuple[Any, ...]] = []
-    for jsonl_file in provision_files:
-        doc_id = jsonl_file.stem
-        meta = doc_metadata.get(doc_id, {})
-        doc_amendment_count = 0
-        doc_targeted_amendment_count = 0
-        first_anchor = ""
-        first_text = ""
-        amendment_target_hints = _load_amendment_target_hints_for_doc(
-            references_dir=references_dir,
-            doc_id=doc_id,
+    files_processed = 0
+    next_progress_log = max(1, int(progress_interval or 0))
+    start_monotonic = time.monotonic()
+
+    def consume_result(result: _AmendmentExtractionResult) -> None:
+        nonlocal files_processed, next_progress_log
+        _insert_amendment_rows(
+            con=con,
+            stats=stats,
+            sql=sql,
+            batch=batch,
+            rows=result.rows,
+            insert_batch_size=insert_batch_size,
         )
-        doc_scope = _analyze_amendment_doc_scope(
-            source_doc_id=doc_id,
-            doc_meta=meta,
-            target_hints=amendment_target_hints,
-            doc_index=doc_index,
-        )
-        default_target_hint = (
-            dict(doc_scope.default_hint)
-            if doc_scope.default_hint is not None
-            else {
-                "source": doc_scope.default_target.source,
-                "target_doc_id": doc_scope.default_target.doc_id,
-                "target_doc_name": doc_scope.default_target.doc_name,
-                "score": round(doc_scope.default_target.score, 4),
-                "target_resolution_candidates_count": doc_scope.default_target.candidate_count,
-            }
-            if doc_scope.default_target is not None
-            else {}
-        )
-        seen_doc_signatures: set[tuple[str, ...]] = set()
-        with open(jsonl_file, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                row = json.loads(line)
-                text = str(row.get("text") or "")
-                if not text:
-                    continue
-                if not first_anchor:
-                    first_anchor = str(row.get("anchor_path") or "")
-                    first_text = text[:500]
-                amendments = detect_amendments(text)
-                for idx, amendment in enumerate(amendments, start=1):
-                    raw_signature = (
-                        amendment.amendment_type,
-                        amendment.target_anchor,
-                        _normalize_signature_text(amendment.old_text_uk),
-                        _normalize_signature_text(amendment.new_text_uk),
-                        _normalize_signature_text(amendment.source_text),
-                    )
-                    if raw_signature in seen_doc_signatures:
-                        continue
-                    seen_doc_signatures.add(raw_signature)
-                    if doc_scope.single_target_expected and doc_scope.default_target is not None:
-                        amended_doc_id = doc_scope.default_target.doc_id
-                        target_hint = dict(default_target_hint)
-                    elif not doc_scope.is_amendment_doc and not amendment_target_hints:
-                        inferred_from_source = (
-                            _infer_amendment_target_from_source_text(
-                                source_doc_id=doc_id,
-                                source_text=amendment.source_text,
-                                target_anchor=amendment.target_anchor,
-                                doc_index=doc_index,
-                            )
-                            if _source_text_has_target_signal(amendment.source_text)
-                            else None
-                        )
-                        if inferred_from_source is None:
-                            continue
-                        amended_doc_id = inferred_from_source.doc_id
-                        target_hint = {
-                            "source": inferred_from_source.source,
-                            "target_doc_id": inferred_from_source.doc_id,
-                            "target_doc_name": inferred_from_source.doc_name,
-                            "score": round(inferred_from_source.score, 4),
-                            "target_resolution_candidates_count": inferred_from_source.candidate_count,
-                        }
-                    elif (
-                        doc_scope.scope_kind == "multi_target_title" and not amendment_target_hints
-                    ):
-                        inferred_from_source = (
-                            _infer_amendment_target_from_source_text(
-                                source_doc_id=doc_id,
-                                source_text=amendment.source_text,
-                                target_anchor=amendment.target_anchor,
-                                doc_index=doc_index,
-                            )
-                            if _source_text_has_target_signal(amendment.source_text)
-                            else None
-                        )
-                        amended_doc_id = (
-                            inferred_from_source.doc_id if inferred_from_source is not None else ""
-                        )
-                        target_hint = (
-                            {
-                                "source": inferred_from_source.source,
-                                "target_doc_id": inferred_from_source.doc_id,
-                                "target_doc_name": inferred_from_source.doc_name,
-                                "score": round(inferred_from_source.score, 4),
-                                "target_resolution_candidates_count": inferred_from_source.candidate_count,
-                            }
-                            if inferred_from_source is not None
-                            else {}
-                        )
-                    else:
-                        amended_doc_id, target_hint = _select_amendment_target(
-                            source_doc_id=doc_id,
-                            doc_meta=meta,
-                            target_hints=amendment_target_hints,
-                            source_text=amendment.source_text,
-                            target_anchor=amendment.target_anchor,
-                            doc_index=doc_index,
-                        )
-                    if not amended_doc_id and not doc_scope.is_amendment_doc:
-                        continue
-                    target_resolution_expected = (
-                        bool(amended_doc_id) or doc_scope.single_target_expected
-                    )
-                    doc_amendment_count += 1
-                    if amended_doc_id:
-                        doc_targeted_amendment_count += 1
-                    target_source = str(target_hint.get("source") or "").strip().lower()
-                    detected_by = "pattern"
-                    if target_source:
-                        if target_source.startswith("doc_title"):
-                            detected_by = "pattern+title"
-                        elif target_source.startswith("doc_metadata"):
-                            detected_by = "pattern+metadata"
-                        elif target_source.startswith("source_text"):
-                            detected_by = "pattern+source_text"
-                        else:
-                            detected_by = "pattern+refs"
-                    batch.append(
-                        (
-                            _stable_hash(
-                                doc_id,
-                                row.get("anchor_path", ""),
-                                amendment.amendment_type,
-                                str(idx),
-                                size=24,
-                            ),
-                            doc_id,
-                            amended_doc_id,
-                            target_resolution_expected,
-                            amendment.amendment_type,
-                            amendment.target_anchor,
-                            amendment.old_text_uk,
-                            amendment.new_text_uk,
-                            amendment.effective_from,
-                            detected_by,
-                            amendment.confidence,
-                            json.dumps(
-                                {
-                                    "source_anchor": str(row.get("anchor_path") or ""),
-                                    "source_text": amendment.source_text,
-                                    "doc_scope_kind": doc_scope.scope_kind,
-                                    "target_resolution_expected": target_resolution_expected,
-                                    "target_resolution_method": str(
-                                        target_hint.get("source") or ""
-                                    ),
-                                    "target_resolution_score": float(
-                                        target_hint.get("score") or 0.0
-                                    ),
-                                    "target_resolution_candidates_count": int(
-                                        target_hint.get("target_resolution_candidates_count") or 0
-                                    ),
-                                    "target_hint": target_hint,
-                                },
-                                ensure_ascii=False,
-                            ),
-                        )
-                    )
-                    if len(batch) >= insert_batch_size:
-                        con.executemany(sql, batch)
-                        stats.amendments += len(batch)
-                        batch.clear()
-        if doc_amendment_count == 0 and doc_scope.is_amendment_doc:
-            amended_doc_id = (
-                doc_scope.default_target.doc_id if doc_scope.default_target is not None else ""
+        stats.amendments_with_target += result.amendments_with_target
+        stats.amendment_docs_total += result.amendment_docs_total
+        stats.amendment_docs_with_target += result.amendment_docs_with_target
+        files_processed += result.docs_scanned
+        if progress_interval > 0 and files_processed >= next_progress_log:
+            elapsed = max(time.monotonic() - start_monotonic, 0.001)
+            logger.info(
+                "Amendment enrichment progress: {}/{} docs, {} amendments buffered, "
+                "{} amendments with target, {:.3f} docs/s",
+                files_processed,
+                len(provision_files),
+                stats.amendments + len(batch),
+                stats.amendments_with_target,
+                files_processed / elapsed,
             )
-            target_resolution_expected = bool(amended_doc_id) or doc_scope.single_target_expected
-            target_hint = (
-                dict(default_target_hint)
-                if default_target_hint
-                else {
-                    "source": doc_scope.scope_kind,
-                    "target_doc_id": amended_doc_id,
-                    "target_doc_name": doc_scope.default_target.doc_name
-                    if doc_scope.default_target is not None
-                    else "",
-                    "score": round(doc_scope.default_target.score, 4)
-                    if doc_scope.default_target is not None
-                    else 0.0,
-                    "target_resolution_candidates_count": doc_scope.default_target.candidate_count
-                    if doc_scope.default_target is not None
-                    else 0,
-                }
-            )
-            batch.append(
-                (
-                    _stable_hash(
-                        doc_id, first_anchor or "doc_scope", "general_amendment_fallback", size=24
-                    ),
-                    doc_id,
-                    amended_doc_id,
-                    target_resolution_expected,
-                    "general_amendment",
-                    "",
-                    "",
-                    "",
-                    "",
-                    (
-                        "pattern+title"
-                        if doc_scope.scope_kind
-                        in {
-                            "single_target_title",
-                            "multi_target_title",
-                            "amendment_title_unresolved",
-                        }
-                        else "pattern+metadata"
-                        if doc_scope.scope_kind == "explicit_target"
-                        else "pattern+refs"
-                    ),
-                    0.68,
-                    json.dumps(
-                        {
-                            "source_anchor": first_anchor,
-                            "source_text": first_text or str(meta.get("name") or ""),
-                            "doc_scope_kind": doc_scope.scope_kind,
-                            "target_resolution_expected": target_resolution_expected,
-                            "target_resolution_method": str(target_hint.get("source") or ""),
-                            "target_resolution_score": float(target_hint.get("score") or 0.0),
-                            "target_resolution_candidates_count": int(
-                                target_hint.get("target_resolution_candidates_count") or 0
-                            ),
-                            "target_hint": target_hint,
-                            "fallback_generated": True,
-                        },
-                        ensure_ascii=False,
-                    ),
+            while files_processed >= next_progress_log:
+                next_progress_log += progress_interval
+
+    chunks = _chunk_paths(provision_files, task_chunk)
+    max_workers = max(1, int(workers or 1))
+    bounded_workers = min(max_workers, os.cpu_count() or max_workers, len(chunks))
+    if bounded_workers <= 1 or len(chunks) <= 1:
+        for chunk in chunks:
+            consume_result(
+                _extract_amendment_rows_for_batch(
+                    provision_files=chunk,
+                    doc_metadata=doc_metadata,
+                    references_dir=references_dir,
+                    doc_index=doc_index,
                 )
             )
-            doc_amendment_count = 1
-            if amended_doc_id:
-                doc_targeted_amendment_count = 1
-            if len(batch) >= insert_batch_size:
-                con.executemany(sql, batch)
-                stats.amendments += len(batch)
-                batch.clear()
-        if doc_amendment_count > 0:
-            stats.amendment_docs_total += 1
-            if doc_targeted_amendment_count > 0:
-                stats.amendment_docs_with_target += 1
-            stats.amendments_with_target += doc_targeted_amendment_count
+    else:
+        executor_cls: type[
+            concurrent.futures.ProcessPoolExecutor | concurrent.futures.ThreadPoolExecutor
+        ] = concurrent.futures.ProcessPoolExecutor
+        main_file = str(getattr(sys.modules.get("__main__"), "__file__", "") or "")
+        if not main_file or "<stdin>" in main_file:
+            executor_cls = concurrent.futures.ThreadPoolExecutor
+            logger.info(
+                "Using thread workers for amendment enrichment because __main__.__file__ is %r",
+                main_file or None,
+            )
+        logger.info(
+            "Running amendment enrichment with {} workers, {} tasks, task_chunk={}, executor={}",
+            bounded_workers,
+            len(chunks),
+            task_chunk,
+            executor_cls.__name__,
+        )
+        worker_chunks = ([str(path) for path in chunk] for chunk in chunks)
+        pool_kwargs: dict[str, Any] = {
+            "max_workers": bounded_workers,
+            "initializer": _init_amendment_worker,
+            "initargs": (
+                doc_index,
+                doc_metadata,
+                str(references_dir) if references_dir is not None else None,
+            ),
+        }
+        if executor_cls is concurrent.futures.ProcessPoolExecutor and sys.platform.startswith(
+            "linux"
+        ):
+            pool_kwargs["mp_context"] = multiprocessing.get_context("fork")
+        with executor_cls(**pool_kwargs) as pool:
+            futures = [
+                pool.submit(_extract_amendment_rows_for_batch_worker, chunk)
+                for chunk in worker_chunks
+            ]
+            for future in concurrent.futures.as_completed(futures):
+                consume_result(future.result())
     if batch:
         con.executemany(sql, batch)
         stats.amendments += len(batch)
@@ -3163,6 +3354,24 @@ def _infer_amendment_target_from_source_text(
     return best_match
 
 
+def _candidate_entries_for_title_match(
+    *,
+    doc_index: DocResolutionIndex,
+    source_doc_id: str,
+    target_content_tokens: set[str],
+) -> list[DocIndexEntry]:
+    """Return all entries that can score through token overlap for a multi-token target."""
+
+    if len(target_content_tokens) < 2:
+        return doc_index.entries
+    candidate_by_doc_id: dict[str, DocIndexEntry] = {}
+    for token in target_content_tokens:
+        for entry in doc_index.by_name_token.get(token, []):
+            if entry.doc_id != source_doc_id:
+                candidate_by_doc_id[entry.doc_id] = entry
+    return list(candidate_by_doc_id.values()) or doc_index.entries
+
+
 def _best_title_target_match(
     *,
     source_doc_id: str,
@@ -3176,9 +3385,7 @@ def _best_title_target_match(
         return None
     target_is_amendment_like = bool(_AMENDMENT_TITLE_LIKE_RE.search(target_raw))
     target_tokens = set(target_norm.split())
-    # Filter out very common stop-words that inflate overlap scores
-    _STOP = {"до", "та", "і", "в", "у", "на", "з", "із", "про", "що", "від", "за", "або"}
-    target_content_tokens = target_tokens - _STOP
+    target_content_tokens = target_tokens - _AMENDMENT_TITLE_MATCH_STOP_TOKENS
     type_hint = doc_type_category(target_raw)
     if type_hint == target_norm or len(type_hint.split()) > 3:
         type_hint = ""
@@ -3242,7 +3449,11 @@ def _best_title_target_match(
                     candidate_count=len(filtered),
                 )
     ranked: list[tuple[float, DocIndexEntry]] = []
-    for entry in doc_index.entries:
+    for entry in _candidate_entries_for_title_match(
+        doc_index=doc_index,
+        source_doc_id=source_doc_id,
+        target_content_tokens=target_content_tokens,
+    ):
         if entry.doc_id == source_doc_id:
             continue
         if not entry.name_norm:
@@ -3276,7 +3487,7 @@ def _best_title_target_match(
                 contains_score -= 0.12
             score = max(score, contains_score)
         elif target_content_tokens:
-            entry_tokens = set(entry.name_norm.split()) - _STOP
+            entry_tokens = set(entry.name_norm.split()) - _AMENDMENT_TITLE_MATCH_STOP_TOKENS
             overlap = len(target_content_tokens & entry_tokens)
             if overlap:
                 # Harmonic mean of precision and recall over tokens

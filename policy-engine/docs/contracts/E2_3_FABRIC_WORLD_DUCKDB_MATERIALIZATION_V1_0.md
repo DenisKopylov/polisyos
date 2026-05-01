@@ -231,6 +231,12 @@ CREATE SCHEMA IF NOT EXISTS world;
 Indexes (v1.0):
 
 - `(subject_id)`, `(predicate_id)`, `(target_id)`
+- Phase 7 non-breaking temporal indexes:
+  `(tx_time, valid_time)` and `(valid_time, tx_time)`
+
+Phase 7 keeps the table shape unchanged. Correction, revocation, branch, and
+scenario semantics are carried in fact provenance notes and retained branch
+governance metadata.
 
 ### 3.4 Canonical graph tables
 
@@ -269,6 +275,8 @@ Indexes (v1.0):
 - `(kind)`
 - `(src_id, kind)`
 - `(dst_id, kind)`
+- Phase 7 non-breaking temporal indexes:
+  `(tx_time, valid_time)` and `(valid_time, tx_time)`
 
 ### 3.5 Projections (v1.0)
 

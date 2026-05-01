@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
@@ -15,12 +18,10 @@ from polisyos.fabric.io.atomic import append_text_locked, atomic_write_text, fil
 from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.temporal import parse_datetime_utc
 from polisyos.fabric.world.providers import resolve_world_observability
-from polisyos.ir.fact_log import Fact, FactSegmentManifest
+from polisyos.ir.fact_log import Fact, FactProvenance, FactSegmentManifest
 from polisyos.ir.kernel.base import ID_PATTERN
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
@@ -32,6 +33,24 @@ SEGMENTS_INDEX_NAME = "_segments.jsonl"
 SEGMENTS_INDEX_LOCK_NAME = "_segments.lock"
 
 _ID_RE = re.compile(ID_PATTERN)
+_WORLD_MUTATION_NOTE_PREFIX = "world_mutation.v1:"
+
+
+class WorldMutationKind(str, Enum):
+    """Append-only mutation semantics for world fact emission."""
+
+    ASSERTION = "assertion"
+    CORRECTION = "correction"
+    REVOCATION = "revocation"
+    BRANCH_ASSERTION = "branch_assertion"
+    SCENARIO_ASSERTION = "scenario_assertion"
+
+
+class WorldObservedState(str, Enum):
+    """Whether a branch/fact represents observed or simulated state."""
+
+    OBSERVED = "observed"
+    SIMULATED = "simulated"
 
 
 @dataclass(frozen=True)
@@ -41,6 +60,217 @@ class WorldSegmentGCReport:
     retained_segment_ids: tuple[str, ...]
     deleted_segment_ids: tuple[str, ...]
     dry_run: bool = False
+
+
+@dataclass(frozen=True)
+class WorldFactMutationMetadata:
+    """Machine-readable mutation envelope embedded into fact provenance notes."""
+
+    mutation_kind: WorldMutationKind = WorldMutationKind.ASSERTION
+    corrects_fact_ref: str | None = None
+    revokes_fact_ref: str | None = None
+    reason: str | None = None
+    source_evidence_refs: tuple[str, ...] = ()
+    lineage_ref: str | None = None
+    actor: str | None = None
+    branch_name: str | None = None
+    scenario_ref: str | None = None
+    observed_state: WorldObservedState = WorldObservedState.OBSERVED
+
+    def __post_init__(self) -> None:
+        kind = _coerce_mutation_kind(self.mutation_kind)
+        state = _coerce_observed_state(self.observed_state)
+        object.__setattr__(self, "mutation_kind", kind)
+        object.__setattr__(self, "observed_state", state)
+        object.__setattr__(
+            self,
+            "source_evidence_refs",
+            tuple(str(ref).strip() for ref in self.source_evidence_refs if str(ref).strip()),
+        )
+        _validate_world_mutation_metadata(self)
+
+    def to_payload(self) -> dict[str, Any]:
+        """Serialize to a stable note payload."""
+
+        payload: dict[str, Any] = {
+            "mutation_kind": self.mutation_kind.value,
+            "observed_state": self.observed_state.value,
+        }
+        for key, value in (
+            ("corrects_fact_ref", self.corrects_fact_ref),
+            ("revokes_fact_ref", self.revokes_fact_ref),
+            ("reason", self.reason),
+            ("lineage_ref", self.lineage_ref),
+            ("actor", self.actor),
+            ("branch_name", self.branch_name),
+            ("scenario_ref", self.scenario_ref),
+        ):
+            if value:
+                payload[key] = value
+        if self.source_evidence_refs:
+            payload["source_evidence_refs"] = list(self.source_evidence_refs)
+        return payload
+
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, Any]) -> WorldFactMutationMetadata:
+        """Load one mutation envelope from a provenance note payload."""
+
+        return cls(
+            mutation_kind=_coerce_mutation_kind(str(payload.get("mutation_kind", "assertion"))),
+            corrects_fact_ref=_optional_text(payload.get("corrects_fact_ref")),
+            revokes_fact_ref=_optional_text(payload.get("revokes_fact_ref")),
+            reason=_optional_text(payload.get("reason")),
+            source_evidence_refs=tuple(
+                str(ref).strip()
+                for ref in payload.get("source_evidence_refs", ())
+                if str(ref).strip()
+            ),
+            lineage_ref=_optional_text(payload.get("lineage_ref")),
+            actor=_optional_text(payload.get("actor")),
+            branch_name=_optional_text(payload.get("branch_name")),
+            scenario_ref=_optional_text(payload.get("scenario_ref")),
+            observed_state=_coerce_observed_state(str(payload.get("observed_state", "observed"))),
+        )
+
+
+def build_world_mutation_metadata(
+    *,
+    mutation_kind: WorldMutationKind | str = WorldMutationKind.ASSERTION,
+    corrects_fact_ref: str | None = None,
+    revokes_fact_ref: str | None = None,
+    reason: str | None = None,
+    source_evidence_refs: Iterable[str] = (),
+    lineage_ref: str | None = None,
+    actor: str | None = None,
+    branch_name: str | None = None,
+    scenario_ref: str | None = None,
+    observed_state: WorldObservedState | str = WorldObservedState.OBSERVED,
+) -> WorldFactMutationMetadata:
+    """Validate and build append-only mutation metadata for a world fact."""
+
+    return WorldFactMutationMetadata(
+        mutation_kind=_coerce_mutation_kind(mutation_kind),
+        corrects_fact_ref=_optional_text(corrects_fact_ref),
+        revokes_fact_ref=_optional_text(revokes_fact_ref),
+        reason=_optional_text(reason),
+        source_evidence_refs=tuple(source_evidence_refs),
+        lineage_ref=_optional_text(lineage_ref),
+        actor=_optional_text(actor),
+        branch_name=_optional_text(branch_name),
+        scenario_ref=_optional_text(scenario_ref),
+        observed_state=_coerce_observed_state(observed_state),
+    )
+
+
+def provenance_with_world_mutation(
+    provenance: FactProvenance,
+    mutation: WorldFactMutationMetadata,
+) -> FactProvenance:
+    """Return provenance carrying one stable, parseable world mutation note."""
+
+    note = _world_mutation_note(mutation)
+    if note in provenance.notes:
+        return provenance
+    return provenance.model_copy(update={"notes": [*provenance.notes, note]})
+
+
+def parse_world_mutation_notes(
+    provenance: FactProvenance,
+) -> tuple[WorldFactMutationMetadata, ...]:
+    """Extract mutation envelopes from fact provenance notes."""
+
+    mutations: list[WorldFactMutationMetadata] = []
+    for note in provenance.notes:
+        if not note.startswith(_WORLD_MUTATION_NOTE_PREFIX):
+            continue
+        raw = note.removeprefix(_WORLD_MUTATION_NOTE_PREFIX)
+        payload = json.loads(raw)
+        if not isinstance(payload, dict):
+            raise WorldSegmentError("world mutation provenance note must be a JSON object")
+        mutations.append(WorldFactMutationMetadata.from_payload(payload))
+    return tuple(mutations)
+
+
+def annotate_world_fact_mutation(
+    fact: Fact,
+    mutation: WorldFactMutationMetadata,
+) -> Fact:
+    """Attach mutation metadata to an already-built fact without altering its value fields."""
+
+    provenance = provenance_with_world_mutation(fact.provenance, mutation)
+    return fact.model_copy(update={"provenance": provenance})
+
+
+def _world_mutation_note(mutation: WorldFactMutationMetadata) -> str:
+    payload = json.dumps(mutation.to_payload(), sort_keys=True, separators=(",", ":"))
+    return f"{_WORLD_MUTATION_NOTE_PREFIX}{payload}"
+
+
+def _coerce_mutation_kind(value: WorldMutationKind | str) -> WorldMutationKind:
+    if isinstance(value, WorldMutationKind):
+        return value
+    try:
+        return WorldMutationKind(str(value).strip())
+    except ValueError as exc:
+        known = ", ".join(kind.value for kind in WorldMutationKind)
+        raise WorldSegmentError(f"unsupported world mutation kind {value!r}; expected {known}") from exc
+
+
+def _coerce_observed_state(value: WorldObservedState | str) -> WorldObservedState:
+    if isinstance(value, WorldObservedState):
+        return value
+    try:
+        return WorldObservedState(str(value).strip())
+    except ValueError as exc:
+        known = ", ".join(state.value for state in WorldObservedState)
+        raise WorldSegmentError(f"unsupported world observed state {value!r}; expected {known}") from exc
+
+
+def _validate_world_mutation_metadata(mutation: WorldFactMutationMetadata) -> None:
+    kind = mutation.mutation_kind
+    if kind == WorldMutationKind.CORRECTION:
+        _require_mutation_fields(
+            mutation,
+            "correction",
+            ("corrects_fact_ref", "reason", "source_evidence_refs", "lineage_ref", "actor"),
+        )
+    elif kind == WorldMutationKind.REVOCATION:
+        _require_mutation_fields(
+            mutation,
+            "revocation",
+            ("revokes_fact_ref", "reason", "source_evidence_refs", "actor"),
+        )
+    elif kind == WorldMutationKind.BRANCH_ASSERTION and not mutation.branch_name:
+        raise WorldSegmentError("branch_assertion world mutations require branch_name")
+    elif kind == WorldMutationKind.SCENARIO_ASSERTION:
+        _require_mutation_fields(
+            mutation,
+            "scenario_assertion",
+            ("branch_name", "scenario_ref", "reason", "lineage_ref", "actor"),
+        )
+        if mutation.observed_state != WorldObservedState.SIMULATED:
+            raise WorldSegmentError("scenario_assertion world mutations must be simulated")
+
+
+def _require_mutation_fields(
+    mutation: WorldFactMutationMetadata,
+    label: str,
+    fields: tuple[str, ...],
+) -> None:
+    missing: list[str] = []
+    for field_name in fields:
+        value = getattr(mutation, field_name)
+        if value is None or value == () or value == "":
+            missing.append(field_name)
+    if missing:
+        raise WorldSegmentError(f"{label} world mutations require: {', '.join(missing)}")
+
+
+def _optional_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def _segment_manifest_sidecar_path(manifest: FactSegmentManifest) -> Path:
@@ -288,11 +518,18 @@ def persist_fact_segment_manifest(
 __all__ = [
     "SEGMENTS_INDEX_LOCK_NAME",
     "SEGMENTS_INDEX_NAME",
+    "WorldFactMutationMetadata",
+    "WorldMutationKind",
+    "WorldObservedState",
     "WorldSegmentGCReport",
+    "annotate_world_fact_mutation",
     "append_world_segment_index",
+    "build_world_mutation_metadata",
     "gc_world_segments",
     "load_world_fact_manifests",
+    "parse_world_mutation_notes",
     "persist_fact_segment_manifest",
+    "provenance_with_world_mutation",
     "vacuum_world_segment_index",
     "write_world_fact_segment",
 ]

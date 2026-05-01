@@ -60,13 +60,15 @@ The Wave 1 gate checks:
 - required deliverables exist;
 - every earlier phase gate reports `passes_all = true`;
 - local runtime fixtures prove naked decision claims are blocked in selected
-  workflows when fail-closed mode is enabled;
+  workflows when fail-closed mode is enabled, both in decision-packet payloads
+  and in decision-bearing workflow artifact indexes;
 - synthetic decision-packet refs for `claims_ref` and `research_dag_ref` remain
   coherent;
 - agent and frontier default-enable fixtures remain blocked by benchmark
   authority when evidence is missing;
-- high-risk public-sector review requires two-person human review and blocks
-  `human_reviewed` readiness without refs;
+- high-risk public-sector review requires two-person human review, renders an
+  explicit `pending` or `approved` status, and blocks `human_reviewed`
+  readiness without refs;
 - this page, the readiness page, the capability inventory, the Scientist index
   and mkdocs navigation all mention the Wave 1 acceptance surface.
 

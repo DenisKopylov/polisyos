@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.dev/schemas/fabric/world_branch.schema.json",
+  "title": "Fabric World Branch Governance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "branch_name",
+    "base_snapshot_id",
+    "head_snapshot_id",
+    "created_at",
+    "branch_kind",
+    "observed_state",
+    "governance_events"
+  ],
+  "properties": {
+    "branch_name": {"type": "string", "minLength": 1},
+    "base_snapshot_id": {"type": "string", "minLength": 1},
+    "head_snapshot_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "merge_policy": {
+      "type": "string",
+      "enum": ["fail_on_conflict", "branch_wins", "target_wins"]
+    },
+    "provenance": {"type": "object"},
+    "branch_kind": {"type": "string", "enum": ["observed", "scenario"]},
+    "observed_state": {"type": "string", "enum": ["observed", "simulated"]},
+    "scenario_ref": {"type": ["string", "null"]},
+    "actor": {"type": "string", "minLength": 1},
+    "reason": {"type": "string", "minLength": 1},
+    "retained_audit_ref": {"type": ["string", "null"]},
+    "deleted_at": {"type": ["string", "null"], "format": "date-time"},
+    "governance_events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/governance_event"}
+    }
+  },
+  "$defs": {
+    "conflict_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conflict_count", "conflict_types", "table_names", "unresolved"],
+      "properties": {
+        "conflict_count": {"type": "integer", "minimum": 0},
+        "conflict_types": {"type": "array", "items": {"type": "string"}},
+        "table_names": {"type": "array", "items": {"type": "string"}},
+        "unresolved": {"type": "boolean"},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "governance_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_kind", "actor", "reason", "created_at"],
+      "properties": {
+        "event_kind": {
+          "type": "string",
+          "enum": [
+            "branch_created",
+            "branch_head_updated",
+            "branch_merged",
+            "branch_conflict_resolved",
+            "branch_deleted"
+          ]
+        },
+        "actor": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "created_at": {"type": "string", "format": "date-time"},
+        "target_branch": {"type": ["string", "null"]},
+        "source_branch": {"type": ["string", "null"]},
+        "target_snapshot_id": {"type": ["string", "null"]},
+        "source_snapshot_id": {"type": ["string", "null"]},
+        "merge_strategy": {"type": ["string", "null"]},
+        "retained_audit_ref": {"type": ["string", "null"]},
+        "conflict_summary": {"$ref": "#/$defs/conflict_summary"},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.memory.failure_lessons import ReflexiveMemoryEvent
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
 from polisyos.scientist.research_dag.builder import (
     ResearchDAGBuilder,
@@ -485,6 +486,92 @@ def classify_tool_step(tool_name: str) -> ResearchNodeType:
     return ResearchNodeType.EXTRACTION
 
 
+def project_reflexive_memory_events_to_research_dag(
+    events: list[ReflexiveMemoryEvent],
+    *,
+    run_id: str,
+    workflow_id: str = "scientist_reflexive_memory",
+    claim_ledger_ref: ArtifactRef | None = None,
+) -> ResearchDAGArtifact:
+    """Project reflexive-memory influence into a public, redacted Research DAG."""
+
+    builder = ResearchDAGBuilder(
+        run_id=run_id,
+        workflow_id=workflow_id,
+        claim_ledger_ref=claim_ledger_ref,
+        metadata={
+            "projection_source": "scientist.reflexive_memory",
+            "memory_event_count": len(events),
+        },
+    )
+    plan = builder.add_node(
+        node_type=ResearchNodeType.PLAN,
+        producer="scientist.memory",
+        summary="Evaluate scoped failure lessons as warning-only reflexive memory.",
+        metadata={"influence_mode": "warning_anti_pattern"},
+    )
+    previous_node_id = plan.node_id
+    for index, event in enumerate(events):
+        applicability = event.applicability
+        node = builder.add_node(
+            node_type=ResearchNodeType.CRITIQUE,
+            producer="scientist.memory",
+            summary=(
+                f"Memory lesson {event.lesson_id} was {event.action}; "
+                "influence is warning-only and scope-checked."
+            ),
+            node_id=f"{workflow_id}:memory:{index + 1}:{event.lesson_id}",
+            metadata={
+                "event_id": event.event_id,
+                "lesson_id": event.lesson_id,
+                "action": event.action,
+                "applies": applicability.applies,
+                "applicability_reasons": list(applicability.reasons),
+                "scope": dict(applicability.scope),
+                "memory_influence_visible": True,
+                "influence_mode": "warning_anti_pattern",
+            },
+            input_fingerprint=stable_fingerprint(event.model_dump(mode="json")),
+            safety_labels=["reflexive_memory", "warning_only"],
+        )
+        event.research_dag_node_id = node.node_id
+        builder.add_edge(
+            source_node_id=previous_node_id,
+            target_node_id=node.node_id,
+            edge_type=ResearchEdgeType.DEPENDS_ON,
+        )
+        previous_node_id = node.node_id
+    return builder.artifact(
+        metadata={
+            "memory_influence_status": "visible" if events else "no_memory_events",
+            "retrieved_event_count": sum(1 for event in events if event.action == "retrieved"),
+            "rejected_event_count": sum(1 for event in events if event.action == "rejected"),
+        }
+    )
+
+
+def validate_memory_influence_dag_attribution(
+    events: list[ReflexiveMemoryEvent],
+    dag: ResearchDAGArtifact,
+) -> list[str]:
+    """Return violations for memory events that can influence a run without DAG attribution."""
+
+    visible: set[tuple[str, str]] = set()
+    for node in dag.nodes:
+        event_id = str(node.metadata.get("event_id", ""))
+        lesson_id = str(node.metadata.get("lesson_id", ""))
+        if node.metadata.get("memory_influence_visible") is True:
+            visible.add((event_id, lesson_id))
+
+    violations: list[str] = []
+    for event in events:
+        if event.action not in {"retrieved", "applied"}:
+            continue
+        if (event.event_id, event.lesson_id) not in visible:
+            violations.append(f"memory_influence_missing_dag_node:{event.event_id}")
+    return violations
+
+
 def classify_runtime_step(*, alias: str, node_id: str) -> ResearchNodeType:
     """Map existing workflow/node naming into high-level research node families."""
 
@@ -594,9 +681,11 @@ __all__ = [
     "classify_tool_step",
     "is_research_dag_enabled",
     "is_research_dag_required_for_publication",
+    "project_reflexive_memory_events_to_research_dag",
     "project_provenance_graph_to_research_dag",
     "project_tool_call_result_to_research_node",
     "project_tool_loop_result_to_research_dag",
     "project_web_evidence_bundle_to_research_dag",
     "project_workflow_execution_to_research_dag",
+    "validate_memory_influence_dag_attribution",
 ]

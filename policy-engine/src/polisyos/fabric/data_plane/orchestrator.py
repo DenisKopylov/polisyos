@@ -32,6 +32,10 @@ from polisyos.core.contracts.fabric import (
     EvidenceBundleRef,
 )
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.processing_guarantees import (
+    ProcessingGuarantee,
+    ProcessingGuaranteeContract,
+)
 from polisyos.fabric.storage.tenant_cas import tenant_scoped_cas_root
 
 if TYPE_CHECKING:
@@ -100,6 +104,7 @@ class ExecutionBackend(Protocol):
     """Backend interface for partition execution."""
 
     backend_id: str
+    requires_trust_contract: bool
 
     async def execute(
         self,
@@ -111,6 +116,7 @@ class LocalAsyncExecutionBackend:
     """Local async backend using bounded gather semantics."""
 
     backend_id = "local_async"
+    requires_trust_contract = False
 
     def __init__(self, *, max_concurrency: int = 4) -> None:
         self.max_concurrency = max(1, int(max_concurrency))
@@ -132,6 +138,8 @@ class LocalAsyncExecutionBackend:
 
 class DelegatingExecutionBackend:
     """Base class for optional distributed execution adapters."""
+
+    requires_trust_contract = True
 
     def __init__(self, backend_id: str, *, cost_notes: str) -> None:
         self.backend_id = backend_id
@@ -249,6 +257,58 @@ class CeleryExecutionBackend(DelegatingExecutionBackend):
         return [_coerce_partition_result(item) for item in raw_results]
 
 
+@dataclass(frozen=True)
+class DistributedExecutionTrustContract:
+    """Required trust metadata before partition work leaves the local process."""
+
+    lineage_ref: str
+    quality_contract_ref: str
+    access_classification: str
+    replay_ref: str | None = None
+    non_replayable_reason: str | None = None
+    processing: ProcessingGuaranteeContract | None = None
+
+    @classmethod
+    def from_metadata(cls, metadata: dict[str, Any]) -> DistributedExecutionTrustContract:
+        missing = [
+            key
+            for key in ("lineage_ref", "quality_contract_ref", "access_classification")
+            if not metadata.get(key)
+        ]
+        if not (metadata.get("replay_ref") or metadata.get("non_replayable_reason")):
+            missing.append("replay_ref_or_non_replayable_reason")
+        if missing:
+            raise ValueError(
+                "distributed execution requires trust metadata: "
+                + ", ".join(sorted(missing))
+            )
+        processing_payload = metadata.get("processing")
+        processing: ProcessingGuaranteeContract | None = None
+        if isinstance(processing_payload, ProcessingGuaranteeContract):
+            processing = processing_payload
+        elif isinstance(processing_payload, dict):
+            processing = ProcessingGuaranteeContract.model_validate(processing_payload)
+        elif isinstance(processing_payload, str):
+            if processing_payload == ProcessingGuarantee.EXACTLY_ONCE_NARROW.value:
+                raise ValueError(
+                    "distributed execution cannot claim exactly_once_narrow without proof"
+                )
+        return cls(
+            lineage_ref=str(metadata["lineage_ref"]),
+            quality_contract_ref=str(metadata["quality_contract_ref"]),
+            access_classification=str(metadata["access_classification"]),
+            replay_ref=(
+                str(metadata["replay_ref"]) if metadata.get("replay_ref") else None
+            ),
+            non_replayable_reason=(
+                str(metadata["non_replayable_reason"])
+                if metadata.get("non_replayable_reason")
+                else None
+            ),
+            processing=processing,
+        )
+
+
 def _build_filesystem_artifact_store(cas_root: Path) -> ArtifactStore:
     return cast(
         "ArtifactStore",
@@ -323,6 +383,7 @@ def run_partitioned_ingestion(
         timeout_seconds=5.0,
     )
     backend_impl = _resolve_execution_backend(backend)
+    _validate_distributed_execution_trust(plan, backend_impl)
 
     async def _run_partition(partition: IngestionPartition) -> PartitionExecutionResult:
         persisted = await cursor_store.find_partition_state(
@@ -592,6 +653,25 @@ def _resolve_execution_backend(backend: ExecutionBackend | str) -> ExecutionBack
     raise ValueError(f"Unknown execution backend: {backend!r}")
 
 
+def _validate_distributed_execution_trust(
+    plan: PartitionedIngestionPlan,
+    backend: ExecutionBackend,
+) -> None:
+    """Fail closed before distributed adapters can bypass trust metadata."""
+
+    if not getattr(backend, "requires_trust_contract", False):
+        return
+    trust_contract = DistributedExecutionTrustContract.from_metadata(plan.metadata)
+    processing = trust_contract.processing
+    if (
+        processing is not None
+        and ProcessingGuarantee(processing.guarantee)
+        == ProcessingGuarantee.EXACTLY_ONCE_NARROW
+        and processing.atomicity_proof is None
+    ):
+        raise ValueError("distributed exactly_once_narrow requires atomicity proof")
+
+
 def _manifest_for_partition(
     connector_manifest: Any,
     *,
@@ -717,6 +797,7 @@ __all__ = [
     "CeleryExecutionBackend",
     "DaskExecutionBackend",
     "DelegatingExecutionBackend",
+    "DistributedExecutionTrustContract",
     "ExecutionBackend",
     "IngestionPartition",
     "IngestionResult",

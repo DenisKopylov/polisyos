@@ -903,6 +903,7 @@ if router is not None:
             quantities,
             runtime_coverage,
             temporal_scope=temporal_scope,
+            source_contract=ctx.lineage.source_contract_ref_for_run(run),
         )
         record_data_access_audit(
             request,

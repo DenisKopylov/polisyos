@@ -176,6 +176,16 @@ Total required file coverage: `97/97`.
 
 ### Current Audit Notes
 
+- 2026-04-28: Fabric Phase 7 touched public package facades under
+  `src/polisyos/fabric/{security,world}` and regenerated the runtime client for
+  temporal capability fields. The impact is covered by
+  `docs/reference/fabric/time-travel.md`,
+  `docs/reference/fabric/best-in-class-inventory.md`, and
+  `docs/reference/generated-artifacts.md`.
+- 2026-04-28: Fabric Phase 8 added processing guarantee contracts under
+  `src/polisyos/fabric/processing_guarantees.py`, surfaced them in
+  SourceContract v2 snapshots, and documented runtime semantics in
+  `docs/reference/fabric/processing-guarantees.md`.
 - `python3 tools/validation/check_docs_accuracy.py --repo-root .` was rerun on
   2026-04-17 during this audit after fixing Scientist workflow path references.
 

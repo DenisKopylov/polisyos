@@ -35,3 +35,16 @@ def test_compact_lineage_batch_local_benchmark_meets_phase6_budget(runtime_api_e
     assert report["unique_count"] == 50
     assert report["p95_ms"] <= 150.0
     assert report["status_counts"]["untraced"] == 50
+
+
+def test_full_lineage_graph_local_benchmark_meets_phase6_budget(runtime_api_env) -> None:
+    container = runtime_api_env["app"].state.runtime_container
+    service = container.runtime_api_context.lineage
+    artifact_id = runtime_api_env["decision_packet_artifact_id"]
+
+    report = service.benchmark_full_lineage_graph([artifact_id])
+
+    assert report["root_count"] == 1
+    assert report["node_count"] >= 1
+    assert report["p95_ms"] <= 500.0
+    assert report["is_complete"] is True

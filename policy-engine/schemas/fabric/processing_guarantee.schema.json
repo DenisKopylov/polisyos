@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.local/schemas/fabric/processing_guarantee.schema.json",
+  "title": "Fabric Processing Guarantee Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "guarantee",
+    "idempotency",
+    "out_of_order",
+    "cdc_schema_changes",
+    "backpressure"
+  ],
+  "properties": {
+    "guarantee": {
+      "enum": [
+        "batch_atomic",
+        "at_least_once",
+        "at_least_once_with_dedupe",
+        "effectively_once",
+        "exactly_once_narrow",
+        "replay_only"
+      ]
+    },
+    "idempotency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "key_fields",
+        "missing_key_action",
+        "dedupe_window_seconds",
+        "max_dedupe_keys",
+        "replay_retention_days"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "key_fields": { "type": "array", "items": { "type": "string" } },
+        "missing_key_action": { "enum": ["hash_payload", "quarantine", "reject"] },
+        "dedupe_window_seconds": { "type": "integer", "minimum": 0 },
+        "max_dedupe_keys": { "type": "integer", "minimum": 1 },
+        "replay_retention_days": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "out_of_order": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["handling", "timestamp_field", "max_lateness_seconds", "late_event_action"],
+      "properties": {
+        "handling": { "enum": ["wait", "reorder", "watermark", "drop", "quarantine"] },
+        "timestamp_field": { "type": "string", "minLength": 1 },
+        "max_lateness_seconds": { "type": "integer", "minimum": 0 },
+        "late_event_action": { "enum": ["wait", "reorder", "watermark", "drop", "quarantine"] }
+      }
+    },
+    "cdc_schema_changes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "additive_change_action",
+        "breaking_change_action",
+        "metadata_only_action",
+        "require_lineage_impact"
+      ],
+      "properties": {
+        "additive_change_action": { "enum": ["accept", "review"] },
+        "breaking_change_action": { "enum": ["quarantine", "fail_closed", "review"] },
+        "metadata_only_action": { "enum": ["accept", "review"] },
+        "require_lineage_impact": { "type": "boolean" }
+      }
+    },
+    "backpressure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "max_buffered_rows", "max_buffered_bytes", "pause_seconds"],
+      "properties": {
+        "strategy": { "enum": ["pause", "throttle", "spill_to_disk", "fail_closed"] },
+        "max_buffered_rows": { "type": "integer", "minimum": 1 },
+        "max_buffered_bytes": { "type": "integer", "minimum": 1 },
+        "pause_seconds": { "type": "number", "minimum": 0 },
+        "max_backpressure_events": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "atomicity_proof": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "input_offsets_committed_atomically": { "type": "boolean" },
+        "state_updates_committed_atomically": { "type": "boolean" },
+        "output_writes_committed_atomically": { "type": "boolean" },
+        "proof_refs": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" }
+      }
+    },
+    "notes": { "type": "string" }
+  }
+}

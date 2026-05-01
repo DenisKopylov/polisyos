@@ -1,0 +1,34 @@
+{
+  "connector_id": "object_storage.blob",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "object_storage.blob.generic"
+    }
+  ],
+  "profile_id": "object_storage_demo",
+  "replay_checksum": "sha256:85fc1fa321229e5cfe25ac9cf9a7e565fda62b6d660e7ec18b068de86887a7d1",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "object_storage.blob.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "object_storage.blob",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "object_storage_demo",
+      "url": "fabric://object_storage.blob/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "object_storage.blob.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

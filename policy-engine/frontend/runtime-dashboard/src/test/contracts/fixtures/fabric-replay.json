@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "run_id": "R_core_api_001",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "replay_refs": {
+    "fabric_decision_data:policy_cost": {
+      "status": "replayable",
+      "manifest_ref": "cas://sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "reason_code": null,
+      "source_reason": null,
+      "retention_alternative": null
+    }
+  },
+  "status_counts": {"replayable": 1},
+  "coverage": {"decision": 1, "traced": 1, "untraced": 0}
+}

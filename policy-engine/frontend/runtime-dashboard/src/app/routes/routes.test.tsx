@@ -161,6 +161,11 @@ vi.mock("@/features/platform/route", () => ({
 }));
 
 vi.mock("@/features/runs/routes.public", () => ({
+  publicDecisionViewerRoute: {
+    element: <div data-testid="public-decision-viewer">Public decision</div>,
+    handle: { routeId: "runs.publicDecisionViewer" },
+    path: "public/decisions/:signedId",
+  },
   runsRoutes: [],
 }));
 
@@ -200,6 +205,20 @@ describe("APP_ROUTES", () => {
         }),
       ),
     );
+  });
+
+  it("renders signed public decisions outside the runtime shell", async () => {
+    const router = createMemoryRouter(APP_ROUTES, {
+      initialEntries: ["/public/decisions/signed-1"],
+    });
+
+    render(<RouterProvider router={router} />);
+
+    expect(
+      await screen.findByTestId("public-decision-viewer"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("app-shell")).not.toBeInTheDocument();
+    expect(trackMock).not.toHaveBeenCalled();
   });
 
   it.each([

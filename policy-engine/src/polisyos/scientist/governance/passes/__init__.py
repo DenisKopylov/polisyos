@@ -23,6 +23,7 @@ __all__ = [
     "ConfidencePass",
     "CrossGraphEvidencePass",
     "EquityPass",
+    "FabricTrustGatePass",
     "FreshnessPass",
     "HumanReviewRequiredPass",
     "IncentiveCompatibilityPass",
@@ -66,6 +67,10 @@ def __getattr__(name: str) -> Any:
         from .equity_pass import EquityPass
 
         return EquityPass
+    if name == "FabricTrustGatePass":
+        from .fabric_trust_gate_pass import FabricTrustGatePass
+
+        return FabricTrustGatePass
     if name == "FreshnessPass":
         from .freshness_pass import FreshnessPass
 

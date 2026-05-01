@@ -18,6 +18,8 @@ __all__ = [
     "FabricDecisionDataCoverage",
     "FabricDecisionDataResponse",
     "LineageRef",
+    "ProcessingGuarantee",
+    "ProcessingGuaranteeContract",
     "QualityRef",
     "ReplayRef",
     "SourceContractRef",
@@ -26,6 +28,7 @@ __all__ = [
     "UnitRef",
     "WorldQueryError",
     "WorldQueryRequest",
+    "batch_processing_contract",
     "execute_world_query",
     "fabric_claim_to_authored_text",
     "fabric_event_to_authored_text",
@@ -35,6 +38,7 @@ __all__ = [
     "query_events",
     "query_world_table",
     "run_connectors_ingestion",
+    "stream_processing_contract",
     "world",
 ]
 
@@ -69,6 +73,22 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "TemporalRef": ("polisyos.fabric.decision_data", "TemporalRef"),
     "TypedGap": ("polisyos.fabric.decision_data", "TypedGap"),
     "UnitRef": ("polisyos.fabric.decision_data", "UnitRef"),
+    "ProcessingGuarantee": (
+        "polisyos.fabric.processing_guarantees",
+        "ProcessingGuarantee",
+    ),
+    "ProcessingGuaranteeContract": (
+        "polisyos.fabric.processing_guarantees",
+        "ProcessingGuaranteeContract",
+    ),
+    "batch_processing_contract": (
+        "polisyos.fabric.processing_guarantees",
+        "batch_processing_contract",
+    ),
+    "stream_processing_contract": (
+        "polisyos.fabric.processing_guarantees",
+        "stream_processing_contract",
+    ),
     "fabric_get_data": ("polisyos.fabric._connector_bridge", "fabric_get_data"),
     "execute_world_query": ("polisyos.fabric.world_query", "execute_world_query"),
     "run_connectors_ingestion": ("polisyos.fabric.ingestion", "run_connectors_ingestion"),

@@ -96,14 +96,28 @@ from polisyos.ir.refs import (
     WelfareBundleRef,
 )
 from polisyos.scholar.search.models import WebEvidenceBundle
+from polisyos.scientist.claims.audit import (
+    claim_ledger_v2_inputs,
+    persist_append_only_claim_ledger,
+)
+from polisyos.scientist.claims.export import (
+    blocked_claim_summary,
+    claim_ledger_summary,
+)
 from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.lifecycle import (
+    CLAIM_LEDGER_V2_FLAG,
+    build_initial_append_only_ledger,
+)
 from polisyos.scientist.claims.projections import project_decision_packet_claims
 from polisyos.scientist.claims.readiness import summarize_ledger_readiness
 from polisyos.scientist.claims.validators import (
     is_claim_spine_enabled,
     is_fail_on_naked_claims_enabled,
+    is_feature_enabled,
     validate_naked_decision_claims,
 )
+from polisyos.scientist.continuous_governance.reports import load_validity_report
 from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -146,7 +160,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIM_LEDGER_V2_REF,
     ARTIFACT_CLAIMS_REF,
+    ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
@@ -174,6 +190,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
+    ARTIFACT_REISSUE_PACKET_REF,
     ARTIFACT_RESEARCH_DAG_REF,
     ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -186,8 +203,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     ARTIFACT_VALIDATION_REPORT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    ARTIFACT_VOI_RUN_REPORT_REF,
     ARTIFACT_WEB_EVIDENCE_BUNDLE_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,
+    ARTIFACT_WITHDRAWAL_RECORD_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -211,6 +230,7 @@ from polisyos.scientist.research_dag.projections import (
     is_research_dag_required_for_publication,
 )
 from polisyos.scientist.research_dag.replay import legacy_research_dag_status
+from polisyos.scientist.search.voi_scheduler import load_voi_run_report
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
@@ -259,7 +279,12 @@ _SPEC = NodeSpec(
         "artifacts_index.normative_arbitration_result_ref",
         "artifacts_index.policy_output_bundle_ref",
         "artifacts_index.claims_ref",
+        "artifacts_index.claim_ledger_v2_ref",
         "artifacts_index.research_dag_ref",
+        "artifacts_index.voi_run_report_ref",
+        "artifacts_index.continuous_governance_report_ref",
+        "artifacts_index.reissue_packet_ref",
+        "artifacts_index.withdrawal_record_ref",
         "artifacts_index.human_review_packet_ref",
         "artifacts_index.human_review_decision_ref",
         "artifacts_index.web_evidence_bundle_ref",
@@ -271,6 +296,7 @@ _SPEC = NodeSpec(
     state_writes=[
         f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
         f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+        f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}",
         f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
         f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
@@ -278,6 +304,7 @@ _SPEC = NodeSpec(
     produces=[
         ARTIFACT_DECISION_PACKET_REF,
         ARTIFACT_CLAIMS_REF,
+        ARTIFACT_CLAIM_LEDGER_V2_REF,
         ARTIFACT_VALIDATION_REPORT_REF,
         ARTIFACT_JUDGE_VERDICT_REF,
     ],
@@ -302,6 +329,35 @@ class _DecisionPacketBuildRequest:
     strategy_hint: str
     policy_summary: dict[str, object]
     intervention_count: int
+
+
+@dataclass(frozen=True)
+class _ClaimLedgerAttachment:
+    claims_ref: ArtifactRef | None = None
+    claim_ledger_v2_ref: ArtifactRef | None = None
+
+    @property
+    def artifacts(self) -> list[ArtifactRef]:
+        return [
+            artifact
+            for artifact in (self.claims_ref, self.claim_ledger_v2_ref)
+            if artifact is not None
+        ]
+
+    @property
+    def write_paths(self) -> tuple[str, ...]:
+        paths: list[str] = []
+        if self.claims_ref is not None:
+            paths.append(f"artifacts_index.{ARTIFACT_CLAIMS_REF}")
+        if self.claim_ledger_v2_ref is not None:
+            paths.append(f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}")
+        return tuple(paths)
+
+    def apply_to_state(self, state: ExperimentState) -> None:
+        if self.claims_ref is not None:
+            state.artifacts_index[ARTIFACT_CLAIMS_REF] = self.claims_ref
+        if self.claim_ledger_v2_ref is not None:
+            state.artifacts_index[ARTIFACT_CLAIM_LEDGER_V2_REF] = self.claim_ledger_v2_ref
 
 
 @dataclass(frozen=True)
@@ -376,6 +432,21 @@ class BuildDecisionPacketNode:
             "research_dag_status": legacy_research_dag_status(
                 request.artifacts_section.get(ARTIFACT_RESEARCH_DAG_REF)
             ),
+            "voi_report_ref": request.artifacts_section.get(ARTIFACT_VOI_RUN_REPORT_REF),
+            "voi_report_status": (
+                "available"
+                if request.artifacts_section.get(ARTIFACT_VOI_RUN_REPORT_REF) is not None
+                else "legacy_missing"
+            ),
+            "voi": None,
+            "continuous_governance_report_ref": request.artifacts_section.get(
+                ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF
+            ),
+            "reissue_packet_ref": request.artifacts_section.get(ARTIFACT_REISSUE_PACKET_REF),
+            "withdrawal_record_ref": request.artifacts_section.get(
+                ARTIFACT_WITHDRAWAL_RECORD_REF
+            ),
+            "continuous_governance": None,
             "human_review": None,
             "human_review_validation": None,
             "web_evidence": None,
@@ -384,6 +455,16 @@ class BuildDecisionPacketNode:
             "notes": [],
         }
         packet_payload["web_evidence"] = _build_web_evidence_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["voi"] = _build_voi_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["continuous_governance"] = _build_continuous_governance_section(
             ctx,
             state.artifacts_index,
             packet_payload=packet_payload,
@@ -732,7 +813,9 @@ class BuildDecisionPacketNode:
                 ),
             )
 
-        claims_ref = _attach_claim_ledger_to_packet(ctx, state, packet_payload)
+        claim_attachment = _attach_claim_ledger_to_packet(ctx, state, packet_payload)
+        claims_ref = claim_attachment.claims_ref
+        claim_ledger_v2_ref = claim_attachment.claim_ledger_v2_ref
         human_review_validation = _attach_human_review_projection(
             ctx,
             state,
@@ -747,14 +830,12 @@ class BuildDecisionPacketNode:
         )
         packet_payload["claim_ledger_validation"] = claim_gate.model_dump(mode="json")
         if not claim_gate.passed:
-            write_paths = [f"artifacts_index.{ARTIFACT_CLAIMS_REF}"] if claims_ref else []
-            new_state = branch_state(state, write_paths=tuple(write_paths)).state
-            if claims_ref is not None:
-                new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+            new_state = branch_state(state, write_paths=claim_attachment.write_paths).state
+            claim_attachment.apply_to_state(new_state)
             return NodeOutcome(
                 status="fail",
                 state=new_state,
-                artifacts=[claims_ref] if claims_ref is not None else [],
+                artifacts=claim_attachment.artifacts,
                 events=[
                     NodeEvent(
                         level="error",
@@ -768,14 +849,12 @@ class BuildDecisionPacketNode:
                 ),
             )
         if not human_review_validation.passed:
-            write_paths = [f"artifacts_index.{ARTIFACT_CLAIMS_REF}"] if claims_ref else []
-            new_state = branch_state(state, write_paths=tuple(write_paths)).state
-            if claims_ref is not None:
-                new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+            new_state = branch_state(state, write_paths=claim_attachment.write_paths).state
+            claim_attachment.apply_to_state(new_state)
             return NodeOutcome(
                 status="fail",
                 state=new_state,
-                artifacts=[claims_ref] if claims_ref is not None else [],
+                artifacts=claim_attachment.artifacts,
                 events=[
                     NodeEvent(
                         level="error",
@@ -834,6 +913,8 @@ class BuildDecisionPacketNode:
                     f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
                     f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
                 ]
+                if claim_ledger_v2_ref is not None:
+                    write_paths.append(f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}")
                 if judge_verdict_ref is not None:
                     write_paths.append(f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}")
                 new_state = branch_state(
@@ -841,8 +922,7 @@ class BuildDecisionPacketNode:
                     write_paths=tuple(write_paths),
                 ).state
                 new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
-                if claims_ref is not None:
-                    new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+                claim_attachment.apply_to_state(new_state)
                 if judge_verdict_ref is not None:
                     new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = judge_verdict_ref
                 return NodeOutcome(
@@ -856,7 +936,11 @@ class BuildDecisionPacketNode:
                     ],
                     artifacts=[
                         artifact
-                        for artifact in (validation_ref, judge_verdict_ref)
+                        for artifact in (
+                            validation_ref,
+                            judge_verdict_ref,
+                            *claim_attachment.artifacts,
+                        )
                         if artifact is not None
                     ],
                     error=NodeError(
@@ -904,14 +988,14 @@ class BuildDecisionPacketNode:
             write_paths=(
                 f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
                 f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}",
                 f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
                 f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
                 f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
             ),
         ).state
         new_state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = packet_ref
-        if claims_ref is not None:
-            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+        claim_attachment.apply_to_state(new_state)
         if validation_ref is not None:
             new_state.artifacts_index[ARTIFACT_VALIDATION_REPORT_REF] = validation_ref
         if judge_verdict_ref is not None:
@@ -926,7 +1010,13 @@ class BuildDecisionPacketNode:
             state=new_state,
             artifacts=[
                 artifact
-                for artifact in (packet_ref, claims_ref, validation_ref, judge_verdict_ref)
+                for artifact in (
+                    packet_ref,
+                    claims_ref,
+                    claim_ledger_v2_ref,
+                    validation_ref,
+                    judge_verdict_ref,
+                )
                 if artifact is not None
             ],
         )
@@ -1046,12 +1136,12 @@ def _attach_claim_ledger_to_packet(
     ctx: ExecutionContext,
     state: ExperimentState,
     packet_payload: dict[str, object],
-) -> ArtifactRef | None:
+) -> _ClaimLedgerAttachment:
     """Persist and attach the Phase 1.1 claim ledger sidecar for a packet."""
 
     if not is_claim_spine_enabled(state.params):
         packet_payload["claim_ledger_status"] = "disabled"
-        return None
+        return _ClaimLedgerAttachment()
 
     source_refs = _claim_source_artifact_refs(state)
     decision_readiness_ref = state.artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
@@ -1065,10 +1155,39 @@ def _attach_claim_ledger_to_packet(
     packet_payload["claims_ref"] = str(claims_ref.artifact_id)
     packet_payload["claim_ledger_status"] = "available"
     packet_payload["claim_readiness_summary"] = summarize_ledger_readiness(ledger)
+    packet_payload["claim_ledger_summary"] = claim_ledger_summary(ledger)
+    packet_payload["blocked_claim_summary"] = blocked_claim_summary(ledger)
+    claim_ledger_v2_ref = None
+    if is_feature_enabled(state.params, CLAIM_LEDGER_V2_FLAG, default=False):
+        append_only_ledger = build_initial_append_only_ledger(
+            ledger,
+            actor_id="scientist.node_build_decision_packet",
+            reason="Projected decision packet claims into append-only Claim Ledger v2.",
+            base_ledger_ref=claims_ref,
+            retention_policy={"max_events": 500},
+        )
+        claim_ledger_v2_ref = persist_append_only_claim_ledger(
+            ctx.store,
+            append_only_ledger,
+            inputs=claim_ledger_v2_inputs(
+                base_ledger_ref=claims_ref,
+                source_artifact_refs=source_refs,
+            ),
+        )
+        packet_payload["claim_ledger_v2_ref"] = str(claim_ledger_v2_ref.artifact_id)
+        packet_payload["claim_ledger_summary"] = claim_ledger_summary(append_only_ledger)
+        packet_payload["blocked_claim_summary"] = blocked_claim_summary(append_only_ledger)
     artifacts = packet_payload.get("artifacts")
     if isinstance(artifacts, dict):
         artifacts[ARTIFACT_CLAIMS_REF] = str(claims_ref.artifact_id)
-    return claims_ref
+        if claim_ledger_v2_ref is not None:
+            artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(
+                claim_ledger_v2_ref.artifact_id
+            )
+    return _ClaimLedgerAttachment(
+        claims_ref=claims_ref,
+        claim_ledger_v2_ref=claim_ledger_v2_ref,
+    )
 
 
 def _claim_source_artifact_refs(state: ExperimentState) -> list[ArtifactRef]:
@@ -1225,6 +1344,18 @@ def _build_artifacts_section(
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
         ARTIFACT_CLAIMS_REF: _ref_from_dict(artifacts_index, ARTIFACT_CLAIMS_REF),
         ARTIFACT_RESEARCH_DAG_REF: _ref_from_dict(artifacts_index, ARTIFACT_RESEARCH_DAG_REF),
+        ARTIFACT_VOI_RUN_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_VOI_RUN_REPORT_REF
+        ),
+        ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF
+        ),
+        ARTIFACT_REISSUE_PACKET_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_REISSUE_PACKET_REF
+        ),
+        ARTIFACT_WITHDRAWAL_RECORD_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_WITHDRAWAL_RECORD_REF
+        ),
         ARTIFACT_HUMAN_REVIEW_PACKET_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_HUMAN_REVIEW_PACKET_REF
         ),
@@ -1354,6 +1485,133 @@ def _build_web_evidence_section(
             for snippet in bundle.snippets[:50]
         ],
         "uncertainty_notes": list(bundle.uncertainty_notes),
+    }
+
+
+def _build_voi_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object]:
+    """Attach a compact VOI report projection without making it a release gate."""
+
+    ref = artifacts_index.get(ARTIFACT_VOI_RUN_REPORT_REF)
+    if ref is None:
+        return {
+            "status": "legacy_missing",
+            "voi_run_report_ref": None,
+            "decision_count": 0,
+        }
+    try:
+        report = load_voi_run_report(ctx.store, ref)
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_voi_run_report",
+            reason="voi_run_report_load_failed",
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_VOI_RUN_REPORT_REF,
+        )
+        return {
+            "status": "parse_failed",
+            "voi_run_report_ref": str(ref.artifact_id),
+            "decision_count": 0,
+        }
+
+    decision_type_counts: dict[str, int] = {}
+    action_counts: dict[str, int] = {}
+    mandatory_gate_override_count = 0
+    for decision in report.decisions:
+        decision_type_counts[decision.decision_type.value] = (
+            decision_type_counts.get(decision.decision_type.value, 0) + 1
+        )
+        action_counts[decision.recommended_action] = (
+            action_counts.get(decision.recommended_action, 0) + 1
+        )
+        if decision.mandatory_gate_overrides:
+            mandatory_gate_override_count += 1
+    return {
+        "status": "available",
+        "voi_run_report_ref": str(ref.artifact_id),
+        "calibration_status": report.calibration_status,
+        "decision_count": len(report.decisions),
+        "total_expected_cost": report.total_expected_cost,
+        "shadow_baseline_ref": (
+            str(report.shadow_baseline_ref.artifact_id)
+            if report.shadow_baseline_ref is not None
+            else None
+        ),
+        "decision_type_counts": decision_type_counts,
+        "action_counts": action_counts,
+        "mandatory_gate_override_count": mandatory_gate_override_count,
+    }
+
+
+def _build_continuous_governance_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object]:
+    """Attach continuous-governance validity links when shadow sidecars exist."""
+
+    report_ref = artifacts_index.get(ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF)
+    reissue_ref = artifacts_index.get(ARTIFACT_REISSUE_PACKET_REF)
+    withdrawal_ref = artifacts_index.get(ARTIFACT_WITHDRAWAL_RECORD_REF)
+    if report_ref is None:
+        return {
+            "status": "legacy_missing",
+            "continuous_governance_report_ref": None,
+            "reissue_packet_ref": str(reissue_ref.artifact_id) if reissue_ref else None,
+            "withdrawal_record_ref": (
+                str(withdrawal_ref.artifact_id) if withdrawal_ref else None
+            ),
+            "event_count": 0,
+            "recommendation_count": 0,
+        }
+    try:
+        report = load_validity_report(ctx.store, report_ref)
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_continuous_governance_report",
+            reason="continuous_governance_report_load_failed",
+            exc=exc,
+            ref=report_ref,
+            artifact_key=ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
+        )
+        return {
+            "status": "parse_failed",
+            "continuous_governance_report_ref": str(report_ref.artifact_id),
+            "reissue_packet_ref": str(reissue_ref.artifact_id) if reissue_ref else None,
+            "withdrawal_record_ref": (
+                str(withdrawal_ref.artifact_id) if withdrawal_ref else None
+            ),
+            "event_count": 0,
+            "recommendation_count": 0,
+        }
+
+    return {
+        "status": report.status.value,
+        "continuous_governance_report_ref": str(report_ref.artifact_id),
+        "reissue_packet_ref": str(reissue_ref.artifact_id) if reissue_ref else None,
+        "withdrawal_record_ref": str(withdrawal_ref.artifact_id) if withdrawal_ref else None,
+        "event_count": len(report.monitor_events),
+        "recommendation_count": len(report.recommendations),
+        "affected_claim_ids": sorted(
+            {
+                claim_id
+                for event in report.monitor_events
+                for claim_id in event.affected_claim_ids
+            }
+        ),
+        "recommended_actions": [
+            recommendation.recommended_action for recommendation in report.recommendations
+        ],
+        "has_reissue_packet": report.reissue_packet_ref is not None or reissue_ref is not None,
+        "has_withdrawal_record": report.withdrawal_ref is not None or withdrawal_ref is not None,
     }
 
 
@@ -4132,6 +4390,8 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("sensitivity", "sensitivity"),
         ("stress_test", "stress_test"),
         ("claims_ref", "claims"),
+        ("voi", "voi"),
+        ("continuous_governance", "continuous_governance"),
         ("human_review", "human_review"),
         ("validation_report_ref", "validation_report"),
         ("judge_verdict_ref", "judge_verdict"),

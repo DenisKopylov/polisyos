@@ -1,0 +1,44 @@
+{
+  "connector_id": "eurostat.data",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "dataset_id": "dataset_id_sample",
+      "dimensions_json": "dimensions_json_sample",
+      "observation_index": 2026,
+      "time_period": "time_period_sample",
+      "unit": "unit_sample",
+      "value": 1.0
+    }
+  ],
+  "profile_id": "eurostat_public",
+  "replay_checksum": "sha256:b5e992b6f0de63e2f420862034fc9dafd85e0ede387c6033d98a933f1c3b7528",
+  "schema_checksum": "sha256:73046af1ac72dd41ae366e97f929d50a8c548aaa12114120c489734182140e92",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "eurostat.data.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "eurostat.data",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "eurostat_public",
+      "url": "fabric://eurostat.data/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "dataset_id": "dataset_id_sample",
+            "dimensions_json": "dimensions_json_sample",
+            "observation_index": 2026,
+            "time_period": "time_period_sample",
+            "unit": "unit_sample",
+            "value": 1.0
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

@@ -102,6 +102,7 @@ from polisyos.scientist.search.judge_stack import (
     JudgeStack,
     JudgeVerdict,
     PolicyPromotionCoordinator,
+    SingleJudgeVerdict,
 )
 from polisyos.scientist.search.latent_governance import latent_governance_metadata
 from polisyos.scientist.search.objective import CompositeObjective
@@ -396,6 +397,24 @@ def _uncertainty(level: float = 0.2) -> UncertaintyEnvelope:
             )
             for uncertainty_type in UncertaintyType
         }
+    )
+
+
+def _passed_judge_verdict() -> JudgeVerdict:
+    judge_names = (
+        "structural",
+        "statistical",
+        "robustness",
+        "governance",
+        "reproducibility",
+        "compute",
+    )
+    return JudgeVerdict(
+        per_judge={
+            name: SingleJudgeVerdict(judge_name=name, passed=True, is_fatal=True)
+            for name in judge_names
+        },
+        composite_decision="promote",
     )
 
 
@@ -1093,7 +1112,7 @@ def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path) -> None
 def test_phase2_closure_caps_readiness_for_incomplete_relevant_family() -> None:
     contract = DecisionReadinessEvaluator().evaluate(
         candidate=_candidate(evidence_depth="replicated"),
-        judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
+        judge_verdict=_passed_judge_verdict(),
         uncertainty_envelope=_uncertainty(0.1),
         phase3_gate=_phase3_passed(),
         evidence_metadata={
@@ -1124,6 +1143,103 @@ def test_phase2_closure_caps_readiness_for_incomplete_relevant_family() -> None:
     )
     assert contract.metadata["phase2_closure_family"] == "distributional_frontier"
     assert contract.metadata["phase2_closure_status"] == "incomplete"
+
+
+def test_fabric_trust_metadata_caps_decision_readiness() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=_passed_judge_verdict(),
+        uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
+        evidence_metadata={
+            "fabric_decision_data": [
+                {
+                    "id": "fabric_decision_data:policy_cost",
+                    "quality": {"status": "passed"},
+                    "lineage": {"id": "untraced", "status": "untraced"},
+                    "access": {"classification": "public"},
+                }
+            ]
+        },
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap"] == "research_artifact"
+    assert contract.metadata["readiness_cap_reason"] == "fabric_lineage_untraced"
+    assert contract.metadata["fabric_readiness_cap"] == "research_artifact"
+
+
+def test_fabric_quality_failure_caps_decision_readiness() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=_passed_judge_verdict(),
+        uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
+        evidence_metadata={
+            "fabric_decision_data": [
+                {
+                    "id": "fabric_decision_data:policy_cost",
+                    "quality": {"status": "failed"},
+                    "lineage": {"id": "lin_policy_cost", "status": "verified"},
+                    "access": {"classification": "public"},
+                }
+            ]
+        },
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap_reason"] == "fabric_quality_failed"
+
+
+def test_fabric_stale_evidence_caps_decision_readiness_to_advisory() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=_passed_judge_verdict(),
+        uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
+        evidence_metadata={
+            "fabric_decision_data": [
+                {
+                    "id": "fabric_decision_data:policy_cost",
+                    "quality": {"status": "passed"},
+                    "lineage": {
+                        "id": "lin_policy_cost",
+                        "status": "verified",
+                        "trust_metadata": {"freshness": "stale"},
+                    },
+                    "access": {"classification": "public"},
+                }
+            ]
+        },
+    )
+
+    assert contract.readiness_level == DecisionReadiness.ANALYST_ADVISORY
+    assert contract.metadata["readiness_cap_reason"] == "fabric_evidence_stale"
+
+
+def test_fabric_low_source_trust_caps_decision_readiness() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=_passed_judge_verdict(),
+        uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
+        evidence_metadata={
+            "fabric_source_scorecards": {
+                "worldbank.wdi.generic": {
+                    "metrics": [
+                        {
+                            "name": "source_trust",
+                            "reason": "source_trust=low",
+                            "score": 0.4,
+                        }
+                    ]
+                }
+            }
+        },
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap_reason"] == "fabric_source_trust_low"
 
 
 def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path) -> None:

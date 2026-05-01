@@ -29,6 +29,10 @@ from polisyos.fabric.data_plane.orchestrator import (
     run_orchestrated_ingestion,
     run_partitioned_ingestion,
 )
+from polisyos.fabric.processing_guarantees import (
+    batch_processing_contract,
+    processing_contract_snapshot,
+)
 
 
 def _make_evidence_bundle(store: FileSystemCAS) -> EvidenceBundleRef:
@@ -376,6 +380,25 @@ def _build_test_partition_plan():
     )
 
 
+def _build_trusted_partition_plan():
+    return build_partitioned_ingestion_plan(
+        connector_id="test.connector",
+        dataset_id="dataset.partitioned",
+        partition_key="year",
+        partitions=[
+            {"partition_id": "2024", "bounds": {"year": 2024}},
+            {"partition_id": "2025", "bounds": {"year": 2025}},
+        ],
+        metadata={
+            "lineage_ref": "lineage:test.connector:dataset.partitioned",
+            "quality_contract_ref": "fabric.quality.test.connector.v1",
+            "access_classification": "public",
+            "replay_ref": "tests/fixtures/fabric/test.replay.json",
+            "processing": processing_contract_snapshot(batch_processing_contract()),
+        },
+    )
+
+
 def _partition_handler(partition) -> IngestionResult:
     return IngestionResult(
         cursor_ref=f"cursor:{partition.partition_id}",
@@ -423,7 +446,7 @@ class TestDistributedExecutionBackends:
         monkeypatch.setattr(orchestrator, "_resolve_job_serializer", lambda: serializer)
 
         results = run_partitioned_ingestion(
-            plan=_build_test_partition_plan(),
+            plan=_build_trusted_partition_plan(),
             connector_manifest={"datasets": []},
             source="test",
             license_name="open",
@@ -474,7 +497,7 @@ class TestDistributedExecutionBackends:
         monkeypatch.setitem(sys.modules, "ray", fake_ray)
 
         results = run_partitioned_ingestion(
-            plan=_build_test_partition_plan(),
+            plan=_build_trusted_partition_plan(),
             connector_manifest={"datasets": []},
             source="test",
             license_name="open",
@@ -526,7 +549,7 @@ class TestDistributedExecutionBackends:
         monkeypatch.setattr(orchestrator, "_resolve_job_serializer", lambda: serializer)
 
         results = run_partitioned_ingestion(
-            plan=_build_test_partition_plan(),
+            plan=_build_trusted_partition_plan(),
             connector_manifest={"datasets": []},
             source="test",
             license_name="open",
@@ -537,6 +560,20 @@ class TestDistributedExecutionBackends:
 
         assert [result.status for result in results] == ["succeeded", "succeeded"]
         assert len(delayed_payloads) == 2
+
+    def test_distributed_backend_rejects_missing_trust_metadata(
+        self, tmp_path: Path
+    ) -> None:
+        with pytest.raises(ValueError, match="distributed execution requires trust metadata"):
+            run_partitioned_ingestion(
+                plan=_build_test_partition_plan(),
+                connector_manifest={"datasets": []},
+                source="test",
+                license_name="open",
+                cas_root=tmp_path / "cas",
+                backend=DaskExecutionBackend(client_factory=lambda: object()),
+                partition_handler=_partition_handler,
+            )
 
     def test_partitioned_ingestion_uses_shared_blocking_bridge_for_partition_work(
         self,

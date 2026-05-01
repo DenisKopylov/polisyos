@@ -1,0 +1,210 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "run_id": "R_core_api_001",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": "scn_fixture_001"
+  },
+  "scenario": {
+    "id": "scn_fixture_001",
+    "baseline_run_id": "R_core_api_001",
+    "status": "computed",
+    "lifecycle_status": "generated",
+    "revision": 1,
+    "manifest_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "temporal_scope": {
+      "valid_at": "2026-02-11T12:00:00Z",
+      "tx_at": "2026-02-11T12:01:00Z",
+      "branch": "main",
+      "snapshot_id": null,
+      "scenario_id": "scn_fixture_001"
+    },
+    "policy_question": "What if the policy cost cap changes?",
+    "author": "Fixture Analyst",
+    "affected_population": "national",
+    "temporal_window": {"earliest": "2026-02-11T12:00:00Z", "latest": "2026-03-11T12:00:00Z"},
+    "model_family": "operator-specified",
+    "model_version": "1.0",
+    "model_lineage": {
+      "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "hash": null,
+      "status": "verified",
+      "freshness": "current",
+      "summary": {"source": "scenario_fixture"},
+      "compact_summary": [{"kind": "model", "label": "Scenario fixture", "id": "scn_fixture_001"}],
+      "reason_code": null,
+      "tracking_issue": null
+    },
+    "baseline_lineage": null,
+    "baseline_hash": null,
+    "computed_at": "2026-02-11T12:00:00Z",
+    "validity_window": {"earliest": "2026-02-11T12:00:00Z", "latest": "2026-03-11T12:00:00Z"},
+    "known_limitations": ["Fixture scenario for contract testing."],
+    "stale_reasons": [],
+    "interventions": [
+      {
+        "field": "policy_cost",
+        "operator": "set",
+        "value": {
+          "point": 95,
+          "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+          "metric_id": "policy_cost",
+          "lineage": {
+            "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "hash": null,
+            "status": "verified",
+            "freshness": "current",
+            "summary": {"source": "scenario_fixture"},
+            "compact_summary": [{"kind": "result", "label": "policy_cost", "id": "policy_cost"}],
+            "reason_code": null,
+            "tracking_issue": null
+          },
+          "uncertainty": null,
+          "time": {
+            "valid_at": "2026-02-11T12:00:00Z",
+            "tx_at": "2026-02-11T12:01:00Z",
+            "branch": "main",
+            "snapshot_id": null,
+            "scenario_id": "scn_fixture_001"
+          },
+          "quantity_class": "decision",
+          "label": "Policy cost"
+        },
+        "baseline_value": null,
+        "constraint_ids": []
+      }
+    ],
+    "assumptions": [
+      {
+        "id": "asm_no_external_shock",
+        "label": "No external demand shock",
+        "status": "operator_assumption",
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"source": "operator"},
+          "compact_summary": [{"kind": "source", "label": "Operator assumption", "id": "asm_no_external_shock"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "description": "Fixture assumption."
+      }
+    ],
+    "constraints": []
+  },
+  "metrics": {
+    "policy_cost": {
+      "metric_id": "policy_cost",
+      "label": "Policy cost",
+      "actual": {
+        "point": 100,
+        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "metric_id": "policy_cost",
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"source": "decision_packet"},
+          "compact_summary": [{"kind": "result", "label": "policy_cost", "id": "policy_cost"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "uncertainty": null,
+        "time": {
+          "valid_at": "2026-02-11T12:00:00Z",
+          "tx_at": "2026-02-11T12:01:00Z",
+          "branch": "main",
+          "snapshot_id": null,
+          "scenario_id": null
+        },
+        "quantity_class": "decision",
+        "label": "Policy cost"
+      },
+      "counterfactual": {
+        "point": 95,
+        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "metric_id": "policy_cost_counterfactual",
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"source": "scenario_fixture"},
+          "compact_summary": [{"kind": "result", "label": "counterfactual", "id": "policy_cost_counterfactual"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "uncertainty": null,
+        "time": {
+          "valid_at": "2026-02-11T12:00:00Z",
+          "tx_at": "2026-02-11T12:01:00Z",
+          "branch": "main",
+          "snapshot_id": null,
+          "scenario_id": "scn_fixture_001"
+        },
+        "quantity_class": "decision",
+        "label": "Policy cost counterfactual"
+      },
+      "delta": {
+        "point": -5,
+        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "metric_id": "policy_cost_delta",
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"method": "scenario_delta"},
+          "compact_summary": [{"kind": "method", "label": "scenario delta", "id": "policy_cost_delta"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "uncertainty": null,
+        "time": {
+          "valid_at": "2026-02-11T12:00:00Z",
+          "tx_at": "2026-02-11T12:01:00Z",
+          "branch": "main",
+          "snapshot_id": null,
+          "scenario_id": "scn_fixture_001"
+        },
+        "quantity_class": "decision",
+        "label": "Policy cost delta"
+      },
+      "scenario_ref": {
+        "id": "scn_fixture_001",
+        "status": "computed",
+        "baseline_run_id": "R_core_api_001",
+        "temporal_scope": {
+          "valid_at": "2026-02-11T12:00:00Z",
+          "tx_at": "2026-02-11T12:01:00Z",
+          "branch": "main",
+          "snapshot_id": null,
+          "scenario_id": "scn_fixture_001"
+        },
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"source": "scenario_fixture"},
+          "compact_summary": [{"kind": "model", "label": "Scenario fixture", "id": "scn_fixture_001"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "assumption_ids": ["asm_no_external_shock"],
+        "manifest_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "assumption_ids": ["asm_no_external_shock"]
+    }
+  }
+}

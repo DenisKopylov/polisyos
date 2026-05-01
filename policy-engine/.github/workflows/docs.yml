@@ -21,6 +21,9 @@ jobs:
       - run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.pull_request.base.sha }}
       - run: uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check
       - run: uv run python tools/quality/validation/fabric_source_contracts.py --check --fail-closed
+      - run: uv run python tools/quality/validation/fabric_processing_guarantees.py --check
+      - run: uv run python tools/quality/validation/fabric_discovery_intelligence.py --check
+      - run: uv run python tools/quality/validation/fabric_product_integration.py --check
       - run: uv run python tools/design/adr_lint.py
 
   markdownlint:

@@ -135,6 +135,9 @@ def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(
         called["quality_min_amendment_target_resolution_pct"] = (
             args.quality_min_amendment_target_resolution_pct
         )
+        called["graph_amendment_workers"] = args.graph_amendment_workers
+        called["graph_amendment_task_chunk"] = args.graph_amendment_task_chunk
+        called["graph_amendment_progress_interval"] = args.graph_amendment_progress_interval
 
     monkeypatch.setattr(cli, "_cmd_run", _fake_run)
     monkeypatch.setattr(
@@ -156,6 +159,12 @@ def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(
             "65",
             "--quality-min-amendment-target-resolution-pct",
             "80",
+            "--graph-amendment-workers",
+            "12",
+            "--graph-amendment-task-chunk",
+            "128",
+            "--graph-amendment-progress-interval",
+            "100",
             "--no-pattern-feedback-enabled",
         ],
     )
@@ -168,6 +177,9 @@ def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(
     assert called["pattern_feedback_enabled"] is False
     assert called["quality_min_amendment_extraction_coverage_pct"] == 65.0
     assert called["quality_min_amendment_target_resolution_pct"] == 80.0
+    assert called["graph_amendment_workers"] == 12
+    assert called["graph_amendment_task_chunk"] == 128
+    assert called["graph_amendment_progress_interval"] == 100
 
 
 def test_cli_publish_accepts_embedding_flag(monkeypatch, tmp_path) -> None:

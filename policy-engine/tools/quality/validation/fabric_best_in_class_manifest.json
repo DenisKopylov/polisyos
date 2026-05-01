@@ -3,8 +3,12 @@
     "access_classification": {
       "access_control_module": true,
       "column_mask_module": true,
+      "field_access_policy_contract_count": 20,
+      "field_access_policy_count": 45,
+      "field_policy_coverage_count": 20,
       "pii_stage_module": true,
-      "status": "partial",
+      "source_contract_v2_count": 20,
+      "status": "implemented",
       "tests": [
         "tests/fabric/test_access_control.py",
         "tests/fabric/test_duckdb_storage_access_control.py",
@@ -31,6 +35,21 @@
         "unsupported_temporal_scope"
       ]
     },
+    "discovery_intelligence": {
+      "entity_override_audit": true,
+      "eval_case_count": 4,
+      "graph_reasoning": true,
+      "llm_calls": 0,
+      "semantic_catalog": true,
+      "source_contract_v2_count": 20,
+      "stale_invalidation": true,
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ]
+    },
     "lineage_nodes_edges": {
       "lineage_module": true,
       "openlineage_export": true,
@@ -51,8 +70,51 @@
         "tests/fabric/test_observability_governance_quality_phase4.py"
       ]
     },
+    "processing_guarantees": {
+      "benchmark_suite": true,
+      "dedupe_window_count": 20,
+      "distributed_trust_gate": true,
+      "processing_contract_count": 20,
+      "replay_retention_count": 20,
+      "status": "implemented",
+      "streaming_runtime": true,
+      "tests": [
+        "tests/fabric/data_plane/test_processing_guarantees.py",
+        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/fabric/data_plane/test_benchmarks.py",
+        "tests/fabric/data_plane/test_orchestrator.py",
+        "tests/tools/test_fabric_processing_guarantees.py"
+      ]
+    },
+    "product_api_integration": {
+      "compatibility_bridges": "implemented",
+      "frontend_fixture_count": 12,
+      "product_adapters": "implemented",
+      "required_frontend_fixture_count": 12,
+      "runtime_endpoints": [
+        "get_fabric_source_scorecards",
+        "get_fabric_quality_batch",
+        "get_fabric_trust_batch",
+        "get_fabric_run_replay",
+        "analyze_fabric_impact"
+      ],
+      "scientist_trust_gate": true,
+      "status": "implemented",
+      "tests": [
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/tools/test_fabric_product_integration.py",
+        "tests/fabric/test_product_integration.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py"
+      ],
+      "validator": "tools/quality/validation/fabric_product_integration.py"
+    },
     "public_facade_exports": {
-      "export_count": 24,
+      "export_count": 28,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -60,6 +122,8 @@
         "FabricDecisionDataCoverage",
         "FabricDecisionDataResponse",
         "LineageRef",
+        "ProcessingGuarantee",
+        "ProcessingGuaranteeContract",
         "QualityRef",
         "ReplayRef",
         "SourceContractRef",
@@ -68,6 +132,7 @@
         "UnitRef",
         "WorldQueryError",
         "WorldQueryRequest",
+        "batch_processing_contract",
         "execute_world_query",
         "fabric_claim_to_authored_text",
         "fabric_event_to_authored_text",
@@ -77,6 +142,7 @@
         "query_events",
         "query_world_table",
         "run_connectors_ingestion",
+        "stream_processing_contract",
         "world"
       ],
       "status": "implemented",
@@ -103,11 +169,11 @@
     },
     "replay_fixtures": {
       "contract_snapshot_count": 5,
-      "non_replayable_reason_count": 20,
+      "non_replayable_reason_count": 0,
       "production_entrypoint_count": 11,
       "quarantine_module": true,
       "record_replay_store": true,
-      "replay_fixture_count": 0,
+      "replay_fixture_count": 20,
       "source_contract_v2_count": 20,
       "status": "implemented",
       "tests": [
@@ -141,8 +207,11 @@
     "source_platform": {
       "bounded_read_evidence_count": 20,
       "classification_count": 20,
-      "non_replayable_reason_count": 20,
-      "replay_fixture_count": 0,
+      "field_access_policy_contract_count": 20,
+      "field_access_policy_count": 45,
+      "field_policy_coverage_count": 20,
+      "non_replayable_reason_count": 0,
+      "replay_fixture_count": 20,
       "source_contract_v2_count": 20,
       "source_scorecard_count": 20,
       "status": "implemented",
@@ -205,6 +274,8 @@
       "tests": [
         "tests/fabric/test_world_time_travel.py",
         "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_branch_governance.py",
+        "tests/fabric/test_world_temporal_capabilities.py",
         "tests/runtime/http/test_temporal_api.py",
         "tests/runtime/http/test_temporal_routes.py"
       ],
@@ -214,10 +285,15 @@
       "evidence": [
         "tests/fabric/data_plane/test_record_replay.py",
         "tests/fabric/data_plane/test_quarantine.py",
+        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/fabric/data_plane/test_processing_guarantees.py",
+        "tests/fabric/data_plane/test_benchmarks.py",
+        "tests/fabric/data_plane/test_orchestrator.py",
         "tests/fabric/test_ingestion_quarantine.py",
         "tests/fabric/test_provenance.py",
         "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/tools/test_fabric_source_contracts.py"
+        "tests/tools/test_fabric_source_contracts.py",
+        "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "semantics": [
         "tests/fabric/test_quality_indicators.py",
@@ -225,8 +301,11 @@
         "tests/fabric/connectors/test_quality_statistics.py",
         "tests/fabric/connectors/test_schema_system.py",
         "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_schema_governance.py",
-        "tests/tools/test_fabric_source_contracts.py"
+        "tests/tools/test_fabric_source_contracts.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "source": [
         "tests/fabric/connectors/test_contract_system.py",
@@ -234,8 +313,10 @@
         "tests/fabric/connectors/test_registry.py",
         "tests/fabric/connectors/test_source_contract_v2.py",
         "tests/fabric/connectors/profiles/test_source_profiles.py",
+        "tests/fabric/data_plane/test_processing_guarantees.py",
         "tests/tools/test_fabric_schema_governance.py",
-        "tests/tools/test_fabric_source_contracts.py"
+        "tests/tools/test_fabric_source_contracts.py",
+        "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "trust": [
         "tests/fabric/test_lineage.py",
@@ -243,6 +324,8 @@
         "tests/fabric/test_fabric_observability.py",
         "tests/fabric/test_observability_governance_quality_phase4.py",
         "tests/fabric/test_provenance.py",
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
         "tests/fabric/test_access_control.py",
         "tests/fabric/test_duckdb_storage_access_control.py",
         "tests/fabric/test_world_query_column_masking.py",
@@ -250,11 +333,23 @@
         "tests/runtime/http/test_lineage_api.py",
         "tests/runtime/http/test_lineage_routes.py",
         "tests/tools/test_fabric_source_contracts.py",
-        "tests/tools/test_fabric_decision_data_coverage.py"
+        "tests/tools/test_fabric_decision_data_coverage.py",
+        "tests/tools/test_fabric_discovery_intelligence.py",
+        "tests/tools/test_fabric_product_integration.py",
+        "tests/fabric/test_product_integration.py",
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py"
       ],
       "world": [
         "tests/fabric/test_world_time_travel.py",
         "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_branch_governance.py",
+        "tests/fabric/test_world_temporal_capabilities.py",
+        "tests/fabric/test_entity_resolution.py",
         "tests/fabric/test_world_query_multibackend.py",
         "tests/runtime/http/test_temporal_api.py",
         "tests/runtime/http/test_temporal_routes.py"
@@ -308,21 +403,21 @@
   },
   "summary": {
     "plane_counts": {
-      "evidence": 4,
-      "semantics": 6,
-      "source": 16,
-      "trust": 12,
-      "world": 5
+      "evidence": 7,
+      "semantics": 9,
+      "source": 17,
+      "trust": 18,
+      "world": 8
     },
     "status_counts": {
-      "accepted_risk": 1,
+      "accepted_risk": 0,
       "blocked_by_research": 1,
-      "implemented": 38,
+      "implemented": 55,
       "missing": 0,
-      "not_applicable": 1,
-      "partial": 2
+      "not_applicable": 2,
+      "partial": 1
     },
-    "surface_count": 43
+    "surface_count": 59
   },
   "surfaces": [
     {
@@ -350,20 +445,68 @@
       "title": "CAS-backed evidence bundle persistence"
     },
     {
-      "description": "SourceContract v2 records either replay fixtures or explicit non-replayable reasons for production source contracts.",
+      "description": "Dask/Ray/Celery partition execution fails closed unless lineage, quality, access, and replay/non-replayable evidence are present.",
+      "docs": [
+        "docs/reference/fabric/processing-guarantees.md"
+      ],
+      "evidence": {
+        "fail_closed_gate": true,
+        "trust_contract": true
+      },
+      "id": "evidence.distributed_execution_trust_gate",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/data_plane/orchestrator.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_orchestrator.py"
+      ],
+      "title": "Distributed execution trust gate"
+    },
+    {
+      "description": "Benchmark reports include p50/p95/p99 latency, memory, and correctness counters for Fabric scale paths.",
+      "docs": [
+        "docs/reference/fabric/processing-guarantees.md"
+      ],
+      "evidence": {
+        "correctness_counters": true,
+        "latency_quantiles": true,
+        "query_benchmark": true
+      },
+      "id": "evidence.fabric_scale_benchmark_suite",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/data_plane/benchmarks.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_benchmarks.py"
+      ],
+      "title": "Scale benchmark reports for ingestion, streaming, materialization, and query"
+    },
+    {
+      "description": "Every production SourceContract v2 carries a deterministic replay fixture; non-replayable reasons are excluded from strict Wave 2 closure.",
       "docs": [
         "docs/reference/fabric/data-plane.md",
         "docs/reference/fabric/source-platform.md"
       ],
       "evidence": {
         "contract_snapshot_count": 5,
-        "non_replayable_reason_count": 20,
+        "non_replayable_reason_count": 0,
         "production_entrypoint_count": 11,
         "record_replay_tests_present": true,
-        "replay_fixture_count": 0,
+        "replay_fixture_count": 20,
         "source_contract_v2_count": 20
       },
-      "follow_up": "Phase 5: add replay fixtures for sources currently carrying explicit non-replayable reasons.",
       "id": "evidence.production_source_replay_fixtures",
       "owner": "@fabric-owners",
       "phase": 0,
@@ -382,7 +525,7 @@
         "tests/fabric/test_ingestion_quarantine.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
-      "title": "Replay fixture or explicit non-replayable matrix"
+      "title": "Production source replay fixture matrix"
     },
     {
       "description": "Quarantine records, replay hooks, and DLQ operational coverage.",
@@ -436,6 +579,37 @@
         "tests/fabric/test_ingestion_quarantine.py"
       ],
       "title": "Record/replay persistence surface"
+    },
+    {
+      "description": "Streaming runtime persists the effective processing contract on chunks, windows, checkpoints, cursors, and CDC events while counting late/dropped/quarantined rows.",
+      "docs": [
+        "docs/reference/fabric/processing-guarantees.md"
+      ],
+      "evidence": {
+        "backpressure_contract": true,
+        "cdc_compatibility": true,
+        "out_of_order_policy": true,
+        "processing_artifact_metadata": true
+      },
+      "id": "evidence.streaming_scale_semantics",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "evidence",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/data_plane/streaming.py",
+        "src/polisyos/fabric/processing_guarantees.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_benchmarks.py",
+        "tests/fabric/data_plane/test_orchestrator.py",
+        "tests/fabric/data_plane/test_processing_guarantees.py",
+        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/tools/test_fabric_processing_guarantees.py"
+      ],
+      "title": "Streaming, CDC, backpressure, and out-of-order semantics"
     },
     {
       "description": "Completeness, consistency, freshness, statistics, and validator modules for source outputs.",
@@ -504,6 +678,36 @@
       "title": "Fabric quality evidence propagation"
     },
     {
+      "description": "Natural-language discovery returns ranked candidates with deterministic lexical fallback, no LLM calls, relevance cases, and false-positive budget.",
+      "docs": [
+        "docs/reference/fabric/discovery-intelligence.md"
+      ],
+      "evidence": {
+        "eval_case_count": 4,
+        "llm_calls": 0,
+        "maximum_false_positive_failures": 0,
+        "minimum_pass_rate": 1.0
+      },
+      "id": "semantics.nl_to_dataset_resolution_eval",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/catalog/discovery.py",
+        "tests/fixtures/fabric_discovery_eval.json",
+        "tools/quality/validation/fabric_discovery_intelligence.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ],
+      "title": "Explainable NL-to-dataset resolution and eval pack"
+    },
+    {
       "description": "Quality indicator scoring, finite-value guards, and metric fitness reports.",
       "docs": [
         "docs/reference/fabric/quality.md"
@@ -563,6 +767,36 @@
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Schema governance snapshot gate"
+    },
+    {
+      "description": "Offline-first catalog builds one explainable discovery document per production SourceContract and carries source, profile, quality, access, trust, owner, and reviewer evidence on each ranked candidate.",
+      "docs": [
+        "docs/reference/fabric/discovery-intelligence.md"
+      ],
+      "evidence": {
+        "candidate_evidence": true,
+        "embedding_model": "hashing-bow-dataset-v1",
+        "llm_calls": 0,
+        "source_contract_v2_count": 20
+      },
+      "id": "semantics.semantic_dataset_catalog",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/catalog/discovery.py",
+        "tools/quality/validation/fabric_discovery_intelligence.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ],
+      "title": "SourceContract-backed semantic dataset catalog"
     },
     {
       "description": "SourceContract v2 snapshot carries quality-contract refs and required quality checks for production source contracts.",
@@ -639,6 +873,34 @@
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Generated source scorecards"
+    },
+    {
+      "description": "Dataset vectors are rebuilt when SourceContract, source metadata, profile, quality, access, or trust evidence changes; stale entries are filtered by default and labelled when explicitly requested.",
+      "docs": [
+        "docs/reference/fabric/discovery-intelligence.md"
+      ],
+      "evidence": {
+        "fingerprint": true,
+        "mark_stale": true,
+        "refresh": true,
+        "stale_filter": true
+      },
+      "id": "semantics.stale_embedding_invalidation",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "semantics",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/catalog/discovery.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ],
+      "title": "Stale semantic-vector invalidation"
     },
     {
       "description": "Curated profile catalog for source execution policies and connector defaults.",
@@ -931,16 +1193,17 @@
       "title": "Connector source module tree"
     },
     {
-      "description": "The entry-point group covers production HTTP/open-data components; additional connector families are currently direct-import/registry surfaces.",
+      "description": "Production-visible connector families are admitted through governed components and SourceContract v2 evidence. Families without a public plugin entry point are explicit internal-support surfaces, not ungated production paths.",
       "docs": [
         "docs/reference/fabric/connectors.md"
       ],
       "evidence": {
         "concrete_connector_count": 20,
-        "direct_import_family_count": 9,
-        "entrypoint_count": 11
+        "entrypoint_count": 11,
+        "governed_component_count": 20,
+        "internal_support_only_count": 9,
+        "production_visibility_source": "__polisyos_components__ plus SourceContract v2 snapshot"
       },
-      "follow_up": "Phase 5: decide which direct-import families require entry-point registration.",
       "id": "source.entrypoint_coverage.direct_import_families",
       "owner": "@fabric-owners",
       "phase": 0,
@@ -951,11 +1214,11 @@
         "pyproject.toml",
         "src/polisyos/fabric/connectors/sources/__init__.py"
       ],
-      "status": "partial",
+      "status": "implemented",
       "tests": [
         "tests/fabric/connectors/test_registry.py"
       ],
-      "title": "Entry-point coverage for direct-import connector families"
+      "title": "Governed production visibility for connector families"
     },
     {
       "description": "HTTPConnectorBase and HTTPResilienceProfile are exported runtime primitives, not standalone production source connectors.",
@@ -982,6 +1245,42 @@
       "title": "Shared HTTP runtime as production source"
     },
     {
+      "description": "SourceContract v2 carries honest batch/stream/CDC/replay guarantee labels plus idempotency, dedupe-window, replay-retention, backpressure, and out-of-order policies.",
+      "docs": [
+        "docs/reference/fabric/processing-guarantees.md",
+        "docs/reference/fabric/source-platform.md"
+      ],
+      "evidence": {
+        "dedupe_window_count": 20,
+        "processing_contract_count": 20,
+        "replay_retention_count": 20,
+        "schema": "schemas/fabric/processing_guarantee.schema.json",
+        "validator": "tools/quality/validation/fabric_processing_guarantees.py"
+      },
+      "id": "source.processing_guarantee_contracts",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "source",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "schemas/fabric/processing_guarantee.schema.json",
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "src/polisyos/fabric/processing_guarantees.py",
+        "tools/quality/validation/fabric_processing_guarantees.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/data_plane/test_benchmarks.py",
+        "tests/fabric/data_plane/test_orchestrator.py",
+        "tests/fabric/data_plane/test_processing_guarantees.py",
+        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/tools/test_fabric_processing_guarantees.py"
+      ],
+      "title": "Processing guarantee, dedupe, and replay-retention contracts"
+    },
+    {
       "description": "Contract-first source evidence covering schema, profile, quality, replay, lineage, access, retention, SLO, owner, reviewer, and docs.",
       "docs": [
         "docs/reference/fabric/connectors.md",
@@ -989,6 +1288,9 @@
       ],
       "evidence": {
         "bounded_read_evidence_count": 20,
+        "field_policy_coverage_count": 20,
+        "non_replayable_reason_count": 0,
+        "replay_fixture_count": 20,
         "schema": "schemas/fabric/source_contract.schema.json",
         "snapshot": "schemas/snapshots/fabric/source_contracts_v2.json",
         "source_contract_v2_count": 20,
@@ -1291,7 +1593,7 @@
       "title": "Source contract: wvs.wave7.generic"
     },
     {
-      "description": "Access policies, column masking, and PII staging exist; source contracts do not yet prove classification coverage for every decision-bearing field.",
+      "description": "Access policies, column masking, PII staging, and SourceContract v2 field policies prove classification coverage for every production schema field or a wildcard template surface.",
       "docs": [
         "docs/reference/fabric/quality.md",
         "docs/reference/fabric/time-travel.md"
@@ -1304,9 +1606,12 @@
           "tests/fabric/test_world_query_column_masking.py"
         ],
         "column_mask_module": true,
-        "pii_stage_module": true
+        "field_access_policy_contract_count": 20,
+        "field_access_policy_count": 45,
+        "field_policy_coverage_count": 20,
+        "pii_stage_module": true,
+        "source_contract_v2_count": 20
       },
-      "follow_up": "Phase 5/6: require contract/profile-level classification coverage for decision-bearing fields.",
       "id": "trust.access_classification",
       "owner": "@fabric-owners",
       "phase": 0,
@@ -1314,17 +1619,19 @@
       "priority": "P1",
       "severity": "P1",
       "source_files": [
+        "schemas/snapshots/fabric/source_contracts_v2.json",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py",
         "src/polisyos/fabric/pii/stage.py",
         "src/polisyos/fabric/security/access_control.py",
         "src/polisyos/fabric/security/column_mask.py"
       ],
-      "status": "partial",
+      "status": "implemented",
       "tests": [
         "tests/fabric/test_access_control.py",
         "tests/fabric/test_duckdb_storage_access_control.py",
         "tests/fabric/test_world_query_column_masking.py"
       ],
-      "title": "Access classification and masking inventory"
+      "title": "Field-level access classification and masking inventory"
     },
     {
       "description": "Production connectors expose schema, quality, SLA, access classification, and owner metadata with a validator-backed inventory check.",
@@ -1356,6 +1663,71 @@
       "title": "Production connector governance metadata"
     },
     {
+      "description": "Entity matches remain candidates until an accepted/rejected override is persisted with actor, reason, provenance, append-only audit evidence, and merge-governance reference for accepted canonical writes.",
+      "docs": [
+        "docs/reference/fabric/discovery-intelligence.md"
+      ],
+      "evidence": {
+        "append_only_index": true,
+        "merge_governance_required": true,
+        "override_audit_model": true,
+        "override_envelope": true
+      },
+      "id": "trust.entity_resolution_override_governance",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/entity_resolution/models.py",
+        "src/polisyos/fabric/entity_resolution/store.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ],
+      "title": "Entity override provenance and merge governance"
+    },
+    {
+      "description": "Temporary product/API bridges carry owner, reason, sunset date, and migration issue metadata while root Fabric facade exports stay stable.",
+      "docs": [
+        "docs/reference/fabric/product-api-integration.md"
+      ],
+      "evidence": {
+        "bridge_registry": true,
+        "migration_issues": true,
+        "root_facade_unchanged": true,
+        "sunset_dates": true
+      },
+      "id": "trust.fabric_compatibility_bridges",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "docs/reference/fabric/product-api-integration.md",
+        "src/polisyos/fabric/compatibility.py",
+        "tools/quality/validation/fabric_product_integration.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_product_integration.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/tools/test_fabric_product_integration.py"
+      ],
+      "title": "Fabric compatibility bridge governance"
+    },
+    {
       "description": "Fabric-level envelope binding source, quality, lineage, replay, temporal, and access state into a single decision-bearing contract.",
       "docs": [
         "docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md",
@@ -1366,8 +1738,10 @@
         "required_contracts": {
           "batch_lineage_lookup": true,
           "decision_data_module": true,
+          "field_classification": true,
           "runtime_decision_data_route": true,
           "schema_matches_model": true,
+          "source_contract_v2_ref": true,
           "temporal_scope_echo": true,
           "trust_envelope_schema": true,
           "typed_gap_states": true
@@ -1474,6 +1848,51 @@
       "title": "Fabric SLI/SLO and error-budget gate"
     },
     {
+      "description": "Dashboard contract fixtures cover Quantity, provenance hover, Trust View, temporal scrubber, policy diff, counterfactual layer, scorecards, replay, and impact analysis payloads.",
+      "docs": [
+        "docs/reference/fabric/product-api-integration.md"
+      ],
+      "evidence": {
+        "fabric_decision_data_adapter": true,
+        "fabric_decision_data_hook": true,
+        "fixture_count": 12,
+        "fixtures": [
+          "run-quantities.json",
+          "run-fabric-decision-data.json",
+          "lineage.json",
+          "lineage-batch.json",
+          "temporal-capabilities.json",
+          "compare-run.json",
+          "counterfactual-metrics.json",
+          "fabric-source-scorecards.json",
+          "fabric-quality-batch.json",
+          "fabric-trust-batch.json",
+          "fabric-replay.json",
+          "fabric-impact.json"
+        ],
+        "required_fixture_count": 12
+      },
+      "id": "trust.frontend_fabric_contract_fixtures",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "frontend/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.ts",
+        "frontend/runtime-dashboard/src/api/validators.ts",
+        "frontend/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "frontend/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts"
+      ],
+      "status": "implemented",
+      "tests": [
+        "frontend/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "frontend/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+        "frontend/runtime-dashboard/src/test/contracts/contractFixtures.test.ts"
+      ],
+      "title": "Frontend Fabric product contract fixtures"
+    },
+    {
       "description": "FabricLineageTracker records source, schema, dataset, transform, query, and claim lineage.",
       "docs": [
         "docs/reference/fabric/lineage.md"
@@ -1523,6 +1942,45 @@
       "title": "OpenLineage export"
     },
     {
+      "description": "Shared Fabric evidence paths feed Scholar citations, Lex evidence, Foundry calibration weights, and uncertainty inflation.",
+      "docs": [
+        "docs/reference/fabric/product-api-integration.md"
+      ],
+      "evidence": {
+        "fabric_evidence_path": true,
+        "foundry_calibration": true,
+        "foundry_uncertainty": true,
+        "lex": true,
+        "scholar": true
+      },
+      "id": "trust.product_evidence_adapters",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/product_integration.py",
+        "src/polisyos/foundry/calibration/fabric_quality.py",
+        "src/polisyos/foundry/uncertainty/fabric_quality.py",
+        "src/polisyos/lex/provenance.py",
+        "src/polisyos/scholar/provenance.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_product_integration.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/tools/test_fabric_product_integration.py"
+      ],
+      "title": "Scholar, Lex, and Foundry Fabric evidence adapters"
+    },
+    {
       "description": "PROV-O JSON-LD and PROV-JSON export surface for governed provenance.",
       "docs": [
         "docs/reference/fabric/lineage.md"
@@ -1552,7 +2010,7 @@
         "docs/reference/fabric/index.md"
       ],
       "evidence": {
-        "export_count": 24,
+        "export_count": 28,
         "exports": [
           "AccessRef",
           "AuthoredText",
@@ -1560,6 +2018,8 @@
           "FabricDecisionDataCoverage",
           "FabricDecisionDataResponse",
           "LineageRef",
+          "ProcessingGuarantee",
+          "ProcessingGuaranteeContract",
           "QualityRef",
           "ReplayRef",
           "SourceContractRef",
@@ -1568,6 +2028,7 @@
           "UnitRef",
           "WorldQueryError",
           "WorldQueryRequest",
+          "batch_processing_contract",
           "execute_world_query",
           "fabric_claim_to_authored_text",
           "fabric_event_to_authored_text",
@@ -1577,6 +2038,7 @@
           "query_events",
           "query_world_table",
           "run_connectors_ingestion",
+          "stream_processing_contract",
           "world"
         ]
       },
@@ -1596,6 +2058,50 @@
         "tests/runtime/http/test_e2e_ingestion.py"
       ],
       "title": "Stable public facade exports"
+    },
+    {
+      "description": "Runtime exposes source scorecards, quality/trust batch lookup, replay, and impact analysis through additive Fabric endpoints published in OpenAPI and the generated client.",
+      "docs": [
+        "docs/reference/fabric/product-api-integration.md"
+      ],
+      "evidence": {
+        "client": true,
+        "openapi": true,
+        "operation_ids": [
+          "get_fabric_source_scorecards",
+          "get_fabric_quality_batch",
+          "get_fabric_trust_batch",
+          "get_fabric_run_replay",
+          "analyze_fabric_impact"
+        ],
+        "route": true,
+        "service": true
+      },
+      "id": "trust.runtime_fabric_product_api",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "frontend/runtime-api-client/runtimeApiClient.ts",
+        "schemas/runtime_api_v1.openapi.json",
+        "src/polisyos/runtime/http/routes/fabric.py",
+        "src/polisyos/runtime/http/services/fabric.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_product_integration.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/tools/test_fabric_product_integration.py"
+      ],
+      "title": "Runtime Fabric product API endpoints"
     },
     {
       "description": "HTTP route/service adapter for trace and impact lookup over Fabric lineage.",
@@ -1622,6 +2128,39 @@
         "tests/runtime/http/test_lineage_api.py"
       ],
       "title": "Runtime lineage API adapter"
+    },
+    {
+      "description": "Scientist governance consumes Fabric quality, lineage, freshness, access, and source-trust metadata to cap decision readiness.",
+      "docs": [
+        "docs/reference/fabric/product-api-integration.md"
+      ],
+      "evidence": {
+        "pass": true,
+        "readiness_cap": true
+      },
+      "id": "trust.scientist_fabric_trust_governance",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "trust",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/scientist/governance/passes/fabric_trust_gate_pass.py",
+        "src/polisyos/scientist/search/readiness.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_product_integration.py",
+        "tests/foundry/calibration/test_fabric_quality.py",
+        "tests/foundry/uncertainty/test_fabric_quality.py",
+        "tests/lex/test_fabric_provenance.py",
+        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/scholar/test_fabric_provenance.py",
+        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/tools/test_fabric_product_integration.py"
+      ],
+      "title": "Scientist readiness cap from Fabric trust metadata"
     },
     {
       "description": "Production SourceContract v2 records carry classification, retention, owner/reviewer, and source SLO metadata before production visibility.",
@@ -1690,6 +2229,8 @@
         "temporal_tests": [
           "tests/fabric/test_world_time_travel.py",
           "tests/fabric/test_world_materialization.py",
+          "tests/fabric/test_world_branch_governance.py",
+          "tests/fabric/test_world_temporal_capabilities.py",
           "tests/runtime/http/test_temporal_api.py",
           "tests/runtime/http/test_temporal_routes.py"
         ]
@@ -1705,7 +2246,9 @@
       ],
       "status": "implemented",
       "tests": [
+        "tests/fabric/test_world_branch_governance.py",
         "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_temporal_capabilities.py",
         "tests/fabric/test_world_time_travel.py",
         "tests/runtime/http/test_temporal_api.py",
         "tests/runtime/http/test_temporal_routes.py"
@@ -1713,19 +2256,73 @@
       "title": "Bitemporal world-query support"
     },
     {
-      "accepted_risk": {
-        "expiry_date": "2026-07-31",
-        "owner": "@fabric-owners",
-        "reason": "External table-format adapters are discoverable for planning, while runtime query/create paths reject unsupported adapters.",
-        "review_date": "2026-05-31"
+      "description": "World fact emission can attach typed correction, revocation, branch, and scenario mutation metadata without overwriting prior facts.",
+      "docs": [
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "correction_required_fields": true,
+        "emitter_support": true,
+        "mutation_enum": true,
+        "revocation_required_fields": true
       },
-      "description": "Iceberg/Delta-style external adapters are metadata-visible but fail closed until runtime support is implemented.",
+      "id": "world.correction_revocation_mutations",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/world/store/emit.py",
+        "src/polisyos/fabric/world/store/segments.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_world_branch_governance.py"
+      ],
+      "title": "Append-only correction and revocation metadata"
+    },
+    {
+      "description": "World graph helpers answer origin, source-overlap, conflict-neighborhood, source-to-policy impact, and entity-neighborhood questions over in-memory fixtures and live Kuzu traversals.",
+      "docs": [
+        "docs/reference/fabric/discovery-intelligence.md",
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "conflict_neighborhood": true,
+        "entity_neighborhood": true,
+        "kuzu_helpers": true,
+        "origin_trace": true,
+        "policy_impact": true,
+        "source_overlap": true
+      },
+      "id": "world.discovery_graph_reasoning",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P1",
+      "severity": "P1",
+      "source_files": [
+        "src/polisyos/fabric/world/materialize/kuzu.py"
+      ],
+      "status": "implemented",
+      "tests": [
+        "tests/fabric/test_discovery_intelligence.py",
+        "tests/fabric/test_entity_resolution.py",
+        "tests/tools/test_fabric_discovery_intelligence.py"
+      ],
+      "title": "Discovery graph reasoning helpers"
+    },
+    {
+      "description": "Iceberg/Delta-style adapters are metadata-only future surfaces. Wave 2 strict closure proves they are not production-visible and local runtime create/query paths fail closed.",
       "docs": [
         "docs/reference/fabric/time-travel.md"
       ],
       "evidence": {
         "adapter_registry_present": true,
-        "runtime_rejection_test": true
+        "production_visible": false,
+        "runtime_rejection_test": true,
+        "strict_wave2_scope": "not_applicable"
       },
       "id": "world.future_table_snapshot_adapters",
       "owner": "@fabric-owners",
@@ -1737,24 +2334,59 @@
         "src/polisyos/fabric/world/store/snapshots.py",
         "src/polisyos/fabric/world_query.py"
       ],
-      "status": "accepted_risk",
+      "status": "not_applicable",
       "tests": [
+        "tests/fabric/test_world_branch_governance.py",
         "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_temporal_capabilities.py",
         "tests/fabric/test_world_time_travel.py",
         "tests/runtime/http/test_temporal_api.py",
         "tests/runtime/http/test_temporal_routes.py"
       ],
-      "title": "Future table-format snapshot adapters"
+      "title": "External table-format adapters excluded from Wave 2 production"
     },
     {
-      "description": "World snapshot store supports retained snapshots, branches, merge policy, and GC metadata.",
+      "description": "Kuzu exports carry edge valid/tx metadata, while full bitemporal graph traversal is explicitly labelled partial and linked to R3.",
+      "docs": [
+        "docs/reference/fabric/time-travel.md"
+      ],
+      "evidence": {
+        "partial_scope": true,
+        "research_track": true,
+        "temporal_capability": true
+      },
+      "follow_up": "R3: prove full bitemporal Kuzu traversal semantics before marking implemented.",
+      "id": "world.kuzu_temporal_scope_capability",
+      "owner": "@fabric-owners",
+      "phase": 0,
+      "plane": "world",
+      "priority": "P2",
+      "severity": "P2",
+      "source_files": [
+        "src/polisyos/fabric/world/materialize/kuzu.py"
+      ],
+      "status": "partial",
+      "tests": [
+        "tests/fabric/test_world_temporal_capabilities.py"
+      ],
+      "title": "Kuzu temporal graph parity marker"
+    },
+    {
+      "description": "World snapshot store supports retained snapshots, governed branches, merge policy, scenario contracts, and GC metadata.",
       "docs": [
         "docs/reference/fabric/time-travel.md"
       ],
       "evidence": {
         "create_world_branch": true,
+        "delete_world_branch": true,
+        "deletion_impact_record": true,
+        "export_world_branch_governance": true,
         "gc_world_snapshots": true,
-        "merge_world_branch": true
+        "legal_hold_encryption_gate": true,
+        "merge_world_branch": true,
+        "scenario_branch_schema": true,
+        "update_world_branch_head": true,
+        "world_branch_schema": true
       },
       "id": "world.snapshot_branch_surface",
       "owner": "@fabric-owners",
@@ -1763,16 +2395,21 @@
       "priority": "P1",
       "severity": "P1",
       "source_files": [
+        "schemas/fabric/scenario_branch.schema.json",
+        "schemas/fabric/world_branch.schema.json",
+        "src/polisyos/fabric/security/retention.py",
         "src/polisyos/fabric/world/store/snapshots.py"
       ],
       "status": "implemented",
       "tests": [
+        "tests/fabric/test_world_branch_governance.py",
         "tests/fabric/test_world_materialization.py",
+        "tests/fabric/test_world_temporal_capabilities.py",
         "tests/fabric/test_world_time_travel.py",
         "tests/runtime/http/test_temporal_api.py",
         "tests/runtime/http/test_temporal_routes.py"
       ],
-      "title": "Snapshot, branch, merge, and retention surface"
+      "title": "Snapshot, branch, merge, governance, and retention surface"
     },
     {
       "description": "Advanced temporal graph semantics are intentionally deferred to the research wave before being converted into runtime acceptance gates.",
@@ -1804,8 +2441,11 @@
         "docs/reference/fabric/time-travel.md"
       ],
       "evidence": {
+        "branch_support": true,
         "route": true,
-        "service": true
+        "service": true,
+        "slow_query_evidence": true,
+        "supported_tables": true
       },
       "id": "world.temporal_runtime_adapter",
       "owner": "@fabric-owners",
@@ -1819,7 +2459,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/runtime/http/test_temporal_api.py"
+        "tests/fabric/test_world_temporal_capabilities.py",
+        "tests/runtime/http/test_temporal_api.py",
+        "tests/runtime/http/test_temporal_routes.py"
       ],
       "title": "Runtime temporal API adapter"
     }

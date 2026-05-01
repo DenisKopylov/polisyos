@@ -26,7 +26,10 @@ import { ModeAwareHome } from "@/app/routes/ModeAwareHome";
 import { lexRoute } from "@/features/lex";
 import { platformRoute } from "@/features/platform";
 import { resolveWorkspaceKey } from "@/app/workspaces";
-import { runsRoutes } from "@/features/runs/routes.public";
+import {
+  publicDecisionViewerRoute,
+  runsRoutes,
+} from "@/features/runs/routes.public";
 import { LOGIN_PATH } from "@/lib/constants";
 import {
   setActiveRouteTelemetryContext,
@@ -181,6 +184,7 @@ function AppProvidersRoute() {
 
 export const APP_ROUTES: RouteObject[] = [
   landingRoute,
+  publicDecisionViewerRoute,
   {
     path: "/",
     element: <AppProvidersRoute />,

@@ -1,0 +1,34 @@
+{
+  "connector_id": "sql.query",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "sql.query.generic"
+    }
+  ],
+  "profile_id": "sqlite_demo",
+  "replay_checksum": "sha256:f84add0c5b80bef91fdc1a768cee2625375efad75adb3987983660af7c769df6",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "sql.query.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "sql.query",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "sqlite_demo",
+      "url": "fabric://sql.query/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "sql.query.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

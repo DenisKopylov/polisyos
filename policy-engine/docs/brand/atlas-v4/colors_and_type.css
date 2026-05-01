@@ -1,0 +1,207 @@
+/**
+ * PolicyOS Atlas v4 token reference.
+ *
+ * Source: /Users/deniskopylov/Downloads/PolicyOS Atlas Design System-4.zip,
+ * file colors_and_type.css, received 2026-04-29.
+ *
+ * This file is intentionally repo-local so production drift checks do not
+ * depend on a workstation Downloads folder. It preserves the v4 reference
+ * token contract; production divergences are documented in
+ * docs/brand/ATLAS_V4_ADOPTION.md and ADR-047.
+ */
+
+:root {
+  --paper: #fbf8f2;
+  --sand: #f4efe6;
+  --ink: #17191d;
+  --graphite: #28333c;
+  --slate: #40515f;
+  --line: rgba(23, 25, 29, 0.12);
+  --canvas: #efe9dc;
+
+  --teal: #115e57;
+  --ember: #92391d;
+  --gold: #6c5111;
+
+  --teal-vibrant: #1c8b82;
+  --ember-vibrant: #cb5a2e;
+  --gold-vibrant: #b58b2b;
+
+  --teal-soft: rgba(17, 94, 87, 0.14);
+  --ember-soft: rgba(146, 57, 29, 0.12);
+  --gold-soft: rgba(108, 81, 17, 0.16);
+
+  --panel: rgba(251, 248, 242, 0.82);
+  --panel-strong: rgba(255, 255, 255, 0.86);
+  --surface: rgba(255, 255, 255, 0.56);
+
+  --shell-border: rgba(255, 255, 255, 0.6);
+  --shell-glass-start: rgba(255, 255, 255, 0.78);
+  --shell-glass-end: rgba(247, 242, 234, 0.72);
+  --shell-glass-base: rgba(255, 255, 255, 0.4);
+
+  --page-gradient-start: #efe9dc;
+  --page-gradient-mid: #f6f2ea;
+  --page-gradient-end: #efe7da;
+  --page-glow-teal: rgba(28, 139, 130, 0.16);
+  --page-glow-ember: rgba(203, 90, 46, 0.12);
+}
+
+[data-theme="dark"] {
+  --paper: #16202b;
+  --sand: #111821;
+  --ink: #eef5ff;
+  --graphite: #d8e2ef;
+  --slate: #a1b3c8;
+  --line: rgba(216, 226, 239, 0.14);
+  --canvas: #0b121a;
+
+  --teal: #5fd3ca;
+  --ember: #ff936b;
+  --gold: #d2b362;
+
+  --teal-soft: rgba(95, 211, 202, 0.16);
+  --ember-soft: rgba(255, 147, 107, 0.16);
+  --gold-soft: rgba(210, 179, 98, 0.18);
+
+  --panel: rgba(19, 28, 38, 0.88);
+  --panel-strong: rgba(15, 23, 32, 0.94);
+  --surface: rgba(26, 37, 50, 0.82);
+
+  --shell-border: rgba(108, 138, 167, 0.26);
+  --shell-glass-start: rgba(20, 31, 43, 0.92);
+  --shell-glass-end: rgba(17, 26, 37, 0.86);
+  --shell-glass-base: rgba(8, 14, 21, 0.7);
+
+  --page-gradient-start: #111c27;
+  --page-gradient-mid: #0d1620;
+  --page-gradient-end: #091119;
+  --page-glow-teal: rgba(95, 211, 202, 0.14);
+  --page-glow-ember: rgba(255, 147, 107, 0.1);
+}
+
+:root {
+  --text: var(--ink);
+  --muted: var(--slate);
+  --accent: var(--teal);
+  --success: var(--teal);
+  --warning: var(--gold);
+  --danger: var(--ember);
+
+  --button-primary-start: #1d8d84;
+  --button-primary-end: #1a6c66;
+  --button-primary-text: #fff9f1;
+
+  --color-status-approved: var(--success);
+  --color-status-pending: var(--warning);
+  --color-status-rejected: var(--danger);
+
+  --color-severity-high: var(--danger);
+  --color-severity-medium: var(--warning);
+  --color-severity-low: var(--accent);
+
+  --color-governance-blocker: var(--danger);
+  --color-governance-review: var(--gold);
+
+  --chart-grid: rgba(23, 25, 29, 0.12);
+  --chart-axis: rgba(64, 81, 95, 0.9);
+  --chart-primary: var(--teal-vibrant);
+  --chart-alert: var(--ember-vibrant);
+  --chart-neutral: var(--slate);
+  --chart-secondary: #2557a7;
+
+  --color-ci-50: rgba(28, 139, 130, 0.25);
+  --color-ci-80: rgba(28, 139, 130, 0.15);
+  --color-ci-95: rgba(28, 139, 130, 0.06);
+  --color-bounds-fill: rgba(28, 139, 130, 0.08);
+  --color-bounds-stroke: rgba(28, 139, 130, 0.3);
+
+  --color-confidence-high: var(--teal);
+  --color-confidence-medium: var(--gold);
+  --color-confidence-low: var(--ember);
+
+  --color-waterfall-positive: var(--teal-vibrant);
+  --color-waterfall-negative: var(--ember-vibrant);
+  --color-waterfall-total: var(--chart-secondary);
+
+  --rail-active-bg: rgba(255, 255, 255, 0.08);
+  --rail-hover-bg: rgba(255, 255, 255, 0.04);
+  --rail-link: rgba(245, 240, 230, 0.72);
+
+  --focus-ring: rgba(28, 139, 130, 0.9);
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+}
+
+:root {
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+  --radius-card: 22px;
+  --radius-panel: 28px;
+  --radius-shell: 38px;
+}
+
+:root {
+  --shadow-xs: 0 1px 2px rgba(24, 28, 31, 0.05);
+  --shadow-sm: 0 2px 8px rgba(24, 28, 31, 0.08);
+  --shadow-md: 0 8px 24px rgba(24, 28, 31, 0.12);
+  --shadow-lg: 0 16px 48px rgba(24, 28, 31, 0.14);
+  --shadow-xl: 0 24px 70px rgba(24, 28, 31, 0.16);
+  --shadow-panel: var(--shadow-xl);
+  --rim-light: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+:root {
+  --motion-fast: 160ms;
+  --motion-moderate: 180ms;
+  --motion-slow: 240ms;
+}
+
+:root {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-serif: "Instrument Serif", Georgia, serif;
+}
+
+:root {
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-display: 3.875rem;
+}
+
+:root {
+  --leading-none: 1;
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.04em;
+  --tracking-snug: -0.03em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.08em;
+  --tracking-widest: 0.14em;
+}

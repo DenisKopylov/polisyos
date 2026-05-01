@@ -7,7 +7,17 @@ from typing import Any, Literal
 
 from polisyos.scholar.search.models import ClaimSupportLink, SourceSnippet, WebEvidenceBundle
 from polisyos.scholar.search.scoring import detect_conflict_score, lexical_support_score
-from polisyos.scientist.claims.models import ClaimRecord
+from polisyos.scientist.claims.models import (
+    ClaimRecord,
+)
+from polisyos.scientist.claims.models import (
+    ClaimSupportStatus as RuntimeClaimSupportStatus,
+)
+from polisyos.scientist.search.voi_models import (
+    VOIDecisionRecord,
+    VOIDecisionType,
+    stable_voi_decision_id,
+)
 
 ClaimSupportStatus = Literal["unsupported", "weakly_supported", "supported", "contested"]
 
@@ -105,6 +115,60 @@ def validate_claim_support_links(bundle: WebEvidenceBundle) -> list[str]:
     return violations
 
 
+def build_source_verification_voi_decisions(
+    claims: Sequence[ClaimRecord],
+    *,
+    run_id: str,
+    expected_verification_cost: float = 0.05,
+    max_decisions: int | None = None,
+) -> list[VOIDecisionRecord]:
+    """Prioritize source verification for unsupported, weak or contested claims."""
+
+    ranked = sorted(
+        (
+            (_source_verification_risk(claim), index, claim)
+            for index, claim in enumerate(claims)
+        ),
+        key=lambda item: (-item[0], item[1]),
+    )
+    decisions: list[VOIDecisionRecord] = []
+    for sequence, (risk, _index, claim) in enumerate(ranked[:max_decisions]):
+        expected_risk_reduction = risk
+        expected_value = expected_risk_reduction - max(expected_verification_cost, 0.0)
+        action = "verify_sources" if expected_value > 0.0 and risk >= 0.4 else "defer"
+        if expected_value < 0.0:
+            action = "defer"
+        decisions.append(
+            VOIDecisionRecord(
+                decision_id=stable_voi_decision_id(
+                    run_id=run_id,
+                    decision_type=VOIDecisionType.SOURCE_VERIFICATION,
+                    subject_id=claim.claim_id,
+                    sequence=sequence,
+                ),
+                run_id=run_id,
+                decision_type=VOIDecisionType.SOURCE_VERIFICATION,
+                recommended_action=action,
+                expected_value=expected_value,
+                expected_cost=max(expected_verification_cost, 0.0),
+                expected_risk_reduction=expected_risk_reduction,
+                explanation=(
+                    f"{action} for claim {claim.claim_id}: support={claim.support_status.value}, "
+                    f"evidence_refs={len(claim.evidence_refs)}, "
+                    f"counterevidence_refs={len(claim.counterevidence_refs)}."
+                ),
+                input_refs=[*claim.evidence_refs, *claim.counterevidence_refs],
+                metadata={
+                    "claim_id": claim.claim_id,
+                    "support_status": claim.support_status.value,
+                    "publishability": claim.publishability.value,
+                    "blocked_reasons": list(claim.blocked_reasons),
+                },
+            )
+        )
+    return decisions
+
+
 def _claim_identity(
     claim: ClaimRecord | dict[str, Any] | str,
     *,
@@ -120,8 +184,27 @@ def _claim_identity(
     return f"claim.{index + 1}", str(claim), "legacy_local"
 
 
+def _source_verification_risk(claim: ClaimRecord) -> float:
+    base = {
+        RuntimeClaimSupportStatus.UNSUPPORTED: 1.0,
+        RuntimeClaimSupportStatus.CONTESTED: 0.9,
+        RuntimeClaimSupportStatus.REFUTED: 0.85,
+        RuntimeClaimSupportStatus.WEAKLY_SUPPORTED: 0.55,
+        RuntimeClaimSupportStatus.NOT_EVALUABLE: 0.4,
+        RuntimeClaimSupportStatus.SUPPORTED: 0.05,
+    }[claim.support_status]
+    if claim.counterevidence_refs:
+        base += 0.2
+    if not claim.evidence_refs:
+        base += 0.15
+    if claim.blocked_reasons:
+        base += 0.1
+    return max(0.0, min(1.0, base))
+
+
 __all__ = [
     "build_claim_support_links",
+    "build_source_verification_voi_decisions",
     "claim_support_status",
     "validate_claim_support_links",
 ]

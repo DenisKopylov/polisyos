@@ -1437,12 +1437,106 @@ export type FabricDecisionDataResponse = {
   temporal_scope?: polisyos__fabric__decision_data__TemporalRef | null;
 };
 
+export type FabricImpactAnalysisRequest = {
+  lineage_ids?: Array<string>;
+  max_depth?: number;
+  run_id?: string | null;
+  source_contract_ids?: Array<string>;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type FabricImpactAnalysisResponse = {
+  impacts?: Array<FabricImpactRecord>;
+  meta: ApiMeta;
+  summary?: {
+  [key: string]: unknown;
+};
+  temporal_scope?: TemporalScope | null;
+};
+
+export type FabricImpactRecord = {
+  affected_decision_data_ids?: Array<string>;
+  downstream_refs?: Array<string>;
+  evidence_refs?: Array<string>;
+  lineage_status?: "verified" | "pending" | "disputed" | "untraced";
+  notes?: Array<string>;
+  quality_status?: string | null;
+  replay_status?: string | null;
+  source_contract_ids?: Array<string>;
+  subject_id: string;
+  subject_kind: "lineage" | "source_contract" | "run" | "decision_data";
+  upstream_refs?: Array<string>;
+};
+
+export type FabricQualityBatchResponse = {
+  coverage?: {
+  [key: string]: unknown;
+};
+  meta: ApiMeta;
+  quality_refs?: {
+  [key: string]: {
+  [key: string]: unknown;
+};
+};
+  run_id: string;
+  temporal_scope?: TemporalScope | null;
+};
+
+export type FabricQualityTrustBatchRequest = {
+  decision_data_ids?: Array<string>;
+  run_id: string;
+  temporal_scope?: TemporalScope | null;
+};
+
 export type FabricQuantityValue = {
   label?: string | null;
   metric_id?: string | null;
   point?: number | null;
   semantic_type?: string | null;
   unit: polisyos__fabric__decision_data__UnitRef;
+};
+
+export type FabricReplayRunResponse = {
+  coverage?: {
+  [key: string]: unknown;
+};
+  meta: ApiMeta;
+  replay_refs?: {
+  [key: string]: {
+  [key: string]: unknown;
+};
+};
+  run_id: string;
+  status_counts?: {
+  [key: string]: number;
+};
+  temporal_scope?: TemporalScope | null;
+};
+
+export type FabricSourceScorecardsResponse = {
+  count?: number;
+  generated_at?: string | null;
+  meta: ApiMeta;
+  schema_version?: string;
+  scorecards?: {
+  [key: string]: {
+  [key: string]: unknown;
+};
+};
+};
+
+export type FabricTrustBatchResponse = {
+  coverage?: {
+  [key: string]: unknown;
+};
+  meta: ApiMeta;
+  run_id: string;
+  temporal_scope?: TemporalScope | null;
+  trust_refs?: {
+  [key: string]: {
+  [key: string]: unknown;
+};
+};
 };
 
 export type FeedbackActionResponse = {
@@ -2715,12 +2809,20 @@ export type TemporalCapabilitiesResponse = {
 };
 
 export type TemporalCapabilitiesView = {
+  branch_support?: boolean;
   default_scope?: TemporalScope | null;
   event_points?: Array<TemporalEventPoint>;
+  graph_temporal_scope?: "full" | "partial" | "unsupported";
+  nearest_event_points?: Array<TemporalEventPoint>;
   resolution?: string;
   run_id?: string | null;
+  scenario_branch_support?: "explicit_only" | "unsupported";
+  slow_query_evidence?: Array<TemporalIndexEvidence>;
+  snapshot_support?: boolean;
+  supported_tables?: Array<string>;
   surfaces?: Array<TemporalSurfaceCapability>;
   tx_range?: TemporalRange;
+  unsupported_surfaces?: Array<"run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content">;
   valid_range?: TemporalRange;
 };
 
@@ -2739,6 +2841,16 @@ export type TemporalGapRange = {
   label?: string | null;
   reason_code: string;
   start?: string | null;
+};
+
+export type TemporalIndexEvidence = {
+  adapter?: string;
+  columns?: Array<string>;
+  evidence_ref?: string | null;
+  index_name: string;
+  slow_query_gate_ms?: number;
+  status?: "implemented" | "recommended" | "missing" | "not_applicable";
+  table: string;
 };
 
 export type TemporalRange = {
@@ -3250,6 +3362,96 @@ export class RuntimeApiClient {
     return this.request<NodeDebugResponse>("GET", path, query);
   }
 
+  async analyzeFabricImpact(params: {
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    body: FabricImpactAnalysisRequest;
+  }): Promise<FabricImpactAnalysisResponse> {
+    const path = `/api/v1/fabric/impact`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<FabricImpactAnalysisResponse>("POST", path, query, params.body);
+  }
+
+  async getFabricQualityBatch(params: {
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    body: FabricQualityTrustBatchRequest;
+  }): Promise<FabricQualityBatchResponse> {
+    const path = `/api/v1/fabric/quality/batch`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<FabricQualityBatchResponse>("POST", path, query, params.body);
+  }
+
+  async getFabricRunReplay(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+  }): Promise<FabricReplayRunResponse> {
+    const path = `/api/v1/fabric/runs/${encodeURIComponent(String(params.run_id))}/replay`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<FabricReplayRunResponse>("GET", path, query);
+  }
+
+  async getFabricSourceScorecards(): Promise<FabricSourceScorecardsResponse> {
+    const path = `/api/v1/fabric/source-scorecards`;
+    const query = undefined;
+    return this.request<FabricSourceScorecardsResponse>("GET", path, query);
+  }
+
+  async getFabricTrustBatch(params: {
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    body: FabricQualityTrustBatchRequest;
+  }): Promise<FabricTrustBatchResponse> {
+    const path = `/api/v1/fabric/trust/batch`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<FabricTrustBatchResponse>("POST", path, query, params.body);
+  }
+
   async runtimeApiHealth(): Promise<{
   [key: string]: unknown;
 }> {
@@ -3258,6 +3460,27 @@ export class RuntimeApiClient {
     return this.request<{
   [key: string]: unknown;
 }>("GET", path, query);
+  }
+
+  async getLineageBatch(params: {
+    valid_at?: string | null;
+    tx_at?: string | null;
+    t?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    body: LineageBatchRequest;
+  }): Promise<LineageBatchResponse> {
+    const path = `/api/v1/lineage/batch`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      t: params.t,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+    });
+    return this.request<LineageBatchResponse>("POST", path, query, params.body);
   }
 
   async getLineage(params: {

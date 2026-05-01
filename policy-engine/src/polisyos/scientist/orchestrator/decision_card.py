@@ -96,6 +96,19 @@ class DistributionalSummary:
 
 
 @dataclass(frozen=True)
+class TrustProvenanceSummary:
+    """Compact trust/provenance hooks for frontend decision-card rendering."""
+
+    claims_ref: str
+    research_dag_ref: str
+    claim_count: int = 0
+    blocked_claim_count: int = 0
+    research_step_count: int = 0
+    research_dag_status: str | None = None
+    continuous_governance_status: str | None = None
+
+
+@dataclass(frozen=True)
 class DecisionCard:
     """Decision card public type."""
 
@@ -109,11 +122,16 @@ class DecisionCard:
     diagnostic_badges: list[DiagnosticBadge] = field(default_factory=list)
     issues: IssuesSummary = field(default_factory=IssuesSummary)
     distributional: DistributionalSummary | None = None
+    trust_provenance: TrustProvenanceSummary | None = None
     total_duration_ms: int = 0
     generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
     def from_packet(cls, packet: Any) -> DecisionCard:
+        decision_grade_export = _read(packet, "decision_grade_export", None)
+        if decision_grade_export is not None:
+            return cls.from_decision_grade_export(decision_grade_export)
+
         run_id = str(_read(packet, "run_id", "unknown"))
         generated_at = _parse_datetime(_read(packet, "generated_at", None))
 
@@ -153,6 +171,52 @@ class DecisionCard:
             issues=issues,
             distributional=distributional,
             total_duration_ms=total_duration_ms,
+            generated_at=generated_at,
+        )
+
+    @classmethod
+    def from_decision_grade_export(cls, export: Any) -> DecisionCard:
+        """Build a compact card from a Phase 2.7 decision-grade compiler export."""
+
+        payload = _read(export, "payload", {})
+        if not isinstance(payload, dict):
+            payload = {}
+        run_id = str(_read(export, "run_id", payload.get("run_id", "unknown")))
+        generated_at = _parse_datetime(payload.get("generated_at"))
+        trust = _extract_trust_provenance_summary(payload.get("trust_provenance"))
+        blocked_summary = payload.get("blocked_claim_summary")
+        if not isinstance(blocked_summary, dict):
+            blocked_summary = {}
+        blocker_count = int(blocked_summary.get("blocked_count", 0) or 0)
+        warning_count = 1 if payload.get("continuous_governance", {}).get("status") in {
+            "review_required",
+            "stale",
+        } else 0
+        issues = IssuesSummary(blocker_count=blocker_count, warning_count=warning_count)
+        policy_summary = _compiler_policy_summary(payload)
+        claim_count = trust.claim_count if trust is not None else 0
+        audience_label = _enum_or_text(_read(export, "audience", "unknown"))
+        badges = [
+            DiagnosticBadge(label=f"compiler:{audience_label}", kind="info"),
+            DiagnosticBadge(label=f"claims:{claim_count}", kind="ok" if blocker_count == 0 else "warn"),
+        ]
+        if trust is not None and trust.research_dag_status:
+            badges.append(
+                DiagnosticBadge(
+                    label=f"research:{trust.research_dag_status}",
+                    kind="ok" if trust.research_dag_status == "available" else "warn",
+                )
+            )
+        return cls(
+            run_id=run_id,
+            source_hash=_compute_source_hash(payload),
+            verdict=Verdict.REVIEW if blocker_count else Verdict.APPROVE,
+            confidence=Confidence.from_blocker_count(blocker_count, warning_count),
+            policy_summary=policy_summary,
+            intervention_count=0,
+            diagnostic_badges=badges[:5],
+            issues=issues,
+            trust_provenance=trust,
             generated_at=generated_at,
         )
 
@@ -235,6 +299,20 @@ class DecisionCard:
 
         if self.distributional is not None:
             lines.extend(_render_distributional(self.distributional))
+
+        if self.trust_provenance is not None:
+            lines.append("## Trust And Provenance")
+            lines.append("")
+            lines.append(
+                f"Claims: **{self.trust_provenance.claim_count}** | "
+                f"Blocked: **{self.trust_provenance.blocked_claim_count}** | "
+                f"Research steps: **{self.trust_provenance.research_step_count}**"
+            )
+            if self.trust_provenance.continuous_governance_status:
+                lines.append(
+                    f"Continuous governance: {self.trust_provenance.continuous_governance_status}"
+                )
+            lines.append("")
 
         lines.append("## Issues")
         lines.append("")
@@ -560,6 +638,58 @@ def _extract_duration_ms(packet: Any) -> int:
     return int(value) if isinstance(value, (int, float)) else 0
 
 
+def _extract_trust_provenance_summary(raw: Any) -> TrustProvenanceSummary | None:
+    if not isinstance(raw, dict):
+        return None
+    claims_ref = raw.get("claims_ref")
+    research_dag_ref = raw.get("research_dag_ref")
+    if not isinstance(claims_ref, dict) or not isinstance(research_dag_ref, dict):
+        return None
+    claims_artifact_id = claims_ref.get("artifact_id")
+    dag_artifact_id = research_dag_ref.get("artifact_id")
+    if not isinstance(claims_artifact_id, str) or not isinstance(dag_artifact_id, str):
+        return None
+    return TrustProvenanceSummary(
+        claims_ref=claims_artifact_id,
+        research_dag_ref=dag_artifact_id,
+        claim_count=int(raw.get("claim_count", 0) or 0),
+        blocked_claim_count=int(raw.get("blocked_claim_count", 0) or 0),
+        research_step_count=int(raw.get("research_step_count", 0) or 0),
+        research_dag_status=(
+            str(raw.get("research_dag_status")) if raw.get("research_dag_status") else None
+        ),
+        continuous_governance_status=(
+            str(raw.get("continuous_governance_status"))
+            if raw.get("continuous_governance_status")
+            else None
+        ),
+    )
+
+
+def _compiler_policy_summary(payload: dict[str, Any]) -> str:
+    summary = payload.get("summary")
+    if isinstance(summary, str) and summary.strip():
+        return summary.strip()
+    approved_claims = payload.get("approved_claims")
+    if isinstance(approved_claims, list):
+        for item in approved_claims:
+            if isinstance(item, dict) and isinstance(item.get("text"), str):
+                return item["text"]
+    claim_export = payload.get("claim_ledger_export")
+    if isinstance(claim_export, dict):
+        for item in claim_export.get("claims", []) or []:
+            if isinstance(item, dict) and item.get("visible") and isinstance(item.get("text"), str):
+                return item["text"]
+    return "Decision-grade output compiled from governed research artifacts."
+
+
+def _enum_or_text(value: Any) -> str:
+    enum_value = getattr(value, "value", None)
+    if isinstance(enum_value, str):
+        return enum_value
+    return str(value)
+
+
 def _safe_float(value: Any) -> float | None:
     if isinstance(value, (int, float)):
         return float(value)
@@ -592,6 +722,7 @@ __all__ = [
     "DistributionalSummary",
     "IssuesSummary",
     "KeyMetric",
+    "TrustProvenanceSummary",
     "Verdict",
     "_extract_issues_summary",
     "_extract_key_metrics",

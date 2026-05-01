@@ -14,6 +14,9 @@ def test_decision_data_coverage_report_is_implemented() -> None:
     assert report["summary"]["status"] == "implemented"
     assert report["summary"]["naked_decision_value_count"] == 0
     assert report["summary"]["transitional_waiver_count"] == 0
+    assert report["summary"]["unknown_field_count"] == 0
+    assert report["required_contracts"]["source_contract_v2_ref"] is True
+    assert report["required_contracts"]["field_classification"] is True
     assert fabric_decision_data_coverage.validate_report(report) == []
 
 

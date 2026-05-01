@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from datetime import UTC, datetime
+from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
@@ -28,10 +30,13 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     UnitRef,
 )
+from polisyos.fabric.connectors.contracts import SourceContract, load_source_contracts
 from polisyos.fabric.decision_data import (
     FabricDecisionData,
     FabricDecisionDataCoverage,
+    QualityRef,
     SourceContractRef,
+    access_ref_from_source_field_policy,
     coverage_from_decision_data,
     from_runtime_quantities,
 )
@@ -40,6 +45,19 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.fabric.provenance.lineage import LineageTrace
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
+
+DEFAULT_DECISION_SOURCE_CONTRACT = SourceContractRef(
+    id="worldbank.wdi.generic",
+    version="1.1.0",
+)
+_SOURCE_CONTRACT_SNAPSHOT = (
+    Path(__file__).resolve().parents[5]
+    / "schemas"
+    / "snapshots"
+    / "fabric"
+    / "source_contracts_v2.json"
+)
+_SOURCE_CONTRACT_CACHE: dict[str, SourceContract] | None = None
 
 
 class LineageService:
@@ -349,6 +367,7 @@ class LineageService:
             quantities,
             coverage,
             temporal_scope=temporal_scope,
+            source_contract=self.source_contract_ref_for_run(run),
         )
 
     def build_fabric_decision_data_for_quantities(
@@ -357,15 +376,23 @@ class LineageService:
         coverage: QuantityCoverageSummary,
         *,
         temporal_scope: TemporalScope | None = None,
+        source_contract: SourceContractRef | None = None,
     ) -> tuple[list[FabricDecisionData], FabricDecisionDataCoverage]:
         """Project Runtime QuantityValue rows into Fabric trust envelopes."""
+        resolved_source_contract = source_contract or DEFAULT_DECISION_SOURCE_CONTRACT
+        source_contract_model = _source_contract_model_from_ref(resolved_source_contract)
         decision_data = from_runtime_quantities(
             quantities,
-            source_contract=SourceContractRef(
-                id="runtime.decision_packet.generic",
-                version="0.1.0",
-            ),
+            source_contract=resolved_source_contract,
             temporal_scope=temporal_scope,
+            access_resolver=(
+                lambda quantity, _index: access_ref_from_source_field_policy(
+                    source_contract_model,
+                    field_id=str(getattr(quantity, "metric_id", "") or "*"),
+                )
+                if source_contract_model is not None
+                else None
+            ),
         )
         return (
             decision_data,
@@ -376,6 +403,42 @@ class LineageService:
                 debug=coverage.debug,
             ),
         )
+
+    def source_contract_ref_for_run(self, run: IndexedRunRecord) -> SourceContractRef:
+        """Resolve the SourceContract v2 reference used by a run's decision data."""
+        if run.decision_packet_ref is None:
+            return DEFAULT_DECISION_SOURCE_CONTRACT
+        artifact_id = ArtifactID.model_validate(str(run.decision_packet_ref.artifact_id))
+        payload = _load_json_artifact(self._store, artifact_id)
+        if isinstance(payload, Mapping):
+            resolved = _source_contract_from_payload(payload)
+            if resolved is not None:
+                return resolved
+        return DEFAULT_DECISION_SOURCE_CONTRACT
+
+    def build_quality_refs_batch(
+        self,
+        decision_data: list[FabricDecisionData],
+    ) -> dict[str, QualityRef]:
+        """Return quality refs for a decision-data batch without per-ref lookups."""
+        return {item.id: item.quality for item in decision_data}
+
+    def build_trust_refs_batch(
+        self,
+        decision_data: list[FabricDecisionData],
+    ) -> dict[str, dict[str, Any]]:
+        """Return trust-envelope refs for a decision-data batch without N+1 fetches."""
+        return {
+            item.id: {
+                "quality": item.quality.model_dump(mode="json"),
+                "access": item.access.model_dump(mode="json"),
+                "lineage": item.lineage.model_dump(mode="json"),
+                "replay": item.replay.model_dump(mode="json"),
+                "time": item.time.model_dump(mode="json"),
+                "gaps": [gap.model_dump(mode="json") for gap in item.gaps],
+            }
+            for item in decision_data
+        }
 
     def benchmark_compact_lineage_batch(self, lineage_ids: list[str]) -> dict[str, Any]:
         """Measure local compact lineage batch lookup latency for acceptance tests."""
@@ -390,6 +453,20 @@ class LineageService:
                 status: sum(lineage.status == status for lineage in lineages)
                 for status in sorted({lineage.status for lineage in lineages})
             },
+        }
+
+    def benchmark_full_lineage_graph(self, artifact_ids: list[str]) -> dict[str, Any]:
+        """Measure representative full artifact-lineage graph lookup latency."""
+        roots = [ArtifactID.model_validate(artifact_id) for artifact_id in artifact_ids]
+        started = perf_counter()
+        graph = self.build_for_artifact_ids(roots)
+        elapsed_ms = (perf_counter() - started) * 1000.0
+        return {
+            "root_count": len(artifact_ids),
+            "node_count": graph.total_nodes,
+            "edge_count": graph.total_edges,
+            "p95_ms": elapsed_ms,
+            "is_complete": graph.is_complete,
         }
 
 
@@ -635,6 +712,60 @@ def _load_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> object
         return from_canonical_bytes(store.get_bytes(artifact_id))
     except (FileNotFoundError, TypeError, ValueError):
         return None
+
+
+def _source_contract_snapshot_by_id() -> dict[str, SourceContract]:
+    global _SOURCE_CONTRACT_CACHE
+    if _SOURCE_CONTRACT_CACHE is not None:
+        return _SOURCE_CONTRACT_CACHE
+    if not _SOURCE_CONTRACT_SNAPSHOT.exists():
+        _SOURCE_CONTRACT_CACHE = {}
+        return _SOURCE_CONTRACT_CACHE
+    try:
+        payload = json.loads(_SOURCE_CONTRACT_SNAPSHOT.read_text(encoding="utf-8"))
+        contracts = load_source_contracts(payload)
+    except (OSError, TypeError, ValueError):
+        _SOURCE_CONTRACT_CACHE = {}
+        return _SOURCE_CONTRACT_CACHE
+    _SOURCE_CONTRACT_CACHE = {contract.id: contract for contract in contracts}
+    return _SOURCE_CONTRACT_CACHE
+
+
+def _source_contract_model_from_ref(
+    source_contract: SourceContractRef,
+) -> SourceContract | None:
+    return _source_contract_snapshot_by_id().get(source_contract.id)
+
+
+def _source_contract_from_payload(payload: Mapping[str, Any]) -> SourceContractRef | None:
+    direct = _source_contract_from_value(payload.get("source_contract"))
+    if direct is not None:
+        return direct
+    direct = _source_contract_from_value(payload.get("source_contract_ref"))
+    if direct is not None:
+        return direct
+    for container_key in ("inputs", "metadata", "fabric"):
+        nested = payload.get(container_key)
+        if not isinstance(nested, Mapping):
+            continue
+        direct = _source_contract_from_value(nested.get("source_contract"))
+        if direct is not None:
+            return direct
+        direct = _source_contract_from_value(nested.get("source_contract_ref"))
+        if direct is not None:
+            return direct
+    return None
+
+
+def _source_contract_from_value(value: object) -> SourceContractRef | None:
+    if isinstance(value, Mapping):
+        contract_id = value.get("id") or value.get("contract_id")
+        version = value.get("version") or value.get("contract_version")
+        if contract_id and version:
+            return SourceContractRef(id=str(contract_id), version=str(version))
+    if isinstance(value, str) and value.strip():
+        return SourceContractRef(id=value.strip(), version="1.0.0")
+    return None
 
 
 def _decision_packet_quantities(

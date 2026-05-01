@@ -1,0 +1,34 @@
+{
+  "connector_id": "files.tabular",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "files.tabular.generic"
+    }
+  ],
+  "profile_id": "files_demo_tabular",
+  "replay_checksum": "sha256:1449bfaeddd3235911de20b75762f024cec12cc5031bef856f2ef03d176ac9ab",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "files.tabular.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "files.tabular",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "files_demo_tabular",
+      "url": "fabric://files.tabular/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "files.tabular.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

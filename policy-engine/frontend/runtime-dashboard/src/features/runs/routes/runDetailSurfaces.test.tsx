@@ -19,8 +19,10 @@ const {
   useNodeDebugMock,
   usePermissionMock,
   useReviewCollaborationEnabledMock,
+  useFeatureFlagsMock,
   useRunAgentsMock,
   useRunDetailSummaryMock,
+  useRunDetailsMock,
   useRunEvidenceContextMock,
   useRunErrorsMock,
   useRunInspectorMock,
@@ -42,8 +44,10 @@ const {
   useNodeDebugMock: vi.fn(),
   usePermissionMock: vi.fn(),
   useReviewCollaborationEnabledMock: vi.fn(),
+  useFeatureFlagsMock: vi.fn(),
   useRunAgentsMock: vi.fn(),
   useRunDetailSummaryMock: vi.fn(),
+  useRunDetailsMock: vi.fn(),
   useRunEvidenceContextMock: vi.fn(),
   useRunErrorsMock: vi.fn(),
   useRunInspectorMock: vi.fn(),
@@ -69,6 +73,10 @@ vi.mock("@/i18n/LocaleProvider", () => ({
 vi.mock("@/app/providers/TelemetryProvider", () => ({
   useTelemetryReadyMark: (...args: unknown[]) =>
     useTelemetryReadyMarkMock(...args),
+}));
+
+vi.mock("@/app/providers/FeatureFlagProvider", () => ({
+  useFeatureFlags: (...args: unknown[]) => useFeatureFlagsMock(...args),
 }));
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
@@ -120,6 +128,10 @@ vi.mock("@/api/hooks/useArtifactContent", () => ({
 vi.mock("@/api/hooks/useRunTimeline", () => ({
   useRunTimeline: (...args: unknown[]) => useRunTimelineMock(...args),
   useSuspenseRunTimeline: (...args: unknown[]) => useRunTimelineMock(...args),
+}));
+
+vi.mock("@/api/hooks/useRunDetails", () => ({
+  useRunDetails: (...args: unknown[]) => useRunDetailsMock(...args),
 }));
 
 vi.mock("@/api/hooks/useRunErrors", () => ({
@@ -219,6 +231,30 @@ vi.mock("@/features/runs/components/WorkflowDagPanel", () => ({
   ),
 }));
 
+vi.mock("@/features/causal", () => ({
+  AdjustmentSetHighlight: () => <div data-testid="adjustment-set-highlight" />,
+  CausalGraphCanvas: ({
+    edges,
+    highlightedPath,
+    nodes,
+  }: {
+    edges: unknown[];
+    highlightedPath?: string[];
+    nodes: unknown[];
+  }) => (
+    <div data-testid="causal-graph-canvas">
+      {nodes.length}:{edges.length}:{highlightedPath?.length ?? 0}
+    </div>
+  ),
+  EdgeDetailPanel: () => <div data-testid="edge-detail-panel" />,
+  IdentificationOverlay: () => <div data-testid="identification-overlay" />,
+  NodeDetailPanel: () => <div data-testid="node-detail-panel" />,
+  PathAnalysisPanel: ({ paths }: { paths: unknown[] }) => (
+    <div data-testid="path-analysis-panel">{paths.length}</div>
+  ),
+  TransportOverlay: () => <div data-testid="transport-overlay" />,
+}));
+
 vi.mock("@/shared/ui/LineageGraph", () => ({
   default: ({ nodes }: { nodes: unknown[] }) => (
     <div data-testid="lineage-graph">{nodes.length}</div>
@@ -242,6 +278,7 @@ import RunDetailLayout from "@/features/runs/routes/RunDetailLayout";
 import RunReportPage from "@/features/runs/routes/RunReportPage";
 import AgentsTab from "@/features/runs/routes/tabs/AgentsTab";
 import ArtifactsTab from "@/features/runs/routes/tabs/ArtifactsTab";
+import CausalTab from "@/features/runs/routes/tabs/CausalTab";
 import DebugTab from "@/features/runs/routes/tabs/DebugTab";
 import EvidenceTab from "@/features/runs/routes/tabs/EvidenceTab";
 import GovernanceTab from "@/features/runs/routes/tabs/GovernanceTab";
@@ -294,7 +331,23 @@ function createSummary(overrides: Record<string, unknown> = {}) {
       distributional: {
         breakdowns: [
           {
-            rows: [{ cohortLabel: "North", primaryDelta: 0.2 }],
+            dimensionLabel: "Region",
+            rows: [
+              {
+                cohortLabel: "North",
+                direction: "positive",
+                isVulnerable: false,
+                populationShare: 0.41,
+                primaryDelta: 0.2,
+              },
+              {
+                cohortLabel: "South",
+                direction: "negative",
+                isVulnerable: true,
+                populationShare: 0.12,
+                primaryDelta: -0.1,
+              },
+            ],
           },
         ],
       },
@@ -307,6 +360,16 @@ function createSummary(overrides: Record<string, unknown> = {}) {
           name: "GDP",
           unit: "%",
           value: 1.2,
+        },
+        {
+          assumptionWarnings: ["unmeasured confounder"],
+          ciLevel: null,
+          ciLower: null,
+          ciUpper: null,
+          formatted: "+0.4",
+          name: "Inflation",
+          unit: "%",
+          value: 0.4,
         },
       ],
       policySummary: "Policy summary",
@@ -447,7 +510,18 @@ describe("run detail surfaces", () => {
   beforeEach(() => {
     const summary = createSummary();
 
+    window.localStorage.clear();
     useTelemetryReadyMarkMock.mockReset();
+    useFeatureFlagsMock.mockReturnValue({
+      flags: {
+        atlasCommandPalette: true,
+        atlasNestedSurfaces: true,
+      },
+      isEnabled: (key: string) =>
+        key === "atlasCommandPalette" || key === "atlasNestedSurfaces",
+      source: "props",
+      status: "ready",
+    });
     useAuthzMock.mockReturnValue({
       can: () => true,
       hasRole: () => false,
@@ -562,6 +636,19 @@ describe("run detail surfaces", () => {
     });
     useRunWorkflowMock.mockReturnValue({
       data: { workflow: { summary: { node_count: 2 } } },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          artifacts: [],
+          run_id: "run-1",
+          source_kind: "core_run",
+          status: "completed",
+        },
+      },
       error: null,
       isError: false,
       isLoading: false,
@@ -682,6 +769,8 @@ describe("run detail surfaces", () => {
     expect(
       await screen.findByTestId("run-decision-packet"),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("ambient-telemetry-hud")).toBeInTheDocument();
+    expect(screen.getByTestId("ambient-trust-threshold")).toBeInTheDocument();
     expect(
       screen.getByText("pages.runs.decisionPacketHeading"),
     ).toBeInTheDocument();
@@ -695,6 +784,42 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("run-detail-uncertainty-visual"),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("scientific-depth-panel")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("identifiability-surface-panel"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("identifiability-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("sensitivity-rotor-panel")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("sensitivity-decision-bearing-share"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("cohort-time-traveler-panel"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("stress-test-theatre-panel")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("fairness-audit-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("harm-assessment-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("embargo-overlay-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("slow-review-mode-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("revocation-ledger-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("publication-packet-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("deterministic-explanations-panel"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("citation-model-card-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("coverage-caveat-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("threshold-contract-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("glossary-lens-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("bureaucratic-forms-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-craft-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-threshold-dial")).toBeInTheDocument();
+    expect(screen.getByTestId("annotation-surface-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("evidence-wallet-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("reading-onboarding-panel")).toBeInTheDocument();
     expect(
       within(screen.getByTestId("run-detail-uncertainty-visual")).getAllByText(
         "GDP",
@@ -764,7 +889,7 @@ describe("run detail surfaces", () => {
       "/artifacts/artifact-1?tab=content&view=reading",
     );
     expect(screen.getByText("Issue one")).toBeInTheDocument();
-    expect(screen.getByText("Inflation")).toBeInTheDocument();
+    expect(screen.getAllByText("Inflation").length).toBeGreaterThan(0);
     expect(screen.getByText("start")).toBeInTheDocument();
     expect(
       screen.getByTestId("overview-scenario-workbench"),
@@ -825,11 +950,48 @@ describe("run detail surfaces", () => {
     renderRoute("/runs/run-1/workflow", "/runs/:runId/:tab", <WorkflowTab />);
 
     expect(screen.getByTestId("run-tab-workflow")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("run-choreography-panel"),
+    ).toHaveTextContent("1");
     expect(await screen.findByTestId("workflow-dag-panel")).toHaveTextContent(
       "run-1",
     );
     expect(await screen.findByTestId("lineage-graph")).toHaveTextContent("2");
     expect(screen.getByText("pages.runs.missingArtifacts")).toBeInTheDocument();
+  });
+
+  it("renders CausalTab as an editable draft atlas when no DAG artifact exists", async () => {
+    const rendered = renderRoute(
+      "/runs/run-1/causal",
+      "/runs/:runId/:tab",
+      <CausalTab />,
+    );
+
+    expect(
+      await screen.findByTestId("causal-atlas-editor"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("causal-graph-canvas")).toHaveTextContent(
+      "2:1:0",
+    );
+    expect(screen.getByText("phase32.causal.draft")).toBeInTheDocument();
+
+    await userEvent.type(
+      screen.getByLabelText("phase32.causal.nodeLabel"),
+      "Mediator",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "phase32.causal.addNode" }),
+    );
+    expect(screen.getByTestId("causal-graph-canvas")).toHaveTextContent(
+      "3:1:0",
+    );
+
+    rendered.unmount();
+    renderRoute("/runs/run-1/causal", "/runs/:runId/:tab", <CausalTab />);
+
+    expect(await screen.findByTestId("causal-graph-canvas")).toHaveTextContent(
+      "3:1:0",
+    );
   });
 
   it("renders AgentsTab and GovernanceTab through lazy panels", async () => {
@@ -846,5 +1008,42 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("governance-report")).toHaveTextContent(
       "ready",
     );
+    expect(screen.getByTestId("dispute-registry-panel")).toHaveTextContent(
+      "Issue one",
+    );
+    expect(
+      screen.getByTestId("public-sector-readiness-panel"),
+    ).toBeInTheDocument();
+  });
+
+  it("persists locally added dispute objections across governance remounts", async () => {
+    const rendered = renderRoute(
+      "/runs/run-1/governance",
+      "/runs/:runId/:tab",
+      <GovernanceTab />,
+    );
+
+    await userEvent.type(
+      await screen.findByLabelText("phase32.disputes.titleLabel"),
+      "Reviewer objection",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "phase32.disputes.add" }),
+    );
+
+    expect(screen.getByTestId("dispute-registry-panel")).toHaveTextContent(
+      "Reviewer objection",
+    );
+
+    rendered.unmount();
+    renderRoute(
+      "/runs/run-1/governance",
+      "/runs/:runId/:tab",
+      <GovernanceTab />,
+    );
+
+    expect(
+      await screen.findByTestId("dispute-registry-panel"),
+    ).toHaveTextContent("Reviewer objection");
   });
 });

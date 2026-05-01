@@ -1167,8 +1167,8 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                     "label": "policy_cost",
                 },
                 "source_contract": {
-                    "id": "runtime.decision_packet.generic",
-                    "version": "0.1.0",
+                    "id": "worldbank.wdi.generic",
+                    "version": "1.1.0",
                 },
                 "quality": {
                     "status": "passed",
@@ -1231,6 +1231,135 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             "untraced": 0,
             "naked_decision_values": 0,
             "transitional_waivers": 0,
+        },
+    },
+    "get_fabric_source_scorecards": {
+        "meta": _META_NO_SOURCE,
+        "schema_version": "fabric.source_scorecard.v1",
+        "generated_at": _TS_SAMPLE,
+        "count": 1,
+        "scorecards": {
+            "worldbank.wdi.generic": {
+                "schema_version": "fabric.source_scorecard.v1",
+                "source_contract_id": "worldbank.wdi.generic",
+                "connector_id": "worldbank.wdi",
+                "profile_id": "worldbank.default",
+                "generated_at": _TS_SAMPLE,
+                "window": "rolling_30d",
+                "metrics": [
+                    {
+                        "name": "quality",
+                        "score": 0.97,
+                        "observed_value": 0.97,
+                        "target_value": 0.8,
+                        "status": "healthy",
+                        "reason": "",
+                    }
+                ],
+                "overall_score": 0.93,
+                "grade": "A",
+                "status": "healthy",
+                "evidence": {"source_contract_hash": "sha256:" + "c" * 64},
+            }
+        },
+    },
+    "get_fabric_quality_batch": {
+        "meta": _META_CORE_RUN,
+        "run_id": _RUN_ID_SAMPLE,
+        "temporal_scope": _TEMPORAL_SCOPE_SAMPLE,
+        "quality_refs": {
+            "fabric_decision_data:policy_cost": {
+                "status": "passed",
+                "score": 1.0,
+                "report_ref": "runtime://quantity-quality/policy_cost",
+                "reason_code": None,
+                "quality_surface": None,
+                "remediation_link": None,
+            }
+        },
+        "coverage": {
+            "total": 1,
+            "decision": 1,
+            "traced": 1,
+            "untraced": 0,
+            "naked_decision_values": 0,
+        },
+    },
+    "get_fabric_trust_batch": {
+        "meta": _META_CORE_RUN,
+        "run_id": _RUN_ID_SAMPLE,
+        "temporal_scope": _TEMPORAL_SCOPE_SAMPLE,
+        "trust_refs": {
+            "fabric_decision_data:policy_cost": {
+                "quality": {"status": "passed", "score": 1.0},
+                "access": {
+                    "classification": "public",
+                    "pii_tier": "none",
+                    "tenant_scope": "shared_public",
+                    "redaction": "none",
+                    "policy_ref": None,
+                },
+                "lineage": {
+                    "id": "artifact:" + _ARTIFACT_ID_SAMPLE,
+                    "status": "verified",
+                    "raw_evidence_refs": ["cas://" + _ARTIFACT_ID_SAMPLE],
+                },
+                "replay": {
+                    "status": "replayable",
+                    "manifest_ref": "cas://" + _ARTIFACT_ID_SAMPLE,
+                },
+                "time": _TEMPORAL_SCOPE_SAMPLE,
+                "gaps": [],
+            }
+        },
+        "coverage": {
+            "total": 1,
+            "decision": 1,
+            "traced": 1,
+            "untraced": 0,
+            "naked_decision_values": 0,
+        },
+    },
+    "get_fabric_run_replay": {
+        "meta": _META_CORE_RUN,
+        "run_id": _RUN_ID_SAMPLE,
+        "temporal_scope": _TEMPORAL_SCOPE_SAMPLE,
+        "replay_refs": {
+            "fabric_decision_data:policy_cost": {
+                "status": "replayable",
+                "manifest_ref": "cas://" + _ARTIFACT_ID_SAMPLE,
+                "reason_code": None,
+                "source_reason": None,
+                "retention_alternative": None,
+            }
+        },
+        "status_counts": {"replayable": 1},
+        "coverage": {"decision": 1, "traced": 1, "untraced": 0},
+    },
+    "analyze_fabric_impact": {
+        "meta": _META_CORE_RUN,
+        "temporal_scope": _TEMPORAL_SCOPE_SAMPLE,
+        "impacts": [
+            {
+                "subject_id": "artifact:" + _ARTIFACT_ID_SAMPLE,
+                "subject_kind": "lineage",
+                "lineage_status": "verified",
+                "quality_status": "passed",
+                "replay_status": "replayable",
+                "downstream_refs": [],
+                "upstream_refs": [],
+                "affected_decision_data_ids": ["fabric_decision_data:policy_cost"],
+                "source_contract_ids": ["worldbank.wdi.generic"],
+                "evidence_refs": ["cas://" + _ARTIFACT_ID_SAMPLE],
+                "notes": ["lineage graph loaded lazily through /api/v1/lineage/{lineage_id}"],
+            }
+        ],
+        "summary": {
+            "run_id": _RUN_ID_SAMPLE,
+            "lineage_count": 1,
+            "source_contract_count": 0,
+            "decision_data_count": 1,
+            "impact_count": 1,
         },
     },
     "get_lineage": {"meta": _META_NO_SOURCE, "lineage": _LINEAGE_VIEW_SAMPLE},

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -257,6 +258,7 @@ class DecisionReadinessEvaluator:
         promotable_source = bool(runtime_metadata.get("promotable_source", True))
         degradation_mode = str(runtime_metadata.get("degradation_mode") or "").strip().lower()
         latent_readiness_cap = _resolve_latent_governance_readiness_cap(latent_governance)
+        fabric_cap, fabric_cap_reason = _resolve_fabric_readiness_cap(runtime_metadata)
         if latent_resolution_error is not None:
             readiness_cap_reason = "latent_discovery_bundle_unreadable"
         elif latent_readiness_cap == "proof_only":
@@ -271,6 +273,8 @@ class DecisionReadinessEvaluator:
             readiness_cap_reason = "phase3_gate_blocked"
         elif _phase2_closure_blocks_readiness(phase2_family_summary):
             readiness_cap_reason = _phase2_readiness_cap_reason(phase2_family_summary)
+        elif fabric_cap is not None:
+            readiness_cap_reason = fabric_cap_reason
         elif claim_mode != "proof_only" and resolved_data_readiness is not None:
             if resolved_data_readiness.decision in {"block", "unknown"}:
                 readiness_cap_reason = _dp_readiness_cap_reason(
@@ -289,6 +293,10 @@ class DecisionReadinessEvaluator:
         )
         if resolved_phase3_gate is not None and not resolved_phase3_gate.gate_passed:
             readiness_cap = DecisionReadiness.RESEARCH_ARTIFACT
+        elif fabric_cap is not None and (
+            readiness_cap is None or _readiness_rank(fabric_cap) < _readiness_rank(readiness_cap)
+        ):
+            readiness_cap = fabric_cap
 
         assessments: list[ReadinessAssessment] = []
         selected = self._requirements[-1]
@@ -301,7 +309,10 @@ class DecisionReadinessEvaluator:
                 pending_human_gate=pending_human_gate,
                 phase3_gate=resolved_phase3_gate,
             )
-            if readiness_cap is not None and requirement.readiness_level != readiness_cap:
+            if (
+                readiness_cap is not None
+                and _readiness_rank(requirement.readiness_level) > _readiness_rank(readiness_cap)
+            ):
                 reasons = [*reasons, f"readiness_capped:{readiness_cap.value}"]
             passed = not reasons
             assessments.append(
@@ -419,6 +430,9 @@ class DecisionReadinessEvaluator:
         if readiness_cap is not None:
             metadata["readiness_cap"] = readiness_cap.value
             metadata["readiness_cap_reason"] = readiness_cap_reason or "unspecified"
+        if fabric_cap is not None:
+            metadata["fabric_readiness_cap"] = fabric_cap.value
+            metadata["fabric_readiness_cap_reason"] = fabric_cap_reason or "fabric_trust_gate"
         if resolved_data_readiness is not None:
             metadata["data_readiness_decision"] = resolved_data_readiness.decision
             metadata["data_readiness_can_run_estimation"] = (
@@ -567,6 +581,7 @@ def _resolve_readiness_cap(
     data_readiness_report: DataReadinessReport | None = None,
     claim_mode: Literal["proof_only", "bounds", "estimation"] = "estimation",
 ) -> DecisionReadiness | None:
+    fabric_cap, _fabric_reason = _resolve_fabric_readiness_cap(evidence_metadata)
     if _resolve_latent_discovery_resolution_error(evidence_metadata) is not None:
         return DecisionReadiness.RESEARCH_ARTIFACT
     latent_governance = _resolve_latent_governance(evidence_metadata)
@@ -607,8 +622,148 @@ def _resolve_readiness_cap(
         if data_readiness_report.decision in {"block", "unknown"}:
             return DecisionReadiness.RESEARCH_ARTIFACT
         if data_readiness_report.decision == "warn":
-            return DecisionReadiness.ANALYST_ADVISORY
-    return None
+            return _most_restrictive_cap(DecisionReadiness.ANALYST_ADVISORY, fabric_cap)
+    return fabric_cap
+
+
+_READINESS_ORDER = {
+    DecisionReadiness.RESEARCH_ARTIFACT: 0,
+    DecisionReadiness.ANALYST_ADVISORY: 1,
+    DecisionReadiness.EXTERNAL_BRIEFING: 2,
+    DecisionReadiness.SIMULATION_READY: 3,
+    DecisionReadiness.RECOMMENDATION_READY: 4,
+    DecisionReadiness.DEPLOYMENT_READY: 5,
+}
+
+
+def _readiness_rank(level: DecisionReadiness) -> int:
+    return _READINESS_ORDER[level]
+
+
+def _most_restrictive_cap(
+    lhs: DecisionReadiness,
+    rhs: DecisionReadiness | None,
+) -> DecisionReadiness:
+    if rhs is not None and _readiness_rank(rhs) < _readiness_rank(lhs):
+        return rhs
+    return lhs
+
+
+def _resolve_fabric_readiness_cap(
+    evidence_metadata: dict[str, object],
+) -> tuple[DecisionReadiness | None, str | None]:
+    explicit = evidence_metadata.get("fabric_readiness_cap")
+    explicit_cap, explicit_reason = _coerce_fabric_cap(explicit)
+    if explicit_cap is not None:
+        return explicit_cap, explicit_reason
+
+    trust_issues = evidence_metadata.get("fabric_trust_issues")
+    if isinstance(trust_issues, list) and trust_issues:
+        reason = str(trust_issues[0])
+        blocker_codes = {
+            "FABRIC_QUALITY_FAILED",
+            "FABRIC_QUALITY_UNKNOWN",
+            "FABRIC_LINEAGE_MISSING",
+            "FABRIC_ACCESS_RESTRICTED",
+            "FABRIC_SOURCE_TRUST_LOW",
+        }
+        if any(str(issue) in blocker_codes for issue in trust_issues):
+            return DecisionReadiness.RESEARCH_ARTIFACT, reason
+        return DecisionReadiness.ANALYST_ADVISORY, reason
+
+    rows = _fabric_decision_rows(evidence_metadata)
+    for row in rows:
+        quality = _mapping(row.get("quality"))
+        lineage = _mapping(row.get("lineage"))
+        access = _mapping(row.get("access"))
+        quality_status = str(quality.get("status") or "").strip().lower()
+        lineage_status = str(lineage.get("status") or "").strip().lower()
+        classification = str(access.get("classification") or "").strip().lower()
+        freshness = str(lineage.get("freshness") or "").strip().lower()
+        if not freshness:
+            trust_metadata = _mapping(lineage.get("trust_metadata"))
+            freshness = str(trust_metadata.get("freshness") or "").strip().lower()
+        if quality_status in {"failed", "unknown_quality"}:
+            return DecisionReadiness.RESEARCH_ARTIFACT, f"fabric_quality_{quality_status}"
+        if lineage_status in {"untraced", "disputed"}:
+            return DecisionReadiness.RESEARCH_ARTIFACT, f"fabric_lineage_{lineage_status}"
+        if classification == "restricted":
+            return DecisionReadiness.RESEARCH_ARTIFACT, "fabric_access_restricted"
+        if freshness == "stale":
+            return DecisionReadiness.ANALYST_ADVISORY, "fabric_evidence_stale"
+
+    source_trust = _fabric_source_trust_tier(evidence_metadata)
+    if source_trust in {"low", "unknown"}:
+        return DecisionReadiness.RESEARCH_ARTIFACT, "fabric_source_trust_low"
+    freshness = str(evidence_metadata.get("fabric_evidence_freshness") or "").strip().lower()
+    if freshness == "stale":
+        return DecisionReadiness.ANALYST_ADVISORY, "fabric_evidence_stale"
+    return None, None
+
+
+def _fabric_source_trust_tier(evidence_metadata: Mapping[str, object]) -> str:
+    direct = str(evidence_metadata.get("fabric_source_trust_tier") or "").strip().lower()
+    if direct:
+        return direct
+    payload = evidence_metadata.get("fabric_source_scorecards")
+    if not isinstance(payload, Mapping):
+        return ""
+    scorecards = payload.get("scorecards")
+    if isinstance(scorecards, Mapping):
+        payload = scorecards
+    for scorecard in payload.values():
+        row = _mapping(scorecard)
+        metrics = row.get("metrics")
+        if not isinstance(metrics, list):
+            continue
+        for metric in metrics:
+            metric_row = _mapping(metric)
+            if metric_row.get("name") != "source_trust":
+                continue
+            reason = str(metric_row.get("reason") or "").strip().lower()
+            if "source_trust=" in reason:
+                return reason.split("source_trust=", 1)[1].split()[0]
+            score = metric_row.get("score")
+            if isinstance(score, (int, float)) and float(score) < 0.5:
+                return "low"
+    return ""
+
+
+def _coerce_fabric_cap(value: object) -> tuple[DecisionReadiness | None, str | None]:
+    if isinstance(value, DecisionReadiness):
+        return value, "fabric_trust_gate"
+    if isinstance(value, str):
+        try:
+            return DecisionReadiness(value), "fabric_trust_gate"
+        except ValueError:
+            return None, None
+    if isinstance(value, dict):
+        raw_level = value.get("level") or value.get("readiness_level") or value.get("cap")
+        try:
+            return DecisionReadiness(str(raw_level)), str(value.get("reason") or "fabric_trust_gate")
+        except (TypeError, ValueError):
+            return None, None
+    return None, None
+
+
+def _fabric_decision_rows(evidence_metadata: dict[str, object]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    decision_data = evidence_metadata.get("fabric_decision_data")
+    if isinstance(decision_data, list):
+        rows.extend(_mapping(row) for row in decision_data)
+    trust_refs = evidence_metadata.get("fabric_trust_refs")
+    if isinstance(trust_refs, dict):
+        rows.extend(_mapping(row) for row in trust_refs.values())
+    return [row for row in rows if row]
+
+
+def _mapping(value: object) -> dict[str, object]:
+    if isinstance(value, dict):
+        return dict(value)
+    if hasattr(value, "model_dump"):
+        payload = value.model_dump(mode="json")
+        return dict(payload) if isinstance(payload, dict) else {}
+    return {}
 
 
 def _resolve_latent_governance(

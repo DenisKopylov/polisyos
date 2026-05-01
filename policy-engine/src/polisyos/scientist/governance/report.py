@@ -38,6 +38,9 @@ class GovernanceReportLinks(BaseModel):
     claims_ref: ArtifactRef | None = None
     human_review_packet_ref: ArtifactRef | None = None
     human_review_decision_ref: ArtifactRef | None = None
+    continuous_governance_report_ref: ArtifactRef | None = None
+    reissue_packet_ref: ArtifactRef | None = None
+    withdrawal_record_ref: ArtifactRef | None = None
 
 
 class GovernanceReport(BaseModel):

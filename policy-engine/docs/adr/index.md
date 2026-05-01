@@ -1,10 +1,10 @@
 # ADR Index
 
-> Index of 125 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
+> Index of 131 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
 
 ## Status Summary
 
-- Accepted: 38
+- Accepted: 44
 - Proposed: 86
 - Deprecated: 0
 - Superseded: 1
@@ -21,6 +21,7 @@
 - [Lex](#lex)
 - [Fabric](#fabric)
 - [Foundry](#foundry)
+- [Design](#design)
 - [Operations](#operations)
 
 ## Repository SOTA Contract ADRs
@@ -102,7 +103,7 @@
 | [0048](0048-transportability-resolution-loop-max-3-rounds.md)          | proposed   | Transportability Resolution Loop with Max 3 Rounds                                        | S-node elimination in transportability analysis may require iterative resolution: adjusting for one S-node (context-varying factor) via a... | —                                                                                                                                            |     |
 | [0049](0049-constraint-severity-hard-blocks-transport.md)              | proposed   | Constraint Severity -- HARD Blocks Transportability                                       | Legal constraints on causal transportability have varying severity.                                                                          | 0048                                                                                                                                         |     |
 | [0050](0050-context-dependent-proxy-penalties.md)                      | proposed   | Context-Dependent Proxy Penalties                                                         | When a variable required for transportability adjustment is not directly available in the target context, a proxy variable may be substit... | —                                                                                                                                            |     |
-| [0063](0063-mediator-conditional-covariate-marginal.md)                | proposed   | Mediator P*(z\                                                                            | x) conditional; covariate P*(z) marginal (Pearl & Bareinboim 2011)                                                                           | When transporting causal effects across populations, the re-weighting strategy depends on whether a variable acts as a mediator or a cova... | —   |
+| [0063](0063-mediator-conditional-covariate-marginal.md)                | proposed   | Mediator P\*(z\                                                                           | x) conditional; covariate P\*(z) marginal (Pearl & Bareinboim 2011)                                                                          | When transporting causal effects across populations, the re-weighting strategy depends on whether a variable acts as a mediator or a cova... | —   |
 | [0064](0064-compute-combined-confidence-noisy-or.md)                   | proposed   | compute_combined_confidence() = 1 - Prod(1-conf_i)^w_i (Noisy-OR)                         | Multiple independent evidence sources (literature priors, observational estimates, sensitivity analyses) each provide a confidence score...  | —                                                                                                                                            |     |
 | [0065](0065-cycle-breaking-time-lag-conversion.md)                     | proposed   | Cycle breaking via time-lag conversion (not edge deletion)                                | Causal graphs constructed from observational data or literature extraction sometimes contain cycles (e.g., A -> B -> A), which violate th... | —                                                                                                                                            |     |
 | [0066](0066-pag-dag-projection-u-dummy-nodes.md)                       | proposed   | PAG to DAG projection: bidirectional edges to U-dummy nodes for dowhy.gcm                 | Constraint-based causal discovery algorithms (e.g., PC, FCI) produce Partial Ancestral Graphs (PAGs) that may contain bidirectional edges... | —                                                                                                                                            |     |
@@ -169,12 +170,20 @@
 
 ## Scientist
 
+<!-- markdownlint-disable MD060 -->
+
 | ADR                                                     | Status   | Title                                                                 | Summary                                                                                                                                     | Related    |
 | ------------------------------------------------------- | -------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | [0008](0008-scientist-node-idempotency-contract.md)     | accepted | Scientist Node Idempotency Contract                                   | Scientist DAG содержит дорогостоящие и нестабильные операции (Foundry compile/execute, Scholar/Fabric/Lex integration).                     | 0003       |
 | [0009](0009-decision-packet-replay-protocol.md)         | proposed | DecisionPacket Replay Protocol                                        | Policy OS requires offline, auditable replay from a single `DecisionPacket` reference.                                                      | —          |
 | [0011](0011-scientist-checkpoint-resume.md)             | accepted | Scientist DAG Checkpoint/Resume                                       | Scientist DAG runs can be long-running.                                                                                                     | 0008, 0009 |
 | [0059](0059-scientist-causal-full-parallel-workflow.md) | proposed | scientist_causal_full parallel with scientist_default, single cutover | The existing `scientist_default` workflow covers the core policy-evaluation loop but lacks advanced causal inference steps such as graph... | —          |
+| [0129](0129-scientist-claim-ledger.md)                  | accepted | Scientist Claim Ledger Boundary                                       | Freezes Claim Ledger package, artifact and compatibility rules for Wave 2.                                                                  | 0009, 0058 |
+| [0130](0130-scientist-research-dag.md)                  | accepted | Scientist Research DAG Boundary                                       | Freezes Research DAG replay, diff, invalidation and redaction boundaries for Wave 2.                                                        | 0009, 0011 |
+| [0131](0131-scientist-readiness-ladder.md)              | accepted | Scientist Readiness Ladder Boundary                                   | Keeps `DecisionReadinessContract` as the public ladder while support gates remain additive.                                                 | 0058, 0100 |
+| [0132](0132-scientist-voi-compute-law.md)               | accepted | Scientist VOI Compute Law                                             | Defines VOI as a subordinate budget and prioritization control before scheduler rollout.                                                    | 0058, 0100 |
+
+<!-- markdownlint-enable MD060 -->
 
 ## Lex
 
@@ -187,16 +196,27 @@
 
 ## Fabric
 
+<!-- markdownlint-disable MD060 -->
+
 | ADR                                                         | Status   | Title                                                              | Summary                                                                                                                                      | Related |
 | ----------------------------------------------------------- | -------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | [0021](0021-connector-schema-contracts-and-storage-port.md) | accepted | Connector Schema Contracts and StoragePort Boundary                | Phase 16 requires: 1.                                                                                                                        | —       |
 | [0056](0056-wgi-wdi-fabric-connector-wvs-new.md)            | proposed | WGI/WDI via fabric WorldBankConnector, WVS as new fabric connector | The policy engine needs access to World Governance Indicators (WGI) and World Development Indicators (WDI) datasets, both published by th... | —       |
+| [0133](0133-fabric-streaming-scale-semantics.md)            | accepted | Fabric Streaming and Scale Semantics                               | Defines honest processing guarantees for batch, stream, CDC, replay, and distributed Fabric execution paths.                                 | 0021    |
+
+<!-- markdownlint-enable MD060 -->
 
 ## Foundry
 
 | ADR                                           | Status   | Title                                                                                         | Summary                                                                                                                         | Related |
 | --------------------------------------------- | -------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | [0082](0082-abm-bridge-adaptive-tolerance.md) | proposed | ABM bridge adaptive tolerance (2-sigma variance) + NON_LINEAR_DIVERGENCE at phase transitions | The ABM bridge compares agent-based simulation outputs against SCM-predicted causal effects to validate structural assumptions. | —       |
+
+## Design
+
+| ADR                                                    | Status   | Title                                | Summary                                                                                | Related                  |
+| ------------------------------------------------------ | -------- | ------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------ |
+| [047](ADR-047-atlas-v4-dark-theme-canonicalization.md) | accepted | Atlas v4 Dark Theme Canonicalization | Keeps production warm dark as canonical and treats the archive blue dark as reference. | ADR-042, ADR-043-ADR-046 |
 
 ## Operations
 

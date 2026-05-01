@@ -82,21 +82,26 @@ from polisyos.fabric.connectors.contracts.schema import (
 )
 from polisyos.fabric.connectors.contracts.source_contract import (
     SOURCE_CONTRACT_SCHEMA_VERSION,
+    DecisionRole,
+    FieldRedaction,
     SourceContract,
     SourceContractDocs,
     SourceContractLineage,
     SourceContractQuality,
     SourceContractReplay,
     SourceContractRetention,
-    SourceContractSLA,
     SourceContractSchema,
     SourceContractSecurity,
     SourceContractSemantics,
+    SourceContractSLA,
     SourceContractSource,
     SourceContractTerms,
     SourceContractTrust,
     SourceDeprecationPolicy,
+    SourceFieldAccessPolicy,
     SourceMetricDefinition,
+    TenantScope,
+    default_source_field_access_policies,
     load_source_contracts,
     source_contracts_compatibility_evidence,
     source_contracts_snapshot_payload,
@@ -107,6 +112,7 @@ from polisyos.fabric.connectors.contracts.validation_middleware import (
 )
 
 __all__ = [
+    "SOURCE_CONTRACT_SCHEMA_VERSION",
     "Additivity",
     # Evolution
     "ChangeType",
@@ -121,9 +127,11 @@ __all__ = [
     "ContractViolationError",
     # Schema core
     "DataSchema",
+    "DecisionRole",
     "EvolutionReport",
     # Connector-level contracts
     "FieldMapping",
+    "FieldRedaction",
     "FieldSpec",
     # Registry
     "FileBackedSchemaRegistry",
@@ -152,7 +160,6 @@ __all__ = [
     "SchemaVersion",
     "SchemaVersionConflictError",
     "SemanticType",
-    "SOURCE_CONTRACT_SCHEMA_VERSION",
     "SourceContract",
     "SourceContractDocs",
     "SourceContractLineage",
@@ -167,12 +174,15 @@ __all__ = [
     "SourceContractTerms",
     "SourceContractTrust",
     "SourceDeprecationPolicy",
+    "SourceFieldAccessPolicy",
     "SourceMetricDefinition",
+    "TenantScope",
     "TimeGranularity",
     "TypeCoercionError",
     "actual_version_bump",
     "build_contract_registry",
     "coerce_dataframe_to_schema",
+    "default_source_field_access_policies",
     "evaluate_contract_governance",
     "format_impacted_surfaces",
     "impacted_downstream_surfaces",

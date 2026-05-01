@@ -22,8 +22,10 @@ from polisyos.fabric.connectors.contracts import (
     SourceContractSource,
     SourceContractTerms,
     SourceContractTrust,
+    default_source_field_access_policies,
 )
 from polisyos.fabric.connectors.profiles.models import SourceProfile
+from polisyos.fabric.processing_guarantees import default_processing_contract_for_connector
 from polisyos.ir.connectors import ConnectorMetadataSpec
 
 PROFILE_ID_BY_CONNECTOR_ID: dict[str, str] = {
@@ -147,6 +149,9 @@ def make_source_doc_stub(contract: SourceContract) -> str:
             f"- Classification: `{contract.security.classification}`",
             f"- Quality contract: `{contract.quality.contract_ref}`",
             f"- Replay: `{replay}`",
+            f"- Processing guarantee: `{contract.processing.guarantee_value}`, "
+            f"dedupe window `{contract.processing.idempotency.dedupe_window_seconds}s`, "
+            f"replay retention `{contract.processing.idempotency.replay_retention_days}d`",
             f"- SLO: availability `{contract.sla.availability_target:.3f}`, "
             f"freshness `{contract.sla.freshness_slo_seconds}s`, "
             f"p95 latency `{contract.sla.p95_latency_ms:.0f}ms`",
@@ -217,7 +222,13 @@ def build_source_contract_scaffold(
             ),
         ),
         semantics=SourceContractSemantics(domain=resolved.domain),
-        security=SourceContractSecurity(classification=metadata.data_classification),  # type: ignore[arg-type]
+        security=SourceContractSecurity(
+            classification=metadata.data_classification,  # type: ignore[arg-type]
+            field_policies=default_source_field_access_policies(
+                (),
+                classification=metadata.data_classification,  # type: ignore[arg-type]
+            ),
+        ),
         quality=SourceContractQuality(
             contract_ref=quality_ref,
             required_checks=(
@@ -245,6 +256,7 @@ def build_source_contract_scaffold(
             calibration_status="heuristic",
             rationale="Scaffolded from connector metadata.",
         ),
+        processing=default_processing_contract_for_connector(resolved.connector_id),
         retention=SourceContractRetention(policy="source_terms_bound"),
         docs=SourceContractDocs(generated_anchor=contract_id.replace(".", "-")),
     )

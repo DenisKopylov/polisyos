@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from collections.abc import Sequence
@@ -37,6 +38,7 @@ from polisyos.fabric.connectors.sdk import (  # noqa: E402
     SourceScaffoldSpec,
     build_source_contract_scaffold,
     build_source_profile_matrix,
+    make_replay_fixture_id,
     make_source_contract_id,
 )
 from polisyos.fabric.connectors.sources._contracts import ALL_SOURCE_CONTRACTS  # noqa: E402
@@ -55,6 +57,7 @@ SOURCE_SCORECARD_SNAPSHOT = (
     REPO_ROOT / "schemas" / "snapshots" / "fabric" / "source_scorecards.json"
 )
 SOURCE_PLATFORM_DOC = REPO_ROOT / "docs" / "reference" / "fabric" / "source-platform.md"
+SOURCE_REPLAY_FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "fabric" / "source_contracts"
 GENERATED_AT_DT = datetime(2026, 4, 27, tzinfo=UTC)
 
 
@@ -74,6 +77,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--snapshot", type=Path, default=SOURCE_CONTRACT_SNAPSHOT)
     parser.add_argument("--scorecards", type=Path, default=SOURCE_SCORECARD_SNAPSHOT)
     parser.add_argument("--docs", type=Path, default=SOURCE_PLATFORM_DOC)
+    parser.add_argument("--replay-fixtures", type=Path, default=SOURCE_REPLAY_FIXTURE_DIR)
     return parser.parse_args(argv)
 
 
@@ -119,10 +123,105 @@ def build_source_contracts() -> tuple[SourceContract, ...]:
                 dataset_pattern=schema_contract.dataset_id if schema_contract else "*",
                 owner=metadata.owner,
                 quality_contract_id=metadata.quality_contract_id,
+                replay_fixture_ref=make_replay_fixture_id(contract_id),
             ),
         )
         contracts.append(contract)
     return tuple(sorted(contracts, key=lambda item: item.id))
+
+
+def _checksum(payload: Any) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _sample_value(field: Any) -> Any:
+    data_type = str(getattr(getattr(field, "data_type", ""), "value", getattr(field, "data_type", ""))).lower()
+    if "bool" in data_type:
+        return True
+    if "int" in data_type or "uint" in data_type:
+        return 2026
+    if "float" in data_type or "decimal" in data_type:
+        return 1.0
+    if "date" in data_type or "time" in data_type:
+        return GENERATED_AT
+    if "array" in data_type:
+        return []
+    if "object" in data_type or "json" in data_type:
+        return {}
+    return f"{field.name}_sample"
+
+
+def build_source_replay_fixture(contract: SourceContract) -> dict[str, Any]:
+    """Build one deterministic replay fixture for a production SourceContract."""
+
+    fields = tuple(contract.schema.fields)
+    normalized_sample_rows = [
+        {
+            field.name: _sample_value(field)
+            for field in fields
+        }
+        if fields
+        else {"source_contract_id": contract.id}
+    ]
+    schema_payload = {
+        "schema_id": contract.schema.schema_id,
+        "schema_version": contract.schema.schema_version,
+        "fields": [
+            {
+                "name": field.name,
+                "field_id": field.stable_id,
+                "data_type": str(getattr(field.data_type, "value", field.data_type)),
+                "semantic_type": (
+                    None
+                    if field.semantic_type is None
+                    else str(getattr(field.semantic_type, "value", field.semantic_type))
+                ),
+            }
+            for field in fields
+        ],
+    }
+    payload: dict[str, Any] = {
+        "schema_version": "fabric.source_replay_fixture.v1",
+        "source_contract_id": contract.id,
+        "connector_id": contract.source.connector_id,
+        "profile_id": contract.source.profile_id,
+        "generated_at": GENERATED_AT,
+        "schema_checksum": _checksum(schema_payload),
+        "transcript": {
+            "request": {
+                "method": "GET",
+                "url": f"fabric://{contract.source.connector_id}/{contract.source.dataset_pattern}",
+                "connector_id": contract.source.connector_id,
+                "dataset_pattern": contract.source.dataset_pattern,
+                "profile_id": contract.source.profile_id,
+            },
+            "response": {
+                "status": 200,
+                "content_type": "application/json",
+                "body": {"rows": normalized_sample_rows},
+            },
+        },
+        "normalized_sample_rows": normalized_sample_rows,
+        "replay_checksum": "",
+    }
+    payload["replay_checksum"] = _checksum(
+        {key: value for key, value in payload.items() if key != "replay_checksum"}
+    )
+    return payload
+
+
+def source_replay_fixture_json(contract: SourceContract) -> str:
+    return dump_json(build_source_replay_fixture(contract))
+
+
+def expected_source_replay_fixtures() -> dict[str, str]:
+    """Return expected replay fixture JSON by checked-in fixture file name."""
+
+    return {
+        f"{contract.id}.replay.json": source_replay_fixture_json(contract)
+        for contract in build_source_contracts()
+    }
 
 
 def build_conformance_reports(
@@ -177,6 +276,12 @@ def build_report() -> dict[str, Any]:
     ]
     errors = [issue for issue in issue_rows if issue["severity"] == "error"]
     warnings = [issue for issue in issue_rows if issue["severity"] != "error"]
+    compatibility = source_contracts_compatibility_evidence(contracts)
+    replay_fixture_artifact_count = sum(
+        1
+        for contract in contracts
+        if contract.replay.fixture_ref and (REPO_ROOT / contract.replay.fixture_ref).exists()
+    )
     return {
         "schema_version": REPORT_SCHEMA_VERSION,
         "generated_at": GENERATED_AT,
@@ -188,8 +293,18 @@ def build_report() -> dict[str, Any]:
             "conformance_error_count": len(errors),
             "conformance_warning_count": len(warnings),
             "scorecard_count": len(scorecards),
+            "replay_fixture_count": compatibility["replay_fixture_count"],
+            "replay_fixture_artifact_count": replay_fixture_artifact_count,
+            "non_replayable_reason_count": compatibility["non_replayable_reason_count"],
+            "field_access_policy_contract_count": compatibility[
+                "field_access_policy_contract_count"
+            ],
+            "field_access_policy_count": compatibility["field_access_policy_count"],
+            "schema_field_policy_coverage_count": compatibility[
+                "schema_field_policy_coverage_count"
+            ],
         },
-        "compatibility_evidence": source_contracts_compatibility_evidence(contracts),
+        "compatibility_evidence": compatibility,
         "profile_compatibility_matrix": build_source_profile_matrix(contracts, profiles),
         "contracts": [contract.to_snapshot_record() for contract in contracts],
         "conformance": [
@@ -252,8 +367,9 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
         "",
         "Phase 5 makes production source admission contract-first. A connector is",
         "production-visible only when SourceContract v2, profile compatibility,",
-        "quality, replay or non-replayable reason, lineage, access, owner/reviewer,",
-        "SLO, scorecard, and docs evidence are present.",
+        "quality, replay fixture, lineage, field-level access, owner/reviewer,",
+        "processing guarantee, dedupe/replay-retention policy, SLO, scorecard,",
+        "and docs evidence are present.",
         "",
         "## Generated Artifacts",
         "",
@@ -263,6 +379,7 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
         "| `schemas/fabric/source_scorecard.schema.json` | Source scorecard schema |",
         "| `schemas/snapshots/fabric/source_contracts_v2.json` | Production SourceContract snapshot |",
         "| `schemas/snapshots/fabric/source_scorecards.json` | Generated source scorecards |",
+        "| `tests/fixtures/fabric/source_contracts/*.replay.json` | Deterministic production replay fixtures |",
         "| `tools/quality/validation/fabric_source_contracts.py` | CI report/fail-closed gate |",
         "",
         "## CI Gate",
@@ -285,6 +402,13 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
         "```bash",
         "uv run python tools/quality/validation/fabric_source_contracts.py --fail-closed",
         "```",
+        "",
+        "## Strict Replay And Access Coverage",
+        "",
+        f"- Production SourceContracts: `{report['summary']['source_contract_count']}`",
+        f"- Replay fixtures: `{report['summary']['replay_fixture_count']}`",
+        f"- Production non-replayable sources: `{report['summary']['non_replayable_reason_count']}`",
+        f"- Field-policy-covered contracts: `{report['summary']['schema_field_policy_coverage_count']}`",
         "",
         "## Source Scorecards",
         "",
@@ -311,8 +435,8 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
             "",
             "## Source Contract Catalog",
             "",
-            "| Contract | Connector | Profile | Quality | Replay | Classification | Owner | Reviewer |",
-            "| -------- | --------- | ------- | ------- | ------ | -------------- | ----- | -------- |",
+        "| Contract | Connector | Profile | Guarantee | Dedupe window | Replay retention | Quality | Replay | Field policies | Classification | Owner | Reviewer |",
+        "| -------- | --------- | ------- | --------- | ------------- | ---------------- | ------- | ------ | -------------- | -------------- | ----- | -------- |",
         ]
     )
     for contract in contracts:
@@ -322,8 +446,12 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
             f"`{contract.id}` | "
             f"`{contract.source.connector_id}` | "
             f"`{contract.source.profile_id}` | "
+            f"`{contract.processing.guarantee_value}` | "
+            f"{contract.processing.idempotency.dedupe_window_seconds}s | "
+            f"{contract.processing.idempotency.replay_retention_days}d | "
             f"`{contract.quality.contract_ref}` | "
             f"{replay} | "
+            f"{len(contract.security.field_policies)} | "
             f"`{contract.security.classification}` | "
             f"`{contract.owner}` | "
             f"`{contract.reviewer}` |"
@@ -360,6 +488,7 @@ def check_artifacts(
     snapshot_path: Path = SOURCE_CONTRACT_SNAPSHOT,
     scorecard_path: Path = SOURCE_SCORECARD_SNAPSHOT,
     docs_path: Path = SOURCE_PLATFORM_DOC,
+    fixture_dir: Path = SOURCE_REPLAY_FIXTURE_DIR,
 ) -> list[str]:
     """Return artifact drift errors."""
 
@@ -373,6 +502,10 @@ def check_artifacts(
         errors.append(f"source scorecard snapshot out of date: {scorecard_path}")
     if not docs_path.exists() or docs_path.read_text(encoding="utf-8") != expected_docs:
         errors.append(f"source platform docs out of date: {docs_path}")
+    for filename, expected_fixture in expected_source_replay_fixtures().items():
+        fixture_path = fixture_dir / filename
+        if not fixture_path.exists() or fixture_path.read_text(encoding="utf-8") != expected_fixture:
+            errors.append(f"source replay fixture out of date: {fixture_path}")
     return errors
 
 
@@ -383,6 +516,29 @@ def validate_report(report: dict[str, Any], *, fail_closed: bool = False) -> lis
     summary = report.get("summary", {})
     if summary.get("production_connector_count") != summary.get("source_contract_count"):
         errors.append("production connector count does not match SourceContract count")
+    source_contract_count = int(summary.get("source_contract_count", 0) or 0)
+    if int(summary.get("replay_fixture_count", 0) or 0) != source_contract_count:
+        errors.append("every production SourceContract must carry a replay fixture")
+    if int(summary.get("non_replayable_reason_count", 0) or 0) != 0:
+        errors.append("production SourceContracts must not carry non-replayable reasons")
+    if int(summary.get("field_access_policy_contract_count", 0) or 0) != source_contract_count:
+        errors.append("every production SourceContract must carry field access policies")
+    if int(summary.get("schema_field_policy_coverage_count", 0) or 0) != source_contract_count:
+        errors.append("field access policies must cover every schema field or wildcard")
+    for row in report.get("contracts", []):
+        contract = SourceContract.model_validate(row["contract"])
+        if contract.status == "active" and not contract.replay.fixture_ref:
+            errors.append(f"missing replay fixture: {contract.id}")
+        if contract.status == "active" and contract.replay.non_replayable_reason:
+            errors.append(f"non-replayable reason is forbidden for production source: {contract.id}")
+        if not contract.security.field_policies:
+            errors.append(f"missing field access policies: {contract.id}")
+        if not contract.processing.idempotency.key_fields:
+            errors.append(f"missing dedupe key policy: {contract.id}")
+        if contract.processing.idempotency.dedupe_window_seconds <= 0:
+            errors.append(f"missing dedupe window: {contract.id}")
+        if contract.processing.idempotency.replay_retention_days < contract.retention.min_retention_days:
+            errors.append(f"replay retention below source retention: {contract.id}")
     if fail_closed and int(summary.get("conformance_error_count", 0)) > 0:
         errors.append("conformance errors present in fail-closed mode")
     return errors
@@ -393,13 +549,17 @@ def update_artifacts(
     snapshot_path: Path = SOURCE_CONTRACT_SNAPSHOT,
     scorecard_path: Path = SOURCE_SCORECARD_SNAPSHOT,
     docs_path: Path = SOURCE_PLATFORM_DOC,
+    fixture_dir: Path = SOURCE_REPLAY_FIXTURE_DIR,
 ) -> None:
     snapshot_path.parent.mkdir(parents=True, exist_ok=True)
     scorecard_path.parent.mkdir(parents=True, exist_ok=True)
     docs_path.parent.mkdir(parents=True, exist_ok=True)
+    fixture_dir.mkdir(parents=True, exist_ok=True)
     atomic_write_text(snapshot_path, source_contract_snapshot_json())
     atomic_write_text(scorecard_path, source_scorecard_snapshot_json())
     atomic_write_text(docs_path, render_source_platform_markdown())
+    for filename, fixture_json in expected_source_replay_fixtures().items():
+        atomic_write_text(fixture_dir / filename, fixture_json)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -415,10 +575,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             snapshot_path=args.snapshot,
             scorecard_path=args.scorecards,
             docs_path=args.docs,
+            fixture_dir=args.replay_fixtures,
         )
         print(f"Updated SourceContract snapshot: {args.snapshot}")
         print(f"Updated source scorecards: {args.scorecards}")
         print(f"Updated source platform docs: {args.docs}")
+        print(f"Updated source replay fixtures: {args.replay_fixtures}")
 
     artifact_errors: list[str] = []
     if args.check or args.fail_closed:
@@ -426,6 +588,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             snapshot_path=args.snapshot,
             scorecard_path=args.scorecards,
             docs_path=args.docs,
+            fixture_dir=args.replay_fixtures,
         )
 
     errors = report_errors + artifact_errors

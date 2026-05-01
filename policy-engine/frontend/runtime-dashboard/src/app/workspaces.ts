@@ -6,7 +6,7 @@ import { healthQueryOptions } from "@/api/hooks/useHealth";
 import { llmProfilesQueryOptions } from "@/api/hooks/useLlmProfiles";
 import { runsQueryOptions } from "@/api/hooks/useRuns";
 import { sourceProfilesQueryOptions } from "@/api/hooks/useSourceProfiles";
-import { runsSampleQueryOptions } from "@/features/runs";
+import { runsSampleQueryOptions } from "@/features/runs/api/useRunsSample";
 import {
   readStoredThemePreference,
   type ThemePreference,

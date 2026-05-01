@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "status": "computed",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "comparison_frame": {
+    "run_a": "R_core_api_001",
+    "run_b": "R_core_api_002",
+    "metric_set": ["policy_cost"],
+    "population": "national",
+    "unit_policy": "canonical",
+    "temporal_scope": {
+      "valid_at": "2026-02-11T12:00:00Z",
+      "tx_at": "2026-02-11T12:01:00Z",
+      "branch": "main",
+      "snapshot_id": null,
+      "scenario_id": null
+    },
+    "scenario_scope": {},
+    "assumption_set": []
+  },
+  "comparability": {"status": "compatible", "warnings": [], "blocked_reasons": []},
+  "deltas": [
+    {
+      "metric_id": "policy_cost",
+      "label": "Policy cost",
+      "a": null,
+      "b": null,
+      "delta_absolute": {
+        "point": 0,
+        "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+        "metric_id": "policy_cost_delta",
+        "lineage": {
+          "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "hash": null,
+          "status": "verified",
+          "freshness": "current",
+          "summary": {"method": "QuantityValue delta"},
+          "compact_summary": [{"kind": "method", "label": "QuantityValue delta", "id": "policy_cost_delta"}],
+          "reason_code": null,
+          "tracking_issue": null
+        },
+        "uncertainty": null,
+        "time": {
+          "valid_at": "2026-02-11T12:00:00Z",
+          "tx_at": "2026-02-11T12:01:00Z",
+          "branch": "main",
+          "snapshot_id": null,
+          "scenario_id": null
+        },
+        "quantity_class": "decision",
+        "label": "Policy cost delta"
+      },
+      "delta_relative": null,
+      "delta_distribution": {"quantiles": {}, "mean_shift": null, "median_shift": null, "ci_overlap": null},
+      "significance": "not_comparable",
+      "dominance": "none",
+      "decision_salience": 0.8,
+      "lineage_delta": {
+        "source_changed": true,
+        "model_changed": false,
+        "hash_changed": true,
+        "freshness_changed": false,
+        "verification_changed": null,
+        "notes": ["Fabric lineage hashes differ across compared packets."]
+      }
+    }
+  ]
+}

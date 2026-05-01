@@ -236,7 +236,8 @@ def _decision_summary(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _claim_ledger_summary(payload: Mapping[str, Any]) -> dict[str, Any]:
-    return _dict_section(payload, "claim_readiness_summary")
+    summary = _dict_section(payload, "claim_ledger_summary")
+    return summary or _dict_section(payload, "claim_readiness_summary")
 
 
 def _source_freshness_summary(payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -255,8 +256,21 @@ def _governance_issues(payload: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def _blocked_claim_ids(payload: Mapping[str, Any]) -> list[str]:
-    summary = _dict_section(payload, "claim_readiness_summary")
-    return sorted(str(item) for item in summary.get("blocked_claim_ids", []) or [])
+    blocked_summary = _dict_section(payload, "blocked_claim_summary")
+    blocked_claims = blocked_summary.get("blocked_claims", []) or []
+    blocked_from_details = [
+        str(item.get("claim_id"))
+        for item in blocked_claims
+        if isinstance(item, Mapping) and item.get("claim_id")
+    ]
+    if blocked_from_details:
+        return sorted(set(blocked_from_details))
+    ledger_summary = _dict_section(payload, "claim_ledger_summary")
+    blocked_ids = ledger_summary.get("blocked_claim_ids", []) or []
+    if blocked_ids:
+        return sorted(str(item) for item in blocked_ids)
+    readiness_summary = _dict_section(payload, "claim_readiness_summary")
+    return sorted(str(item) for item in readiness_summary.get("blocked_claim_ids", []) or [])
 
 
 def _unresolved_assumptions(payload: Mapping[str, Any]) -> list[str]:

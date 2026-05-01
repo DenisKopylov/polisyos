@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter } from "react-router-dom";
 
 import { queryKeys } from "@/api/queryKeys";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
@@ -21,9 +20,7 @@ const meta = {
       return (
         <QueryClientProvider client={queryClient}>
           <LocaleProvider>
-            <MemoryRouter initialEntries={["/compare/run-a/run-b"]}>
-              <Story />
-            </MemoryRouter>
+            <Story />
           </LocaleProvider>
         </QueryClientProvider>
       );

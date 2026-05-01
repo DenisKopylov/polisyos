@@ -52,6 +52,10 @@ CREATE INDEX IF NOT EXISTS idx_world_facts_predicate
     ON world.world_facts(predicate_id);
 CREATE INDEX IF NOT EXISTS idx_world_facts_target
     ON world.world_facts(target_id);
+CREATE INDEX IF NOT EXISTS idx_world_facts_tx_valid
+    ON world.world_facts(tx_time, valid_time);
+CREATE INDEX IF NOT EXISTS idx_world_facts_valid_tx
+    ON world.world_facts(valid_time, tx_time);
 
 -- ------------------------------------------------------------
 -- Canonical nodes/edges
@@ -90,6 +94,10 @@ CREATE INDEX IF NOT EXISTS idx_world_edges_src_kind
     ON world.world_edges(src_id, kind);
 CREATE INDEX IF NOT EXISTS idx_world_edges_dst_kind
     ON world.world_edges(dst_id, kind);
+CREATE INDEX IF NOT EXISTS idx_world_edges_tx_valid
+    ON world.world_edges(tx_time, valid_time);
+CREATE INDEX IF NOT EXISTS idx_world_edges_valid_tx
+    ON world.world_edges(valid_time, tx_time);
 
 -- ------------------------------------------------------------
 -- Projections: events

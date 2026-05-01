@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "run_id": "R_core_api_001",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "quality_refs": {
+    "fabric_decision_data:policy_cost": {
+      "status": "passed",
+      "score": 1,
+      "report_ref": "runtime://quantity-quality/policy_cost",
+      "reason_code": null,
+      "quality_surface": null,
+      "remediation_link": null
+    }
+  },
+  "coverage": {
+    "total": 1,
+    "decision": 1,
+    "traced": 1,
+    "untraced": 0,
+    "naked_decision_values": 0
+  }
+}

@@ -1889,9 +1889,662 @@
     "placeholder": "Введіть команду або пошук...",
     "noResults": "Результатів не знайдено.",
     "navigation": "Навігація",
+    "runSurfaces": "Поверхні run",
+    "workspaceSurfaces": "Поверхні робочих зон",
     "appearance": "Зовнішній вигляд",
     "toggleTheme": "Тема: перемкнути світлу/темну",
     "cycleDensity": "Щільність: цикл comfortable/compact/condensed"
+  },
+  "surfaceRegistry": {
+    "run": {
+      "overview": {
+        "description": "Підсумок рішення, сигнали впевненості та перше операторське ревʼю."
+      },
+      "causal": {
+        "description": "Каузальна модель, сигнали ідентифікації та наукові перевірки run."
+      },
+      "governance": {
+        "description": "Policy gates, обовʼязки ревʼюера та governance-статус."
+      },
+      "evidence": {
+        "description": "Кандидати на promotion, evidence packets та citation-grade ревʼю."
+      },
+      "workflow": {
+        "description": "Lineage, dependency paths та контекст відтворюваності для run."
+      },
+      "artifacts": {
+        "description": "Згенеровані файли, експорти, звіти та підписані артефакти run."
+      },
+      "agents": {
+        "description": "Активність моделей та агентів, задіяних у створенні run."
+      },
+      "debug": {
+        "description": "Низькорівневий timeline, статус вузлів, retry та діагностичні події."
+      }
+    },
+    "panels": {
+      "freshnessBraid": {
+        "label": "Freshness braid",
+        "description": "Багатоджерельний freshness-view, що показує governing lag для joined facts."
+      },
+      "connectorCards": {
+        "label": "Connector cards",
+        "description": "Fingerprint конекторів для latency, cost, error budget та last-green pull."
+      },
+      "runChoreography": {
+        "label": "Run choreography",
+        "description": "Партитурний execution-view для стадій, retry, branch та SSE-подій."
+      },
+      "ambientTelemetry": {
+        "label": "Ambient telemetry",
+        "description": "Always-on runtime health, transport status, temporal scope та flags."
+      },
+      "causalAtlas": {
+        "label": "Causal Atlas",
+        "description": "Editable causal DAG surface для причин, медіаторів, confounders та effects."
+      },
+      "identifiabilitySurface": {
+        "label": "Identifiability surface",
+        "description": "Heat-map того, які параметри рішення point, partially, set або not identified."
+      },
+      "sensitivityRotor": {
+        "label": "Sensitivity rotor",
+        "description": "E-value threshold control, який показує які decision-bearing claims згасають за жорсткішої sensitivity."
+      },
+      "cohortTimeTraveler": {
+        "label": "Cohort time traveler",
+        "description": "Valid-time cohort flow з policy-overlay станами для зміни eligibility та risk."
+      },
+      "stressTestTheatre": {
+        "label": "Stress-test theatre",
+        "description": "Детерміновані stress scenes, що цитують який edge case обгрунтовує block або warning."
+      },
+      "disputeRegistry": {
+        "label": "Dispute registry",
+        "description": "Audit-grade timeline заперечень, привʼязаний до decisions та governance review."
+      },
+      "stakeholderLens": {
+        "label": "Stakeholder lens",
+        "description": "Lens projection для operator, regulator, appellant, scientist і public viewer з одного decision hash."
+      },
+      "fairnessAudit": {
+        "label": "Fairness audit",
+        "description": "Disparate-impact, group confidence, calibration та fairness sentinel gate."
+      },
+      "harmSurface": {
+        "label": "Ethics and harm surface",
+        "description": "EU AI Act readiness, expected harm, mitigation, residual risk, oversight та redress gate."
+      },
+      "embargoOverlay": {
+        "label": "Embargo overlay",
+        "description": "Blackout і masking surface: структура зберігається, restricted values приховані."
+      },
+      "slowReviewMode": {
+        "label": "Slow review mode",
+        "description": "Attention lane для opened, dwelled та acknowledged critical approval sections."
+      },
+      "revocationLedger": {
+        "label": "Revocation ledger",
+        "description": "Bitemporal chain predecessor, current, successor, replacement та impacted runs."
+      },
+      "argumentMap": {
+        "label": "Argument map",
+        "description": "Toulmin claim, grounds, warrant, backing і rebuttal graph для public decision."
+      },
+      "comprehensionLayer": {
+        "label": "Comprehension layer",
+        "description": "Semantic explanation registry для charts, badges, glyphs, quantities і publication blocks."
+      },
+      "glossaryLens": {
+        "label": "Glossary lens",
+        "description": "Canonical term definitions з provenance, owner і fixed date."
+      },
+      "confidenceLadder": {
+        "label": "Confidence ladder",
+        "description": "Risk-ranked navigation до strongest claim, weakest link, disputed, untraced і low-confidence items."
+      },
+      "modelCard": {
+        "label": "Citation model card",
+        "description": "Publication-grade model card із sections, footnotes, provenance і references."
+      },
+      "publicViewer": {
+        "label": "Public viewer",
+        "description": "Signed read-only decision packet view без private API context."
+      },
+      "coverageMap": {
+        "label": "Coverage map",
+        "description": "Geographic evidence density і coverage caveat для public decisions."
+      },
+      "thresholdContract": {
+        "label": "Threshold microcontract",
+        "description": "Cutoff, epsilon, near-line cases і calibration caveat для threshold policies."
+      },
+      "globalTrustDial": {
+        "label": "Global trust dial",
+        "description": "Reviewer threshold, який приховує claims нижче вибраного confidence level в усьому Atlas."
+      },
+      "annotationSurface": {
+        "label": "Annotation surface",
+        "description": "Snapshot-bound reviewer annotations з packet hash, valid time і audit event."
+      },
+      "evidenceWallet": {
+        "label": "Evidence wallet",
+        "description": "Особисті saved evidence refs між runs із citation-grade provenance."
+      },
+      "readingOnboarding": {
+        "label": "Reading onboarding",
+        "description": "Перший run, який проводить через glossary, provenance, threshold, wallet і annotation steps."
+      },
+      "bureaucraticForms": {
+        "label": "Bureaucratic forms",
+        "description": "Locale-aware Ukrainian legal form input surfaces на одному bureaucratic AST."
+      }
+    }
+  },
+  "phase32": {
+    "surfaceNav": "Production slice surfaces",
+    "freshness": {
+      "eyebrow": "B1 · Fabric",
+      "title": "Freshness braid",
+      "body": "Кожна нитка — source connector; товщина відповідає volume, колір — lag-vs-SLA.",
+      "emptyTitle": "Немає freshness threads",
+      "emptyBody": "Atlas потрібні connector або source-profile metadata, щоб зібрати freshness braid.",
+      "governingLag": "governing lag {lag}",
+      "governing": "governing",
+      "volume": "{value} volume",
+      "derivedFacts": "{value} derived facts",
+      "joinNodes": "Join nodes"
+    },
+    "connectors": {
+      "eyebrow": "B2 · Fabric",
+      "title": "Connector character cards",
+      "body": "Operational fingerprints для latency, cost, burn, retry posture та dependent facts.",
+      "emptyTitle": "Немає connector cards",
+      "emptyBody": "Runtime не повернув зареєстровані connectors.",
+      "loaded": "loaded",
+      "unavailable": "unavailable",
+      "namespaceVersion": "{namespace} · v{version}",
+      "latencyP50": "p50",
+      "latencyP95": "p95",
+      "cost": "Cost",
+      "retry": "Retry",
+      "errorBudget": "Error budget burn",
+      "datasets": "{value} datasets",
+      "profiles": "{value} profiles",
+      "facts": "{value} facts through connector",
+      "lastGreen": "Last green: {date}"
+    },
+    "choreography": {
+      "eyebrow": "D1 · Operations",
+      "title": "Run choreography",
+      "body": "Партитура стадій parse, plan, check, execute, audit, retries та runtime events.",
+      "loadError": "Не вдалося завантажити run choreography",
+      "emptyTitle": "Немає choreography events",
+      "emptyBody": "Runtime не повернув timeline або workflow events для цього run.",
+      "events": "Events",
+      "retries": "Retries",
+      "retry": "retry",
+      "branch": "branch",
+      "artifacts": "{value} artifacts",
+      "criticalPath": "Critical path",
+      "laneMeta": "{events} events · {duration}",
+      "noLaneEvents": "У цій lane немає timeline events."
+    },
+    "telemetry": {
+      "title": "Ambient telemetry",
+      "live": "live",
+      "degraded": "degraded",
+      "transport": "Transport",
+      "scope": "Temporal scope",
+      "now": "now",
+      "flags": "Feature flags",
+      "flagCount": "{value} on · {source}/{status}",
+      "surface": "Surface"
+    },
+    "causal": {
+      "eyebrow": "A1 · Causal Atlas",
+      "title": "Editable causal DAG",
+      "body": "DAG edits залишаються локальними до появи canonical causal artifact, але run вже можна перевіряти як causal object.",
+      "artifactBacked": "artifact backed",
+      "draft": "draft",
+      "nodeLabel": "Node label",
+      "nodePlaceholder": "Add variable",
+      "nodeKind": "Node kind",
+      "addNode": "Add node",
+      "adversarial": "Adversarial mode",
+      "edgeSource": "Edge source",
+      "edgeTarget": "Edge target",
+      "addEdge": "Add edge"
+    },
+    "disputes": {
+      "eyebrow": "C1 · Accountability",
+      "title": "Dispute registry",
+      "body": "Відкриті objections — first-class review records, повʼязані з run та governance issues.",
+      "openCount": "{value} open",
+      "titleLabel": "Objection",
+      "placeholder": "Describe the objection",
+      "basis": "Basis",
+      "basisPolicy": "Policy",
+      "basisData": "Data",
+      "basisLegal": "Legal",
+      "add": "Add objection",
+      "meta": "{target} · {basis} · {actor} · {date}",
+      "actorGovernance": "governance",
+      "actorReviewer": "reviewer",
+      "empty": "No objections are currently registered."
+    }
+  },
+  "phase33": {
+    "eyebrow": "Phase 3.3 / Scientific depth",
+    "title": "Scientific depth packet",
+    "packetIntegrated": "вбудовано в decision packet",
+    "identifiability": {
+      "eyebrow": "A2 / Identifiability",
+      "title": "Identifiability surface",
+      "weakest": "Найслабше місце: {value}",
+      "emptyMetric": "Немає метрики",
+      "bounds": "Bounds",
+      "interval": "{lower} - {upper} / {method}",
+      "remedy": "Identification remedy",
+      "remedyMeta": "{kind} / зусилля {effort} / {ref}",
+      "impact": "Decision impact",
+      "impactMeta": "{quantities} quantities / {policies} policy recommendations",
+      "wizardTitle": "Що закриє ідентифікацію?",
+      "wizardOption": "{kind} / зусилля {effort} / {ref}",
+      "empty": "Немає decision metrics для identifiability analysis.",
+      "state": {
+        "point": "Point identified",
+        "partial": "Partially identified",
+        "set": "Set identified",
+        "not_identified": "Not identified"
+      },
+      "method": {
+        "confidence_interval": "confidence interval",
+        "manski": "Manski bounds",
+        "robins": "Robins bounds",
+        "point": "point estimate",
+        "unknown": "unknown"
+      },
+      "effort": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high"
+      },
+      "remedyKind": {
+        "dataset": "новий dataset",
+        "rct": "identifying study",
+        "iv": "instrumental variable",
+        "covariate": "confounder covariate",
+        "panel": "panel data",
+        "measurement": "measurement audit"
+      }
+    },
+    "sensitivity": {
+      "eyebrow": "A3 / Sensitivity",
+      "title": "Sensitivity rotor",
+      "verdictChanged": "verdict зміниться",
+      "verdictStable": "verdict стабільний",
+      "threshold": "E-value threshold",
+      "remaining": "Залишається",
+      "extinguished": "Погашено",
+      "decisionBearingGone": "Decision-bearing погашено",
+      "fairness": "Fairness gate",
+      "empty": "Немає claims для sensitivity analysis.",
+      "eValue": "E={value}",
+      "explanation": {
+        "below_threshold": "E-value {eValue} нижче threshold {threshold}; claim гасне.",
+        "survives_threshold": "E-value {eValue} витримує threshold {threshold}."
+      }
+    },
+    "cohort": {
+      "eyebrow": "A4 / Cohorts",
+      "title": "Cohort time traveler",
+      "validTime": "Valid-time cursor",
+      "filter": "{label}: {value}",
+      "filterLabel": {
+        "dimension": "Dimension",
+        "policy": "Policy"
+      },
+      "timeline": {
+        "baseline": "Baseline",
+        "decision": "Decision",
+        "policy-overlay": "Policy overlay"
+      },
+      "policyOverlay": "{ref} / {verdict}",
+      "share": {
+        "baseline": "Baseline",
+        "observed": "Observed",
+        "overlay": "Overlay"
+      },
+      "effect": {
+        "pass": "passes",
+        "fail": "fails",
+        "review": "review"
+      },
+      "state": {
+        "covered-vulnerable": "covered vulnerable",
+        "covered": "covered",
+        "eligible-under-policy": "eligible under policy",
+        "at-risk-under-policy": "at risk under policy",
+        "review-under-policy": "review under policy"
+      },
+      "flow": "{share} переходить з {from} до {to}",
+      "empty": "Немає distributional cohorts для time travel."
+    },
+    "stress": {
+      "eyebrow": "A5 / Stress scenes",
+      "title": "Stress-test theatre",
+      "summary": "{blocked} block / {warned} warn",
+      "citedScene": "Decision packet цитує {ref}",
+      "act": "Act {act} - {title}",
+      "ref": "{ref}",
+      "diff": "{diff}; reaction: {reaction}",
+      "issueRefs": "Issue refs: {refs}",
+      "expected": "expected {status}",
+      "actual": "actual {status}",
+      "diffState": {
+        "same": "same as baseline",
+        "degraded": "degraded vs baseline",
+        "improved": "improved vs baseline"
+      },
+      "reaction": {
+        "baseline": "continue",
+        "dataWarning": "request data completion",
+        "review": "send to adversarial review",
+        "transportWarning": "warn on external validity",
+        "block": "block approval",
+        "blockOrReview": "block or require fairness review",
+        "freshnessWarning": "warn and request fresh evidence"
+      },
+      "status": {
+        "pass": "pass",
+        "warn": "warn",
+        "block": "block"
+      },
+      "scenes": {
+        "boring": "Act I - boring baseline",
+        "missingData": "Act II - missing data",
+        "adversarialLabels": "Act II - adversarial labels",
+        "oodSource": "Act II - out-of-distribution source",
+        "legalBlocker": "Act III - legal blocker",
+        "fairnessBlocker": "Act III - fairness blocker",
+        "staleEvidence": "Act III - stale evidence"
+      }
+    }
+  },
+  "phase34": {
+    "eyebrow": "Phase 3.4 / Public-sector readiness",
+    "title": "Governance readiness gate",
+    "body": "Approval може бути заблокований fairness, harm, objection, embargo, slow review або revocation; кожен block має audit ref.",
+    "auditTrail": "{value} audit events recorded",
+    "approval": {
+      "ready": "approval ready",
+      "blocked": "{value} approval blocks",
+      "block": "block",
+      "action": "Approve decision"
+    },
+    "blockKind": {
+      "fairness": "Fairness",
+      "harm": "Harm",
+      "objection": "Open objection",
+      "embargo": "Embargo",
+      "slow_review": "Slow review",
+      "revocation": "Revocation"
+    },
+    "blockers": {
+      "eyebrow": "Approval flow",
+      "title": "Visible blockers",
+      "empty": "Немає active public-sector readiness blockers.",
+      "fairness": "Protected group {target} fails fairness gate.",
+      "harm": "Critical harm controls для risk {target} incomplete.",
+      "objection": "Unresolved objection {target} blocks approval.",
+      "embargo": "Active embargo {target} blocks approval та public export.",
+      "slowReview": "Review attention incomplete: {target} sections done.",
+      "revocation": "Policy lifecycle state {target} blocks approval."
+    },
+    "status": {
+      "block": "block",
+      "warn": "warn",
+      "pass": "pass"
+    },
+    "lens": {
+      "eyebrow": "C2 / Lens",
+      "title": "Stakeholder lens switcher",
+      "operator": "Operator",
+      "regulator": "Regulator",
+      "appellant": "Appellant",
+      "data_scientist": "Data scientist",
+      "public_viewer": "Public viewer",
+      "emphasis": "Emphasis",
+      "riskOrder": "Risk order",
+      "collapsed": "Collapsed"
+    },
+    "fairness": {
+      "eyebrow": "C3 + G4 / Fairness",
+      "title": "Fairness and bias audit",
+      "sentinel": "Fairness sentinel blocks approval",
+      "sentinelBody": "{group} has disparate-impact ratio {ratio}; threshold is {threshold}.",
+      "threshold": "4/5 rule {value}",
+      "ratio": "DI ratio {value}",
+      "ci": "group CI {lower}-{upper}",
+      "calibration": "calibration delta {value}"
+    },
+    "harm": {
+      "eyebrow": "C4 / Harm",
+      "title": "Ethics and harm surface",
+      "risk": {
+        "minimal": "minimal risk",
+        "limited": "limited risk",
+        "high": "high risk"
+      },
+      "eu": {
+        "humanOversight": "Human oversight",
+        "transparency": "Transparency",
+        "redressPath": "Redress path"
+      },
+      "expected": {
+        "disparateDenial": "Disparate denial or delayed benefit",
+        "noRedress": "Affected person lacks redress path",
+        "opacity": "Opaque automated reasoning"
+      },
+      "mitigation": {
+        "humanOversight": "Named reviewer validates high-impact outcomes.",
+        "redress": "Appeal path and responsible owner are explicit.",
+        "transparency": "Decision basis is explainable without private context."
+      },
+      "rowMeta": "likelihood {likelihood} / residual risk {residual}",
+      "likelihood": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high"
+      },
+      "residual": {
+        "low": "low",
+        "medium": "medium",
+        "high": "high"
+      }
+    },
+    "embargo": {
+      "eyebrow": "C5 / Embargo",
+      "title": "Blackout overlay",
+      "masked": "Masked structure",
+      "meta": "reason {reason} / skeleton {skeleton} / unlock {unlock}",
+      "empty": "No active embargo masks.",
+      "status": {
+        "active": "active",
+        "unlock_pending": "unlock pending",
+        "clear": "clear"
+      }
+    },
+    "revocation": {
+      "eyebrow": "C7 / Revocation",
+      "title": "Revocation ledger",
+      "status": {
+        "active": "active",
+        "revoked": "revoked",
+        "superseded": "superseded"
+      },
+      "entryStatus": {
+        "active": "active",
+        "revoked": "revoked",
+        "superseded": "superseded",
+        "replacement": "replacement"
+      },
+      "relation": {
+        "predecessor": "predecessor",
+        "current": "current",
+        "successor": "successor"
+      },
+      "time": "valid {valid} / known {known}",
+      "reason": {
+        "predecessor": "prior policy in chain",
+        "current": "current policy remains valid",
+        "revoked": "current policy is revoked",
+        "superseded": "current policy is superseded",
+        "replacement": "replacement policy is required",
+        "none": "no successor notice"
+      }
+    },
+    "slowReview": {
+      "eyebrow": "C6 / Slow review",
+      "title": "Review attention lane",
+      "progress": "{completed}/{total} complete",
+      "open": "Open",
+      "acknowledge": "Acknowledge",
+      "dwell": "{actual}s / {required}s dwell",
+      "section": {
+        "objections": "Objections",
+        "fairness": "Fairness",
+        "harm": "Harm",
+        "provenance": "Provenance",
+        "uncertainty": "Uncertainty",
+        "identifiability": "Identifiability",
+        "revocation": "Revocation"
+      }
+    }
+  },
+  "phase35": {
+    "eyebrow": "Phase 3.5 / Explanation and publication",
+    "title": "Signed publication packet",
+    "body": "Decision, model card, coverage caveat, threshold contract, argument map, glossary і deterministic explanations готові для signed public viewer.",
+    "publicBody": "Цей read-only packet verified із signed public payload і не потребує private runtime context.",
+    "openPublicViewer": "Open public viewer",
+    "publicSummary": {
+      "eyebrow": "Signed decision"
+    },
+    "argument": {
+      "eyebrow": "E1 / Argument",
+      "title": "Toulmin argument map",
+      "status": {
+        "certified": "certified",
+        "contested": "contested",
+        "open": "open",
+        "rebutted": "rebutted"
+      }
+    },
+    "ladder": {
+      "eyebrow": "E5 / Confidence",
+      "title": "Confidence ladder",
+      "rung": {
+        "strongest_claim": "strongest claim",
+        "weakest_link": "weakest link",
+        "disputed": "disputed",
+        "untraced": "untraced",
+        "low_confidence": "low confidence",
+        "high_blast_radius": "high blast radius"
+      }
+    },
+    "explanations": {
+      "eyebrow": "E3 + E6 / Explanation",
+      "title": "Deterministic explanations"
+    },
+    "modelCard": {
+      "eyebrow": "F1 / Model card"
+    },
+    "coverage": {
+      "eyebrow": "F3 / Coverage",
+      "title": "Coverage caveat",
+      "status": {
+        "clear": "clear",
+        "caveat": "caveat"
+      }
+    },
+    "threshold": {
+      "eyebrow": "F4 / Threshold",
+      "title": "Threshold microcontract",
+      "near": "near line",
+      "above": "above",
+      "below": "below"
+    },
+    "forms": {
+      "eyebrow": "F5 / Forms",
+      "title": "Locale-aware bureaucratic forms"
+    },
+    "glossary": {
+      "eyebrow": "E4 / Glossary",
+      "title": "Glossary lens"
+    },
+    "viewer": {
+      "verified": "signature verified",
+      "invalid": "signature invalid",
+      "readOnly": "read-only",
+      "errorEyebrow": "Public viewer",
+      "errorTitle": "This signed decision cannot be verified",
+      "errorBody": "Verification failed: {reason}.",
+      "back": "Back to PolicyOS"
+    }
+  },
+  "phase36": {
+    "eyebrow": "Phase 3.6 / Operator craft",
+    "title": "Reviewer craft layer",
+    "body": "Reviewer може задати global trust threshold, анотувати точний packet snapshot, зберегти evidence в особистий wallet і пройти reading-grade first run.",
+    "threshold": {
+      "eyebrow": "G1 / Trust",
+      "title": "Global trust threshold",
+      "short": "Trust",
+      "value": "Поточний threshold",
+      "visible": "visible claims",
+      "hidden": "hidden claims",
+      "remaining": "remaining",
+      "noHidden": "За цим threshold claims не приховуються.",
+      "updated": "Updated {date}"
+    },
+    "annotations": {
+      "eyebrow": "G2 / Annotation",
+      "title": "Snapshot annotations",
+      "target": "Target",
+      "placeholder": "Write an audit note, tied to this packet hash.",
+      "add": "Add annotation",
+      "snapshot": "snapshot {hash}",
+      "empty": "No snapshot annotations yet."
+    },
+    "wallet": {
+      "eyebrow": "G3 / Evidence",
+      "title": "Evidence wallet",
+      "save": "Save",
+      "saved": "Saved",
+      "savedTitle": "Saved evidence",
+      "empty": "No evidence has been saved for this packet."
+    },
+    "onboarding": {
+      "eyebrow": "G5 / Onboarding",
+      "title": "Reading-grade onboarding",
+      "progress": "{completed}/{total} complete",
+      "start": "Start run",
+      "complete": "Complete",
+      "done": "done",
+      "ttv": "Time to first safe approval: {seconds}s",
+      "step": {
+        "read_decision": "Read the decision packet",
+        "inspect_argument": "Inspect the argument map",
+        "narrate_provenance": "Narrate provenance",
+        "inspect_glossary": "Open glossary lens",
+        "set_threshold": "Set global threshold",
+        "save_evidence": "Save evidence to wallet",
+        "annotate_snapshot": "Annotate packet snapshot",
+        "safe_approval": "Complete safe approval"
+      }
+    }
   },
   "collaboration": {
     "presence": {

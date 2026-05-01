@@ -1,0 +1,38 @@
+{
+  "connector_id": "sdmx.source",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "freq": "freq_sample",
+      "time_period": "time_period_sample",
+      "value": 1.0
+    }
+  ],
+  "profile_id": "ecb_sdmx",
+  "replay_checksum": "sha256:e17ee4d092fd2c478eb370536e1d438b6f8cb1c1e3770b6576a60f0a8d43b035",
+  "schema_checksum": "sha256:f9d43d77e6f9169275abbb1bc01ea7805f5b96b1083f2b04c4e50a57662c2f3c",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "sdmx.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "sdmx.source",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "ecb_sdmx",
+      "url": "fabric://sdmx.source/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "freq": "freq_sample",
+            "time_period": "time_period_sample",
+            "value": 1.0
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

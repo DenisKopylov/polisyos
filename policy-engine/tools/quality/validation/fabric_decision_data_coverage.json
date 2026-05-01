@@ -1,9 +1,13 @@
 {
   "batch_lookup": {
     "benchmark_surface": true,
+    "full_graph_benchmark_surface": true,
+    "full_graph_p95_target_ms": 500,
     "lineage_route_uses_batch_service": true,
     "lineage_service_deduplicates_refs": true,
-    "p95_target_ms": 150
+    "p95_target_ms": 150,
+    "quality_batch_adapter": true,
+    "trust_batch_adapter": true
   },
   "endpoints": [
     {
@@ -37,13 +41,59 @@
       "wrapper_present": true
     }
   ],
+  "field_classifications": [
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.value",
+      "status": "implemented",
+      "wrapper": "FabricQuantityValue|AuthoredText"
+    },
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.quality",
+      "status": "implemented",
+      "wrapper": "QualityRef"
+    },
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.lineage",
+      "status": "implemented",
+      "wrapper": "LineageRef"
+    },
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.access",
+      "status": "implemented",
+      "wrapper": "AccessRef"
+    },
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.replay",
+      "status": "implemented",
+      "wrapper": "ReplayRef"
+    },
+    {
+      "classification": "decision",
+      "field": "FabricDecisionData.time",
+      "status": "implemented",
+      "wrapper": "TemporalRef"
+    },
+    {
+      "classification": "telemetry",
+      "field": "RunQuantitiesResponse.coverage",
+      "status": "implemented",
+      "wrapper": "QuantityCoverageSummary"
+    }
+  ],
   "generated_at": "2026-04-27T00:00:00Z",
   "naked_decision_values": [],
   "required_contracts": {
     "batch_lineage_lookup": true,
     "decision_data_module": true,
+    "field_classification": true,
     "runtime_decision_data_route": true,
     "schema_matches_model": true,
+    "source_contract_v2_ref": true,
     "temporal_scope_echo": true,
     "trust_envelope_schema": true,
     "typed_gap_states": true
@@ -52,10 +102,12 @@
   "summary": {
     "decision_endpoint_count": 3,
     "endpoint_count": 3,
+    "field_count": 7,
     "naked_decision_value_count": 0,
     "status": "implemented",
     "transitional_waiver_count": 0,
-    "typed_gap_state_count": 5
+    "typed_gap_state_count": 5,
+    "unknown_field_count": 0
   },
   "temporal_echo": {
     "envelope_temporal_ref": true,

@@ -13,7 +13,16 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
-import { Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Label,
+  PanelSkeleton,
+  Select,
+} from "@/shared/ui";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   CausalGraphCanvas,
@@ -25,6 +34,7 @@ import {
   PathAnalysisPanel,
   type CausalNodeData,
   type CausalEdgeData,
+  type CausalNodeKind,
   type CausalPath,
   type LayoutAlgorithm,
   type OverlayMode,
@@ -53,6 +63,16 @@ type CausalArtifactPayload = {
   nodes: CausalNodeData[];
   paths: CausalPath[];
 };
+
+const CAUSAL_NODE_KINDS: CausalNodeKind[] = [
+  "treatment",
+  "outcome",
+  "confounder",
+  "mediator",
+  "collider",
+  "instrument",
+  "selection",
+];
 
 function buildPathLabel(
   nodeIds: string[],
@@ -166,6 +186,133 @@ function extractCausalGraph(
   };
 }
 
+function buildFallbackCausalGraph(runId: string): CausalArtifactPayload {
+  const nodes: CausalNodeData[] = [
+    {
+      dataAvailable: true,
+      evidenceCount: 1,
+      id: "policy",
+      kind: "treatment",
+      label: "Policy",
+    },
+    {
+      dataAvailable: false,
+      evidenceCount: 0,
+      id: "outcome",
+      kind: "outcome",
+      label: "Outcome",
+    },
+  ];
+  const edges: CausalEdgeData[] = [
+    {
+      id: "policy-outcome",
+      methodology: "draft",
+      meta: {
+        runId,
+        source: "atlas-draft-scaffold",
+      },
+      source: "policy",
+      status: "unidentified",
+      target: "outcome",
+    },
+  ];
+
+  return {
+    adjustmentSet: [],
+    edges,
+    methodology: "draft",
+    nodes,
+    paths: deriveCausalPaths(nodes, edges),
+  };
+}
+
+function nextDraftId(label: string, existingIds: Set<string>) {
+  const base =
+    label
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "node";
+  let candidate = base;
+  let index = 2;
+  while (existingIds.has(candidate)) {
+    candidate = `${base}-${index}`;
+    index += 1;
+  }
+  return candidate;
+}
+
+function causalDraftStorageKey(runId: string) {
+  return `polisyos:atlas:causal-draft:${runId}`;
+}
+
+function isCausalArtifactPayload(
+  value: unknown,
+): value is CausalArtifactPayload {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const record = value as Partial<CausalArtifactPayload>;
+  return Array.isArray(record.nodes) && Array.isArray(record.edges);
+}
+
+function readStoredCausalDraft(runId: string): CausalArtifactPayload | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(causalDraftStorageKey(runId));
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw) as { graph?: unknown };
+    if (!isCausalArtifactPayload(parsed.graph)) {
+      return null;
+    }
+    return {
+      ...parsed.graph,
+      adjustmentSet: Array.isArray(parsed.graph.adjustmentSet)
+        ? parsed.graph.adjustmentSet
+        : [],
+      paths: deriveCausalPaths(parsed.graph.nodes, parsed.graph.edges),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredCausalDraft(runId: string, graph: CausalArtifactPayload) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      causalDraftStorageKey(runId),
+      JSON.stringify({
+        graph,
+        savedAt: new Date().toISOString(),
+        version: 1,
+      }),
+    );
+  } catch {
+    // Local draft persistence is a convenience; review should continue without it.
+  }
+}
+
+function removeStoredCausalDraft(runId: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(causalDraftStorageKey(runId));
+  } catch {
+    // Storage cleanup is best-effort.
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Method visualization dispatcher
 // ---------------------------------------------------------------------------
@@ -239,15 +386,50 @@ function CausalTabContent({ runId }: { runId: string }) {
     () => extractCausalGraph(runDetailsQuery.data?.run ?? null),
     [runDetailsQuery.data],
   );
+  const storedDraft = useMemo(
+    () => (graph ? null : readStoredCausalDraft(runId)),
+    [graph, runId],
+  );
+  const sourceGraph = useMemo(
+    () => graph ?? storedDraft ?? buildFallbackCausalGraph(runId),
+    [graph, runId, storedDraft],
+  );
 
   const [layout, setLayout] = useState<LayoutAlgorithm>("hierarchical");
   const [overlay, setOverlay] = useState<OverlayMode>("none");
+  const [adversarialMode, setAdversarialMode] = useState(false);
+  const [draftGraph, setDraftGraph] =
+    useState<CausalArtifactPayload>(sourceGraph);
+  const [draftNodeLabel, setDraftNodeLabel] = useState("");
+  const [draftNodeKind, setDraftNodeKind] =
+    useState<CausalNodeKind>("confounder");
+  const [draftEdgeSource, setDraftEdgeSource] = useState("policy");
+  const [draftEdgeTarget, setDraftEdgeTarget] = useState("outcome");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!graph) {
+    setDraftGraph(sourceGraph);
+    setDraftEdgeSource(sourceGraph.nodes[0]?.id ?? "");
+    setDraftEdgeTarget(
+      sourceGraph.nodes[1]?.id ?? sourceGraph.nodes[0]?.id ?? "",
+    );
+  }, [sourceGraph]);
+
+  useEffect(() => {
+    if (runDetailsQuery.isLoading) {
+      return;
+    }
+    if (graph) {
+      removeStoredCausalDraft(runId);
+      return;
+    }
+    writeStoredCausalDraft(runId, draftGraph);
+  }, [draftGraph, graph, runDetailsQuery.isLoading, runId]);
+
+  useEffect(() => {
+    if (!draftGraph) {
       return;
     }
     markUiMilestone("runs.causal.ready", {
@@ -262,35 +444,179 @@ function CausalTabContent({ runId }: { runId: string }) {
       endMark: "runs.causal.ready",
       metric: "time_to_causal_ms",
     });
-  }, [graph]);
+  }, [draftGraph]);
 
   if (runDetailsQuery.isLoading) {
     return <PanelSkeleton rows={6} />;
   }
 
-  if (!graph || graph.nodes.length === 0) {
+  if (!draftGraph || draftGraph.nodes.length === 0) {
     return <EmptyState title={t("causal.title")} body={t("causal.empty")} />;
   }
 
   const selectedNode = selectedNodeId
-    ? (graph.nodes.find((node) => node.id === selectedNodeId) ?? null)
+    ? (draftGraph.nodes.find((node) => node.id === selectedNodeId) ?? null)
     : null;
   const selectedEdge = selectedEdgeId
-    ? (graph.edges.find((edge) => edge.id === selectedEdgeId) ?? null)
+    ? (draftGraph.edges.find((edge) => edge.id === selectedEdgeId) ?? null)
     : null;
   const selectedPath = selectedPathId
-    ? (graph.paths.find((path) => path.id === selectedPathId) ?? null)
+    ? (draftGraph.paths.find((path) => path.id === selectedPathId) ?? null)
     : null;
+  const highlightedEdges = adversarialMode
+    ? draftGraph.edges
+        .filter((edge) => edge.status !== "identified")
+        .map((edge) => edge.id)
+    : (selectedPath?.edgeIds ?? []);
 
   return (
     <div className="space-y-6">
+      <Card className="space-y-4" data-testid="causal-atlas-editor">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">{t("phase32.causal.eyebrow")}</p>
+            <h3>{t("phase32.causal.title")}</h3>
+            <p className="topbar-subtitle mt-2">{t("phase32.causal.body")}</p>
+          </div>
+          <Badge kind={graph ? "ok" : "warn"}>
+            {graph
+              ? t("phase32.causal.artifactBacked")
+              : t("phase32.causal.draft")}
+          </Badge>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_12rem_auto]">
+            <div>
+              <Label htmlFor="causal-node-label">
+                {t("phase32.causal.nodeLabel")}
+              </Label>
+              <Input
+                id="causal-node-label"
+                value={draftNodeLabel}
+                onChange={(event) => setDraftNodeLabel(event.target.value)}
+                placeholder={t("phase32.causal.nodePlaceholder")}
+              />
+            </div>
+            <div>
+              <Label htmlFor="causal-node-kind">
+                {t("phase32.causal.nodeKind")}
+              </Label>
+              <Select
+                id="causal-node-kind"
+                value={draftNodeKind}
+                onChange={(event) =>
+                  setDraftNodeKind(event.target.value as CausalNodeKind)
+                }
+              >
+                {CAUSAL_NODE_KINDS.map((kind) => (
+                  <option key={kind} value={kind}>
+                    {kind}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                disabled={!draftNodeLabel.trim()}
+                onClick={() => {
+                  const existingIds = new Set(
+                    draftGraph.nodes.map((node) => node.id),
+                  );
+                  const id = nextDraftId(draftNodeLabel, existingIds);
+                  const nodes: CausalNodeData[] = [
+                    ...draftGraph.nodes,
+                    {
+                      dataAvailable: false,
+                      id,
+                      kind: draftNodeKind,
+                      label: draftNodeLabel.trim(),
+                    },
+                  ];
+                  setDraftGraph({
+                    ...draftGraph,
+                    nodes,
+                    paths: deriveCausalPaths(nodes, draftGraph.edges),
+                  });
+                  setDraftNodeLabel("");
+                }}
+                variant="primary"
+              >
+                {t("phase32.causal.addNode")}
+              </Button>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            aria-pressed={adversarialMode}
+            onClick={() => setAdversarialMode((value) => !value)}
+            variant={adversarialMode ? "danger" : "ghost"}
+          >
+            {t("phase32.causal.adversarial")}
+          </Button>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+          <Select
+            value={draftEdgeSource}
+            onChange={(event) => setDraftEdgeSource(event.target.value)}
+            aria-label={t("phase32.causal.edgeSource")}
+          >
+            {draftGraph.nodes.map((node) => (
+              <option key={node.id} value={node.id}>
+                {node.label}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={draftEdgeTarget}
+            onChange={(event) => setDraftEdgeTarget(event.target.value)}
+            aria-label={t("phase32.causal.edgeTarget")}
+          >
+            {draftGraph.nodes.map((node) => (
+              <option key={node.id} value={node.id}>
+                {node.label}
+              </option>
+            ))}
+          </Select>
+          <Button
+            type="button"
+            disabled={!draftEdgeSource || draftEdgeSource === draftEdgeTarget}
+            onClick={() => {
+              const edgeId = `${draftEdgeSource}-${draftEdgeTarget}`;
+              if (draftGraph.edges.some((edge) => edge.id === edgeId)) {
+                return;
+              }
+              const edges: CausalEdgeData[] = [
+                ...draftGraph.edges,
+                {
+                  id: edgeId,
+                  source: draftEdgeSource,
+                  status: "unidentified",
+                  target: draftEdgeTarget,
+                },
+              ];
+              setDraftGraph({
+                ...draftGraph,
+                edges,
+                paths: deriveCausalPaths(draftGraph.nodes, edges),
+              });
+            }}
+          >
+            {t("phase32.causal.addEdge")}
+          </Button>
+        </div>
+      </Card>
+
       {/* Main graph canvas */}
       <div className="relative min-h-[400px]">
         <CausalGraphCanvas
-          nodes={graph.nodes}
-          edges={graph.edges}
-          adjustmentSet={graph.adjustmentSet}
-          highlightedPath={selectedPath?.edgeIds ?? []}
+          nodes={draftGraph.nodes}
+          edges={draftGraph.edges}
+          adjustmentSet={draftGraph.adjustmentSet}
+          highlightedPath={highlightedEdges}
           layoutAlgorithm={layout}
           overlay={overlay}
           onLayoutChange={setLayout}
@@ -309,20 +635,20 @@ function CausalTabContent({ runId }: { runId: string }) {
         {/* Overlays */}
         {overlay === "identification" && (
           <IdentificationOverlay
-            edges={graph.edges}
+            edges={draftGraph.edges}
             className="absolute top-4 right-4 z-10 w-64"
           />
         )}
         {overlay === "transport" && (
           <TransportOverlay
-            edges={graph.edges}
+            edges={draftGraph.edges}
             className="absolute top-4 right-4 z-10 w-72"
           />
         )}
         {overlay === "adjustment_set" && (
           <AdjustmentSetHighlight
-            nodes={graph.nodes}
-            adjustmentSet={graph.adjustmentSet}
+            nodes={draftGraph.nodes}
+            adjustmentSet={draftGraph.adjustmentSet}
             className="absolute top-4 right-4 z-10 w-72"
           />
         )}
@@ -333,7 +659,7 @@ function CausalTabContent({ runId }: { runId: string }) {
         {selectedNode && (
           <NodeDetailPanel
             node={selectedNode}
-            edges={graph.edges}
+            edges={draftGraph.edges}
             onClose={() => setSelectedNodeId(null)}
           />
         )}
@@ -346,11 +672,11 @@ function CausalTabContent({ runId }: { runId: string }) {
       </div>
 
       {/* Path analysis */}
-      {graph.paths.length > 0 && (
+      {draftGraph.paths.length > 0 && (
         <PathAnalysisPanel
-          nodes={graph.nodes}
-          edges={graph.edges}
-          paths={graph.paths}
+          nodes={draftGraph.nodes}
+          edges={draftGraph.edges}
+          paths={draftGraph.paths}
           selectedPathId={selectedPathId}
           onPathSelect={setSelectedPathId}
           onClose={() => setSelectedPathId(null)}
@@ -359,8 +685,8 @@ function CausalTabContent({ runId }: { runId: string }) {
 
       {/* Method-specific visualization */}
       <MethodVisualization
-        methodology={graph.methodology}
-        data={graph.methodData}
+        methodology={draftGraph.methodology}
+        data={draftGraph.methodData}
       />
     </div>
   );

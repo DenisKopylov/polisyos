@@ -48,6 +48,17 @@ export const queryKeys = {
       "quantities",
       { temporal: temporalScopeKey(temporalScope) },
     ] as const,
+  runFabricDecisionData: (
+    runId: string,
+    temporalScope?: TemporalScope | null,
+  ) =>
+    [
+      "runtime",
+      "run",
+      runId,
+      "fabric-decision-data",
+      { temporal: temporalScopeKey(temporalScope) },
+    ] as const,
   runCompare: (
     runAId: string,
     runBId: string,

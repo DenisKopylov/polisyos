@@ -23,6 +23,7 @@ from .services.attractors import AttractorAnalysisService
 from .services.bureaucratic_rendering import BureaucraticRenderingService
 from .services.compare import CompareService
 from .services.debug import DebugService
+from .services.fabric import FabricIntegrationService
 from .services.feedback import FeedbackService
 from .services.lineage import LineageService
 from .services.mobility import MobilityService
@@ -57,6 +58,7 @@ class RuntimeApiContext:
     timeline: TimelineService
     debug: DebugService
     feedback: FeedbackService
+    fabric: FabricIntegrationService
     lineage: LineageService
     compare: CompareService
     temporal: TemporalService
@@ -108,6 +110,7 @@ def build_runtime_api_context(
     )
     debug = DebugService(store=store, timeline_service=timeline)
     feedback = FeedbackService(store=store, run_index=run_index)
+    fabric = FabricIntegrationService(lineage_service=lineage)
     temporal = TemporalService(timeline_service=timeline)
     compare = CompareService(lineage_service=lineage, temporal_service=temporal)
     scenarios = ScenarioService(
@@ -133,6 +136,7 @@ def build_runtime_api_context(
         timeline=timeline,
         debug=debug,
         feedback=feedback,
+        fabric=fabric,
         lineage=lineage,
         compare=compare,
         temporal=temporal,

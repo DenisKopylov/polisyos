@@ -47,6 +47,7 @@ class EntityMatchCandidate(BaseModel):
     method: str = Field(default="probabilistic_name_identifier_v1", min_length=1)
     evidence: list[EntityMatchEvidence] = Field(default_factory=list)
     override_provenance_ref: str | None = None
+    merge_governance_ref: str | None = None
     override_status: Literal["candidate", "accepted", "rejected"] = "candidate"
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -68,9 +69,37 @@ class EntityMatchBatch(BaseModel):
     metadata: dict[str, str] = Field(default_factory=dict)
 
 
+class EntityOverrideAuditRecord(BaseModel):
+    """Append-only governance evidence for an entity-match override."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    override_id: str = Field(..., min_length=1)
+    match_id: str = Field(..., min_length=1)
+    status: Literal["accepted", "rejected"]
+    actor: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+    provenance_ref: str | None = None
+    merge_governance_ref: str | None = None
+    canonical_write: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    previous_status: Literal["candidate", "accepted", "rejected"] = "candidate"
+
+
+class EntityOverrideEnvelope(BaseModel):
+    """Persisted override payload with candidate and audit evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate: EntityMatchCandidate
+    audit: EntityOverrideAuditRecord
+
+
 __all__ = [
     "EntityMatchBatch",
     "EntityMatchCandidate",
     "EntityMatchEvidence",
+    "EntityOverrideAuditRecord",
+    "EntityOverrideEnvelope",
     "EntityRecord",
 ]

@@ -106,6 +106,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
+    ARTIFACT_VOI_RUN_REPORT_REF,
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_PROMOTION_EVIDENCE_BUNDLE_REF,
 )
@@ -142,6 +143,7 @@ from polisyos.scientist.search.promotion_evidence import (
     persist_promotion_evidence_bundle,
 )
 from polisyos.scientist.search.stages import CorrelationTracker
+from polisyos.scientist.search.voi_scheduler import persist_voi_run_report
 from polisyos.scientist.workflows.engine_base import WorkflowEngine
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
@@ -207,6 +209,7 @@ _SPEC = NodeSpec(
         "params.promotion_evidence_bundle_ref",
         "params.audit_refs",
         "params.actionable_side_information_refs",
+        "params.voi_run_report_ref",
         "params.strategic_response",
         f"artifacts_index.{ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF}",
         f"artifacts_index.{ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF}",
@@ -215,6 +218,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
         f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
+        f"artifacts_index.{ARTIFACT_VOI_RUN_REPORT_REF}",
     ],
     produces=[
         ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
@@ -224,6 +228,7 @@ _SPEC = NodeSpec(
         ARTIFACT_STRATEGIC_SCM_REF,
         ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
         ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+        ARTIFACT_VOI_RUN_REPORT_REF,
     ],
 )
 
@@ -813,6 +818,32 @@ class RunPolicyBlueprintRuntimeNode:
                 ),
             ],
         )
+        voi_input_refs = [
+            ref
+            for ref in (candidate_ref, final_evaluation_ref, evidence_ref)
+            if ref is not None
+        ]
+        voi_report = predictive_voi.report_for_decisions(
+            run_id=state.run_id,
+            decisions=(
+                [outcome.last_scheduling_decision]
+                if outcome.last_scheduling_decision is not None
+                else []
+            ),
+            calibration_status=str(state.params.get("voi_calibration_status") or "shadow"),
+            input_refs_by_candidate_id=(
+                {outcome.candidate_hash: voi_input_refs}
+                if outcome.last_scheduling_decision is not None
+                else {}
+            ),
+            metadata={
+                "source": "run_policy_blueprint_runtime",
+                "final_action": outcome.final_action,
+                "completed": outcome.completed,
+                "trace_step_count": len(outcome.trace),
+            },
+        )
+        voi_report_ref = persist_voi_run_report(ctx.store, voi_report)
 
         new_state = branch_state(
             state,
@@ -828,6 +859,7 @@ class RunPolicyBlueprintRuntimeNode:
                 "params.policy_runtime_source_statuses",
                 "params.audit_refs",
                 "params.actionable_side_information_refs",
+                "params.voi_run_report_ref",
                 "params.strategic_response",
                 "params.strategic_response_source",
             ),
@@ -846,12 +878,14 @@ class RunPolicyBlueprintRuntimeNode:
         new_state.params["actionable_side_information_refs"] = [
             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs
         ]
+        new_state.params["voi_run_report_ref"] = voi_report_ref.model_dump(mode="json")
         if strategic_output.strategic_response_summary is not None:
             new_state.params["strategic_response"] = dict(
                 strategic_output.strategic_response_summary
             )
             new_state.params.setdefault("strategic_response_source", "policy_runtime")
         new_state.artifacts_index[ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF] = evidence_ref
+        new_state.artifacts_index[ARTIFACT_VOI_RUN_REPORT_REF] = voi_report_ref
         if platform_meta_ref is not None:
             new_state.artifacts_index[ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF] = (
                 platform_meta_ref
@@ -914,6 +948,7 @@ class RunPolicyBlueprintRuntimeNode:
                 ),
                 *([platform_meta_ref] if platform_meta_ref is not None else []),
                 *([stress_report_ref] if stress_report_ref is not None else []),
+                voi_report_ref,
             ],
             events=[
                 NodeEvent(

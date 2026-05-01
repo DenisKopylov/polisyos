@@ -1,0 +1,34 @@
+{
+  "connector_id": "graphql.api",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "graphql.api.generic"
+    }
+  ],
+  "profile_id": "graphql_demo",
+  "replay_checksum": "sha256:d155b2c015886f1dbc6a69e681c009eae349dd3ffc207264d44433a3bbaadb5b",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "graphql.api.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "graphql.api",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "graphql_demo",
+      "url": "fabric://graphql.api/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "graphql.api.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

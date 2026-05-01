@@ -17,6 +17,8 @@ class RetentionScope(str, Enum):
     CAS = "cas"
     EVIDENCE_BUNDLE = "evidence_bundle"
     WORLD_PROJECTION = "world_projection"
+    WORLD_SNAPSHOT = "world_snapshot"
+    WORLD_BRANCH = "world_branch"
 
 
 class EncryptionMode(str, Enum):
@@ -25,6 +27,14 @@ class EncryptionMode(str, Enum):
     NONE = "none"
     ENVELOPE = "envelope"
     FIELD_LEVEL = "field_level"
+
+
+class SnapshotRetentionClass(str, Enum):
+    """Retention class for retained world snapshots and branches."""
+
+    STANDARD = "standard"
+    AUDIT_TAGGED = "audit_tagged"
+    LEGAL_HOLD = "legal_hold"
 
 
 class RetentionPolicy(BaseModel):
@@ -51,6 +61,21 @@ class RetentionDecision(BaseModel):
     encryption_mode: EncryptionMode
 
 
+class SnapshotDeletionImpact(BaseModel):
+    """Replay/time-travel impact record emitted before snapshot or branch deletion."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    snapshot_id: str | None = None
+    branch_name: str | None = None
+    retention_class: SnapshotRetentionClass = SnapshotRetentionClass.STANDARD
+    replay_impacted: bool = False
+    time_travel_impacted: bool = False
+    redaction_ref: str | None = None
+    reason: str
+    alternative_retention_ref: str | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class RetentionPlanner:
     """Resolve default retention policies per classification and scope."""
@@ -70,6 +95,46 @@ class RetentionPlanner:
             delete_on_expiry=policy.delete_on_expiry,
             encryption_mode=policy.encryption_mode,
         )
+
+
+def classify_snapshot_retention(
+    *,
+    tags: tuple[str, ...] = (),
+    legal_hold: bool = False,
+) -> SnapshotRetentionClass:
+    """Classify retained world snapshots for GC and legal retention."""
+
+    normalized = {str(tag).strip().lower() for tag in tags if str(tag).strip()}
+    if legal_hold or "legal_hold" in normalized or "legal-retention" in normalized:
+        return SnapshotRetentionClass.LEGAL_HOLD
+    if "audit" in normalized or "audit_tagged" in normalized:
+        return SnapshotRetentionClass.AUDIT_TAGGED
+    return SnapshotRetentionClass.STANDARD
+
+
+def build_snapshot_deletion_impact(
+    *,
+    snapshot_id: str | None = None,
+    branch_name: str | None = None,
+    retention_class: SnapshotRetentionClass = SnapshotRetentionClass.STANDARD,
+    reason: str,
+    redaction_ref: str | None = None,
+    alternative_retention_ref: str | None = None,
+) -> SnapshotDeletionImpact:
+    """Build the explicit replay/time-travel impact record for deletion/redaction."""
+
+    if not str(reason or "").strip():
+        raise ValueError("snapshot deletion impact requires reason")
+    return SnapshotDeletionImpact(
+        snapshot_id=snapshot_id,
+        branch_name=branch_name,
+        retention_class=retention_class,
+        replay_impacted=True,
+        time_travel_impacted=True,
+        redaction_ref=redaction_ref,
+        reason=str(reason).strip(),
+        alternative_retention_ref=alternative_retention_ref,
+    )
 
 
 _DEFAULT_POLICIES: dict[tuple[RetentionScope, DataClassification], RetentionPolicy] = {}
@@ -144,6 +209,56 @@ for scope, classification, retention_days, encryption_mode in (
         30,
         EncryptionMode.ENVELOPE,
     ),
+    (RetentionScope.WORLD_SNAPSHOT, DataClassification.PUBLIC, 365, EncryptionMode.NONE),
+    (
+        RetentionScope.WORLD_SNAPSHOT,
+        DataClassification.INTERNAL,
+        365,
+        EncryptionMode.ENVELOPE,
+    ),
+    (
+        RetentionScope.WORLD_SNAPSHOT,
+        DataClassification.CONFIDENTIAL,
+        180,
+        EncryptionMode.ENVELOPE,
+    ),
+    (
+        RetentionScope.WORLD_SNAPSHOT,
+        DataClassification.REGULATED_PII,
+        90,
+        EncryptionMode.FIELD_LEVEL,
+    ),
+    (
+        RetentionScope.WORLD_SNAPSHOT,
+        DataClassification.SENSITIVE_POLICY_LEGAL_SIGNAL,
+        180,
+        EncryptionMode.ENVELOPE,
+    ),
+    (RetentionScope.WORLD_BRANCH, DataClassification.PUBLIC, 365, EncryptionMode.NONE),
+    (
+        RetentionScope.WORLD_BRANCH,
+        DataClassification.INTERNAL,
+        365,
+        EncryptionMode.ENVELOPE,
+    ),
+    (
+        RetentionScope.WORLD_BRANCH,
+        DataClassification.CONFIDENTIAL,
+        180,
+        EncryptionMode.ENVELOPE,
+    ),
+    (
+        RetentionScope.WORLD_BRANCH,
+        DataClassification.REGULATED_PII,
+        90,
+        EncryptionMode.FIELD_LEVEL,
+    ),
+    (
+        RetentionScope.WORLD_BRANCH,
+        DataClassification.SENSITIVE_POLICY_LEGAL_SIGNAL,
+        180,
+        EncryptionMode.ENVELOPE,
+    ),
 ):
     _DEFAULT_POLICIES[(scope, classification)] = RetentionPolicy(
         scope=scope,
@@ -159,4 +274,8 @@ __all__ = [
     "RetentionPlanner",
     "RetentionPolicy",
     "RetentionScope",
+    "SnapshotDeletionImpact",
+    "SnapshotRetentionClass",
+    "build_snapshot_deletion_impact",
+    "classify_snapshot_retention",
 ]

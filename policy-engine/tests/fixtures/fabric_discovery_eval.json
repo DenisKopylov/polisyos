@@ -1,0 +1,40 @@
+{
+  "benchmark_id": "fabric.discovery.phase9.eval.v1",
+  "benchmark_version": "1.0",
+  "minimum_pass_rate": 1.0,
+  "maximum_false_positive_failures": 0,
+  "metadata": {
+    "llm_calls": 0,
+    "embedding_mode": "offline_hashing"
+  },
+  "cases": [
+    {
+      "case_id": "worldbank_wdi",
+      "query": "world bank development indicators gdp macro data",
+      "expected_source_contract_id": "worldbank.wdi.generic",
+      "max_rank": 3,
+      "category": "relevance"
+    },
+    {
+      "case_id": "jsonl_stream",
+      "query": "jsonl event stream messages replay",
+      "expected_source_contract_id": "stream.jsonl.generic",
+      "max_rank": 2,
+      "category": "relevance"
+    },
+    {
+      "case_id": "sparql",
+      "query": "rdf linked data sparql endpoint",
+      "expected_source_contract_id": "sparql.endpoint.generic",
+      "max_rank": 3,
+      "category": "relevance"
+    },
+    {
+      "case_id": "false_positive_recipe",
+      "query": "sourdough starter hydration baking schedule",
+      "expected_source_contract_id": null,
+      "max_false_positive_score": 0.25,
+      "category": "false_positive"
+    }
+  ]
+}

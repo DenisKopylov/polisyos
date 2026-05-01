@@ -13,6 +13,10 @@ from polisyos.scientist.evals.datasets import (
     stale_entries_for_refs,
 )
 from polisyos.scientist.evals.leakage import hidden_benchmark_ref_ids
+from polisyos.scientist.evals.rotation import (
+    challenge_lineage_from_registry_entry,
+    validate_fresh_rotating_challenge_evidence,
+)
 from polisyos.scientist.search.benchmark_registry import (
     BenchmarkRegistry,
     BenchmarkRegistryEntry,
@@ -23,6 +27,7 @@ __all__ = [
     "BenchmarkAuthority",
     "BenchmarkAuthorityVerdict",
     "PromotionEvidenceRequest",
+    "challenge_pack_lineage_for_entries",
 ]
 
 
@@ -43,6 +48,8 @@ class PromotionEvidenceRequest(BaseModel):
     loop_id: str | None = None
     benchmark_pack_ref: ArtifactRef | None = None
     registry_lookup_required: bool = True
+    near_frontier: bool = False
+    require_fresh_rotating_challenge: bool = False
 
 
 class BenchmarkAuthorityVerdict(BaseModel):
@@ -56,6 +63,7 @@ class BenchmarkAuthorityVerdict(BaseModel):
     missing: list[str] = Field(default_factory=list)
     stale: list[str] = Field(default_factory=list)
     leakage_warnings: list[str] = Field(default_factory=list)
+    challenge_pack_lineage: list[dict[str, object]] = Field(default_factory=list)
     default_enable_allowed: bool
     rationale: str
 
@@ -115,6 +123,8 @@ class BenchmarkAuthority:
         missing = list(bundle.missing_for_promotion())
         missing.extend(_risk_tier_missing(request, bundle))
         missing.extend(_registry_lookup_missing(request, snapshot.entries))
+        lineages = challenge_pack_lineage_for_entries(snapshot.entries, _bundle_refs(bundle))
+        missing.extend(_fresh_rotation_missing(request, lineages))
         stale = stale_entries_for_refs(
             snapshot.entries,
             _bundle_refs(bundle),
@@ -129,6 +139,9 @@ class BenchmarkAuthority:
             missing=sorted(set(missing)),
             stale=stale,
             leakage_warnings=leakage_warnings,
+            challenge_pack_lineage=[
+                item.model_dump(mode="json", exclude_none=True) for item in lineages
+            ],
             default_enable_allowed=default_enable_allowed,
             rationale=_rationale(
                 missing=missing,
@@ -161,6 +174,35 @@ def _registry_lookup_missing(
     if any(str(entry.artifact_ref.artifact_id) == requested_ref_id for entry in entries):
         return []
     return ["registered_benchmark_pack_ref"]
+
+
+def challenge_pack_lineage_for_entries(
+    entries: list[BenchmarkRegistryEntry],
+    refs: list[ArtifactRef],
+) -> list:
+    """Return challenge-pack lineage records for benchmark refs."""
+
+    ref_ids = {str(ref.artifact_id) for ref in refs}
+    lineages = []
+    for entry in entries:
+        if str(entry.artifact_ref.artifact_id) not in ref_ids:
+            continue
+        lineage = challenge_lineage_from_registry_entry(entry)
+        if lineage is not None:
+            lineages.append(lineage)
+    return lineages
+
+
+def _fresh_rotation_missing(
+    request: PromotionEvidenceRequest,
+    lineages: list,
+) -> list[str]:
+    if not (request.near_frontier or request.require_fresh_rotating_challenge):
+        return []
+    return validate_fresh_rotating_challenge_evidence(
+        lineages,
+        near_frontier=True,
+    )
 
 
 def _bundle_refs(bundle: FrontierBenchmarkBundle) -> list[ArtifactRef]:

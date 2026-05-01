@@ -3,6 +3,7 @@
 from .benchmarks import (
     FabricBenchmarkReport,
     benchmark_partitioned_ingestion,
+    benchmark_query_execution,
     benchmark_stream_processing,
     benchmark_world_materialization,
     persist_fabric_benchmark_report,
@@ -39,6 +40,7 @@ __all__ = [
     "StreamRuntimeOptions",
     "StreamingSourceSession",
     "benchmark_partitioned_ingestion",
+    "benchmark_query_execution",
     "benchmark_stream_processing",
     "benchmark_world_materialization",
     "build_quarantine_report",

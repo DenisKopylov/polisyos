@@ -1,17 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FlaskConical,
-  ListChecks,
-  Database,
-  BookOpen,
   Activity,
-  Sun,
   AlignJustify,
+  Archive,
+  Bot,
+  Bug,
+  Database,
+  FileText,
+  FlaskConical,
+  GitBranch,
+  LayoutDashboard,
+  ListChecks,
+  Network,
+  PanelTop,
+  Scale,
+  ShieldCheck,
+  Sun,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { useCapabilities } from "@/api/hooks/useCapabilities";
+import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
   CommandInput,
@@ -23,27 +33,81 @@ import {
   CommandShortcut,
 } from "@/shared/ui/Command";
 import { useDensity } from "@/app/providers/DensityProvider";
+import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { useGlobalShortcut } from "@/lib/hooks";
 import {
-  WORKSPACE_ORDER,
-  WORKSPACES,
-  type WorkspaceKey,
-} from "@/app/workspaces";
+  getCommandPaletteSurfaceEntries,
+  type CommandPaletteSurfaceEntry,
+  type SurfaceId,
+} from "@/app/surfaces/surfaceRegistry";
+import { useI18n } from "@/i18n/LocaleProvider";
+import { isCapabilityEnabled } from "@/lib/capabilities";
+import { useGlobalShortcut } from "@/lib/hooks";
+import { WORKSPACES, type WorkspaceKey } from "@/app/workspaces";
 
-const WORKSPACE_ICONS: Record<WorkspaceKey, LucideIcon> = {
-  commandCenter: LayoutDashboard,
-  scenarioComposer: FlaskConical,
-  runsDecisions: ListChecks,
-  evidenceFabric: Database,
-  lexKnowledge: BookOpen,
-  platformHealth: Activity,
+const SURFACE_ICONS: Partial<Record<SurfaceId, LucideIcon>> = {
+  "fabric.connectorCards": Database,
+  "fabric.freshnessBraid": Activity,
+  "runs.agents": Bot,
+  "runs.ambientTelemetry": Activity,
+  "runs.artifacts": Archive,
+  "runs.causal": Network,
+  "runs.causalAtlas": Network,
+  "runs.debug": Bug,
+  "runs.disputeRegistry": Scale,
+  "runs.evidence": FileText,
+  "runs.governance": ShieldCheck,
+  "runs.overview": PanelTop,
+  "runs.runChoreography": GitBranch,
+  "runs.workflow": GitBranch,
+  "workspace.commandCenter": LayoutDashboard,
+  "workspace.evidenceFabric": Database,
+  "workspace.lexKnowledge": Network,
+  "workspace.platformHealth": Activity,
+  "workspace.runsDecisions": ListChecks,
+  "workspace.scenarioComposer": FlaskConical,
 };
+
+function SurfaceCommandItem({
+  label,
+  onSelect,
+  surface,
+}: {
+  label: string;
+  onSelect: () => void;
+  surface: CommandPaletteSurfaceEntry;
+}) {
+  const Icon = SURFACE_ICONS[surface.id] ?? PanelTop;
+  const searchValue = [
+    label,
+    surface.id,
+    surface.routeId,
+    surface.labelKey,
+    surface.descriptionKey,
+    ...surface.aliases,
+    ...(surface.legacyAliases ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <CommandItem value={searchValue} onSelect={onSelect}>
+      <Icon />
+      <span>{label}</span>
+      {surface.command.shortcut ? (
+        <CommandShortcut>{surface.command.shortcut}</CommandShortcut>
+      ) : null}
+    </CommandItem>
+  );
+}
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
+  const authz = useMaybeAuthz();
+  const capabilitiesQuery = useCapabilities();
+  const { flags } = useFeatureFlags();
   const { t } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { cycleDensity, density } = useDensity();
@@ -73,15 +137,43 @@ export function CommandPalette() {
     command();
   }, []);
 
-  const workspaceItems = useMemo(
+  const currentRunId =
+    matchPath("/runs/:runId/*", location.pathname)?.params.runId ??
+    matchPath("/runs/:runId", location.pathname)?.params.runId ??
+    null;
+  const surfaceEntries = useMemo(
     () =>
-      WORKSPACE_ORDER.map((key) => {
-        const ws = WORKSPACES[key];
-        const Icon = WORKSPACE_ICONS[key];
-        const navKey = `shell.nav.${key}` as const;
-        return { key, path: ws.path, Icon, label: t(navKey) };
+      getCommandPaletteSurfaceEntries({
+        canAccessPermission: (permission) =>
+          authz ? authz.can(permission) : true,
+        hasCapability: (capability) =>
+          capabilitiesQuery.isLoading
+            ? true
+            : isCapabilityEnabled(capabilitiesQuery.data, capability),
+        isWorkspaceAllowed: (workspaceKey) =>
+          authz ? authz.isWorkspaceAllowed(workspaceKey) : true,
+        isWorkspaceEnabled: (workspaceKey: WorkspaceKey) => {
+          const workspace = WORKSPACES[workspaceKey];
+          return workspace.featureFlag ? flags[workspace.featureFlag] : true;
+        },
+        runId: currentRunId,
       }),
-    [t],
+    [
+      authz,
+      capabilitiesQuery.data,
+      capabilitiesQuery.isLoading,
+      currentRunId,
+      flags,
+    ],
+  );
+  const navigationItems = surfaceEntries.filter(
+    (surface) => surface.command.group === "navigation",
+  );
+  const runSurfaceItems = surfaceEntries.filter(
+    (surface) => surface.command.group === "runSurfaces",
+  );
+  const workspaceSurfaceItems = surfaceEntries.filter(
+    (surface) => surface.command.group === "workspaceSurfaces",
   );
 
   return (
@@ -91,20 +183,59 @@ export function CommandPalette() {
         <CommandEmpty>{t("commandPalette.noResults")}</CommandEmpty>
 
         <CommandGroup heading={t("commandPalette.navigation")}>
-          {workspaceItems.map(({ key, path, Icon, label }) => (
-            <CommandItem
-              key={key}
+          {navigationItems.map((surface) => (
+            <SurfaceCommandItem
+              key={surface.id}
+              surface={surface}
+              label={t(surface.labelKey)}
               onSelect={() =>
                 runCommand(() => {
-                  void navigate(path);
+                  void navigate(surface.href);
                 })
               }
-            >
-              <Icon />
-              <span>{label}</span>
-            </CommandItem>
+            />
           ))}
         </CommandGroup>
+
+        {runSurfaceItems.length > 0 ? (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={t("commandPalette.runSurfaces")}>
+              {runSurfaceItems.map((surface) => (
+                <SurfaceCommandItem
+                  key={surface.id}
+                  surface={surface}
+                  label={t(surface.labelKey)}
+                  onSelect={() =>
+                    runCommand(() => {
+                      void navigate(surface.href);
+                    })
+                  }
+                />
+              ))}
+            </CommandGroup>
+          </>
+        ) : null}
+
+        {workspaceSurfaceItems.length > 0 ? (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={t("commandPalette.workspaceSurfaces")}>
+              {workspaceSurfaceItems.map((surface) => (
+                <SurfaceCommandItem
+                  key={surface.id}
+                  surface={surface}
+                  label={t(surface.labelKey)}
+                  onSelect={() =>
+                    runCommand(() => {
+                      void navigate(surface.href);
+                    })
+                  }
+                />
+              ))}
+            </CommandGroup>
+          </>
+        ) : null}
 
         <CommandSeparator />
 

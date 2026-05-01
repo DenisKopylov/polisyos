@@ -1,0 +1,48 @@
+{
+  "connector_id": "wvs.wave7",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "country_code": "country_code_sample",
+      "country_name": "country_name_sample",
+      "indicator_code": "indicator_code_sample",
+      "indicator_label": "indicator_label_sample",
+      "sample_size": 2026,
+      "survey_year": 2026,
+      "value": 1.0,
+      "wave": 2026
+    }
+  ],
+  "profile_id": "wvs_wave7",
+  "replay_checksum": "sha256:dc17eff5aaa80d528ffebd96c8a9c56977a832515a64528c29c2ef7a73608431",
+  "schema_checksum": "sha256:d15d79992764e378d151d47331ddb12449d03f936a1deb3c9754a6fb4b370f22",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "wvs.wave7.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "wvs.wave7",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "wvs_wave7",
+      "url": "fabric://wvs.wave7/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "country_code": "country_code_sample",
+            "country_name": "country_name_sample",
+            "indicator_code": "indicator_code_sample",
+            "indicator_label": "indicator_label_sample",
+            "sample_size": 2026,
+            "survey_year": 2026,
+            "value": 1.0,
+            "wave": 2026
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

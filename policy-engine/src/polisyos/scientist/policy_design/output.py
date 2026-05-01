@@ -41,7 +41,8 @@ from polisyos.ir.refs import (
     OptimizationAmbiguityCertificateRef,
     WelfareBundleRef,
 )
-from polisyos.scientist.claims.ledger import persist_claim_ledger
+from polisyos.scientist.claims.export import blocked_claim_summary, claim_ledger_summary
+from polisyos.scientist.claims.ledger import load_claim_ledger, persist_claim_ledger
 from polisyos.scientist.claims.projections import project_policy_artifact_bundle_claims
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
@@ -587,6 +588,7 @@ class PolicyArtifactBuilder:
             refs=base_refs,
             phase3_gate=phase3_gate,
         )
+        claim_summary_metadata = _claim_summary_metadata(store, claims_ref)
 
         audit_bundle = self._build_replayable_audit_bundle(
             source=source,
@@ -663,6 +665,7 @@ class PolicyArtifactBuilder:
                     source.judge_verdict.composite_decision if source.judge_verdict else None
                 ),
                 "claims_ref": str(claims_ref.artifact_id),
+                **claim_summary_metadata,
             },
         )
         return persist_policy_artifact_bundle(
@@ -1667,6 +1670,28 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
         seen.add(artifact_id)
         output.append(item)
     return output
+
+
+def _claim_summary_metadata(store: FileSystemCAS, claims_ref: ArtifactRef) -> dict[str, Any]:
+    try:
+        ledger = load_claim_ledger(store, claims_ref)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return {
+            "claim_ledger_summary": {
+                "lifecycle_status": "legacy_missing",
+                "load_status": "unavailable",
+            },
+            "blocked_claim_summary": {
+                "lifecycle_status": "legacy_missing",
+                "blocked_count": 0,
+                "blocked_claims": [],
+                "superseded_claim_ids": [],
+            },
+        }
+    return {
+        "claim_ledger_summary": claim_ledger_summary(ledger),
+        "blocked_claim_summary": blocked_claim_summary(ledger),
+    }
 
 
 def _maybe_validate_ref(ref: ArtifactRef | None, ref_cls: type[ArtifactRef]) -> ArtifactRef | None:

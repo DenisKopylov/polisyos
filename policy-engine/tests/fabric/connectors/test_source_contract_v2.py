@@ -12,7 +12,9 @@ from polisyos.fabric.connectors.contracts import (
     SourceContractQuality,
     SourceContractReplay,
     SourceContractSchema,
+    SourceContractSecurity,
     SourceDeprecationPolicy,
+    SourceFieldAccessPolicy,
     source_contracts_compatibility_evidence,
 )
 from polisyos.fabric.connectors.scorecard import (
@@ -26,6 +28,7 @@ from polisyos.fabric.connectors.sdk import (
 from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_CONTRACT
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.testing.conformance import validate_source_conformance_v2
+from polisyos.fabric.processing_guarantees import ProcessingGuarantee
 from tools.quality.validation import fabric_source_contracts
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -48,6 +51,12 @@ def test_source_contract_v2_wraps_existing_connector_schema_contract() -> None:
     assert "bounded_reads" in contract.quality.required_checks
     assert contract.replay.non_replayable_reason
     assert contract.lineage.seed_node_kind == "source_dataset"
+    assert {policy.field_id for policy in contract.security.field_policies} == {
+        field.stable_id for field in contract.schema.fields
+    }
+    assert contract.processing.guarantee_value == ProcessingGuarantee.BATCH_ATOMIC.value
+    assert contract.processing.idempotency.dedupe_window_seconds > 0
+    assert contract.processing.idempotency.replay_retention_days >= contract.retention.min_retention_days
     assert contract.content_hash.startswith("sha256:")
 
 
@@ -70,6 +79,45 @@ def test_source_contract_schema_requires_evidence_for_active_contract() -> None:
 
     with pytest.raises(ValueError, match="schema evidence"):
         SourceContract.model_validate(payload)
+
+
+def test_source_contract_requires_complete_field_access_policies() -> None:
+    base = SourceContract.from_connector_schema_contract(
+        WDI_GENERIC_CONTRACT,
+        metadata=WorldBankConnector.metadata,
+        profile_id="worldbank_wdi",
+    )
+    payload = base.model_dump(mode="json", by_alias=True)
+    payload["security"]["field_policies"] = []
+
+    with pytest.raises(ValueError, match="field access policies"):
+        SourceContract.model_validate(payload)
+
+    payload = base.model_dump(mode="json", by_alias=True)
+    payload["security"]["field_policies"] = payload["security"]["field_policies"][:-1]
+
+    with pytest.raises(ValueError, match="missing field access policies"):
+        SourceContract.model_validate(payload)
+
+
+def test_non_public_field_access_policy_requires_policy_ref() -> None:
+    with pytest.raises(ValueError, match="policy_ref"):
+        SourceFieldAccessPolicy(
+            field_id="worldbank.wdi.generic.value",
+            classification="confidential",
+        )
+
+    policy = SourceFieldAccessPolicy(
+        field_id="worldbank.wdi.generic.value",
+        classification="confidential",
+        policy_ref="fabric.access.policy.confidential",
+        reason="Decision-bearing restricted field.",
+    )
+    security = SourceContractSecurity(
+        classification="confidential",
+        field_policies=(policy,),
+    )
+    assert security.field_policies[0].policy_ref == "fabric.access.policy.confidential"
 
 
 def test_deprecated_source_contract_requires_sunset_policy() -> None:
@@ -112,6 +160,7 @@ def test_sdk_scaffold_emits_contract_quality_fixture_and_docs_stub() -> None:
     assert artifacts.quality_contract["source_contract_id"] == artifacts.contract.id
     assert artifacts.replay_fixture_id.endswith("worldbank.wdi.generic.replay.json")
     assert "World Bank" in artifacts.documentation_stub
+    assert "Processing guarantee" in artifacts.documentation_stub
 
 
 def test_conformance_v2_passes_for_scaffolded_worldbank_source() -> None:
@@ -119,6 +168,7 @@ def test_conformance_v2_passes_for_scaffolded_worldbank_source() -> None:
         WDI_GENERIC_CONTRACT,
         metadata=WorldBankConnector.metadata,
         profile_id="worldbank_wdi",
+        replay_fixture_ref="tests/fixtures/fabric/source_contracts/worldbank.wdi.generic.replay.json",
     )
     profiles = tuple(
         fabric_source_contracts.SourceProfileRegistry.get_instance().list_all()
@@ -129,6 +179,7 @@ def test_conformance_v2_passes_for_scaffolded_worldbank_source() -> None:
         source_contract=contract,
         profiles=profiles,
         schema_contracts=(WDI_GENERIC_CONTRACT,),
+        replay_fixture_exists=True,
     )
 
     assert report.passed
@@ -140,6 +191,7 @@ def test_conformance_v2_rejects_missing_bounded_read_evidence() -> None:
         WDI_GENERIC_CONTRACT,
         metadata=WorldBankConnector.metadata,
         profile_id="worldbank_wdi",
+        replay_fixture_ref="tests/fixtures/fabric/source_contracts/worldbank.wdi.generic.replay.json",
     )
     contract = contract.model_copy(
         update={
@@ -163,6 +215,7 @@ def test_conformance_v2_rejects_missing_bounded_read_evidence() -> None:
         source_contract=contract,
         profiles=profiles,
         schema_contracts=(WDI_GENERIC_CONTRACT,),
+        replay_fixture_exists=True,
     )
 
     assert not report.passed
@@ -217,11 +270,18 @@ def test_generated_source_contract_snapshot_covers_all_production_connectors() -
     assert report["summary"]["conformance_error_count"] == 0
     assert report["summary"]["source_contract_count"] == len(contracts)
     assert evidence["contract_count"] == len(contracts)
+    assert evidence["replay_fixture_count"] == len(contracts)
+    assert evidence["non_replayable_reason_count"] == 0
+    assert evidence["schema_field_policy_coverage_count"] == len(contracts)
     assert all(contract.owner and contract.reviewer for contract in contracts)
     assert all(contract.quality.contract_ref for contract in contracts)
     assert all("bounded_reads" in contract.quality.required_checks for contract in contracts)
     assert all(contract.lineage.seed_node_kind for contract in contracts)
-    assert all(contract.replay.has_replay_evidence for contract in contracts)
+    assert all(contract.replay.fixture_ref for contract in contracts)
+    assert not any(contract.replay.non_replayable_reason for contract in contracts)
+    assert all(contract.security.field_policies for contract in contracts)
+    assert all(contract.processing.idempotency.key_fields for contract in contracts)
+    assert all(contract.processing.idempotency.dedupe_window_seconds > 0 for contract in contracts)
 
 
 def test_checked_in_source_contract_schemas_and_snapshots_are_parseable() -> None:
@@ -235,6 +295,11 @@ def test_checked_in_source_contract_schemas_and_snapshots_are_parseable() -> Non
             encoding="utf-8"
         )
     )
+    processing_schema = json.loads(
+        (REPO_ROOT / "schemas/fabric/processing_guarantee.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
     source_snapshot = json.loads(
         (REPO_ROOT / "schemas/snapshots/fabric/source_contracts_v2.json").read_text(
             encoding="utf-8"
@@ -243,6 +308,7 @@ def test_checked_in_source_contract_schemas_and_snapshots_are_parseable() -> Non
 
     assert contract_schema["title"] == "Fabric SourceContract v2"
     assert scorecard_schema["title"] == "Fabric Source Scorecard"
+    assert processing_schema["title"] == "Fabric Processing Guarantee Contract"
     parsed = [
         SourceContract.model_validate(row["contract"])
         for row in source_snapshot["contracts"].values()

@@ -242,6 +242,7 @@ class RuntimeServiceContainer:
                     "timeline",
                     "debug",
                     "feedback",
+                    "fabric",
                     "lineage",
                     "compare",
                     "temporal",

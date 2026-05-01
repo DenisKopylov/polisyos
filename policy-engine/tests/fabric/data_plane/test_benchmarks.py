@@ -10,6 +10,7 @@ from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.benchmarks import (
     benchmark_partitioned_ingestion,
+    benchmark_query_execution,
     benchmark_stream_processing,
     benchmark_world_materialization,
     persist_fabric_benchmark_report,
@@ -69,12 +70,16 @@ def test_benchmark_partitioned_ingestion_publishes_baseline(tmp_path: Path):
     assert report.throughput_per_second >= 0.0
     assert report.peak_memory_bytes >= 0
     assert report.labels["backend"] == "local_async"
+    assert set(report.latency_quantiles_ms) == {"p50", "p95", "p99"}
+    assert report.correctness_counters["partitions_succeeded"] == 2
 
     store = FileSystemCAS(tmp_path / ".reports")
     ref = persist_fabric_benchmark_report(store, report)
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     assert payload["benchmark_kind"] == "partitioned_ingestion"
     assert payload["labels"]["connector_id"] == "stream.jsonl"
+    assert payload["latency_quantiles_ms"]["p95"] >= 0.0
+    assert payload["correctness_counters"]["partitions_succeeded"] == 2
 
 
 @pytest.mark.asyncio
@@ -117,6 +122,8 @@ async def test_benchmark_stream_processing_reports_memory_and_throughput(tmp_pat
     assert report.units_processed == 3
     assert report.unit_name == "rows"
     assert report.metadata["chunks_processed"] == 2
+    assert report.metadata["processing_guarantee"] == "at_least_once_with_dedupe"
+    assert report.correctness_counters["rows_emitted"] == 3
     assert report.throughput_per_second >= 0.0
     assert report.peak_memory_bytes >= 0
 
@@ -153,3 +160,23 @@ def test_benchmark_world_materialization_reports_baseline(tmp_path: Path):
     assert report.units_processed >= 1
     assert report.labels["trigger"] == "on_segment_arrival"
     assert report.metadata["segments_total"] == 1
+    assert report.correctness_counters["segments_applied"] == 1
+
+
+def test_benchmark_query_execution_reports_quantiles_and_correctness() -> None:
+    result, report = benchmark_query_execution(
+        query_id="fabric.world.preview",
+        operation=lambda: [{"id": "a"}, {"id": "b"}],
+        labels={"surface": "world_query"},
+    )
+
+    assert len(result) == 2
+    assert report.benchmark_kind == "query"
+    assert report.unit_name == "rows"
+    assert report.units_processed == 2
+    assert report.labels["surface"] == "world_query"
+    assert set(report.latency_quantiles_ms) == {"p50", "p95", "p99"}
+    assert report.correctness_counters == {
+        "rows_returned": 2,
+        "non_empty_result": 1,
+    }

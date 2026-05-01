@@ -160,6 +160,7 @@ class DocResolutionIndex:
 
     entries: list[DocIndexEntry]
     by_doc_id: dict[str, DocIndexEntry]
+    by_name_token: dict[str, list[DocIndexEntry]]
     by_reestr_code: dict[str, list[DocIndexEntry]]
     by_number: dict[str, list[DocIndexEntry]]
     by_number_date: dict[tuple[str, str], list[DocIndexEntry]]
@@ -173,6 +174,7 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
     """Build doc resolution index."""
     entries: list[DocIndexEntry] = []
     by_doc_id: dict[str, DocIndexEntry] = {}
+    by_name_token: dict[str, list[DocIndexEntry]] = {}
     by_reestr_code: dict[str, list[DocIndexEntry]] = {}
     by_number: dict[str, list[DocIndexEntry]] = {}
     by_number_date: dict[tuple[str, str], list[DocIndexEntry]] = {}
@@ -210,6 +212,8 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
         )
         if entry.name_norm:
             entries.append(entry)
+            for token in set(entry.name_norm.split()):
+                by_name_token.setdefault(token, []).append(entry)
         by_doc_id[doc_id] = entry
         if entry.reestr_code_norm:
             by_reestr_code.setdefault(entry.reestr_code_norm, []).append(entry)
@@ -240,6 +244,7 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
     return DocResolutionIndex(
         entries=entries,
         by_doc_id=by_doc_id,
+        by_name_token=by_name_token,
         by_reestr_code=by_reestr_code,
         by_number=by_number,
         by_number_date=by_number_date,

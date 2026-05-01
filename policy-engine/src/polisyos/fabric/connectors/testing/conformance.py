@@ -15,6 +15,7 @@ from polisyos.fabric.connectors.governance_metadata import (
 from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
 from polisyos.fabric.connectors.testing.harness import ConnectorTestHarness
+from polisyos.fabric.processing_guarantees import ProcessingGuarantee
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,7 +119,14 @@ def validate_source_conformance_v2(
     if not source_contract.quality.required_checks:
         issues.append(ConformanceIssue("quality_contract", "required quality checks are empty"))
 
-    if source_contract.replay.fixture_ref:
+    if source_contract.status == "active" and not source_contract.replay.fixture_ref:
+        issues.append(
+            ConformanceIssue(
+                "replay_fixture",
+                "production-visible active sources require a replay fixture",
+            )
+        )
+    elif source_contract.replay.fixture_ref:
         if replay_fixture_exists is False:
             issues.append(
                 ConformanceIssue(
@@ -163,10 +171,12 @@ def validate_source_conformance_v2(
         "sensitive_policy_legal_signal",
     }:
         issues.append(ConformanceIssue("access_classification", "invalid classification"))
+    _validate_field_access_policies(source_contract, issues)
     if source_contract.retention.artifact_retention_days < source_contract.retention.min_retention_days:
         issues.append(ConformanceIssue("retention", "artifact retention is shorter than minimum"))
 
     _validate_slo_metadata(source_contract, issues)
+    _validate_processing_guarantee(source_contract, issues)
 
     return ConformanceReport(
         connector_id=expected_id,
@@ -178,6 +188,53 @@ def validate_source_conformance_v2(
 def _has_safe_filter_evidence(contract: SourceContract) -> bool:
     checks = {check.casefold() for check in contract.quality.required_checks}
     return "safe_filters" in checks or "safe_filter_validation" in checks
+
+
+def _validate_field_access_policies(
+    source_contract: SourceContract,
+    issues: list[ConformanceIssue],
+) -> None:
+    policies = tuple(source_contract.security.field_policies)
+    if not policies:
+        issues.append(
+            ConformanceIssue(
+                "access_classification",
+                "field access policies are required for production-visible sources",
+            )
+        )
+        return
+    policy_ids = {policy.field_id for policy in policies}
+    field_ids = {field.stable_id for field in source_contract.schema.fields}
+    if field_ids and "*" not in policy_ids:
+        missing = sorted(field_ids - policy_ids)
+        if missing:
+            issues.append(
+                ConformanceIssue(
+                    "access_classification",
+                    "field access policies missing schema field coverage",
+                    evidence={"missing_field_ids": tuple(missing[:16])},
+                )
+            )
+    if not field_ids and "*" not in policy_ids:
+        issues.append(
+            ConformanceIssue(
+                "access_classification",
+                "template sources require wildcard field access policy",
+            )
+        )
+    for policy in policies:
+        if (
+            policy.classification != "public"
+            or policy.pii_tier != "none"
+            or policy.tenant_scope != "shared_public"
+            or policy.redaction != "none"
+        ) and not policy.policy_ref:
+            issues.append(
+                ConformanceIssue(
+                    "access_classification",
+                    f"field policy {policy.field_id!r} requires policy_ref",
+                )
+            )
 
 
 def _has_bounded_read_check(contract: SourceContract) -> bool:
@@ -269,6 +326,46 @@ def _validate_slo_metadata(contract: SourceContract, issues: list[ConformanceIss
         issues.append(ConformanceIssue("slo_metadata", "p95 latency is negative"))
     if not 0.0 <= contract.sla.replay_success_target <= 1.0:
         issues.append(ConformanceIssue("slo_metadata", "replay success target is invalid"))
+
+
+def _validate_processing_guarantee(
+    contract: SourceContract,
+    issues: list[ConformanceIssue],
+) -> None:
+    processing = contract.processing
+    guarantee = ProcessingGuarantee(processing.guarantee)
+    if guarantee == ProcessingGuarantee.EXACTLY_ONCE_NARROW:
+        if processing.atomicity_proof is None or not processing.atomicity_proof.complete:
+            issues.append(
+                ConformanceIssue(
+                    "processing_guarantee",
+                    "exactly_once_narrow requires atomic input/state/output proof",
+                )
+            )
+    if guarantee in {
+        ProcessingGuarantee.AT_LEAST_ONCE_WITH_DEDUPE,
+        ProcessingGuarantee.EFFECTIVELY_ONCE,
+    } and (not processing.idempotency.enabled or not processing.idempotency.key_fields):
+        issues.append(
+            ConformanceIssue(
+                "idempotency_dedupe",
+                "dedupe-capable guarantees require visible dedupe key policy",
+            )
+        )
+    if processing.idempotency.dedupe_window_seconds <= 0:
+        issues.append(
+            ConformanceIssue(
+                "idempotency_dedupe",
+                "dedupe window must be visible and positive",
+            )
+        )
+    if processing.idempotency.replay_retention_days < contract.retention.min_retention_days:
+        issues.append(
+            ConformanceIssue(
+                "replay_retention",
+                "processing replay retention must cover minimum source retention",
+            )
+        )
 
 
 class ConnectorConformanceHarnessV2(ConnectorTestHarness):

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://polisyos.dev/schemas/fabric/scenario_branch.schema.json",
+  "title": "Fabric Scenario Branch Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario_ref",
+    "branch_name",
+    "observed_state",
+    "assumption_lineage_refs",
+    "model_lineage_refs",
+    "validity_window",
+    "source_marker"
+  ],
+  "properties": {
+    "scenario_ref": {"type": "string", "minLength": 1},
+    "branch_name": {"type": "string", "minLength": 1},
+    "observed_state": {"const": "simulated"},
+    "assumption_lineage_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "model_lineage_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "source_marker": {
+      "type": "string",
+      "const": "scenario_state_not_observed_world"
+    },
+    "validity_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid_from"],
+      "properties": {
+        "valid_from": {"type": "string", "format": "date-time"},
+        "valid_to": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "model_ref": {"type": ["string", "null"]},
+    "source_lineage_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "promotion_policy": {
+      "type": "string",
+      "enum": ["never_observed", "requires_observed_source_reingest"]
+    }
+  }
+}

@@ -44,9 +44,14 @@ def test_manifest_status_model_and_required_surfaces() -> None:
         "source.builtin_source_profiles",
         "evidence.record_replay_store",
         "evidence.production_source_replay_fixtures",
+        "semantics.semantic_dataset_catalog",
+        "semantics.stale_embedding_invalidation",
+        "semantics.nl_to_dataset_resolution_eval",
         "semantics.source_quality_contract_coverage",
         "semantics.source_scorecards",
         "world.bitemporal_world_query",
+        "world.discovery_graph_reasoning",
+        "trust.entity_resolution_override_governance",
         "trust.source_contract_access_retention_slo",
         "trust.source_deprecation_sunset_policy",
         "trust.lineage_nodes_edges",
@@ -82,6 +87,7 @@ def test_coverage_report_maps_requested_fabric_planes() -> None:
         "lineage_nodes_edges",
         "temporal_support",
         "access_classification",
+        "discovery_intelligence",
         "public_facade_exports",
         "tests_by_plane",
     ):
@@ -89,11 +95,24 @@ def test_coverage_report_maps_requested_fabric_planes() -> None:
 
     assert coverage["source_contracts"]["fabric_registry_contracts"] >= 1
     assert coverage["source_platform"]["source_contract_v2_count"] >= 1
+    assert (
+        coverage["source_platform"]["replay_fixture_count"]
+        == coverage["source_platform"]["source_contract_v2_count"]
+    )
+    assert coverage["source_platform"]["non_replayable_reason_count"] == 0
+    assert (
+        coverage["source_platform"]["field_policy_coverage_count"]
+        == coverage["source_platform"]["source_contract_v2_count"]
+    )
     assert coverage["source_platform"]["source_scorecard_count"] >= 1
     assert (
         coverage["source_platform"]["bounded_read_evidence_count"]
         == coverage["source_platform"]["source_contract_v2_count"]
     )
+    assert coverage["discovery_intelligence"]["status"] == "implemented"
+    assert coverage["discovery_intelligence"]["llm_calls"] == 0
+    assert coverage["discovery_intelligence"]["eval_case_count"] >= 1
+    assert coverage["access_classification"]["status"] == "implemented"
     assert coverage["source_profiles"]["profile_count"] >= 1
     assert coverage["public_facade_exports"]["export_count"] >= 1
     for plane in inventory.PLANES:
@@ -110,6 +129,7 @@ def test_existing_fabric_reference_docs_link_inventory() -> None:
         "quality.md",
         "source-platform.md",
         "time-travel.md",
+        "discovery-intelligence.md",
     ]
 
     for doc in docs:
@@ -127,25 +147,23 @@ def test_gap_surfaces_have_owner_follow_up_or_risk_metadata() -> None:
             assert surface["owner"]
             assert surface["follow_up"]
 
-    risk = surfaces["world.future_table_snapshot_adapters"]["accepted_risk"]
-    assert risk["owner"] == inventory.OWNER
-    assert risk["reason"]
-    assert risk["review_date"]
-    assert risk["expiry_date"]
+    future = surfaces["world.future_table_snapshot_adapters"]
+    assert future["status"] == "not_applicable"
+    assert future["evidence"]["production_visible"] is False
 
 
 def test_manifest_validation_rejects_malformed_gap_and_accepted_risk() -> None:
     manifest = inventory.build_manifest(REPO_ROOT)
     malformed = deepcopy(manifest)
     surfaces = _surface_by_id(malformed)
-    surfaces["trust.access_classification"].pop("follow_up")
+    surfaces["world.temporal_graph_reasoning"].pop("follow_up")
     errors = inventory.validate_manifest_payload(malformed)
     assert any("gap surfaces require a follow_up" in error for error in errors)
 
     malformed = deepcopy(manifest)
     surfaces = _surface_by_id(malformed)
     risk_surface = surfaces["world.future_table_snapshot_adapters"]
-    risk_surface.pop("accepted_risk")
+    risk_surface["status"] = "accepted_risk"
     errors = inventory.validate_manifest_payload(malformed)
     assert any("accepted_risk metadata is required" in error for error in errors)
 
@@ -160,6 +178,9 @@ def test_render_markdown_includes_planes_gaps_and_validation_commands() -> None:
     for plane in ("Source", "Evidence", "Semantics", "World", "Trust"):
         assert f"## {plane} Plane" in page
     assert "`trust.fabric_decision_envelope`" in page
+    assert "`semantics.semantic_dataset_catalog`" in page
+    assert "`world.discovery_graph_reasoning`" in page
+    assert "uv run python tools/quality/validation/fabric_wave2_strict_closure.py --check" in page
     assert "uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check" in page
 
 

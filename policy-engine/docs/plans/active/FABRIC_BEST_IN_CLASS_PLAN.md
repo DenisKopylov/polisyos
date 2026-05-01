@@ -3,7 +3,7 @@ title: Fabric Best-in-Class Plan
 status: active
 owner: fabric-owners
 created: 2026-04-26
-last_verified: 2026-04-27
+last_verified: 2026-04-28
 stability: draft
 ---
 
@@ -963,25 +963,82 @@ accidentally bypass it.
 
 ## 9. Wave R — Fabric Research Agenda
 
-The items below must not be implemented as strong guarantees until they have
-theorem, counterexample, calibrated benchmark, or accepted narrow scope.
+As of 2026-04-28, Wave 2 strict closure treats Wave R as a true research
+boundary, not as a place to hide unfinished production work.
 
-| Track | Research problem | Sufficient result | Unlocks |
-| ----- | ---------------- | ----------------- | ------- |
-| R1 | Data-quality-to-uncertainty algebra | A typed composition rule mapping missingness/freshness/drift/schema violations into uncertainty or readiness caps | Honest propagation from Fabric into Foundry/Scientist |
-| R2 | Source trust calibration | Calibration method and benchmark set for source reliability, correction history, citation density, and institutional authority | Source trust scorecards and Trust View weighting |
-| R3 | Bitemporal graph semantics | Formal model for valid-time/tx-time property graphs and safe temporal traversal | Kuzu bitemporal reasoning and impact analysis |
-| R4 | Lineage compression and redaction | Loss-bounded graph summarization plus redaction policy preserving auditability | Fast provenance hover without leaking restricted data |
-| R5 | Probabilistic entity resolution under policy data | Evaluation protocol, uncertainty model, override governance, and false-merge kill rules | Cross-source entity intelligence |
-| R6 | Exactly-once/effectively-once classification | Contract language and proof obligations for batch, CDC, replay, dedupe, and distributed execution | Honest streaming guarantees |
-| R7 | Semantic schema compatibility | Method for distinguishing technical compatible changes from meaning-changing compatible-looking changes | Better schema governance |
-| R8 | Adversarial open-data robustness | Threat model and fixtures for poisoned records, schema poisoning, malicious metadata, and source spoofing | Higher-trust public-data ingestion |
-| R9 | Privacy-preserving provenance | Redaction and access-control model that preserves enough lineage for audit while hiding restricted values | Safe Trust View for confidential datasets |
-| R10 | Policy-world replay minimality | Minimal artifact set needed to reproduce decision-bearing outputs without re-fetching external sources | Smaller retained snapshots and portable audit bundles |
+Current machine-checkable state:
+
+- `tools/quality/validation/fabric_wave2_strict_closure.py --check` passes.
+- All non-R Wave 2 inventory surfaces are `implemented` or `not_applicable`.
+- All 20 production-visible SourceContract v2 records have replay fixtures,
+  field-level access policies, profile, quality, lineage, retention, owner,
+  reviewer, SLO, scorecard, and generated docs evidence.
+- `world.future_table_snapshot_adapters` is `not_applicable` for Wave 2 because
+  Iceberg/Delta-style adapters are metadata-only and runtime create/query paths
+  fail closed.
+- The only R-excluded inventory surfaces are:
+  - `world.kuzu_temporal_scope_capability`: `partial`;
+  - `world.temporal_graph_reasoning`: `blocked_by_research`.
+
+The items below must not be implemented as strong guarantees until they have a
+theorem, counterexample set, calibrated benchmark, or accepted narrow scope.
+Production paths may use heuristic, partial, or narrow labels while research is
+open, but they must keep those labels visible in contracts, capability
+responses, scorecards, and docs.
+
+| Track | Current production state | Research problem | Sufficient result | Unlocks |
+| ----- | ------------------------ | ---------------- | ----------------- | ------- |
+| R1 | Quality refs, source contracts, scorecards, and Scientist/Fabric trust gates exist | Data-quality-to-uncertainty algebra | Typed composition rule mapping missingness/freshness/drift/schema violations into uncertainty widening, readiness caps, hard blockers, or no decision impact | Calibrated propagation from Fabric into Foundry/Scientist |
+| R2 | Source trust is carried as heuristic/declarative contract metadata and scorecard evidence | Source trust calibration | Calibration method and benchmark set for source reliability, correction history, citation density, coverage, latency, institutional authority, and cross-source agreement | Calibrated source trust weighting in Trust View and source selection |
+| R3 | Kuzu graph helpers exist, but `graph_temporal_scope=partial`; temporal graph reasoning is blocked | Bitemporal property-graph semantics | Formal model for valid-time/tx-time property graphs, safe traversal, correction/revocation behavior, branch/scenario isolation, and DuckDB/Kuzu parity | Kuzu bitemporal reasoning and temporal impact analysis |
+| R4 | Compact/full lineage APIs and exports exist; access metadata is field-level | Lineage compression and redaction | Loss-bounded graph summarization plus access-aware redaction policy preserving auditability | Faster provenance hover and safe confidential Trust View |
+| R5 | Probabilistic entity store, explainable candidates, overrides, and merge governance exist | Entity resolution risk calibration under policy data | Evaluation protocol, uncertainty model, false-merge/false-split cost model, and longitudinal administrative-boundary fixtures | Safer cross-source entity intelligence |
+| R6 | Processing guarantee enum, dedupe/backpressure contracts, and validators exist | Exactly-once/effectively-once proof obligations for distributed execution | Contract language and proof fixtures for atomic input progress, state update, output write, replay, dedupe, and adapter boundaries | Promotable `exactly_once_narrow` claims where proof exists |
+| R7 | Schema evolution, semantic IDs, units, normalization, and governance gates exist | Semantic schema compatibility beyond structural diffing | Method for detecting meaning-changing compatible-looking changes and forcing owner/reviewer/migration evidence | Stronger schema governance for high-impact sources |
+| R8 | Security/integrity hardening and malicious fixtures exist for current paths | Adversarial open-data robustness | Source-family threat model and adversarial fixture corpus for poisoning, spoofing, malicious metadata, and hostile endpoints | Higher-trust public-data ingestion labels |
+| R9 | Field-level access policies, masking, PII, retention, and audit surfaces exist | Privacy-preserving provenance | Redaction/access model that preserves auditability without leaking values, source identity, query intent, or relationships | Safe external audit bundles and restricted Trust View |
+| R10 | Production sources are replayable; non-replayable production reasons are disallowed | Policy-world replay minimality | Minimal artifact-set certificate by source family and world pipeline type, with reproduction proof and retention tradeoff model | Smaller portable audit bundles and longer-term reproducibility |
 
 Research artifacts enter as `FrontierSketch`-like evidence with capped
 readiness. They do not unlock production guarantees until promotion criteria
 are machine-checkable.
+
+### Promotion Protocol
+
+Every Wave R track must move through the same promotion protocol before it can
+change production claims:
+
+1. **Research note:** problem statement, assumptions, non-goals, threat model or
+   mathematical model, and explicit counterexamples.
+2. **Fixture pack:** deterministic tests that include success cases, failure
+   cases, and at least one adversarial or boundary case.
+3. **Capability label:** current production API remains labelled `partial`,
+   `heuristic`, `declared`, `effectively_once`, or `unsupported` until the gate
+   is promoted.
+4. **Validator:** a repository-local check that fails when the research result
+   is claimed without evidence.
+5. **Reference doc:** user-facing semantics and operational limits.
+6. **Strict gate update:** only after the above, update the Fabric inventory and
+   strict closure validator to recognize the promoted capability.
+
+Wave R promotion must not depend on live LLM calls, live external data, or
+non-deterministic network state. LLM-assisted analysis can produce drafts or
+candidate hypotheses, but the promotion evidence must be replayable from
+repository fixtures or pinned artifacts.
+
+### Active R-Excluded Surfaces
+
+The strict Wave 2 gate currently excludes only bitemporal property-graph
+semantics:
+
+| Inventory surface | Current status | Reason | Promotion target |
+| ----------------- | -------------- | ------ | ---------------- |
+| `world.kuzu_temporal_scope_capability` | `partial` | Kuzu exports carry temporal metadata, but full temporal traversal semantics are not proven | R3 formal semantics plus DuckDB/Kuzu parity fixtures |
+| `world.temporal_graph_reasoning` | `blocked_by_research` | Temporal origin/overlap/conflict/impact reasoning can create invalid paths without formal valid/tx traversal rules | R3 capability matrix, unsafe-pattern catalog, and fail-closed query behavior |
+
+External Iceberg/Delta/Hudi-style table-format adapters are not a Wave R
+promotion target in this plan. They remain `not_applicable` for Wave 2 strict
+closure unless a separate production-visible adapter roadmap is opened.
 
 ### Research Track Cards
 
@@ -1005,6 +1062,24 @@ library, `QualityImpactEnvelope` contract, and governance pass fixtures.
 **Unlocks:** Scientist readiness caps, Foundry uncertainty propagation, Trust
 View quality explanations.
 
+**Current repo anchor:** `FabricDecisionData.quality`, source scorecards,
+`FabricTrustGatePass`, and the product integration validators already consume
+quality/trust metadata. R1 should not recreate those gates; it should calibrate
+when a quality defect becomes uncertainty widening versus readiness blocking.
+
+**Research tasks:**
+
+1. Define a typed `QualityImpactEnvelope` with impact classes:
+   `uncertainty_widening`, `readiness_cap`, `hard_blocker`, and
+   `no_decision_impact`.
+2. Build a counterexample set where scalar quality scores are misleading:
+   stale-but-stable, fresh-but-poisoned, complete-but-schema-shifted,
+   sparse-but-decision-irrelevant, and high-quality-but-low-authority.
+3. Map existing quality statuses into conservative default impacts without
+   changing current production readiness behavior.
+4. Produce a validator that rejects any Foundry/Scientist numeric uncertainty
+   expansion unless the quality signal has a supported impact class.
+
 **Kill rule:** If a quality signal cannot be justified as uncertainty, it must
 remain a readiness/governance signal rather than being forced into a numeric CI.
 
@@ -1027,6 +1102,23 @@ card, source scorecard contract extension.
 **Unlocks:** Source trust scorecards, Trust View weighting, source selection
 policy in retrieval.
 
+**Current repo anchor:** SourceContract v2 carries `source_trust` with
+`calibration_status`; source scorecards are generated for all 20 production
+sources. R2 promotes only calibrated weighting. Heuristic source trust remains
+valid as labelled metadata.
+
+**Research tasks:**
+
+1. Define source-family-specific calibration labels: institutional statistics,
+   government portals, open-data catalogs, files/object stores, SQL/GraphQL,
+   GeoJSON, and event streams.
+2. Build a correction-history and schema-stability benchmark from replay
+   fixtures and source contract snapshots.
+3. Separate institutional authority from empirical reliability so high-authority
+   sources can still be stale or schema-unstable.
+4. Add confidence intervals and "insufficient calibration data" outcomes to the
+   source trust model card.
+
 **Kill rule:** If calibration data is insufficient for a source family, expose
 `source_trust.calibration_status = heuristic` and cap downstream claims.
 
@@ -1047,6 +1139,45 @@ fixtures, Kuzu capability matrix.
 
 **Unlocks:** Bitemporal graph impact analysis, source conflict neighborhoods,
 entity graph reasoning over time.
+
+**Current repo anchor:** DuckDB world query, branch/snapshot governance,
+correction/revocation metadata, Kuzu export helpers, and discovery graph
+helpers are implemented. `graph_temporal_scope=partial` is intentionally visible
+in temporal capabilities. R3 is the only current production-blocking Wave R
+track.
+
+**Research tasks:**
+
+1. Define the temporal property-graph model:
+   - node valid interval;
+   - edge valid interval;
+   - node tx time;
+   - edge tx time;
+   - branch id;
+   - scenario/observed-world marker;
+   - correction and revocation lineage.
+2. Specify path validity rules for:
+   - same `valid_at`, different `tx_at`;
+   - late-arriving corrections;
+   - revoked facts;
+   - branch assertions;
+   - scenario assertions;
+   - mixed observed/scenario traversal;
+   - source conflict neighborhoods.
+3. Build counterexample fixtures where current-time graph traversal would
+   produce a false origin, false conflict, or false downstream impact.
+4. Define a query-pattern catalog:
+   - safe point-in-time traversal;
+   - safe interval overlap traversal;
+   - safe impact neighborhood;
+   - unsafe temporal join;
+   - unsupported scenario/observed mixing.
+5. Add DuckDB/Kuzu parity fixtures that prove equivalent answers for supported
+   patterns or explicit `unsupported_temporal_scope` for unsupported patterns.
+6. Define capability labels: `none`, `partial`, `point_in_time`, `interval`,
+   `branch_aware`, `scenario_aware`, and `full`.
+7. Add a promotion validator that fails if `graph_temporal_scope` is stronger
+   than the proven fixture coverage.
 
 **Kill rule:** Unsupported graph traversals must return `temporal_graph_partial`
 or fail closed, not silently degrade to current-time graph traversal.
@@ -1069,6 +1200,20 @@ golden compact/full graph parity fixtures.
 **Unlocks:** Fast provenance hover, confidential Trust View, shareable audit
 bundles.
 
+**Current repo anchor:** Runtime exposes compact/full lineage, batch lineage,
+OpenLineage/PROV exports, Trust View payloads, and field-level access metadata.
+R4 is about mathematically defensible compression/redaction, not about basic
+lineage availability.
+
+**Research tasks:**
+
+1. Define audit-critical edge classes that compact summaries must preserve.
+2. Define redaction placeholders that preserve graph shape without leaking
+   restricted field values, source identity, or relationship details.
+3. Build compact/full parity fixtures for origin, transform, quality, dispute,
+   restriction, and replay edges.
+4. Add benchmark targets separately for summary quality and latency.
+
 **Kill rule:** If a compact summary cannot preserve audit-critical edges, UI
 must show "summary incomplete" and force full authorized deep dive.
 
@@ -1090,6 +1235,21 @@ override audit workflow, kill rules by confidence band.
 **Unlocks:** Cross-source entity intelligence, graph reasoning, better conflict
 detection.
 
+**Current repo anchor:** Semantic catalog, deterministic lexical fallback,
+stale invalidation, explainable ranked plans, entity candidate store, override
+audit, and graph helpers are implemented. R5 promotes calibrated automation
+thresholds; it must not bypass merge governance.
+
+**Research tasks:**
+
+1. Build longitudinal fixtures for renamed jurisdictions, split/merged
+   administrative units, multilingual labels, and code reuse.
+2. Define false-merge and false-split cost weights by decision context.
+3. Calibrate confidence bands: suggest-only, human-review-required,
+   governance-merge-eligible, and forbidden.
+4. Prove that accepted entity matches cannot overwrite canonical facts without
+   merge governance evidence.
+
 **Kill rule:** Entity matches above automation threshold may suggest joins, but
 canonical fact writes require confidence, evidence, and override policy.
 
@@ -1109,6 +1269,20 @@ fixtures for failure modes.
 dedupe-window rules.
 
 **Unlocks:** Honest streaming/CDC contracts, scale-out execution, source SLOs.
+
+**Current repo anchor:** Processing guarantee contracts, dedupe policies,
+backpressure semantics, CDC compatibility handling, distributed trust gates, and
+benchmarks already exist. R6 is limited to promoting stronger guarantees such as
+`exactly_once_narrow` for specific paths.
+
+**Research tasks:**
+
+1. Write proof obligations for input progress, state transition, output write,
+   cursor update, replay manifest update, and lineage/quality/access sidecars.
+2. Build crash matrix fixtures for every boundary between those commits.
+3. Define when CAS atomic writes plus idempotency are enough for
+   `effectively_once` but not `exactly_once_narrow`.
+4. Add adapter-level proof records for any future distributed executor.
 
 **Kill rule:** Any path lacking atomic input/state/output proof must use
 `at_least_once`, `at_least_once_with_dedupe`, or `effectively_once`, not
@@ -1131,6 +1305,21 @@ counterexample library, governance gate extension.
 
 **Unlocks:** Stronger schema governance and safer source evolution.
 
+**Current repo anchor:** Schema IDs, stable field IDs, contract-aware
+transforms, unit handling, semantic validation, locale/Unicode normalization,
+and schema-evolution tests exist. R7 focuses on semantic drift that looks
+structurally compatible.
+
+**Research tasks:**
+
+1. Build semantic-drift counterexamples: denominator change, geography change,
+   seasonality change, imputation-policy change, unit display change, and
+   source methodology revision.
+2. Define metadata fields that must change when semantics change.
+3. Add review triggers for compatible-looking but meaning-changing diffs.
+4. Explore deterministic, non-LLM heuristics first; any LLM-assisted semantic
+   review must be advisory and fixture-replayable before promotion.
+
 **Kill rule:** Compatible-looking changes that alter metric meaning require
 major or semantic-version bump plus downstream impact review.
 
@@ -1149,6 +1338,22 @@ failure behavior for each connector family.
 security acceptance checklist.
 
 **Unlocks:** Higher-trust public-data ingestion and safer AI discovery.
+
+**Current repo anchor:** Security/integrity hardening covers query/filter
+injection, URL/path safety, bounded JSON/decompression, safe transforms,
+provenance escaping, UTC time, and finite numeric validation. R8 expands from
+known malicious fixtures to systematic source-family adversarial corpora.
+
+**Research tasks:**
+
+1. Build adversarial fixture packs by source family:
+   HTTP/open-data, file, object storage, SQL, GraphQL, GeoJSON, and event
+   stream.
+2. Include poisoning of records, metadata, schema, pagination, compression,
+   encodings, Unicode, redirects, and rate-limit behavior.
+3. Define `production_trusted` versus `production_visible` scorecard labels.
+4. Add a threat matrix that maps attack class to rejection, quarantine,
+   redaction, degraded fetch, or accepted-risk behavior.
 
 **Kill rule:** Any source family without adversarial fixtures cannot be marked
 `production_trusted` in source scorecards.
@@ -1170,6 +1375,21 @@ restricted-mode fixtures.
 
 **Unlocks:** Trust View for confidential datasets, safe external audit bundles.
 
+**Current repo anchor:** SourceContract field policies, Runtime access refs,
+column masking, PII staging, retention, and governance metadata are in place.
+R9 promotes formal privacy-preserving provenance semantics for restricted
+sharing.
+
+**Research tasks:**
+
+1. Define side-channel risks from graph shape, source identity, query intent,
+   timestamps, and relationship neighborhoods.
+2. Specify authorized expansion rules for compact summaries and full graphs.
+3. Build restricted-mode Trust View fixtures for public, internal,
+   confidential, regulated PII, and sensitive policy/legal signals.
+4. Add noninterference-style tests where unauthorized users cannot infer a
+   restricted node from summary deltas.
+
 **Kill rule:** If provenance cannot be safely summarized, restricted users see
 only verification status and request-access affordance.
 
@@ -1190,6 +1410,22 @@ bundle schema, reproduction test suite, retention tradeoff note.
 
 **Unlocks:** Portable audit bundles, smaller retained snapshots, long-term
 reproducibility.
+
+**Current repo anchor:** Strict Wave 2 requires replay fixtures for every
+production-visible source and disallows production `non_replayable_reason`.
+R10 optimizes retained evidence size; it must not weaken replay guarantees.
+
+**Research tasks:**
+
+1. Define replay-minimal artifact classes by source family:
+   transcript, normalized rows, schema snapshot, source contract, quality
+   report, lineage seed, branch/snapshot metadata, and transform config.
+2. Produce a minimality certificate that says which omitted artifacts are
+   provably unnecessary for a given replay class.
+3. Add retention tradeoff fixtures for legal hold, confidential data, public
+   data, and source-terms-bound artifacts.
+4. Define a portable audit bundle schema that preserves replay without
+   re-fetching external sources.
 
 **Kill rule:** If a result cannot be reproduced from retained artifacts, its
 trust envelope must say `non_replayable` with reason and retention context.

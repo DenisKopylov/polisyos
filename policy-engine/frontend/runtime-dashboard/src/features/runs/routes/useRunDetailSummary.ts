@@ -244,6 +244,7 @@ export function useRunDetailSummary(
     governanceQuery,
     governanceSummary,
     impactRows,
+    liveTransport: Boolean(options?.liveTransport),
     pipeline,
     primaryDecisionArtifactId,
     primaryIssue,

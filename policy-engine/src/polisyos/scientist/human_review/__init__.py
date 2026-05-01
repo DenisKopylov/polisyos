@@ -32,6 +32,10 @@ from polisyos.scientist.human_review.packets import (
     persist_review_packet,
     review_packet_summary,
 )
+from polisyos.scientist.human_review.voi_escalation import (
+    build_human_escalation_voi_decision,
+    validate_human_escalation_voi_decision,
+)
 
 __all__ = [
     "FundamentalRightsChecklist",
@@ -46,6 +50,7 @@ __all__ = [
     "ReviewerSignature",
     "apply_human_review_to_governance_report",
     "build_review_packet",
+    "build_human_escalation_voi_decision",
     "evaluate_human_review_requirement",
     "human_review_section",
     "human_review_status",
@@ -56,4 +61,5 @@ __all__ = [
     "review_decision_summary",
     "review_packet_summary",
     "validate_human_reviewed_readiness",
+    "validate_human_escalation_voi_decision",
 ]

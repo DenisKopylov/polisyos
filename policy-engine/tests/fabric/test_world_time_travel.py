@@ -16,6 +16,7 @@ from polisyos.fabric.security import (
 from polisyos.fabric.world.materialize import ensure_world_schema
 from polisyos.fabric.world.materialize.sql import sql_update_world_nodes
 from polisyos.fabric.world.store import (
+    WorldBranchMergeConflictError,
     WorldSnapshotAdapterError,
     WorldSnapshotRecord,
     create_world_branch,
@@ -336,6 +337,70 @@ def test_gc_world_snapshots_deletes_external_metadata_without_touching_remote_ur
     assert not (snapshot_root / "metadata" / "world_snapshot_external_delta.json").exists()
 
 
+def test_legal_hold_world_snapshot_requires_encryption_metadata(tmp_path: Path) -> None:
+    snapshot_root = tmp_path / "legal_hold_missing_encryption"
+
+    with pytest.raises(ArtifactGovernanceError, match="legal retention"):
+        register_world_snapshot_record(
+            snapshot_root,
+            WorldSnapshotRecord(
+                snapshot_id="world_snapshot_legal_hold_missing_encryption",
+                snapshot_path="s3://warehouse/fabric/world_snapshots/legal-hold",
+                created_at="2026-04-15T10:00:00Z",
+                branch_name="legal_hold_missing_encryption",
+                base_snapshot_id="world_snapshot_legal_hold_missing_encryption",
+                storage_adapter="iceberg_table",
+                tags=("legal_hold",),
+            ),
+        )
+
+
+def test_gc_world_snapshots_preserves_legal_hold_even_when_retain_tags_empty(
+    tmp_path: Path,
+) -> None:
+    snapshot_root = tmp_path / "legal_hold_gc"
+    register_world_snapshot_record(
+        snapshot_root,
+        WorldSnapshotRecord(
+            snapshot_id="world_snapshot_legal_hold",
+            snapshot_path="s3://warehouse/fabric/world_snapshots/legal-hold",
+            created_at="2026-04-15T10:00:00Z",
+            branch_name="legal_hold",
+            base_snapshot_id="world_snapshot_legal_hold",
+            storage_adapter="iceberg_table",
+            tags=("legal_hold",),
+            governance=resolve_artifact_governance(
+                scope=RetentionScope.WORLD_SNAPSHOT,
+                classification=DataClassification.INTERNAL,
+                encrypted_at_rest=True,
+                encryption_key_reference="kms://fabric/world/legal-hold",
+            ),
+        ),
+    )
+    register_world_snapshot_record(
+        snapshot_root,
+        WorldSnapshotRecord(
+            snapshot_id="world_snapshot_expired",
+            snapshot_path="s3://warehouse/fabric/world_snapshots/expired",
+            created_at="2026-04-16T10:00:00Z",
+            branch_name="expired",
+            base_snapshot_id="world_snapshot_expired",
+            storage_adapter="iceberg_table",
+        ),
+    )
+    for branch in ("legal_hold", "expired"):
+        branch_file = snapshot_root / "branches" / f"{branch}.json"
+        assert branch_file.exists()
+        branch_file.unlink()
+
+    report = gc_world_snapshots(snapshot_root, keep_latest=0, retain_tags=())
+
+    assert report.retained_snapshot_ids == ("world_snapshot_legal_hold",)
+    assert report.deleted_snapshot_ids == ("world_snapshot_expired",)
+    assert (snapshot_root / "metadata" / "world_snapshot_legal_hold.json").exists()
+    assert not (snapshot_root / "metadata" / "world_snapshot_expired.json").exists()
+
+
 def test_query_world_table_rejects_external_snapshot_adapter_without_runtime_support(
     tmp_path: Path,
 ) -> None:
@@ -552,13 +617,17 @@ def test_world_branch_merge_fail_on_conflicting_world_kind(tmp_path: Path) -> No
             merge_policy="fail_on_conflict",
         )
 
-    with pytest.raises(ValueError, match="world.kind conflict"):
+    with pytest.raises(WorldBranchMergeConflictError, match="world.kind conflict") as excinfo:
         merge_world_branch(
             snapshot_root,
             branch_name="scenario_conflict",
             target_branch_name="main",
             merge_policy="fail_on_conflict",
         )
+    payload = excinfo.value.export_payload()
+    assert payload["table_name"] == "world.world_facts"
+    assert payload["merge_policy"] == "fail_on_conflict"
+    assert payload["conflict_summary"]["unresolved"] is True
 
 
 def test_world_branch_merge_target_wins_on_conflicting_world_kind(tmp_path: Path) -> None:

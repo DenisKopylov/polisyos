@@ -17,6 +17,7 @@ from polisyos.core.contracts.runtime import (
     RunTimelineView,
     TemporalCapabilitiesView,
     TemporalEventPoint,
+    TemporalIndexEvidence,
     TemporalRange,
     TemporalScope,
     TemporalSurfaceCapability,
@@ -45,6 +46,13 @@ _UNSUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (
     "run_workflow",
     "run_nodes",
     "artifact_content",
+)
+_WORLD_TEMPORAL_TABLES: tuple[str, ...] = (
+    "world.world_facts",
+    "world.world_edges",
+    "world.world_nodes",
+    "world.quality_reports",
+    "world.trust_assessments",
 )
 
 
@@ -267,6 +275,14 @@ class TemporalService:
             resolution="event",
             surfaces=surfaces,
             event_points=event_points,
+            nearest_event_points=nearest,
+            supported_tables=list(_WORLD_TEMPORAL_TABLES),
+            unsupported_surfaces=list(_UNSUPPORTED_SURFACES),
+            branch_support=True,
+            snapshot_support=True,
+            scenario_branch_support="explicit_only",
+            graph_temporal_scope="partial",
+            slow_query_evidence=_temporal_index_evidence(),
         )
 
     def world_query_kwargs(
@@ -455,6 +471,39 @@ def _nearest_event_points(
     if target is None:
         return staged[:limit]
     return sorted(staged, key=lambda point: abs((point.timestamp - target).total_seconds()))[:limit]
+
+
+def _temporal_index_evidence() -> list[TemporalIndexEvidence]:
+    return [
+        TemporalIndexEvidence(
+            table="world.world_facts",
+            index_name="idx_world_facts_tx_valid",
+            columns=["tx_time", "valid_time"],
+            slow_query_gate_ms=500,
+            evidence_ref="src/polisyos/fabric/world/ddl/duckdb_world.sql",
+        ),
+        TemporalIndexEvidence(
+            table="world.world_facts",
+            index_name="idx_world_facts_valid_tx",
+            columns=["valid_time", "tx_time"],
+            slow_query_gate_ms=500,
+            evidence_ref="src/polisyos/fabric/world/ddl/duckdb_world.sql",
+        ),
+        TemporalIndexEvidence(
+            table="world.world_edges",
+            index_name="idx_world_edges_tx_valid",
+            columns=["tx_time", "valid_time"],
+            slow_query_gate_ms=500,
+            evidence_ref="src/polisyos/fabric/world/ddl/duckdb_world.sql",
+        ),
+        TemporalIndexEvidence(
+            table="world.world_edges",
+            index_name="idx_world_edges_valid_tx",
+            columns=["valid_time", "tx_time"],
+            slow_query_gate_ms=500,
+            evidence_ref="src/polisyos/fabric/world/ddl/duckdb_world.sql",
+        ),
+    ]
 
 
 def _dedupe_event_points(points: list[TemporalEventPoint]) -> list[TemporalEventPoint]:

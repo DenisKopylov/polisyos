@@ -1,0 +1,34 @@
+{
+  "connector_id": "geojson.features",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "geojson.features.generic"
+    }
+  ],
+  "profile_id": "geojson_demo",
+  "replay_checksum": "sha256:1335a4e6c615421f63723ac7912e66c5133775c832b369dcda818ae2066dcf69",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "geojson.features.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "geojson.features",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "geojson_demo",
+      "url": "fabric://geojson.features/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "geojson.features.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

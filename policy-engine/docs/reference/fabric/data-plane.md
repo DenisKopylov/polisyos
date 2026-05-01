@@ -7,6 +7,7 @@ Owner: `@fabric-owners`
 Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world_query.py`, `tests/fabric/data_plane/**`, `tests/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
+Processing guarantees: [processing-guarantees.md](processing-guarantees.md)
 
 The Fabric data plane coordinates ingestion modes, cursor advancement,
 watermark selection, quarantine/DLQ records, streaming/CDC processing,
@@ -24,9 +25,9 @@ network fetches.
 | `cursor_store`  | Cursor and stream checkpoint persistence                                                                       | Phase 1/5   |
 | `watermark`     | Connector-family watermark extraction strategy for cursor advancement                                          | Phase 0/5   |
 | `quarantine`    | CAS-backed `QuarantineRecord` storage, report, and deterministic reprocess API                                 | Phase 5     |
-| `streaming`     | `StreamingSourceSession`, chunked batch iteration, checkpoint recovery, backpressure, CDC schema-change events | Phase 5     |
+| `streaming`     | `StreamingSourceSession`, checkpoint recovery, processing contracts, backpressure, CDC schema-change events    | Phase 5/8   |
 | `semantic_diff` | Historical row comparison and schema-evolution regression reports                                              | Phase 4     |
-| `benchmarks`    | Ingestion, stream processing, and materialization benchmark reports                                            | Phase 5     |
+| `benchmarks`    | Ingestion, stream, materialization, and query benchmark reports with latency/correctness counters              | Phase 5/8   |
 | `docs.*`        | Raw document ingest, text normalization, anchor extraction, and chunking with `DocMeta` lineage                | Phase 0/3   |
 | `claims.*`      | Claim extraction, canonicalization, conflict resolution, trust scoring, and evidence bundles                   | Phase 0/3/5 |
 | `world_query`   | Governed read-only query helpers over materialized world tables with column masking                            | Phase 3/4   |
@@ -86,6 +87,8 @@ Dedicated reference pages split these surfaces by responsibility:
 
 ## Orchestration Notes
 
+<!-- markdownlint-disable MD060 -->
+
 | Item                   | Detail                                                                                                                            |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Double-fetch avoidance | `run_orchestrated_ingestion()` builds `DataSnapshot` from persisted evidence rather than refetching raw data                      |
@@ -93,6 +96,9 @@ Dedicated reference pages split these surfaces by responsibility:
 | Replayability          | Record/replay mode uses `ReplayStore` fixtures so connector regressions can be reproduced without hitting live APIs               |
 | Quarantine isolation   | Bad transform rows and non-finite metric rows can be isolated without losing the whole batch                                      |
 | Streaming recovery     | `process_stream_dataset()` persists paused/closed checkpoints with offsets and dedupe keys so replay can resume deterministically |
+| Guarantee honesty      | Streaming and distributed execution publish explicit processing guarantees, dedupe windows, replay retention, and trust metadata |
+
+<!-- markdownlint-enable MD060 -->
 
 ## Validation Anchors
 

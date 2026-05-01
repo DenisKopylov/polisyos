@@ -218,3 +218,70 @@ def test_registered_benchmark_ref_can_support_lookup_required_request(tmp_path) 
 
     assert verdict.missing == []
     assert verdict.default_enable_allowed is True
+
+
+def test_near_frontier_promotion_requires_fresh_rotating_challenge_lineage(tmp_path) -> None:
+    registry = BenchmarkRegistry(tmp_path / "benchmarks")
+    registry.record("selection", _ref("selection"), family="causal_core", loop_id="loop-a")
+    registry.record(
+        "hidden_holdout",
+        _ref("hidden"),
+        family="causal_core",
+        loop_id="loop-a",
+    )
+    authority = BenchmarkAuthority(registry)
+
+    verdict = authority.verdict(
+        PromotionEvidenceRequest(
+            family="causal_core",
+            claim_mode="estimation",
+            loop_id="loop-a",
+            near_frontier=True,
+        )
+    )
+
+    assert verdict.default_enable_allowed is False
+    assert "fresh_rotating_challenge_evidence_missing" in verdict.missing
+
+
+def test_benchmark_authority_tracks_challenge_pack_lineage(tmp_path) -> None:
+    registry = BenchmarkRegistry(tmp_path / "benchmarks")
+    lineage = {
+        "pack_id": "rotating-v1",
+        "kind": "rotating_challenge",
+        "source_challenge_ids": ["challenge-a"],
+        "source_failure_ref_ids": ["failure-a"],
+        "lineage_key": "lineage-a",
+        "status": "active",
+    }
+    registry.record("selection", _ref("selection"), family="policy_design", loop_id="loop-a")
+    registry.record(
+        "hidden_holdout",
+        _ref("hidden"),
+        family="policy_design",
+        loop_id="loop-a",
+    )
+    registry.record(
+        "rotating_challenge",
+        _ref("rotating"),
+        family="policy_design",
+        loop_id="loop-a",
+        suite_id="rotating-v1",
+        metadata={"challenge_pack_lineage": lineage},
+    )
+    authority = BenchmarkAuthority(registry)
+
+    verdict = authority.verdict(
+        PromotionEvidenceRequest(
+            family="policy_design",
+            claim_mode="estimation",
+            loop_id="loop-a",
+            near_frontier=True,
+        )
+    )
+
+    assert verdict.default_enable_allowed is True
+    assert verdict.challenge_pack_lineage[0]["lineage_key"] == "lineage-a"
+    assert verdict.public_export()["challenge_pack_lineage"][0]["source_challenge_ids"] == [
+        "challenge-a"
+    ]

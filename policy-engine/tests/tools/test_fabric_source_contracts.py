@@ -20,6 +20,11 @@ def test_source_platform_report_is_fail_closed_ready() -> None:
     assert summary["conformance_error_count"] == 0
     assert summary["conformance_warning_count"] == 0
     assert summary["scorecard_count"] == summary["source_contract_count"]
+    assert summary["replay_fixture_count"] == summary["source_contract_count"]
+    assert summary["replay_fixture_artifact_count"] == summary["source_contract_count"]
+    assert summary["non_replayable_reason_count"] == 0
+    assert summary["field_access_policy_contract_count"] == summary["source_contract_count"]
+    assert summary["schema_field_policy_coverage_count"] == summary["source_contract_count"]
     assert fabric_source_contracts.validate_report(report, fail_closed=True) == []
     assert all(row["profile_present"] for row in report["profile_compatibility_matrix"])
 
@@ -37,9 +42,16 @@ def test_source_contract_snapshot_carries_phase5_evidence() -> None:
     assert all(contract.quality.contract_ref for contract in contracts)
     assert all(contract.quality.required_checks for contract in contracts)
     assert all("bounded_reads" in contract.quality.required_checks for contract in contracts)
-    assert all(contract.replay.has_replay_evidence for contract in contracts)
+    assert all(contract.replay.required for contract in contracts)
+    assert all(contract.replay.fixture_ref for contract in contracts)
+    assert not any(contract.replay.non_replayable_reason for contract in contracts)
     assert all(contract.lineage.seed_node_kind for contract in contracts)
     assert all(contract.security.classification for contract in contracts)
+    assert all(contract.security.field_policies for contract in contracts)
+    assert all(contract.processing.guarantee_value for contract in contracts)
+    assert all(contract.processing.idempotency.key_fields for contract in contracts)
+    assert all(contract.processing.idempotency.dedupe_window_seconds > 0 for contract in contracts)
+    assert all(contract.processing.idempotency.replay_retention_days >= 30 for contract in contracts)
     assert all(contract.retention.artifact_retention_days >= 30 for contract in contracts)
     assert all(contract.sla.availability_target > 0.0 for contract in contracts)
 
@@ -62,8 +74,10 @@ def test_scorecard_snapshot_covers_required_dimensions() -> None:
             "latency",
             "source_trust",
         }
-    assert "| Source contract | Window | Freshness | Reliability |" in (
-        fabric_source_contracts.render_source_platform_markdown()
+    markdown = fabric_source_contracts.render_source_platform_markdown()
+    assert "| Source contract | Window | Freshness | Reliability |" in markdown
+    assert "| Contract | Connector | Profile | Guarantee | Dedupe window |" in (
+        markdown
     )
 
 
@@ -80,6 +94,9 @@ def test_checked_in_source_platform_artifacts_are_current() -> None:
         fabric_source_contracts.SOURCE_PLATFORM_DOC.read_text(encoding="utf-8")
         == fabric_source_contracts.render_source_platform_markdown()
     )
+    for filename, expected in fabric_source_contracts.expected_source_replay_fixtures().items():
+        fixture_path = fabric_source_contracts.SOURCE_REPLAY_FIXTURE_DIR / filename
+        assert fixture_path.read_text(encoding="utf-8") == expected
     assert fabric_source_contracts.check_artifacts() == []
 
 
@@ -87,11 +104,13 @@ def test_source_contract_gate_updates_and_checks_temp_artifacts(tmp_path: Path) 
     snapshot_path = tmp_path / "source_contracts_v2.json"
     scorecard_path = tmp_path / "source_scorecards.json"
     docs_path = tmp_path / "source-platform.md"
+    fixture_dir = tmp_path / "fixtures"
 
     fabric_source_contracts.update_artifacts(
         snapshot_path=snapshot_path,
         scorecard_path=scorecard_path,
         docs_path=docs_path,
+        fixture_dir=fixture_dir,
     )
 
     assert (
@@ -99,12 +118,14 @@ def test_source_contract_gate_updates_and_checks_temp_artifacts(tmp_path: Path) 
             snapshot_path=snapshot_path,
             scorecard_path=scorecard_path,
             docs_path=docs_path,
+            fixture_dir=fixture_dir,
         )
         == []
     )
     parsed = json.loads(snapshot_path.read_text(encoding="utf-8"))
     assert len([SourceContract.model_validate(row["contract"]) for row in parsed["contracts"].values()]) == 20
     assert "## Source Scorecards" in docs_path.read_text(encoding="utf-8")
+    assert len(list(fixture_dir.glob("*.replay.json"))) == 20
 
 
 def test_source_contract_gate_detects_drift(tmp_path: Path) -> None:
@@ -141,6 +162,10 @@ def test_validate_report_rejects_count_and_fail_closed_errors() -> None:
                 "production_connector_count": 2,
                 "source_contract_count": 1,
                 "conformance_error_count": 0,
+                "replay_fixture_count": 1,
+                "non_replayable_reason_count": 0,
+                "field_access_policy_contract_count": 1,
+                "schema_field_policy_coverage_count": 1,
             }
         }
     ) == ["production connector count does not match SourceContract count"]
@@ -151,6 +176,10 @@ def test_validate_report_rejects_count_and_fail_closed_errors() -> None:
                 "production_connector_count": 1,
                 "source_contract_count": 1,
                 "conformance_error_count": 1,
+                "replay_fixture_count": 1,
+                "non_replayable_reason_count": 0,
+                "field_access_policy_contract_count": 1,
+                "schema_field_policy_coverage_count": 1,
             }
         },
         fail_closed=True,

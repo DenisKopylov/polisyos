@@ -145,6 +145,15 @@ _FALLBACK_CONTEXT_RE = re.compile(
     r"внести\s+(?:такі\s+)?(?:зміни|доповнення)|внесення\s+змін)",
     re.IGNORECASE,
 )
+_AMENDMENT_SCAN_PREFILTER_RE = re.compile(
+    r"(внести\s+(?:такі\s+)?(?:зміни|доповнення)|внесення\s+змін|"
+    r"викласти\s+(?:в|у)\s+(?:такій|новій)\s+редакції|"
+    r"доповнити|доповнено|замінити\s+слов(?:о|а|ами)|"
+    r"слова?\s+[«\"']?[^»\"']+[»\"']?\s+замінити|"
+    r"виключити|виключено|змінити\s+на|змінити\s+назву|"
+    r"увести|ввести|визнати\s+(?:таким|такими).+?чинність|скасувати)",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -179,13 +188,22 @@ def _should_keep_fallback_signal(text: str, match: re.Match[str]) -> bool:
 def detect_amendments(text: str) -> list[AmendmentRecord]:
     """Extract structural and fallback amendment signals from provision text."""
 
+    if not _AMENDMENT_SCAN_PREFILTER_RE.search(text):
+        return []
+
     amendments: list[AmendmentRecord] = []
     seen_spans: set[tuple[int, int]] = set()
+    effective_from: str | None = None
 
-    temporal = parse_temporal_constraints(text)
-    effective_from = next(
-        (item.effective_from_iso or "" for item in temporal if item.effective_from_iso), ""
-    )
+    def get_effective_from() -> str:
+        nonlocal effective_from
+        if effective_from is None:
+            temporal = parse_temporal_constraints(text)
+            effective_from = next(
+                (item.effective_from_iso or "" for item in temporal if item.effective_from_iso),
+                "",
+            )
+        return effective_from
 
     # Pass 1: structural patterns with captured anchors
     for amendment_type, pattern in _STRUCTURAL_PATTERNS:
@@ -209,7 +227,7 @@ def detect_amendments(text: str) -> list[AmendmentRecord]:
                     target_anchor=target_anchor,
                     old_text_uk=old_text,
                     new_text_uk=new_text.strip() if new_text else "",
-                    effective_from=effective_from,
+                    effective_from=get_effective_from(),
                     confidence=confidence,
                     source_text=match.group(0).strip()[:500],
                 )
@@ -227,7 +245,7 @@ def detect_amendments(text: str) -> list[AmendmentRecord]:
                 target_anchor="",
                 old_text_uk="",
                 new_text_uk="",
-                effective_from=effective_from,
+                effective_from=get_effective_from(),
                 confidence=0.72,
                 source_text=match.group(0).strip()[:500],
             )
@@ -249,7 +267,7 @@ def detect_amendments(text: str) -> list[AmendmentRecord]:
                 target_anchor="",
                 old_text_uk="",
                 new_text_uk="",
-                effective_from=effective_from,
+                effective_from=get_effective_from(),
                 confidence=0.65,
                 source_text=match.group(0).strip()[:500],
             )

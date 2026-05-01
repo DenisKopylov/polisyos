@@ -15,6 +15,7 @@ from .passes.checkpoint_pass import CheckpointPass
 from .passes.confidence_pass import ConfidencePass
 from .passes.cross_graph_evidence_pass import CrossGraphEvidencePass
 from .passes.equity_pass import EquityPass
+from .passes.fabric_trust_gate_pass import FabricTrustGatePass
 from .passes.freshness_pass import FreshnessPass
 from .passes.human_review_pass import HumanReviewRequiredPass
 from .passes.incentive_compatibility_pass import IncentiveCompatibilityPass
@@ -63,6 +64,11 @@ def pii_check_pass_factory() -> ValidatorPass:
 def freshness_pass_factory() -> ValidatorPass:
     """Create the pass that checks evidence freshness requirements."""
     return FreshnessPass()
+
+
+def fabric_trust_gate_pass_factory() -> ValidatorPass:
+    """Create the pass that caps readiness from Fabric trust envelopes."""
+    return FabricTrustGatePass()
 
 
 def incentive_compatibility_pass_factory() -> ValidatorPass:
@@ -144,6 +150,7 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
         "confidence": confidence_pass_factory,
         "cross_graph_evidence": cross_graph_evidence_pass_factory,
         "equity": equity_pass_factory,
+        "fabric_trust": fabric_trust_gate_pass_factory,
         "freshness": freshness_pass_factory,
         "human_review_required": human_review_required_pass_factory,
         "incentive_compatibility": incentive_compatibility_pass_factory,
@@ -170,6 +177,7 @@ __all__ = [
     "confidence_pass_factory",
     "cross_graph_evidence_pass_factory",
     "equity_pass_factory",
+    "fabric_trust_gate_pass_factory",
     "freshness_pass_factory",
     "human_review_required_pass_factory",
     "incentive_compatibility_pass_factory",

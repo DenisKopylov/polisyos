@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, type ReactNode } from "react";
-import { MemoryRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import {
@@ -17,15 +16,13 @@ const meta = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={createTestQueryClient()}>
-        <MemoryRouter initialEntries={["/"]}>
-          <ReducedMotionProvider>
-            <TemporalCursorProvider>
-              <TemporalStoryFrame>
-                <Story />
-              </TemporalStoryFrame>
-            </TemporalCursorProvider>
-          </ReducedMotionProvider>
-        </MemoryRouter>
+        <ReducedMotionProvider>
+          <TemporalCursorProvider>
+            <TemporalStoryFrame>
+              <Story />
+            </TemporalStoryFrame>
+          </TemporalCursorProvider>
+        </ReducedMotionProvider>
       </QueryClientProvider>
     ),
   ],

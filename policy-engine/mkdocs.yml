@@ -166,13 +166,24 @@ nav:
           - reference/scientist/agent-search-reasoning.md
           - reference/scientist/reliability-scorecard.md
           - reference/scientist/claims.md
+          - reference/scientist/claim-ledger.md
           - reference/scientist/research-dag.md
+          - reference/scientist/research-dag-replay.md
+          - reference/scientist/voi-scheduler.md
+          - reference/scientist/reflexive-memory.md
+          - reference/scientist/adversarial-challenge-factory.md
+          - reference/scientist/continuous-governance.md
+          - reference/scientist/decision-grade-compiler.md
           - reference/scientist/deep-research-evidence.md
           - reference/scientist/agent-capability-promotion.md
           - reference/scientist/benchmark-authority.md
           - reference/scientist/human-oversight.md
           - reference/scientist/best-in-class-readiness.md
           - reference/scientist/best-in-class-wave1-acceptance.md
+          - reference/scientist/wave2-runtime-contracts.md
+          - reference/scientist/best-in-class-wave2-acceptance.md
+          - reference/scientist/best-in-class-maturity.md
+          - reference/scientist/wave2-migration-notes.md
           - reference/scientist/scientist-capability-inventory.md
           - Evidence and Acceptance:
               - reference/scientist/remediation-status.md
@@ -201,6 +212,9 @@ nav:
           - reference/fabric/observability-governance.md
           - reference/fabric/source-platform.md
           - reference/fabric/time-travel.md
+          - reference/fabric/processing-guarantees.md
+          - reference/fabric/discovery-intelligence.md
+          - reference/fabric/product-api-integration.md
       - REST API:
           - reference/api/index.md
           - reference/api/runs.md
@@ -212,6 +226,10 @@ nav:
           - reference/api/migration-guide.md
       - Frontend:
           - reference/frontend/index.md
+      - Brand:
+          - brand/README.md
+          - Atlas Design System: brand/ATLAS_DESIGN_SYSTEM.md
+          - Atlas v4 Adoption: brand/ATLAS_V4_ADOPTION.md
       - CLI: reference/cli.md
       - Tools: reference/tools.md
       - Schemas: reference/schemas.md
@@ -406,3 +424,4 @@ nav:
       - adr/0109-ir-transport-and-interoperability-bridges.md
       - adr/0110-ir-frontier-governance-and-causal-contracts.md
       - adr/ADR-004-policy-surface-removal.md
+      - adr/ADR-047-atlas-v4-dark-theme-canonicalization.md

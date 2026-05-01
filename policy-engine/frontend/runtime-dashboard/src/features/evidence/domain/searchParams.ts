@@ -13,6 +13,8 @@ const evidenceFocusSchema = z.enum([
   "artifact",
 ]);
 
+const evidenceSurfaceSchema = z.enum(["freshness-braid", "connector-cards"]);
+
 const evidenceSearchSchema = z.object({
   artifactId: z.string().trim().min(1).optional().catch(undefined),
   focus: evidenceFocusSchema.optional().catch(undefined),
@@ -20,6 +22,7 @@ const evidenceSearchSchema = z.object({
   planId: z.string().trim().min(1).optional().catch(undefined),
   promotionId: z.string().trim().min(1).optional().catch(undefined),
   runId: z.string().trim().min(1).optional().catch(undefined),
+  surface: evidenceSurfaceSchema.optional().catch(undefined),
 });
 
 export type EvidenceSearchParams = z.infer<typeof evidenceSearchSchema>;
@@ -38,5 +41,6 @@ export function buildEvidenceHref(search?: Partial<EvidenceSearchParams>) {
     planId: search?.planId,
     promotionId: search?.promotionId,
     runId: search?.runId,
+    surface: search?.surface,
   });
 }

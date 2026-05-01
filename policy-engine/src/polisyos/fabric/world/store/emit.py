@@ -24,6 +24,12 @@ from polisyos.ir.world.predicates import (
 )
 
 from .errors import WorldFactError, WorldValidationError
+from .segments import (
+    WorldMutationKind,
+    WorldObservedState,
+    build_world_mutation_metadata,
+    provenance_with_world_mutation,
+)
 
 _MAX_CLAIM_LABEL_LEN = 120
 
@@ -43,10 +49,33 @@ def emit_attr_fact(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
     valid_time: str | int | None = None,
+    mutation_kind: WorldMutationKind | str | None = None,
+    corrects_fact_ref: str | None = None,
+    revokes_fact_ref: str | None = None,
+    reason: str | None = None,
+    source_evidence_refs: tuple[str, ...] = (),
+    lineage_ref: str | None = None,
+    actor: str | None = None,
+    branch_name: str | None = None,
+    scenario_ref: str | None = None,
+    observed_state: WorldObservedState | str = WorldObservedState.OBSERVED,
 ) -> Fact:
     """Build one attribute fact for a world node before the segment is written."""
     if object_value is None:
         raise WorldFactError("attribute facts require object_value")
+    provenance = _apply_optional_mutation(
+        provenance=provenance,
+        mutation_kind=mutation_kind,
+        corrects_fact_ref=corrects_fact_ref,
+        revokes_fact_ref=revokes_fact_ref,
+        reason=reason,
+        source_evidence_refs=source_evidence_refs,
+        lineage_ref=lineage_ref,
+        actor=actor,
+        branch_name=branch_name,
+        scenario_ref=scenario_ref,
+        observed_state=observed_state,
+    )
     return build_fact(
         subject_id=subject_id,
         predicate_id=predicate_id,
@@ -68,11 +97,34 @@ def emit_edge_fact(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
     valid_time: str | int | None = None,
+    mutation_kind: WorldMutationKind | str | None = None,
+    corrects_fact_ref: str | None = None,
+    revokes_fact_ref: str | None = None,
+    reason: str | None = None,
+    source_evidence_refs: tuple[str, ...] = (),
+    lineage_ref: str | None = None,
+    actor: str | None = None,
+    branch_name: str | None = None,
+    scenario_ref: str | None = None,
+    observed_state: WorldObservedState | str = WorldObservedState.OBSERVED,
 ) -> Fact:
     """Build one relationship fact linking two world objects in the fact log."""
     if not dst_id:
         raise WorldFactError("edge facts require dst_id")
     predicate_id = rel(edge_kind)
+    provenance = _apply_optional_mutation(
+        provenance=provenance,
+        mutation_kind=mutation_kind,
+        corrects_fact_ref=corrects_fact_ref,
+        revokes_fact_ref=revokes_fact_ref,
+        reason=reason,
+        source_evidence_refs=source_evidence_refs,
+        lineage_ref=lineage_ref,
+        actor=actor,
+        branch_name=branch_name,
+        scenario_ref=scenario_ref,
+        observed_state=observed_state,
+    )
     return build_fact(
         subject_id=src_id,
         predicate_id=predicate_id,
@@ -502,6 +554,48 @@ def emit_world_event_facts(
         )
 
     return facts
+
+
+def _apply_optional_mutation(
+    *,
+    provenance: FactProvenance,
+    mutation_kind: WorldMutationKind | str | None,
+    corrects_fact_ref: str | None,
+    revokes_fact_ref: str | None,
+    reason: str | None,
+    source_evidence_refs: tuple[str, ...],
+    lineage_ref: str | None,
+    actor: str | None,
+    branch_name: str | None,
+    scenario_ref: str | None,
+    observed_state: WorldObservedState | str,
+) -> FactProvenance:
+    if mutation_kind is None and not any(
+        (
+            corrects_fact_ref,
+            revokes_fact_ref,
+            reason,
+            source_evidence_refs,
+            lineage_ref,
+            actor,
+            branch_name,
+            scenario_ref,
+        )
+    ):
+        return provenance
+    mutation = build_world_mutation_metadata(
+        mutation_kind=mutation_kind or WorldMutationKind.ASSERTION,
+        corrects_fact_ref=corrects_fact_ref,
+        revokes_fact_ref=revokes_fact_ref,
+        reason=reason,
+        source_evidence_refs=source_evidence_refs,
+        lineage_ref=lineage_ref,
+        actor=actor,
+        branch_name=branch_name,
+        scenario_ref=scenario_ref,
+        observed_state=observed_state,
+    )
+    return provenance_with_world_mutation(provenance, mutation)
 
 
 __all__ = [

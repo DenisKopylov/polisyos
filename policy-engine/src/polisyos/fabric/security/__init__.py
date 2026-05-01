@@ -26,6 +26,10 @@ from polisyos.fabric.security.retention import (
     RetentionPlanner,
     RetentionPolicy,
     RetentionScope,
+    SnapshotDeletionImpact,
+    SnapshotRetentionClass,
+    build_snapshot_deletion_impact,
+    classify_snapshot_retention,
 )
 
 __all__ = [
@@ -39,9 +43,13 @@ __all__ = [
     "RetentionPolicy",
     "RetentionScope",
     "RowAccessPolicy",
+    "SnapshotDeletionImpact",
+    "SnapshotRetentionClass",
     "apply_requested_column_guard",
+    "build_snapshot_deletion_impact",
     "cardinality_bucket",
     "classification_allowed",
+    "classify_snapshot_retention",
     "current_trace_id",
     "mask_dataframe_columns",
     "normalize_allowed_columns",

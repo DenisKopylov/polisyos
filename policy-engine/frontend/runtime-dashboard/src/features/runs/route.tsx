@@ -39,6 +39,9 @@ const RunReportPage = lazy(
   () => import("@/features/runs/routes/RunReportPage"),
 );
 const RunDeckPage = lazy(() => import("@/features/runs/routes/RunDeckPage"));
+const PublicDecisionViewerPage = lazy(
+  () => import("@/features/runs/routes/PublicDecisionViewerPage"),
+);
 const RunOverviewTab = lazy(
   () => import("@/features/runs/routes/tabs/OverviewTab"),
 );
@@ -106,6 +109,17 @@ export const runDeckRouteHandle = {
   workspaceKey: "runsDecisions",
 } satisfies AppRouteModule<Record<string, never>, RunRouteHrefInput>["handle"];
 
+export const publicDecisionViewerRouteHandle = {
+  buildHref: (input?: { signedId?: string }) =>
+    `/public/decisions/${input?.signedId ?? ""}`,
+  parseSearch: () => ({}),
+  routeId: "runs.publicDecisionViewer",
+  workspaceKey: "runsDecisions",
+} satisfies AppRouteModule<
+  Record<string, never>,
+  { signedId?: string }
+>["handle"];
+
 export const runDetailRouteHandle = {
   buildHref: (input) =>
     buildRunDetailHref(input?.runId ?? "", input?.tab ?? "overview"),
@@ -132,6 +146,12 @@ export const runDeckLoader = createRunDetailLoader(runDeckRouteHandle.routeId);
 export const runDetailLoader = createRunDetailLoader(
   runDetailRouteHandle.routeId,
 );
+
+export const publicDecisionViewerRoute: RouteObject = {
+  path: "public/decisions/:signedId",
+  handle: publicDecisionViewerRouteHandle,
+  element: <PublicDecisionViewerPage />,
+};
 
 function createRunTabRoute(
   tab: (typeof RUN_DETAIL_TAB_REGISTRY)[number],

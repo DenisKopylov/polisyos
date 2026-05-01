@@ -15,6 +15,10 @@ _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _GENERATED_POST_OPERATION_IDS = frozenset(
     {
         "get_artifact_batch",
+        "analyze_fabric_impact",
+        "get_fabric_quality_batch",
+        "get_fabric_trust_batch",
+        "get_lineage_batch",
         "get_runs_batch",
         "estimate_mobility",
         "compute_mobility_bounds",

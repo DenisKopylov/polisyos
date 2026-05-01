@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.entity_resolution import (
@@ -15,13 +16,16 @@ from polisyos.fabric.world.materialize import (
     WorldGraphNodeRecord,
     WorldGraphSnapshot,
     build_world_kuzu_conflict_query,
+    build_world_kuzu_origin_query,
     build_world_kuzu_policy_impact_query,
     query_world_conflict_neighborhood,
     query_world_entity_neighborhood,
     query_world_kuzu_conflict_neighborhood,
     query_world_kuzu_entity_neighborhood,
+    query_world_kuzu_origin_trace,
     query_world_kuzu_policy_impact,
     query_world_kuzu_source_overlap,
+    query_world_origin_trace,
     query_world_policy_impact,
     query_world_source_overlap,
 )
@@ -75,11 +79,50 @@ def test_probabilistic_entity_resolution_is_explainable_and_reversible(tmp_path:
     override_ref = store.persist_override(
         candidate,
         status="accepted",
+        actor="fabric.test.reviewer",
+        reason="iso3 identifier and region agree across sources",
         provenance_ref="sha256:" + ("a" * 64),
+        merge_governance_ref="merge-review:entity:usa:1",
     )
+    override = store.load_override(override_ref.artifact_id)
+    audit = store.list_override_audit()
     override_payload = store.load_candidates(batch_ref.artifact_id)
     assert override_ref.kind == "fabric.entity_resolution.override"
+    assert override.candidate.override_status == "accepted"
+    assert override.candidate.merge_governance_ref == "merge-review:entity:usa:1"
+    assert override.audit.actor == "fabric.test.reviewer"
+    assert audit[0][1].match_id == candidate.match_id
     assert override_payload.candidates[0].override_status == "candidate"
+
+
+def test_entity_override_cannot_accept_without_merge_governance(tmp_path: Path) -> None:
+    candidate = ProbabilisticEntityResolver().resolve(
+        [
+            EntityRecord(
+                entity_id="wb:usa",
+                canonical_name="United States",
+                source="worldbank",
+                identifiers={"iso3": "USA"},
+            ),
+            EntityRecord(
+                entity_id="who:us",
+                canonical_name="United States of America",
+                source="who",
+                identifiers={"iso3": "USA"},
+            ),
+        ],
+        min_confidence=0.5,
+    )[0]
+    store = EntityMatchStore(FileSystemCAS(tmp_path / "cas"))
+
+    with pytest.raises(ValueError, match="merge_governance_ref"):
+        store.persist_override(
+            candidate,
+            status="accepted",
+            actor="fabric.test.reviewer",
+            reason="missing merge evidence",
+            provenance_ref="sha256:" + ("b" * 64),
+        )
 
 
 def _build_graph_snapshot() -> WorldGraphSnapshot:
@@ -117,6 +160,7 @@ def test_world_graph_helpers_answer_overlap_conflict_and_policy_questions() -> N
 
     neighborhood = query_world_entity_neighborhood(snapshot, "entity.usa", max_hops=2)
     overlap = query_world_source_overlap(snapshot, "entity.usa", max_hops=1)
+    origin = query_world_origin_trace(snapshot, "entity.usa", max_hops=2)
     conflicts = query_world_conflict_neighborhood(snapshot, "entity.usa", max_hops=2)
     impact = query_world_policy_impact(snapshot, "entity.usa", max_hops=2)
 
@@ -130,17 +174,24 @@ def test_world_graph_helpers_answer_overlap_conflict_and_policy_questions() -> N
         "source.worldbank",
         "source.unesco",
     }
+    assert {node.node_id for node in origin.origin_nodes} == {
+        "source.worldbank",
+        "source.unesco",
+    }
     assert {node.node_id for node in conflicts.conflict_nodes} == {"conflict.gdp"}
     assert {node.node_id for node in impact.impacted_nodes} == {"policy.tax"}
 
 
 def test_world_kuzu_query_builders_encode_conflict_and_policy_filters() -> None:
     conflict_query, conflict_params = build_world_kuzu_conflict_query("entity.usa", max_hops=2)
+    origin_query, origin_params = build_world_kuzu_origin_query("entity.usa", max_hops=2)
     impact_query, impact_params = build_world_kuzu_policy_impact_query("entity.usa", max_hops=3)
 
     assert "CONTAINS 'conflict'" in conflict_query
+    assert "origin.kind CONTAINS 'source'" in origin_query
     assert "neighbor.kind CONTAINS 'policy'" in impact_query
     assert conflict_params == {"node_id": "entity.usa"}
+    assert origin_params == {"node_id": "entity.usa"}
     assert impact_params == {"node_id": "entity.usa"}
 
 
@@ -271,6 +322,7 @@ def test_live_kuzu_helpers_execute_graph_reasoning_queries() -> None:
 
     neighborhood = query_world_kuzu_entity_neighborhood(conn, "entity.usa", max_hops=2)
     overlap = query_world_kuzu_source_overlap(conn, "entity.usa", max_hops=2)
+    origin = query_world_kuzu_origin_trace(conn, "entity.usa", max_hops=2)
     conflicts = query_world_kuzu_conflict_neighborhood(conn, "entity.usa", max_hops=2)
     impact = query_world_kuzu_policy_impact(conn, "entity.usa", max_hops=2)
 
@@ -281,6 +333,10 @@ def test_live_kuzu_helpers_execute_graph_reasoning_queries() -> None:
         "policy.tax",
     }
     assert {node.node_id for node in overlap.overlapping_sources} == {
+        "source.worldbank",
+        "source.unesco",
+    }
+    assert {node.node_id for node in origin.origin_nodes} == {
         "source.worldbank",
         "source.unesco",
     }

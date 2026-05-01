@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "request_id": "req_fixture",
+    "generated_at": "2026-02-11T12:00:00Z",
+    "source_kinds": ["core_run"]
+  },
+  "run_id": "R_core_api_001",
+  "source_kind": "core_run",
+  "temporal_scope": {
+    "valid_at": "2026-02-11T12:00:00Z",
+    "tx_at": "2026-02-11T12:01:00Z",
+    "branch": "main",
+    "snapshot_id": null,
+    "scenario_id": null
+  },
+  "quantities": [
+    {
+      "point": 100,
+      "unit": {"code": "[USD]", "system": "ucum", "display": "USD"},
+      "metric_id": "policy_cost",
+      "lineage": {
+        "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": null,
+        "status": "verified",
+        "freshness": "current",
+        "summary": {"source": "decision_packet", "artifact": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+        "compact_summary": [
+          {"kind": "source", "label": "Fabric evidence", "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+          {"kind": "result", "label": "policy_cost", "id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+        ],
+        "reason_code": null,
+        "tracking_issue": null
+      },
+      "uncertainty": null,
+      "time": {
+        "valid_at": "2026-02-11T12:00:00Z",
+        "tx_at": "2026-02-11T12:01:00Z",
+        "branch": "main",
+        "snapshot_id": null,
+        "scenario_id": null
+      },
+      "quantity_class": "decision",
+      "label": "Policy cost"
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "decision": 1,
+    "telemetry": 0,
+    "layout": 0,
+    "debug": 0,
+    "traced": 1,
+    "untraced": 0
+  },
+  "entries": [
+    {
+      "path": "decision_packet.simulation_results.policy_cost",
+      "quantity_class": "decision",
+      "status": "verified",
+      "lineage_id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "metric_id": "policy_cost"
+    }
+  ]
+}

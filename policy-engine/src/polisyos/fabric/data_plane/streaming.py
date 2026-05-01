@@ -30,7 +30,20 @@ from polisyos.core.contracts.cursor import (
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.pool import BackpressureLevel, ConnectionPool, PoolConfig
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.data_plane.quarantine import (
+    QuarantineRecord,
+    persist_quarantine_record,
+)
 from polisyos.fabric.data_plane.watermark import WindowAssignment, WindowPolicy
+from polisyos.fabric.processing_guarantees import (
+    BackpressureStrategy,
+    CDCSchemaCompatibility,
+    OutOfOrderHandling,
+    ProcessingGuaranteeContract,
+    classify_cdc_schema_change,
+    processing_contract_snapshot,
+    stream_processing_contract,
+)
 from polisyos.fabric.temporal import parse_datetime_utc
 from polisyos.ir.connectors import FetchRequest
 
@@ -63,6 +76,9 @@ class StreamRuntimeOptions:
     max_buffered_bytes: int = 16 * 1024 * 1024
     pause_seconds: float = 0.01
     window_policy: WindowPolicy = field(default_factory=WindowPolicy)
+    processing_contract: ProcessingGuaranteeContract = field(
+        default_factory=stream_processing_contract
+    )
 
 
 @dataclass
@@ -81,6 +97,10 @@ class StreamDatasetRunResult:
     quarantined_rows: int = 0
     dedupe_dropped: int = 0
     backpressure_events: int = 0
+    out_of_order_rows: int = 0
+    late_rows_dropped: int = 0
+    late_rows_quarantined: int = 0
+    processing_guarantee: str = ""
     final_checkpoint: StreamCheckpoint | None = None
     final_cursor: CursorState | None = None
     final_checkpoint_ref: str | None = None
@@ -449,6 +469,15 @@ class StreamWindowAccumulator:
             + len(self._sliding_time_rows)
         )
 
+    def buffered_bytes(self) -> int:
+        rows: list[dict[str, Any]] = []
+        rows.extend(self._count_buffer)
+        rows.extend(self._bucket_rows)
+        rows.extend(self._session_rows)
+        rows.extend(self._sliding_rows)
+        rows.extend(row for row, _ts in self._sliding_time_rows)
+        return sum(_estimate_row_bytes(row) for row in rows)
+
     def _add_row(self, row: dict[str, Any]) -> list[WindowAssignment]:
         strategy = self.policy.strategy
         if strategy == WindowStrategy.COUNT:
@@ -625,6 +654,10 @@ class StreamWindowAccumulator:
         return ordinal
 
 
+def _estimate_row_bytes(row: dict[str, Any]) -> int:
+    return len(json.dumps(row, sort_keys=True, default=str).encode("utf-8"))
+
+
 def _ensure_async_store(
     store: ArtifactStore | AsyncArtifactStore,
     *,
@@ -654,6 +687,140 @@ def _ensure_async_cursor_store(
     return AsyncCursorStoreAdapter(cursor_store, timeout_seconds=timeout_seconds)
 
 
+@dataclass
+class _StreamOrderingState:
+    max_event_time: datetime | None = None
+
+
+def _effective_processing_contract(
+    options: StreamRuntimeOptions,
+) -> ProcessingGuaranteeContract:
+    idempotency = options.processing_contract.idempotency.model_copy(
+        update={
+            "key_fields": tuple(options.dedupe_key_fields),
+            "max_dedupe_keys": max(1, int(options.max_dedupe_keys)),
+        }
+    )
+    backpressure = options.processing_contract.backpressure.model_copy(
+        update={
+            "max_buffered_rows": max(1, int(options.max_buffered_rows)),
+            "max_buffered_bytes": max(1, int(options.max_buffered_bytes)),
+            "pause_seconds": max(0.0, float(options.pause_seconds)),
+        }
+    )
+    return options.processing_contract.model_copy(
+        update={
+            "idempotency": idempotency,
+            "backpressure": backpressure,
+        }
+    )
+
+
+def _apply_out_of_order_policy(
+    rows: list[dict[str, Any]],
+    *,
+    policy: Any,
+    state: _StreamOrderingState,
+) -> tuple[list[dict[str, Any]], list[str], int, int, int]:
+    if not rows:
+        return [], [], 0, 0, 0
+    accepted: list[tuple[dict[str, Any], datetime | None]] = []
+    warnings: list[str] = []
+    dropped = 0
+    quarantined = 0
+    out_of_order = 0
+
+    for row in rows:
+        ts = _row_event_time(row, policy.timestamp_field)
+        late = False
+        too_late = False
+        if ts is not None and state.max_event_time is not None and ts < state.max_event_time:
+            late = True
+            out_of_order += 1
+            too_late = (
+                state.max_event_time - ts
+            ).total_seconds() > float(policy.max_lateness_seconds)
+        if ts is not None and (
+            state.max_event_time is None or ts > state.max_event_time
+        ):
+            state.max_event_time = ts
+
+        if not late:
+            accepted.append((row, ts))
+            continue
+
+        handling = OutOfOrderHandling(policy.handling)
+        action = (
+            OutOfOrderHandling(policy.late_event_action)
+            if handling == OutOfOrderHandling.WATERMARK and too_late
+            else handling
+        )
+        if action == OutOfOrderHandling.DROP:
+            dropped += 1
+            warnings.append("out-of-order event dropped")
+            continue
+        if action == OutOfOrderHandling.QUARANTINE:
+            quarantined += 1
+            warnings.append("out-of-order event quarantined")
+            continue
+        accepted.append((row, ts))
+
+    if OutOfOrderHandling(policy.handling) == OutOfOrderHandling.REORDER:
+        accepted.sort(key=lambda item: item[1] or datetime.min.replace(tzinfo=UTC))
+    return [row for row, _ts in accepted], warnings, dropped, quarantined, out_of_order
+
+
+def _row_event_time(row: dict[str, Any], timestamp_field: str) -> datetime | None:
+    value = (
+        row.get(timestamp_field)
+        or row.get("timestamp")
+        or row.get("event_time")
+        or row.get("observed_at")
+    )
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    return cast(
+        "datetime",
+        parse_datetime_utc(str(value), what="stream ordering timestamp"),
+    )
+
+
+def _cdc_handling_action(
+    compatibility: CDCSchemaCompatibility,
+    processing_contract: ProcessingGuaranteeContract,
+) -> str:
+    policy = processing_contract.cdc_schema_changes
+    if compatibility == CDCSchemaCompatibility.COMPATIBLE_ADDITIVE:
+        return policy.additive_change_action
+    if compatibility == CDCSchemaCompatibility.INCOMPATIBLE_BREAKING:
+        return policy.breaking_change_action
+    if compatibility == CDCSchemaCompatibility.METADATA_ONLY:
+        return policy.metadata_only_action
+    return "review"
+
+
+def _should_quarantine_cdc_schema_change(
+    compatibility: CDCSchemaCompatibility,
+    handling_action: str,
+) -> bool:
+    return (
+        compatibility == CDCSchemaCompatibility.INCOMPATIBLE_BREAKING
+        and handling_action == "quarantine"
+    )
+
+
+def _should_fail_closed_cdc_schema_change(
+    compatibility: CDCSchemaCompatibility,
+    handling_action: str,
+) -> bool:
+    return (
+        compatibility == CDCSchemaCompatibility.INCOMPATIBLE_BREAKING
+        and handling_action == "fail_closed"
+    )
+
+
 async def process_stream_dataset(
     *,
     connector_id: str,
@@ -668,6 +835,7 @@ async def process_stream_dataset(
 ) -> StreamDatasetRunResult:
     """Process one streamed dataset with checkpoint recovery and bounded buffering."""
     options = runtime_options or StreamRuntimeOptions()
+    processing_contract = _effective_processing_contract(options)
     async_store = _ensure_async_store(store)
     sync_store = _resolve_sync_store(store, async_store)
     if sync_store is None:
@@ -687,9 +855,13 @@ async def process_stream_dataset(
         connector_id=connector_id,
         dataset_id=dataset_id,
         partition_key=options.partition_key,
+        processing_guarantee=processing_contract.guarantee_value,
     )
     accumulator = StreamWindowAccumulator(options.window_policy)
-    dedupe_keys: deque[str] = deque(maxlen=max(1, int(options.max_dedupe_keys)))
+    ordering_state = _StreamOrderingState()
+    dedupe_keys: deque[str] = deque(
+        maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
+    )
     dedupe_seen: set[str] = set()
     latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
         connector_id,
@@ -709,10 +881,32 @@ async def process_stream_dataset(
 
     try:
         while True:
-            if accumulator.buffered_rows() >= options.max_buffered_rows:
+            buffered_rows = accumulator.buffered_rows()
+            buffered_bytes = accumulator.buffered_bytes()
+            if buffered_rows >= processing_contract.backpressure.max_buffered_rows or (
+                buffered_bytes >= processing_contract.backpressure.max_buffered_bytes
+            ):
                 result.backpressure_events += 1
-                await session.pause(reason="window buffer above threshold")
-                await asyncio.sleep(options.pause_seconds)
+                max_backpressure_events = (
+                    processing_contract.backpressure.max_backpressure_events
+                )
+                if (
+                    max_backpressure_events is not None
+                    and result.backpressure_events > max_backpressure_events
+                ):
+                    raise RuntimeError("stream backpressure event budget exceeded")
+                if (
+                    processing_contract.backpressure.strategy
+                    == BackpressureStrategy.FAIL_CLOSED
+                ):
+                    raise RuntimeError("stream backpressure contract failed closed")
+                await session.pause(
+                    reason=(
+                        "window buffer above threshold "
+                        f"rows={buffered_rows} bytes={buffered_bytes}"
+                    )
+                )
+                await asyncio.sleep(processing_contract.backpressure.pause_seconds)
                 await session.resume()
 
             chunk = await session.poll()
@@ -736,7 +930,18 @@ async def process_stream_dataset(
                 chunk_warnings.extend(warnings)
                 chunk_quarantined += quarantined
                 for row in valid_rows:
-                    dedupe_key = resolve_dedupe_key(row, fields=options.dedupe_key_fields)
+                    dedupe_key = resolve_dedupe_key(
+                        row,
+                        fields=processing_contract.idempotency.key_fields,
+                        missing_key_action=(
+                            processing_contract.idempotency.missing_key_action
+                        ),
+                    )
+                    if not dedupe_key:
+                        result.late_rows_quarantined += 1
+                        chunk_quarantined += 1
+                        chunk_warnings.append("missing dedupe key quarantined")
+                        continue
                     if dedupe_key in dedupe_seen:
                         result.dedupe_dropped += 1
                         continue
@@ -749,8 +954,35 @@ async def process_stream_dataset(
             if not clean_rows:
                 continue
 
+            (
+                clean_rows,
+                order_warnings,
+                late_dropped,
+                late_quarantined,
+                out_of_order_rows,
+            ) = _apply_out_of_order_policy(
+                clean_rows,
+                policy=processing_contract.out_of_order,
+                state=ordering_state,
+            )
+            result.warnings.extend(order_warnings)
+            result.late_rows_dropped += late_dropped
+            result.late_rows_quarantined += late_quarantined
+            result.out_of_order_rows += out_of_order_rows
+            result.quarantined_rows += late_quarantined
+            if not clean_rows:
+                continue
+
             current_schema = tuple(sorted({str(key) for row in clean_rows for key in row}))
             if previous_schema is not None and current_schema != previous_schema:
+                compatibility = classify_cdc_schema_change(
+                    previous_schema,
+                    current_schema,
+                )
+                handling_action = _cdc_handling_action(
+                    compatibility,
+                    processing_contract,
+                )
                 cdc_ref = await _persist_cdc_schema_change_event_async(
                     store=async_store,
                     connector_id=connector_id,
@@ -758,13 +990,59 @@ async def process_stream_dataset(
                     partition_key=options.partition_key,
                     previous_fields=previous_schema,
                     current_fields=current_schema,
+                    compatibility=compatibility,
+                    handling_action=handling_action,
                     observed_at=datetime.now(UTC),
+                    processing_contract=processing_contract,
                 )
                 result.cdc_event_refs.append(cdc_ref)
                 result.warnings.append(
                     f"CDC schema change detected for {connector_id}:{dataset_id}: "
                     f"{sorted(set(current_schema) - set(previous_schema)) or ['no added fields']}"
                 )
+
+                if _should_fail_closed_cdc_schema_change(
+                    compatibility,
+                    handling_action,
+                ):
+                    raise RuntimeError(
+                        "CDC schema change failed closed for "
+                        f"{connector_id}:{dataset_id}: {compatibility.value}"
+                    )
+                if _should_quarantine_cdc_schema_change(
+                    compatibility,
+                    handling_action,
+                ):
+                    result.quarantined_rows += len(clean_rows)
+                    result.warnings.append(
+                        "CDC incompatible breaking change quarantined"
+                    )
+                    persist_quarantine_record(
+                        sync_store,
+                        record=QuarantineRecord.new(
+                            reason="cdc_schema_change_incompatible_breaking",
+                            severity="P1",
+                            source=f"stream:{connector_id}:{dataset_id}",
+                            schema_version="fabric.CDCSchemaChange:1.0",
+                            downstream_impacts=(
+                                "connector_cache",
+                                "evidence_bundle",
+                                "data_snapshot",
+                                "world.materialize",
+                            ),
+                            context={
+                                "partition_key": options.partition_key,
+                                "previous_fields": list(previous_schema),
+                                "current_fields": list(current_schema),
+                                "compatibility": compatibility.value,
+                                "handling_action": handling_action,
+                                "cdc_event_ref": str(cdc_ref.artifact_id),
+                            },
+                        ),
+                        raw_payload=clean_rows,
+                        input_artifact_ids=(str(cdc_ref.artifact_id),),
+                    )
+                    continue
             previous_schema = current_schema
 
             chunk_ref = await _persist_stream_chunk_async(
@@ -775,6 +1053,7 @@ async def process_stream_dataset(
                 chunk=chunk,
                 rows=clean_rows,
                 dedupe_dropped=result.dedupe_dropped,
+                processing_contract=processing_contract,
             )
             result.chunk_refs.append(chunk_ref)
             result.rows_emitted += len(clean_rows)
@@ -788,6 +1067,7 @@ async def process_stream_dataset(
                         partition_key=options.partition_key,
                         assignment=assignment,
                         input_ref=chunk_ref,
+                        processing_contract=processing_contract,
                     )
                 )
 
@@ -804,6 +1084,12 @@ async def process_stream_dataset(
                             "rows_emitted": result.rows_emitted,
                             "window_count": len(result.window_refs),
                             "cdc_event_count": len(result.cdc_event_refs),
+                            "processing": processing_contract_snapshot(
+                                processing_contract
+                            ),
+                            "out_of_order_rows": result.out_of_order_rows,
+                            "late_rows_dropped": result.late_rows_dropped,
+                            "late_rows_quarantined": result.late_rows_quarantined,
                         },
                         "committed_at": datetime.now(UTC),
                     }
@@ -821,6 +1107,7 @@ async def process_stream_dataset(
                     partition_key=options.partition_key,
                     assignment=assignment,
                     input_ref=result.chunk_refs[-1] if result.chunk_refs else None,
+                    processing_contract=processing_contract,
                 )
             )
 
@@ -837,6 +1124,10 @@ async def process_stream_dataset(
                     "rows_emitted": result.rows_emitted,
                     "window_count": len(result.window_refs),
                     "cdc_event_count": len(result.cdc_event_refs),
+                    "processing": processing_contract_snapshot(processing_contract),
+                    "out_of_order_rows": result.out_of_order_rows,
+                    "late_rows_dropped": result.late_rows_dropped,
+                    "late_rows_quarantined": result.late_rows_quarantined,
                 },
                 "committed_at": datetime.now(UTC),
             }
@@ -855,6 +1146,10 @@ async def process_stream_dataset(
                 "window_count": len(result.window_refs),
                 "cdc_event_count": len(result.cdc_event_refs),
                 "backpressure_events": result.backpressure_events,
+                "out_of_order_rows": result.out_of_order_rows,
+                "late_rows_dropped": result.late_rows_dropped,
+                "late_rows_quarantined": result.late_rows_quarantined,
+                "processing": processing_contract_snapshot(processing_contract),
             },
         )
         cursor_ref, checkpoint_ref = await async_cursor_store.commit_stream_progress(
@@ -883,6 +1178,9 @@ async def process_stream_dataset(
                         "schema_fields": list(previous_schema or ()),
                         "error": str(exc),
                         "rows_emitted": result.rows_emitted,
+                        "processing": processing_contract_snapshot(
+                            processing_contract
+                        ),
                     },
                 }
             )
@@ -903,6 +1201,7 @@ async def _persist_stream_chunk_async(
     chunk: DataChunk[Any],
     rows: list[dict[str, Any]],
     dedupe_dropped: int,
+    processing_contract: ProcessingGuaranteeContract,
 ) -> ArtifactRef:
     payload = {
         "connector_id": connector_id,
@@ -915,6 +1214,7 @@ async def _persist_stream_chunk_async(
         "is_first": bool(getattr(chunk, "is_first", False)),
         "is_last": bool(getattr(chunk, "is_last", False)),
         "dedupe_dropped": int(dedupe_dropped),
+        "processing": processing_contract_snapshot(processing_contract),
         "data": rows,
     }
     return await store.put_json(
@@ -936,6 +1236,7 @@ async def _persist_stream_window_async(
     partition_key: str,
     assignment: WindowAssignment,
     input_ref: ArtifactRef | None,
+    processing_contract: ProcessingGuaranteeContract,
 ) -> ArtifactRef:
     inputs = (
         [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
@@ -952,6 +1253,7 @@ async def _persist_stream_window_async(
         "start_at": assignment.start_at,
         "end_at": assignment.end_at,
         "ordinal": assignment.ordinal,
+        "processing": processing_contract_snapshot(processing_contract),
         "data": list(assignment.rows),
     }
     return await store.put_json(
@@ -966,12 +1268,21 @@ async def _persist_stream_window_async(
     )
 
 
-def resolve_dedupe_key(row: dict[str, Any], *, fields: tuple[str, ...]) -> str:
+def resolve_dedupe_key(
+    row: dict[str, Any],
+    *,
+    fields: tuple[str, ...],
+    missing_key_action: str = "hash_payload",
+) -> str:
     """Resolve a deterministic dedupe key for exactly-once/effectively-once semantics."""
     for field_name in fields:
         value = row.get(field_name)
         if value not in (None, ""):
             return f"{field_name}:{value!s}"
+    if missing_key_action == "quarantine":
+        return ""
+    if missing_key_action == "reject":
+        raise ValueError("row is missing all configured dedupe key fields")
     return cast(
         "str",
         content_hash(json.dumps(row, sort_keys=True, default=str).encode("utf-8")),
@@ -987,8 +1298,10 @@ def persist_stream_chunk(
     chunk: DataChunk[Any],
     rows: list[dict[str, Any]],
     dedupe_dropped: int,
+    processing_contract: ProcessingGuaranteeContract | None = None,
 ) -> ArtifactRef:
     """Persist one cleaned stream chunk as a deterministic CAS artifact."""
+    contract = processing_contract or stream_processing_contract()
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -1000,6 +1313,7 @@ def persist_stream_chunk(
         "is_first": bool(getattr(chunk, "is_first", False)),
         "is_last": bool(getattr(chunk, "is_last", False)),
         "dedupe_dropped": int(dedupe_dropped),
+        "processing": processing_contract_snapshot(contract),
         "data": rows,
     }
     return store.put_json(
@@ -1021,8 +1335,10 @@ def persist_stream_window(
     partition_key: str,
     assignment: WindowAssignment,
     input_ref: ArtifactRef | None,
+    processing_contract: ProcessingGuaranteeContract | None = None,
 ) -> ArtifactRef:
     """Persist one logical stream window."""
+    contract = processing_contract or stream_processing_contract()
     inputs = (
         [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
         if input_ref is not None
@@ -1038,6 +1354,7 @@ def persist_stream_window(
         "start_at": assignment.start_at,
         "end_at": assignment.end_at,
         "ordinal": assignment.ordinal,
+        "processing": processing_contract_snapshot(contract),
         "data": list(assignment.rows),
     }
     return store.put_json(
@@ -1060,7 +1377,10 @@ async def _persist_cdc_schema_change_event_async(
     partition_key: str,
     previous_fields: tuple[str, ...],
     current_fields: tuple[str, ...],
+    compatibility: CDCSchemaCompatibility,
+    handling_action: str,
     observed_at: datetime,
+    processing_contract: ProcessingGuaranteeContract,
 ) -> ArtifactRef:
     previous = set(previous_fields)
     current = set(current_fields)
@@ -1073,6 +1393,9 @@ async def _persist_cdc_schema_change_event_async(
         "current_fields": list(current_fields),
         "added_fields": sorted(current - previous),
         "removed_fields": sorted(previous - current),
+        "compatibility": compatibility.value,
+        "handling_action": handling_action,
+        "processing": processing_contract_snapshot(processing_contract),
         "lineage": {
             "source": f"connector.stream:{connector_id}:{dataset_id}",
             "event_type": "schema_change",
@@ -1108,10 +1431,18 @@ def persist_cdc_schema_change_event(
     previous_fields: tuple[str, ...],
     current_fields: tuple[str, ...],
     observed_at: datetime,
+    compatibility: CDCSchemaCompatibility | None = None,
+    handling_action: str | None = None,
+    processing_contract: ProcessingGuaranteeContract | None = None,
 ) -> ArtifactRef:
     """Persist one schema-change event with lineage/impact payloads."""
     previous = set(previous_fields)
     current = set(current_fields)
+    resolved_compatibility = compatibility or classify_cdc_schema_change(
+        previous_fields,
+        current_fields,
+    )
+    contract = processing_contract or stream_processing_contract()
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -1121,6 +1452,9 @@ def persist_cdc_schema_change_event(
         "current_fields": list(current_fields),
         "added_fields": sorted(current - previous),
         "removed_fields": sorted(previous - current),
+        "compatibility": resolved_compatibility.value,
+        "handling_action": handling_action or "review",
+        "processing": processing_contract_snapshot(contract),
         "lineage": {
             "source": f"connector.stream:{connector_id}:{dataset_id}",
             "event_type": "schema_change",

@@ -41,6 +41,21 @@ class WorldKuzuRefreshContract:
 
 
 @dataclass(frozen=True)
+class WorldKuzuTemporalCapability:
+    """Temporal parity declaration for Kuzu graph exports."""
+
+    graph_temporal_scope: Literal["full", "partial", "unsupported"] = "partial"
+    supported_fact_surfaces: tuple[str, ...] = ("world.world_edges",)
+    unsupported_surfaces: tuple[str, ...] = ("world.world_facts_as_of_projection",)
+    research_track: str = "R3"
+    notes: tuple[str, ...] = (
+        "Kuzu export carries tx_time and valid_time edge properties.",
+        "Bitemporal graph traversal is labelled partial until query semantics are proven.",
+        "Observed/scenario separation remains enforced by snapshot/branch selection before export.",
+    )
+
+
+@dataclass(frozen=True)
 class WorldGraphNodeRecord:
     """One world-node snapshot row reusable for Kuzu or in-memory reasoning."""
 
@@ -83,6 +98,16 @@ class WorldGraphSourceOverlap:
     overlapping_sources: tuple[WorldGraphNodeRecord, ...]
     related_entities: tuple[WorldGraphNodeRecord, ...]
     traversed_edges: tuple[WorldGraphEdgeRecord, ...]
+
+
+@dataclass(frozen=True)
+class WorldGraphOriginTrace:
+    """Origin/source trace rooted at one world entity or metric."""
+
+    center_id: str
+    origin_nodes: tuple[WorldGraphNodeRecord, ...]
+    evidence_edges: tuple[WorldGraphEdgeRecord, ...]
+    max_hops: int
 
 
 @dataclass(frozen=True)
@@ -211,6 +236,21 @@ def build_world_kuzu_conflict_query(
     return query.strip(), {"node_id": node_id}
 
 
+def build_world_kuzu_origin_query(
+    node_id: str,
+    *,
+    max_hops: int = 2,
+) -> tuple[str, dict[str, object]]:
+    hops = max(1, max_hops)
+    query = f"""
+        MATCH path = (seed:WorldNode)-[:WorldEdge*1..{hops}]-(origin:WorldNode)
+        WHERE seed.id = $node_id
+          AND (origin.kind CONTAINS 'source' OR origin.artifact_id IS NOT NULL)
+        RETURN path
+    """
+    return query.strip(), {"node_id": node_id}
+
+
 def build_world_kuzu_policy_impact_query(
     node_id: str,
     *,
@@ -283,6 +323,32 @@ def query_world_source_overlap(
         overlapping_sources=overlapping_sources,
         related_entities=related_entities,
         traversed_edges=neighborhood.edges,
+    )
+
+
+def query_world_origin_trace(
+    snapshot: WorldGraphSnapshot,
+    node_id: str,
+    *,
+    max_hops: int = 2,
+) -> WorldGraphOriginTrace:
+    neighborhood = query_world_entity_neighborhood(snapshot, node_id, max_hops=max_hops)
+    origin_nodes = tuple(
+        node
+        for node in neighborhood.nodes
+        if node.node_id != node_id and ("source" in node.kind or node.artifact_id is not None)
+    )
+    origin_ids = {node.node_id for node in origin_nodes} | {node_id}
+    evidence_edges = tuple(
+        edge
+        for edge in neighborhood.edges
+        if edge.source_id in origin_ids or edge.target_id in origin_ids
+    )
+    return WorldGraphOriginTrace(
+        center_id=node_id,
+        origin_nodes=origin_nodes,
+        evidence_edges=evidence_edges,
+        max_hops=max_hops,
     )
 
 
@@ -382,6 +448,38 @@ def query_world_kuzu_source_overlap(
     )
 
 
+def query_world_kuzu_origin_trace(
+    kuzu_conn: Any,
+    node_id: str,
+    *,
+    max_hops: int = 2,
+) -> WorldGraphOriginTrace:
+    """Resolve origin/source traces from a live Kuzu traversal."""
+
+    neighborhood = query_world_kuzu_entity_neighborhood(
+        kuzu_conn,
+        node_id,
+        max_hops=max_hops,
+    )
+    origin_nodes = tuple(
+        node
+        for node in neighborhood.nodes
+        if node.node_id != node_id and ("source" in node.kind or node.artifact_id is not None)
+    )
+    origin_ids = {node.node_id for node in origin_nodes} | {node_id}
+    evidence_edges = tuple(
+        edge
+        for edge in neighborhood.edges
+        if edge.source_id in origin_ids or edge.target_id in origin_ids
+    )
+    return WorldGraphOriginTrace(
+        center_id=node_id,
+        origin_nodes=origin_nodes,
+        evidence_edges=evidence_edges,
+        max_hops=max_hops,
+    )
+
+
 def query_world_kuzu_conflict_neighborhood(
     kuzu_conn: Any,
     node_id: str,
@@ -462,6 +560,12 @@ def explain_world_kuzu_refresh_contract(
         estimated_edges=estimated_edges,
         batch_size=batch_size,
     )
+
+
+def get_world_kuzu_temporal_capability() -> WorldKuzuTemporalCapability:
+    """Return the explicit temporal parity marker for Kuzu world graph exports."""
+
+    return WorldKuzuTemporalCapability()
 
 
 def ensure_world_kuzu_schema(
@@ -860,8 +964,33 @@ def _optional_float(value: object) -> float | None:
 
 
 __all__ = [
+    "WorldGraphConflictNeighborhood",
+    "WorldGraphEdgeRecord",
+    "WorldGraphNeighborhood",
+    "WorldGraphNodeRecord",
+    "WorldGraphOriginTrace",
+    "WorldGraphPolicyImpact",
+    "WorldGraphSnapshot",
+    "WorldGraphSourceOverlap",
     "WorldKuzuRefreshContract",
+    "WorldKuzuTemporalCapability",
+    "build_world_kuzu_conflict_query",
+    "build_world_kuzu_entity_neighborhood_query",
+    "build_world_kuzu_lineage_query",
+    "build_world_kuzu_origin_query",
+    "build_world_kuzu_policy_impact_query",
     "ensure_world_kuzu_schema",
     "explain_world_kuzu_refresh_contract",
+    "get_world_kuzu_temporal_capability",
     "materialize_world_kuzu_from_duckdb",
+    "query_world_conflict_neighborhood",
+    "query_world_entity_neighborhood",
+    "query_world_kuzu_conflict_neighborhood",
+    "query_world_kuzu_entity_neighborhood",
+    "query_world_kuzu_origin_trace",
+    "query_world_kuzu_policy_impact",
+    "query_world_kuzu_source_overlap",
+    "query_world_origin_trace",
+    "query_world_policy_impact",
+    "query_world_source_overlap",
 ]

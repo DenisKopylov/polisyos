@@ -1102,6 +1102,165 @@ export const runQuantitiesSchema = z.object({
   entries: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
+const fabricQualityRefSchema = z.object({
+  status: z.enum(["passed", "warning", "failed", "unknown_quality"]),
+  score: z.number().nullable().optional(),
+  report_ref: z.string().nullable().optional(),
+  reason_code: z.string().nullable().optional(),
+  quality_surface: z.string().nullable().optional(),
+  remediation_link: z.string().nullable().optional(),
+});
+
+const fabricAccessRefSchema = z.object({
+  classification: z.string(),
+  pii_tier: z.string(),
+  tenant_scope: z.string(),
+  redaction: z.enum(["none", "masked", "redacted", "aggregate_only", "denied"]),
+  policy_ref: z.string().nullable().optional(),
+});
+
+const fabricLineageRefSchema = z.object({
+  id: z.string(),
+  status: z.enum(["verified", "pending", "disputed", "untraced"]),
+  hash: z.string().nullable().optional(),
+  compact_summary_ref: z.string().nullable().optional(),
+  full_graph_ref: z.string().nullable().optional(),
+  raw_evidence_refs: z.array(z.string()).optional(),
+  export_links: z.record(z.string(), z.string()).optional(),
+  reason_code: z.string().nullable().optional(),
+  owner: z.string().nullable().optional(),
+  tracking_issue: z.string().nullable().optional(),
+});
+
+const fabricReplayRefSchema = z.object({
+  status: z.enum(["replayable", "non_replayable", "unknown"]),
+  manifest_ref: z.string().nullable().optional(),
+  reason_code: z.string().nullable().optional(),
+  source_reason: z.string().nullable().optional(),
+  retention_alternative: z.string().nullable().optional(),
+});
+
+const fabricTypedGapSchema = z.object({
+  status: z.enum([
+    "untraced",
+    "unknown_quality",
+    "restricted",
+    "non_replayable",
+    "unsupported_temporal_scope",
+  ]),
+  reason_code: z.string().nullable().optional(),
+  owner: z.string().nullable().optional(),
+  quality_surface: z.string().nullable().optional(),
+  remediation_link: z.string().nullable().optional(),
+  access_policy: z.string().nullable().optional(),
+  redaction_behavior: z.string().nullable().optional(),
+  source_reason: z.string().nullable().optional(),
+  retention_alternative: z.string().nullable().optional(),
+  capability_endpoint: z.string().nullable().optional(),
+});
+
+const fabricDecisionDataSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["quantity", "authored_text", "fact", "event", "claim"]),
+  value: z.record(z.string(), z.unknown()),
+  source_contract: z.object({
+    id: z.string(),
+    version: z.string(),
+  }),
+  quality: fabricQualityRefSchema,
+  lineage: fabricLineageRefSchema,
+  access: fabricAccessRefSchema,
+  time: temporalScopeSchema,
+  replay: fabricReplayRefSchema,
+  gaps: z.array(fabricTypedGapSchema).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const runFabricDecisionDataSchema = z.object({
+  meta: apiMetaSchema,
+  run_id: z.string(),
+  source_kind: z.literal("core_run"),
+  temporal_scope: temporalScopeSchema,
+  decision_data: z.array(fabricDecisionDataSchema).optional(),
+  coverage: z
+    .object({
+      total: z.number(),
+      decision: z.number(),
+      telemetry: z.number(),
+      layout: z.number(),
+      debug: z.number(),
+      traced: z.number(),
+      untraced: z.number(),
+      naked_decision_values: z.number(),
+      transitional_waivers: z.number(),
+    })
+    .optional(),
+});
+
+export const fabricSourceScorecardsSchema = z.object({
+  meta: apiMetaSchema,
+  schema_version: z.string(),
+  generated_at: z.string().nullable().optional(),
+  count: z.number(),
+  scorecards: z.record(z.string(), z.record(z.string(), z.unknown())),
+});
+
+export const fabricQualityBatchSchema = z.object({
+  meta: apiMetaSchema,
+  run_id: z.string(),
+  temporal_scope: temporalScopeSchema,
+  quality_refs: z.record(z.string(), fabricQualityRefSchema),
+  coverage: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const fabricTrustBatchSchema = z.object({
+  meta: apiMetaSchema,
+  run_id: z.string(),
+  temporal_scope: temporalScopeSchema,
+  trust_refs: z.record(
+    z.string(),
+    z.object({
+      quality: fabricQualityRefSchema,
+      access: fabricAccessRefSchema,
+      lineage: fabricLineageRefSchema,
+      replay: fabricReplayRefSchema,
+      time: temporalScopeSchema,
+      gaps: z.array(fabricTypedGapSchema).optional(),
+    }),
+  ),
+  coverage: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const fabricReplaySchema = z.object({
+  meta: apiMetaSchema,
+  run_id: z.string(),
+  temporal_scope: temporalScopeSchema,
+  replay_refs: z.record(z.string(), fabricReplayRefSchema),
+  status_counts: z.record(z.string(), z.number()),
+  coverage: z.record(z.string(), z.unknown()).optional(),
+});
+
+const fabricImpactRecordSchema = z.object({
+  subject_id: z.string(),
+  subject_kind: z.enum(["lineage", "source_contract", "run", "decision_data"]),
+  lineage_status: z.enum(["verified", "pending", "disputed", "untraced"]),
+  quality_status: z.string().nullable().optional(),
+  replay_status: z.string().nullable().optional(),
+  downstream_refs: z.array(z.string()).optional(),
+  upstream_refs: z.array(z.string()).optional(),
+  affected_decision_data_ids: z.array(z.string()).optional(),
+  source_contract_ids: z.array(z.string()).optional(),
+  evidence_refs: z.array(z.string()).optional(),
+  notes: z.array(z.string()).optional(),
+});
+
+export const fabricImpactAnalysisSchema = z.object({
+  meta: apiMetaSchema,
+  temporal_scope: temporalScopeSchema,
+  impacts: z.array(fabricImpactRecordSchema).optional(),
+  summary: z.record(z.string(), z.unknown()).optional(),
+});
+
 export const compareRunsSchema = z.object({
   meta: apiMetaSchema,
   status: z.enum(["computed", "client_computable"]),
@@ -1266,6 +1425,20 @@ export type RunTimelinePayload = z.infer<typeof runTimelineSchema>;
 export type RunNodesPayload = z.infer<typeof runNodesSchema>;
 export type RunLineagePayload = z.infer<typeof runLineageSchema>;
 export type RunQuantitiesPayload = z.infer<typeof runQuantitiesSchema>;
+export type RunFabricDecisionDataPayload = z.infer<
+  typeof runFabricDecisionDataSchema
+>;
+export type FabricSourceScorecardsPayload = z.infer<
+  typeof fabricSourceScorecardsSchema
+>;
+export type FabricQualityBatchPayload = z.infer<
+  typeof fabricQualityBatchSchema
+>;
+export type FabricTrustBatchPayload = z.infer<typeof fabricTrustBatchSchema>;
+export type FabricReplayPayload = z.infer<typeof fabricReplaySchema>;
+export type FabricImpactAnalysisPayload = z.infer<
+  typeof fabricImpactAnalysisSchema
+>;
 export type CompareRunsPayload = z.infer<typeof compareRunsSchema>;
 export type CompareCandidatesPayload = z.infer<typeof compareCandidatesSchema>;
 export type TemporalCapabilitiesPayload = z.infer<
@@ -1300,8 +1473,12 @@ export type ArtifactManifestPayload = z.infer<typeof artifactManifestSchema>;
 export type ArtifactContentPayload = z.infer<typeof artifactContentSchema>;
 export type ArtifactSchemaPayload = z.infer<typeof artifactSchemaSchema>;
 export type ArtifactLineagePayload = z.infer<typeof artifactLineageSchema>;
-export type BureaucraticRenderPayload = z.infer<typeof bureaucraticRenderSchema>;
-export type BureaucraticExportPayload = z.infer<typeof bureaucraticExportSchema>;
+export type BureaucraticRenderPayload = z.infer<
+  typeof bureaucraticRenderSchema
+>;
+export type BureaucraticExportPayload = z.infer<
+  typeof bureaucraticExportSchema
+>;
 export type LineagePayload = z.infer<typeof lineageResponseSchema>;
 export type LineageBatchPayload = z.infer<typeof lineageBatchResponseSchema>;
 export type LineageExportPayload = z.infer<typeof lineageExportResponseSchema>;

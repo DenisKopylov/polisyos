@@ -12,9 +12,14 @@ import {
   RunInspectorProvider,
   useRunInspector,
 } from "@/features/runs/context/RunInspectorContext";
+import { AmbientTelemetryHud } from "@/features/runs/components/AmbientTelemetryHud";
+import { OperatorCraftPanel } from "@/features/runs/components/OperatorCraftPanel";
+import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
+import { PublicationReadinessPanel } from "@/features/runs/components/PublicationReadinessPanel";
 import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
 import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
+import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
 import { getRunBadgeKind } from "@/features/runs/domain/status";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
@@ -322,6 +327,11 @@ function RunInspectorContent() {
 
   return (
     <div className="space-y-5" data-testid="run-detail-page">
+      <AmbientTelemetryHud
+        activeTab={activeTab}
+        runId={runId}
+        summary={summary}
+      />
       <DetailLayout
         sidebar={
           <section
@@ -753,6 +763,11 @@ function RunInspectorContent() {
                     </div>
                   </div>
                 </section>
+
+                <ScientificDepthPanel runId={runId} summary={summary} />
+                <PublicSectorReadinessPanel runId={runId} summary={summary} />
+                <PublicationReadinessPanel runId={runId} summary={summary} />
+                <OperatorCraftPanel runId={runId} summary={summary} />
               </Card>
               <AuthorshipTimeline />
             </div>

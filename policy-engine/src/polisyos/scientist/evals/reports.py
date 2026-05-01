@@ -40,6 +40,7 @@ def export_public_benchmark_authority_verdict(
         "missing": list(verdict.missing),
         "stale": list(verdict.stale),
         "leakage_warnings": list(verdict.leakage_warnings),
+        "challenge_pack_lineage": list(verdict.challenge_pack_lineage),
         "default_enable_allowed": verdict.default_enable_allowed,
         "rationale": verdict.rationale,
     }

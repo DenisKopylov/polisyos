@@ -27,6 +27,7 @@ __all__ = [
     "LegalKnowledgeGraph",
     "LegalReportRef",
     "LexError",
+    "LexFabricEvidencePath",
     "LexIndexError",
     "LexIngestError",
     "LexIngestOptions",
@@ -68,6 +69,7 @@ __all__ = [
     "diff_norm_packs",
     "evaluate_legality",
     "ingest_legal_doc_bytes",
+    "lex_evidence_from_fabric_decision_data",
     "propose_changes",
     "resolve_active_version",
 ]
@@ -93,6 +95,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LexStructureError": ("polisyos.lex.errors", "LexStructureError"),
     "LexValidationError": ("polisyos.lex.errors", "LexValidationError"),
     "LexVersioningError": ("polisyos.lex.errors", "LexVersioningError"),
+    "LexFabricEvidencePath": ("polisyos.lex.provenance", "LexFabricEvidencePath"),
+    "lex_evidence_from_fabric_decision_data": (
+        "polisyos.lex.provenance",
+        "lex_evidence_from_fabric_decision_data",
+    ),
     # types
     "ActiveVersionResult": ("polisyos.lex.types", "ActiveVersionResult"),
     "ActiveVersionStrategy": ("polisyos.lex.types", "ActiveVersionStrategy"),

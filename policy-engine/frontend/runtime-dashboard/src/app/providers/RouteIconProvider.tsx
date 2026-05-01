@@ -4,7 +4,11 @@ import { useLocation } from "react-router-dom";
 import { resolveAtlasLogoMarkAsset } from "@/shared/brand/AtlasBrand";
 import { JANUS_ASSETS } from "@/shared/brand/JanusGlyph";
 
-export const PUBLIC_BRAND_PATH_PREFIXES = ["/login", "/welcome"] as const;
+export const PUBLIC_BRAND_PATH_PREFIXES = [
+  "/login",
+  "/public/decisions",
+  "/welcome",
+] as const;
 export const PUBLIC_FAVICON_HREF = resolveAtlasLogoMarkAsset({ size: 16 });
 export const PRODUCT_FAVICON_HREF = JANUS_ASSETS.favicon;
 

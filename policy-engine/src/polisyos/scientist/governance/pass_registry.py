@@ -40,6 +40,7 @@ RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
         "causal_frontier_leakage",
         "confidence",
         "equity",
+        "fabric_trust",
         "cross_graph_evidence",
         "pii_check",
         "refutation",

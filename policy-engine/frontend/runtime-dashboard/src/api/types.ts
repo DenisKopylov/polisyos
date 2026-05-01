@@ -888,6 +888,91 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/fabric/impact": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Analyze Fabric Impact */
+    post: operations["analyze_fabric_impact"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/fabric/quality/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Fabric Quality Batch */
+    post: operations["get_fabric_quality_batch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/fabric/runs/{run_id}/replay": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fabric Run Replay */
+    get: operations["get_fabric_run_replay"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/fabric/source-scorecards": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fabric Source Scorecards */
+    get: operations["get_fabric_source_scorecards"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/fabric/trust/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Fabric Trust Batch */
+    post: operations["get_fabric_trust_batch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/health": {
     parameters: {
       query?: never;
@@ -1177,6 +1262,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/fabric-decision-data": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Fabric Decision Data */
+    get: operations["get_run_fabric_decision_data"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/lineage": {
     parameters: {
       query?: never;
@@ -1386,6 +1488,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * AccessRef
+     * @description Access policy and redaction state for a decision-bearing value.
+     */
+    AccessRef: {
+      /**
+       * Classification
+       * @default public
+       */
+      classification: string;
+      /**
+       * Pii Tier
+       * @default none
+       */
+      pii_tier: string;
+      /** Policy Ref */
+      policy_ref?: string | null;
+      /**
+       * Redaction
+       * @default none
+       * @enum {string}
+       */
+      redaction: "none" | "masked" | "redacted" | "aggregate_only" | "denied";
+      /**
+       * Tenant Scope
+       * @default shared_public
+       */
+      tenant_scope: string;
+    };
     /**
      * AgentPipelineAttempt
      * @description Agent pipeline attempt public type.
@@ -2160,6 +2291,22 @@ export interface components {
       tenant_id: string;
       /** User Id */
       user_id: string;
+    };
+    /**
+     * AuthoredText
+     * @description Textual decision surface with the same trust spine as quantities.
+     */
+    AuthoredText: {
+      /**
+       * Format
+       * @default plain
+       * @enum {string}
+       */
+      format: "plain" | "markdown" | "html" | "json";
+      /** Semantic Type */
+      semantic_type?: string | null;
+      /** Text */
+      text: string;
     };
     /**
      * BasinEstimate
@@ -4639,6 +4786,292 @@ export interface components {
       media_type: string;
     };
     /**
+     * FabricDecisionData
+     * @description Decision-bearing Fabric value plus its trust envelope.
+     */
+    FabricDecisionData: {
+      access: components["schemas"]["AccessRef"];
+      /** Gaps */
+      gaps?: components["schemas"]["TypedGap"][];
+      /** Id */
+      id: string;
+      /**
+       * Kind
+       * @default quantity
+       * @enum {string}
+       */
+      kind: "quantity" | "authored_text" | "fact" | "event" | "claim";
+      lineage: components["schemas"]["polisyos__fabric__decision_data__LineageRef"];
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      quality: components["schemas"]["QualityRef"];
+      replay: components["schemas"]["ReplayRef"];
+      source_contract: components["schemas"]["SourceContractRef"];
+      time: components["schemas"]["polisyos__fabric__decision_data__TemporalRef"];
+      /** Value */
+      value:
+        | components["schemas"]["FabricQuantityValue"]
+        | components["schemas"]["AuthoredText"]
+        | {
+            [key: string]: unknown;
+          };
+    };
+    /**
+     * FabricDecisionDataCoverage
+     * @description Coverage report for Fabric-backed decision data.
+     */
+    FabricDecisionDataCoverage: {
+      /**
+       * Debug
+       * @default 0
+       */
+      debug: number;
+      /**
+       * Decision
+       * @default 0
+       */
+      decision: number;
+      /**
+       * Layout
+       * @default 0
+       */
+      layout: number;
+      /**
+       * Naked Decision Values
+       * @default 0
+       */
+      naked_decision_values: number;
+      /**
+       * Telemetry
+       * @default 0
+       */
+      telemetry: number;
+      /**
+       * Total
+       * @default 0
+       */
+      total: number;
+      /**
+       * Traced
+       * @default 0
+       */
+      traced: number;
+      /**
+       * Transitional Waivers
+       * @default 0
+       */
+      transitional_waivers: number;
+      /**
+       * Untraced
+       * @default 0
+       */
+      untraced: number;
+    };
+    /**
+     * FabricDecisionDataResponse
+     * @description Runtime response model for batch Fabric decision-data lookup.
+     */
+    FabricDecisionDataResponse: {
+      coverage?: components["schemas"]["FabricDecisionDataCoverage"];
+      /** Decision Data */
+      decision_data?: components["schemas"]["FabricDecisionData"][];
+      /** Meta */
+      meta: {
+        [key: string]: unknown;
+      };
+      /** Run Id */
+      run_id: string;
+      /** Source Kind */
+      source_kind: string;
+      temporal_scope?:
+        | components["schemas"]["polisyos__fabric__decision_data__TemporalRef"]
+        | null;
+    };
+    /**
+     * FabricImpactAnalysisRequest
+     * @description Request body for Fabric-backed impact analysis.
+     */
+    FabricImpactAnalysisRequest: {
+      /** Lineage Ids */
+      lineage_ids?: string[];
+      /**
+       * Max Depth
+       * @default 2
+       */
+      max_depth: number;
+      /** Run Id */
+      run_id?: string | null;
+      /** Source Contract Ids */
+      source_contract_ids?: string[];
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * FabricImpactAnalysisResponse
+     * @description Response envelope for Fabric impact analysis.
+     */
+    FabricImpactAnalysisResponse: {
+      /** Impacts */
+      impacts?: components["schemas"]["FabricImpactRecord"][];
+      meta: components["schemas"]["ApiMeta"];
+      /** Summary */
+      summary?: {
+        [key: string]: unknown;
+      };
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * FabricImpactRecord
+     * @description One origin/impact row for a Fabric lineage or source-contract subject.
+     */
+    FabricImpactRecord: {
+      /** Affected Decision Data Ids */
+      affected_decision_data_ids?: string[];
+      /** Downstream Refs */
+      downstream_refs?: string[];
+      /** Evidence Refs */
+      evidence_refs?: string[];
+      /**
+       * Lineage Status
+       * @default untraced
+       * @enum {string}
+       */
+      lineage_status: "verified" | "pending" | "disputed" | "untraced";
+      /** Notes */
+      notes?: string[];
+      /** Quality Status */
+      quality_status?: string | null;
+      /** Replay Status */
+      replay_status?: string | null;
+      /** Source Contract Ids */
+      source_contract_ids?: string[];
+      /** Subject Id */
+      subject_id: string;
+      /**
+       * Subject Kind
+       * @enum {string}
+       */
+      subject_kind: "lineage" | "source_contract" | "run" | "decision_data";
+      /** Upstream Refs */
+      upstream_refs?: string[];
+    };
+    /**
+     * FabricQualityBatchResponse
+     * @description Batch response for Fabric quality refs without client-side N+1 fetches.
+     */
+    FabricQualityBatchResponse: {
+      /** Coverage */
+      coverage?: {
+        [key: string]: unknown;
+      };
+      meta: components["schemas"]["ApiMeta"];
+      /** Quality Refs */
+      quality_refs?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+      /** Run Id */
+      run_id: string;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * FabricQualityTrustBatchRequest
+     * @description Run-scoped batch request for Fabric quality/trust metadata.
+     */
+    FabricQualityTrustBatchRequest: {
+      /** Decision Data Ids */
+      decision_data_ids?: string[];
+      /** Run Id */
+      run_id: string;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * FabricQuantityValue
+     * @description Fabric-side quantity value compatible with the Runtime `QuantityValue` shape.
+     */
+    FabricQuantityValue: {
+      /** Label */
+      label?: string | null;
+      /** Metric Id */
+      metric_id?: string | null;
+      /** Point */
+      point?: number | null;
+      /** Semantic Type */
+      semantic_type?: string | null;
+      unit: components["schemas"]["polisyos__fabric__decision_data__UnitRef"];
+    };
+    /**
+     * FabricReplayRunResponse
+     * @description Run-scoped replay metadata extracted from Fabric decision-data envelopes.
+     */
+    FabricReplayRunResponse: {
+      /** Coverage */
+      coverage?: {
+        [key: string]: unknown;
+      };
+      meta: components["schemas"]["ApiMeta"];
+      /** Replay Refs */
+      replay_refs?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+      /** Run Id */
+      run_id: string;
+      /** Status Counts */
+      status_counts?: {
+        [key: string]: number;
+      };
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * FabricSourceScorecardsResponse
+     * @description Response envelope for generated Fabric source scorecards.
+     */
+    FabricSourceScorecardsResponse: {
+      /**
+       * Count
+       * @default 0
+       */
+      count: number;
+      /** Generated At */
+      generated_at?: string | null;
+      meta: components["schemas"]["ApiMeta"];
+      /**
+       * Schema Version
+       * @default fabric.source_scorecard.v1
+       */
+      schema_version: string;
+      /** Scorecards */
+      scorecards?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+    };
+    /**
+     * FabricTrustBatchResponse
+     * @description Batch response for Fabric trust-envelope refs without client-side N+1 fetches.
+     */
+    FabricTrustBatchResponse: {
+      /** Coverage */
+      coverage?: {
+        [key: string]: unknown;
+      };
+      meta: components["schemas"]["ApiMeta"];
+      /** Run Id */
+      run_id: string;
+      temporal_scope?: components["schemas"]["TemporalScope"] | null;
+      /** Trust Refs */
+      trust_refs?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
+    };
+    /**
      * FeedbackActionResponse
      * @description Outcome payload returned after evaluating feedback or reissuing a decision.
      */
@@ -5540,39 +5973,6 @@ export interface components {
       trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
     };
     /**
-     * LineageRef
-     * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
-     */
-    "LineageRef-Output": {
-      /** Compact Summary */
-      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
-      /**
-       * Freshness
-       * @default unknown
-       * @enum {string}
-       */
-      freshness: "current" | "stale" | "unknown";
-      /** Hash */
-      hash?: string | null;
-      /** Id */
-      id: string;
-      /** Reason Code */
-      reason_code?: string | null;
-      /**
-       * Status
-       * @default untraced
-       * @enum {string}
-       */
-      status: "verified" | "pending" | "disputed" | "untraced";
-      /** Summary */
-      summary?: {
-        [key: string]: string;
-      };
-      /** Tracking Issue */
-      tracking_issue?: string | null;
-      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
-    };
-    /**
      * LineageResponse
      * @description Response envelope returned by one runtime lineage lookup.
      */
@@ -6197,6 +6597,28 @@ export interface components {
       status: "approved" | "rejected";
     };
     /**
+     * QualityRef
+     * @description Quality evidence reference embedded in a Fabric trust envelope.
+     */
+    QualityRef: {
+      /** Quality Surface */
+      quality_surface?: string | null;
+      /** Reason Code */
+      reason_code?: string | null;
+      /** Remediation Link */
+      remediation_link?: string | null;
+      /** Report Ref */
+      report_ref?: string | null;
+      /** Score */
+      score?: number | null;
+      /**
+       * Status
+       * @default unknown_quality
+       * @enum {string}
+       */
+      status: "passed" | "warning" | "failed" | "unknown_quality";
+    };
+    /**
      * QuantityCoverageEntry
      * @description One numeric field discovered by the quantity coverage inventory.
      */
@@ -6311,9 +6733,9 @@ export interface components {
        * @enum {string}
        */
       quantity_class: "decision" | "telemetry" | "layout" | "debug";
-      time?: components["schemas"]["TemporalRef"] | null;
+      time?: components["schemas"]["TemporalRef-Input"] | null;
       uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
-      unit: components["schemas"]["UnitRef"];
+      unit: components["schemas"]["UnitRef-Input"];
     };
     /**
      * QuantityValue
@@ -6322,7 +6744,7 @@ export interface components {
     "QuantityValue-Output": {
       /** Label */
       label?: string | null;
-      lineage: components["schemas"]["LineageRef-Output"];
+      lineage: components["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
       /** Metric Id */
       metric_id?: string | null;
       /** Point */
@@ -6333,9 +6755,31 @@ export interface components {
        * @enum {string}
        */
       quantity_class: "decision" | "telemetry" | "layout" | "debug";
-      time?: components["schemas"]["TemporalRef"] | null;
+      time?:
+        | components["schemas"]["polisyos__core__contracts__runtime__TemporalRef"]
+        | null;
       uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
-      unit: components["schemas"]["UnitRef"];
+      unit: components["schemas"]["polisyos__core__contracts__runtime__UnitRef"];
+    };
+    /**
+     * ReplayRef
+     * @description Replay or retention alternative reference for the value.
+     */
+    ReplayRef: {
+      /** Manifest Ref */
+      manifest_ref?: string | null;
+      /** Reason Code */
+      reason_code?: string | null;
+      /** Retention Alternative */
+      retention_alternative?: string | null;
+      /** Source Reason */
+      source_reason?: string | null;
+      /**
+       * Status
+       * @default unknown
+       * @enum {string}
+       */
+      status: "replayable" | "non_replayable" | "unknown";
     };
     /**
      * ReproducibilityView
@@ -7290,7 +7734,7 @@ export interface components {
       id: string;
       /** Label */
       label: string;
-      lineage: components["schemas"]["LineageRef-Output"];
+      lineage: components["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
       /**
        * Status
        * @enum {string}
@@ -7475,7 +7919,9 @@ export interface components {
       author: string;
       /** Baseline Hash */
       baseline_hash?: string | null;
-      baseline_lineage?: components["schemas"]["LineageRef-Output"] | null;
+      baseline_lineage?:
+        | components["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"]
+        | null;
       /** Baseline Run Id */
       baseline_run_id: string;
       /** Computed At */
@@ -7501,7 +7947,7 @@ export interface components {
       manifest_hash: string;
       /** Model Family */
       model_family: string;
-      model_lineage: components["schemas"]["LineageRef-Output"];
+      model_lineage: components["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
       /** Model Version */
       model_version?: string | null;
       /** Phase4 Gate Verdict */
@@ -7550,7 +7996,7 @@ export interface components {
       baseline_run_id: string;
       /** Id */
       id: string;
-      lineage: components["schemas"]["LineageRef-Output"];
+      lineage: components["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
       /** Manifest Hash */
       manifest_hash?: string | null;
       /**
@@ -7576,6 +8022,16 @@ export interface components {
        * @default application/json
        */
       media_type: string;
+    };
+    /**
+     * SourceContractRef
+     * @description SourceContract v2 identity carried by decision-bearing values.
+     */
+    SourceContractRef: {
+      /** Id */
+      id: string;
+      /** Version */
+      version: string;
     };
     /**
      * SourceProfileInfo
@@ -7637,9 +8093,22 @@ export interface components {
      * @description Temporal capability manifest for one run or the runtime as a whole.
      */
     TemporalCapabilitiesView: {
+      /**
+       * Branch Support
+       * @default false
+       */
+      branch_support: boolean;
       default_scope?: components["schemas"]["TemporalScope"] | null;
       /** Event Points */
       event_points?: components["schemas"]["TemporalEventPoint"][];
+      /**
+       * Graph Temporal Scope
+       * @default unsupported
+       * @enum {string}
+       */
+      graph_temporal_scope: "full" | "partial" | "unsupported";
+      /** Nearest Event Points */
+      nearest_event_points?: components["schemas"]["TemporalEventPoint"][];
       /**
        * Resolution
        * @default event
@@ -7647,9 +8116,38 @@ export interface components {
       resolution: string;
       /** Run Id */
       run_id?: string | null;
+      /**
+       * Scenario Branch Support
+       * @default unsupported
+       * @enum {string}
+       */
+      scenario_branch_support: "explicit_only" | "unsupported";
+      /** Slow Query Evidence */
+      slow_query_evidence?: components["schemas"]["TemporalIndexEvidence"][];
+      /**
+       * Snapshot Support
+       * @default false
+       */
+      snapshot_support: boolean;
+      /** Supported Tables */
+      supported_tables?: string[];
       /** Surfaces */
       surfaces?: components["schemas"]["TemporalSurfaceCapability"][];
       tx_range?: components["schemas"]["TemporalRange"];
+      /** Unsupported Surfaces */
+      unsupported_surfaces?: (
+        | "run_details"
+        | "run_timeline"
+        | "run_lineage"
+        | "run_quantities"
+        | "run_fabric_decision_data"
+        | "run_compare"
+        | "run_agents"
+        | "run_evidence_context"
+        | "run_workflow"
+        | "run_nodes"
+        | "artifact_content"
+      )[];
       valid_range?: components["schemas"]["TemporalRange"];
     };
     /**
@@ -7705,6 +8203,36 @@ export interface components {
       start?: string | null;
     };
     /**
+     * TemporalIndexEvidence
+     * @description Index and slow-query evidence for temporal world lookups.
+     */
+    TemporalIndexEvidence: {
+      /**
+       * Adapter
+       * @default duckdb
+       */
+      adapter: string;
+      /** Columns */
+      columns?: string[];
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Index Name */
+      index_name: string;
+      /**
+       * Slow Query Gate Ms
+       * @default 500
+       */
+      slow_query_gate_ms: number;
+      /**
+       * Status
+       * @default implemented
+       * @enum {string}
+       */
+      status: "implemented" | "recommended" | "missing" | "not_applicable";
+      /** Table */
+      table: string;
+    };
+    /**
      * TemporalRange
      * @description Inclusive range in which a temporal cursor can be used.
      */
@@ -7718,7 +8246,7 @@ export interface components {
      * TemporalRef
      * @description Bitemporal and snapshot scope carried by a decision-bearing value.
      */
-    TemporalRef: {
+    "TemporalRef-Input": {
       /** Branch */
       branch?: string | null;
       /** Scenario Id */
@@ -7773,6 +8301,7 @@ export interface components {
         | "run_timeline"
         | "run_lineage"
         | "run_quantities"
+        | "run_fabric_decision_data"
         | "run_compare"
         | "run_agents"
         | "run_evidence_context"
@@ -7783,10 +8312,44 @@ export interface components {
       valid_range?: components["schemas"]["TemporalRange"] | null;
     };
     /**
+     * TypedGap
+     * @description Typed gap state for explicit waivers and unknowns in the trust envelope.
+     */
+    TypedGap: {
+      /** Access Policy */
+      access_policy?: string | null;
+      /** Capability Endpoint */
+      capability_endpoint?: string | null;
+      /** Owner */
+      owner?: string | null;
+      /** Quality Surface */
+      quality_surface?: string | null;
+      /** Reason Code */
+      reason_code?: string | null;
+      /** Redaction Behavior */
+      redaction_behavior?: string | null;
+      /** Remediation Link */
+      remediation_link?: string | null;
+      /** Retention Alternative */
+      retention_alternative?: string | null;
+      /** Source Reason */
+      source_reason?: string | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "untraced"
+        | "unknown_quality"
+        | "restricted"
+        | "non_replayable"
+        | "unsupported_temporal_scope";
+    };
+    /**
      * UnitRef
      * @description Machine-readable unit identity plus a human display label.
      */
-    UnitRef: {
+    "UnitRef-Input": {
       /** Code */
       code: string;
       /** Display */
@@ -7903,6 +8466,133 @@ export interface components {
       research_intent_ref?: string | null;
       /** Trinity Bundle Ref */
       trinity_bundle_ref?: string | null;
+    };
+    /**
+     * LineageRef
+     * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
+     */
+    "polisyos__core__contracts__runtime__LineageRef-Output": {
+      /** Compact Summary */
+      compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
+      /**
+       * Freshness
+       * @default unknown
+       * @enum {string}
+       */
+      freshness: "current" | "stale" | "unknown";
+      /** Hash */
+      hash?: string | null;
+      /** Id */
+      id: string;
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Status
+       * @default untraced
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      /** Summary */
+      summary?: {
+        [key: string]: string;
+      };
+      /** Tracking Issue */
+      tracking_issue?: string | null;
+      trust_metadata?: components["schemas"]["VerificationMetadata"] | null;
+    };
+    /**
+     * TemporalRef
+     * @description Bitemporal and snapshot scope carried by a decision-bearing value.
+     */
+    polisyos__core__contracts__runtime__TemporalRef: {
+      /** Branch */
+      branch?: string | null;
+      /** Scenario Id */
+      scenario_id?: string | null;
+      /** Snapshot Id */
+      snapshot_id?: string | null;
+      /** Tx At */
+      tx_at?: string | null;
+      /** Valid At */
+      valid_at?: string | null;
+    };
+    /**
+     * UnitRef
+     * @description Machine-readable unit identity plus a human display label.
+     */
+    polisyos__core__contracts__runtime__UnitRef: {
+      /** Code */
+      code: string;
+      /** Display */
+      display?: string | null;
+      /**
+       * System
+       * @default ucum
+       */
+      system: string;
+    };
+    /**
+     * LineageRef
+     * @description Lineage reference rich enough for compact UI and lazy full graph loading.
+     */
+    polisyos__fabric__decision_data__LineageRef: {
+      /** Compact Summary Ref */
+      compact_summary_ref?: string | null;
+      /** Export Links */
+      export_links?: {
+        [key: string]: string;
+      };
+      /** Full Graph Ref */
+      full_graph_ref?: string | null;
+      /** Hash */
+      hash?: string | null;
+      /** Id */
+      id: string;
+      /** Owner */
+      owner?: string | null;
+      /** Raw Evidence Refs */
+      raw_evidence_refs?: string[];
+      /** Reason Code */
+      reason_code?: string | null;
+      /**
+       * Status
+       * @default untraced
+       * @enum {string}
+       */
+      status: "verified" | "pending" | "disputed" | "untraced";
+      /** Tracking Issue */
+      tracking_issue?: string | null;
+    };
+    /**
+     * TemporalRef
+     * @description Temporal scope echoed by every Fabric trust envelope.
+     */
+    polisyos__fabric__decision_data__TemporalRef: {
+      /** Branch */
+      branch?: string | null;
+      /** Scenario Id */
+      scenario_id?: string | null;
+      /** Snapshot Id */
+      snapshot_id?: string | null;
+      /** Tx At */
+      tx_at?: string | null;
+      /** Valid At */
+      valid_at?: string | null;
+    };
+    /**
+     * UnitRef
+     * @description Unit identity for a Fabric decision quantity.
+     */
+    polisyos__fabric__decision_data__UnitRef: {
+      /** Code */
+      code: string;
+      /** Display */
+      display?: string | null;
+      /**
+       * System
+       * @default ucum
+       */
+      system: string;
     };
   };
   responses: never;
@@ -12425,6 +13115,467 @@ export interface operations {
       };
     };
   };
+  analyze_fabric_impact: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FabricImpactAnalysisRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricImpactAnalysisResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_fabric_quality_batch: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FabricQualityTrustBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricQualityBatchResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_fabric_run_replay: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricReplayRunResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_fabric_source_scorecards: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricSourceScorecardsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Request validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_fabric_trust_batch: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FabricQualityTrustBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricTrustBatchResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   runtime_api_health: {
     parameters: {
       query?: never;
@@ -13895,6 +15046,99 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RunEvidenceContextResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_fabric_decision_data: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        t?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["FabricDecisionDataResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

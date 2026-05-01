@@ -3,6 +3,7 @@ export * from "./CounterfactualQuantity";
 export * from "./ProvenanceDeepDiveDialog";
 export * from "./ProvenanceMiniGraph";
 export * from "./ProvenancePopover";
+export * from "./fabric-decision-data";
 export * from "./lineage-summary";
 export * from "./quantity-format";
 export * from "./quantity-value";

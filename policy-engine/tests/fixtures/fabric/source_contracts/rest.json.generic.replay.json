@@ -1,0 +1,34 @@
+{
+  "connector_id": "rest.json",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "normalized_sample_rows": [
+    {
+      "source_contract_id": "rest.json.generic"
+    }
+  ],
+  "profile_id": "open_meteo",
+  "replay_checksum": "sha256:9a535d85040dd8b9ac1748a244e67715f5db2123b407ec3c30b732cca50f8791",
+  "schema_checksum": "sha256:bb84382f17b72a4b631af9533bb15ee82f71d804e77fc8d2224de64a1e8a9390",
+  "schema_version": "fabric.source_replay_fixture.v1",
+  "source_contract_id": "rest.json.generic",
+  "transcript": {
+    "request": {
+      "connector_id": "rest.json",
+      "dataset_pattern": "*",
+      "method": "GET",
+      "profile_id": "open_meteo",
+      "url": "fabric://rest.json/*"
+    },
+    "response": {
+      "body": {
+        "rows": [
+          {
+            "source_contract_id": "rest.json.generic"
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200
+    }
+  }
+}

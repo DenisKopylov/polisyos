@@ -10,6 +10,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | --------------------------------------- | ------------- | --------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `ABI schema snapshots`                  | `committed`   | `automated`     | `team-polisyos`     | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
 | `Fabric connector contract registry`    | `committed`   | `automated`     | `team-polisyos`     | `schemas/snapshots/fabric/connector_contract_registry.json`                                                                                                                    |
+| `Fabric processing guarantee schema`    | `committed`   | `automated`     | `@fabric-owners`    | `schemas/fabric/processing_guarantee.schema.json`<br/>`schemas/snapshots/fabric/source_contracts_v2.json`                                                                      |
 | `Runtime OpenAPI snapshot`              | `committed`   | `automated`     | `team-polisyos`     | `schemas/runtime_api_v1.openapi.json`                                                                                                                                          |
 | `Generated runtime API client`          | `committed`   | `automated`     | `team-polisyos`     | `frontend/runtime-api-client/runtimeApiClient.ts`<br/>`frontend/runtime-api-client/runtimeApiClient.js`                                                                        |
 | `Runtime dashboard generated API types` | `committed`   | `automated`     | `team-polisyos`     | `frontend/runtime-dashboard/src/api/types.ts`                                                                                                                                  |
@@ -61,6 +62,21 @@ Canonical regeneration commands:
 uv run python tools/ci/check_fabric_schema_registry.py --update
 ```
 
+## `Fabric processing guarantee schema`
+
+- Family id: `fabric-processing-guarantees`
+- Source of truth: `polisyos.fabric.processing_guarantees`, SourceContract v2
+  generation, and the Phase 8 processing guarantee gate.
+- Refresh trigger: Any change to processing guarantee labels, dedupe policy,
+  CDC compatibility handling, backpressure semantics, or distributed execution
+  trust requirements.
+- Validation:
+
+```bash
+uv run python tools/quality/validation/fabric_processing_guarantees.py --check
+uv run python tools/quality/validation/fabric_source_contracts.py --check
+```
+
 ## `Runtime OpenAPI snapshot`
 
 - Family id: `runtime-openapi-snapshot`
@@ -95,6 +111,12 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_r
   - `frontend/runtime-api-client/runtimeApiClient.js`
 - Runtime Fabric coverage: includes `getRunFabricDecisionData`, generated from
   `/api/v1/runs/{run_id}/fabric-decision-data`.
+- Phase 10 Fabric product/API coverage: includes source scorecards,
+  quality/trust batch lookup, replay, and impact-analysis endpoints under
+  `/api/v1/fabric/**`.
+- Phase 7 temporal coverage: includes branch/snapshot capability fields,
+  temporal index evidence, and `graph_temporal_scope=partial` from
+  `/api/v1/temporal/capabilities`.
 
 Canonical regeneration commands:
 

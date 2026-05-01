@@ -7,10 +7,12 @@ import pytest
 
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import StreamLifecycleState, WindowStrategy
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.data_plane.streaming import (
     StreamingSourceSession,
     StreamRuntimeOptions,
@@ -18,6 +20,7 @@ from polisyos.fabric.data_plane.streaming import (
     process_stream_dataset,
 )
 from polisyos.fabric.data_plane.watermark import WindowPolicy
+from polisyos.fabric.processing_guarantees import BackpressurePolicy, stream_processing_contract
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -208,6 +211,105 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
 
 
 @pytest.mark.asyncio
+async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Path):
+    stream_path = tmp_path / "byte-backpressure.jsonl"
+    stream_path.write_text(
+        "\n".join(
+            [
+                '{"_message_id":"m1","event_time":"2024-06-15T12:00:00+00:00","value":"long"}',
+                '{"_message_id":"m2","event_time":"2024-06-15T12:00:10+00:00","value":"long"}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="byte-backpressure",
+        store=FileSystemCAS(tmp_path / ".polisyos"),
+        cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            max_buffered_rows=10_000,
+            max_buffered_bytes=1,
+            pause_seconds=0.0,
+            window_policy=WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=300,
+                session_gap_seconds=300,
+                timestamp_field="event_time",
+            ),
+        ),
+        registry=registry,
+    )
+
+    assert result.rows_emitted == 2
+    assert result.backpressure_events >= 1
+
+
+@pytest.mark.asyncio
+async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_path: Path):
+    stream_path = tmp_path / "backpressure-budget.jsonl"
+    stream_path.write_text(
+        "\n".join(
+            [
+                '{"_message_id":"m1","event_time":"2024-06-15T12:00:00+00:00","value":1}',
+                '{"_message_id":"m2","event_time":"2024-06-15T12:00:10+00:00","value":2}',
+                '{"_message_id":"m3","event_time":"2024-06-15T12:00:20+00:00","value":3}',
+                '{"_message_id":"m4","event_time":"2024-06-15T12:00:30+00:00","value":4}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "2"},
+        ),
+    )
+    processing = stream_processing_contract().model_copy(
+        update={
+            "backpressure": BackpressurePolicy(max_backpressure_events=1),
+        }
+    )
+
+    with pytest.raises(RuntimeError, match="backpressure event budget"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="backpressure-budget",
+            store=FileSystemCAS(tmp_path / ".polisyos"),
+            cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                max_buffered_rows=1,
+                pause_seconds=0.0,
+                processing_contract=processing,
+                window_policy=WindowPolicy(
+                    strategy=WindowStrategy.SESSION,
+                    size=300,
+                    session_gap_seconds=300,
+                    timestamp_field="event_time",
+                ),
+            ),
+            registry=registry,
+        )
+
+
+@pytest.mark.asyncio
 async def test_process_stream_dataset_uses_async_adapters_and_injected_registry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -358,3 +460,66 @@ async def test_process_stream_dataset_persists_cdc_events_via_async_store_adapte
     assert result.rows_emitted == 2
     assert len(result.cdc_event_refs) == 1
     assert "fabric.cdc_schema_change" in seen_kinds
+    cdc_payload = from_canonical_bytes(
+        sync_store.get_bytes(result.cdc_event_refs[0].artifact_id)
+    )
+    assert cdc_payload["compatibility"] == "compatible_additive"
+    assert cdc_payload["handling_action"] == "accept"
+    assert cdc_payload["processing"]["guarantee"] == "at_least_once_with_dedupe"
+
+
+@pytest.mark.asyncio
+async def test_process_stream_dataset_quarantines_incompatible_cdc_breaking_change(
+    tmp_path: Path,
+) -> None:
+    stream_path = tmp_path / "breaking-cdc-stream.jsonl"
+    stream_path.write_text(
+        "\n".join(
+            [
+                '{"_message_id":"m1","value":1}',
+                '{"_message_id":"m2"}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id="breaking-cdc-events",
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+        registry=registry,
+    )
+
+    assert result.rows_emitted == 1
+    assert len(result.chunk_refs) == 1
+    assert len(result.cdc_event_refs) == 1
+    assert result.quarantined_rows == 1
+    cdc_payload = from_canonical_bytes(
+        store.get_bytes(result.cdc_event_refs[0].artifact_id)
+    )
+    assert cdc_payload["compatibility"] == "incompatible_breaking"
+    assert cdc_payload["handling_action"] == "quarantine"
+    assert cdc_payload["processing"]["cdc_schema_changes"]["breaking_change_action"] == "quarantine"
+    records = list_quarantine_records(
+        store,
+        source="stream:stream.jsonl:breaking-cdc-events",
+        reason="cdc_schema_change_incompatible_breaking",
+    )
+    assert len(records) == 1
+    assert records[0][1].context["cdc_event_ref"] == str(
+        result.cdc_event_refs[0].artifact_id
+    )

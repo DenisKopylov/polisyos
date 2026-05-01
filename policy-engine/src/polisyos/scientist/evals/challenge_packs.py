@@ -36,6 +36,10 @@ class ChallengePack(BaseModel):
     rotation_group: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     rotation_days: int = Field(default=30, ge=1)
+    lineage_key: str | None = None
+    source_challenge_ids: list[str] = Field(default_factory=list)
+    reviewer_refs: list[ArtifactRef] = Field(default_factory=list)
+    metadata: dict[str, object] = Field(default_factory=dict)
 
 
 def next_rotation_due_at(pack: ChallengePack) -> datetime:

@@ -60,6 +60,44 @@ TYPED_GAP_STATES = (
     "unsupported_temporal_scope",
 )
 
+FIELD_CLASSIFICATIONS = (
+    {
+        "field": "FabricDecisionData.value",
+        "classification": "decision",
+        "wrapper": "FabricQuantityValue|AuthoredText",
+    },
+    {
+        "field": "FabricDecisionData.quality",
+        "classification": "decision",
+        "wrapper": "QualityRef",
+    },
+    {
+        "field": "FabricDecisionData.lineage",
+        "classification": "decision",
+        "wrapper": "LineageRef",
+    },
+    {
+        "field": "FabricDecisionData.access",
+        "classification": "decision",
+        "wrapper": "AccessRef",
+    },
+    {
+        "field": "FabricDecisionData.replay",
+        "classification": "decision",
+        "wrapper": "ReplayRef",
+    },
+    {
+        "field": "FabricDecisionData.time",
+        "classification": "decision",
+        "wrapper": "TemporalRef",
+    },
+    {
+        "field": "RunQuantitiesResponse.coverage",
+        "classification": "telemetry",
+        "wrapper": "QuantityCoverageSummary",
+    },
+)
+
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -88,12 +126,14 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     temporal_service_path = (
         repo_root / "src" / "polisyos" / "runtime" / "http" / "services" / "temporal.py"
     )
+    runtime_contracts_path = repo_root / "src" / "polisyos" / "core" / "contracts" / "runtime.py"
 
     decision_data_text = _read(decision_data_path)
     run_routes_text = _read(run_routes_path)
     lineage_routes_text = _read(lineage_routes_path)
     lineage_service_text = _read(lineage_service_path)
     temporal_service_text = _read(temporal_service_path)
+    runtime_contracts_text = _read(runtime_contracts_path)
     endpoint_rows = []
     naked_decision_values = []
     for endpoint in ENDPOINTS:
@@ -127,11 +167,27 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         }
         for state in TYPED_GAP_STATES
     ]
+    field_rows = [
+        {
+            **row,
+            "status": "implemented"
+            if _wrapper_present(
+                str(row["wrapper"]),
+                decision_data_text + run_routes_text + runtime_contracts_text,
+            )
+            else "missing",
+        }
+        for row in FIELD_CLASSIFICATIONS
+    ]
     batch_lookup = {
         "lineage_route_uses_batch_service": "_build_runtime_lineage_batch" in lineage_routes_text,
         "lineage_service_deduplicates_refs": "if lineage_id not in resolved" in lineage_service_text,
+        "quality_batch_adapter": "build_quality_refs_batch" in lineage_service_text,
+        "trust_batch_adapter": "build_trust_refs_batch" in lineage_service_text,
         "benchmark_surface": "benchmark_compact_lineage_batch" in lineage_service_text,
+        "full_graph_benchmark_surface": "benchmark_full_lineage_graph" in lineage_service_text,
         "p95_target_ms": 150,
+        "full_graph_p95_target_ms": 500,
     }
     temporal_echo = {
         "runtime_surface_supported": "run_fabric_decision_data" in temporal_service_text,
@@ -147,6 +203,8 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         "batch_lineage_lookup": all(batch_lookup.values()),
         "temporal_scope_echo": all(temporal_echo.values()),
         "typed_gap_states": all(row["status"] == "implemented" for row in typed_gap_rows),
+        "field_classification": all(row["status"] == "implemented" for row in field_rows),
+        "source_contract_v2_ref": "worldbank.wdi.generic" in lineage_service_text,
     }
     return {
         "schema_version": REPORT_SCHEMA_VERSION,
@@ -162,9 +220,14 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
             "naked_decision_value_count": len(naked_decision_values),
             "transitional_waiver_count": 0,
             "typed_gap_state_count": len(typed_gap_rows),
+            "field_count": len(field_rows),
+            "unknown_field_count": sum(
+                row["classification"] == "unknown" for row in field_rows
+            ),
         },
         "required_contracts": required_contracts,
         "endpoints": endpoint_rows,
+        "field_classifications": field_rows,
         "typed_gap_states": typed_gap_rows,
         "batch_lookup": batch_lookup,
         "temporal_echo": temporal_echo,
@@ -231,6 +294,10 @@ def _schema_matches_model(schema_payload: Mapping[str, Any]) -> bool:
         return False
     generated = FabricDecisionData.model_json_schema()
     return schema_payload.get("properties", {}) == generated.get("properties", {})
+
+
+def _wrapper_present(wrapper: str, text: str) -> bool:
+    return all(part.strip() in text for part in wrapper.split("|") if part.strip())
 
 
 def main(argv: Sequence[str] | None = None) -> int:

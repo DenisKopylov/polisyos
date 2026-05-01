@@ -121,6 +121,24 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.linker import LinkReport
 from polisyos.ir.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.scientist.continuous_governance.incident import (
+    build_withdrawal_record,
+    persist_withdrawal_record,
+)
+from polisyos.scientist.continuous_governance.monitors import (
+    DecisionValidityStatus as ContinuousDecisionValidityStatus,
+)
+from polisyos.scientist.continuous_governance.monitors import (
+    build_drift_monitor_event,
+)
+from polisyos.scientist.continuous_governance.reissue import (
+    build_reissue_packet,
+    persist_reissue_packet,
+)
+from polisyos.scientist.continuous_governance.reports import (
+    build_validity_report,
+    persist_validity_report,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
@@ -149,7 +167,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIM_LEDGER_V2_REF,
     ARTIFACT_CLAIMS_REF,
+    ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
@@ -160,12 +180,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
+    ARTIFACT_REISSUE_PACKET_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    ARTIFACT_VOI_RUN_REPORT_REF,
+    ARTIFACT_WITHDRAWAL_RECORD_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
@@ -184,6 +208,12 @@ from polisyos.scientist.search.readiness import (
     DecisionReadinessContract,
     persist_decision_readiness_contract,
 )
+from polisyos.scientist.search.voi_models import (
+    VOIDecisionRecord,
+    VOIDecisionType,
+    VOIRunReport,
+)
+from polisyos.scientist.search.voi_scheduler import persist_voi_run_report
 
 
 def _artifact_id(ch: str) -> str:
@@ -226,6 +256,105 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
         GovernanceReport(verdict="approve", issues=[]),
         PutOptions(kind="scientist.governance_report", media_type="application/json"),
     )
+    research_dag_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "run_id": "R_packet_v3",
+            "workflow_id": "scientist_policy_design",
+            "nodes": [],
+            "edges": [],
+        },
+        PutOptions(kind="scientist.research_dag", media_type="application/json"),
+    )
+    voi_report_ref = persist_voi_run_report(
+        store,
+        VOIRunReport(
+            run_id="R_packet_v3",
+            decisions=[
+                VOIDecisionRecord(
+                    decision_id="voi_decision_stop",
+                    run_id="R_packet_v3",
+                    decision_type=VOIDecisionType.STOP_SEARCH,
+                    recommended_action="stop_search",
+                    expected_value=0.0,
+                    expected_cost=0.0,
+                    expected_risk_reduction=0.0,
+                    explanation="Stop search because marginal VOI is below cost.",
+                )
+            ],
+            total_expected_cost=0.0,
+            calibration_status="shadow",
+        ),
+    )
+    prior_packet_ref = ArtifactRef(
+        artifact_id=_artifact_id("9"),
+        kind="scientist.decision_packet",
+        media_type="application/json",
+    )
+    original_claim_ledger_ref = ArtifactRef(
+        artifact_id=_artifact_id("8"),
+        kind="scientist.claim_ledger_v2",
+        media_type="application/json",
+    )
+    new_packet_ref = ArtifactRef(
+        artifact_id=_artifact_id("7"),
+        kind="scientist.decision_packet",
+        media_type="application/json",
+    )
+    new_claim_ledger_ref = ArtifactRef(
+        artifact_id=_artifact_id("6"),
+        kind="scientist.claim_ledger_v2",
+        media_type="application/json",
+    )
+    monitor_event_ref = ArtifactRef(
+        artifact_id=_artifact_id("5"),
+        kind="scientist.governance_monitor_event",
+        media_type="application/json",
+    )
+    audit_event_ref = ArtifactRef(
+        artifact_id=_artifact_id("4"),
+        kind="scientist.audit_event",
+        media_type="application/json",
+    )
+    reissue_packet_ref = persist_reissue_packet(
+        store,
+        build_reissue_packet(
+            original_decision_packet_ref=prior_packet_ref,
+            original_claim_ledger_ref=original_claim_ledger_ref,
+            new_decision_packet_ref=new_packet_ref,
+            new_claim_ledger_ref=new_claim_ledger_ref,
+            status=ContinuousDecisionValidityStatus.REISSUED,
+            monitor_event_refs=[monitor_event_ref],
+            reason="Reissued after continuous governance drift review.",
+        ),
+    )
+    withdrawal_record_ref = persist_withdrawal_record(
+        store,
+        build_withdrawal_record(
+            withdrawal_id="withdrawal_packet_fixture",
+            decision_packet_ref=prior_packet_ref,
+            actor_id="reviewer_1",
+            reason="Auditable withdrawal record fixture.",
+            audit_event_ref=audit_event_ref,
+            monitor_event_refs=[monitor_event_ref],
+        ),
+    )
+    governance_event = build_drift_monitor_event(
+        decision_packet_ref=prior_packet_ref,
+        event_type="fairness_drift",
+        severity="warning",
+        reason="Fairness drift requires reviewer triage.",
+        affected_claim_ids=["claim_1"],
+    )
+    continuous_governance_report_ref = persist_validity_report(
+        store,
+        build_validity_report(
+            decision_packet_ref=prior_packet_ref,
+            monitor_events=[governance_event],
+            reissue_packet_ref=reissue_packet_ref,
+            withdrawal_ref=withdrawal_record_ref,
+        ),
+    )
 
     state = ExperimentState(
         run_id="R_packet_v3",
@@ -234,9 +363,19 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
             INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
-        artifacts_index={ARTIFACT_METRICS_REF: metrics_ref},
+        artifacts_index={
+            ARTIFACT_METRICS_REF: metrics_ref,
+            ARTIFACT_RESEARCH_DAG_REF: research_dag_ref,
+            ARTIFACT_VOI_RUN_REPORT_REF: voi_report_ref,
+            ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF: continuous_governance_report_ref,
+            ARTIFACT_REISSUE_PACKET_REF: reissue_packet_ref,
+            ARTIFACT_WITHDRAWAL_RECORD_REF: withdrawal_record_ref,
+        },
         reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
-        params={"random_seed": 123},
+        params={
+            "random_seed": 123,
+            "scientist.best_in_class.wave2.phase2_1.claim_ledger_v2": True,
+        },
     )
 
     outcome = BuildDecisionPacketNode().execute(ctx, state)
@@ -258,12 +397,42 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["analysis_limits"]["missing_uncertainty_artifact"] is True
     assert payload["claims_ref"] == payload["artifacts"][ARTIFACT_CLAIMS_REF]
     assert payload["claim_ledger_status"] == "available"
+    assert payload["claim_ledger_v2_ref"] == payload["artifacts"][ARTIFACT_CLAIM_LEDGER_V2_REF]
+    assert payload["claim_ledger_summary"]["lifecycle_status"] == "available"
+    assert payload["blocked_claim_summary"]["blocked_count"] == 0
+    assert payload["research_dag_ref"] == payload["artifacts"][ARTIFACT_RESEARCH_DAG_REF]
+    assert payload["research_dag_status"] == "available"
+    assert payload["voi_report_ref"] == payload["artifacts"][ARTIFACT_VOI_RUN_REPORT_REF]
+    assert payload["voi_report_status"] == "available"
+    assert payload["voi"]["status"] == "available"
+    assert payload["voi"]["decision_count"] == 1
+    assert payload["voi"]["decision_type_counts"]["stop_search"] == 1
+    assert payload["continuous_governance_report_ref"] == payload["artifacts"][
+        ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF
+    ]
+    assert payload["reissue_packet_ref"] == payload["artifacts"][ARTIFACT_REISSUE_PACKET_REF]
+    assert payload["withdrawal_record_ref"] == payload["artifacts"][
+        ARTIFACT_WITHDRAWAL_RECORD_REF
+    ]
+    assert payload["continuous_governance"]["status"] == "review_required"
+    assert payload["continuous_governance"]["event_count"] == 1
+    assert payload["continuous_governance"]["recommendation_count"] == 1
+    assert payload["continuous_governance"]["affected_claim_ids"] == ["claim_1"]
+    assert payload["continuous_governance"]["recommended_actions"] == ["human_review"]
+    assert payload["continuous_governance"]["has_reissue_packet"] is True
+    assert payload["continuous_governance"]["has_withdrawal_record"] is True
     assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
     assert payload["feedback_loop"]["anchor_at"] is not None
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
     assert payload["feedback_loop"]["latest_monitoring_report_ref"] is None
     assert payload["inputs"]["trinity_bundle_ref"] == str(trinity_ref.artifact_id)
     assert payload["artifacts"]["metrics_ref"] == str(metrics_ref.artifact_id)
+    assert payload["artifacts"][ARTIFACT_VOI_RUN_REPORT_REF] == str(
+        voi_report_ref.artifact_id
+    )
+    assert payload["artifacts"][ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF] == str(
+        continuous_governance_report_ref.artifact_id
+    )
     assert payload["artifacts"]["governance_report_ref"] == str(governance_ref.artifact_id)
     assert "input.trinity_bundle_ref" in roles
     assert "input.registry_bundle_ref" in roles
@@ -271,6 +440,8 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
     assert "claims" in roles
+    assert "voi.voi_run_report_ref" in roles
+    assert "continuous_governance.continuous_governance_report_ref" in roles
 
 
 def test_build_decision_packet_blocks_naked_recommendation_when_claim_gate_enabled(

@@ -242,11 +242,33 @@ describe("EvidenceFabricPage", () => {
       within(metricStrip).getByText("common.confidence"),
     ).toBeInTheDocument();
     expect(screen.getByText("workspace:overview:")).toBeInTheDocument();
+    expect(screen.getByTestId("freshness-braid-panel")).toHaveTextContent(
+      "world-bank",
+    );
     expect(screen.getAllByText("World Bank CPI")).not.toHaveLength(0);
     expect(screen.getAllByText("CPI")).not.toHaveLength(0);
     expect(markUiMilestoneMock).toHaveBeenCalledWith(
       "evidence.workspace.insight.ready",
       expect.any(Object),
+    );
+  });
+
+  it("switches the production slice between freshness braid and connector cards", async () => {
+    const user = userEvent.setup();
+
+    renderEvidencePage();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "phase32.connectors.title",
+      }),
+    );
+
+    expect(screen.getByTestId("connector-character-cards")).toHaveTextContent(
+      "world-bank",
+    );
+    expect(screen.getByTestId("location")).toHaveTextContent(
+      "surface=connector-cards",
     );
   });
 

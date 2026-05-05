@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.foundry._numeric import economic_percent_delta
+from polisyos.foundry.runtime.numeric import economic_percent_delta
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,

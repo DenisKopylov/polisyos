@@ -26,7 +26,7 @@ as a new version rather than replacing an existing artifact.
 cd policy-engine
 uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
 uv run polisyos-tools workspace ci-parity --skip-browser
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 ## Release Prep Workflow
@@ -36,7 +36,7 @@ Before a release tag is created:
 1. Update `pyproject.toml` and `frontend/runtime-dashboard/package.json` to the
    target version.
 2. Freeze the selected `release-fragments/unreleased/` entries into
-   `release-fragments/releases/<version>/`.
+   `_build/release-fragments/<version>/`.
 3. Review the generated release notes for compatibility, migration,
    schema/runtime/API, and limitation coverage.
 4. Re-run the docs drift gate and confirm the rollback path in

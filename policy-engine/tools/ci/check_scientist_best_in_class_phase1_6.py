@@ -10,8 +10,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_6"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-6"
@@ -34,12 +34,12 @@ REQUIRED_INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/state_keys.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/human_review/test_models.py"),
-    Path("tests/scientist/human_review/test_persistence.py"),
-    Path("tests/scientist/human_review/test_queue.py"),
-    Path("tests/scientist/human_review/test_oversight_policy.py"),
-    Path("tests/scientist/human_review/test_governance_integration.py"),
-    Path("tests/scientist/human_review/test_decision_packet_integration.py"),
+    Path("tests/unit/scientist/human_review/test_models.py"),
+    Path("tests/unit/scientist/human_review/test_persistence.py"),
+    Path("tests/unit/scientist/human_review/test_queue.py"),
+    Path("tests/unit/scientist/human_review/test_oversight_policy.py"),
+    Path("tests/unit/scientist/human_review/test_governance_integration.py"),
+    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"),
     Path("tests/tools/test_scientist_best_in_class_phase1_6.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
@@ -68,22 +68,22 @@ INTEGRATION_TOKENS: dict[Path, tuple[str, ...]] = {
     ),
 }
 NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/human_review/test_models.py"): (
+    Path("tests/unit/scientist/human_review/test_models.py"): (
         "override_reason",
         "stop_release",
     ),
-    Path("tests/scientist/human_review/test_oversight_policy.py"): (
+    Path("tests/unit/scientist/human_review/test_oversight_policy.py"): (
         "human_reviewed_readiness_without_review_ref",
         "explanation_insufficient",
         "REQUEST_RERUN",
         "INTERRUPT_RELEASE",
     ),
-    Path("tests/scientist/human_review/test_decision_packet_integration.py"): (
+    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"): (
         "governance_human_gate",
         "missing_human_review_packet_ref",
         "human_review_validation_failed",
     ),
-    Path("tests/scientist/human_review/test_governance_integration.py"): (
+    Path("tests/unit/scientist/human_review/test_governance_integration.py"): (
         "test_run_governance_includes_review_refs_from_state",
     ),
 }
@@ -200,8 +200,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     active_plan_missing = [

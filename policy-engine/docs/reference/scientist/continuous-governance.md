@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/continuous_governance/**`, `src/polisyos/scientist/research_dag/invalidation.py`, `src/polisyos/scientist/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `tests/scientist/continuous_governance/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/tools/test_scientist_best_in_class_phase2_6.py`.
+Source of truth: `src/polisyos/scientist/continuous_governance/**`, `src/polisyos/scientist/research_dag/invalidation.py`, `src/polisyos/scientist/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `tests/unit/scientist/continuous_governance/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/tools/test_scientist_best_in_class_phase2_6.py`.
 
 Continuous governance is the Phase 2.6 control plane for living decision
 artifacts. A decision packet can remain valid, enter monitoring, become stale,
@@ -130,8 +130,8 @@ hidden holdout refs, private eval ids or internal monitor identifiers.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/continuous_governance -q
+uv run pytest tests/unit/scientist/continuous_governance -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_6.py --repo-root . --output-format json --require-passing
-uv run pytest tests/scientist/claims tests/scientist/research_dag tests/scientist/human_review -q
-uv run pytest tests/scientist/governance -q
+uv run pytest tests/unit/scientist/claims tests/unit/scientist/research_dag tests/unit/scientist/human_review -q
+uv run pytest tests/unit/scientist/governance -q
 ```

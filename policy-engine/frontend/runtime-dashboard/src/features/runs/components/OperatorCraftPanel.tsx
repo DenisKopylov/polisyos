@@ -29,8 +29,8 @@ import {
   startReadingOnboarding,
   type ReadingOnboardingStepId,
 } from "@/features/runs/domain/operatorCraft";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatNumber, formatPercent } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import { Badge, Button, Slider, Textarea } from "@/shared/ui";
 
 const MAX_VISIBLE_HIDDEN_CLAIMS = 3;

@@ -1,6 +1,6 @@
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Glyph } from "@/shared/brand/Glyph";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import {
   sectionGlyphForType,

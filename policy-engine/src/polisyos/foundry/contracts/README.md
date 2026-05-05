@@ -72,12 +72,12 @@ PY
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/contracts/test_state_contracts.py \
-  tests/foundry/contracts/test_fidelity.py -q
+uv run pytest tests/unit/foundry/contracts/test_state_contracts.py \
+  tests/unit/foundry/contracts/test_fidelity.py -q
 
-uv run pytest tests/foundry/test_global_state.py \
-  tests/foundry/test_layout.py \
-  tests/foundry/test_executor_snapshots.py -q
+uv run pytest tests/unit/foundry/contracts/test_global_state.py \
+  tests/unit/foundry/contracts/test_layout.py \
+  tests/unit/foundry/runtime/test_executor_snapshots.py -q
 ```
 
 ## Reference Docs

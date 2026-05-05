@@ -35,15 +35,15 @@ jobs:
 
       - name: Run runtime HTTP suite
         run: |
-          mkdir -p .tmp/test-reports
-          uv run pytest tests/runtime/http -m "not quarantine" --durations=25 --junitxml=.tmp/test-reports/runtime-http.xml
+          mkdir -p _build/.tmp/test-reports
+          uv run pytest tests/unit/runtime/http -m "not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/runtime-http.xml
 
       - name: Upload runtime HTTP JUnit
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: junit-runtime-http
-          path: policy-engine/.tmp/test-reports/runtime-http.xml
+          path: policy-engine/_build/.tmp/test-reports/runtime-http.xml
           if-no-files-found: warn
           retention-days: 14
 
@@ -92,8 +92,8 @@ jobs:
         with:
           name: runtime-dashboard-a11y
           path: |
-            policy-engine/frontend/runtime-dashboard/playwright-report
-            policy-engine/frontend/runtime-dashboard/test-results
+            policy-engine/_build/frontend/runtime-dashboard/playwright-report
+            policy-engine/_build/frontend/runtime-dashboard/test-results
           if-no-files-found: warn
           retention-days: 14
 
@@ -139,10 +139,10 @@ jobs:
         uses: ./.github/actions/setup-runtime-dashboard
 
       - name: Validate Playwright quarantine registry
-        run: uv run python tools/testing/check_playwright_quarantines.py
+        run: uv run python tools/quality/testing/check_playwright_quarantines.py
 
       - name: Verify Runtime API contract drift
-        run: uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+        run: uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 
       - name: Verify dashboard API types are current
         working-directory: policy-engine/frontend/runtime-dashboard
@@ -167,7 +167,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: frontend-build-security
-          path: policy-engine/frontend/runtime-dashboard/dist/security
+          path: policy-engine/_build/frontend/runtime-dashboard/dist/security
           if-no-files-found: warn
           retention-days: 14
 
@@ -205,8 +205,8 @@ jobs:
         with:
           name: runtime-dashboard-smoke
           path: |
-            policy-engine/frontend/runtime-dashboard/playwright-report
-            policy-engine/frontend/runtime-dashboard/test-results
+            policy-engine/_build/frontend/runtime-dashboard/playwright-report
+            policy-engine/_build/frontend/runtime-dashboard/test-results
           if-no-files-found: warn
           retention-days: 14
 
@@ -228,15 +228,15 @@ jobs:
 
       - name: Run performance suite
         run: |
-          mkdir -p .tmp/test-reports
-          uv run pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=.tmp/test-reports/performance.xml
+          mkdir -p _build/.tmp/test-reports
+          uv run pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/performance.xml
 
       - name: Upload performance JUnit
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: junit-performance
-          path: policy-engine/.tmp/test-reports/performance.xml
+          path: policy-engine/_build/.tmp/test-reports/performance.xml
           if-no-files-found: warn
           retention-days: 14
 
@@ -261,15 +261,15 @@ jobs:
 
       - name: Run integration suite
         run: |
-          mkdir -p .tmp/test-reports
-          uv run pytest -m "integration and not quarantine" --ignore=tests/runtime/http --durations=25 --junitxml=.tmp/test-reports/integration.xml
+          mkdir -p _build/.tmp/test-reports
+          uv run pytest -m "integration and not quarantine" --ignore=tests/unit/runtime/http --durations=25 --junitxml=_build/.tmp/test-reports/integration.xml
 
       - name: Upload integration JUnit
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: junit-integration
-          path: policy-engine/.tmp/test-reports/integration.xml
+          path: policy-engine/_build/.tmp/test-reports/integration.xml
           if-no-files-found: warn
           retention-days: 14
 
@@ -299,7 +299,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: junit-runtime-http
-          path: policy-engine/.tmp/test-reports
+          path: policy-engine/_build/.tmp/test-reports
 
       - name: Download performance JUnit
         if: always()
@@ -307,7 +307,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: junit-performance
-          path: policy-engine/.tmp/test-reports
+          path: policy-engine/_build/.tmp/test-reports
 
       - name: Download integration JUnit
         if: always()
@@ -315,24 +315,24 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: junit-integration
-          path: policy-engine/.tmp/test-reports
+          path: policy-engine/_build/.tmp/test-reports
 
       - name: Render economics summary
         run: |
-          uv run python tools/testing/report_test_economics.py \
-            --report runtime-http=.tmp/test-reports/runtime-http.xml \
-            --report performance=.tmp/test-reports/performance.xml \
-            --report integration=.tmp/test-reports/integration.xml \
+          uv run python tools/quality/testing/report_test_economics.py \
+            --report runtime-http=_build/.tmp/test-reports/runtime-http.xml \
+            --report performance=_build/.tmp/test-reports/performance.xml \
+            --report integration=_build/.tmp/test-reports/integration.xml \
             --allow-missing \
-            --output .tmp/test-reports/test-economics-summary.md
-          cat .tmp/test-reports/test-economics-summary.md >> "$GITHUB_STEP_SUMMARY"
+            --output _build/.tmp/test-reports/test-economics-summary.md
+          cat _build/.tmp/test-reports/test-economics-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload economics summary
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: test-economics-summary
-          path: policy-engine/.tmp/test-reports/test-economics-summary.md
+          path: policy-engine/_build/.tmp/test-reports/test-economics-summary.md
           if-no-files-found: warn
           retention-days: 14
 

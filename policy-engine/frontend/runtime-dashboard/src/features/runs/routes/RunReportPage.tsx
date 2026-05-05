@@ -16,8 +16,8 @@ import {
   buildRunReportSnapshot,
 } from "@/features/runs/domain/compare";
 import { buildRunDeckHref } from "@/features/runs/domain/searchParams";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatNumber } from "@/shared/lib/utils";
 import {
   ApiErrorAlert,
   Button,

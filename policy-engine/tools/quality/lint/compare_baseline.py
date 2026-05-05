@@ -333,13 +333,13 @@ def _format_delta(delta: Delta) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Compare architecture metrics against baseline summary.json."
+        description="Compare architecture metrics against the canonical gate baseline."
     )
     parser.add_argument(
         "--baseline",
         type=Path,
-        default=Path("summary.json"),
-        help="Path to baseline summary.json.",
+        default=Path("architecture/imports/gate_summary.json"),
+        help="Path to baseline gate_summary.json.",
     )
     parser.add_argument(
         "--current",
@@ -356,13 +356,13 @@ def main() -> int:
     parser.add_argument(
         "--exceptions",
         type=Path,
-        default=Path("import_exceptions.toml"),
+        default=Path("architecture/imports/exceptions.toml"),
         help="Path to import exceptions TOML.",
     )
     parser.add_argument(
         "--exceptions-registry",
         type=Path,
-        default=Path("import_exceptions_registry.md"),
+        default=Path("architecture/imports/exceptions.md"),
         help="Path to exceptions registry markdown.",
     )
     parser.add_argument(
@@ -380,8 +380,8 @@ def main() -> int:
     parser.add_argument(
         "--baseline-import-gate",
         type=Path,
-        default=Path("import_gate.txt"),
-        help="Path to baseline import_gate.txt.",
+        default=Path("architecture/imports/gate_baseline.txt"),
+        help="Path to baseline gate_baseline.txt.",
     )
     parser.add_argument(
         "--current-import-gate",

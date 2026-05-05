@@ -267,7 +267,7 @@ Required updates:
 
 Required new lint rule:
 
-- `tools/lint/lint_foundry_data_plane.py`
+- `tools/quality/lint/lint_foundry_data_plane.py`
 
 Minimum checks:
 
@@ -291,14 +291,14 @@ Minimum checks:
    - workflow rewiring + pre-simulation data-plane gate + replay integration.
 4. `M4` (`2026-05-22` -> `2026-05-24`):
 
-   - lint/tests/docs/governance closure and freeze evidence.
+   - lint/tests/architecture/docs/governance closure and freeze evidence.
 
 ### 6.2 PR slicing (recommended)
 
 1. `PR-A`: contracts + execute API compatibility extensions.
 2. `PR-B`: binder module + Scientist binding node.
 3. `PR-C`: workflow/data-plane gate + replay/decision-packet integration.
-4. `PR-D`: lint/tests/docs and queue/governance updates.
+4. `PR-D`: lint/tests/architecture/docs and queue/governance updates.
 
 ## 7. CI and Governance Updates
 
@@ -319,13 +319,13 @@ Minimum checks:
 Architecture/freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p8_metrics \
   --summary-path .tmp/p8_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p8_metrics/summary.json \
   --mode blocking \
@@ -339,9 +339,9 @@ python3 tools/lint/compare_baseline.py \
 P8 lint checks:
 
 ```bash
-python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
-python3 tools/lint/lint_foundry.py
-python3 tools/lint/lint_foundry_data_plane.py
+python3 tools/quality/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
+python3 tools/quality/lint/lint_foundry.py
+python3 tools/quality/lint/lint_foundry_data_plane.py
 ```
 
 Targeted tests (minimum):
@@ -349,9 +349,9 @@ Targeted tests (minimum):
 ```bash
 python3 -m pytest \
   tests/contract/test_foundry_facade_contracts.py \
-  tests/foundry/test_execute_facade_smoke.py \
-  tests/scientist/test_engine_default_workflow_e1_7.py \
-  tests/runtime/test_replay_runtime.py
+  tests/unit/foundry/test_execute_facade_smoke.py \
+  tests/unit/scientist/test_engine_default_workflow_e1_7.py \
+  tests/unit/runtime/test_replay_runtime.py
 ```
 
 Required new P8 tests:
@@ -359,11 +359,11 @@ Required new P8 tests:
 ```bash
 python3 -m pytest \
   tests/contract/test_foundry_input_bindings_contract.py \
-  tests/foundry/test_execute_input_bindings.py \
-  tests/scientist/test_bind_foundry_inputs_node.py \
-  tests/scientist/test_data_plane_gate_node.py \
-  tests/scientist/test_engine_default_workflow_p8.py \
-  tests/runtime/test_replay_input_bindings_completeness.py
+  tests/unit/foundry/test_execute_input_bindings.py \
+  tests/unit/scientist/test_bind_foundry_inputs_node.py \
+  tests/unit/scientist/test_data_plane_gate_node.py \
+  tests/unit/scientist/test_engine_default_workflow_p8.py \
+  tests/unit/runtime/test_replay_input_bindings_completeness.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -446,14 +446,14 @@ Implemented artifacts (P8 scope):
    - `src/polisyos/runtime/replay.py`, `src/polisyos/scientist/replay_backend.py`, and `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py` updated for `input_bindings_ref` completeness and manifest propagation.
 7. Regression prevention:
 
-   - Added `tools/lint/lint_foundry_data_plane.py`.
+   - Added `tools/quality/lint/lint_foundry_data_plane.py`.
    - Updated queue tracking in `p1_refactor_queue.md` (`Q9` closed).
 8. P8 tests:
 
    - Added:
      - `tests/contract/test_foundry_input_bindings_contract.py`
-     - `tests/foundry/test_execute_input_bindings.py`
-     - `tests/scientist/test_bind_foundry_inputs_node.py`
-     - `tests/scientist/test_data_plane_gate_node.py`
-     - `tests/scientist/test_engine_default_workflow_p8.py`
-     - `tests/runtime/test_replay_input_bindings_completeness.py`
+     - `tests/unit/foundry/test_execute_input_bindings.py`
+     - `tests/unit/scientist/test_bind_foundry_inputs_node.py`
+     - `tests/unit/scientist/test_data_plane_gate_node.py`
+     - `tests/unit/scientist/test_engine_default_workflow_p8.py`
+     - `tests/unit/runtime/test_replay_input_bindings_completeness.py`

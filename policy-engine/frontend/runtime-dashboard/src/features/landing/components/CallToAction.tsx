@@ -1,5 +1,5 @@
 import { Button } from "@/shared/ui";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 export function CallToAction() {
   const { t } = useI18n();

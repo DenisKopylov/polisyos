@@ -62,8 +62,8 @@ Conceptual in this README refresh; run these targeted analytics checks before
 landing IR result-contract changes.
 
 ```bash
-uv run pytest tests/ir/analytics/test_shared_invariants.py tests/ir/analytics/test_estimand_normalization.py tests/ir/test_uncertainty.py tests/ir/test_frontier_causal_contracts.py -q
-uv run pytest tests/ir/test_interoperability_bridges.py -q
+uv run pytest tests/unit/ir/analytics/test_shared_invariants.py tests/unit/ir/analytics/test_estimand_normalization.py tests/unit/ir/test_uncertainty.py tests/unit/ir/test_frontier_causal_contracts.py -q
+uv run pytest tests/unit/ir/test_interoperability_bridges.py -q
 ```
 
 ## Reference docs

@@ -9,7 +9,7 @@
  * a future iteration can integrate jspdf + html2canvas.
  */
 
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/shared/lib/utils";
 import { trackExportTriggered } from "@/shared/telemetry/extendedEvents";
 
 export type PrintOptions = {

@@ -29,27 +29,27 @@ methods remain explicitly gated with machine-readable rollout statuses.
 
 ## Regression Proof
 
-- `tests/scientist/test_causal_evaluation_node.py`
-- `tests/scientist/test_decision_packet_node_v3.py`
-- `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`
-- `tests/scientist/governance/test_accountability.py`
-- `tests/scientist/governance/test_calibration_validation.py`
-- `tests/scientist/nodes/test_build_policy_output_bundle.py`
-- `tests/ukraine_data/test_builders.py`
-- `tests/scientist/agent/test_reasoning.py`
-- `tests/scientist/agent/test_eval_harness.py`
-- `tests/scientist/search/strategies/test_advanced_policy.py`
-- `tests/scientist/test_frontier_runtime.py`
+- `tests/unit/scientist/causal/test_causal_evaluation_node.py`
+- `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`
+- `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`
+- `tests/unit/scientist/governance/test_accountability.py`
+- `tests/unit/scientist/governance/test_calibration_validation.py`
+- `tests/unit/scientist/nodes/test_build_policy_output_bundle.py`
+- `tests/unit/data_forge/domains/ukraine/test_builders.py`
+- `tests/unit/scientist/agent/test_reasoning.py`
+- `tests/unit/scientist/agent/test_eval_harness.py`
+- `tests/unit/scientist/search/strategies/test_advanced_policy.py`
+- `tests/unit/scientist/search/test_frontier_runtime.py`
 
 ## Reproduce
 
 ```bash
-uv run pytest tests/scientist/test_causal_evaluation_node.py -q
-uv run pytest tests/scientist/test_decision_packet_node_v3.py -q
-uv run pytest tests/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
-uv run pytest tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py -q
-uv run pytest tests/scientist/nodes/test_build_policy_output_bundle.py tests/ukraine_data/test_builders.py -q
-uv run pytest tests/scientist/agent/test_reasoning.py tests/scientist/agent/test_eval_harness.py tests/scientist/search/strategies/test_advanced_policy.py tests/scientist/test_frontier_runtime.py -q
+uv run pytest tests/unit/scientist/causal/test_causal_evaluation_node.py -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py -q
+uv run pytest tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
+uv run pytest tests/unit/scientist/governance/test_accountability.py tests/unit/scientist/governance/test_calibration_validation.py -q
+uv run pytest tests/unit/scientist/nodes/test_build_policy_output_bundle.py tests/unit/data_forge/domains/ukraine/test_builders.py -q
+uv run pytest tests/unit/scientist/agent/test_reasoning.py tests/unit/scientist/agent/test_eval_harness.py tests/unit/scientist/search/strategies/test_advanced_policy.py tests/unit/scientist/search/test_frontier_runtime.py -q
 ```
 
 ## Claim Discipline

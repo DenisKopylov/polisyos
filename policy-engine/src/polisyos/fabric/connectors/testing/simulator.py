@@ -27,7 +27,7 @@ BaseConnector) via a context manager. All connector code under
 
 Fixture layout on disk::
 
-    tests/fabric/connectors/fixtures/
+    tests/unit/fabric/connectors/fixtures/
     +-- <connector_id>/
         +-- <dataset_id>/
             +-- <request_content_hash>.json
@@ -256,7 +256,7 @@ class APISimulator:
 
         simulator = APISimulator(
             mode=SimulatorMode.REPLAY,
-            fixture_root=Path("tests/fabric/connectors/fixtures"),
+            fixture_root=Path("tests/unit/fabric/connectors/fixtures"),
             connector_id="worldbank.wdi",
             dataset_id="gdp",
         )
@@ -289,7 +289,7 @@ class APISimulator:
         max_call_log_entries: int = 10_000,
     ) -> None:
         self.mode = mode
-        self.fixture_root = fixture_root or Path("tests/fabric/connectors/fixtures")
+        self.fixture_root = fixture_root or Path("tests/unit/fabric/connectors/fixtures")
         self.connector_id = connector_id
         self.dataset_id = dataset_id or "unknown"
         self.schema = schema

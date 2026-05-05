@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 export function RunBreadcrumbs({ runId }: { runId: string }) {
   const { t } = useI18n();

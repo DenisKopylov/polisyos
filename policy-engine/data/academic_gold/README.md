@@ -11,5 +11,5 @@ Files:
 Notes:
 
 - The files are intentionally small seed sets in git. They are meant to be expanded by human annotators.
-- Use `python scripts/build_academic_gold_candidates.py --snapshot-root <snapshot>` to generate candidate pools from a snapshot before manual labeling.
+- Use `python polisyos-tools data build-academic-gold-candidates --snapshot-root <snapshot>` to generate candidate pools from a snapshot before manual labeling.
 - `Causal Claims in Economics` should be treated as a silver candidate source, not as gold.

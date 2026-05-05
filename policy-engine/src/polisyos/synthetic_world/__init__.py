@@ -1,6 +1,12 @@
-"""Synthetic-world family with truth-centric generation and evaluation."""
+"""Compatibility facade for :mod:`polisyos.foundry.agent_sim.world`.
 
-from .models import (
+The implementation moved under the Foundry agent simulation owner during
+Repository Structure Remediation Phase 4A. Keep this root import available
+until the 2026-10-01 shim sunset; deep ``polisyos.synthetic_world.*`` imports
+are internal and must migrate to ``polisyos.foundry.agent_sim.world.*``.
+"""
+
+from polisyos.foundry.agent_sim.world import (
     BenchmarkSuiteBinding,
     EvaluationRun,
     EvaluationSpec,
@@ -12,6 +18,7 @@ from .models import (
     MissingnessSpec,
     SamplingDesignKind,
     SamplingDesignSpec,
+    SyntheticWorld,
     SyntheticWorldDGP,
     SyntheticWorldSample,
     TruthComputationMode,
@@ -21,8 +28,9 @@ from .models import (
     WorldArtifact,
     WorldFamily,
     WorldSpec,
+    phase0_seed_benchmark_binding,
+    phase0_seed_world_specs,
 )
-from .world import SyntheticWorld, phase0_seed_benchmark_binding, phase0_seed_world_specs
 
 __all__ = [
     "BenchmarkSuiteBinding",

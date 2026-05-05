@@ -11,7 +11,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
+from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,

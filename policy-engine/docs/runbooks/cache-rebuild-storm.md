@@ -9,7 +9,7 @@ Related reference: [Observability Topology](../reference/operations/observabilit
 
 Owner: `@runtime-owners`
 Last tested: `2026-04-17` against current cache, streaming, and lineage regression coverage.
-Evidence path: `docs/reference/operations/observability-topology.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/fabric/data_plane/test_streaming_runtime.py`
+Evidence path: `docs/reference/operations/observability-topology.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/fabric/data_plane/test_streaming_runtime.py`
 Rollback path: reduce rebuild pressure or roll back the invalidation change, preserve one failing cache snapshot, and only then clear or rebuild state.
 
 Freshness: 2026-04-17.
@@ -74,9 +74,9 @@ Freshness: 2026-04-17.
    cleanup:
 
 ```bash
-uv run pytest tests/fabric/connectors/test_cache_system.py tests/fabric/connectors/test_schema_aware_cache.py -q
-uv run pytest tests/fabric/data_plane/test_cursor_store.py tests/fabric/data_plane/test_streaming_runtime.py -q
-uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materialization.py -q
+uv run pytest tests/unit/fabric/connectors/test_cache_system.py tests/unit/fabric/connectors/test_schema_aware_cache.py -q
+uv run pytest tests/unit/fabric/data_plane/test_cursor_store.py tests/unit/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/unit/fabric/test_lineage.py tests/unit/fabric/test_world_materialization.py -q
 ```
 
 ## Rollback / Mitigation

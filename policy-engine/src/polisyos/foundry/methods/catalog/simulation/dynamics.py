@@ -71,7 +71,9 @@ def _rk4_step(
     return state + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
 
 
-def _canonical_ode_rhs(system: str, params: Mapping[str, Any]) -> Callable[[np.ndarray], np.ndarray]:
+def _canonical_ode_rhs(
+    system: str, params: Mapping[str, Any]
+) -> Callable[[np.ndarray], np.ndarray]:
     if system == "hopf_normal_form":
         mu = float(params.get("mu", 0.1))
         omega = float(params.get("omega", 1.0))
@@ -322,7 +324,14 @@ class CanonicalDynamicalSystemEstimator:
         namespace="",
         version="0.0.0",
         input_slots=frozenset(
-            {SlotSpec("initial_state", SlotType.VECTOR, Unit("state", "level"))}
+            {
+                SlotSpec(
+                    "initial_state",
+                    SlotType.VECTOR,
+                    Unit("state", "level"),
+                    shape=("n_state",),
+                )
+            }
         ),
         output_slots=_result_slot(),
         parameters=(
@@ -452,7 +461,7 @@ class QueueDiscreteEventEstimator:
         import jax
         import jax.numpy as jnp
 
-        from polisyos.foundry.queue import QueueMechanism, QueueState, simulate_queue
+        from polisyos.foundry.execute.queue import QueueMechanism, QueueState, simulate_queue
 
         mechanism = QueueMechanism(
             service_rate=float(params.get("service_rate", 1.0)),

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { scheduleA11yAudit } from "@/lib/a11yAudit";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { scheduleA11yAudit } from "@/shared/lib/a11yAudit";
 
 type ContrastWarning = {
   minimum: number;

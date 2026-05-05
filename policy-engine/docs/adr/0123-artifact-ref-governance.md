@@ -19,7 +19,8 @@ artifact reference to carry enough metadata for:
 - lineage (producer version, input ArtifactRefs, trace ID);
 - schema and contract binding (schema_id, schema_version);
 - operational policy (retention class, freshness SLA, access class);
-- reproducibility (producer pipeline run, git SHA, model hashes).
+- reproducibility (producer pipeline run, git SHA, model hashes,
+  regeneration command).
 
 Without this on the ref, governance, audit, and debugging require out-of-band
 lookups that do not survive archival.
@@ -44,6 +45,7 @@ ADR-0114 / ADR-0005:
 | `inputs`           | list[ref]     | yes      | Upstream ArtifactRefs consumed.                       |            |                |              |              |
 | `owner`            | string        | yes      | Team identifier.                                      |            |                |              |              |
 | `license`          | SPDX string   | yes      | Distribution license of the payload.                  |            |                |              |              |
+| `regeneration_command` | string    | yes      | Canonical command or review path to reproduce.         |            |                |              |              |
 | `pii_level`        | enum          | yes      | `none \                                               | low \      | medium \       | high \       | restricted`. |
 | `retention_class`  | enum          | yes      | `ephemeral \                                          | standard \ | long_lived \   | regulated`.  |              |
 | `access_class`     | enum          | yes      | `public \                                             | internal \ | confidential \ | restricted`. |              |

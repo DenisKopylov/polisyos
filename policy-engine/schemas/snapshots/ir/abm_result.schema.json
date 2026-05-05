@@ -258,6 +258,30 @@
       "title": "ExecPlanRef",
       "type": "object"
     },
+    "FairnessAuditReportRef": {
+      "additionalProperties": false,
+      "description": "Reference to a stored validation-stage fairness audit report artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
+        },
+        "kind": {
+          "default": "scientist.fairness_audit_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "FairnessAuditReportRef",
+      "type": "object"
+    },
     "FeedbackResultRef": {
       "additionalProperties": false,
       "description": "Artifact reference for the top-level feedback solve result.",
@@ -563,6 +587,17 @@
     },
     "exec_plan_ref": {
       "$ref": "#/$defs/ExecPlanRef"
+    },
+    "fairness_audit_report_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FairnessAuditReportRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "feedback_result_ref": {
       "anyOf": [

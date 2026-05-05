@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 import type { TemporalScope } from "@/app/providers/temporal-scope";
 import { toApiTemporalParams } from "@/app/providers/temporal-scope";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import {
   Dialog,
   DialogContent,

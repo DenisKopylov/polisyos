@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   normalizeWorkflow,
   type WorkflowNodeView,
-} from "@/lib/domain/workflow";
-import { formatDuration, formatNumber } from "@/lib/utils";
+} from "@/shared/lib/domain/workflow";
+import { formatDuration, formatNumber } from "@/shared/lib/utils";
 import { Badge, EmptyState, chartTheme } from "@/shared/ui";
 
 type WorkflowDagPanelProps = {

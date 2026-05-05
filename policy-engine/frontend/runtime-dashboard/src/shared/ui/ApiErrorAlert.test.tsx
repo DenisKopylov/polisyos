@@ -27,9 +27,9 @@ describe("ApiErrorAlert", () => {
 
     expect(screen.getByText("Custom title")).toBeInTheDocument();
     expect(screen.getByText("Runtime queue unavailable")).toBeInTheDocument();
-    expect(
-      screen.getByText("status=503 code=runtime_failed request_id=req-123"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("status=503")).toBeInTheDocument();
+    expect(screen.getByText("code=runtime_failed")).toBeInTheDocument();
+    expect(screen.getByText("request_id=req-123")).toBeInTheDocument();
   });
 
   it("renders generic errors when the payload is not a runtime API problem", () => {

@@ -1,95 +1,64 @@
 [conservative_overlay]
 version = 1
-status = "active"
+status = "closed"
 owner = "team-polisyos"
 starts_on = "2026-04-24"
-source_plan = "docs/plans/active/REPOSITORY_SOTA_PLAN.md"
+source_plan = "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md"
 data_forge_plan = "docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md"
 mode = "report_only_for_protected_surfaces"
 description = """
-Temporary execution overlay for Repository SOTA implementation while the Lex NPA
-corpus cloud run is active. This contract changes enforcement mode only:
-target architecture remains unchanged, but protected production surfaces cannot
-be moved, renamed, tightened, or made fail-closed until the end gate passes.
+Closed historical execution overlay for Repository SOTA implementation while
+the Lex NPA corpus cloud run was active. This file remains as evidence only and
+is no longer an active execution constraint.
 """
 
 [end_gate]
 gate_id = "lex-production-run-cutover-readiness"
 owner = "team-data-forge"
-event_gated = true
+event_gated = false
 required_evidence = [
-  "Queue 2 shard_4 completed",
-  "Queue 3 Waves 1 through 5 completed",
-  "Shard merge checks passed",
-  "QC checks passed",
-  "Publication checks passed",
-  "Production source revision recorded",
-  "Artifact roots recorded",
-  "Manifest schemas recorded",
-  "Output layouts recorded",
-  "Merge/QC evidence recorded",
+  "Superseded by Repository SOTA Phase 0 contract normalization on 2026-05-02.",
 ]
-
-[[protected_surface]]
-path = "src/polisyos/lex/batch/**"
-owner = "team-lex"
-reason = "Current Lex batch package is the production writer for the active NPA corpus run."
-allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
-forbidden_actions = ["move", "rename", "writer_switch", "manifest_schema_change", "output_layout_change"]
-
-[[protected_surface]]
-path = "src/polisyos/batch_common/**"
-owner = "team-data-forge"
-reason = "Shared batch code is still imported by active and queued Lex/cloud workflows."
-allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
-forbidden_actions = ["move", "rename", "import_rewrite", "complexity_exception_burndown"]
-
-[[protected_surface]]
-path = "src/polisyos/batch_snapshot/**"
-owner = "team-data-forge"
-reason = "Snapshot helper imports are still part of the compatibility window."
-allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
-forbidden_actions = ["move", "rename", "import_rewrite", "complexity_exception_burndown"]
 
 [[protected_surface]]
 path = "tools/ops/cloud/**"
 owner = "team-ops"
-reason = "Canonical cloud runners and shard helpers are used by current and queued Lex jobs."
+reason = "Historical protected surface from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "wrapper_removal", "runner_import_rewrite", "deploy_asset_move"]
 
 [[protected_surface]]
-path = "tools/cloud/**"
+path = "tools/ops/cloud/**"
 owner = "team-ops"
-reason = "Compatibility cloud wrappers may still be called by queued cloud jobs."
+reason = "Historical compatibility protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "wrapper_removal", "wrapper_tightening"]
 
 [[protected_surface]]
 path = "tools/ops/ukraine_data/pre_shard_lex_corpus.py"
 owner = "team-data-forge"
-reason = "Pre-sharding behavior is part of the current Lex NPA corpus execution surface."
+reason = "Historical pre-sharding protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "manifest_schema_change", "shard_assignment_change"]
 
 [[protected_surface]]
-path = "tools/ukraine_data/pre_shard_lex_corpus.py"
+path = "tools/ops/ukraine_data/pre_shard_lex_corpus.py"
 owner = "team-data-forge"
-reason = "Compatibility wrapper for Lex NPA corpus pre-sharding."
+reason = "Historical pre-sharding wrapper protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "wrapper_removal", "wrapper_tightening"]
 
 [[protected_surface]]
 path = "data/data_lex/**"
 owner = "local"
-reason = "Local Lex input and pre-sharded corpus workspace for the active run."
+reason = "Historical local Lex input workspace protection from the completed run period."
 allowed_actions = ["read_only_inventory", "copy_to_isolated_fixture"]
 forbidden_actions = ["move", "rename", "delete", "rewrite", "normalize"]
 
 [[protected_surface]]
 path = "data/lex_knowledge/**"
 owner = "local"
-reason = "Local Lex output workspace with shard state and generated knowledge artifacts."
+reason = "Historical local Lex output workspace protection from the completed run period."
 allowed_actions = ["read_only_inventory", "copy_to_isolated_fixture"]
 forbidden_actions = ["move", "rename", "delete", "rewrite", "normalize"]
 
@@ -97,52 +66,52 @@ forbidden_actions = ["move", "rename", "delete", "rewrite", "normalize"]
 gate = "import-linter"
 source = "architecture/import_contracts.toml"
 protected_surface_mode = "report_only"
-reason = "Protected import paths remain stable until Lex cutover readiness evidence exists."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "deptry"
 source = "pyproject.toml"
 protected_surface_mode = "report_only"
-reason = "Dependency hygiene can be reported, but cannot block protected queued jobs."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "topology-gate"
 source = "architecture/topology.toml"
 protected_surface_mode = "report_only"
-reason = "Topology cleanup is target-state only for protected paths during the overlay."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "shim-audit"
-source = "architecture/migration_shims.toml"
+source = "architecture/shims.toml"
 protected_surface_mode = "report_only"
-reason = "Compatibility wrappers required by queued cloud jobs cannot be removed or tightened."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "complexity"
 source = "architecture/complexity_exceptions.toml"
 protected_surface_mode = "report_only"
-reason = "Lex/shared-batch exception burndown is deferred until after cutover readiness."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "schema-drift"
 source = "schemas/**"
 protected_surface_mode = "report_only"
-reason = "Production Lex manifest schemas cannot change during the active run."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "generated-header"
 source = "architecture/generated_artifacts.toml"
 protected_surface_mode = "report_only"
-reason = "Generated outputs used by production jobs are not rewritten during the overlay."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "docs-freshness"
 source = "docs/plans/README.md"
 protected_surface_mode = "report_only"
-reason = "Docs may record evidence, but cannot force protected structural moves."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
 [[gate_mode]]
 gate = "loose-file"
 source = "architecture/topology.toml"
 protected_surface_mode = "report_only"
-reason = "Loose-file cleanup is limited to classification and ignore rules for local-only outputs."
+reason = "Historical report-only mode retained as evidence; no active freeze constraint."

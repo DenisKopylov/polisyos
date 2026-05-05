@@ -1,4 +1,4 @@
-import { RUNS_SAMPLE_LIMIT } from "@/lib/constants";
+import { RUNS_SAMPLE_LIMIT } from "@/shared/lib/constants";
 import {
   runsQueryOptions,
   useRuns,

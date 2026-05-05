@@ -1,0 +1,98 @@
+{
+  "fixture_path_exists": true,
+  "integration_packages": [
+    "scientist"
+  ],
+  "property_packages": [
+    "common",
+    "foundry",
+    "ir",
+    "runtime",
+    "scientist"
+  ],
+  "top_level_dirs": [
+    {
+      "conftest_count": 0,
+      "name": "architecture",
+      "path": "tests/architecture",
+      "test_file_count": 17
+    },
+    {
+      "conftest_count": 1,
+      "name": "contract",
+      "path": "tests/contract",
+      "test_file_count": 20
+    },
+    {
+      "conftest_count": 0,
+      "name": "e2e",
+      "path": "tests/e2e",
+      "test_file_count": 1
+    },
+    {
+      "conftest_count": 0,
+      "name": "fixtures",
+      "path": "tests/fixtures",
+      "test_file_count": 1
+    },
+    {
+      "conftest_count": 0,
+      "name": "golden",
+      "path": "tests/golden",
+      "test_file_count": 0
+    },
+    {
+      "conftest_count": 0,
+      "name": "integration",
+      "path": "tests/integration",
+      "test_file_count": 6
+    },
+    {
+      "conftest_count": 0,
+      "name": "lint",
+      "path": "tests/lint",
+      "test_file_count": 1
+    },
+    {
+      "conftest_count": 0,
+      "name": "performance",
+      "path": "tests/performance",
+      "test_file_count": 10
+    },
+    {
+      "conftest_count": 0,
+      "name": "property",
+      "path": "tests/property",
+      "test_file_count": 36
+    },
+    {
+      "conftest_count": 1,
+      "name": "tools",
+      "path": "tests/tools",
+      "test_file_count": 52
+    },
+    {
+      "conftest_count": 26,
+      "name": "unit",
+      "path": "tests/unit",
+      "test_file_count": 1253
+    }
+  ],
+  "unit_packages": [
+    "berl",
+    "calibration",
+    "common",
+    "core",
+    "data_forge",
+    "ddm",
+    "ddm_15_7",
+    "fabric",
+    "foundry",
+    "ir",
+    "lex",
+    "runtime",
+    "scholar",
+    "scientist",
+    "synthetic_world"
+  ]
+}

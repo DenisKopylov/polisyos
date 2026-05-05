@@ -9,7 +9,7 @@ reference: [Ownership](../reference/ownership.md). Related how-to:
 
 Owner: `@platform-owners`
 Last tested: `2026-04-17` against current signing/SBOM regressions and release-evidence docs.
-Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/platform-acceptance.md`; `tests/core/security/test_sbom.py`
+Evidence path: `docs/reference/security-compliance.md`; `docs/archive/reports/platform-acceptance.md`; `tests/unit/core/security/test_sbom.py`
 Rollback path: return to the last trusted signer and trust-store state, block promotion, and only time-box any temporary allowlist or grace-window exception.
 
 ## Symptom
@@ -73,9 +73,9 @@ Rollback path: return to the last trusted signer and trust-store state, block pr
    ```bash
    cd policy-engine
    uv run pytest \
-     tests/core/phase0/test_cli_signing.py \
-     tests/core/phase0/test_store_signing.py \
-     tests/core/security/test_sbom.py
+     tests/unit/core/phase0/test_cli_signing.py \
+     tests/unit/core/phase0/test_store_signing.py \
+     tests/unit/core/security/test_sbom.py
    ```
 
 4. Если проблема в audit package, проверьте наличие:

@@ -390,6 +390,7 @@ class RuntimePredictor:
 
 _DEFAULT_HISTORY_PATH = (
     Path(__file__).resolve().parents[4]
+    / "_build"
     / "benchmark-results"
     / "foundry"
     / "selection_history"

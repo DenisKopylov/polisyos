@@ -12,6 +12,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.ukraine import UkraineDemographyArtifacts
 
 _UKRAINE_DOMAIN = "polisyos.data_forge.domains.ukraine"
+REAL_BACKTEST_BUNDLE_CONTRACT_FQN = (
+    "polisyos.data_forge.domains.ukraine.contracts.RealBacktestBundleContract"
+)
 _EXPORTS = {
     "UKRAINE_ASSET_GROUP": _UKRAINE_DOMAIN,
     "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY": _UKRAINE_DOMAIN,
@@ -23,14 +26,26 @@ _EXPORTS = {
     "UKRAINE_SOURCE_CONFIG_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_STATIC_AGING_INPUTS_KEY": _UKRAINE_DOMAIN,
     "UkraineDemographyArtifacts": _UKRAINE_DOMAIN,
+    "UkraineLexPreShardDiff": _UKRAINE_DOMAIN,
+    "UkraineLexPreShardSummary": _UKRAINE_DOMAIN,
+    "UkraineLexShardEntry": _UKRAINE_DOMAIN,
+    "UkraineLexShardPassSummary": _UKRAINE_DOMAIN,
     "UkraineReadinessSummary": _UKRAINE_DOMAIN,
     "UkraineShadowArtifact": _UKRAINE_DOMAIN,
     "UkraineShadowBundle": _UKRAINE_DOMAIN,
     "UkraineShadowDiff": _UKRAINE_DOMAIN,
     "UkraineSourceSummary": _UKRAINE_DOMAIN,
+    "ReleaseManifest": "polisyos.data_forge.domains.ukraine.manifests",
+    "RealBacktestBundleContract": "polisyos.data_forge.domains.ukraine.contracts",
+    "compare_lex_pre_shard_summaries": _UKRAINE_DOMAIN,
     "compare_ukraine_shadow_bundles": _UKRAINE_DOMAIN,
+    "infer_lex_snapshot_label": _UKRAINE_DOMAIN,
+    "lex_pre_shard_index": _UKRAINE_DOMAIN,
+    "lex_pre_shard_pass_name": _UKRAINE_DOMAIN,
     "load_demography_artifacts": _UKRAINE_DOMAIN,
     "load_donor_pool": _UKRAINE_DOMAIN,
+    "load_lex_pre_shard_summary": _UKRAINE_DOMAIN,
+    "load_manifest": "polisyos.data_forge.domains.ukraine.manifests",
     "load_reconciled_targets": _UKRAINE_DOMAIN,
     "load_transition_priors": _UKRAINE_DOMAIN,
     "load_ukraine_shadow_bundle": _UKRAINE_DOMAIN,
@@ -57,30 +72,19 @@ def build_static_aging_state(
     microsim_calibration_report_ref: object | None = None,
 ) -> dict[str, object]:
     """Compose a Foundry-ready state dict for static aging from read_api artifacts."""
-    import numpy as np
 
-    state: dict[str, object] = {
-        "base_weights": np.asarray(base_weights, dtype=float),
-        "origin_state_index": np.asarray(origin_state_index, dtype=np.int64),
-        "target_state_totals": np.asarray(artifacts.target_state_totals, dtype=float),
-        "entrant_state_totals": np.asarray(artifacts.entrant_state_totals, dtype=float),
-        "transition_prior_matrix": np.asarray(artifacts.transition_prior_matrix, dtype=float),
-    }
-    if artifacts.allowed_transition_mask is not None:
-        state["allowed_transition_mask"] = np.asarray(artifacts.allowed_transition_mask, dtype=bool)
-    if artifacts.donor_weights is not None:
-        state["donor_weights"] = np.asarray(artifacts.donor_weights, dtype=float)
-    if artifacts.donor_state_index is not None:
-        state["donor_state_index"] = np.asarray(artifacts.donor_state_index, dtype=np.int64)
-    if artifacts.donor_record_index is not None:
-        state["donor_record_index"] = np.asarray(artifacts.donor_record_index, dtype=np.int64)
-    if exit_weights is not None:
-        state["exit_weights"] = np.asarray(exit_weights, dtype=float)
-    if microsim_calibration_report is not None:
-        state["microsim_calibration_report"] = microsim_calibration_report
-    if microsim_calibration_report_ref is not None:
-        state["microsim_calibration_report_ref"] = microsim_calibration_report_ref
-    return state
+    from polisyos.data_forge.domains.ukraine.static_aging import (
+        build_static_aging_state as _build_static_aging_state,
+    )
+
+    return _build_static_aging_state(
+        base_weights=base_weights,
+        origin_state_index=origin_state_index,
+        artifacts=artifacts,
+        exit_weights=exit_weights,
+        microsim_calibration_report=microsim_calibration_report,
+        microsim_calibration_report_ref=microsim_calibration_report_ref,
+    )
 
 
-__all__ = sorted((*_EXPORTS, "build_static_aging_state"))
+__all__ = sorted((*_EXPORTS, "REAL_BACKTEST_BUNDLE_CONTRACT_FQN", "build_static_aging_state"))

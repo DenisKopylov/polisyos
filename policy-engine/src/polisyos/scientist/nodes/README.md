@@ -25,21 +25,21 @@ surface for the `data`, `planning`, `compile`, `causal`, `simulate`,
 ## Depends On / Depended On By
 
 - Depends on: [`../engine/README.md`](../engine/README.md), [`../compute/README.md`](../compute/README.md), [`../governance/README.md`](../governance/README.md), `adapters`, `kernel`, and cross-layer IR/Fabric/Foundry/Lex surfaces
-- Depended on by: workflow builders and specs in [`../workflows/README.md`](../workflows/README.md), plus integration and node-contract tests in [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Depended on by: workflow builders and specs in [`../workflows/README.md`](../workflows/README.md), plus integration and node-contract tests in [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested registry check: `uv run python -c "from polisyos.scientist.nodes import builtin_nodes; print(len(builtin_nodes()))"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist/nodes -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/nodes -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/nodes/builtins/test_state_builtins.py tests/scientist/nodes/test_build_policy_output_bundle.py tests/scientist/test_causal_evaluation_node.py -q
+uv run pytest tests/unit/scientist/nodes/builtins/test_state_builtins.py tests/unit/scientist/nodes/test_build_policy_output_bundle.py tests/unit/scientist/causal/test_causal_evaluation_node.py -q
 ```
 
 ## Reference Docs
@@ -47,7 +47,7 @@ uv run pytest tests/scientist/nodes/builtins/test_state_builtins.py tests/scient
 - Builtin node reference: [`../../../../docs/reference/scientist/nodes.md`](../../../../docs/reference/scientist/nodes.md)
 - Workflow catalog: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
-- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../engine/README.md`](../engine/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../engine/README.md`](../engine/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

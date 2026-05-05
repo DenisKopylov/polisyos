@@ -31,7 +31,7 @@ python3 -m tools.cli workspace bootstrap --profile runtime --skip-playwright
 python3 -m tools.cli workspace verify --backend-only --skip-doctor
 uv run polisyos-tools architecture guardrails check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 ## Start Here By Task

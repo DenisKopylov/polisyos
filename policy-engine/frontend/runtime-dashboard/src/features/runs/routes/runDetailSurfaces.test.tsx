@@ -4,7 +4,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-import { FALLBACK_CAPABILITY_MANIFEST } from "@/lib/capabilities";
+import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 
 const {
@@ -59,7 +59,7 @@ const {
   useTelemetryReadyMarkMock: vi.fn(),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     label: (
       _namespace: string,

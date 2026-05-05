@@ -25,7 +25,7 @@ from polisyos.core.contracts.control import (
     MetricCandidate,
     PromotionCandidate,
 )
-from polisyos.datasets.batch.source_registry import SourceSpec, load_source_registry
+from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
 from polisyos.fabric.observability import FABRIC_TRACE_NAMES
@@ -190,21 +190,18 @@ class RetrievalService:
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
-        self._catalog_source_policies: dict[str, SourceSpec] | None = None
+        self._catalog_source_policies: dict[str, Any] | None = None
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
         self._state_lock = threading.RLock()
 
-    def _source_policy(self, source_name: str) -> SourceSpec | None:
+    def _source_policy(self, source_name: str) -> Any | None:
         normalized = (source_name or "").strip()
         if not normalized:
             return None
         if self._catalog_source_policies is None:
-            registry_path = (
-                Path(__file__).resolve().parents[2] / "datasets" / "batch" / "source_registry.yaml"
-            )
             try:
-                registry = load_source_registry(registry_path)
+                registry = catalog_read_api.load_catalog_source_registry()
             except Exception:
                 logger.debug(
                     "Failed to load dataset source registry for retrieval policy lookup",
@@ -212,7 +209,7 @@ class RetrievalService:
                 )
                 self._catalog_source_policies = {}
             else:
-                self._catalog_source_policies = {spec.name: spec for spec in registry.sources}
+                self._catalog_source_policies = {spec.source_id: spec for spec in registry.sources}
         return self._catalog_source_policies.get(normalized)
 
     def _catalog_date_window(
@@ -220,7 +217,7 @@ class RetrievalService:
         *,
         source_name: str,
         need: DataNeed,
-    ) -> tuple[str | None, str | None, SourceSpec | None]:
+    ) -> tuple[str | None, str | None, Any | None]:
         policy = self._source_policy(source_name)
         if need.time_start or need.time_end or policy is None:
             return need.time_start, need.time_end, policy

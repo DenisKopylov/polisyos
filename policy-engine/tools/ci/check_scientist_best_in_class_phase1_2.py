@@ -9,8 +9,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_2"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-2"
@@ -18,7 +18,7 @@ TOOL_NAME = "ci.check-scientist-best-in-class-phase1-2"
 RESEARCH_DAG_PACKAGE = Path("src/polisyos/scientist/research_dag")
 REFERENCE_DOC = Path("docs/reference/scientist/research-dag.md")
 ACTIVE_PLAN_DOC = Path("docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md")
-PUBLIC_DAG_FIXTURE = Path("tests/scientist/research_dag/fixtures/public_dag.json")
+PUBLIC_DAG_FIXTURE = Path("tests/unit/scientist/research_dag/fixtures/public_dag.json")
 REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     RESEARCH_DAG_PACKAGE / "__init__.py",
     RESEARCH_DAG_PACKAGE / "models.py",
@@ -29,28 +29,28 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     RESEARCH_DAG_PACKAGE / "projections.py",
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/research_dag/test_models.py"),
-    Path("tests/scientist/research_dag/test_builder.py"),
-    Path("tests/scientist/research_dag/test_persistence.py"),
-    Path("tests/scientist/research_dag/test_replay.py"),
-    Path("tests/scientist/research_dag/test_diff.py"),
-    Path("tests/scientist/research_dag/test_projections.py"),
-    Path("tests/scientist/research_dag/test_workflow_integration.py"),
+    Path("tests/unit/scientist/research_dag/test_models.py"),
+    Path("tests/unit/scientist/research_dag/test_builder.py"),
+    Path("tests/unit/scientist/research_dag/test_persistence.py"),
+    Path("tests/unit/scientist/research_dag/test_replay.py"),
+    Path("tests/unit/scientist/research_dag/test_diff.py"),
+    Path("tests/unit/scientist/research_dag/test_projections.py"),
+    Path("tests/unit/scientist/research_dag/test_workflow_integration.py"),
     Path("tests/tools/test_scientist_best_in_class_phase1_2.py"),
 )
 REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/research_dag/test_builder.py"): (
+    Path("tests/unit/scientist/research_dag/test_builder.py"): (
         "hidden_benchmark",
         "prompt_injection_candidate",
         "not in dag_json",
     ),
-    Path("tests/scientist/research_dag/test_models.py"): (
+    Path("tests/unit/scientist/research_dag/test_models.py"): (
         "orphaned",
         "SUPPORTS",
         "acyclic",
         "hidden artifact ref",
     ),
-    Path("tests/scientist/research_dag/test_persistence.py"): ("legacy_missing",),
+    Path("tests/unit/scientist/research_dag/test_persistence.py"): ("legacy_missing",),
 }
 INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/engine/executor.py"),
@@ -148,8 +148,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     import_ok, import_notes = _import_and_validate_research_dag_fixture(repo_root)
@@ -178,9 +177,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         text = _read_text(absolute)
         if "research_dag" not in text and "ResearchDAG" not in text:
             missing_integration_tokens.append(str(path))
-    notes.extend(
-        f"missing_research_dag_integration:{path}" for path in missing_integration_tokens
-    )
+    notes.extend(f"missing_research_dag_integration:{path}" for path in missing_integration_tokens)
 
     public_fixture_clean = _public_fixture_has_no_hidden_tokens(repo_root)
     if not (repo_root / PUBLIC_DAG_FIXTURE).is_file():
@@ -212,8 +209,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         "required_package_files": [str(path) for path in REQUIRED_PACKAGE_FILES],
         "required_test_files": [str(path) for path in REQUIRED_TEST_FILES],
         "required_negative_test_tokens": {
-            str(path): list(tokens)
-            for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
+            str(path): list(tokens) for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
         },
         "integration_files": [str(path) for path in INTEGRATION_FILES],
         "public_dag_fixture": str(PUBLIC_DAG_FIXTURE),

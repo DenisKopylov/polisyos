@@ -2,7 +2,7 @@
 """Final PolicyOS MSME thesis experiment suite.
 
 This runner is the operational counterpart of
-docs/MSME_POLICYOS_FINAL_EXPERIMENT_SUITE_2026-05-01.md.  It intentionally
+docs/archive/reports/MSME_POLICYOS_FINAL_EXPERIMENT_SUITE_2026-05-01.md.  It intentionally
 reuses the already-tested grand-tournament harness for the heaviest stable
 surfaces, then adds the final thesis layers: FRESG lift, evidence posture,
 transportability, robust many-world analysis, fairness/recourse, ablation, and
@@ -22,15 +22,13 @@ import subprocess
 import sys
 import time
 import traceback
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-
 import run_msme_grand_tournament_v2 as pilot
-
 
 FINAL_EXPERIMENT_ID = "msme_final_fresg_evaluation_20260501"
 
@@ -176,7 +174,7 @@ def run_cmd(cmd: list[str], timeout: int | None = None, cwd: Path | None = None)
             "stderr_tail": proc.stderr[-6000:],
             "elapsed_seconds": round(time.perf_counter() - started, 3),
         }
-    except Exception as exc:  # noqa: BLE001 - diagnostic runner.
+    except Exception as exc:
         return {
             "cmd": cmd,
             "returncode": -1,
@@ -235,7 +233,7 @@ def file_inventory(root: Path, max_files: int = 200) -> list[dict[str, Any]]:
             try:
                 row["sha256"] = sha256_file(path)
                 row["hash_mode"] = "full"
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 row["hash_error"] = f"{type(exc).__name__}: {exc}"
         else:
             row["hash_mode"] = "skipped_too_large"
@@ -279,17 +277,13 @@ def load_policies(ctx: dict[str, Any]) -> list[dict[str, Any]]:
 def load_evidence_scores(ctx: dict[str, Any]) -> dict[str, float]:
     path = ctx["output_dir"] / "T3_fabric_evidence_matrix" / "evidence_matrix.jsonl"
     return {
-        row["policy_id"]: float(row.get("fabric_evidence_score", 0.0))
-        for row in iter_jsonl(path)
+        row["policy_id"]: float(row.get("fabric_evidence_score", 0.0)) for row in iter_jsonl(path)
     }
 
 
 def load_transport_scores(ctx: dict[str, Any]) -> dict[str, float]:
     path = ctx["output_dir"] / "06_transportability" / "transportability_verdicts.jsonl"
-    return {
-        row["family_id"]: float(row.get("transport_score", 0.0))
-        for row in iter_jsonl(path)
-    }
+    return {row["family_id"]: float(row.get("transport_score", 0.0)) for row in iter_jsonl(path)}
 
 
 def stage_00_preflight(ctx: dict[str, Any]) -> dict[str, Any]:
@@ -302,13 +296,21 @@ def stage_00_preflight(ctx: dict[str, Any]) -> dict[str, Any]:
         probe = out / "gcs_write_probe.txt"
         probe.write_text(f"{FINAL_EXPERIMENT_ID} {utc_now()}\n")
         gcs_probe = run_cmd(
-            ["gcloud", "storage", "cp", str(probe), f"{ctx['gcs_prefix'].rstrip('/')}/{stage}/gcs_write_probe.txt"],
+            [
+                "gcloud",
+                "storage",
+                "cp",
+                str(probe),
+                f"{ctx['gcs_prefix'].rstrip('/')}/{stage}/gcs_write_probe.txt",
+            ],
             timeout=300,
         )
         gcs_probe["ok"] = gcs_probe["returncode"] == 0
     result = {
         "experiment_id": stage,
-        "status": "completed" if pilot_preflight.get("ok") and (not ctx["sync_enabled"] or gcs_probe.get("ok")) else "failed_typed",
+        "status": "completed"
+        if pilot_preflight.get("ok") and (not ctx["sync_enabled"] or gcs_probe.get("ok"))
+        else "failed_typed",
         "started_at": started,
         "finished_at": utc_now(),
         "pilot_preflight_ok": pilot_preflight.get("ok"),
@@ -325,10 +327,10 @@ def stage_00_preflight(ctx: dict[str, Any]) -> dict[str, Any]:
         f"""
 # Final MSME Suite Preflight
 
-Pilot harness preflight: `{pilot_preflight.get('ok')}`.
-GCS write: `{gcs_probe.get('ok')}`.
-Threads: `{ctx['threads']}`.
-Production data: `{ctx['production_data']}`.
+Pilot harness preflight: `{pilot_preflight.get("ok")}`.
+GCS write: `{gcs_probe.get("ok")}`.
+Threads: `{ctx["threads"]}`.
+Production data: `{ctx["production_data"]}`.
 """,
     )
     return stage_result(ctx, stage, result)
@@ -349,9 +351,16 @@ def stage_01_capability_inventory(ctx: dict[str, Any]) -> dict[str, Any]:
         source = ctx["output_dir"] / "T1_capability_snapshot" / src
         if source.exists():
             shutil.copy2(source, out / dst)
-    academic = file_inventory(ctx["production_data"] / "policyos_academic_runtime_slim_20260411T112032Z", 120)
-    lex_inventory = {"status": "gcs_resolved_later", "note": "Lex final artifacts are represented by final GCS bundle and prior pilot evidence."}
-    write_json(out / "academic_inventory.json", {"files": academic, "file_count_sample": len(academic)})
+    academic = file_inventory(
+        ctx["production_data"] / "policyos_academic_runtime_slim_20260411T112032Z", 120
+    )
+    lex_inventory = {
+        "status": "gcs_resolved_later",
+        "note": "Lex final artifacts are represented by final GCS bundle and prior pilot evidence.",
+    }
+    write_json(
+        out / "academic_inventory.json", {"files": academic, "file_count_sample": len(academic)}
+    )
     write_json(out / "lex_artifact_inventory.json", lex_inventory)
     result = {
         "experiment_id": stage,
@@ -367,8 +376,8 @@ def stage_01_capability_inventory(ctx: dict[str, Any]) -> dict[str, Any]:
         f"""
 # Capability Inventory
 
-Foundry methods observed: `{pilot_result.get('method_count')}`.
-Ukraine graph files observed: `{pilot_result.get('graph_file_count')}`.
+Foundry methods observed: `{pilot_result.get("method_count")}`.
+Ukraine graph files observed: `{pilot_result.get("graph_file_count")}`.
 Academic runtime file sample: `{len(academic)}`.
 """,
     )
@@ -384,20 +393,19 @@ def stage_02_input_freeze(ctx: dict[str, Any]) -> dict[str, Any]:
         "git_rev_parse": run_cmd(["git", "rev-parse", "HEAD"], cwd=ctx["repo_root"]),
         "git_status_short": run_cmd(["git", "status", "--short"], cwd=ctx["repo_root"]),
         "runner": "tools/ops/experiments/run_msme_final_fresg_suite.py",
-        "design_doc": "docs/MSME_POLICYOS_FINAL_EXPERIMENT_SUITE_2026-05-01.md",
+        "design_doc": "docs/archive/reports/MSME_POLICYOS_FINAL_EXPERIMENT_SUITE_2026-05-01.md",
     }
-    effective_config = {
-        key: value
-        for key, value in ctx.items()
-        if key not in {"llm"}
-    }
+    effective_config = {key: value for key, value in ctx.items() if key not in {"llm"}}
     effective_config["llm"] = {
         "available": ctx["llm"].get("available"),
         "key_name": ctx["llm"].get("key_name"),
         "model": ctx["llm"].get("model"),
         "base_url": ctx["llm"].get("base_url"),
     }
-    write_json(out / "input_manifest.json", {"production_data": str(ctx["production_data"]), "files": inventory})
+    write_json(
+        out / "input_manifest.json",
+        {"production_data": str(ctx["production_data"]), "files": inventory},
+    )
     write_jsonl(out / "input_hashes.jsonl", inventory)
     write_json(out / "code_version.json", code_version)
     write_json(out / "launch_config.json", effective_config)
@@ -442,54 +450,103 @@ def stage_03_policy_formalization(ctx: dict[str, Any]) -> dict[str, Any]:
         evidence = min(5, max(b_e, 3 + int(bool(family_policies))))
         scalability = min(5, max(b_s, 4))
         governance = min(5, max(b_g, 4))
-        baseline_rows.append({"family_id": family_id, "family_name": family_name, "example": example, "F": b_f, "R": b_r, "E": b_e, "S": b_s, "G": b_g})
-        lift_rows.append({
-            "family_id": family_id,
-            "family_name": family_name,
-            "policy_count": len(family_policies),
-            "F": formalization,
-            "R": reproducibility,
-            "E": evidence,
-            "S": scalability,
-            "G": governance,
-            "lift_total": (formalization + reproducibility + evidence + scalability + governance) - (b_f + b_r + b_e + b_s + b_g),
-            "claim_boundary": "capability_lift_score_not_program_effect",
-        })
+        baseline_rows.append(
+            {
+                "family_id": family_id,
+                "family_name": family_name,
+                "example": example,
+                "F": b_f,
+                "R": b_r,
+                "E": b_e,
+                "S": b_s,
+                "G": b_g,
+            }
+        )
+        lift_rows.append(
+            {
+                "family_id": family_id,
+                "family_name": family_name,
+                "policy_count": len(family_policies),
+                "F": formalization,
+                "R": reproducibility,
+                "E": evidence,
+                "S": scalability,
+                "G": governance,
+                "lift_total": (
+                    formalization + reproducibility + evidence + scalability + governance
+                )
+                - (b_f + b_r + b_e + b_s + b_g),
+                "claim_boundary": "capability_lift_score_not_program_effect",
+            }
+        )
         if not family_policies:
-            issue_rows.append({"family_id": family_id, "issue_code": "NO_POLICY_CANDIDATE", "severity": "warning"})
+            issue_rows.append(
+                {"family_id": family_id, "issue_code": "NO_POLICY_CANDIDATE", "severity": "warning"}
+            )
     for policy in policies:
         levers = policy.get("levers", {})
         family_id = policy.get("family_id", program_family_for_policy(policy))
-        trinity_rows.append({
-            "policy_id": policy["policy_id"],
-            "family_id": family_id,
-            "generation_mode": policy.get("source", "unknown"),
-            "problem_frame": {
-                "population": policy.get("target_population"),
-                "context": "wartime Ukraine MSME support",
-                "outcomes": policy.get("monitoring_metrics", []),
-            },
-            "policy_spec": {
-                "label": policy.get("label"),
-                "levers": levers,
-                "legal_evidence_refs": policy.get("legal_evidence_refs", []),
-            },
-            "model_spec": {
-                "estimands": ["firm_survival_12m", "employment_preserved", "budget_pressure", "fairness_proxy"],
-                "required_data": ["applicant profile", "treatment exposure", "outcome panel", "region-sector context"],
-                "identification_status": "proxy_or_semi_synthetic_until_applicant_microdata",
-            },
-            "governance_checklist": ["legal_grounding", "evidence_posture", "fairness", "human_gate", "claim_boundary"],
-            "claim_boundary": "machine_readable_policy_artifact_not_legal_enactment",
-        })
+        trinity_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "family_id": family_id,
+                "generation_mode": policy.get("source", "unknown"),
+                "problem_frame": {
+                    "population": policy.get("target_population"),
+                    "context": "wartime Ukraine MSME support",
+                    "outcomes": policy.get("monitoring_metrics", []),
+                },
+                "policy_spec": {
+                    "label": policy.get("label"),
+                    "levers": levers,
+                    "legal_evidence_refs": policy.get("legal_evidence_refs", []),
+                },
+                "model_spec": {
+                    "estimands": [
+                        "firm_survival_12m",
+                        "employment_preserved",
+                        "budget_pressure",
+                        "fairness_proxy",
+                    ],
+                    "required_data": [
+                        "applicant profile",
+                        "treatment exposure",
+                        "outcome panel",
+                        "region-sector context",
+                    ],
+                    "identification_status": "proxy_or_semi_synthetic_until_applicant_microdata",
+                },
+                "governance_checklist": [
+                    "legal_grounding",
+                    "evidence_posture",
+                    "fairness",
+                    "human_gate",
+                    "claim_boundary",
+                ],
+                "claim_boundary": "machine_readable_policy_artifact_not_legal_enactment",
+            }
+        )
         if "budget_cap_uah" not in levers:
-            issue_rows.append({"policy_id": policy["policy_id"], "family_id": family_id, "issue_code": "MISSING_BUDGET_CAP", "severity": "warning"})
+            issue_rows.append(
+                {
+                    "policy_id": policy["policy_id"],
+                    "family_id": family_id,
+                    "issue_code": "MISSING_BUDGET_CAP",
+                    "severity": "warning",
+                }
+            )
     write_csv(out / "fresg_baseline.csv", baseline_rows)
     write_csv(out / "fresg_policyos_lift.csv", lift_rows)
     write_jsonl(out / "formalization_issues.jsonl", issue_rows)
     write_jsonl(out / "trinity_like_policy_artifacts.jsonl", trinity_rows)
-    shutil.copy2(ctx["output_dir"] / "T2_policy_design_factory" / "normalized_policy_designs.jsonl", out / "normalized_policy_designs.jsonl")
-    shutil.copy2(ctx["output_dir"] / "T2_policy_design_factory" / "policy_schema_compatibility_report.json", out / "policy_schema_compatibility_report.json")
+    shutil.copy2(
+        ctx["output_dir"] / "T2_policy_design_factory" / "normalized_policy_designs.jsonl",
+        out / "normalized_policy_designs.jsonl",
+    )
+    shutil.copy2(
+        ctx["output_dir"] / "T2_policy_design_factory" / "policy_schema_compatibility_report.json",
+        out / "policy_schema_compatibility_report.json",
+    )
     write_markdown(
         out / "e1_formalization_summary.md",
         f"""
@@ -522,50 +579,77 @@ def stage_04_evidence_retrieval(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     pilot_result = pilot.run_t3_fabric_evidence_matrix(ctx)
     policies = load_policies(ctx)
-    snippets = list(iter_jsonl(ctx["output_dir"] / "T2_policy_design_factory" / "legal_evidence_snippets.jsonl"))
-    fabric_rows = list(iter_jsonl(ctx["output_dir"] / "T3_fabric_evidence_matrix" / "evidence_matrix.jsonl"))
-    academic_root = ctx["production_data"] / "policyos_academic_runtime_slim_20260411T112032Z" / "academic"
-    academic_rows = list(iter_jsonl(academic_root / "transport_scores.jsonl", limit=int(ctx["academic_evidence_limit"])))
+    snippets = list(
+        iter_jsonl(ctx["output_dir"] / "T2_policy_design_factory" / "legal_evidence_snippets.jsonl")
+    )
+    fabric_rows = list(
+        iter_jsonl(ctx["output_dir"] / "T3_fabric_evidence_matrix" / "evidence_matrix.jsonl")
+    )
+    academic_root = (
+        ctx["production_data"] / "policyos_academic_runtime_slim_20260411T112032Z" / "academic"
+    )
+    academic_rows = list(
+        iter_jsonl(
+            academic_root / "transport_scores.jsonl", limit=int(ctx["academic_evidence_limit"])
+        )
+    )
     legal_matrix = []
     claim_rows = []
     for policy in policies:
         family_id = policy.get("family_id", program_family_for_policy(policy))
-        legal_hits = [s for s in snippets if family_id.replace("_", " ")[:8].lower() in json.dumps(s, ensure_ascii=False).lower()]
-        legal_matrix.append({
-            "policy_id": policy["policy_id"],
-            "family_id": family_id,
-            "legal_hit_count": len(legal_hits),
-            "legal_posture": "proxy_supported" if snippets else "missing",
-            "source": "lex_snippet_projection",
-        })
-        claim_rows.append({
-            "policy_id": policy["policy_id"],
-            "family_id": family_id,
-            "legal_support": "proxy_supported" if snippets else "missing",
-            "fabric_support": "supported" if any(r.get("policy_id") == policy["policy_id"] for r in fabric_rows) else "missing",
-            "academic_support": "proxy_supported" if academic_rows else "missing",
-            "overall_evidence_posture": "proxy_supported",
-        })
+        legal_hits = [
+            s
+            for s in snippets
+            if family_id.replace("_", " ")[:8].lower() in json.dumps(s, ensure_ascii=False).lower()
+        ]
+        legal_matrix.append(
+            {
+                "policy_id": policy["policy_id"],
+                "family_id": family_id,
+                "legal_hit_count": len(legal_hits),
+                "legal_posture": "proxy_supported" if snippets else "missing",
+                "source": "lex_snippet_projection",
+            }
+        )
+        claim_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "family_id": family_id,
+                "legal_support": "proxy_supported" if snippets else "missing",
+                "fabric_support": "supported"
+                if any(r.get("policy_id") == policy["policy_id"] for r in fabric_rows)
+                else "missing",
+                "academic_support": "proxy_supported" if academic_rows else "missing",
+                "overall_evidence_posture": "proxy_supported",
+            }
+        )
     academic_matrix = []
     for index, row in enumerate(academic_rows):
-        academic_matrix.append({
-            "evidence_id": f"academic_{index:05d}",
-            "raw": row,
-            "evidence_posture": "academic_transport_prior",
-        })
+        academic_matrix.append(
+            {
+                "evidence_id": f"academic_{index:05d}",
+                "raw": row,
+                "evidence_posture": "academic_transport_prior",
+            }
+        )
     write_jsonl(out / "legal_evidence_matrix.jsonl", legal_matrix)
-    shutil.copy2(ctx["output_dir"] / "T3_fabric_evidence_matrix" / "evidence_matrix.jsonl", out / "fabric_evidence_matrix.jsonl")
+    shutil.copy2(
+        ctx["output_dir"] / "T3_fabric_evidence_matrix" / "evidence_matrix.jsonl",
+        out / "fabric_evidence_matrix.jsonl",
+    )
     write_jsonl(out / "academic_evidence_matrix.jsonl", academic_matrix)
     write_jsonl(out / "claim_evidence_map.jsonl", claim_rows)
-    write_csv(out / "missing_evidence_register.csv", [r for r in claim_rows if "missing" in json.dumps(r)])
+    write_csv(
+        out / "missing_evidence_register.csv", [r for r in claim_rows if "missing" in json.dumps(r)]
+    )
     write_markdown(
         out / "e2_evidence_summary.md",
         f"""
 # E2 Legal, Data and Academic Evidence Retrieval
 
-Fabric datasets considered by stable pilot query: `{pilot_result.get('datasets_considered')}`.
-Fabric metric rows considered: `{pilot_result.get('metric_rows_considered')}`.
-Policies scored: `{pilot_result.get('policies_scored')}`.
+Fabric datasets considered by stable pilot query: `{pilot_result.get("datasets_considered")}`.
+Fabric metric rows considered: `{pilot_result.get("metric_rows_considered")}`.
+Policies scored: `{pilot_result.get("policies_scored")}`.
 Legal snippet rows: `{len(snippets)}`.
 Academic transport/evidence rows sampled: `{len(academic_matrix)}`.
 
@@ -591,41 +675,58 @@ def stage_05_causal_benchmark(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     pilot_result = pilot.run_t4_causal_gauntlet(ctx)
     runs = list(iter_jsonl(ctx["output_dir"] / "T4_causal_gauntlet" / "causal_method_runs.jsonl"))
-    consensus = read_json(ctx["output_dir"] / "T4_causal_gauntlet" / "causal_consensus_table.json", {})
+    consensus = read_json(
+        ctx["output_dir"] / "T4_causal_gauntlet" / "causal_consensus_table.json", {}
+    )
     rows = []
     for row in runs:
         result = row.get("result", {})
-        rows.append({
-            "method_id": row.get("method_id"),
-            "status": row.get("status"),
-            "execution_mode": row.get("execution_mode"),
-            "elapsed_seconds": row.get("elapsed_seconds"),
-            "estimate": result.get("ate") or result.get("effect") or result.get("ate_proxy"),
-            "known_truth": consensus.get("known_synthetic_true_effect"),
-            "claim_boundary": "semi_synthetic_method_validation",
-        })
+        rows.append(
+            {
+                "method_id": row.get("method_id"),
+                "status": row.get("status"),
+                "execution_mode": row.get("execution_mode"),
+                "elapsed_seconds": row.get("elapsed_seconds"),
+                "estimate": result.get("ate") or result.get("effect") or result.get("ate_proxy"),
+                "known_truth": consensus.get("known_synthetic_true_effect"),
+                "claim_boundary": "semi_synthetic_method_validation",
+            }
+        )
     write_jsonl(out / "causal_method_runs.jsonl", runs)
     write_json(out / "causal_consensus_table.json", consensus)
     write_csv(out / "estimator_bias_rmse_coverage.csv", rows)
-    write_csv(out / "bounds_tornado.csv", [r for r in rows if "bounds" in str(r.get("method_id", ""))])
-    write_csv(out / "sensitivity_surface.csv", [{
-        "metric": "overlap_ntv",
-        "value": consensus.get("overlap_ntv"),
-        "interpretation": "higher values indicate stronger propensity imbalance proxy",
-    }])
-    write_jsonl(out / "identification_verdicts.jsonl", [{
-        "policy_family": family_id,
-        "verdict": "benchmark_identified_real_world_proxy_only",
-        "reason": "semi-synthetic benchmark has known data-generating process; real applicant microdata unavailable",
-    } for family_id, _, _ in PROGRAM_FAMILIES])
+    write_csv(
+        out / "bounds_tornado.csv", [r for r in rows if "bounds" in str(r.get("method_id", ""))]
+    )
+    write_csv(
+        out / "sensitivity_surface.csv",
+        [
+            {
+                "metric": "overlap_ntv",
+                "value": consensus.get("overlap_ntv"),
+                "interpretation": "higher values indicate stronger propensity imbalance proxy",
+            }
+        ],
+    )
+    write_jsonl(
+        out / "identification_verdicts.jsonl",
+        [
+            {
+                "policy_family": family_id,
+                "verdict": "benchmark_identified_real_world_proxy_only",
+                "reason": "semi-synthetic benchmark has known data-generating process; real applicant microdata unavailable",
+            }
+            for family_id, _, _ in PROGRAM_FAMILIES
+        ],
+    )
     write_markdown(
         out / "e3_causal_gauntlet_summary.md",
         f"""
 # E3 Identification-Aware Causal Gauntlet
 
-Full semi-synthetic panel rows: `{pilot_result.get('full_panel_rows')}`.
-Direct Foundry subsample rows: `{pilot_result.get('direct_foundry_subsample_rows')}`.
-Successful direct Foundry methods: `{pilot_result.get('successful_foundry_methods')}`.
+Full semi-synthetic panel rows: `{pilot_result.get("full_panel_rows")}`.
+Direct Foundry subsample rows: `{pilot_result.get("direct_foundry_subsample_rows")}`.
+Successful direct Foundry methods: `{pilot_result.get("successful_foundry_methods")}`.
 
 This stage validates method behavior under known synthetic truth. It is not a
 real-world estimate of Ukrainian MSME program impact.
@@ -677,39 +778,51 @@ def stage_06_transportability(ctx: dict[str, Any]) -> dict[str, Any]:
             verdict = "proxy_only"
         else:
             verdict = "insufficient_support"
-        contexts.append({
-            "family_id": family_id,
-            "family_name": family_name,
-            "source_context": "UK/EU/international MSME evidence",
-            "target_context": "wartime Ukraine",
-            "example": example,
-        })
-        verdicts.append({
-            "family_id": family_id,
-            "family_name": family_name,
-            "transport_score": transport_score,
-            "verdict": verdict,
-            "support_factors": scores,
-            "claim_boundary": "external_evidence_not_directly_transferred",
-        })
-        bounds.append({
-            "family_id": family_id,
-            "lower_bound_proxy": round(max(0.0, transport_score - 0.18), 3),
-            "upper_bound_proxy": round(min(1.0, transport_score + 0.12), 3),
-            "bound_type": "context_shift_proxy",
-        })
+        contexts.append(
+            {
+                "family_id": family_id,
+                "family_name": family_name,
+                "source_context": "UK/EU/international MSME evidence",
+                "target_context": "wartime Ukraine",
+                "example": example,
+            }
+        )
+        verdicts.append(
+            {
+                "family_id": family_id,
+                "family_name": family_name,
+                "transport_score": transport_score,
+                "verdict": verdict,
+                "support_factors": scores,
+                "claim_boundary": "external_evidence_not_directly_transferred",
+            }
+        )
+        bounds.append(
+            {
+                "family_id": family_id,
+                "lower_bound_proxy": round(max(0.0, transport_score - 0.18), 3),
+                "upper_bound_proxy": round(min(1.0, transport_score + 0.12), 3),
+                "bound_type": "context_shift_proxy",
+            }
+        )
     write_jsonl(out / "source_target_contexts.jsonl", contexts)
-    write_csv(out / "support_factor_matrix.csv", [{"family_id": v["family_id"], **v["support_factors"]} for v in verdicts])
+    write_csv(
+        out / "support_factor_matrix.csv",
+        [{"family_id": v["family_id"], **v["support_factors"]} for v in verdicts],
+    )
     write_jsonl(out / "transportability_verdicts.jsonl", verdicts)
     write_csv(out / "transport_bounds.csv", bounds)
-    write_markdown(out / "missing_support_factors.md", "Missing support factors are represented by low support-factor scores and proxy-only verdicts.\n")
+    write_markdown(
+        out / "missing_support_factors.md",
+        "Missing support factors are represented by low support-factor scores and proxy-only verdicts.\n",
+    )
     write_markdown(
         out / "e4_transportability_summary.md",
         f"""
 # E4 Transportability and Context Shift
 
 Policy families evaluated: `{len(verdicts)}`.
-Average transport score: `{np.mean([v['transport_score'] for v in verdicts]):.3f}`.
+Average transport score: `{np.mean([v["transport_score"] for v in verdicts]):.3f}`.
 
 External evidence is qualified through context-shift support factors and is not
 treated as automatically transferable to wartime Ukraine.
@@ -734,12 +847,16 @@ def generate_worlds(count: int, seed_count: int) -> list[dict[str, Any]]:
         values[WORLD_FACTORS.index("administrative_capacity")] = rng.beta(3.0, 2.0)
         values[WORLD_FACTORS.index("sector_recovery_speed")] = rng.beta(2.5, 2.0)
         world = {"world_id": f"world_{i:04d}", "seed_count": seed_count}
-        world.update({factor: float(value) for factor, value in zip(WORLD_FACTORS, values, strict=True)})
+        world.update(
+            {factor: float(value) for factor, value in zip(WORLD_FACTORS, values, strict=True)}
+        )
         worlds.append(world)
     return worlds
 
 
-def policy_world_score(policy: dict[str, Any], world: dict[str, Any], evidence: float, transport: float) -> dict[str, Any]:
+def policy_world_score(
+    policy: dict[str, Any], world: dict[str, Any], evidence: float, transport: float
+) -> dict[str, Any]:
     levers = policy.get("levers", {})
     grant = float(levers.get("grant_cap_uah", 0.0))
     loan = float(levers.get("loan_cap_uah", 0.0))
@@ -755,7 +872,9 @@ def policy_world_score(policy: dict[str, Any], world: dict[str, Any], evidence: 
     fiscal = float(world["fiscal_scarcity"])
     admin = float(world["administrative_capacity"])
     fraud_pressure = float(world["fraud_pressure"])
-    demand = 1.0 - float(world["domestic_demand_shock"]) + 0.5 * float(world["procurement_demand_shock"])
+    demand = (
+        1.0 - float(world["domestic_demand_shock"]) + 0.5 * float(world["procurement_demand_shock"])
+    )
     support_power = (
         0.20 * np.log1p(grant) / np.log1p(600_000)
         + 0.15 * np.log1p(max(loan, 1.0)) / np.log1p(5_000_000)
@@ -764,13 +883,55 @@ def policy_world_score(policy: dict[str, Any], world: dict[str, Any], evidence: 
         + 0.45 * procurement
         + 0.30 * admin_relief
     )
-    survival = float(np.clip(0.42 + 0.25 * support_power + 0.10 * evidence + 0.08 * transport - 0.20 * conflict + 0.10 * demand, 0.0, 1.0))
+    survival = float(
+        np.clip(
+            0.42
+            + 0.25 * support_power
+            + 0.10 * evidence
+            + 0.08 * transport
+            - 0.20 * conflict
+            + 0.10 * demand,
+            0.0,
+            1.0,
+        )
+    )
     employment = float(np.clip(survival - 0.03 * credit_crunch + 0.08 * procurement, 0.0, 1.0))
-    fairness = float(np.clip(0.45 + 0.25 * conflict_weight + 0.12 * transport + 0.06 * admin_relief - 0.10 * fraud_pressure, 0.0, 1.0))
-    coverage = float(np.clip(0.35 + 0.45 * conflict_weight + 0.08 * evidence - 0.08 * admin, 0.0, 1.0))
-    budget_pressure = float(np.clip((grant / 600_000 + loan / 5_000_000 * subsidy + tax * 2.0) * (1.0 + fiscal) / max(budget_cap / 2_000_000_000, 0.2), 0.0, 8.0))
-    fraud = float(np.clip(0.08 + 0.24 * fraud_pressure - 0.20 * human + 0.08 * admin_relief, 0.0, 1.0))
-    utility = 1.7 * survival + 1.3 * employment + 1.0 * fairness + 0.7 * coverage + 0.6 * evidence + 0.5 * transport - 0.45 * budget_pressure - 0.6 * fraud
+    fairness = float(
+        np.clip(
+            0.45
+            + 0.25 * conflict_weight
+            + 0.12 * transport
+            + 0.06 * admin_relief
+            - 0.10 * fraud_pressure,
+            0.0,
+            1.0,
+        )
+    )
+    coverage = float(
+        np.clip(0.35 + 0.45 * conflict_weight + 0.08 * evidence - 0.08 * admin, 0.0, 1.0)
+    )
+    budget_pressure = float(
+        np.clip(
+            (grant / 600_000 + loan / 5_000_000 * subsidy + tax * 2.0)
+            * (1.0 + fiscal)
+            / max(budget_cap / 2_000_000_000, 0.2),
+            0.0,
+            8.0,
+        )
+    )
+    fraud = float(
+        np.clip(0.08 + 0.24 * fraud_pressure - 0.20 * human + 0.08 * admin_relief, 0.0, 1.0)
+    )
+    utility = (
+        1.7 * survival
+        + 1.3 * employment
+        + 1.0 * fairness
+        + 0.7 * coverage
+        + 0.6 * evidence
+        + 0.5 * transport
+        - 0.45 * budget_pressure
+        - 0.6 * fraud
+    )
     return {
         "policy_id": policy["policy_id"],
         "world_id": world["world_id"],
@@ -810,20 +971,24 @@ def stage_07_robust_policy_tournament(ctx: dict[str, Any]) -> dict[str, Any]:
         rows = grouped[policy["policy_id"]]
         utility = np.array([r["utility"] for r in rows])
         regret = np.max(utility) - utility
-        ranking_rows.append({
-            "policy_id": policy["policy_id"],
-            "label": policy.get("label"),
-            "family_id": policy.get("family_id"),
-            "mean_utility": float(np.mean(utility)),
-            "p10_utility": float(np.quantile(utility, 0.10)),
-            "worst_utility": float(np.min(utility)),
-            "mean_regret": float(np.mean(regret)),
-            "robust_score": float(np.mean(utility) + 0.45 * np.quantile(utility, 0.10) - 0.20 * np.mean(regret)),
-            "mean_survival": float(np.mean([r["survival"] for r in rows])),
-            "mean_employment": float(np.mean([r["employment"] for r in rows])),
-            "mean_budget_pressure": float(np.mean([r["budget_pressure"] for r in rows])),
-            "mean_fraud_risk": float(np.mean([r["fraud_risk"] for r in rows])),
-        })
+        ranking_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "label": policy.get("label"),
+                "family_id": policy.get("family_id"),
+                "mean_utility": float(np.mean(utility)),
+                "p10_utility": float(np.quantile(utility, 0.10)),
+                "worst_utility": float(np.min(utility)),
+                "mean_regret": float(np.mean(regret)),
+                "robust_score": float(
+                    np.mean(utility) + 0.45 * np.quantile(utility, 0.10) - 0.20 * np.mean(regret)
+                ),
+                "mean_survival": float(np.mean([r["survival"] for r in rows])),
+                "mean_employment": float(np.mean([r["employment"] for r in rows])),
+                "mean_budget_pressure": float(np.mean([r["budget_pressure"] for r in rows])),
+                "mean_fraud_risk": float(np.mean([r["fraud_risk"] for r in rows])),
+            }
+        )
     ranking_rows.sort(key=lambda row: row["robust_score"], reverse=True)
     for index, row in enumerate(ranking_rows, start=1):
         row["rank"] = index
@@ -850,7 +1015,10 @@ def stage_07_robust_policy_tournament(ctx: dict[str, Any]) -> dict[str, Any]:
     write_csv(out / "robust_rankings.csv", ranking_rows)
     write_csv(out / "pareto_frontier.csv", pareto)
     write_csv(out / "vulnerability_scenarios.csv", vulnerability)
-    write_json(out / "top_policy_dossiers.json", {"top": ranking_rows[:20], "claim_boundary": "robust scenario ranking, not real effect"})
+    write_json(
+        out / "top_policy_dossiers.json",
+        {"top": ranking_rows[:20], "claim_boundary": "robust scenario ranking, not real effect"},
+    )
     write_markdown(
         out / "e5_robust_tournament_summary.md",
         f"""
@@ -860,7 +1028,7 @@ Policies: `{len(policies)}`.
 Uncertainty worlds: `{len(worlds)}`.
 Policy-world rows: `{len(outcome_rows)}`.
 Pareto frontier policies: `{len(pareto)}`.
-Top robust policy: `{ranking_rows[0]['policy_id'] if ranking_rows else 'none'}`.
+Top robust policy: `{ranking_rows[0]["policy_id"] if ranking_rows else "none"}`.
 """,
     )
     result = {
@@ -881,7 +1049,9 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
     pilot_result = pilot.run_t5_agent_sim_arena(ctx)
-    sim_rows = list(iter_jsonl(ctx["output_dir"] / "T5_agent_sim_arena" / "policy_simulation_scores.jsonl"))
+    sim_rows = list(
+        iter_jsonl(ctx["output_dir"] / "T5_agent_sim_arena" / "policy_simulation_scores.jsonl")
+    )
     heatmap_rows = []
     spillover_rows = []
     layer_rows = []
@@ -891,39 +1061,54 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
         agg = row.get("aggregate", {})
         for region in regions:
             for sector in sectors:
-                digest = hashlib.sha256(f"{row['policy_id']}:{region}:{sector}".encode()).hexdigest()
+                digest = hashlib.sha256(
+                    f"{row['policy_id']}:{region}:{sector}".encode()
+                ).hexdigest()
                 modifier = (int(digest[:8], 16) % 100) / 1000.0
-                heatmap_rows.append({
-                    "policy_id": row["policy_id"],
-                    "region": region,
-                    "sector": sector,
-                    "survival_proxy": float(agg.get("survival_rate_mean", 0.0)) + modifier,
-                    "employment_proxy": float(agg.get("employment_preserved_mean", 0.0)) + modifier,
-                })
-        spillover_rows.append({
-            "policy_id": row["policy_id"],
-            "trade_spillover_proxy": float(row.get("utility_score", 0.0)) * 0.08,
-            "procurement_spillover_proxy": float(agg.get("conflict_coverage_mean", 0.0)) * 0.12,
-            "distress_reduction_proxy": float(agg.get("survival_rate_mean", 0.0)) * 0.10,
-        })
-    graph_priors = read_json(ctx["output_dir"] / "T5_agent_sim_arena" / "spillover_prior_summary.json", {})
+                heatmap_rows.append(
+                    {
+                        "policy_id": row["policy_id"],
+                        "region": region,
+                        "sector": sector,
+                        "survival_proxy": float(agg.get("survival_rate_mean", 0.0)) + modifier,
+                        "employment_proxy": float(agg.get("employment_preserved_mean", 0.0))
+                        + modifier,
+                    }
+                )
+        spillover_rows.append(
+            {
+                "policy_id": row["policy_id"],
+                "trade_spillover_proxy": float(row.get("utility_score", 0.0)) * 0.08,
+                "procurement_spillover_proxy": float(agg.get("conflict_coverage_mean", 0.0)) * 0.12,
+                "distress_reduction_proxy": float(agg.get("survival_rate_mean", 0.0)) * 0.10,
+            }
+        )
+    graph_priors = read_json(
+        ctx["output_dir"] / "T5_agent_sim_arena" / "spillover_prior_summary.json", {}
+    )
     for layer, value in graph_priors.items():
         layer_rows.append({"graph_layer": layer, "prior_weight": value})
-    shutil.copy2(ctx["output_dir"] / "T5_agent_sim_arena" / "policy_simulation_scores.jsonl", out / "policy_simulation_scores.jsonl")
+    shutil.copy2(
+        ctx["output_dir"] / "T5_agent_sim_arena" / "policy_simulation_scores.jsonl",
+        out / "policy_simulation_scores.jsonl",
+    )
     write_csv(out / "region_sector_heatmap.csv", heatmap_rows)
     write_csv(out / "spillover_summary.csv", spillover_rows)
     write_csv(out / "graph_layer_contribution.csv", layer_rows)
-    write_markdown(out / "simulation_credibility_statement.md", "Execution mode: calibrated/proxy graph-aware simulation, not a real forecast.\n")
+    write_markdown(
+        out / "simulation_credibility_statement.md",
+        "Execution mode: calibrated/proxy graph-aware simulation, not a real forecast.\n",
+    )
     write_markdown(
         out / "e6_agent_network_summary.md",
         f"""
 # E6 Graph-Aware Agent and Network Simulation
 
-Policies simulated: `{pilot_result.get('policies_simulated')}`.
-Agent count per seed: `{ctx['agent_count']}`.
-Seeds: `{ctx['simulation_seeds']}`.
-Months: `{ctx['simulation_months']}`.
-Best simulation policy: `{pilot_result.get('best_policy')}`.
+Policies simulated: `{pilot_result.get("policies_simulated")}`.
+Agent count per seed: `{ctx["agent_count"]}`.
+Seeds: `{ctx["simulation_seeds"]}`.
+Months: `{ctx["simulation_months"]}`.
+Best simulation policy: `{pilot_result.get("best_policy")}`.
 """,
     )
     result = {
@@ -942,9 +1127,13 @@ def stage_09_fairness_recourse_governance(ctx: dict[str, Any]) -> dict[str, Any]
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
     policies = load_policies(ctx)
-    top = read_json(ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}).get("top", [])
+    top = read_json(
+        ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}
+    ).get("top", [])
     top_ids = {row["policy_id"] for row in top[: int(ctx["shortlist_size"])]}
-    selected = [p for p in policies if p["policy_id"] in top_ids] or policies[: int(ctx["shortlist_size"])]
+    selected = [p for p in policies if p["policy_id"] in top_ids] or policies[
+        : int(ctx["shortlist_size"])
+    ]
     rng = np.random.default_rng(20260501)
     n = int(ctx["applicant_profiles"])
     gender = rng.binomial(1, 0.38, size=n)
@@ -961,7 +1150,15 @@ def stage_09_fairness_recourse_governance(ctx: dict[str, Any]) -> dict[str, Any]
         human = float(levers.get("human_review_share", 0.12))
         conflict_weight = float(levers.get("conflict_weight", 0.5))
         admin = float(levers.get("admin_relief", 0.2))
-        score = 0.25 + 0.28 * conflict_weight * conflict + 0.15 * idp + 0.10 * veteran + 0.14 * credit_access + 0.08 * admin - 0.05 * gender
+        score = (
+            0.25
+            + 0.28 * conflict_weight * conflict
+            + 0.15 * idp
+            + 0.10 * veteran
+            + 0.14 * credit_access
+            + 0.08 * admin
+            - 0.05 * gender
+        )
         threshold = np.quantile(score, 0.65 + min(0.20, human * 0.25))
         approved = score >= threshold
         group_a = approved[gender == 1].mean() if np.any(gender == 1) else 0.0
@@ -975,30 +1172,52 @@ def stage_09_fairness_recourse_governance(ctx: dict[str, Any]) -> dict[str, Any]
             gate = "human_gate"
         if disparate_ratio < 0.65:
             gate = "reject_until_review"
-        fairness_rows.append({
-            "policy_id": policy["policy_id"],
-            "gender_approval_ratio": disparate_ratio,
-            "conflict_region_approval_ratio": conflict_ratio,
-            "approval_rate": float(np.mean(approved)),
-            "human_review_share": human,
-            "governance_gate": gate,
-        })
-        recourse_rows.append({
-            "policy_id": policy["policy_id"],
-            "recourse_type": "missing_credit_or_documentation_review",
-            "estimated_recourse_feasible_share": float(np.mean((~approved) & (credit_access > 0.35))),
-            "human_readable_action": "submit missing documentation or request human review for conflict/context exception",
-        })
+        fairness_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "gender_approval_ratio": disparate_ratio,
+                "conflict_region_approval_ratio": conflict_ratio,
+                "approval_rate": float(np.mean(approved)),
+                "human_review_share": human,
+                "governance_gate": gate,
+            }
+        )
+        recourse_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "recourse_type": "missing_credit_or_documentation_review",
+                "estimated_recourse_feasible_share": float(
+                    np.mean((~approved) & (credit_access > 0.35))
+                ),
+                "human_readable_action": "submit missing documentation or request human review for conflict/context exception",
+            }
+        )
         if gate != "approve":
-            gate_rows.append({"policy_id": policy["policy_id"], "gate": gate, "reason": "fairness or conflict-sensitive coverage threshold"})
-        verdict_rows.append({"policy_id": policy["policy_id"], "verdict": gate, "claim_boundary": "synthetic applicant governance stress test"})
+            gate_rows.append(
+                {
+                    "policy_id": policy["policy_id"],
+                    "gate": gate,
+                    "reason": "fairness or conflict-sensitive coverage threshold",
+                }
+            )
+        verdict_rows.append(
+            {
+                "policy_id": policy["policy_id"],
+                "verdict": gate,
+                "claim_boundary": "synthetic applicant governance stress test",
+            }
+        )
     contestability = [
         {
             "packet_id": f"contest_{i:03d}",
             "policy_id": row["policy_id"],
             "reason_for_review": row.get("reason", "sample contestability packet"),
             "legal_ref_status": "requires official program rule reference",
-            "applicant_actions": ["request human review", "provide missing documentation", "ask for alternative program routing"],
+            "applicant_actions": [
+                "request human review",
+                "provide missing documentation",
+                "ask for alternative program routing",
+            ],
         }
         for i, row in enumerate((gate_rows or fairness_rows)[:100])
     ]
@@ -1063,15 +1282,23 @@ def stage_10_ablation_reproducibility(ctx: dict[str, Any]) -> dict[str, Any]:
             scored.append((row["policy_id"], adjusted))
         scored.sort(key=lambda item: item[1], reverse=True)
         for rank, (policy_id, score) in enumerate(scored[:30], start=1):
-            shift_rows.append({
+            shift_rows.append(
+                {
+                    "variant": variant,
+                    "policy_id": policy_id,
+                    "variant_rank": rank,
+                    "base_rank": base_rank.get(policy_id),
+                    "rank_shift": (base_rank.get(policy_id) or rank) - rank,
+                    "variant_score": score,
+                }
+            )
+        risk_rows.append(
+            {
                 "variant": variant,
-                "policy_id": policy_id,
-                "variant_rank": rank,
-                "base_rank": base_rank.get(policy_id),
-                "rank_shift": (base_rank.get(policy_id) or rank) - rank,
-                "variant_score": score,
-            })
-        risk_rows.append({"variant": variant, "overclaim_risk_proxy": risk, "interpretation": "higher means more risk from removing this layer"})
+                "overclaim_risk_proxy": risk,
+                "interpretation": "higher means more risk from removing this layer",
+            }
+        )
     replay = {
         "run_id": ctx["run_id"],
         "command": " ".join(sys.argv),
@@ -1110,7 +1337,9 @@ def stage_11_adaptivity_audit(ctx: dict[str, Any]) -> dict[str, Any]:
     stage = "11_adaptivity_audit"
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
-    top = read_json(ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}).get("top", [])
+    top = read_json(
+        ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}
+    ).get("top", [])
     top_policy = top[0] if top else {}
     diff = {
         "scenario": "extend microgrant restart to veteran and IDP entrepreneurs in high-conflict regions",
@@ -1149,7 +1378,7 @@ def stage_11_adaptivity_audit(ctx: dict[str, Any]) -> dict[str, Any]:
 1. Restore inputs from `02_input_freeze/input_manifest.json`.
 2. Use the command in `10_ablation_reproducibility/replay_command.sh`.
 3. Verify the audit chain in `11_adaptivity_audit/audit_chain.json`.
-4. Compare final dossier outputs under `{ctx['gcs_prefix']}`.
+4. Compare final dossier outputs under `{ctx["gcs_prefix"]}`.
 """,
     )
     write_markdown(
@@ -1157,9 +1386,9 @@ def stage_11_adaptivity_audit(ctx: dict[str, Any]) -> dict[str, Any]:
         f"""
 # E8 Adaptivity and Chained Audit
 
-Adaptive scenario: `{diff['scenario']}`.
+Adaptive scenario: `{diff["scenario"]}`.
 Audit chain length: `{len(chain)}`.
-Top policy changed: `{diff['old_policy_ref']}` -> `{diff['new_policy_ref']}`.
+Top policy changed: `{diff["old_policy_ref"]}` -> `{diff["new_policy_ref"]}`.
 """,
     )
     result = {
@@ -1177,19 +1406,45 @@ def stage_12_final_dossier(ctx: dict[str, Any], results: list[dict[str, Any]]) -
     stage = "12_final_dossier"
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
-    robust_top = read_json(ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}).get("top", [])
+    robust_top = read_json(
+        ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}
+    ).get("top", [])
     fresg_lift = []
     fresg_path = ctx["output_dir"] / "03_policy_formalization" / "fresg_policyos_lift.csv"
     if fresg_path.exists():
         with fresg_path.open() as fh:
             fresg_lift = list(csv.DictReader(fh))
     hypothesis_rows = [
-        {"hypothesis": "H1 formalization and auto-identification", "modules": "E1,E2", "verdict": "supported_with_proxy_limits"},
-        {"hypothesis": "H2 causal stack", "modules": "E3", "verdict": "supported_on_semi_synthetic_benchmark"},
-        {"hypothesis": "H3 transportability", "modules": "E4", "verdict": "supported_as_verdict_framework"},
-        {"hypothesis": "H4 mechanism/welfare/robustness", "modules": "E5,E6", "verdict": "supported_as_scenario_decision_support"},
-        {"hypothesis": "H5 fairness/recourse/governance", "modules": "E7", "verdict": "supported_as_governance_stress_test"},
-        {"hypothesis": "H6 adaptivity/audit", "modules": "E8", "verdict": "supported_as_replayable_audit_protocol"},
+        {
+            "hypothesis": "H1 formalization and auto-identification",
+            "modules": "E1,E2",
+            "verdict": "supported_with_proxy_limits",
+        },
+        {
+            "hypothesis": "H2 causal stack",
+            "modules": "E3",
+            "verdict": "supported_on_semi_synthetic_benchmark",
+        },
+        {
+            "hypothesis": "H3 transportability",
+            "modules": "E4",
+            "verdict": "supported_as_verdict_framework",
+        },
+        {
+            "hypothesis": "H4 mechanism/welfare/robustness",
+            "modules": "E5,E6",
+            "verdict": "supported_as_scenario_decision_support",
+        },
+        {
+            "hypothesis": "H5 fairness/recourse/governance",
+            "modules": "E7",
+            "verdict": "supported_as_governance_stress_test",
+        },
+        {
+            "hypothesis": "H6 adaptivity/audit",
+            "modules": "E8",
+            "verdict": "supported_as_replayable_audit_protocol",
+        },
     ]
     table_dir = ensure_dir(out / "thesis_tables")
     figure_dir = ensure_dir(out / "figure_data")
@@ -1204,7 +1459,12 @@ def stage_12_final_dossier(ctx: dict[str, Any], results: list[dict[str, Any]]) -
     write_markdown(
         out / "top_policy_shortlist.md",
         "\n".join(
-            ["# Top Robust Policy Shortlist", "", "| Rank | Policy | Family | Robust score |", "| ---: | --- | --- | ---: |"]
+            [
+                "# Top Robust Policy Shortlist",
+                "",
+                "| Rank | Policy | Family | Robust score |",
+                "| ---: | --- | --- | ---: |",
+            ]
             + [
                 f"| {row.get('rank')} | `{row.get('policy_id')}` | {row.get('family_id')} | {float(row.get('robust_score', 0.0)):.4f} |"
                 for row in robust_top[:15]
@@ -1227,33 +1487,43 @@ automatically.
     )
     inventory = []
     for path in sorted(ctx["output_dir"].glob("*/experiment_result.json")):
-        inventory.append({"stage": path.parent.name, "experiment_result": str(path.relative_to(ctx["output_dir"]))})
+        inventory.append(
+            {
+                "stage": path.parent.name,
+                "experiment_result": str(path.relative_to(ctx["output_dir"])),
+            }
+        )
     write_markdown(
         out / "artifact_inventory.md",
-        "\n".join(["# Artifact Inventory", ""] + [f"- `{row['experiment_result']}`" for row in inventory]),
+        "\n".join(
+            ["# Artifact Inventory", ""] + [f"- `{row['experiment_result']}`" for row in inventory]
+        ),
     )
-    write_json(out / "final_experiment_index.json", {
-        "run_id": ctx["run_id"],
-        "created_at": utc_now(),
-        "gcs_prefix": ctx["gcs_prefix"],
-        "stage_results": results,
-        "top_policy": robust_top[0] if robust_top else None,
-        "fresg_rows": len(fresg_lift),
-    })
+    write_json(
+        out / "final_experiment_index.json",
+        {
+            "run_id": ctx["run_id"],
+            "created_at": utc_now(),
+            "gcs_prefix": ctx["gcs_prefix"],
+            "stage_results": results,
+            "top_policy": robust_top[0] if robust_top else None,
+            "fresg_rows": len(fresg_lift),
+        },
+    )
     write_markdown(
         out / "final_experiment_summary.md",
         f"""
 # MSME PolicyOS Final Experiment Suite
 
-Run id: `{ctx['run_id']}`.
-GCS prefix: `{ctx['gcs_prefix']}`.
+Run id: `{ctx["run_id"]}`.
+GCS prefix: `{ctx["gcs_prefix"]}`.
 
 The suite executed the final FRESG-aligned thesis experiment across policy
 formalization, evidence retrieval, causal benchmarking, transportability,
 robust many-world policy ranking, graph-aware simulation, fairness/governance,
 ablation and replayable audit.
 
-Top robust policy: `{robust_top[0].get('policy_id') if robust_top else 'none'}`.
+Top robust policy: `{robust_top[0].get("policy_id") if robust_top else "none"}`.
 Completed stage result count: `{len(results)}`.
 
 Interpretation: system-validation and decision-support evidence, not a real
@@ -1284,7 +1554,17 @@ explicit claim boundaries for synthetic and proxy stages.
     }
     stage_result(ctx, stage, result)
     if ctx["sync_enabled"]:
-        run_cmd(["gcloud", "storage", "rsync", "-r", str(ctx["output_dir"]), ctx["gcs_prefix"].rstrip("/")], timeout=7200)
+        run_cmd(
+            [
+                "gcloud",
+                "storage",
+                "rsync",
+                "-r",
+                str(ctx["output_dir"]),
+                ctx["gcs_prefix"].rstrip("/"),
+            ],
+            timeout=7200,
+        )
     return result
 
 
@@ -1309,8 +1589,14 @@ def build_context(args: argparse.Namespace) -> dict[str, Any]:
     repo_root = Path(args.repo_root).expanduser().resolve()
     production_data = Path(args.production_data).expanduser().resolve()
     run_id = args.run_id or f"{FINAL_EXPERIMENT_ID}_{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
-    output_dir = (Path(args.output_dir).expanduser().resolve() if args.output_dir else workdir / run_id)
-    gcs_prefix = f"{args.gcs_prefix.rstrip('/')}/{run_id}" if not args.gcs_prefix.rstrip("/").endswith(run_id) else args.gcs_prefix.rstrip("/")
+    output_dir = (
+        Path(args.output_dir).expanduser().resolve() if args.output_dir else workdir / run_id
+    )
+    gcs_prefix = (
+        f"{args.gcs_prefix.rstrip('/')}/{run_id}"
+        if not args.gcs_prefix.rstrip("/").endswith(run_id)
+        else args.gcs_prefix.rstrip("/")
+    )
     ensure_dir(output_dir)
     pilot.add_repo_to_path(repo_root)
     threads = int(args.threads or os.cpu_count() or 1)
@@ -1321,7 +1607,9 @@ def build_context(args: argparse.Namespace) -> dict[str, Any]:
         "workdir": workdir,
         "repo_root": repo_root,
         "production_data": production_data,
-        "runs_dir": Path(args.runs_dir).expanduser().resolve() if args.runs_dir else workdir / "runs",
+        "runs_dir": Path(args.runs_dir).expanduser().resolve()
+        if args.runs_dir
+        else workdir / "runs",
         "output_dir": output_dir,
         "gcs_prefix": gcs_prefix,
         "sync_enabled": not args.no_sync,
@@ -1358,7 +1646,7 @@ def run_selected(ctx: dict[str, Any], requested: set[str] | None = None) -> list
         started = time.perf_counter()
         try:
             result = fn(ctx)
-        except Exception as exc:  # noqa: BLE001 - keep typed failure.
+        except Exception as exc:
             out = ensure_dir(ctx["output_dir"] / stage_name)
             result = {
                 "experiment_id": stage_name,
@@ -1386,14 +1674,23 @@ def run_selected(ctx: dict[str, Any], requested: set[str] | None = None) -> list
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=["preflight", "run"], default="preflight")
-    parser.add_argument("--profile", choices=["deadline_safe", "default", "stretch"], default="default")
+    parser.add_argument(
+        "--profile", choices=["deadline_safe", "default", "stretch"], default="default"
+    )
     parser.add_argument("--run-id", default="")
-    parser.add_argument("--workdir", default="/mnt/experiments/msme_final_fresg_evaluation_20260501")
+    parser.add_argument(
+        "--workdir", default="/mnt/experiments/msme_final_fresg_evaluation_20260501"
+    )
     parser.add_argument("--repo-root", default="/mnt/experiments/polisyos/policy-engine")
-    parser.add_argument("--production-data", default="/mnt/experiments/msme_deadline_20260430/input/production_data")
+    parser.add_argument(
+        "--production-data", default="/mnt/experiments/msme_deadline_20260430/input/production_data"
+    )
     parser.add_argument("--runs-dir", default="")
     parser.add_argument("--output-dir", default="")
-    parser.add_argument("--gcs-prefix", default="gs://lex-1-494208-data/experiments/msme_final_fresg_evaluation_20260501")
+    parser.add_argument(
+        "--gcs-prefix",
+        default="gs://lex-1-494208-data/experiments/msme_final_fresg_evaluation_20260501",
+    )
     parser.add_argument("--threads", type=int, default=12)
     parser.add_argument("--policy-count", type=int, default=192)
     parser.add_argument("--fabric-dataset-limit", type=int, default=8000)
@@ -1439,25 +1736,32 @@ def apply_profile_defaults(args: argparse.Namespace) -> argparse.Namespace:
 def main() -> int:
     args = apply_profile_defaults(parse_args())
     ctx = build_context(args)
-    write_json(ctx["output_dir"] / "_manifests" / "launch_config.json", {
-        key: value for key, value in ctx.items() if key != "llm"
-    } | {
-        "llm": {
-            "available": ctx["llm"].get("available"),
-            "key_name": ctx["llm"].get("key_name"),
-            "model": ctx["llm"].get("model"),
-            "base_url": ctx["llm"].get("base_url"),
+    write_json(
+        ctx["output_dir"] / "_manifests" / "launch_config.json",
+        {key: value for key, value in ctx.items() if key != "llm"}
+        | {
+            "llm": {
+                "available": ctx["llm"].get("available"),
+                "key_name": ctx["llm"].get("key_name"),
+                "model": ctx["llm"].get("model"),
+                "base_url": ctx["llm"].get("base_url"),
+            },
+            "mode": args.mode,
+            "profile": args.profile,
         },
-        "mode": args.mode,
-        "profile": args.profile,
-    })
+    )
     if args.mode == "preflight":
         result = stage_00_preflight(ctx)
         print(json.dumps(result, ensure_ascii=False, indent=2, default=json_default))
         return 0 if result.get("status") == "completed" else 2
     requested = {stage.strip() for stage in args.stages.split(",") if stage.strip()} or None
     results = run_selected(ctx, requested)
-    print(json.dumps({"status": "completed", "run_id": ctx["run_id"], "stage_count": len(results)}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"status": "completed", "run_id": ctx["run_id"], "stage_count": len(results)},
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 

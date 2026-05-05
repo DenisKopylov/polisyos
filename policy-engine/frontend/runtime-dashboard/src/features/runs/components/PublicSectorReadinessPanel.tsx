@@ -18,8 +18,8 @@ import {
   STAKEHOLDER_LENSES,
   writeStoredReviewAttention,
 } from "@/features/runs/domain/publicSectorReadiness";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Badge, Button } from "@/shared/ui";
 
 function statusKind(status: ReadinessSeverity) {

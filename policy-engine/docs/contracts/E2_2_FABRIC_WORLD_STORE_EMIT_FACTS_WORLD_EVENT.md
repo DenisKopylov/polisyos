@@ -1,10 +1,10 @@
 # E2.2 (Phase 9) — Fabric World Store: CAS persist + FactLog emission + WorldEvent (write‑path for World Graph)
 
-**Repo snapshot date**: 2026-02-03  
-**Scope**: `policy-engine/src/polisyos/fabric/world/*` (new) + `policy-engine/tests/fabric/*` (new tests) + this contract doc.  
+**Repo snapshot date**: 2026-02-03
+**Scope**: `policy-engine/src/polisyos/fabric/world/*` (new) + `policy-engine/tests/unit/fabric/*` (new tests) + this contract doc.
 **Primary goal**: add a single, reusable **write‑path** for the World Graph in Fabric:
 
-- persist typed World objects into **Core CAS** (`DocMeta`, `DocFragment`, `Claim`, `WorldEvent`)  
+- persist typed World objects into **Core CAS** (`DocMeta`, `DocFragment`, `Claim`, `WorldEvent`)
   Source of truth: `polisyos.ir.world.*` (Phase 8 / E2.1)
 
 - emit **ABI‑compatible** World facts into **FactLog** segments:
@@ -152,7 +152,7 @@ policy-engine/src/polisyos/fabric/world/
 Add tests under:
 
 ```text
-policy-engine/tests/fabric/test_world_store_phase9.py
+policy-engine/tests/unit/fabric/test_world_store_phase9.py
 ```
 
 Test focus is E2.2 write‑path invariants only (see §8).
@@ -164,7 +164,7 @@ Import gate must remain green:
 - `polisyos.fabric.world.*` may import: `polisyos.fabric.*`, `polisyos.core.*`, `polisyos.ir.*`, `polisyos.common.*`
 - Must not import `polisyos.scientist.*`
 
-Enforced by: `policy-engine/tests/test_arch_import_gate.py`.
+Enforced by: `policy-engine/tests/architecture/test_arch_import_gate.py`.
 
 ---
 
@@ -722,7 +722,7 @@ Optional helper (recommended):
 
 ## 8) Tests (must be implemented in Phase 9)
 
-Create `policy-engine/tests/fabric/test_world_store_phase9.py`.
+Create `policy-engine/tests/unit/fabric/test_world_store_phase9.py`.
 
 Minimum tests:
 
@@ -780,6 +780,6 @@ Minimum tests:
 | Link type           | Current anchor                                                                                                                                       |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 world ID/CAS determinism and Phase 2 lineage graph inputs                                                                              |
-| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/connectors/test_ingestion_fetch_activity_contract.py` |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/unit/fabric/test_world_store.py`, `tests/unit/fabric/connectors/test_ingestion_fetch_activity_contract.py` |
 | Schema snapshots    | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`    |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                               |

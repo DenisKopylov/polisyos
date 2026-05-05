@@ -1,0 +1,107 @@
+{
+  "rows": [
+    {
+      "phase": 2,
+      "fixture_like_signals": [
+        "_chain_fixture_v2",
+        "_diamond_fixture_v2",
+        "_fork_fixture_v1",
+        "_fork_fixture_v2",
+        "_linear_confounding_fixture_v2",
+        "chain",
+        "diamond",
+        "fork",
+        "iv",
+        "test_dowhy_v2_smoke_on_phase2_fixtures"
+      ],
+      "count": 10
+    },
+    {
+      "phase": 3,
+      "fixture_like_signals": [
+        "_confounded_fixture",
+        "confounded",
+        "test_dowhy_refute_marks_random_common_cause_passed_on_confounded_fixture"
+      ],
+      "count": 3
+    },
+    {
+      "phase": 4,
+      "fixture_like_signals": [
+        "_continuous_treatment_fixture",
+        "_instrumental_fixture",
+        "iv"
+      ],
+      "count": 3
+    },
+    {
+      "phase": 5,
+      "fixture_like_signals": [
+        "iv"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 6,
+      "fixture_like_signals": [],
+      "count": 0
+    },
+    {
+      "phase": 7,
+      "fixture_like_signals": [
+        "chain"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 8,
+      "fixture_like_signals": [],
+      "count": 0
+    },
+    {
+      "phase": 9,
+      "fixture_like_signals": [
+        "iv"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 10,
+      "fixture_like_signals": [
+        "iv"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 11,
+      "fixture_like_signals": [],
+      "count": 0
+    },
+    {
+      "phase": 12,
+      "fixture_like_signals": [],
+      "count": 0
+    },
+    {
+      "phase": 13,
+      "fixture_like_signals": [
+        "iv"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 14,
+      "fixture_like_signals": [
+        "diamond"
+      ],
+      "count": 1
+    },
+    {
+      "phase": 15,
+      "fixture_like_signals": [
+        "iv"
+      ],
+      "count": 1
+    }
+  ]
+}

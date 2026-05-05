@@ -1,0 +1,25 @@
+[migration_contracts]
+version = 1
+owner = "team-platform"
+mode = "fail_closed"
+source_of_truth = "ops/migrations/*.sql and src/polisyos/core/security/db_backend.py"
+database = "postgresql"
+tenant_context_setting = "app.current_tenant"
+forward_sequence = [
+  "001_tenant_columns.sql",
+  "002_tenant_backfill.sql",
+  "003_rls_enable.sql",
+  "004_roles_grants.sql",
+]
+rollback_sequence = [
+  "003_rls_disable_rollback.sql",
+]
+preconditions = [
+  "tenant-scoped tables have a reviewed tenant_id backfill plan before 003_rls_enable.sql",
+  "application role does not have BYPASSRLS or SUPERUSER",
+  "rollback is emergency-only and reviewed by team-platform",
+]
+baseline_checks = [
+  "manual review: verify forward sequence order before production migration",
+  "manual review: verify relrowsecurity and relforcerowsecurity after 003_rls_enable.sql",
+]

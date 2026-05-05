@@ -8,7 +8,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { useRunDetails } from "@/api/hooks/useRunDetails";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   markUiMilestone,
   measureUiLatency,

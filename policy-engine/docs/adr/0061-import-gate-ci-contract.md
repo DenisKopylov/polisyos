@@ -19,14 +19,14 @@ codebase grows.
 
 ## Decision
 
-1. Run `tools/lint/lint_foundry.py --strict` as a required CI check on every
+1. Run `tools/quality/lint/lint_foundry.py --strict` as a required CI check on every
    pull request targeting `main`.
 2. The linter statically analyses import statements in `polisyos.foundry` and
    fails if any import resolves to `polisyos.scientist`, `polisyos.fabric`,
    `polisyos.lex`, or `polisyos.datasets`.
-3. The `import_policy.toml` file serves as the source of truth for allowed
+3. The `architecture/imports/policy.toml` file serves as the source of truth for allowed
    cross-layer dependencies and is version-controlled alongside source code.
-4. Exceptions require an explicit entry in `import_policy.toml` with a
+4. Exceptions require an explicit entry in `architecture/imports/policy.toml` with a
    justification comment and an associated ADR reference.
 
 ## Consequences
@@ -36,7 +36,7 @@ codebase grows.
 - Automated enforcement catches import violations before merge, eliminating
   reliance on reviewer vigilance.
 
-- The `import_policy.toml` file provides a single auditable manifest of all
+- The `architecture/imports/policy.toml` file provides a single auditable manifest of all
   cross-layer dependency exceptions.
 
 ### Negative

@@ -1,6 +1,6 @@
 import type { BlockquoteHTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { AuthoredText } from "@/shared/ui/authored-text";
 
 type PullQuoteProps = {

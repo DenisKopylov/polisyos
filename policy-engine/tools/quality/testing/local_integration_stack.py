@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 DASHBOARD_ROOT = REPO_ROOT / "frontend" / "runtime-dashboard"

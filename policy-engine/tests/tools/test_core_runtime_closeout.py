@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tools.workspace import core_runtime_closeout
+from tools.devx.workspace import core_runtime_closeout
 
 
 def test_core_runtime_closeout_ledger_loads_and_matches_expected_blockers() -> None:

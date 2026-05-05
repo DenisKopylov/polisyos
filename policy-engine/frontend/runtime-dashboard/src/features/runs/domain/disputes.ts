@@ -1,4 +1,4 @@
-import type { GovernanceIssueView } from "@/lib/domain/governance";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
 export type DisputeStatus = "open" | "under_review" | "resolved";
 

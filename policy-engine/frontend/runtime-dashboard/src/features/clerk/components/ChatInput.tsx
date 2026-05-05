@@ -6,7 +6,7 @@ import {
 } from "react";
 
 import { Button } from "@/shared/ui";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { CLERK_DEFAULT_DOMAIN_HINTS } from "../domain/clerkDefaults";
 
 type ChatInputProps = {

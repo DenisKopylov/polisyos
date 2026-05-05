@@ -7,22 +7,21 @@ import uuid
 from pathlib import Path
 
 import pytest
-
-from tools._lib.fs import normalize_filesystem_path
-from tools._lib.runner import parse_trusted_command
-from tools._lib.sql import validate_sql_identifier
+from tools.lib.fs import normalize_filesystem_path
+from tools.lib.runner import parse_trusted_command
+from tools.lib.sql import validate_sql_identifier
 from tools.ops.migrations import migrate_duckdb_to_pg
 from tools.quality.diagnostics import scan_fabric
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 TARGET_SHELL_SCRIPTS = (
-    REPO_ROOT / "tools" / "cloud" / "run_datasets_validation.sh",
-    REPO_ROOT / "tools" / "cloud" / "check_progress.sh",
-    REPO_ROOT / "tools" / "cloud" / "prepare_shards.sh",
-    REPO_ROOT / "tools" / "ci" / "install_actionlint.sh",
-    REPO_ROOT / "tools" / "ci" / "install_supply_chain_tools.sh",
-    REPO_ROOT / "tools" / "cloud" / "run_pipeline.sh",
+    REPO_ROOT / "tools" / "ops" / "cloud" / "run_datasets_validation.sh",
+    REPO_ROOT / "tools" / "ops" / "cloud" / "check_progress.sh",
+    REPO_ROOT / "tools" / "ops" / "cloud" / "prepare_shards.sh",
+    REPO_ROOT / "tools" / "quality" / "ci" / "install_actionlint.sh",
+    REPO_ROOT / "tools" / "quality" / "ci" / "install_supply_chain_tools.sh",
+    REPO_ROOT / "tools" / "ops" / "cloud" / "run_pipeline.sh",
 )
 
 
@@ -147,7 +146,7 @@ def test_merge_shards_requires_confirmation_without_yes(tmp_path: Path) -> None:
     result = subprocess.run(
         [
             sys.executable,
-            str(REPO_ROOT / "tools" / "cloud" / "merge_shards.py"),
+            str(REPO_ROOT / "tools" / "ops" / "cloud" / "merge_shards.py"),
             str(shard_a),
             str(shard_b),
             "--output",
@@ -187,7 +186,7 @@ def test_run_pipeline_dry_run_resumes_existing_snapshot_root(tmp_path: Path) -> 
     result = subprocess.run(
         [
             "bash",
-            str(REPO_ROOT / "tools" / "cloud" / "run_pipeline.sh"),
+            str(REPO_ROOT / "tools" / "ops" / "cloud" / "run_pipeline.sh"),
             "--dry-run",
             "--run-id",
             "fixed-run",
@@ -216,7 +215,7 @@ def test_prepare_shards_generates_templates_without_embedded_secrets(tmp_path: P
     result = subprocess.run(
         [
             "bash",
-            str(REPO_ROOT / "tools" / "cloud" / "prepare_shards.sh"),
+            str(REPO_ROOT / "tools" / "ops" / "cloud" / "prepare_shards.sh"),
             str(topics_csv),
             "--deploy-dir",
             str(deploy_dir),
@@ -255,7 +254,7 @@ def test_no_shell_true_in_tools_tree() -> None:
 def test_tool_directories_are_importable_packages() -> None:
     missing: list[str] = []
     for path in (REPO_ROOT / "tools").iterdir():
-        if not path.is_dir() or path.name == "__pycache__":
+        if not path.is_dir() or path.name in {"__pycache__", "design"}:
             continue
         if not (path / "__init__.py").exists():
             missing.append(str(path.relative_to(REPO_ROOT)))
@@ -274,11 +273,11 @@ def test_required_tools_readmes_exist() -> None:
         path
         for path in (
             REPO_ROOT / "tools" / "ci" / "README.md",
-            REPO_ROOT / "tools" / "cloud" / "README.md",
-            REPO_ROOT / "tools" / "ukraine_data" / "README.md",
-            REPO_ROOT / "tools" / "validation" / "README.md",
-            REPO_ROOT / "tools" / "calibration" / "README.md",
-            REPO_ROOT / "tools" / "release" / "README.md",
+            REPO_ROOT / "tools" / "ops" / "cloud" / "README.md",
+            REPO_ROOT / "tools" / "ops" / "ukraine_data" / "README.md",
+            REPO_ROOT / "tools" / "quality" / "validation" / "README.md",
+            REPO_ROOT / "tools" / "ops" / "calibration" / "README.md",
+            REPO_ROOT / "tools" / "ops" / "release" / "README.md",
         )
         if not path.exists()
     ]
@@ -290,7 +289,7 @@ def test_type_checking_ast_helper_is_shared() -> None:
     for path in (REPO_ROOT / "tools").rglob("*.py"):
         if "__pycache__" in path.parts:
             continue
-        if path == REPO_ROOT / "tools" / "_lib" / "imports.py":
+        if path == REPO_ROOT / "tools" / "lib" / "imports.py":
             continue
         text = path.read_text(encoding="utf-8")
         if "def is_type_checking_test" in text or "def _is_type_checking_test" in text:

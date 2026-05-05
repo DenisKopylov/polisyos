@@ -1,0 +1,914 @@
+{
+  "findings": [
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/calibration/_sklearn_compat.py",
+        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/calibration/continuous.py",
+        "src/polisyos/calibration/diagnostics.py",
+        "src/polisyos/calibration/multiclass.py",
+        "src/polisyos/calibration/recalibration.py"
+      ],
+      "package": "calibration",
+      "root_py_count": 7,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/common/config.py",
+        "src/polisyos/common/env_parsing.py",
+        "src/polisyos/common/jax_env.py",
+        "src/polisyos/common/logger.py",
+        "src/polisyos/common/serialization.py",
+        "src/polisyos/common/timestamps.py"
+      ],
+      "package": "common",
+      "root_py_count": 8,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/fabric/_connector_bridge.py",
+        "src/polisyos/fabric/_numeric_parsing.py",
+        "src/polisyos/fabric/compatibility.py",
+        "src/polisyos/fabric/config.py",
+        "src/polisyos/fabric/connectors_ingestion.py",
+        "src/polisyos/fabric/decision_data.py",
+        "src/polisyos/fabric/evidence.py",
+        "src/polisyos/fabric/fact_writer.py",
+        "src/polisyos/fabric/finite.py",
+        "src/polisyos/fabric/fitness_report.py",
+        "src/polisyos/fabric/ingestion.py",
+        "src/polisyos/fabric/ingestion_providers.py",
+        "src/polisyos/fabric/manifest.py",
+        "src/polisyos/fabric/observability.py",
+        "src/polisyos/fabric/processing_guarantees.py",
+        "src/polisyos/fabric/product_integration.py",
+        "src/polisyos/fabric/quality.py",
+        "src/polisyos/fabric/registry.py",
+        "src/polisyos/fabric/safety.py",
+        "src/polisyos/fabric/segment_manifest.py",
+        "src/polisyos/fabric/tabular.py",
+        "src/polisyos/fabric/temporal.py",
+        "src/polisyos/fabric/trust.py",
+        "src/polisyos/fabric/trust_adapter.py",
+        "src/polisyos/fabric/world_query.py"
+      ],
+      "package": "fabric",
+      "root_py_count": 26,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/foundry/_execution_posture.py",
+        "src/polisyos/foundry/_executor_graph.py",
+        "src/polisyos/foundry/_executor_models.py",
+        "src/polisyos/foundry/_executor_ops.py",
+        "src/polisyos/foundry/_executor_patching.py",
+        "src/polisyos/foundry/_executor_snapshots.py",
+        "src/polisyos/foundry/_numeric.py",
+        "src/polisyos/foundry/agent_metrics.py",
+        "src/polisyos/foundry/agents.py",
+        "src/polisyos/foundry/conflict_checker.py",
+        "src/polisyos/foundry/constraints_engine.py",
+        "src/polisyos/foundry/cost_model.py",
+        "src/polisyos/foundry/executor.py",
+        "src/polisyos/foundry/layout.py",
+        "src/polisyos/foundry/loss.py",
+        "src/polisyos/foundry/mechanism_design.py",
+        "src/polisyos/foundry/merge_engine.py",
+        "src/polisyos/foundry/patch_vm.py",
+        "src/polisyos/foundry/profiles.py",
+        "src/polisyos/foundry/queue.py",
+        "src/polisyos/foundry/quickstart.py",
+        "src/polisyos/foundry/registry.py",
+        "src/polisyos/foundry/release_acceptance.py",
+        "src/polisyos/foundry/social_weights.py",
+        "src/polisyos/foundry/specs.py",
+        "src/polisyos/foundry/trace.py",
+        "src/polisyos/foundry/utils.py",
+        "src/polisyos/foundry/welfare_bounds.py"
+      ],
+      "package": "foundry",
+      "root_py_count": 29,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/ir/_lazy_facade.py",
+        "src/polisyos/ir/_validation.py",
+        "src/polisyos/ir/canon.py",
+        "src/polisyos/ir/citations.py",
+        "src/polisyos/ir/connectors.py",
+        "src/polisyos/ir/fact_log.py",
+        "src/polisyos/ir/loaders.py",
+        "src/polisyos/ir/migration_report.py",
+        "src/polisyos/ir/model_spec.py",
+        "src/polisyos/ir/norm_pack.py",
+        "src/polisyos/ir/portfolio.py",
+        "src/polisyos/ir/predicate.py",
+        "src/polisyos/ir/public_surface.py",
+        "src/polisyos/ir/queries.py",
+        "src/polisyos/ir/refs.py",
+        "src/polisyos/ir/registry_fragments.py",
+        "src/polisyos/ir/schema_catalog.py",
+        "src/polisyos/ir/types.py",
+        "src/polisyos/ir/units.py"
+      ],
+      "package": "ir",
+      "root_py_count": 20,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/lex/artifacts.py",
+        "src/polisyos/lex/common.py",
+        "src/polisyos/lex/errors.py",
+        "src/polisyos/lex/factlog.py",
+        "src/polisyos/lex/intervention_artifacts.py",
+        "src/polisyos/lex/interventions.py",
+        "src/polisyos/lex/provenance.py",
+        "src/polisyos/lex/types.py"
+      ],
+      "package": "lex",
+      "root_py_count": 10,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/scholar/errors.py",
+        "src/polisyos/scholar/freshness.py",
+        "src/polisyos/scholar/freshness_store.py",
+        "src/polisyos/scholar/policies.py",
+        "src/polisyos/scholar/provenance.py",
+        "src/polisyos/scholar/types.py"
+      ],
+      "package": "scholar",
+      "root_py_count": 8,
+      "severity": "warning"
+    },
+    {
+      "gate": "loose_files_gate",
+      "max_root_py_files": 5,
+      "message": "Top-level package has too many root .py files.",
+      "non_allowed": [
+        "src/polisyos/scientist/decision_validity.py",
+        "src/polisyos/scientist/error_semantics.py",
+        "src/polisyos/scientist/evidence_sources.py",
+        "src/polisyos/scientist/feedback.py",
+        "src/polisyos/scientist/feedback_utils.py",
+        "src/polisyos/scientist/frontier_runtime.py",
+        "src/polisyos/scientist/latent_separation.py",
+        "src/polisyos/scientist/llm_cycle.py",
+        "src/polisyos/scientist/publisher.py",
+        "src/polisyos/scientist/reliability_scorecard.py",
+        "src/polisyos/scientist/remediation_status.py",
+        "src/polisyos/scientist/replay_backend.py"
+      ],
+      "package": "scientist",
+      "root_py_count": 14,
+      "severity": "warning"
+    },
+    {
+      "file_count": 251,
+      "gate": "loose_files_gate",
+      "max_package_files": 250,
+      "message": "Top-level package exceeds file budget.",
+      "package": "data_forge",
+      "severity": "warning"
+    },
+    {
+      "file_count": 289,
+      "gate": "loose_files_gate",
+      "max_package_files": 250,
+      "message": "Top-level package exceeds file budget.",
+      "package": "fabric",
+      "severity": "warning"
+    },
+    {
+      "file_count": 520,
+      "gate": "loose_files_gate",
+      "max_package_files": 250,
+      "message": "Top-level package exceeds file budget.",
+      "package": "foundry",
+      "severity": "warning"
+    },
+    {
+      "file_count": 533,
+      "gate": "loose_files_gate",
+      "max_package_files": 250,
+      "message": "Top-level package exceeds file budget.",
+      "package": "scientist",
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "adapters",
+      "packages": [
+        "berl",
+        "runtime",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "artifacts",
+      "packages": [
+        "core",
+        "ir"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "backends",
+      "packages": [
+        "core",
+        "fabric",
+        "foundry",
+        "lex",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "cache",
+      "packages": [
+        "core",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "calibration",
+      "packages": [
+        "ddm_15_7",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "catalog",
+      "packages": [
+        "data_forge",
+        "fabric",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "causal",
+      "packages": [
+        "foundry",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "claims",
+      "packages": [
+        "fabric",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "compile",
+      "packages": [
+        "foundry",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "contracts",
+      "packages": [
+        "berl",
+        "core",
+        "ddm_15_7",
+        "fabric",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "data",
+      "packages": [
+        "ir",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "data_plane",
+      "packages": [
+        "fabric",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "ddl",
+      "packages": [
+        "fabric",
+        "ir"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "discovery",
+      "packages": [
+        "core",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "engine",
+      "packages": [
+        "foundry",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "governance",
+      "packages": [
+        "core",
+        "ir",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "io",
+      "packages": [
+        "data_forge",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "kernel",
+      "packages": [
+        "data_forge",
+        "ir",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "knowledge",
+      "packages": [
+        "data_forge",
+        "lex"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "legal",
+      "packages": [
+        "core",
+        "data_forge",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "llm",
+      "packages": [
+        "core",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "migrations",
+      "packages": [
+        "common",
+        "ir"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "orchestrator",
+      "packages": [
+        "scholar",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "passes",
+      "packages": [
+        "core",
+        "ir",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "pipeline",
+      "packages": [
+        "core",
+        "data_forge"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "profiles",
+      "packages": [
+        "fabric",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "provenance",
+      "packages": [
+        "fabric",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "quality",
+      "packages": [
+        "data_forge",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "resilience",
+      "packages": [
+        "core",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "runtime",
+      "packages": [
+        "data_forge",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "search",
+      "packages": [
+        "scholar",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "security",
+      "packages": [
+        "core",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "sources",
+      "packages": [
+        "data_forge",
+        "fabric"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "testing",
+      "packages": [
+        "data_forge",
+        "fabric",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "types",
+      "packages": [
+        "fabric",
+        "foundry"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "validation",
+      "packages": [
+        "foundry",
+        "scientist"
+      ],
+      "severity": "warning"
+    },
+    {
+      "allowed_in": [],
+      "gate": "name_collision_gate",
+      "message": "Repeated directory name is not fully declared in name_registry.toml.",
+      "name": "world",
+      "packages": [
+        "fabric",
+        "ir"
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "pyproject_size_gate",
+      "line_count": 1975,
+      "max_lines": 300,
+      "message": "pyproject.toml exceeds target line budget.",
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".mypy_cache",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".mypy_cache",
+          "path": ".mypy_cache",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".mypy_cache",
+          "path": "policy-engine/.mypy_cache",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".pytest_cache",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".pytest_cache",
+          "path": ".pytest_cache",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".pytest_cache",
+          "path": "policy-engine/.pytest_cache",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".ruff_cache",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".ruff_cache",
+          "path": ".ruff_cache",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".ruff_cache",
+          "path": "policy-engine/.ruff_cache",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".hypothesis",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".hypothesis",
+          "path": ".hypothesis",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".hypothesis",
+          "path": "policy-engine/.hypothesis",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".benchmarks",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".benchmarks",
+          "path": ".benchmarks",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".benchmarks",
+          "path": "policy-engine/.benchmarks",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".venv",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".venv",
+          "path": ".venv",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".venv",
+          "path": "policy-engine/.venv",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "cache_dir_gate",
+      "message": "Cache/environment state appears at more than one workspace level.",
+      "name": ".polisyos",
+      "paths": [
+        {
+          "ignored": true,
+          "name": ".polisyos",
+          "path": ".polisyos",
+          "scope": "workspace_root"
+        },
+        {
+          "ignored": true,
+          "name": ".polisyos",
+          "path": "policy-engine/.polisyos",
+          "scope": "product_root"
+        }
+      ],
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/out",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "output",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/dist",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/site",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": false,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/release",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": false,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/release-fragments",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/production_data",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/benchmark-results",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": ".tmp",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/.tmp",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/logs",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/coverage",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/dist",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/playwright-report",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/output",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/storybook-static",
+      "severity": "warning"
+    },
+    {
+      "gate": "build_output_gate",
+      "ignored": true,
+      "message": "Generated/build output is outside canonical _build/ umbrella.",
+      "path": "policy-engine/frontend/runtime-dashboard/test-results",
+      "severity": "warning"
+    }
+  ],
+  "mode": "report-only"
+}

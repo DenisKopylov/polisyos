@@ -27,21 +27,21 @@ stack.
 ## Depends On / Depended On By
 
 - Depends on: core artifacts, observability, tenant/security helpers, and node contracts consumed by workflow execution
-- Depended on by: [`../api.py`](../api.py), [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and the Scientist engine test surface in [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Depended on by: [`../api.py`](../api.py), [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and the Scientist engine test surface in [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.engine import ExperimentState, WorkflowExecutor, WorkflowSpec; print(ExperimentState.__name__, WorkflowExecutor.__name__, WorkflowSpec.__name__)"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist/engine -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/engine -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/engine/test_condition.py tests/scientist/engine/test_retry.py tests/scientist/engine/test_state_merge.py -q
+uv run pytest tests/unit/scientist/engine/test_condition.py tests/unit/scientist/engine/test_retry.py tests/unit/scientist/engine/test_state_merge.py -q
 ```
 
 ## Reference Docs
@@ -49,7 +49,7 @@ uv run pytest tests/scientist/engine/test_condition.py tests/scientist/engine/te
 - Scientist workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
 - Builtin node reference: [`../../../../docs/reference/scientist/nodes.md`](../../../../docs/reference/scientist/nodes.md)
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
-- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

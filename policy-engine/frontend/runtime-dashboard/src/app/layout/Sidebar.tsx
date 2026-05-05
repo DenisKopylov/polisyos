@@ -4,8 +4,8 @@ import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
 import { getWorkspaceNavigationWithOptions } from "@/app/workspaces";
 import { getBlockedRunCount, useRunsSample } from "@/features/runs";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { SegmentedControl } from "@/shared/ui";
 

@@ -32,14 +32,14 @@ specs, builds execution context, assembles node registries, and hands the final
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.workflows import default_workflow_spec, resolve_workflow_id; print(default_workflow_spec().workflow_id, callable(resolve_workflow_id))"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist/workflows -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/workflows -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/workflows/test_builder_pinning.py tests/scientist/test_workflow_selection.py -q
+uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_builder_pinning.py tests/unit/scientist/workflows/test_workflow_selection.py -q
 ```
 
 ## Reference Docs
@@ -47,7 +47,7 @@ uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/w
 - Workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
 - Reliability scorecard: [`../../../../docs/reference/scientist/reliability-scorecard.md`](../../../../docs/reference/scientist/reliability-scorecard.md)
-- Cross-package navigation: [`../engine/README.md`](../engine/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Cross-package navigation: [`../engine/README.md`](../engine/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

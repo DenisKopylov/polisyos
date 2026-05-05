@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { TrustViewToggle } from "./TrustViewToggle";
 

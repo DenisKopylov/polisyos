@@ -10,7 +10,7 @@ import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 PRODUCT_ROOT = repo_root_from(__file__)
 WORKSPACE_ROOT = PRODUCT_ROOT.parent

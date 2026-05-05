@@ -11,17 +11,17 @@ from pathlib import Path
 
 import click
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import (
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import (
     OUTPUT_FORMATS,
     OutputFormat,
     ToolMessage,
     ToolResult,
     format_tool_result,
 )
-from tools._lib.preflight import PreflightStatus, run_preflight
-from tools._lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
-from tools._lib.timing import (
+from tools.lib.preflight import PreflightStatus, run_preflight
+from tools.lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
+from tools.lib.timing import (
     append_timing_record,
     make_timing_record,
     read_timing_records,

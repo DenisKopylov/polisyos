@@ -3,9 +3,9 @@ title: Data Forge Consolidation Plan
 status: active
 owner: team-data-forge
 created: 2026-04-18
-last_verified: 2026-04-29
-stability: draft
-execution_status: hold_until_npa_processing_complete
+last_verified: 2026-05-02
+stability: stable
+execution_status: phase8_legacy_data_forge_shims_removed
 ---
 
 # Data Forge Consolidation Plan
@@ -17,13 +17,14 @@ original full consolidation intent: physically move offline data preparation
 into `polisyos.data_forge`, retire legacy god-files and compatibility shims,
 and make `polisyos.data_forge.read_api` the stable runtime consumption surface.
 
-Execution is intentionally paused until the NPA corpus processing run is fully
-complete and the owner explicitly starts the post-processing cutover. This
-document is planning-only until that signal is given.
+Phase 0 cutover readiness is complete and recorded in
+`docs/plans/active/DATA_FORGE_CUTOVER_READINESS.md`. Phase 1 through Phase 7
+completed the implementation-owner moves, and Phase 8 removed the legacy
+academic, catalog, Ukraine, shared-kernel, and snapshot compatibility packages.
 
 The long-form historical analysis remains in
-`docs/DATA_FORGE_CONSOLIDATION_PLAN.md`; repository-wide rules live in
-`docs/plans/active/REPOSITORY_SOTA_PLAN.md`.
+`docs/archive/plans/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md`; repository-wide rules live in
+`docs/plans/accepted/REPOSITORY_SOTA_PLAN.md`.
 
 Key Data Forge decisions are fixed by ADR-0112 through ADR-0114 and ADR-0122
 through ADR-0125. This plan may refine implementation sequence, but it must not
@@ -51,25 +52,16 @@ src/polisyos/data_forge/
 Runtime packages consume prepared artifacts through stable contracts and
 `polisyos.data_forge.read_api`, not through domain or pipeline internals.
 
-## Execution Hold
+## Execution Status
 
-Current operational state: NPA processing is finishing but is not yet declared
-complete. Until the owner says the processing is complete and asks to start
-implementation, this plan must not trigger code movement, cloud runner changes,
-Lex entrypoint changes, or compatibility shim removal.
-
-Start the post-processing cutover only after all of the following are true:
-
-1. Queue 2 `shard_4` and Queue 3 Waves 1 through 5 have completed.
-2. Merge, QC, publication, and backup checks have passed.
-3. The production revision, artifact roots, manifest schemas, output layouts,
-   resume markers, and clean/resume semantics are recorded.
-4. A baseline old-vs-new replay or differential strategy is documented for
-   Legal/Lex, shared batch infrastructure, and Ukraine sharding-adjacent paths.
-5. The owner explicitly says to begin execution.
-
-Before that start signal, allowed work is limited to plan edits, review,
-inventory, and non-mutating verification.
+Current operational state: NPA processing is complete and the accepted Lex
+artifacts under `production_data/lex_current_20260501` are sufficient for the
+completed Legal cutover. Phase 1 shared-kernel, Phase 2 academic, Phase 3
+catalog, Phase 4 legal, Phase 5 Ukraine, Phase 6 read API, and Phase 7
+schema/quality/observability work are implemented. Phase 8 physically removed
+`polisyos.academic`, `polisyos.datasets`, `polisyos.ukraine_data`,
+`polisyos.batch_common`, `polisyos.batch_snapshot`, and the old Lex offline
+`batch`/`corpus` paths.
 
 ## Current Repository Baseline
 
@@ -85,18 +77,44 @@ baseline:
 - `domains/legal` read-only Lex shadow adapter and differential fixtures.
 - `domains/academic` asset mirror, readiness summary, shadow reader, read API,
   and baseline/candidate fixtures.
-- `domains/catalog` asset mirror, per-source module design, source/readiness
-  shadow reader, read API, and baseline/candidate fixtures.
+- `domains/catalog` asset mirror, full source-module registry mirror,
+  per-source harvest/normalize/observation/publish contracts, catalog schema
+  registry contracts, benchmark/QC/readiness readers, source/readiness shadow
+  reader, read API, and baseline/candidate fixtures.
 - `domains/ukraine` non-Lex scaffolding/read APIs for source/demography/static
   aging artifacts, plus shadow fixtures. NPA sharding, Lex manifests, and cloud
   runners remain untouched.
 - `read_api/*` lazy surfaces and tests proving that importing
   `polisyos.data_forge.read_api` or its surface modules does not eagerly load
   `domains/*`, `kernel/*`, or legacy runtime packages.
-- Targeted Data Forge tests under `tests/data_forge/`.
+- Targeted Data Forge tests under `tests/unit/data_forge/`.
+- Phase 1 shared-kernel cutover: manifest, hashing, atomic IO, snapshot,
+  quality, config/secret, runtime pacing, and migration test-harness contracts
+  live under `data_forge.kernel`; the old shared-kernel compatibility packages
+  were removed in Phase 8.
+- Phase 2 academic completion: academic batch-stage asset contracts,
+  readiness/benchmark/QC readers, schema contracts, artifact-hash differential
+  tests, and read-only SKG inspection live behind `read_api.academic`.
+- Phase 3 catalog completion: catalog source registry contracts, all checked-in
+  catalog source modules, per-source asset/stage contracts, schema contracts,
+  readiness/benchmark/QC readers, and old-vs-new catalog fixture checks live
+  behind `read_api.catalog`; the legacy datasets compatibility package was
+  removed in Phase 8.
+- Phase 4 legal cutover: legal batch runtime modules now live under
+  `data_forge.domains.legal.batch`, corpus preprocessing lives under
+  `data_forge.domains.legal.corpus`, and the old Lex offline paths were
+  removed. Cloud runner imports point at Data Forge; legal shadow comparisons
+  cover manifests, claims, claim summaries, QC, benchmark summaries,
+  cache/resume markers, and publish artifacts.
+- Phase 7 hardening: concrete ArtifactRef/domain-artifact/trace metadata
+  schemas live under `schemas/artifacts/`; raw/stage/publish manifest schemas
+  live under `schemas/manifests/`; schema evolution/migration checks, drift
+  harnesses, OTel trace metadata helpers, Data Forge SLOs, and Fabric/runtime
+  read-API-only consumer contracts are covered by targeted tests.
 
-This baseline is not a cutover. Legacy production entrypoints remain live until
-their explicit migration phase.
+Legacy production/domain entrypoints remain live until their explicit migration
+phase. The implemented Phase 1 through Phase 4 work preserved compatibility
+imports.
 
 ## Target Layout
 
@@ -249,6 +267,7 @@ Published artifact references include:
 | `config_hash`                 | materialization config hash                    |
 | `owner`                       | accountable team                               |
 | `license`                     | artifact license                               |
+| `regeneration_command`        | canonical command or review path to reproduce  |
 | `pii_level`                   | `none`, `low`, `medium`, `high`                |
 | `retention_class`             | `hot`, `warm`, `cold`, `ephemeral`             |
 | `freshness_sla_seconds`       | freshness contract                             |
@@ -331,15 +350,15 @@ processing completion gate passes.
 
 | Phase | Name | State | Deliverables |
 | ----- | ---- | ----- | ------------ |
-| 0 | Post-processing cutover readiness | Pending owner start signal | Record production revision, artifact roots, manifest schemas, output layouts, clean/resume semantics, merge/QC evidence, and replay inputs. No code cutover starts before this is complete. |
-| 1 | Shared kernel cutover | Planned | Move shared batch infrastructure from `batch_common` and `batch_snapshot` into `data_forge.kernel/*`; wire compatibility shims; prove old-vs-new manifest/snapshot behavior; then burn down shared-batch exceptions. |
-| 2 | Academic completion | Partially scaffolded | Move remaining academic batch/QC/benchmark/SKG read surfaces into `domains/academic`; keep legacy imports as shims; publish schema contracts; burn down academic complexity exceptions after tests pass. |
-| 3 | Catalog completion | Partially scaffolded | Replace `core_sources_ingest.py` with per-source modules in `domains/catalog`; migrate source registry/harvest/normalize/observations/publish surfaces behind compatibility shims; burn down catalog exception. |
-| 4 | Legal cutover | Shadow adapter exists | Move Lex batch logic into `domains/legal`; replay completed NPA outputs; compare manifests, claims, QC, caches, resume markers, and publish artifacts; switch cloud/job entrypoints only after differential checks pass; burn down `lex/batch/*` exceptions. |
-| 5 | Ukraine completion | Non-Lex scaffold exists | Move Ukraine pipeline into `domains/ukraine`; split `ukraine_data/builders.py`; only then integrate any sharding-adjacent logic with Legal/Data Forge after Lex dependencies are clear and replayed. |
-| 6 | Read API consolidation | Partially scaffolded | Keep lazy `read_api/*` surfaces as the only runtime API; migrate runtime consumers from old read facades in small scoped patches; add import-contract tests; do not perform a broad global import rewrite. |
-| 7 | Schema, quality, and observability hardening | Planned | Fill out schema registry migrations, quality differential/drift harnesses, OTel trace propagation, SLO definitions, ArtifactRef coverage, and consumer contracts for each migrated domain. |
-| 8 | Shim sunset | Planned | Remove compatibility shims only after `architecture/migration_shims.toml` sunset gates pass, downstream imports are clean, release notes exist, and rollback path is documented. |
+| 0 | Post-processing cutover readiness | Completed | `DATA_FORGE_CUTOVER_READINESS.md` records production revision, accepted Lex artifact root, output inventory, QC/benchmark evidence, schemas/layouts, clean/resume semantics, replay inputs, rollback checkpoints, and owner sign-off. |
+| 1 | Shared kernel cutover | Completed; shims removed | Shared batch infrastructure from `batch_common` and `batch_snapshot` now lives in `data_forge.kernel/*`; old shared-kernel shims were physically removed; manifest/snapshot behavior is covered by targeted tests. |
+| 2 | Academic completion | Completed; shims removed | Academic batch/OpenAlex/SKG/knowledge implementation now lives under `domains/academic`; `read_api.academic` exposes Data Forge-owned symbols; `polisyos.academic` was physically removed; academic complexity exceptions are burned down. |
+| 3 | Catalog completion | Completed; shims removed | Catalog batch/knowledge/metrics implementation now lives under `domains/catalog`; source registry and checked-in source modules live in Data Forge; `read_api.catalog` exposes Data Forge-owned symbols; `polisyos.datasets` was physically removed; the legacy `core_sources_ingest.py` exception and `_core_sources_ingest_runtime.py` shape are burned down. |
+| 4 | Legal cutover | Completed; old Lex offline paths removed | Legal batch runtime lives under `domains/legal/batch`; corpus preprocessing lives under `domains/legal/corpus`; cloud runner imports point at Data Forge; legal shadow/differential fixtures cover manifests, claims, claim summaries, QC, benchmark summaries, cache/resume markers, and publish artifacts; `lex/batch/*` complexity exceptions are burned down. |
+| 5 | Ukraine completion | Completed; shims removed | Ukraine source adapters, manifests, models, resources, server/orchestrator/CLI, and production builders now live under `domains/ukraine`; `ukraine_data/builders.py` is split into focused Data Forge builder modules for common primitives, source/observation stages, demography, calibration, and release; `polisyos.ukraine_data` was physically removed; sharding-adjacent pre-shard summary semantics are explicit and covered by differential fixtures; the old builders complexity exception is burned down. |
+| 6 | Read API consolidation | Implemented | Lazy `read_api/*` surfaces are the runtime-facing API; scoped runtime consumers now route through `polisyos.data_forge.read_api.*`; import-contract tests prove runtime does not import Data Forge domain/kernel internals or legacy read facades directly. |
+| 7 | Schema, quality, and observability hardening | Implemented | Concrete artifact/manifest schemas, schema evolution and migration checks, domain drift harnesses, OTel ArtifactRef trace metadata helpers, SLO definitions, and Fabric/runtime read-API-only consumer contracts are covered by targeted tests. |
+| 8 | Shim sunset | Completed for Data Forge and old Lex offline paths | Runtime/tool consumers were moved off legacy shims, obsolete import exceptions were burned down, release/rollback notes exist, and targeted tests enforce that the academic, datasets, Ukraine, batch_common, batch_snapshot, Lex batch, and Lex corpus directories are absent. |
 
 ## Phase Details
 
@@ -358,6 +377,17 @@ cutover begins. It must include:
   Ukraine sharding-adjacent checks;
 - rollback checkpoints and owner sign-off.
 
+Implementation status as of 2026-05-02:
+
+- The production readiness gate is recorded in
+  `docs/plans/active/DATA_FORGE_CUTOVER_READINESS.md`.
+- The accepted immutable Lex artifact root is
+  `production_data/lex_current_20260501`, with completed QC, benchmark,
+  DuckDB graph, and normative-claim export artifacts.
+- Owner sign-off accepts the Lex root for replay evidence even though the
+  benchmark report still records advisory/readiness failures for reference
+  resolution and temporal-current-safety thresholds.
+
 ### Phase 1: Shared Kernel Cutover
 
 Move reusable batch primitives into `data_forge.kernel`:
@@ -370,9 +400,24 @@ Move reusable batch primitives into `data_forge.kernel`:
 - config and secret contracts;
 - test harnesses.
 
-Compatibility shims must keep `polisyos.batch_common` and
-`polisyos.batch_snapshot` importable until all consumers are migrated. Burn down
-exceptions only after old-vs-new tests prove behavior parity.
+Compatibility shims were allowed until all consumers migrated. They are now
+removed, and canonical snapshot usage goes through
+`polisyos.data_forge.kernel.snapshot.cli`.
+
+Implementation status as of 2026-05-02:
+
+- `kernel.pipeline.manifests` owns raw/stage/publish manifest IO,
+  compatibility dataclasses, manifest reads, and artifact checksum validation.
+- `kernel.io` owns hashing, JSONL hashing, path helpers, and atomic file/commit
+  helpers.
+- `kernel.snapshot` owns snapshot finalize, transaction, commit, Merkle,
+  retention, and time-travel contracts.
+- `kernel.quality` owns QC and Phase-0 quality contracts.
+- `kernel.pipeline.config` owns profile and secret-provider contracts.
+- `kernel.runtime` owns thermal pacing contracts.
+- `kernel.testing` owns golden and differential comparison harnesses.
+- `polisyos.batch_common` and `polisyos.batch_snapshot` were removed after
+  consumers and tests moved to Data Forge kernel imports.
 
 ### Phase 2: Academic Completion
 
@@ -382,9 +427,30 @@ Complete the academic migration:
 - move benchmark/QC/read-only SKG access behind `read_api.academic`;
 - publish academic schema contracts;
 - add old-vs-new fixtures for readiness and artifact hashes;
-- keep `polisyos.academic` compatibility shims until runtime consumers are
+- remove `polisyos.academic` compatibility shims after runtime consumers are
   migrated;
 - burn down academic exceptions in `architecture/complexity_exceptions.toml`.
+
+Implementation status as of 2026-05-02:
+
+- `domains.academic.batch`, `domains.academic.openalex`,
+  `domains.academic.knowledge`, and `domains.academic.trust` own the former
+  `polisyos.academic` implementation modules.
+- `domains.academic.batch_assets` declares the legacy academic stage graph as
+  Data Forge asset contracts without importing legacy academic implementation.
+- `domains.academic.schemas` publishes high-level academic asset schemas and
+  per-stage batch schemas in a Data Forge schema registry.
+- `domains.academic.quality` loads academic benchmark, QC, readiness, and
+  artifact-hash summaries from completed outputs.
+- `domains.academic.skg` inspects SKG DuckDB artifacts in read-only mode and
+  tolerates placeholder or unreadable fixture artifacts.
+- `read_api.academic` lazily exposes Data Forge-owned academic contracts,
+  readers, batch config, SKG types, canonical variables, runtime canonical
+  registry helpers, and edge synthesis without importing legacy academic
+  implementation.
+- `polisyos.academic` was physically removed in Phase 8.
+- Targeted Phase 2 tests cover asset planning, schema registry coverage,
+  readiness/hash old-vs-new fixtures, SKG inspection, and import safety.
 
 ### Phase 3: Catalog Completion
 
@@ -394,11 +460,38 @@ Replace the catalog god-file shape:
 - migrate source registry contracts to `domains/catalog`;
 - migrate harvest/normalize/observation/publish paths behind the source-module
   asset model;
-- keep `polisyos.datasets` compatibility shims until downstream consumers are
+- remove `polisyos.datasets` compatibility shims after downstream consumers are
   migrated;
 - add differential tests for table counts, readiness, source summaries, and
   publish artifacts;
 - burn down the `core_sources_ingest.py` exception.
+
+Implementation status as of 2026-05-02:
+
+- `domains.catalog.batch`, `domains.catalog.knowledge`, and
+  `domains.catalog.metrics_map` own the former `polisyos.datasets`
+  implementation modules.
+- `domains.catalog.source_modules` declares source-owned harvest, normalize,
+  observation, and publish asset contracts.
+- `domains.catalog.sources.*` splits the checked-in source registry into
+  per-family source modules while preserving source order and run-profile
+  semantics.
+- `domains.catalog.registry` loads and validates the legacy
+  `source_registry.yaml` without importing `polisyos.datasets`.
+- `domains.catalog.schemas` publishes base catalog schemas and per-source
+  stage schemas in a Data Forge schema registry.
+- `domains.catalog.quality` loads catalog benchmark, QC, readiness, and
+  artifact-hash summaries from completed outputs.
+- `read_api.catalog` lazily exposes Data Forge-owned catalog contracts,
+  readers, source registry helpers, Dataset Catalog Graph, proxy resolution,
+  and variable-alignment helpers.
+- `polisyos.datasets` was physically removed in Phase 8.
+- The legacy `_core_sources_ingest_runtime.py` indirection is removed; the
+  canonical entrypoint is `domains.catalog.batch.core_sources_ingest`.
+- Targeted Phase 3 tests cover registry parity, source-module planning,
+  per-source stage contracts, schema registry coverage, readiness/hash
+  old-vs-new fixtures, source summaries, table-count deltas, publish artifact
+  deltas, deleted-shim behavior, and complexity exception burn-down.
 
 ### Phase 4: Legal Cutover
 
@@ -415,17 +508,55 @@ Required sequence:
 5. Switch cloud entrypoints only after replay/differential results pass.
 6. Burn down `lex/batch/*` exceptions and update import contracts.
 
+Implementation status as of 2026-05-01:
+
+- The accepted completed NPA output root is recorded as
+  `tests/unit/data_forge/fixtures/legal_shadow/accepted_artifact_root.json`, pointing
+  at the local immutable root `production_data/lex_current_20260501/finalize`;
+  CI-sized replay fixtures cover publish-manifest differential behavior.
+- `polisyos.data_forge.domains.legal.batch` owns the moved Lex batch runtime
+  modules.
+- `polisyos.data_forge.domains.legal.batch` is the only local batch CLI,
+  including `python -m polisyos.data_forge.domains.legal.batch`.
+- Runtime job entrypoints consume `polisyos.data_forge.read_api.legal`.
+- The cloud manifest runner and GCP preflight import the Data Forge legal batch
+  runtime directly.
+- The legal shadow adapter compares accepted Lex outputs for manifests, claims,
+  claim summaries, QC, benchmark summaries, cache/resume markers, and publish
+  artifacts, including `publish/manifest.json` itself.
+- Import contracts and package boundaries forbid retired Lex offline imports.
+- `lex/batch/*` complexity exceptions are burned down and covered by targeted
+  Phase 4 tests; the import gate passes with Phase 4 compatibility exceptions
+  registered in `architecture/imports/exceptions.toml`.
+
 ### Phase 5: Ukraine Completion
 
 Complete Ukraine only after Legal sharding dependencies are explicit:
 
 - move non-Lex source/demography/static-aging builders into `domains/ukraine`;
 - split `ukraine_data/builders.py` into focused modules;
-- preserve old `polisyos.ukraine_data` imports as shims during migration;
+- remove old `polisyos.ukraine_data` imports after migration;
 - integrate any NPA sharding-adjacent functionality only after Legal cutover
   confirms manifest and shard semantics;
 - add differential tests for source summaries, demographic targets, static
   aging inputs, and any sharding-adjacent artifacts.
+
+Implementation status as of 2026-05-01:
+
+- `domains.ukraine.adapters`, `models`, `manifests`, `resources`, `server`,
+  `orchestrator`, and `cli` own the former Ukraine production runtime modules.
+- `domains.ukraine.builders` owns focused `common`, `sources`, `demography`,
+  `calibration`, and `release` builder modules while preserving the accepted
+  stage behavior.
+- `domains.ukraine.static_aging` owns static-aging state composition; the lazy
+  `read_api.ukraine` surface delegates to it.
+- `domains.ukraine.sharding` records the post-Legal NPA pre-shard status,
+  snapshot-label, deterministic shard assignment, summary loading, and
+  differential contracts without importing Lex batch internals.
+- `polisyos.ukraine_data` was physically removed in Phase 8.
+- Targeted Phase 5 tests cover source summaries, demographic/static-aging
+  inputs, pre-shard summary diffs, deleted-shim behavior, and complexity
+  exception burn-down.
 
 ### Phase 6: Read API Consolidation
 
@@ -439,6 +570,20 @@ consumer migration:
 - keep old read facades alive as shims until downstream consumers are clean;
 - avoid broad automatic global import rewrites.
 
+Implementation status as of 2026-05-01:
+
+- Runtime Lex pipeline execution and search consumers route through
+  `polisyos.data_forge.read_api.legal` instead of importing Legal/Lex read
+  internals directly.
+- `read_api.legal.search_legal_knowledge_graph` provides a small read-only
+  DuckDB graph search surface without importing the old Lex knowledge facade;
+  that old facade remains available for non-runtime downstream users.
+- `tests/unit/data_forge/test_phase6_read_api_consolidation.py` enforces lazy
+  `read_api` imports, no eager `domains/*` or `kernel/*` imports, and no direct
+  runtime imports of Data Forge internals or legacy read facades.
+- No broad automatic import rewrite was performed; migration stayed scoped to
+  the runtime consumer found in the control service.
+
 ### Phase 7: Schema, Quality, And Observability Hardening
 
 Complete the cross-cutting production layer:
@@ -451,15 +596,68 @@ Complete the cross-cutting production layer:
 - SLO definitions under `ops/observability/slo/`;
 - consumer contracts for Fabric/runtime packages.
 
+Implementation status as of 2026-05-02:
+
+- `schemas/artifacts/` contains ArtifactRef, ArtifactTraceMetadata, and
+  domain-artifact schemas covering governance, trace, quality, differential, and
+  drift metadata.
+- `schemas/manifests/` contains raw, stage, and publish manifest schemas
+  compatible with the shared-kernel manifest writers.
+- `kernel.schemas.evolution` evaluates schema-visible additions, removals, and
+  type changes; uncovered breaking changes raise `SchemaCompatibilityError`.
+- `kernel.schemas.migrations` plans and applies deterministic version-to-version
+  migration paths.
+- `kernel.testing.drift` compares domain metric drift for academic, catalog,
+  legal, and Ukraine gates; differential/golden harnesses remain available in
+  the same package.
+- `kernel.observability` reads the current OTel span context, emits ArtifactRef
+  trace metadata, and can bind trace IDs plus trace labels onto ArtifactRefs;
+  shared-kernel raw/stage/publish manifest writers can persist `trace_id` and
+  `span_id` when given a `TraceContext` while preserving legacy payload shape
+  when omitted.
+- Data Forge SLO objectives include schema-evolution and domain-drift violation
+  rates and validate against `schemas/ops/slo.schema.json`.
+- Import/package-boundary contracts explicitly keep Fabric and runtime packages
+  on `polisyos.data_forge.read_api` rather than Data Forge internals.
+
 ### Phase 8: Shim Sunset
 
 Remove compatibility shims only when:
 
-- `architecture/migration_shims.toml` sunset conditions pass;
+- `architecture/shims.toml` sunset conditions pass;
 - import-linter and package-boundary checks are clean;
 - release notes and rollback notes exist;
 - tests cover the new read API and old shim removal;
 - complexity exceptions are either removed or re-owned with a new sunset.
+
+Implementation status as of 2026-05-02:
+
+- Data Forge legal, academic, and catalog batch modules no longer import
+  `polisyos.batch_common`; they use shared-kernel manifest/runtime/quality/IO
+  helpers directly.
+- Fabric retrieval source-policy lookup now reads the Data Forge catalog source
+  registry instead of `polisyos.datasets.batch.source_registry`.
+- Foundry release acceptance now loads Ukraine release manifests through
+  `polisyos.data_forge.read_api.ukraine`.
+- Ukraine operational builder tools and the `ukraine-data` console entrypoint
+  now target Data Forge Ukraine modules.
+- Scientist, IR, Foundry, cloud, research, and Ukraine pre-shard consumers that
+  still used removed legacy/offline packages now route through
+  `polisyos.data_forge.read_api.*` or Data Forge-owned CLI modules.
+- Scientist Ukraine real-history backtest metadata now uses a Data Forge-owned
+  Ukraine contract marker instead of `polisyos.ukraine_data`.
+- Import-policy exceptions for Data Forge legal batch to `batch_common`, Fabric
+  retrieval to `datasets`, and Foundry release acceptance to `ukraine_data`
+  are removed.
+- Release notes and rollback notes live under `docs/migration/`.
+- `tests/unit/data_forge/test_phase8_shim_sunset.py` guards the migrated consumers,
+  the removed exceptions, the documented rollback path, deleted directory
+  assertions, and the canonical academic/catalog/legal/Ukraine test import
+  paths.
+- `polisyos.academic`, `polisyos.datasets`, `polisyos.ukraine_data`,
+  `polisyos.batch_common`, `polisyos.batch_snapshot`, and old Lex offline
+  `batch`/`corpus` paths were removed from source, public surface inventory,
+  package boundaries, and migration shims.
 
 ## Import And Boundary Contracts
 
@@ -492,8 +690,9 @@ The plan is complete when:
 11. Shim sunset gates pass and old import paths are either removed or explicitly
     documented as stable public compatibility surfaces.
 
-## Do Not Start Yet
+## Execution Status
 
-This plan is ready for post-processing execution, but execution remains on hold.
-The next implementation step is Phase 0, and it begins only after the owner says
-the NPA processing has completed and asks to start the cutover.
+The post-processing execution hold has been lifted by owner direction. Phase 0
+readiness and Phases 1 through 7 are implemented. Phase 8 has completed the
+physical academic/catalog implementation-owner move and is now in thin-shim
+sunset mode until migration-shim deletion gates pass.

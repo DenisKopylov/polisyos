@@ -8,7 +8,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 ensure_repo_import_roots(__file__, include_src_root=False)
 
@@ -182,7 +182,15 @@ def _check_generated_contracts() -> list[CheckResult]:
     contract_commands = [
         (
             "schemas",
-            [*uv, "run", "--extra", "ml", "python", "tools/diagnostics/gen_schema.py", "--check"],
+            [
+                *uv,
+                "run",
+                "--extra",
+                "ml",
+                "python",
+                "tools/quality/diagnostics/gen_schema.py",
+                "--check",
+            ],
         ),
         (
             "runtime-openapi",
@@ -194,7 +202,7 @@ def _check_generated_contracts() -> list[CheckResult]:
                 "--extra",
                 "ml",
                 "python",
-                "tools/runtime/check_runtime_api_contract.py",
+                "tools/ops/runtime/check_runtime_api_contract.py",
             ],
         ),
         (

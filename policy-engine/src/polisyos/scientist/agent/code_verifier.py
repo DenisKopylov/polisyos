@@ -97,9 +97,9 @@ class SandboxConfig(BaseModel):
     timeout_seconds: float = Field(default=5.0, gt=0.0, le=30.0)
     max_output_chars: int = Field(default=4096, ge=256, le=65536)
     max_code_chars: int = Field(default=8192, ge=256, le=65536)
-    max_memory_mb: int = Field(default=256, ge=64, le=4096)
+    max_memory_mb: int = Field(default=512, ge=64, le=4096)
     cpu_seconds_limit: int = Field(default=2, ge=1, le=30)
-    use_restrictedpython_if_available: bool = True
+    use_restrictedpython_if_available: bool = False
 
     allowed_modules: tuple[str, ...] = (
         "math",
@@ -525,9 +525,16 @@ def _resolve_compiler(config: SandboxConfig) -> tuple[Any, bool]:
 
 
 def _verification_context() -> Any:
-    if "fork" in mp.get_all_start_methods():
-        return mp.get_context("fork")
-    return mp.get_context("spawn")
+    methods = mp.get_all_start_methods()
+    requested = os.getenv("POLISYOS_CODE_VERIFIER_START_METHOD", "").strip().lower()
+    if requested:
+        if requested not in methods:
+            raise ValueError(f"Unsupported code verifier start method: {requested}")
+        return mp.get_context(requested)
+    for method in ("forkserver", "spawn", "fork"):
+        if method in methods:
+            return mp.get_context(method)
+    return mp.get_context()
 
 
 def _build_allowed_builtins(

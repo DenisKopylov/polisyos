@@ -1,7 +1,7 @@
 # Ownership
 
 Owner: `@platform-owners`
-Source of truth: `docs/DOCUMENTATION_SOTA_PLAN.md`, `architecture/*.toml`,
+Source of truth: `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`, `architecture/*.toml`,
 `src/polisyos/**`, `frontend/**`, `tools/**`, `ops/**`, `docs/**`, and the
 logical owner-group policy documented on this page
 
@@ -52,7 +52,7 @@ reviews and escalation.
 ## Documentation SOTA Lane Owners
 
 This matrix is the Phase D0 owner map for the documentation refresh described
-by `docs/DOCUMENTATION_SOTA_PLAN.md`. The logical owner is responsible for
+by `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`. The logical owner is responsible for
 technical correctness; the backup owner is responsible for unblocking review,
 conflict resolution, and escalation when the primary owner is unavailable.
 

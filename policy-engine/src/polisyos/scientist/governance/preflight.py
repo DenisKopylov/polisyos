@@ -12,7 +12,7 @@ from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.ir.governance.gate import GateContext, GateRequest
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 from .pass_registry import build_governance_pipeline
 

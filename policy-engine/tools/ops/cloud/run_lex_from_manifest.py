@@ -14,16 +14,19 @@ from pathlib import Path
 
 import zstandard as zstd
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.cli import _clean_lex_output, _parse_gonka_api_keys
-from polisyos.lex.batch.config import ALL_STAGES, BatchConfig
-from polisyos.lex.batch.pipeline import run_batch_pipeline
-from polisyos.lex.batch.xml_parser import NPACard, NPADocument
+from polisyos.data_forge.domains.legal.batch.cli import (
+    _clean_lex_output,
+    _parse_gonka_api_keys,
+)
+from polisyos.data_forge.domains.legal.batch.config import ALL_STAGES, BatchConfig
+from polisyos.data_forge.domains.legal.batch.pipeline import run_batch_pipeline
+from polisyos.data_forge.domains.legal.batch.xml_parser import NPACard, NPADocument
+from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 logger = get_logger(__name__)
 
@@ -113,7 +116,7 @@ def _iter_documents_from_manifest(
 
 @contextlib.contextmanager
 def _patched_iter_documents(manifest_path: Path) -> Iterator[None]:
-    import polisyos.lex.batch.xml_parser as xml_parser
+    import polisyos.data_forge.domains.legal.batch.xml_parser as xml_parser
 
     original = xml_parser.iter_documents
 

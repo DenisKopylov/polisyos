@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import UncertaintyOverlay from "@/features/artifacts/components/simulation/UncertaintyOverlay";
+import { renderWithProviders } from "@/test/render";
 
 describe("UncertaintyOverlay", () => {
   it("renders a toggle button and segmented method controls for short method lists", async () => {
@@ -9,7 +10,7 @@ describe("UncertaintyOverlay", () => {
     const onMethodChange = vi.fn();
     const onToggle = vi.fn();
 
-    render(
+    renderWithProviders(
       <UncertaintyOverlay
         enabled
         onToggle={onToggle}

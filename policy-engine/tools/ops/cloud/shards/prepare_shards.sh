@@ -3,7 +3,7 @@
 # Prepare topic shards for multi-server deployment.
 #
 # Usage:
-#   bash tools/cloud/prepare_shards.sh /path/to/filtered_topics.csv [--deploy-dir /path/to/out]
+#   bash tools/ops/cloud/prepare_shards.sh /path/to/filtered_topics.csv [--deploy-dir /path/to/out]
 #
 # Creates:
 #   topics_shard_1.csv, topics_shard_2.csv, topics_shard_3.csv
@@ -19,7 +19,7 @@ set -euo pipefail
 usage() {
   cat << 'EOF'
 Usage:
-  bash tools/cloud/prepare_shards.sh /path/to/filtered_topics.csv [--deploy-dir /path/to/out]
+  bash tools/ops/cloud/prepare_shards.sh /path/to/filtered_topics.csv [--deploy-dir /path/to/out]
 EOF
 }
 
@@ -70,7 +70,8 @@ fi
 
 if [[ -z "$DEPLOY_DIR" ]]; then
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  DEPLOY_DIR="${SCRIPT_DIR}/../deploy/assets"
+  PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+  DEPLOY_DIR="${PROJECT_ROOT}/ops/cloud/deploy/assets"
 fi
 DEPLOY_DIR="$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).expanduser().resolve(strict=False))' "$DEPLOY_DIR")"
 

@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-03T17:48:35.091574+00:00",
+  "call_sites": [
+    {
+      "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+      "line": 730,
+      "patterns": [
+        "cloudpickle"
+      ],
+      "text": "\"Install 'cloudpickle' or use a top-level partition handler.\""
+    },
+    {
+      "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+      "line": 753,
+      "patterns": [
+        "cloudpickle"
+      ],
+      "text": "return importlib.import_module(\"cloudpickle\")"
+    },
+    {
+      "path": "src/polisyos/fabric/connectors/cache/_store_serialization.py",
+      "line": 72,
+      "patterns": [
+        "pickle.dump",
+        "pickle.dumps"
+      ],
+      "text": "pickled = pickle.dumps(result.data)"
+    },
+    {
+      "path": "src/polisyos/fabric/connectors/cache/_store_serialization.py",
+      "line": 129,
+      "patterns": [
+        "pickle.load",
+        "pickle.loads"
+      ],
+      "text": "data = pickle.loads(pickled)  # noqa: S301  — HMAC-verified above"
+    },
+    {
+      "path": "src/polisyos/scientist/search/strategies/multi_objective.py",
+      "line": 216,
+      "patterns": [
+        "torch.save"
+      ],
+      "text": "self._torch.save(self._model.state_dict(), buffer)"
+    },
+    {
+      "path": "src/polisyos/scientist/search/strategies/bayesian.py",
+      "line": 214,
+      "patterns": [
+        "torch.save"
+      ],
+      "text": "self._torch.save(self._model.state_dict(), buffer)"
+    },
+    {
+      "path": "src/polisyos/scientist/search/strategies/bayesian.py",
+      "line": 262,
+      "patterns": [
+        "torch.load"
+      ],
+      "text": "self._model.load_state_dict(self._torch.load(buffer))"
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/experiment.py",
+      "line": 227,
+      "patterns": [
+        "pickle.dump"
+      ],
+      "text": "pickle.dump(artifact, f)"
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/experiment.py",
+      "line": 237,
+      "patterns": [
+        "pickle.load"
+      ],
+      "text": "return pickle.load(f)"
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 73,
+      "patterns": [
+        "pickle.dump"
+      ],
+      "text": "\"pickle.dump\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 74,
+      "patterns": [
+        "pickle.load"
+      ],
+      "text": "\"pickle.load\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 75,
+      "patterns": [
+        "pickle.dump",
+        "pickle.dumps"
+      ],
+      "text": "\"pickle.dumps\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 76,
+      "patterns": [
+        "pickle.load",
+        "pickle.loads"
+      ],
+      "text": "\"pickle.loads\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 77,
+      "patterns": [
+        "cloudpickle"
+      ],
+      "text": "\"cloudpickle\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 78,
+      "patterns": [
+        "joblib.dump"
+      ],
+      "text": "\"joblib.dump\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 79,
+      "patterns": [
+        "joblib.load"
+      ],
+      "text": "\"joblib.load\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 80,
+      "patterns": [
+        "torch.save"
+      ],
+      "text": "\"torch.save\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 81,
+      "patterns": [
+        "torch.load"
+      ],
+      "text": "\"torch.load\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 82,
+      "patterns": [
+        "dill"
+      ],
+      "text": "\"dill\","
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 1040,
+      "patterns": [
+        "pickle.dump",
+        "pickle.dumps"
+      ],
+      "text": "scientist_data = pickle.dumps(scientist_checkpoint, protocol=4)"
+    },
+    {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "line": 1095,
+      "patterns": [
+        "pickle.load"
+      ],
+      "text": "obj = pickle.load(stream)  # noqa: S301 - committed compatibility fixture."
+    }
+  ],
+  "live_artifacts": [
+    {
+      "path": "tests/fixtures/checkpoint_compat/foundry/agent_sim_experiment_result.pkl",
+      "bytes": 520
+    },
+    {
+      "path": "tests/fixtures/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
+      "bytes": 1779
+    }
+  ],
+  "canonical_fixture_root": "tests/fixtures/checkpoint_compat"
+}

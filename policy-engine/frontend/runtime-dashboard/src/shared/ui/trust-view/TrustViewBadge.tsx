@@ -1,4 +1,4 @@
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { VerificationStatus } from "./VerificationStatus";
 import {

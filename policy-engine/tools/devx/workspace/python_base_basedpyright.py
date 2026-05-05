@@ -43,6 +43,8 @@ def main(argv: list[str] | None = None) -> int:
             uv_run(
                 f"basedpyright {layer_name}",
                 "basedpyright",
+                "--project",
+                "basedpyright.toml",
                 source_dir,
             )
         )

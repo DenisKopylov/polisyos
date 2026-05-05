@@ -1,0 +1,50 @@
+[local_runtime_state]
+version = 1
+owner = "team-platform"
+state_roots = [".polisyos"]
+ignore_policy = "all runtime state is ignored; only reviewed summaries may be promoted into docs/archive/reports or release evidence"
+cleanup_commands = [
+  "rm -rf .polisyos/runs/*",
+  "rm -rf .polisyos/reports/*",
+  "rm -rf .polisyos/artifacts/*",
+]
+
+[[state_class]]
+id = "runs"
+paths = [".polisyos/runs"]
+owner = "team-platform"
+retention_class = "short_lived_runtime"
+default_retention_days = 7
+cleanup_command = "rm -rf .polisyos/runs/*"
+
+[[state_class]]
+id = "reports"
+paths = [".polisyos/reports"]
+owner = "team-platform"
+retention_class = "review_evidence_candidate"
+default_retention_days = 30
+cleanup_command = "rm -rf .polisyos/reports/*"
+
+[[state_class]]
+id = "artifact_cache"
+paths = [".polisyos/artifacts"]
+owner = "team-data-forge"
+retention_class = "recomputable_cache"
+default_retention_days = 90
+cleanup_command = "rm -rf .polisyos/artifacts/*"
+
+[[state_class]]
+id = "production_data"
+paths = [".polisyos/production_data"]
+owner = "team-data-forge"
+retention_class = "local_production_snapshot"
+default_retention_days = 365
+cleanup_command = "manual approval only: rm -rf .polisyos/production_data/*"
+
+[[state_class]]
+id = "provider_verification"
+paths = [".polisyos/provider_verification"]
+owner = "team-platform"
+retention_class = "local_provider_evidence"
+default_retention_days = 30
+cleanup_command = "rm -rf .polisyos/provider_verification/*"

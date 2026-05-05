@@ -1,6 +1,6 @@
 import type { RunErrorsPayload } from "@/api/validators";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate } from "@/shared/lib/utils";
 import { Badge, JsonPreview } from "@/shared/ui";
 
 function sourceKind(source: string) {

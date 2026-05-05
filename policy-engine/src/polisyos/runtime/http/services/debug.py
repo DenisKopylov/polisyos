@@ -45,7 +45,7 @@ from polisyos.core.contracts.runtime import (
     RunWorkflowView,
 )
 from polisyos.core.trace.record import TraceRecord
-from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

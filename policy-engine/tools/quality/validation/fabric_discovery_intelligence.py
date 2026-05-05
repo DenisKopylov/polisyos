@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -45,6 +45,7 @@ from polisyos.fabric.world.materialize import (  # noqa: E402
     query_world_policy_impact,
     query_world_source_overlap,
 )
+
 from tools.quality.validation.fabric_source_contracts import (  # noqa: E402
     build_source_contracts,
 )
@@ -66,9 +67,7 @@ def build_report(*, eval_path: Path = DEFAULT_EVAL_PATH) -> dict[str, Any]:
     profiles = tuple(SourceProfileRegistry.get_instance().list_all())
     catalog = SemanticDatasetCatalog(contracts, profiles=profiles)
     entries = catalog.list_entries()
-    benchmark = DatasetDiscoveryBenchmarkPack.from_mapping(
-        json.loads(eval_path.read_text("utf-8"))
-    )
+    benchmark = DatasetDiscoveryBenchmarkPack.from_mapping(json.loads(eval_path.read_text("utf-8")))
     eval_report = catalog.evaluate_benchmark(benchmark)
     stale_probe_id = entries[0].source_contract_id if entries else ""
     stale_filtered = False
@@ -97,8 +96,7 @@ def build_report(*, eval_path: Path = DEFAULT_EVAL_PATH) -> dict[str, Any]:
         filtered_plan = stale_catalog.resolve(stale_probe_id)
         allowed_plan = stale_catalog.resolve(stale_probe_id, allow_stale=True)
         stale_filtered = all(
-            candidate.source_contract_id != stale_probe_id
-            for candidate in filtered_plan.candidates
+            candidate.source_contract_id != stale_probe_id for candidate in filtered_plan.candidates
         )
         stale_allowed = any(
             candidate.source_contract_id == stale_probe_id
@@ -214,7 +212,9 @@ def _probe_entity_resolution() -> dict[str, Any]:
             )
             override = store.load_override(override_ref.artifact_id)
             audit_rows = store.list_override_audit()
-            override_audit_index = bool(audit_rows) and audit_rows[0][1].match_id == candidate.match_id
+            override_audit_index = (
+                bool(audit_rows) and audit_rows[0][1].match_id == candidate.match_id
+            )
             accepted_override_has_provenance = (
                 override.candidate.override_status == "accepted"
                 and override.candidate.override_provenance_ref is not None
@@ -313,8 +313,7 @@ def _probe_graph_reasoning() -> dict[str, bool]:
         "conflict_neighborhood": {node.node_id for node in conflicts.conflict_nodes}
         == {"conflict.gdp"},
         "policy_impact": {node.node_id for node in impact.impacted_nodes} == {"policy.tax"},
-        "entity_neighborhood": "metric.gdp"
-        in {node.node_id for node in neighborhood.nodes},
+        "entity_neighborhood": "metric.gdp" in {node.node_id for node in neighborhood.nodes},
         "kuzu_helpers": all(
             token
             for token in (

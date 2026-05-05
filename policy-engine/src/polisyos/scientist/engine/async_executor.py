@@ -26,6 +26,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.scientist.engine.budget import BudgetExhaustedError
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.errors import (
     NodeTimeoutError,
     RetryExhaustedError,
@@ -60,7 +61,6 @@ from polisyos.scientist.engine.trace_attributes import (
     build_node_span_attributes,
     enrich_node_span_result,
 )
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.checkpoint import AsyncCheckpointHook, CheckpointHook

@@ -1,0 +1,12 @@
+{
+  "package": "scientist",
+  "scenario": "engine_checkpoint_artifact",
+  "producer": "polisyos.scientist.engine.checkpoint.create_checkpoint/load_checkpoint",
+  "expected_type": "polisyos.scientist.engine.checkpoint.CheckpointArtifact",
+  "expected_fields": {
+    "metadata.run_id": "phase3a_scientist_checkpoint",
+    "state.params.status": "ok"
+  },
+  "path": "tests/fixtures/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
+  "bytes": 1779
+}

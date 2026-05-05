@@ -1,0 +1,48 @@
+{
+  "schema_version": "polisyos.data_forge.legal_cutover.accepted_root.v1",
+  "accepted_at": "2026-05-01",
+  "root_kind": "ignored_immutable_local_root",
+  "root": "production_data/lex_current_20260501/finalize",
+  "source_root": "/mnt/experiments/lex-amendment-only-optimized-20260501-v3/finalize",
+  "notes": "Pointer to the accepted completed NPA outputs used for Phase 4 cutover review. The large local root is gitignored; tiny replay fixtures cover publish-manifest differential behavior in CI.",
+  "required_artifacts": [
+    {
+      "class": "claims",
+      "path": "claim_exports/normative_claims.jsonl",
+      "large": true
+    },
+    {
+      "class": "claim_summary",
+      "path": "claim_exports/normative_claims_summary.json",
+      "large": false
+    },
+    {
+      "class": "qc",
+      "path": "qc_report.json",
+      "large": false
+    },
+    {
+      "class": "benchmark_summary",
+      "path": "benchmark_report.json",
+      "large": false
+    },
+    {
+      "class": "graph_publish_candidate",
+      "path": "lex_knowledge_graph.duckdb",
+      "large": true
+    }
+  ],
+  "ci_replay_fixture_root": "tests/unit/data_forge/fixtures/legal_shadow",
+  "ci_replay_covers": [
+    "publish/manifest.json",
+    "publish/consumer_readiness.json",
+    "manifests/run.json",
+    "claim_exports/normative_claims.jsonl",
+    "claim_exports/normative_claims_summary.json",
+    "claim_exports/normative_claim_sets_summary.json",
+    "qc_report.json",
+    "benchmark_report.json",
+    "cache/spo_cache.json",
+    "progress/resume_state.json"
+  ]
+}

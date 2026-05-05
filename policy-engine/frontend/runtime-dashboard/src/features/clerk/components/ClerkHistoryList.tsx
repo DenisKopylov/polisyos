@@ -1,6 +1,6 @@
 import { useRuns } from "@/api/hooks/useRuns";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate } from "@/shared/lib/utils";
 import { Badge, Button, Card } from "@/shared/ui";
 
 function statusToBadgeKind(status: string | undefined) {

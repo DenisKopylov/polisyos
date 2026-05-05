@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.common.logger import get_logger
 from polisyos.scholar.search.service import ScholarDeepSearchService
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.llm.gateway_client import GatewayLLMClient
 
 logger = get_logger(__name__)

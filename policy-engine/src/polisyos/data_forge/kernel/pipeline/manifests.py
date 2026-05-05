@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import json
 import pathlib
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from pydantic import Field
 
-from polisyos.data_forge.kernel._base import DataForgeModel, utc_now
-from polisyos.data_forge.kernel.io import sha256_file
+from polisyos.data_forge.kernel._base import DataForgeModel
+from polisyos.data_forge.kernel.io import atomic_write_json, sha256_file
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.kernel.observability import TraceContext
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 
@@ -38,9 +44,33 @@ class ChecksumValidationResult(DataForgeModel):
         return self.expected_sha256 == self.observed_sha256
 
 
+@dataclass(frozen=True)
+class ArtifactRef:
+    """Legacy manifest artifact reference retained for batch_common compatibility."""
+
+    path: str
+    sha256: str = ""
+
+
+@dataclass
+class StageManifest:
+    """Legacy stage execution metadata retained for compatibility."""
+
+    stage: str
+    status: str
+    started_at: str
+    finished_at: str
+    metrics: dict[str, object] = field(default_factory=dict)
+    artifacts: list[ArtifactRef] = field(default_factory=list)
+
+
 def utc_now_iso() -> str:
     """Return the timestamp format used by legacy batch manifests."""
-    return utc_now().isoformat()
+    return datetime.now(UTC).isoformat()
+
+
+def _utc_now_iso() -> str:
+    return utc_now_iso()
 
 
 def read_manifest(path: str | pathlib.Path) -> dict[str, object]:
@@ -61,6 +91,7 @@ def write_raw_manifest(
     filters: dict[str, object] | None = None,
     parser_version: str = "1",
     fetched_at: str | None = None,
+    trace_context: TraceContext | None = None,
 ) -> pathlib.Path:
     """Write a legacy-compatible raw fetch manifest."""
     payload = pathlib.Path(payload_path)
@@ -75,6 +106,7 @@ def write_raw_manifest(
         "filters": filters or {},
         "parser_version": parser_version,
     }
+    manifest.update(_trace_fields(trace_context))
     return _write_json(manifest_path, manifest)
 
 
@@ -84,9 +116,10 @@ def write_stage_manifest(
     stage: str,
     status: str,
     metrics: dict[str, object] | None = None,
-    artifacts: tuple[str | pathlib.Path, ...] = (),
+    artifacts: list[str | pathlib.Path] | tuple[str | pathlib.Path, ...] | None = None,
     started_at: str | None = None,
     finished_at: str | None = None,
+    trace_context: TraceContext | None = None,
 ) -> pathlib.Path:
     """Write a legacy-compatible stage manifest."""
     manifest = {
@@ -96,8 +129,9 @@ def write_stage_manifest(
         "started_at": started_at or utc_now_iso(),
         "finished_at": finished_at or utc_now_iso(),
         "metrics": metrics or {},
-        "artifacts": [_artifact_ref(pathlib.Path(artifact)) for artifact in artifacts],
+        "artifacts": [_artifact_ref(pathlib.Path(artifact)) for artifact in artifacts or ()],
     }
+    manifest.update(_trace_fields(trace_context))
     return _write_json(manifest_path, manifest)
 
 
@@ -105,21 +139,23 @@ def write_publish_manifest(
     *,
     manifest_path: str | pathlib.Path,
     pipeline: str,
-    artifacts: tuple[str | pathlib.Path, ...] = (),
+    artifacts: list[str | pathlib.Path] | tuple[str | pathlib.Path, ...] | None = None,
     qc_report_path: str | pathlib.Path | None = None,
     extra: dict[str, object] | None = None,
     published_at: str | None = None,
+    trace_context: TraceContext | None = None,
 ) -> pathlib.Path:
     """Write a legacy-compatible final publish manifest."""
     manifest: dict[str, object] = {
         "kind": "publish",
         "pipeline": pipeline,
         "published_at": published_at or utc_now_iso(),
-        "artifacts": [_artifact_ref(pathlib.Path(artifact)) for artifact in artifacts],
+        "artifacts": [_artifact_ref(pathlib.Path(artifact)) for artifact in artifacts or ()],
         "qc_report": str(qc_report_path) if qc_report_path else "",
     }
     if extra:
         manifest["extra"] = extra
+    manifest.update(_trace_fields(trace_context))
     return _write_json(manifest_path, manifest)
 
 
@@ -157,13 +193,16 @@ def _artifact_ref(path: pathlib.Path) -> dict[str, str]:
 
 
 def _write_json(path: str | pathlib.Path, payload: dict[str, object]) -> pathlib.Path:
-    out_path = pathlib.Path(path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    return out_path
+    return atomic_write_json(path, payload)
+
+
+def _trace_fields(trace_context: TraceContext | None) -> dict[str, str]:
+    if trace_context is None:
+        return {}
+    return {
+        "trace_id": trace_context.trace_id,
+        "span_id": trace_context.span_id,
+    }
 
 
 def _resolve_path(base: pathlib.Path, raw_path: str) -> pathlib.Path:
@@ -180,8 +219,10 @@ def _list_value(value: object) -> list[object]:
 
 
 __all__ = [
+    "ArtifactRef",
     "ChecksumValidationResult",
     "ManifestArtifact",
+    "StageManifest",
     "read_manifest",
     "utc_now_iso",
     "validate_manifest_artifacts",

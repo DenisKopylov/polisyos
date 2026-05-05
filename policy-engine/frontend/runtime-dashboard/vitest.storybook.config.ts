@@ -6,6 +6,7 @@ import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  cacheDir: path.resolve(__dirname, "../../_cache/frontend/runtime-dashboard/vitest-storybook"),
   plugins: [
     react(),
     storybookTest({ configDir: path.resolve(__dirname, ".storybook") }),
@@ -36,7 +37,7 @@ export default defineConfig({
     name: "storybook",
     globals: true,
     css: true,
-    exclude: ["e2e/**", "node_modules/**", "dist/**"],
+    exclude: ["e2e/**", "node_modules/**", "dist/**", "../../_build/**"],
     setupFiles: ["./.storybook/vitest.setup.ts"],
     browser: {
       enabled: true,

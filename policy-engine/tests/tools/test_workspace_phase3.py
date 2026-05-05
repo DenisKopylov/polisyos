@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from tools.devx.workspace import (
     _repo_hygiene,
     bootstrap,
@@ -138,21 +137,21 @@ def test_pre_commit_install_uses_workspace_local_config() -> None:
 
 def test_helm_chart_dirs_cover_ops_phase7_surface() -> None:
     assert _repo_hygiene.HELM_CHART_DIRS == (
-        "ops/helm/keycloak",
-        "ops/helm/polisyos-cell",
-        "ops/helm/spire",
+        "ops/cloud/helm/keycloak",
+        "ops/cloud/helm/polisyos-cell",
+        "ops/cloud/helm/spire",
     )
 
 
 def test_helm_lint_command_uses_chart_specific_lint_values() -> None:
-    spec = _repo_hygiene.helm_lint_command("ops/helm/polisyos-cell")
+    spec = _repo_hygiene.helm_lint_command("ops/cloud/helm/polisyos-cell")
 
     assert spec.argv == (
         "helm",
         "lint",
-        "ops/helm/polisyos-cell",
+        "ops/cloud/helm/polisyos-cell",
         "-f",
-        "ops/helm/polisyos-cell/values.lint.yaml",
+        "ops/cloud/helm/polisyos-cell/values.lint.yaml",
     )
 
 
@@ -163,7 +162,7 @@ def test_pre_commit_plain_yaml_hooks_exclude_helm_templates() -> None:
 
     assert "id: check-yaml" in config_text
     assert "id: yamllint" in config_text
-    assert "policy-engine/ops/helm/[^/]+/(" in config_text
+    assert "policy-engine/ops/cloud/helm/[^/]+/(" in config_text
     assert "templates/.*\\.(yaml|yml)$" in config_text
     assert "tests/.*\\.(yaml|yml)$" in config_text
 
@@ -171,8 +170,8 @@ def test_pre_commit_plain_yaml_hooks_exclude_helm_templates() -> None:
 def test_yamllint_ignores_helm_templated_yaml() -> None:
     config_text = (_repo_hygiene.PRODUCT_ROOT / ".yamllint").read_text(encoding="utf-8")
 
-    assert "ops/helm/*/templates/" in config_text
-    assert "ops/helm/*/tests/" in config_text
+    assert "ops/cloud/helm/*/templates/" in config_text
+    assert "ops/cloud/helm/*/tests/" in config_text
 
 
 def test_docs_style_targets_specific_markdown_files(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -317,7 +316,7 @@ def test_lint_full_default_sequence_includes_helm_lint(monkeypatch: pytest.Monke
     monkeypatch.setattr(
         lint_full,
         "HELM_CHART_DIRS",
-        ("ops/helm/keycloak", "ops/helm/spire"),
+        ("ops/cloud/helm/keycloak", "ops/cloud/helm/spire"),
     )
 
     exit_code = lint_full.main(["--skip-frontend", "--skip-types", "--skip-policy"])
@@ -326,8 +325,8 @@ def test_lint_full_default_sequence_includes_helm_lint(monkeypatch: pytest.Monke
     assert [spec.label for spec in seen] == [
         "workspace lint-fast",
         "workspace format-check",
-        "helm lint ops/helm/keycloak",
-        "helm lint ops/helm/spire",
+        "helm lint ops/cloud/helm/keycloak",
+        "helm lint ops/cloud/helm/spire",
     ]
 
 
@@ -344,7 +343,7 @@ def test_lint_full_runs_opa_check_per_rego_root(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setattr(lint_full, "uv_run", lambda label, *argv, cwd=None: _spec(label, *argv))
     monkeypatch.setattr(lint_full, "HELM_CHART_DIRS", ())
     monkeypatch.setattr(
-        lint_full, "REGO_SCOPE", ("ops/opa/policies", "ops/helm/polisyos-cell/policies")
+        lint_full, "REGO_SCOPE", ("ops/policy/policies", "ops/cloud/helm/polisyos-cell/policies")
     )
 
     exit_code = lint_full.main(["--skip-frontend", "--skip-types"])
@@ -353,7 +352,7 @@ def test_lint_full_runs_opa_check_per_rego_root(monkeypatch: pytest.MonkeyPatch)
     assert [spec.label for spec in seen] == [
         "workspace lint-fast",
         "workspace format-check",
-        "opa check --strict ops/opa/policies",
-        "opa check --strict ops/helm/polisyos-cell/policies",
+        "opa check --strict ops/policy/policies",
+        "opa check --strict ops/cloud/helm/polisyos-cell/policies",
         "opa test --fail-on-empty",
     ]

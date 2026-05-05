@@ -55,7 +55,7 @@ vi.mock("@/api/hooks/useRunEvidenceContext", () => ({
     useRunEvidenceContextMock(...args),
 }));
 
-vi.mock("@/lib/domain/evidence", () => ({
+vi.mock("@/shared/lib/domain/evidence", () => ({
   findRunEvidenceNeed: (...args: unknown[]) => findRunEvidenceNeedMock(...args),
   findRunEvidencePlan: (...args: unknown[]) => findRunEvidencePlanMock(...args),
   findRunEvidencePromotion: (...args: unknown[]) =>
@@ -64,12 +64,12 @@ vi.mock("@/lib/domain/evidence", () => ({
     normalizeRunEvidenceContextMock(...args),
 }));
 
-vi.mock("@/lib/domain/decision", () => ({
+vi.mock("@/shared/lib/domain/decision", () => ({
   parseDecisionCardPayload: (...args: unknown[]) =>
     parseDecisionCardPayloadMock(...args),
 }));
 
-vi.mock("@/lib/domain/governance", () => ({
+vi.mock("@/shared/lib/domain/governance", () => ({
   normalizeGovernanceIssues: (...args: unknown[]) =>
     normalizeGovernanceIssuesMock(...args),
   summarizeGovernanceIssues: (...args: unknown[]) =>

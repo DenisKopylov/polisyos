@@ -1,0 +1,28 @@
+[tool.basedpyright]
+# Repository-wide policy keeps the root basedpyright scope curated and green.
+# Phase 3 adds a baseline for the IR foundation layer so `common -> ir -> core`
+# can ratchet serially without hiding new regressions. Phase 5A extends the same
+# baseline ratchet to Scientist instead of making the full consumer layer
+# fail-closed in one pass.
+include = [
+  "src/polisyos/common",
+  "src/polisyos/ir",
+  "src/polisyos/core",
+  "src/polisyos/fabric",
+  "src/polisyos/data_forge",
+  "src/polisyos/scientist",
+  "src/polisyos/runtime",
+]
+baselineFile = "architecture/baselines/basedpyright/baseline.json"
+exclude = [
+  "**/__pycache__",
+  ".venv",
+  ".venv_codex",
+  "_build",
+  "_cache",
+  "docs/archive",
+]
+pythonVersion = "3.14"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = "warning"
+reportPrivateUsage = "warning"

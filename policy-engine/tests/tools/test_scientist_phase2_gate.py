@@ -7,12 +7,12 @@ from tools.ci import check_scientist_phase2_gate
 
 _TRACK_ID = "P2.04"
 _ACCEPTANCE_TEST = (
-    "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::"
+    "tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py::"
     "test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
 )
 _BENCHMARK_ID = "phase2_distributional_frontier"
 _JUDGE_TEST = (
-    "tests/foundry/validation/test_phase2_judge_stack.py::"
+    "tests/unit/foundry/validation/test_phase2_judge_stack.py::"
     "test_phase2_distributional_frontier_six_judge_promote"
 )
 
@@ -57,12 +57,12 @@ def _write_junit(path: Path, *, passed: bool = True, include_test: bool = True) 
     if include_test:
         testcase = (
             "  <testcase "
-            'file="tests/foundry/methods/catalog/causal/test_distributional_bounds.py" '
+            'file="tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py" '
             'name="test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families" />'
             if passed
             else (
                 "  <testcase "
-                'file="tests/foundry/methods/catalog/causal/test_distributional_bounds.py" '
+                'file="tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py" '
                 'name="test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families">'
                 '<failure message="boom" />'
                 "</testcase>"

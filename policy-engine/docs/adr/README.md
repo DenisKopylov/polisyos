@@ -31,5 +31,6 @@ not renumber historical ADRs.
 
 ## Index
 
-`index.md` is the human navigation page. A future Phase 0 gate should generate
-it from ADR front matter and validate that relation targets exist.
+`index.md` is the human navigation page. Repository SOTA Phase 5 validates the
+ADR directory through `workspace repository-sota-closeout`, while generated ADR
+index validation remains a follow-up until ADR front matter is normalized.

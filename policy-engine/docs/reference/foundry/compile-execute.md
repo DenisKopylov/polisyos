@@ -9,7 +9,7 @@ and persists simulation evidence.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/__init__.py`, `src/polisyos/foundry/compile/api.py`, `src/polisyos/foundry/execute/api.py`, `src/polisyos/foundry/data_plane/bindings.py`, `src/polisyos/foundry/quickstart.py`
 
 ## Phase Coverage
@@ -56,7 +56,7 @@ exec_plan_ref=None, compile_report_ref=...)` instead of raising at the facade
   boundary.
 
 - `execute()` requires `ExecuteRequest.input_bindings_ref`; this is validated by
-  `tests/foundry/test_execute_requires_input_bindings_ref.py`.
+  `tests/unit/foundry/runtime/test_execute_requires_input_bindings_ref.py`.
 
 - `execute()` requires `registry_bundle_ref` and raises `ValueError` when it is
   absent, because runtime mechanism resolution must be explicit.
@@ -128,7 +128,7 @@ non-null `exec_plan_artifact_id` / `simulation_result_artifact_id`.
 ```
 
 The same helper is covered by
-`tests/foundry/test_quickstart.py`.
+`tests/unit/foundry/facade/test_quickstart.py`.
 
 Feedback-enabled quickstart:
 
@@ -233,28 +233,28 @@ model-invariant probabilities.
 ## Evidence Links
 
 - Compile determinism:
-  `tests/foundry/test_compile_determinism.py`
+  `tests/unit/foundry/compile/test_compile_determinism.py`
 
 - Compile facade:
-  `tests/foundry/test_compile_facade.py`
+  `tests/unit/foundry/facade/test_compile_facade.py`
 
 - Execute facade smoke:
-  `tests/foundry/test_execute_facade_smoke.py`
+  `tests/unit/foundry/facade/test_execute_facade_smoke.py`
 
 - Execute feedback fixed point:
-  `tests/foundry/test_execute_feedback.py`
+  `tests/unit/foundry/runtime/test_execute_feedback.py`
 
 - Feedback multiplicity explorer:
-  `tests/foundry/test_feedback_fixed_point.py`
+  `tests/unit/foundry/analysis/test_feedback_fixed_point.py`
 
 - Runtime equilibria endpoint:
-  `tests/runtime/http/test_debug_api.py`
+  `tests/unit/runtime/http/test_debug_api.py`
 
 - Input bindings:
-  `tests/foundry/test_execute_input_bindings.py`
+  `tests/unit/foundry/runtime/test_execute_input_bindings.py`
 
 - Fail-closed executor semantics:
-  `tests/foundry/test_executor_fail_semantics.py`
+  `tests/unit/foundry/runtime/test_executor_fail_semantics.py`
 
 ## Reference
 

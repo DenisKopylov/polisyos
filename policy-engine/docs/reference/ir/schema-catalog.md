@@ -7,23 +7,23 @@ Related reference: [Schemas](../schemas.md).
 Canonical regeneration command (snapshots + reference docs):
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
 ```
 
 ## Summary
 
-- Total IR types: `1531`.
-- Public/root-or-package facade types: `631`.
+- Total IR types: `1543`.
+- Public/root-or-package facade types: `639`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 270 |
-| `polisyos.ir.analytics` | 243 |
+| `polisyos.ir` | 276 |
+| `polisyos.ir.analytics` | 249 |
 | `polisyos.ir.artifacts` | 33 |
 | `polisyos.ir.data` | 10 |
-| `polisyos.ir.governance` | 106 |
+| `polisyos.ir.governance` | 110 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.linker` | 9 |
 | `polisyos.ir.migrations` | 10 |
@@ -36,9 +36,9 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 938 | 230 | 37 |
+| `analytics` | 940 | 232 | 37 |
 | `artifacts` | 25 | 25 | 0 |
-| `governance` | 95 | 95 | 8 |
+| `governance` | 97 | 97 | 8 |
 | `kernel` | 39 | 38 | 0 |
 | `linker` | 7 | 7 | 0 |
 | `migrations` | 7 | 2 | 0 |
@@ -47,7 +47,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `world` | 32 | 32 | 12 |
 | `canon` | 2 | 0 | 0 |
 | `citations` | 4 | 0 | 0 |
-| `connectors` | 21 | 4 | 0 |
+| `connectors` | 24 | 4 | 0 |
 | `data` | 7 | 7 | 0 |
 | `fact_log` | 7 | 2 | 2 |
 | `loaders` | 1 | 0 | 0 |
@@ -58,7 +58,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `portfolio` | 5 | 4 | 1 |
 | `predicate` | 5 | 0 | 0 |
 | `queries` | 9 | 0 | 0 |
-| `refs` | 113 | 26 | 0 |
+| `refs` | 118 | 30 | 0 |
 | `registry_fragments` | 28 | 0 | 0 |
 | `schema_catalog` | 6 | 6 | 0 |
 | `types` | 6 | 0 | 0 |
@@ -16931,6 +16931,49 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `raw_effect` | `float` | `yes` | `—` | — |
 | `rr_equivalent` | `float` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.sensitivity.SensitivityAnalysisBundle` { #polisyos-ir-analytics-sensitivity-sensitivityanalysisbundle }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.0`
+- Exported from: `polisyos.ir.analytics:SensitivityAnalysisBundle`, `polisyos.ir:SensitivityAnalysisBundle`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.sensitivity.SensitivityAnalysisIndex`
+- Summary: Canonical Phase-5 wrapper over causal, dependent, distributional, and DOE indices.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `bundle_id` | `str` | `yes` | `—` | — |
+| `diagnostics` | `dict[str, Any]` | `no` | `—` | — |
+| `indices` | `list[polisyos.ir.analytics.sensitivity.SensitivityAnalysisIndex]` | `no` | `—` | `polisyos.ir.analytics.sensitivity.SensitivityAnalysisIndex` |
+| `kind` | `Literal[scientist.sensitivity_analysis_bundle]` | `no` | `'scientist.sensitivity_analysis_bundle'` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `source_payloads` | `dict[str, Any]` | `no` | `—` | — |
+| `source_refs` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.sensitivity.SensitivityAnalysisIndex` { #polisyos-ir-analytics-sensitivity-sensitivityanalysisindex }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:SensitivityAnalysisIndex`, `polisyos.ir:SensitivityAnalysisIndex`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Canonical Phase-5 sensitivity index with required uncertainty evidence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `blocking_reason` | `str \| NoneType` | `no` | `—` | — |
+| `ci` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
+| `estimate` | `float \| NoneType` | `no` | `—` | — |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `name` | `str` | `yes` | `—` | — |
+| `parameter` | `str \| NoneType` | `no` | `—` | — |
+| `source` | `str \| NoneType` | `no` | `—` | — |
+| `standard_error` | `float \| NoneType` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.sensitivity.SensitivityResult` { #polisyos-ir-analytics-sensitivity-sensitivityresult }
 
 - Kind: `pydantic_model`
@@ -22321,6 +22364,46 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `eventually` |
 | `always` |
 
+### `polisyos.ir.governance.validation.Phase5GateComponent` { #polisyos-ir-governance-validation-phase5gatecomponent }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.governance:Phase5GateComponent`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One Phase-5 gate component projected into the additive ValidationReport v2 surface.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `blockers` | `list[str]` | `no` | `—` | — |
+| `evidence_refs` | `list[str]` | `no` | `—` | — |
+| `name` | `str` | `yes` | `—` | — |
+| `required` | `bool` | `no` | `True` | — |
+| `status` | `Literal[pass, warn, fail, blocked, not_applicable, not_run]` | `yes` | `—` | — |
+| `summary` | `str \| NoneType` | `no` | `—` | — |
+| `warnings` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.governance.validation.Phase5GateWaiver` { #polisyos-ir-governance-validation-phase5gatewaiver }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.governance:Phase5GateWaiver`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Explicit waiver for a Phase-5 gate component.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `approver` | `str` | `yes` | `—` | — |
+| `component` | `str` | `yes` | `—` | — |
+| `evidence_refs` | `list[str]` | `no` | `—` | — |
+| `expires_at` | `str` | `yes` | `—` | — |
+| `reason` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.governance.validation.ValidationIssue` { #polisyos-ir-governance-validation-validationissue }
 
 - Kind: `pydantic_model`
@@ -22348,22 +22431,34 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 
 - Kind: `pydantic_model`
 - Public status: `package_facade`
-- Current version: `—`
+- Current version: `2.0`
 - Exported from: `polisyos.ir.governance:ValidationReport`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.governance.validation.ValidationIssue`
+- References: `polisyos.ir.governance.validation.Phase5GateComponent`, `polisyos.ir.governance.validation.Phase5GateWaiver`, `polisyos.ir.governance.validation.ValidationIssue`
 - Summary: Bundle issue summaries, optional repair notes, and diffs for a failed validation pass.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `advisor_consensus` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `artifact_kind` | `str \| NoneType` | `no` | `—` | — |
+| `artifact_ref` | `str \| NoneType` | `no` | `—` | — |
 | `diff_before_after` | `str \| NoneType` | `no` | `—` | — |
 | `error_summary` | `str` | `yes` | `—` | — |
+| `evidence_refs` | `list[str]` | `no` | `—` | — |
 | `fairness_audit` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `gate_failures` | `list[str]` | `no` | `—` | — |
 | `generated_at` | `str` | `no` | `—` | — |
+| `generated_for` | `str \| NoneType` | `no` | `—` | — |
 | `issues` | `list[polisyos.ir.governance.validation.ValidationIssue]` | `yes` | `—` | `polisyos.ir.governance.validation.ValidationIssue` |
+| `judge_verdict_ref` | `str \| NoneType` | `no` | `—` | — |
 | `normalized_payload` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `phase5_components` | `list[polisyos.ir.governance.validation.Phase5GateComponent]` | `no` | `—` | `polisyos.ir.governance.validation.Phase5GateComponent` |
+| `readiness` | `Literal[ready, monitor, restricted, blocked]` | `no` | `'ready'` | — |
 | `repair_attempt` | `str \| NoneType` | `no` | `—` | — |
+| `schema_version` | `str` | `no` | `'2.0'` | — |
+| `verdict` | `Literal[pass, warn, fail, blocked]` | `no` | `'pass'` | — |
+| `waivers` | `list[polisyos.ir.governance.validation.Phase5GateWaiver]` | `no` | `—` | `polisyos.ir.governance.validation.Phase5GateWaiver` |
 
 ## Kernel
 
@@ -26896,6 +26991,10 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `capabilities` | `int` | `yes` | `—` | — |
+| `column_classification` | `dict[str, str]` | `no` | `—` | — |
+| `data_classification` | `str` | `no` | `'public'` | — |
+| `owner` | `str` | `no` | `'@fabric-owners'` | — |
+| `quality_contract_id` | `str \| NoneType` | `no` | `—` | — |
 | `quality_tier` | `polisyos.ir.connectors.QualityTier` | `yes` | `—` | `polisyos.ir.connectors.QualityTier` |
 | `trust_level` | `polisyos.ir.connectors.TrustLevel` | `yes` | `—` | `polisyos.ir.connectors.TrustLevel` |
 
@@ -26924,7 +27023,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 - Exported from: `polisyos.ir:ConnectorMetadataSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.connectors.QualityTier`, `polisyos.ir.connectors.TrustLevel`
+- References: `polisyos.ir.connectors.ConnectorSLASpec`, `polisyos.ir.connectors.QualityTier`, `polisyos.ir.connectors.TrustLevel`
 - Summary: Define the immutable IR contract that registers one external data connector.
 
 | Field | Type | Required | Default | IR refs |
@@ -26938,8 +27037,15 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `last_updated` | `datetime \| NoneType` | `no` | `—` | — |
 | `namespace` | `str` | `yes` | `—` | — |
 | `observed_latency_ms` | `float \| NoneType` | `no` | `—` | — |
+| `owner` | `str` | `no` | `'@fabric-owners'` | — |
+| `quality_contract_id` | `str \| NoneType` | `no` | `—` | — |
+| `quality_contract_ref` | `str \| NoneType` | `no` | `—` | — |
 | `quality_tier` | `polisyos.ir.connectors.QualityTier` | `no` | `<QualityTier.UNVERIFIED: 0>` | `polisyos.ir.connectors.QualityTier` |
 | `resilience_config` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `schema_id` | `str \| NoneType` | `no` | `—` | — |
+| `schema_id_template` | `str \| NoneType` | `no` | `—` | — |
+| `schema_registry_ref` | `str` | `no` | `'schemas/snapshots/fabric/connector_contract_registry.json'` | — |
+| `sla` | `polisyos.ir.connectors.ConnectorSLASpec` | `no` | `—` | `polisyos.ir.connectors.ConnectorSLASpec` |
 | `source_name` | `str` | `yes` | `—` | — |
 | `source_organization` | `str` | `yes` | `—` | — |
 | `source_url` | `str \| NoneType` | `no` | `—` | — |
@@ -26962,6 +27068,60 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `last_updated` | `datetime \| NoneType` | `no` | `—` | — |
 | `observed_latency_ms` | `float \| NoneType` | `no` | `—` | — |
 | `resilience_config` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `sla` | `ConnectorSLASpec \| None` | `no` | `—` | — |
+
+### `polisyos.ir.connectors.ConnectorQualityGovernanceSpec` { #polisyos-ir-connectors-connectorqualitygovernancespec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.connectors.QualityTier`
+- Summary: Quality metadata used by Fabric validation and Scientist governance.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `finite_values_required` | `bool` | `no` | `True` | — |
+| `quality_contract_id` | `str \| NoneType` | `no` | `—` | — |
+| `quality_contract_ref` | `str \| NoneType` | `no` | `—` | — |
+| `quality_tier` | `polisyos.ir.connectors.QualityTier` | `yes` | `—` | `polisyos.ir.connectors.QualityTier` |
+
+### `polisyos.ir.connectors.ConnectorSLASpec` { #polisyos-ir-connectors-connectorslaspec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Connector-level SLO/SLA metadata for Phase 4 governance.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `availability_target` | `float` | `no` | `0.99` | — |
+| `freshness_slo_seconds` | `int` | `no` | `86400` | — |
+| `p95_latency_ms` | `float` | `no` | `2000.0` | — |
+| `replay_success_target` | `float` | `no` | `0.99` | — |
+
+### `polisyos.ir.connectors.ConnectorSchemaGovernanceSpec` { #polisyos-ir-connectors-connectorschemagovernancespec }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Schema metadata used by registry, inventory, and compatibility gates.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `schema_id` | `str \| NoneType` | `no` | `—` | — |
+| `schema_id_template` | `str \| NoneType` | `no` | `—` | — |
+| `schema_registry_ref` | `str` | `no` | `'schemas/snapshots/fabric/connector_contract_registry.json'` | — |
 
 ### `polisyos.ir.connectors.ConnectorSourceSpec` { #polisyos-ir-connectors-connectorsourcespec }
 
@@ -29116,6 +29276,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `kind` | `Literal[ir.distributional_report]` | `no` | `'ir.distributional_report'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.refs.DriftReadinessRef` { #polisyos-ir-refs-driftreadinessref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:DriftReadinessRef`, `polisyos.ir:DriftReadinessRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted drift/readiness state evidence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.drift_readiness]` | `no` | `'scientist.drift_readiness'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.refs.DualCertificateRef` { #polisyos-ir-refs-dualcertificateref }
 
 - Kind: `pydantic_model`
@@ -29233,6 +29410,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[fabric.evidence_bundle]` | `no` | `'fabric.evidence_bundle'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.refs.ExplanationBundleRef` { #polisyos-ir-refs-explanationbundleref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ExplanationBundleRef`, `polisyos.ir:ExplanationBundleRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted analyst-facing explanation bundles.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.explanation_bundle]` | `no` | `'scientist.explanation_bundle'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.refs.FairnessAuditReportRef` { #polisyos-ir-refs-fairnessauditreportref }
@@ -29522,6 +29716,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.joint_decision_certificate]` | `no` | `'ir.joint_decision_certificate'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.refs.JudgeVerdictRef` { #polisyos-ir-refs-judgeverdictref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:JudgeVerdictRef`, `polisyos.ir:JudgeVerdictRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted six-judge verdicts.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.judge_verdict]` | `no` | `'scientist.judge_verdict'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.refs.KernelEstimatorSpecRef` { #polisyos-ir-refs-kernelestimatorspecref }
@@ -30102,6 +30313,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | `kind` | `Literal[ir.scm_fragment]` | `no` | `'ir.scm_fragment'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
+### `polisyos.ir.refs.SensitivityAnalysisBundleRef` { #polisyos-ir-refs-sensitivityanalysisbundleref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:SensitivityAnalysisBundleRef`, `polisyos.ir:SensitivityAnalysisBundleRef`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted canonical Phase-5 sensitivity bundles.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.sensitivity_analysis_bundle]` | `no` | `'scientist.sensitivity_analysis_bundle'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.refs.ShiftDiagnosticReportRef` { #polisyos-ir-refs-shiftdiagnosticreportref }
 
 - Kind: `pydantic_model`
@@ -30389,6 +30617,23 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `kind` | `Literal[ir.uncertainty_envelope]` | `no` | `'ir.uncertainty_envelope'` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.refs.ValidationReportRef` { #polisyos-ir-refs-validationreportref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Stable handle for persisted Phase-5-compatible validation reports.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[scientist.validation_report]` | `no` | `'scientist.validation_report'` | — |
 | `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.refs.VariableAlignmentCertificateRef` { #polisyos-ir-refs-variablealignmentcertificateref }

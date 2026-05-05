@@ -28,7 +28,7 @@ wrapper-пути для migration window.
 
 ## Depends On / Depended On By
 
-- **Depends on:** `tools._lib/*`, zoned category packages, `pyproject.toml`,
+- **Depends on:** `tools.lib/*`, zoned category packages, `pyproject.toml`,
   `uv`, и registry metadata в `tools/registry.py`.
 
 - **Depended on by:** contributor workflows, локальные quality gates,
@@ -41,8 +41,8 @@ wrapper-пути для migration window.
 | ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                               | contributor setup, scaffolding, repo structure, codegen             |
 | `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                               | quality gates, diagnostics, validation, mutation/integration checks |
-| `ops`      | `cloud`, `release`, `migrations`, `runtime`, `data`, `ukraine_data`, `calibration` | runtime/release/data/cloud operational flows                        |
-| `research` | `benchmarks`, `demos`                                                              | benchmark orchestration и manual demo surfaces                      |
+| `ops`      | `calibration`, `cloud`, `data`, `deploy`, `ops-experiments`, `migrations`, `release`, `runtime`, `ukraine_data` | runtime/release/data/cloud operational flows                        |
+| `research` | `benchmarks`, `demos`, `research-experiments`                                      | benchmark orchestration и manual research/demo surfaces             |
 
 Canonical implementation layout:
 
@@ -53,11 +53,18 @@ tools/ops/<category>/
 tools/research/<category>/
 ```
 
+The physical `experiments/` directory appears under both `ops` and `research`.
+The public CLI categories are intentionally `ops-experiments` and
+`research-experiments` so the command catalog has no duplicate category names.
+
 Compatibility layout retained for one deprecation window:
 
 ```text
-tools/<category>/...
+tools/{architecture,connectors,foundry,migrations,demos}/...
 ```
+
+Each compatibility script prints a deprecation warning and sunsets on
+2026-09-01.
 
 Additional non-CLI helper surface:
 
@@ -87,20 +94,23 @@ tools/design/
 
 ## Reference Docs
 
-- [Validation README](./validation/README.md)
+- [Validation README](./quality/validation/README.md)
 - [Workspace DevX README](./devx/workspace/README.md)
 - [Architecture DevX README](./devx/architecture/README.md)
 - [Connectors DevX README](./devx/connectors/README.md)
 - [Foundry DevX README](./devx/foundry/README.md)
 - [Design Tools README](./design/README.md)
+- [Ops Experiments README](./ops/experiments/README.md)
+- [Research Experiments README](./research/experiments/README.md)
 - [Ops README](../ops/README.md)
 - [Tool Reference](../docs/reference/tools.md)
 - [CI/CD Platform How-To](../docs/how-to/operate-ci-cd-platform.md)
 
 ## Current State
 
-- `tools/<category>` остаются compatibility anchors; новый код должен жить
-  только под zoned paths.
+- `tools/{architecture,connectors,foundry,migrations,demos}` остаются
+  compatibility anchors до 2026-09-01; новый код должен жить только под zoned
+  paths.
 
 - `tools/design/` intentionally stays a small manual/CI helper surface for
   Node-based brand and accessibility checks rather than part of the Python
@@ -112,4 +122,4 @@ tools/design/
 - `workspace ci-parity` остаётся основным локальным umbrella-check для tools
   и docs surfaces.
 
-- Last updated: 2026-04-23
+- Last updated: 2026-05-03

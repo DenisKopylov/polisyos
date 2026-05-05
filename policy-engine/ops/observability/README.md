@@ -12,6 +12,12 @@ observability/
 `-- slo/
 ```
 
-Existing `ops/grafana/` and `ops/prometheus/` should move here during the ops
-topology consolidation phase. OpenTelemetry is the canonical telemetry API;
-Prometheus, Grafana, JSONL, and summary files are exporters or views.
+OpenTelemetry is the canonical telemetry API; Prometheus, Grafana, JSONL, and
+summary files are exporters or views.
+
+Phase 4 baseline files:
+
+- `otel/baseline.yaml` defines required trace, metric, and log attributes.
+- `slo/` keeps owner-tagged SLO source files.
+- `prometheus/slo_alerts.yml` and `prometheus/slo_recording_rules.yml`
+  are the current alert/rule outputs.

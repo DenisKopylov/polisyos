@@ -66,6 +66,10 @@ flowchart TB
 - [Generated artifacts](reference/generated-artifacts.md) describes the durable
   artifact families used by the runtime, Scientist, Foundry, and Fabric.
 
+- [Repository topology](reference/repository-topology.md) is the public map for
+  where product files, docs, tests, tools, ops material, data, and runtime state
+  belong.
+
 - [Operations reference](reference/operations/index.md) ties diagrams, SLOs,
   retention, and closeout evidence together.
 

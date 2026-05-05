@@ -1,0 +1,70 @@
+[package_layout]
+version = 1
+status = "fail_closed"
+owner = "team-architecture"
+phase = "repository-structure-remediation-phase-7"
+description = "Repository package layout contract for root facade modules, loose Python files, empty namespace placeholders, and package file budgets."
+
+[defaults]
+max_top_level_entries = 250
+max_root_py_files = 5
+allowed_root_py_files = ["__init__.py", "api.py", "_api.py"]
+empty_namespace_policy = "ban_if_populated_descendant_shares_name"
+root_facade_policy = "root contains only package facade modules; implementation lives in subpackages or _internal"
+gate_mode = "fail_closed"
+
+[[package]]
+name = "scientist"
+owner = "team-scientist"
+target_phase = "5"
+current_status = "resolved_root_facade"
+notes = "Phase 5 moved non-facade root modules behind package shims; root .py is limited to __init__.py and api.py."
+
+[[package]]
+name = "foundry"
+owner = "team-foundry"
+target_phase = "6"
+current_status = "resolved_root_facade"
+notes = "Phase 6 moved accepted DECOMPOSITION_BLUEPRINT modules into execute, runtime, methods, validation, contracts, mechanisms, agent_sim, welfare, and _internal. Root .py is limited to facade plus blueprint-approved internal _quickstart/_registry modules."
+
+[[package]]
+name = "ddm"
+owner = "team-architecture"
+target_phase = "4A"
+current_status = "resolved"
+notes = "Canonical unversioned Drift-and-Degradation Monitor package. ddm_15_7 is wrapper-only until its shim sunset."
+
+[[package]]
+name = "ddm_15_7"
+owner = "team-architecture"
+target_phase = "4A"
+current_status = "compatibility_shim"
+notes = "Wrapper-only facade to polisyos.ddm; no implementation subpackages remain."
+
+[[package]]
+name = "calibration"
+owner = "team-architecture"
+target_phase = "3B/4A"
+current_status = "resolved"
+notes = "Canonical shared diagnostics/recalibration home per ADR-RSR-0139."
+
+[[package]]
+name = "synthetic_world"
+owner = "team-architecture"
+target_phase = "3B/4A"
+current_status = "compatibility_shim"
+notes = "Wrapper-only facade to polisyos.foundry.agent_sim.world until its shim sunset."
+
+[[package]]
+name = "packs"
+owner = "team-architecture"
+target_phase = "4A"
+current_status = "removed"
+notes = "Empty placeholder namespace deleted by Phase 4A; future extension namespaces require a new ADR."
+
+[[package]]
+name = "berl"
+owner = "team-architecture"
+target_phase = "4A"
+current_status = "active"
+notes = "Active Scientist support package for explanation reliability validation; not legacy."

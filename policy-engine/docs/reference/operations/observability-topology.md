@@ -1,11 +1,11 @@
 # Observability Topology
 
 Related reference: [Ownership](../ownership.md). Related ops assets:
-`ops/prometheus/alerts.yml`, `ops/prometheus/slo_alerts.yml`,
-`ops/grafana/dashboards/*.json`.
+`ops/observability/prometheus/alerts.yml`, `ops/observability/prometheus/slo_alerts.yml`,
+`ops/observability/grafana/dashboards/*.json`.
 
 Owner: `@platform-owners`
-Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/engine/{metrics.py,metrics_otel.py,operational_monitoring.py}`, `ops/prometheus/**`, `ops/grafana/**`, and the linked runbooks
+Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/engine/{metrics.py,metrics_otel.py,operational_monitoring.py}`, `ops/observability/prometheus/**`, `ops/observability/grafana/**`, and the linked runbooks
 
 > Observability в Phase 6 считается завершённой не тогда, когда “данные где-то
 > есть”, а тогда, когда понятно, какой сигнал trusted, где его смотреть и кто
@@ -32,7 +32,7 @@ Source of truth: `src/polisyos/core/observability/**`, `src/polisyos/scientist/e
 | Frontend operator UX        | route load and page-ready timing    | active dashboard page loads | browser errors, failed data fetches        | bundle size, slow rendering, client-side retry storms      |
 
 Current runtime metric and audit coverage is exercised by
-`tests/runtime/http/test_runtime_api_observability.py`. The runtime must keep
+`tests/unit/runtime/http/test_runtime_api_observability.py`. The runtime must keep
 route labels templated, keep high-cardinality identifiers in logs/traces, and
 emit mutation/read audit entries through the same request ID path used by
 incident triage.
@@ -49,29 +49,29 @@ operational streams, not OpenAPI-generated client surfaces.
 | Connectors / external data APIs | connector error rate, replay parity, last health check                                              | `@fabric-owners`          |
 | LLM gateway / agent path        | workflow error spike, cost alerts, trace failures                                                   | `@scientist-owners`       |
 | Security sidecars / controls    | authz failures, TEE failure rate, SBOM deny rate                                                    | security/compliance owner |
-| Docs publication                | `Documentation` workflow (`.github/workflows/docs.yml`), local `mkdocs build --strict` reproduction | `@docs-owners`            |
+| Docs publication                | `.github/workflows/docs-pages.yml`, `.github/workflows/abi.yml`, local `mkdocs build --strict` reproduction | `@docs-owners`            |
 
 ## Dashboard Inventory
 
 | Dashboard           | File                                              | Purpose                                                                        | Owner                                  |
 | ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
-| Executive Overview  | `ops/grafana/dashboards/executive-overview.json`  | platform-wide posture and leadership signal                                    | `@platform-owners`                     |
-| SLO Overview        | `ops/grafana/dashboards/slo-overview.json`        | shared SLO view across runtime API, control-plane, DAG, simulation, connectors | `@platform-owners` with service owners |
-| Scientist Agents    | `ops/grafana/dashboards/scientist-agents.json`    | workflow/agent behavior and orchestration health                               | `@scientist-owners`                    |
-| Foundry HPC         | `ops/grafana/dashboards/foundry-hpc.json`         | numerical/runtime compute signal                                               | `@foundry-owners`                      |
-| Knowledge Freshness | `ops/grafana/dashboards/knowledge-freshness.json` | evidence freshness and connector/data signal                                   | `@fabric-owners`                       |
-| Security Phase 4    | `ops/grafana/dashboards/security-phase4.json`     | authz, TEE, SBOM, security posture                                             | security/compliance owner              |
+| Executive Overview  | `ops/observability/grafana/dashboards/executive-overview.json`  | platform-wide posture and leadership signal                                    | `@platform-owners`                     |
+| SLO Overview        | `ops/observability/grafana/dashboards/slo-overview.json`        | shared SLO view across runtime API, control-plane, DAG, simulation, connectors | `@platform-owners` with service owners |
+| Scientist Agents    | `ops/observability/grafana/dashboards/scientist-agents.json`    | workflow/agent behavior and orchestration health                               | `@scientist-owners`                    |
+| Foundry HPC         | `ops/observability/grafana/dashboards/foundry-hpc.json`         | numerical/runtime compute signal                                               | `@foundry-owners`                      |
+| Knowledge Freshness | `ops/observability/grafana/dashboards/knowledge-freshness.json` | evidence freshness and connector/data signal                                   | `@fabric-owners`                       |
+| Security Phase 4    | `ops/observability/grafana/dashboards/security-phase4.json`     | authz, TEE, SBOM, security posture                                             | security/compliance owner              |
 
 ## Alert Family Inventory
 
 | Alert family              | Source                          | Examples                                                                                                      | Primary owner                     |
 | ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| SLO alerts                | `ops/prometheus/slo_alerts.yml` | runtime API availability/latency, control-plane admission, DAG success breach, NaN rate, connector error rate | service owner named by label/team |
-| Cost alerts               | `ops/prometheus/alerts.yml`     | `HighLLMCost*`                                                                                                | `@platform-owners`                |
-| Agent / governance alerts | `ops/prometheus/alerts.yml`     | `AgentErrorSpike*`, `GovernancePassSlowdown`                                                                  | `@scientist-owners`               |
-| Simulation alerts         | `ops/prometheus/alerts.yml`     | `SimulationStall`, `JITRecompilationStorm*`, `LowCacheHitRatio`                                               | `@foundry-owners`                 |
-| Security alerts           | `ops/prometheus/alerts.yml`     | cross-tenant, TEE, SBOM gate alerts                                                                           | security/compliance owner         |
-| Cell / routing alerts     | `ops/prometheus/alerts.yml`     | routing failures and latency                                                                                  | `@platform-owners`                |
+| SLO alerts                | `ops/observability/prometheus/slo_alerts.yml` | runtime API availability/latency, control-plane admission, DAG success breach, NaN rate, connector error rate | service owner named by label/team |
+| Cost alerts               | `ops/observability/prometheus/alerts.yml`     | `HighLLMCost*`                                                                                                | `@platform-owners`                |
+| Agent / governance alerts | `ops/observability/prometheus/alerts.yml`     | `AgentErrorSpike*`, `GovernancePassSlowdown`                                                                  | `@scientist-owners`               |
+| Simulation alerts         | `ops/observability/prometheus/alerts.yml`     | `SimulationStall`, `JITRecompilationStorm*`, `LowCacheHitRatio`                                               | `@foundry-owners`                 |
+| Security alerts           | `ops/observability/prometheus/alerts.yml`     | cross-tenant, TEE, SBOM gate alerts                                                                           | security/compliance owner         |
+| Cell / routing alerts     | `ops/observability/prometheus/alerts.yml`     | routing failures and latency                                                                                  | `@platform-owners`                |
 
 ## Route From Alert to Action
 
@@ -132,9 +132,9 @@ Critical alerts must be periodically proven alive.
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | runtime availability alerts      | synthetic `/health` and `/ready` checks against known-good deployment path                                                                      |
 | contract/codegen drift           | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace                                                             |
-| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`                                         |
-| auth/tenant fail-closed behavior | `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/runtime/http/test_runtime_api_authz.py` |
-| replay failures                  | known-good record/replay fixture path from `tests/fabric/data_plane/test_record_replay.py`                                                      |
+| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`                                         |
+| auth/tenant fail-closed behavior | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/runtime/http/test_runtime_api_authz.py` |
+| replay failures                  | known-good record/replay fixture path from `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
 | docs publication                 | local `mkdocs build --strict` and green `Documentation` workflow from `main`                                                                    |
 | security alerts                  | focused test fixtures for signing/SBOM plus staged verification against trusted keys                                                            |
 

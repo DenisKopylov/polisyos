@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { chartTheme, chartDefaults } from "@/shared/charts/theme";
 import { ChartDataTable } from "@/shared/charts/accessibility";

@@ -9,7 +9,7 @@ Related reference: [Runtime API Migration Guide](../reference/api/migration-guid
 
 Owner: `@runtime-owners`
 Last tested: `2026-04-17` against runtime write-path hardening and mutation-policy checks.
-Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/runtime/http/test_runtime_api_write_path_hardening.py`; `src/polisyos/runtime/http/mutation_policy.py`
+Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`; `src/polisyos/runtime/http/mutation_policy.py`
 Rollback path: stop retries, identify the authoritative mutation result, and clean up duplicates only as an audited corrective action.
 
 ## Operational Metadata
@@ -19,7 +19,7 @@ Rollback path: stop retries, identify the authoritative mutation result, and cle
 | Primary owner      | `@runtime-owners`                                                                                             |
 | Coordination owner | `@platform-owners`                                                                                            |
 | Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                               |
-| Evidence anchors   | `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `src/polisyos/runtime/http/mutation_policy.py` |
+| Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`, `src/polisyos/runtime/http/mutation_policy.py` |
 | Rollback posture   | stop retries, identify the authoritative result, then handle duplicate cleanup as an audited operator action  |
 
 ## Symptom

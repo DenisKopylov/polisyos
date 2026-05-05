@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
-const distDir = path.resolve(dashboardRoot, "dist");
+const distDir = path.resolve(
+  dashboardRoot,
+  "../../_build/frontend/runtime-dashboard/dist",
+);
 const indexHtmlPath = path.join(distDir, "index.html");
 const securityDir = path.join(distDir, "security");
 

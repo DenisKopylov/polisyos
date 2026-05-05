@@ -49,14 +49,14 @@ chunk artifacts that downstream claim extraction can consume.
   `polisyos.ir.world.doc`, and the backend modules in this package.
 
 - Depended on by: `polisyos.fabric.claims`, `polisyos.scholar.orchestrator.enrich`,
-  `polisyos.scholar.discover.*`, `polisyos.lex.corpus.ingest`, and
+  `polisyos.scholar.discover.*`, `polisyos.data_forge.domains.legal.corpus.ingest`, and
   `polisyos.lex.types`.
 
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
 
-- `rg -n "ingest_doc_bytes|normalize_doc|structure_doc|chunk_doc" src/polisyos/fabric/docs tests/fabric/test_docs_pipeline.py`
+- `rg -n "ingest_doc_bytes|normalize_doc|structure_doc|chunk_doc" src/polisyos/fabric/docs tests/unit/fabric/test_docs_pipeline.py`
   Jump to the four-stage pipeline and its primary tests. Smoke-tested on
   2026-04-17.
 
@@ -71,10 +71,10 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/test_docs_pipeline.py tests/fabric/test_text_html.py -q`
+- `uv run pytest tests/unit/fabric/test_docs_pipeline.py tests/unit/fabric/test_text_html.py -q`
   Docs pipeline and HTML backend smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/test_claims_pipeline.py -q`
+- `uv run pytest tests/unit/fabric/test_claims_pipeline.py -q`
   Downstream integration check proving the emitted doc artifacts are consumable
   by the claims pipeline. Conceptual in this README refresh; not run in this
   pass.
@@ -85,4 +85,4 @@ Run from the repository root (`policy-engine/`).
 - [Fabric reference index](../../../../docs/reference/fabric/index.md)
 - [E2.5 Fabric Docs Pipeline contract](../../../../docs/contracts/E2_5_FABRIC_DOCS_PIPELINE_V1_0.md)
 - [Retained artifact recovery runbook](../../../../docs/runbooks/retained-artifact-recovery.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

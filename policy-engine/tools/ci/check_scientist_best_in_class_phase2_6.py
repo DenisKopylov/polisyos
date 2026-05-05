@@ -12,8 +12,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase2_6"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase2-6"
@@ -35,12 +35,12 @@ REQUIRED_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/continuous_governance/reports.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_6.py"),
-    Path("tests/scientist/continuous_governance/test_monitors.py"),
-    Path("tests/scientist/continuous_governance/test_invalidation.py"),
-    Path("tests/scientist/continuous_governance/test_reissue.py"),
-    Path("tests/scientist/continuous_governance/test_incident.py"),
-    Path("tests/scientist/continuous_governance/test_reports.py"),
-    Path("tests/scientist/continuous_governance/test_governance_integration.py"),
+    Path("tests/unit/scientist/continuous_governance/test_monitors.py"),
+    Path("tests/unit/scientist/continuous_governance/test_invalidation.py"),
+    Path("tests/unit/scientist/continuous_governance/test_reissue.py"),
+    Path("tests/unit/scientist/continuous_governance/test_incident.py"),
+    Path("tests/unit/scientist/continuous_governance/test_reports.py"),
+    Path("tests/unit/scientist/continuous_governance/test_governance_integration.py"),
     Path("tests/tools/test_scientist_best_in_class_phase2_6.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
@@ -104,9 +104,11 @@ def _run_phase2_5_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]
     try:
         module = importlib.import_module("tools.ci.check_scientist_best_in_class_phase2_5")
     except Exception as exc:  # pragma: no cover - surfaced in payload.
-        return False, {"passes_all": False}, [
-            f"phase2_5_gate_import_failed:{exc.__class__.__name__}:{exc}"
-        ]
+        return (
+            False,
+            {"passes_all": False},
+            [f"phase2_5_gate_import_failed:{exc.__class__.__name__}:{exc}"],
+        )
     with TemporaryDirectory() as tmp:
         output_path = Path(tmp) / "phase2_5.json"
         try:
@@ -123,9 +125,11 @@ def _run_phase2_5_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]
             )
             payload = json.loads(output_path.read_text(encoding="utf-8"))
         except Exception as exc:  # pragma: no cover - surfaced in payload.
-            return False, {"passes_all": False}, [
-                f"phase2_5_gate_run_failed:{exc.__class__.__name__}:{exc}"
-            ]
+            return (
+                False,
+                {"passes_all": False},
+                [f"phase2_5_gate_run_failed:{exc.__class__.__name__}:{exc}"],
+            )
     notes: list[str] = []
     if exit_code != 0 or payload.get("passes_all") is not True:
         notes.append("phase2_5_gate_failed")
@@ -140,8 +144,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
 
     notes: list[str] = []
     try:
-        from pydantic import ValidationError
-
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.core.artifacts.store import FileSystemCAS
@@ -188,6 +190,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.research_dag.models import ResearchEdgeType, ResearchNodeType
         from polisyos.scientist.search.readiness import DecisionReadiness
+        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_6_import_failed:{exc.__class__.__name__}:{exc}"]
 

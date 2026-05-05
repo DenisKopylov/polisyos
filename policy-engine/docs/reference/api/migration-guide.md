@@ -8,8 +8,8 @@ Owner: `@runtime-owners`
 Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/{app.py,mutation_policy.py,response_policies.py}`, and the route handlers under `src/polisyos/runtime/http/routes/`
 Validation:
 
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
-- `uv run pytest -q tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_artifact_inspector_api.py tests/runtime/http/test_api_maturity.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_artifact_inspector_api.py tests/unit/runtime/http/test_api_maturity.py`
 
 > Use this page when upgrading dashboard, SDK, or operator workflows from older
 > runtime behavior to the hardened `/api/v1` contract.
@@ -88,15 +88,15 @@ matching validators. Client caches should preserve and replay:
 Run these before declaring a Runtime API client migration complete:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-uv run pytest -q tests/runtime/http/test_runtime_api_authz.py \
-  tests/core/security/test_auth_middlewares.py \
-  tests/core/security/test_router.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+uv run pytest -q tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/core/security/test_auth_middlewares.py \
+  tests/unit/core/security/test_router.py
 ```
 
 Client-facing behavior is also covered by:
 
-- `tests/runtime/http/test_runtime_api_write_path_hardening.py`
-- `tests/runtime/http/test_artifact_inspector_api.py`
-- `tests/runtime/http/test_runs_api.py`
-- `tests/runtime/http/test_api_maturity.py`
+- `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
+- `tests/unit/runtime/http/test_artifact_inspector_api.py`
+- `tests/unit/runtime/http/test_runs_api.py`
+- `tests/unit/runtime/http/test_api_maturity.py`

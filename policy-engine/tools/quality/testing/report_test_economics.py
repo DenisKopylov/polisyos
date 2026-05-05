@@ -11,7 +11,7 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from xml.etree import ElementTree
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_QUARANTINE_PATH = REPO_ROOT / "tests" / "quarantine.toml"

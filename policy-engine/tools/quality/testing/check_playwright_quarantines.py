@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_DASHBOARD_ROOT = REPO_ROOT / "frontend" / "runtime-dashboard"

@@ -4,8 +4,8 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-27.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/connectors/**`, `src/polisyos/fabric/connectors/sources/**`, `tests/fabric/connectors/**`, `pyproject.toml`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/fabric/connectors/**`, `src/polisyos/fabric/connectors/sources/**`, `tests/unit/fabric/connectors/**`, `pyproject.toml`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric ships 20 concrete connector classes in
@@ -29,7 +29,7 @@ async/schema methods exist on a connector family.
 | Runtime config boundary           | `ConnectionConfig` carries transport/auth/retry/rate-limit knobs only; planner-facing hints stay in `SourceExecutionPolicy`.                                                                                                       |
 | Default behavior                  | `BaseConnector` raises `CapabilityError` or `NotImplementedError` when a class advertises a capability but leaves the default method in place.                                                                                     |
 
-`tests/fabric/connectors/test_protocol_compliance.py` is the executable source
+`tests/unit/fabric/connectors/test_protocol_compliance.py` is the executable source
 for these rules. It checks missing attributes, missing async methods, metadata
 capability drift, and the case where a connector advertises streaming but still
 inherits `BaseConnector.fetch_stream()`.
@@ -110,8 +110,8 @@ regeneration commands live in [schema-compatibility.md](schema-compatibility.md)
 
 | Artifact                                                     | Source of truth                                                                       | Gate                                                                                                               |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `schemas/snapshots/connectors/contracts.json`                | `polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS`                  | `uv run python tools/connectors/check_contracts.py --check`                                                        |
-| `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` plus the same source contracts | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` |
+| `schemas/snapshots/connectors/contracts.json`                | `polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS`                  | `uv run polisyos-tools connectors check-contracts --check`                                                        |
+| `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` plus the same source contracts | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
 | `schemas/snapshots/fabric/source_contracts_v2.json`          | `tools/quality/validation/fabric_source_contracts.py`                                 | `uv run python tools/quality/validation/fabric_source_contracts.py --check`                                        |
 | `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models                                   | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
 
@@ -119,7 +119,7 @@ Breaking schema changes require an approved major bump, owner/reviewer
 metadata, risk level, migration status, downstream impact summary, and migration
 note. Compatible additions should produce a migration plan. The regression
 coverage for this policy lives in `tests/tools/test_fabric_schema_governance.py`
-and `tests/fabric/connectors/test_contract_system.py`.
+and `tests/unit/fabric/connectors/test_contract_system.py`.
 
 ## Registry Tests
 
@@ -127,10 +127,10 @@ Use these as the documentation-linked registry checks before changing connector
 registration or discovery behavior:
 
 ```bash
-uv run pytest tests/fabric/connectors/test_registry.py -q
-uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
-uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
-uv run pytest tests/fabric/connectors/test_contract_system.py tests/tools/test_fabric_schema_governance.py -q
+uv run pytest tests/unit/fabric/connectors/test_registry.py -q
+uv run pytest tests/unit/fabric/connectors/sources/test_connector_family_expansion.py -q
+uv run pytest tests/unit/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/unit/fabric/connectors/test_contract_system.py tests/tools/test_fabric_schema_governance.py -q
 ```
 
 ## Shared HTTP Base

@@ -1,10 +1,10 @@
-import type { RunEvidenceContext } from "@/lib/domain/evidence";
+import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type {
   DecisionCardViewModel,
   DecisionDistributionalRow,
   DecisionMetric,
-} from "@/lib/domain/decision";
-import type { GovernanceIssueView } from "@/lib/domain/governance";
+} from "@/shared/lib/domain/decision";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
 export type IdentifiabilityState =
   | "point"

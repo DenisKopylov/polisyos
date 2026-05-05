@@ -40,6 +40,13 @@ from polisyos.ir.analytics.causal_discovery import (
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import CausalDiscoveryReportRef
+from polisyos.scientist.causal.latent_separation import (
+    SEPARATION_DIAGNOSTICS_KEY,
+    certify_latent_separation_trust,
+    merge_latent_separation_diagnostics_payloads,
+    metadata_with_computed_latent_separation,
+    separation_diagnostics_payload,
+)
 from polisyos.scientist.discovery.active import (
     ActiveDisambiguationConfig,
     ActiveDisambiguationPlan,
@@ -85,13 +92,6 @@ from polisyos.scientist.discovery.workers import (
     SkepticWorkerInput,
     WorkerExecutionProvenance,
     run_bounded_discovery_workers,
-)
-from polisyos.scientist.latent_separation import (
-    SEPARATION_DIAGNOSTICS_KEY,
-    certify_latent_separation_trust,
-    merge_latent_separation_diagnostics_payloads,
-    metadata_with_computed_latent_separation,
-    separation_diagnostics_payload,
 )
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,

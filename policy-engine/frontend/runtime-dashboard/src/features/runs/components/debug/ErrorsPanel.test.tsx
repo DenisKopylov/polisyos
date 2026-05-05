@@ -4,7 +4,7 @@ const { useI18nMock } = vi.hoisted(() => ({
   useI18nMock: vi.fn(),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => useI18nMock(),
 }));
 

@@ -9,8 +9,6 @@ from fractions import Fraction
 from itertools import product
 from typing import Any
 
-from pydantic import ValidationError
-
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.ic_verification import (
@@ -23,7 +21,7 @@ from polisyos.core.contracts.ic_verification import (
     ICVerificationResult,
     IncentiveCompatibilityCertificate,
 )
-from polisyos.foundry.mechanism_design import get_mechanism_family_spec
+from polisyos.foundry.mechanisms.design import get_mechanism_family_spec
 from polisyos.ir.analytics.mechanism_design import (
     IncentiveCertificateStatus as MechanismCertificateStatus,
 )
@@ -60,6 +58,7 @@ from polisyos.ir.governance.mechanism_semantics import (
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.trinity import TrinityBundle
+from pydantic import ValidationError
 
 _REPORT_SCHEMA_NAME = "polisyos.core.contracts.ic_verification.ICVerificationReport"
 _CERTIFICATE_SCHEMA_NAME = (

@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { renderWithProviders } from "@/test/render";
 
 import { BSTSVisualization } from "./BSTSVisualization";
 import { RDDVisualization } from "./RDDVisualization";
@@ -16,7 +17,7 @@ describe("shared chart hardening", () => {
       { unit: "A", weight: 0.6 },
     ];
 
-    render(
+    renderWithProviders(
       <>
         <RDDVisualization
           cutoff={1.5}
@@ -47,7 +48,7 @@ describe("shared chart hardening", () => {
   });
 
   it("renders empty states instead of broken SVGs for empty datasets", () => {
-    render(
+    renderWithProviders(
       <>
         <RDDVisualization cutoff={0} dataBelow={[]} dataAbove={[]} />
         <SyntheticControlViz data={[]} treatmentTime={0} />

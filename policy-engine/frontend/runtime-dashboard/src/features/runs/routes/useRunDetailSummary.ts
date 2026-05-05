@@ -18,13 +18,13 @@ import {
   findRunEvidencePlan,
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
-} from "@/lib/domain/evidence";
-import { parseDecisionCardPayload } from "@/lib/domain/decision";
+} from "@/shared/lib/domain/evidence";
+import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
 import {
   normalizeGovernanceIssues,
   summarizeGovernanceIssues,
-} from "@/lib/domain/governance";
-import { formatNumber } from "@/lib/utils";
+} from "@/shared/lib/domain/governance";
+import { formatNumber } from "@/shared/lib/utils";
 
 function dedupeArtifactRefs(
   refs: Array<EvidenceArtifactRef | null | undefined>,

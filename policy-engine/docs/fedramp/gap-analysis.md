@@ -28,6 +28,6 @@ Remaining gaps are now concentrated in process and operational evidence.
 
 - `docs/fedramp/nist-800-53-mapping.json`
 - `docs/fedramp/poam.json`
-- `ops/opa/policies/vulnerability.rego`
+- `ops/policy/policies/vulnerability.rego`
 - `src/polisyos/core/security/tee.py`
 - `src/polisyos/core/security/sbom.py`

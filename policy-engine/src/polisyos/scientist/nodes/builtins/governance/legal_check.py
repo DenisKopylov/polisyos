@@ -18,10 +18,10 @@ from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, Trinity
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
 from polisyos.lex.types import NormPackBuildRequest
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,

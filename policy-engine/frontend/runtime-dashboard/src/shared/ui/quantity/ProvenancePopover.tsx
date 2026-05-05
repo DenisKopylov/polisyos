@@ -3,9 +3,9 @@ import { AlertTriangle, ExternalLink, GitBranch } from "lucide-react";
 
 import type { TemporalScope } from "@/app/providers/temporal-scope";
 import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
-import type { MessageValues } from "@/i18n/icu-messages";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import type { MessageValues } from "@/shared/i18n/messages/icu-messages";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/Popover";
 
 import { formatQuantityValue } from "./quantity-format";

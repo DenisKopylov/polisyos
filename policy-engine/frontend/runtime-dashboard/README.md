@@ -56,7 +56,7 @@ shell.
 - Depends on:
   [`../../schemas/runtime_api_v1.openapi.json`](../../schemas/runtime_api_v1.openapi.json),
   [`../../src/polisyos/runtime/http/`](../../src/polisyos/runtime/http/),
-  Node.js 22, npm, Playwright/Vitest toolchain, and the Runtime API availability
+  Node.js 22, pnpm, Playwright/Vitest toolchain, and the Runtime API availability
   model documented in the API reference
 
 - Depended on by:
@@ -66,42 +66,42 @@ shell.
 
 ## Common Commands
 
-- `npm ci --ignore-scripts`
+- `pnpm install --frozen-lockfile`
   `conceptual/manual; use on a clean checkout to install dependencies`
 
-- `npm run generate:api`
+- `pnpm run generate:api`
   `smoke-tested 2026-04-17`
 
-- `npm run dev`
+- `pnpm run dev`
   `conceptual/manual; requires Runtime API at 127.0.0.1:8000 or VITE_RUNTIME_API_URL`
 
-- `npm run preview`
-  `conceptual/manual; use after npm run build`
+- `pnpm run preview`
+  `conceptual/manual; use after pnpm run build`
 
-- `npm run build`
+- `pnpm run build`
   `conceptual/manual; production build plus postbuild security artifacts`
 
-- `npm run lint`
+- `pnpm run lint`
   `conceptual/manual; local editing loop`
 
 ## Test And Verification
 
-- `npm run typecheck`
+- `pnpm run typecheck`
   `smoke-tested 2026-04-17`
 
-- `npm run test:contracts`
+- `pnpm run test:contracts`
   `smoke-tested 2026-04-17`
 
-- `npm run check:architecture`
+- `pnpm run check:architecture`
   `smoke-tested 2026-04-17; currently fails on existing layer-boundary violations in app/shared -> features imports`
 
-- `npm run test:components`
+- `pnpm run test:components`
   `conceptual/manual; broader Vitest component coverage`
 
-- `npm run test:journeys:smoke`
+- `pnpm run test:journeys:smoke`
   `conceptual/manual; requires Playwright browsers and a running app/runtime stack`
 
-- `npm run test:visual`
+- `pnpm run test:visual`
   `conceptual/manual; heavier visual regression pass`
 
 ## Reference Docs

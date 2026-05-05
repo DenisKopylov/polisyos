@@ -31,9 +31,9 @@ change.
 
 | Gate                         | Command or workflow                                                                                                                                                                        | What it proves                                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Runtime OpenAPI contract     | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`                                                                                    | committed OpenAPI, generated client, examples, problem payloads, and contract invariants stay fresh              |
-| Auth and tenant middleware   | `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py tests/runtime/http/test_runtime_api_authz.py` | JWT, tenant/cell routing, OPA denial, timeout, and fail-closed access behavior match docs                        |
-| Runtime write path           | `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`                                                                | idempotency, rate limiting, mutation audit, dependency timeouts, and lifecycle cleanup remain enforced           |
+| Runtime OpenAPI contract     | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`                                                                                    | committed OpenAPI, generated client, examples, problem payloads, and contract invariants stay fresh              |
+| Auth and tenant middleware   | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py` | JWT, tenant/cell routing, OPA denial, timeout, and fail-closed access behavior match docs                        |
+| Runtime write path           | `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`                                                                | idempotency, rate limiting, mutation audit, dependency timeouts, and lifecycle cleanup remain enforced           |
 | Core-runtime closeout ledger | `uv run polisyos-tools workspace core-runtime-closeout` and `uv run polisyos-tools workspace core-runtime-long-soak`                                                                       | release-review evidence, reopen gaps, and long-soak runtime signals stay tied to the current repo-tracked ledger |
 | Platform acceptance audit    | `uv run polisyos-tools workspace acceptance-audit`                                                                                                                                         | cross-surface platform checks still reference the current runtime contract and contributor gates                 |
 
@@ -43,7 +43,7 @@ change.
 signals или простыми synthetic checks.
 
 Operationalized recording/alerting for runtime API, control-plane admission и
-existing DAG/simulation/connector SLOs lives in `ops/prometheus/slo_*`.
+existing DAG/simulation/connector SLOs lives in `ops/observability/prometheus/slo_*`.
 
 | SLO                         | Target                                           | Measurement                                                                     | Notes                                                                                  |
 | --------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -54,7 +54,7 @@ existing DAG/simulation/connector SLOs lives in `ops/prometheus/slo_*`.
 | Scientist DAG latency       | `p99 <= 300s`                                    | `polisyos:slo_dag_p99_latency_seconds:5m`                                       | from ADR-0006                                                                          |
 | Simulation numerical health | NaN rate `< 0.1%`                                | `polisyos:slo_simulation_nan_rate:rate5m`                                       | from ADR-0006                                                                          |
 | Connector reliability       | error rate `< 1%` per connector/env              | `polisyos:slo_connector_error_rate:rate5m`                                      | from ADR-0006                                                                          |
-| Docs publication freshness  | successful strict build on the current docs tree | `.github/workflows/docs.yml` or local `mkdocs build --strict` evidence          | silent docs drift is operational debt even when site publication is handled separately |
+| Docs publication freshness  | successful strict build on the current docs tree | `.github/workflows/docs-pages.yml`, `.github/workflows/abi.yml`, or local `mkdocs build --strict` evidence | silent docs drift is operational debt even when site publication is handled separately |
 
 ## Error Budget Model
 

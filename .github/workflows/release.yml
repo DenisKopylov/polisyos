@@ -59,7 +59,7 @@ jobs:
 
       - name: Validate packaged versions and fragments
         id: validate
-        run: python3 policy-engine/tools/release/check_release_version.py --tag "${{ steps.resolve.outputs.tag }}" --github-output "$GITHUB_OUTPUT"
+        run: python3 policy-engine/tools/ops/release/check_release_version.py --tag "${{ steps.resolve.outputs.tag }}" --github-output "$GITHUB_OUTPUT"
 
   build-artifacts:
     name: Release / Build artifacts
@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/setup-runtime-dashboard
 
       - name: Build Python distributions
-        run: uv build
+        run: uv build --out-dir _build/dist --clear
 
       - name: Build runtime dashboard
         working-directory: policy-engine/frontend/runtime-dashboard
@@ -96,13 +96,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/release-assets
-          cp dist/* /tmp/release-assets/
-          tar -C frontend/runtime-dashboard/dist -czf "/tmp/release-assets/runtime-dashboard-dist-${VERSION}.tar.gz" .
+          cp _build/dist/* /tmp/release-assets/
+          tar -C _build/frontend/runtime-dashboard/dist -czf "/tmp/release-assets/runtime-dashboard-dist-${VERSION}.tar.gz" .
           (cd /tmp/release-assets && sha256sum * > SHA256SUMS)
 
       - name: Check release artifact size policy
         run: |
-          python3 tools/release/check_release_artifact_sizes.py \
+          python3 tools/ops/release/check_release_artifact_sizes.py \
             --assets-dir /tmp/release-assets \
             --policy release/artifact-size-policy.toml \
             --summary /tmp/release-asset-policy.md \
@@ -136,7 +136,7 @@ jobs:
 
       - name: Build release notes
         run: |
-          python3 policy-engine/tools/release/build_release_notes.py \
+          python3 policy-engine/tools/ops/release/build_release_notes.py \
             --version "${{ needs.prepare-release.outputs.version }}" \
             --fragments-dir "${{ needs.prepare-release.outputs.fragments_dir }}" \
             --require-curated-sections compatibility migration api limitations \
@@ -185,7 +185,7 @@ jobs:
 
       - name: Enforce vulnerability policy
         run: |
-          python3 policy-engine/tools/release/evaluate_vuln_report.py \
+          python3 policy-engine/tools/ops/release/evaluate_vuln_report.py \
             --report /tmp/release-grype.json \
             --exceptions policy-engine/release/cve-exceptions.toml \
             --summary /tmp/release-vulnerability-policy.md
@@ -247,7 +247,7 @@ jobs:
         run: |
           set -euo pipefail
           source /tmp/release-wheel-venv/bin/activate
-          python tools/release/run_release_canary.py \
+          python tools/ops/release/run_release_canary.py \
             --summary /tmp/release-canary-summary.md \
             --json-output /tmp/release-canary-summary.json
 
@@ -259,7 +259,7 @@ jobs:
           test -f /tmp/release-dashboard/index.html
 
       - name: Run runtime canary smoke
-        run: uv run pytest tests/runtime/http
+        run: uv run pytest tests/unit/runtime/http
 
       - name: Run benchmark canary smoke
         env:

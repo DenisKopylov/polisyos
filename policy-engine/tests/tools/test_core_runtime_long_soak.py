@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from tools.workspace import core_runtime_long_soak
+from tools.devx.workspace import core_runtime_long_soak
 
 
 def test_core_runtime_long_soak_writes_machine_readable_outputs(tmp_path) -> None:

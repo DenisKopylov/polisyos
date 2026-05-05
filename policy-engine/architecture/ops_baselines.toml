@@ -1,0 +1,80 @@
+[ops_baselines]
+version = 1
+owner = "team-platform"
+source_of_truth = "ops/**, release/**, release-fragments/**, and runtime deployment contracts"
+
+[[baseline]]
+id = "secrets"
+area = "ops/security"
+owner = "team-security"
+paths = [
+  "ops/security/gitleaks.toml",
+  "ops/security/trufflehog.yaml",
+  "ops/security/secrets-baseline.toml",
+]
+mode = "fail_closed"
+baseline_command = "gitleaks detect --config ops/security/gitleaks.toml --no-banner"
+
+[[baseline]]
+id = "osv"
+area = "ops/security"
+owner = "team-security"
+paths = ["ops/security/osv-scanner.toml"]
+mode = "fail_closed"
+baseline_command = "osv-scanner --config ops/security/osv-scanner.toml ."
+
+[[baseline]]
+id = "sbom"
+area = "ops/security"
+owner = "team-security"
+paths = ["ops/security/sbom.toml"]
+mode = "fail_closed"
+baseline_command = "uv run polisyos-tools security sbom --output _build/release/sbom/"
+
+[[baseline]]
+id = "otel"
+area = "ops/observability"
+owner = "team-observability"
+paths = ["ops/observability/otel/baseline.yaml"]
+mode = "fail_closed"
+baseline_command = "manual review: validate service.name, deployment.environment, trace, metric, log, and redaction attributes"
+
+[[baseline]]
+id = "slo"
+area = "ops/observability"
+owner = "team-observability"
+paths = ["ops/observability/slo/", "ops/observability/prometheus/slo_alerts.yml", "ops/observability/prometheus/slo_recording_rules.yml"]
+mode = "fail_closed"
+baseline_command = "docker compose -f ops/docker/observability.compose.yml config"
+
+[[baseline]]
+id = "release_fragments"
+area = "ops/release"
+owner = "team-release"
+paths = ["ops/release/release-fragment-policy.toml", "release-fragments/README.md", "release-fragments/template.toml"]
+mode = "fail_closed"
+baseline_command = "manual review: validate release fragments against ops/release/release-fragment-policy.toml"
+
+[[baseline]]
+id = "commit_policy"
+area = "ops/release"
+owner = "team-release"
+paths = ["ops/release/commit-policy.toml", "../.github/PULL_REQUEST_TEMPLATE.md"]
+mode = "fail_closed"
+baseline_command = "manual review: validate PR, branch, and commit metadata against ops/release/commit-policy.toml"
+
+[[baseline]]
+id = "runtime"
+area = "ops/runtime"
+owner = "team-runtime"
+paths = ["ops/runtime/runtime-contracts.toml"]
+mode = "fail_closed"
+baseline_command = "manual review: validate runtime deployment, health, telemetry, and rollback contract"
+
+[[baseline]]
+id = "migrations"
+area = "ops/migrations"
+owner = "team-platform"
+paths = ["ops/migrations/README.md", "ops/migrations/migration-contracts.toml", "ops/migrations/*.sql"]
+mode = "fail_closed"
+baseline_command = "manual review: validate tenant/RLS forward sequence and rollback notes"

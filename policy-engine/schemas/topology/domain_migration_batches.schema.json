@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/topology/domain_migration_batches.schema.json",
+  "title": "Domain Migration Batches",
+  "type": "object",
+  "required": ["domain_migration_batches", "batch"],
+  "properties": {
+    "domain_migration_batches": {
+      "type": "object",
+      "required": ["version", "status", "updated"],
+      "properties": {
+        "version": {"type": "integer"},
+        "status": {"type": "string"},
+        "updated": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    },
+    "batch": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "area",
+          "owner",
+          "risk_class",
+          "status",
+          "compatibility_status",
+          "source_paths",
+          "target_paths",
+          "public_facades",
+          "entrypoints",
+          "shim_ids",
+          "evidence_paths",
+          "acceptance_tests",
+          "removal_criteria"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "area": {"type": "string"},
+          "owner": {"type": "string"},
+          "risk_class": {"type": "string"},
+          "status": {"type": "string"},
+          "compatibility_status": {"type": "string"},
+          "source_paths": {"type": "array", "items": {"type": "string"}},
+          "target_paths": {"type": "array", "items": {"type": "string"}},
+          "public_facades": {"type": "array", "items": {"type": "string"}},
+          "entrypoints": {"type": "array", "items": {"type": "string"}},
+          "shim_ids": {"type": "array", "items": {"type": "string"}},
+          "evidence_paths": {"type": "array", "items": {"type": "string"}},
+          "acceptance_tests": {"type": "array", "items": {"type": "string"}},
+          "removal_criteria": {"type": "string"}
+        }
+      }
+    }
+  }
+}

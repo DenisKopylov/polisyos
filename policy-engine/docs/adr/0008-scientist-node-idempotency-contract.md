@@ -29,8 +29,8 @@ Scientist DAG содержит дорогостоящие и нестабиль�
 5. Не кэшировать outcomes со статусом `fail`.
 6. Добавить CI guards:
 
-   - `tools/diagnostics/check_state_reads.py`,
-   - `tools/diagnostics/check_scientist_node_version_bump.py`.
+   - `tools/quality/diagnostics/check_state_reads.py`,
+   - `tools/quality/diagnostics/check_scientist_node_version_bump.py`.
 
 ## Последствия
 

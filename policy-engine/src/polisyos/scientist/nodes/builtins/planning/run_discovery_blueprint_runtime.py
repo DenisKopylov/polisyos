@@ -47,7 +47,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
+from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,

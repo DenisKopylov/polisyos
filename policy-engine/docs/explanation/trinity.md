@@ -3,7 +3,7 @@
 Related reference: [IR problem framing](../reference/ir/problem-framing.md), [Foundry compile and execute](../reference/foundry/compile-execute.md), [Scientist workflows](../reference/scientist/workflows.md).
 Related contracts: [TRINITY](../contracts/TRINITY.md), [merge semantics](../contracts/MERGE_SEMANTICS.md).
 Related ADRs: [ADR-0105](../adr/0105-trinity-linking-validation-policy.md), [ADR-0106](../adr/0106-ir-shared-validation-and-id-policy.md).
-Evidence: `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py`.
+Evidence: `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/unit/ir/test_trinity_loaders.py`.
 
 Trinity separates one policy payload into three durable questions:
 

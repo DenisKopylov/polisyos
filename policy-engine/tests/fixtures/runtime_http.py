@@ -11,13 +11,14 @@ try:  # pragma: no cover - optional dependency guard
 except ModuleNotFoundError:  # pragma: no cover
     TestClient = None  # type: ignore[assignment]
 
-from fixtures.artifacts import put_json_artifact
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.control import ControlPlaneService
+
+from fixtures.artifacts import put_json_artifact
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -913,4 +914,16 @@ def runtime_api_env(tmp_path: Path):
     if TestClient is None:  # pragma: no cover
         pytest.skip("fastapi is not installed")
 
-    return build_runtime_api_env(tmp_path, include_test_client=True)
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+    try:
+        yield env
+    finally:
+        client = env.get("client")
+        client_close = getattr(client, "close", None)
+        if callable(client_close):
+            client_close()
+        app = env.get("app")
+        service = getattr(getattr(app, "state", None), "_control_service", None)
+        service_close = getattr(service, "close", None)
+        if callable(service_close):
+            service_close()

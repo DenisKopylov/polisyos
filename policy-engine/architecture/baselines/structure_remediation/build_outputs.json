@@ -1,0 +1,20 @@
+[
+  {
+    "ignored": true,
+    "name": "_build",
+    "path": "policy-engine/_build",
+    "scope": "product_root"
+  },
+  {
+    "ignored": false,
+    "name": "release",
+    "path": "policy-engine/release",
+    "scope": "product_root"
+  },
+  {
+    "ignored": false,
+    "name": "release-fragments",
+    "path": "policy-engine/release-fragments",
+    "scope": "product_root"
+  }
+]

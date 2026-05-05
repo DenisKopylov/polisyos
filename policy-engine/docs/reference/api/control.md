@@ -7,8 +7,8 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/runtime/http/services/control.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_control_api.py tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/unit/runtime/http/test_control_api.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
 
 The control plane is the write-capable orchestration surface for launching runs, driving data collection, and operating Lex and decision-validity workflows.
 
@@ -43,11 +43,11 @@ All `POST /api/v1/control/*` mutations pass through
 
 Validation anchors:
 
-- `tests/runtime/http/test_runtime_api_write_path_hardening.py`
-- `tests/runtime/http/test_control_hardening.py`
-- `tests/runtime/http/test_control_plane_store.py`
-- `tests/runtime/http/test_control_service_di.py`
-- `tests/runtime/http/test_runtime_api_observability.py`
+- `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
+- `tests/unit/runtime/http/test_control_hardening.py`
+- `tests/unit/runtime/http/test_control_plane_store.py`
+- `tests/unit/runtime/http/test_control_service_di.py`
+- `tests/unit/runtime/http/test_runtime_api_observability.py`
 
 ## Endpoint Summary
 

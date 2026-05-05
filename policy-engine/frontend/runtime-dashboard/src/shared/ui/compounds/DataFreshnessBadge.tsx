@@ -1,5 +1,7 @@
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatRelativeTime } from "@/lib/utils";
+import { useState } from "react";
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatRelativeTime } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/primitives";
 
 type DataFreshnessBadgeProps = {
@@ -12,6 +14,7 @@ export function DataFreshnessBadge({
   staleAfterMs = 5 * 60_000,
 }: DataFreshnessBadgeProps) {
   const { locale, t } = useI18n();
+  const [renderedAtMs] = useState(() => Date.now());
 
   if (!generatedAt) {
     return <Badge kind="warn">{t("common.freshness.missing")}</Badge>;
@@ -22,7 +25,7 @@ export function DataFreshnessBadge({
     return <Badge kind="warn">{t("common.freshness.invalid")}</Badge>;
   }
 
-  const ageMs = Date.now() - date.getTime();
+  const ageMs = renderedAtMs - date.getTime();
   return (
     <Badge
       kind={ageMs > staleAfterMs ? "warn" : "ok"}

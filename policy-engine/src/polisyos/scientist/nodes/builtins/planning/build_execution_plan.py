@@ -15,7 +15,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.llm_cycle import build_default_execution_plan, persist_execution_plan
+from polisyos.scientist.llm.cycle import build_default_execution_plan, persist_execution_plan
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXECUTION_PLAN_REF,
     INPUT_EXECUTION_PLAN_REF,

@@ -5,10 +5,9 @@ import json
 import textwrap
 from pathlib import Path
 
-from hypothesis import assume, given
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
-
-from tools.lint import lint_imports
+from tools.quality.lint import lint_imports
 
 
 def _write_policy(path: Path, src_root: Path) -> None:
@@ -92,6 +91,7 @@ _IDENTIFIER = st.from_regex(r"[a-z][a-z0-9_]{0,7}", fullmatch=True)
     level=st.integers(min_value=1, max_value=5),
     suffix_parts=st.lists(_IDENTIFIER, max_size=3),
 )
+@settings(suppress_health_check=[HealthCheck.too_slow])
 def test_resolve_import_module_matches_relative_import_semantics(
     current_parts: list[str],
     is_package: bool,

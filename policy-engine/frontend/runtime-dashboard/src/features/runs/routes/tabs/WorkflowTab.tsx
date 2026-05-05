@@ -7,8 +7,8 @@ import { useSuspenseRunWorkflow } from "@/api/hooks/useRunWorkflow";
 import { RunChoreographyPanel } from "@/features/runs/components/RunChoreographyPanel";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { buildRunChoreographyView } from "@/features/runs/domain/runChoreography";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatBytes, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatBytes, formatNumber } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { Card, EmptyState, PanelSkeleton } from "@/shared/ui";
 

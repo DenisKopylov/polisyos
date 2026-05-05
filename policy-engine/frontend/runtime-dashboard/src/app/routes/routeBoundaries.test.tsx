@@ -34,13 +34,13 @@ vi.mock("@/app/providers/FeatureFlagProvider", () => ({
   useFeatureFlags: () => useFeatureFlagsMock(),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: (path: string) => path,
   }),
 }));
 
-vi.mock("@/lib/capabilities", () => ({
+vi.mock("@/shared/lib/capabilities", () => ({
   isCapabilityEnabled: (...args: unknown[]) => isCapabilityEnabledMock(...args),
 }));
 

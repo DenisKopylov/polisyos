@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from "react";
 import type { LoaderFunction } from "react-router-dom";
 
 import type { WorkspaceKey, WorkspacePrefetchKey } from "@/app/workspaces";
-import type { SearchParamInput } from "@/lib/searchParams";
+import type { SearchParamInput } from "@/shared/lib/searchParams";
 
 export type RouteSearchParser<TSearch> = (input: SearchParamInput) => TSearch;
 export type RouteHrefBuilder<TSearch> = (input?: TSearch) => string;

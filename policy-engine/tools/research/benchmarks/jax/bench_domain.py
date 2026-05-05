@@ -10,15 +10,14 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from tools._lib.imports import ensure_repo_import_roots, repo_root_from
+from tools.lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
-import numpy as np
-
 import jax_bootstrap  # noqa: F401
+import numpy as np
 from polisyos.foundry.methods.catalog.bayesian.regression import BayesianLinearRegressionEstimator
 from polisyos.foundry.methods.catalog.ml.protocols import TabularData
 from polisyos.foundry.methods.catalog.optimization.lp import ResourceLP

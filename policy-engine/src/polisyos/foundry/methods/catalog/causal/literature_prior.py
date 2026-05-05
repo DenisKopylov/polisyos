@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, ClassVar
 
-from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

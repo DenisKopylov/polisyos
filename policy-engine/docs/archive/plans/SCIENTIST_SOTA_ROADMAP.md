@@ -783,7 +783,7 @@
 
 **Проблема**: 35 builtin нод — 0 unit tests. Regression невозможно локализовать.
 
-**Файлы**: `tests/scientist/nodes/` (новая директория)
+**Файлы**: `tests/unit/scientist/nodes/` (новая директория)
 
 **Задачи**: Покрыть все категории нод:
 
@@ -824,7 +824,7 @@
 
 **Проблема**: 17 пассов без изолированных тестов.
 
-**Файлы**: `tests/scientist/governance/passes/` (новая директория)
+**Файлы**: `tests/unit/scientist/governance/passes/` (новая директория)
 
 **Задачи**: Для каждого pass:
 
@@ -842,7 +842,7 @@
 
 **Проблема**: Workflow specs (default, causal_full, policy_verified) не тестируются изолированно.
 
-**Файлы**: `tests/scientist/workflows/`
+**Файлы**: `tests/unit/scientist/workflows/`
 
 **Задачи**:
 
@@ -859,7 +859,7 @@
 
 **Проблема**: Нет property-based tests для state serialization, condition parsing, governance.
 
-**Файлы**: `tests/scientist/property/` (новая директория)
+**Файлы**: `tests/unit/scientist/property/` (новая директория)
 
 **Задачи**:
 
@@ -876,7 +876,7 @@
 
 **Проблема**: `api.py`, `adapters/foundry_bridge.py`, `adapters/fabric_bridge.py` — 0 тестов.
 
-**Файлы**: `tests/scientist/`
+**Файлы**: `tests/unit/scientist/`
 
 **Задачи**:
 

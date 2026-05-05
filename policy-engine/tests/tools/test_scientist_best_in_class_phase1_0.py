@@ -31,8 +31,7 @@ def test_scientist_best_in_class_phase1_0_gate_passes_repo(tmp_path: Path) -> No
     assert payload["category_results"]["capability_readiness_matrix_complete"] is True
     assert payload["category_results"]["historical_plan_map_complete"] is True
     assert any(
-        item["item_id"] == "SCIENTIST_SOTA_ROADMAP:WS5.1"
-        for item in payload["historical_items"]
+        item["item_id"] == "SCIENTIST_SOTA_ROADMAP:WS5.1" for item in payload["historical_items"]
     )
 
 
@@ -73,7 +72,7 @@ def _write_minimal_repo(
     omitted_historical_item: str | None = None,
 ) -> None:
     (repo_root / "src/polisyos/scientist/engine").mkdir(parents=True)
-    (repo_root / "tests/scientist/engine").mkdir(parents=True)
+    (repo_root / "tests/unit/scientist/engine").mkdir(parents=True)
     (repo_root / "docs/reference/scientist").mkdir(parents=True)
     (repo_root / "docs/archive/plans").mkdir(parents=True)
     (repo_root / "docs/plans/active").mkdir(parents=True)
@@ -124,7 +123,7 @@ def _write_minimal_repo(
         "# Archived\n\n### WS5.1 - Circuit Breaker\n",
         encoding="utf-8",
     )
-    (repo_root / "docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md").write_text(
+    (repo_root / "docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md").write_text(
         "# Audit\n\n### WS-0A. Async correctness\n",
         encoding="utf-8",
     )
@@ -158,7 +157,7 @@ def _minimal_inventory_text(*, omitted_historical_item: str | None) -> str:
             "",
             "| Test surface | Coverage role |",
             "| --- | --- |",
-            "| `tests/scientist/engine/**` | fake |",
+            "| `tests/unit/scientist/engine/**` | fake |",
             "",
             "| Reference page | Current role |",
             "| --- | --- |",

@@ -7,9 +7,9 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_runs_api.py tests/runtime/http/test_timeline_api.py tests/runtime/http/test_runtime_api_authz.py`
-- `uv run pytest -q tests/runtime/http/test_lineage_routes.py tests/runtime/http/test_temporal_routes.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_timeline_api.py tests/unit/runtime/http/test_runtime_api_authz.py`
+- `uv run pytest -q tests/unit/runtime/http/test_lineage_routes.py tests/unit/runtime/http/test_temporal_routes.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
 
 The runs surface is the read-only operational view over runtime executions. Every run-specific endpoint enforces tenant access before returning data.
 
@@ -35,13 +35,13 @@ Common status codes for committed endpoints: `200`, `400`, `401`, `403`, `404`, 
 
 Validation anchors:
 
-- `tests/runtime/http/test_runs_api.py`
-- `tests/runtime/http/test_timeline_api.py`
-- `tests/runtime/http/test_core_only_runs_api.py`
-- `tests/runtime/http/test_runtime_api_authz.py`
-- `tests/runtime/http/test_lineage_routes.py`
-- `tests/runtime/http/test_temporal_routes.py`
-- `tests/runtime/http/test_access_invariants_properties.py`
+- `tests/unit/runtime/http/test_runs_api.py`
+- `tests/unit/runtime/http/test_timeline_api.py`
+- `tests/unit/runtime/http/test_core_only_runs_api.py`
+- `tests/unit/runtime/http/test_runtime_api_authz.py`
+- `tests/unit/runtime/http/test_lineage_routes.py`
+- `tests/unit/runtime/http/test_temporal_routes.py`
+- `tests/unit/runtime/http/test_access_invariants_properties.py`
 
 ## `GET /api/v1/runs`
 

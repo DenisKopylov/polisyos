@@ -75,7 +75,7 @@ describe("ExplainabilityCard", () => {
 
   it("renders glance level with verdict and confidence", () => {
     renderWithProviders(<ExplainabilityCard verdict={baseVerdict} />);
-    expect(screen.getByText("approved")).toBeInTheDocument();
+    expect(screen.getByText("Approved")).toBeInTheDocument();
     expect(screen.getByText("92%")).toBeInTheDocument();
     expect(screen.getByText("Strong evidence")).toBeInTheDocument();
   });
@@ -165,10 +165,10 @@ describe("GovernancePassGrid", () => {
 
   it("shows count summary", () => {
     renderWithProviders(<GovernancePassGrid passes={passes} />);
-    expect(screen.getByText("1 passed")).toBeInTheDocument();
-    expect(screen.getByText("1 failed")).toBeInTheDocument();
-    expect(screen.getByText("1 warnings")).toBeInTheDocument();
-    expect(screen.getByText("1 skipped")).toBeInTheDocument();
+    expect(screen.getByText("Passed: 1")).toBeInTheDocument();
+    expect(screen.getByText("Failed: 1")).toBeInTheDocument();
+    expect(screen.getByText("Warning: 1")).toBeInTheDocument();
+    expect(screen.getByText("Skipped: 1")).toBeInTheDocument();
   });
 
   it("renders custom title", () => {
@@ -225,7 +225,7 @@ describe("TrustCalibrationDisplay", () => {
       />,
     );
     expect(
-      screen.getByRole("heading", { name: "Trust Calibration" }),
+      screen.getByRole("heading", { name: "Trust calibration" }),
     ).toBeInTheDocument();
     // "87%" appears in both gauge mock and body text
     expect(screen.getAllByText("87%").length).toBeGreaterThanOrEqual(1);
@@ -450,7 +450,7 @@ describe("NegativeCertificateCard", () => {
         reason="Cannot identify causal effect"
       />,
     );
-    expect(screen.getByText("Not Identified")).toBeInTheDocument();
+    expect(screen.getByText("Not identified")).toBeInTheDocument();
     expect(
       screen.getByText("Cannot identify causal effect"),
     ).toBeInTheDocument();
@@ -490,7 +490,7 @@ describe("NegativeCertificateCard", () => {
     expect(screen.getByText("Suggested experiments")).toBeInTheDocument();
     expect(screen.getByText("Run RCT")).toBeInTheDocument();
     expect(screen.getByText("Gold standard")).toBeInTheDocument();
-    expect(screen.getByText("high")).toBeInTheDocument();
+    expect(screen.getByText("High")).toBeInTheDocument();
   });
 
   it("handles unknown blocking types gracefully", () => {

@@ -21,6 +21,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
@@ -30,7 +31,6 @@ from polisyos.scientist.engine.state_merge import (
     merge_parallel_outcomes,
 )
 from polisyos.scientist.engine.workflow_spec import JsonValue
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
 

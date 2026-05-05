@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge, Button } from "@/shared/ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 import type { ChatMessage as ChatMessageType } from "../state/useChatStore";

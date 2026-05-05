@@ -27,17 +27,17 @@ The baseline eval pack is intentionally small but CI-friendly:
 
 | Dataset family                                 | Coverage                                                                   | Evidence                                                                                                                              |
 | ---------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Synthetic binary-treatment confounding         | E-values, Rosenbaum gamma, benchmarked sensitivity summary                 | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_synthetic_sensitivity_eval_pack_reports_robust_effect`    |
-| Synthetic multi-domain invariance              | ICP-style invariance stability on a domain-stable mechanism                | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_synthetic_icp_eval_pack_accepts_stable_domains`           |
-| Semi-synthetic latent-confounding with proxies | proximal bridge estimate with finite interval and strong proxy diagnostics | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_semi_synthetic_proximal_eval_pack_yields_finite_interval` |
+| Synthetic binary-treatment confounding         | E-values, Rosenbaum gamma, benchmarked sensitivity summary                 | `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_synthetic_sensitivity_eval_pack_reports_robust_effect`    |
+| Synthetic multi-domain invariance              | ICP-style invariance stability on a domain-stable mechanism                | `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_synthetic_icp_eval_pack_accepts_stable_domains`           |
+| Semi-synthetic latent-confounding with proxies | proximal bridge estimate with finite interval and strong proxy diagnostics | `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py::test_ws3a_semi_synthetic_proximal_eval_pack_yields_finite_interval` |
 
 Additional regression evidence for default-path orchestration and decision
 artifacts:
 
-- `tests/scientist/test_causal_evaluation_node.py`
-- `tests/scientist/test_decision_packet_node_v3.py`
-- `tests/scientist/backtesting/test_distributional.py`
-- `tests/foundry/methods/catalog/causal/test_treatment_effects.py`
+- `tests/unit/scientist/causal/test_causal_evaluation_node.py`
+- `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`
+- `tests/unit/scientist/backtesting/test_distributional.py`
+- `tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py`
 
 ## Statistical Correctness Hotfixes Included
 
@@ -59,11 +59,11 @@ artifacts:
 ## How To Reproduce
 
 ```bash
-uv run pytest tests/scientist/test_causal_evaluation_node.py -q
-uv run pytest tests/scientist/test_decision_packet_node_v3.py -q
-uv run pytest tests/scientist/backtesting/test_distributional.py -q
-uv run pytest tests/foundry/methods/catalog/causal/test_treatment_effects.py -q
-uv run pytest tests/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
+uv run pytest tests/unit/scientist/causal/test_causal_evaluation_node.py -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py -q
+uv run pytest tests/unit/scientist/backtesting/test_distributional.py -q
+uv run pytest tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py -q
+uv run pytest tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
 ```
 
 ## Explicit Experimental Statuses

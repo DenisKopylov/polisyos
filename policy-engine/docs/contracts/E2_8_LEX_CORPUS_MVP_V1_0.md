@@ -5,8 +5,8 @@ Repo snapshot date: 2026-02-04
 ## Scope
 
 - New package: `policy-engine/src/polisyos/lex/*`
-- New package: `policy-engine/src/polisyos/lex/corpus/*`
-- New tests: `policy-engine/tests/fabric/test_lex_corpus_phase16.py`
+- New package: `policy-engine/src/polisyos/data_forge/domains/legal/corpus/*`
+- New tests: `policy-engine/tests/unit/fabric/test_lex_corpus_phase16.py`
 
 ## Deliverables
 
@@ -72,9 +72,9 @@ No Lex-specific DB/storage layer is introduced.
 
 ## Artifact contracts
 
-- `lex.corpus.provision_index` (`polisyos.lex.corpus.ProvisionIndex`, v1.0)
-- `lex.corpus.version_index` (`polisyos.lex.corpus.VersionIndex`, v1.0)
-- `lex.corpus.doc_source_props` (`polisyos.lex.corpus.DocSourceProps`, v1.0)
+- `lex.corpus.provision_index` (`polisyos.data_forge.domains.legal.corpus.ProvisionIndex`, v1.0)
+- `lex.corpus.version_index` (`polisyos.data_forge.domains.legal.corpus.VersionIndex`, v1.0)
+- `lex.corpus.doc_source_props` (`polisyos.data_forge.domains.legal.corpus.DocSourceProps`, v1.0)
 
 ## Determinism guarantees
 
@@ -88,6 +88,6 @@ No Lex-specific DB/storage layer is introduced.
 | Link type           | Current anchor                                                                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 citation/world ID determinism and Phase 4 corpus-to-world bridge                                                               |
-| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_lex_corpus.py`, `tests/fabric/test_docs_pipeline.py`                         |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/unit/fabric/test_lex_corpus.py`, `tests/unit/fabric/test_docs_pipeline.py`                         |
 | Schema snapshots    | `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                       |

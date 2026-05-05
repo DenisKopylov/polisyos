@@ -12,7 +12,7 @@ from collections.abc import Mapping
 
 import jax.numpy as jnp
 
-from polisyos.foundry._numeric import NumericDomain, epsilon_for, finite_loss_or_inf
+from polisyos.foundry.runtime.numeric import NumericDomain, epsilon_for, finite_loss_or_inf
 from polisyos.ir.analytics.calibration import TargetLossConfig
 
 

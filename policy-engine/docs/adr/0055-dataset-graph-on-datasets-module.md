@@ -4,6 +4,10 @@
 
 Proposed
 
+Status note (2026-05-02): superseded for code ownership by Data Forge; use
+`polisyos.data_forge.domains.catalog.knowledge` and
+`polisyos.data_forge.read_api.catalog`.
+
 ## Date
 
 2026-02-28

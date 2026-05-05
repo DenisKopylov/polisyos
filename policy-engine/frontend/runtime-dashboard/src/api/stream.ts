@@ -1,5 +1,5 @@
 import { buildRuntimeApiUrl } from "@/api/url";
-import type { SearchParamValue } from "@/lib/searchParams";
+import type { SearchParamValue } from "@/shared/lib/searchParams";
 
 export function buildRuntimeStreamUrl(
   pathname: string,

@@ -1,8 +1,8 @@
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import type {
   MetricValidationComparisonRow,
   MetricValidationFamilyAdjustment,
-} from "@/lib/domain/metricValidation";
+} from "@/shared/lib/domain/metricValidation";
 
 type MetricValidationComparisonTableProps = {
   title?: string;

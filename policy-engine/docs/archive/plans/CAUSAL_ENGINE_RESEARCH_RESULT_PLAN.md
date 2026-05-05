@@ -9379,8 +9379,8 @@ Global reconciliation остаётся hardest part, поэтому именно
   projects latent bridges onto the Stage 9.3 judge surface and records the machine-readable
   blockers `latent_promotion_evidence_missing`, `latent_promotion_denied`, and
   `latent_artifact_proof_only`.
-- Tests: [`tests/ir/analytics/test_latent_bridge_synthesis.py`](../../../../tests/ir/analytics/test_latent_bridge_synthesis.py)
-  and [`tests/scientist/search/test_latent_governance.py`](../../../../tests/scientist/search/test_latent_governance.py).
+- Tests: [`tests/unit/ir/analytics/test_latent_bridge_synthesis.py`](../../../../tests/unit/ir/analytics/test_latent_bridge_synthesis.py)
+  and [`tests/unit/scientist/search/test_latent_governance.py`](../../../../tests/unit/scientist/search/test_latent_governance.py).
 
 *Track context*: Research Track 1 — Compositional Causality: Advanced Problems.
 
@@ -9589,8 +9589,8 @@ Step 7. Persist artifact.
 - Failure cards: [`polisyos.foundry.methods.catalog.causal.composition_failure_cards`](../../../src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py)
   now distinguishes completeness-scope exits for `proxy`, `latent_bridge`, `unobserved`,
   `cyclic`, and `non_dag` cases.
-- Tests: [`tests/foundry/methods/catalog/causal/test_query_preservation.py`](../../../../tests/foundry/methods/catalog/causal/test_query_preservation.py)
-  and [`tests/foundry/methods/catalog/causal/test_graph_reconciliation.py`](../../../../tests/foundry/methods/catalog/causal/test_graph_reconciliation.py).
+- Tests: [`tests/unit/foundry/methods/catalog/causal/test_query_preservation.py`](../../../../tests/unit/foundry/methods/catalog/causal/test_query_preservation.py)
+  and [`tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py`](../../../../tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py).
 
 *Track context*: Research Track 1 — Compositional Causality: Advanced Problems.
 
@@ -10014,9 +10014,9 @@ merged_readiness_cap = resolve_from_judge(merged_bundle)
 - Kill-rule decision: heuristic recourse remains intentionally non-promotable;
   `heuristic_only` / `np_hard_general_case` are recorded explicitly instead of
   being allowed to masquerade as decision-support-grade optimization.
-- Tests: [`tests/ir/analytics/test_recourse_manifold.py`](../../../../tests/ir/analytics/test_recourse_manifold.py)
+- Tests: [`tests/unit/ir/analytics/test_recourse_manifold.py`](../../../../tests/unit/ir/analytics/test_recourse_manifold.py)
   (contract + persistence) and
-  [`tests/foundry/methods/catalog/causal/test_recourse_manifold.py`](../../../../tests/foundry/methods/catalog/causal/test_recourse_manifold.py)
+  [`tests/unit/foundry/methods/catalog/causal/test_recourse_manifold.py`](../../../../tests/unit/foundry/methods/catalog/causal/test_recourse_manifold.py)
   (solver).
 
 *Track context*: Research Track 12 — Intervention Hierarchy: Edge, Path, Stochastic, and Policy Interventions.
@@ -10374,7 +10374,7 @@ class OptimalRecourseInterventionBundle(BaseModel):
 - Runtime execution: [`kernel_methods.py`](../../../src/polisyos/foundry/methods/catalog/causal/kernel_methods.py) now registers executable `causal.kernel.*` nuisance, estimator, and diagnostic methods for backdoor/plugin CME, frontdoor CME, transport CME, DR-CME, KIV, proximal minimax, regularization diagnostics, kernel semantics diagnostics, and distributional effect testing.
 - Audit/evidence integration: [`causal_engine.py`](../../../src/polisyos/foundry/methods/catalog/causal/causal_engine.py) now persists `KernelEstimatorSpec` artifacts, threads kernel diagnostics into `EvidenceBundle.diagnostic_scores`, and records `kernel_estimator_spec_ref` for proof-carrying audit.
 - Runtime semantics remain intentionally conservative: kernel lowering is **opt-in** via identification metadata and fails closed to `REFUSE` when the requested RKHS mode is blocked; no silent fallback claims are made for inverse-problem templates without operator certificates. Generic cross-fit graph injection is intentionally not auto-enabled for kernel strategies until a kernel-specific OOF nuisance protocol is added.
-- Regression coverage: [`test_kernel_causal_contract.py`](../../../tests/ir/analytics/test_kernel_causal_contract.py), [`test_kernel_lowering.py`](../../../tests/foundry/methods/catalog/causal/test_kernel_lowering.py), and [`test_kernel_runtime.py`](../../../tests/foundry/methods/catalog/causal/test_kernel_runtime.py) cover artifact validation, downgrade behavior, compiler routing, runtime execution, persisted kernel spec auditing, and refusal on unsupported inverse modes.
+- Regression coverage: [`test_kernel_causal_contract.py`](../../../tests/unit/ir/analytics/test_kernel_causal_contract.py), [`test_kernel_lowering.py`](../../../tests/unit/foundry/methods/catalog/causal/test_kernel_lowering.py), and [`test_kernel_runtime.py`](../../../tests/unit/foundry/methods/catalog/causal/test_kernel_runtime.py) cover artifact validation, downgrade behavior, compiler routing, runtime execution, persisted kernel spec auditing, and refusal on unsupported inverse modes.
 
 #### Ядерные операторы причинного эффекта с гарантиями идентификации
 

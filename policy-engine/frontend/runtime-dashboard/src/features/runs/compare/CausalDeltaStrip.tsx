@@ -5,7 +5,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge } from "@/shared/ui";
 
 import { saliencePercent, significanceTone, topDeltas } from "./compare-math";

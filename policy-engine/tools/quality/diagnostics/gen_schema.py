@@ -14,7 +14,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from tools._lib.cache import (
+from tools.lib.cache import (
     baseline_matches,
     cache_path,
     content_addressable_key,
@@ -26,8 +26,8 @@ from tools._lib.cache import (
     stable_json_hash,
     write_json_cache,
 )
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import repo_root_from
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -38,7 +38,7 @@ if str(SRC_ROOT) not in sys.path:
 
 from schemas.abi_models import ABIModelEntry, select_abi_entries  # noqa: E402
 
-from .generate_ir_reference_catalog import (  # noqa: E402
+from tools.quality.diagnostics.generate_ir_reference_catalog import (  # noqa: E402
     generate_reference_docs,
 )
 
@@ -52,12 +52,14 @@ FULL_REBUILD_SENTINELS = {
     REPO_ROOT / "schemas" / "abi_models.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "gen_schema.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "generate_ir_reference_catalog.py",
-    REPO_ROOT / "tools" / "diagnostics" / "gen_schema.py",
-    REPO_ROOT / "tools" / "diagnostics" / "generate_ir_reference_catalog.py",
 }
 GOVERNED_NON_ABI_SNAPSHOT_FILES: dict[str, set[str]] = {
     # This registry is generated and drift-checked by dedicated Fabric tooling.
-    "fabric": {"connector_contract_registry.json"},
+    "fabric": {
+        "connector_contract_registry.json",
+        "source_contracts_v2.json",
+        "source_scorecards.json",
+    },
 }
 
 

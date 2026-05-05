@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field, field_validator
 
-from polisyos.academic.batch.prompts import CLAIM_ADJUDICATION_PROMPT_VARIANTS
+from polisyos.data_forge.read_api.academic import CLAIM_ADJUDICATION_PROMPT_VARIANTS
 from polisyos.ir.analytics.literature import (
     CausalCredibility,
     ClaimAdjudicationResult,

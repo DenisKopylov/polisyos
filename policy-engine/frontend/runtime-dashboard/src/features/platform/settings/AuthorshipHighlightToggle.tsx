@@ -3,7 +3,7 @@ import {
   useAuthorship,
   type AuthorshipHighlightMode,
 } from "@/shared/ui/authored-text";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { SegmentedControl } from "@/shared/ui";
 
 const AUTHORSHIP_OPTIONS =

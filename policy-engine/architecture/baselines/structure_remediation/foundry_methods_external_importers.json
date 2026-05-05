@@ -1,0 +1,883 @@
+[
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 18,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "benchmarks/econometrics/phase2_frontier.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "compute_embedding_fidelity_certificate"
+    ],
+    "kind": "facade",
+    "line": 26,
+    "module": "polisyos.foundry.methods.network",
+    "path": "benchmarks/network/phase2_identification_frontier.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "SurveyMicroData",
+      "ensure_microsim_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 54,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "src/polisyos/foundry/validation/phase0_closure.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "GraphCausalDataV1",
+      "HTEObservationalData",
+      "PanelObservationalData",
+      "RDDObservationalData"
+    ],
+    "kind": "facade",
+    "line": 24,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "src/polisyos/scientist/causal/validity.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "GraphCausalDataV1",
+      "HTEObservationalData",
+      "PanelObservationalData",
+      "RDDObservationalData"
+    ],
+    "kind": "facade",
+    "line": 17,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "AllocationItem",
+      "OptimizationProblem",
+      "ResourceConstraint"
+    ],
+    "kind": "facade",
+    "line": 17,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/benchmarks/test_foundry_release_gate.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "SurveyMicroData",
+      "ensure_microsim_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 9,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "tests/unit/foundry/methods/backends/test_validated_dispatch.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "ensure_optimization_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 13,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/backends/test_validated_dispatch.py",
+    "usage": "from"
+  },
+  {
+    "domain": "bayesian",
+    "imported_names": [
+      "PosteriorResult",
+      "SimulatorDiagnosticArtifact",
+      "TruthfulnessTier",
+      "canonical_simulator_diagnostic_artifact",
+      "ensure_bayesian_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 17,
+    "module": "polisyos.foundry.methods.bayesian",
+    "path": "tests/unit/foundry/methods/catalog/bayesian/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "TabularData"
+    ],
+    "kind": "facade",
+    "line": 31,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/bayesian/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "bayesian",
+    "imported_names": [
+      "ensure_bayesian_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 3,
+    "module": "polisyos.foundry.methods.bayesian",
+    "path": "tests/unit/foundry/methods/catalog/bayesian/test_registration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 11,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_causal_rl.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_diagnostics.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "PanelObservationalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_did.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "GraphCausalDataV1",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_dowhy_refute.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 16,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_dtr.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "DynamicGraphDSCMData",
+      "DynamicGraphEvent",
+      "ensure_causal_methods_registered",
+      "estimate_dynamic_graph_dscm"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_dynamic_graph_dscm.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_dynamic_registration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_endogenous_group_inequality.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_frontier_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 20,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_g_computation.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 14,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_g_estimation.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "HTEObservationalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_hte_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_independence_tests.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 19,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_interference.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 12,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_invariance_tests.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "RDDObservationalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_registration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_sensitivity_metrics.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "FieldNode",
+      "OperatorEdge",
+      "SPDEGenerator",
+      "SPDEMechanism",
+      "SpaceTimeDSCM",
+      "SpaceTimeDomain",
+      "SpaceTimeFieldData",
+      "SpaceTimeIdentificationStatus",
+      "SpaceTimeIntervention",
+      "SpaceTimeInterventionType",
+      "SpaceTimeSPDEGComputation",
+      "SpaceTimeSupport",
+      "build_space_time_identification_certificate",
+      "ensure_causal_methods_registered",
+      "estimate_space_time_spde_g_computation",
+      "estimate_space_time_treatment_density_process",
+      "simulate_linear_diffusion_response",
+      "simulate_reaction_diffusion_response"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_space_time_dscm.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "PanelObservationalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "PanelObservationalData",
+      "ensure_causal_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [],
+    "kind": "facade",
+    "line": 9,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_synthetic_control_imports.py",
+    "usage": "importlib_literal"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "PanelData",
+      "TimeSeriesData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "PanelObservationalData"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_expansion.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "TimeSeriesData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_expansion.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "PanelData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_iv.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "PanelData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_panel.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 3,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_registration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "ThresholdRegressionData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_thresholds.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "TimeSeriesData",
+      "ensure_econometric_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/econometrics/test_timeseries.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "DynamicMicrosimEstimator",
+      "DynamicMicrosimResult",
+      "DynamicMicrosimResultV2",
+      "DynamicValidationSensitivitySpec",
+      "DynamicValidationSpec",
+      "SurveyMicroData",
+      "ValidationMomentSpec",
+      "attach_dynamic_validation",
+      "ensure_microsim_methods_registered",
+      "run_dynamic_validation",
+      "upgrade_dynamic_microsim_result"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "tests/unit/foundry/methods/catalog/microsim/test_advanced.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "SurveyMicroData",
+      "ensure_microsim_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "tests/unit/foundry/methods/catalog/microsim/test_inverse_calibration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "SurveyMicroData",
+      "ensure_microsim_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 6,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "tests/unit/foundry/methods/catalog/microsim/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "TabularData",
+      "ensure_ml_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_advanced.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "TabularData",
+      "ensure_ml_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_frontier.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "SurvivalData",
+      "TabularData",
+      "ensure_ml_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "PredictionResult",
+      "WeightedConformalQuantile",
+      "ensure_ml_methods_registered",
+      "evaluate_conformal_acceptance_gate",
+      "update_conditional_coverage_diagnostic_with_outcomes"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_phase5_uncertainty.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "ensure_ml_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 12,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_shift_diagnostics.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "TabularData",
+      "ensure_ml_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/ml/test_transformers.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "build_block_stratified_network_causal_data"
+    ],
+    "kind": "facade",
+    "line": 5,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/network/test_block_causal_bridge.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "SBMStratificationResult"
+    ],
+    "kind": "facade",
+    "line": 6,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_block_causal_bridge.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "NetworkData"
+    ],
+    "kind": "facade",
+    "line": 5,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_diffusion_null.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "NetworkResult",
+      "compute_embedding_fidelity_certificate"
+    ],
+    "kind": "facade",
+    "line": 5,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_embedding_fidelity.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "NetworkData",
+      "fit_ergm_null_model"
+    ],
+    "kind": "facade",
+    "line": 5,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_ergm.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "MultiplexNetworkData",
+      "NetworkData",
+      "StrategicNetworkFormationData",
+      "ensure_network_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "build_block_stratified_network_causal_data"
+    ],
+    "kind": "facade",
+    "line": 6,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/network/test_sbm.py",
+    "usage": "from"
+  },
+  {
+    "domain": "network",
+    "imported_names": [
+      "EdgeListNetworkData",
+      "NetworkData"
+    ],
+    "kind": "facade",
+    "line": 7,
+    "module": "polisyos.foundry.methods.network",
+    "path": "tests/unit/foundry/methods/catalog/network/test_sbm.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "ensure_optimization_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 17,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/catalog/optimization/test_advanced.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "AuctionReserveProblem",
+      "PublicReserveAuctionEstimator"
+    ],
+    "kind": "facade",
+    "line": 5,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/catalog/optimization/test_auction.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "AllocationItem",
+      "BudgetMILP",
+      "LeontiefInputOutput",
+      "OptimizationProblem",
+      "ResourceConstraint",
+      "ResourceLP"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/catalog/optimization/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "ensure_optimization_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 3,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/catalog/optimization/test_registration.py",
+    "usage": "from"
+  },
+  {
+    "domain": "optimization",
+    "imported_names": [
+      "ensure_optimization_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.optimization",
+    "path": "tests/unit/foundry/methods/catalog/optimization/test_sequential.py",
+    "usage": "from"
+  },
+  {
+    "domain": "spatial",
+    "imported_names": [
+      "AccessibilityData",
+      "GravityFlowData",
+      "SpatialData",
+      "ensure_spatial_methods_registered"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.spatial",
+    "path": "tests/unit/foundry/methods/catalog/spatial/test_methods.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "PanelObservationalData"
+    ],
+    "kind": "facade",
+    "line": 9,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/foundry/methods/catalog/test_workflows.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "PanelData"
+    ],
+    "kind": "facade",
+    "line": 10,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/catalog/test_workflows.py",
+    "usage": "from"
+  },
+  {
+    "domain": "microsim",
+    "imported_names": [
+      "SurveyMicroData"
+    ],
+    "kind": "facade",
+    "line": 11,
+    "module": "polisyos.foundry.methods.microsim",
+    "path": "tests/unit/foundry/methods/catalog/test_workflows.py",
+    "usage": "from"
+  },
+  {
+    "domain": "ml",
+    "imported_names": [
+      "TabularData"
+    ],
+    "kind": "facade",
+    "line": 12,
+    "module": "polisyos.foundry.methods.ml",
+    "path": "tests/unit/foundry/methods/catalog/test_workflows.py",
+    "usage": "from"
+  },
+  {
+    "domain": "econometrics",
+    "imported_names": [
+      "PanelData"
+    ],
+    "kind": "facade",
+    "line": 8,
+    "module": "polisyos.foundry.methods.econometrics",
+    "path": "tests/unit/foundry/methods/test_foundry_v2_domains.py",
+    "usage": "from"
+  },
+  {
+    "domain": "causal",
+    "imported_names": [
+      "GraphCausalData",
+      "GraphCausalDataV1",
+      "HTEObservationalData",
+      "PanelObservationalData"
+    ],
+    "kind": "facade",
+    "line": 16,
+    "module": "polisyos.foundry.methods.causal",
+    "path": "tests/unit/scientist/causal/test_causal_evaluation_node.py",
+    "usage": "from"
+  }
+]

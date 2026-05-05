@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import {
   buildQuantileDots,
   calculateQuantile,
   QuantileDotplot,
 } from "@/shared/charts/QuantileDotplot";
+import { renderWithProviders } from "@/test/render";
 
 describe("QuantileDotplot", () => {
   it("calculates interpolated quantiles", () => {
@@ -19,7 +20,7 @@ describe("QuantileDotplot", () => {
   });
 
   it("renders accessible labels for sampled outcomes", () => {
-    render(
+    renderWithProviders(
       <QuantileDotplot
         label="VAT multiplier distribution"
         samples={[0.09, 0.11, 0.14, 0.18, 0.22, 0.23, 0.24, 0.25, 0.29, 0.37]}

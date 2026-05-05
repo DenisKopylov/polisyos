@@ -1,4 +1,4 @@
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { hasDistribution, saliencePercent } from "../compare-math";
 import type { DeltaQuantity } from "../compare-types";

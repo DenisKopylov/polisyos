@@ -811,7 +811,9 @@ class CommunityDetectionEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         from sklearn.cluster import SpectralClustering
 
         data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
@@ -905,7 +907,9 @@ class InputOutputNetworkEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
         payload = data.model_dump(mode="python")
         adjacency = _row_normalize(np.asarray(data.adjacency, dtype=float))
@@ -995,7 +999,9 @@ class NetworkDiffusionEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
         payload = data.model_dump(mode="python")
         adjacency = _row_normalize(np.asarray(data.adjacency, dtype=float))
@@ -1081,7 +1087,9 @@ class NetworkMissingnessAssessmentEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
         payload = data.model_dump(mode="python")
         request_payload = _missingness_request_payload(data, params)
@@ -1190,7 +1198,9 @@ class PeerEffectDecompositionEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
         payload = data.model_dump(mode="python")
         if data.node_states is None:
@@ -2309,7 +2319,9 @@ class ContagionModelEstimator:
         return NetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: NetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: NetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         rng = params.get("__rng__")
         if rng is None or not hasattr(rng, "uniform"):
             rng = np.random.default_rng(int(params.get("__seed__", 0)))
@@ -2418,7 +2430,9 @@ class MultiplexNetworkEstimator:
         return MultiplexNetworkData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: MultiplexNetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: MultiplexNetworkData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state
             if isinstance(state, MultiplexNetworkData)

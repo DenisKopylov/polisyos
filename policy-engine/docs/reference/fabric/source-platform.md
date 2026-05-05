@@ -135,7 +135,7 @@ be selected for new production fetch plans.
 
 ## Validation Anchors
 
-- `tests/fabric/connectors/test_source_contract_v2.py` validates the model,
+- `tests/unit/fabric/connectors/test_source_contract_v2.py` validates the model,
   scaffold, conformance harness, scorecards, and generated snapshots.
 - `tests/tools/test_fabric_source_contracts.py` validates CI report/check
   behavior and source-platform docs generation.

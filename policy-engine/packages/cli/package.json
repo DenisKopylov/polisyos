@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "corepack pnpm run typecheck",
     "test": "vitest run --config vitest.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --max-warnings=0"
@@ -12,8 +13,12 @@
     "./styleguide": "./src/styleguide/index.ts"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^24.3.0",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.56.1",
     "vitest": "^4.0.18"
   }
 }

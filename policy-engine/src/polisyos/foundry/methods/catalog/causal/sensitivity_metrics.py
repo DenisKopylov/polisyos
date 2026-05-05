@@ -669,7 +669,9 @@ class SensitivityMetrics:
     )
 
     @staticmethod
-    def pure_step(state: GraphCausalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: GraphCausalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state if isinstance(state, GraphCausalData) else GraphCausalData.model_validate(state)
         )

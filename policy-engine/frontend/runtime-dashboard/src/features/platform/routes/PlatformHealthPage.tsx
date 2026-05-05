@@ -6,8 +6,8 @@ import { usePermission } from "@/app/authz/AuthzProvider";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { AppearanceSection } from "@/features/platform/settings/AppearanceSection";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { ApiErrorAlert, Badge, Card, DataFreshnessBadge } from "@/shared/ui";
 
 export default function PlatformHealth() {

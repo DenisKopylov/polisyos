@@ -5,12 +5,12 @@ import {
   type ReactNode,
 } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   applyTypographyToReactNode,
   type LocaleTypographyOptions,
-} from "@/i18n/typography/typography";
-import { cn } from "@/lib/utils";
+} from "@/shared/i18n/typography/typography";
+import { cn } from "@/shared/lib/utils";
 
 type TextProps<T extends ElementType = "p"> = {
   as?: T;

@@ -20,7 +20,7 @@ from polisyos.foundry.analysis.distributional import (
     build_geography_breakdown,
     build_income_quintile_breakdown,
 )
-from polisyos.foundry.executor import load_state_snapshot
+from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.density_ratio import (
     ScalarOTDistributionalResult,

@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import { HEALTH_REFETCH_MS } from "../../lib/constants";
+import { HEALTH_REFETCH_MS } from "@/shared/lib/constants";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";

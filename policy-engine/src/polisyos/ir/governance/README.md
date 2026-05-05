@@ -55,7 +55,7 @@ Conceptual in this README refresh; run this governance suite before landing
 policy-authoring contract changes.
 
 ```bash
-uv run pytest tests/ir/governance/test_policy_spec_c0.py tests/ir/governance/test_phase5_governance_contracts.py tests/contract/test_trinity_contracts.py -q
+uv run pytest tests/unit/ir/governance/test_policy_spec_c0.py tests/unit/ir/governance/test_phase5_governance_contracts.py tests/contract/test_trinity_contracts.py -q
 ```
 
 ## Reference docs

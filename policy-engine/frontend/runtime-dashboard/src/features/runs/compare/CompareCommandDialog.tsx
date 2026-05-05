@@ -3,7 +3,7 @@ import { GitCompareArrows } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useCompareCandidates } from "@/api/hooks/useCompareRuns";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@/shared/ui";
 
 import { buildPolicyDiffHref } from "../domain/searchParams";

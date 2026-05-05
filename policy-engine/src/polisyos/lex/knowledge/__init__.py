@@ -13,8 +13,6 @@ __all__ = [
     "LegalProvision",
     "LegalProvisionResult",
     "LegalSearchResult",
-    "SPOCandidate",
-    "SPOExtractionResult",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -25,8 +23,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalProvision": ("polisyos.lex.knowledge.types", "LegalProvision"),
     "LegalProvisionResult": ("polisyos.lex.knowledge.types", "LegalProvisionResult"),
     "LegalSearchResult": ("polisyos.lex.knowledge.types", "LegalSearchResult"),
-    "SPOCandidate": ("polisyos.lex.knowledge.types", "SPOCandidate"),
-    "SPOExtractionResult": ("polisyos.lex.knowledge.types", "SPOExtractionResult"),
 }
 
 

@@ -73,7 +73,7 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 
 def _artifact_input_ref(ref: ArtifactRefModel | None, *, role: str) -> InputRef | None:

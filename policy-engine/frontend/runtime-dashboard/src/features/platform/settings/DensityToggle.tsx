@@ -2,7 +2,7 @@ import { AlignJustify, Minimize2, Rows3 } from "lucide-react";
 
 import { useDensity } from "@/app/providers/DensityProvider";
 import type { Density } from "@/app/state/usePreferencesStore";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { SegmentedControl } from "@/shared/ui";
 
 const DENSITY_OPTIONS = [

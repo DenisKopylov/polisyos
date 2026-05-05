@@ -15,12 +15,12 @@ import sys
 import threading
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.fs import (
+from tools.lib.fs import (
     atomic_write_bytes,
     atomic_write_json,
     exclusive_lock,

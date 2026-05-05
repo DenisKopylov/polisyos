@@ -25,7 +25,7 @@ retrieval, and streaming.
   transform correctness rules.
 
 - Read [testing/harness.py](./testing/harness.py) and
-  [tests/fabric/connectors](../../../../tests/fabric/connectors) before adding
+  [tests/unit/fabric/connectors](../../../../tests/unit/fabric/connectors) before adding
   a new family or changing shared behavior.
 
 - Read [Connector CONTRIBUTING](../../../../docs/connectors/CONTRIBUTING.md)
@@ -53,7 +53,7 @@ retrieval, and streaming.
 
 - Depended on by: `polisyos.fabric.ingestion`, `polisyos.fabric.retrieval`,
   `polisyos.fabric.data_plane.streaming`, `polisyos.runtime.http.services.control`,
-  and `polisyos.datasets.batch.core_sources_ingest`.
+  and `polisyos.data_forge.domains.catalog.batch.core_sources_ingest`.
 
 ## Common Commands
 
@@ -75,17 +75,17 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/connectors/test_registry.py tests/fabric/connectors/test_protocol_compliance.py -q`
+- `uv run pytest tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_protocol_compliance.py -q`
   Registry and protocol smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/connectors/test_contract_system.py tests/fabric/connectors/test_schema_system.py -q`
+- `uv run pytest tests/unit/fabric/connectors/test_contract_system.py tests/unit/fabric/connectors/test_schema_system.py -q`
   Contract and schema-governance smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run python tools/connectors/check_contracts.py --check`
-  Legacy connector contract snapshot gate. Conceptual in this README refresh:
-  the current workspace reports stale snapshot drift and suggests `--update`.
+- `uv run polisyos-tools connectors check-contracts --check`
+  Connector contract snapshot gate. Conceptual in this README refresh: the
+  current workspace reports stale snapshot drift and suggests `--update`.
 
-- `uv run pytest tests/fabric/connectors -q`
+- `uv run pytest tests/unit/fabric/connectors -q`
   Full connector suite. Conceptual in this README refresh; not run in this
   pass.
 
@@ -96,4 +96,4 @@ Run from the repository root (`policy-engine/`).
 - [Connector CONTRIBUTING guide](../../../../docs/connectors/CONTRIBUTING.md)
 - [Add data source](../../../../docs/how-to/add-data-source.md)
 - [Manage generated artifacts](../../../../docs/how-to/manage-generated-artifacts.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

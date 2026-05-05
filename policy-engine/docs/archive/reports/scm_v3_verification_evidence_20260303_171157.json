@@ -1,0 +1,122 @@
+{
+  "generated_at_utc": "2026-03-03T17:13:38.523276+00:00",
+  "profile": "full",
+  "spec_path": "/Users/deniskopylov/polisyos/scm-implementation-spec-v3.md",
+  "workspace_root": "/Users/deniskopylov/polisyos/policy-engine",
+  "checks": [
+    {
+      "label": "gate_lint_imports",
+      "phase": "phase--1",
+      "command": "uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/gate_lint_imports.log",
+      "duration_sec": 2.523
+    },
+    {
+      "label": "gate_lint_foundry",
+      "phase": "phase--1",
+      "command": "uv run python tools/lint/lint_foundry.py --repo-root .",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "docs/reports/_logs_verify_20260303_171157/gate_lint_foundry.log",
+      "duration_sec": 0.616
+    },
+    {
+      "label": "gate_schema_ir",
+      "phase": "phase--1",
+      "command": "uv run python tools/diagnostics/gen_schema.py --models ir --check --output-dir schemas/snapshots",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/gate_schema_ir.log",
+      "duration_sec": 0.727
+    },
+    {
+      "label": "gate_schema_fabric",
+      "phase": "phase--1",
+      "command": "uv run python tools/diagnostics/gen_schema.py --models fabric --check --output-dir schemas/snapshots",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/gate_schema_fabric.log",
+      "duration_sec": 0.324
+    },
+    {
+      "label": "phase0_quality_integration",
+      "phase": "phase-0",
+      "command": "uv run python -m pytest -q tests/integration/test_phase0_quality_validation.py -m integration",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/phase0_quality_integration.log",
+      "duration_sec": 3.672
+    },
+    {
+      "label": "phase9_reconciliation",
+      "phase": "phase-9",
+      "command": "uv run python -m pytest -q tests/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/phase9_reconciliation.log",
+      "duration_sec": 27.409
+    },
+    {
+      "label": "phase12_transportability",
+      "phase": "phase-12",
+      "command": "uv run python -m pytest -q tests/foundry/methods/catalog/causal/test_transport_check.py tests/scientist/test_run_transportability_node.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/phase12_transportability.log",
+      "duration_sec": 2.987
+    },
+    {
+      "label": "phase15_parameters",
+      "phase": "phase-15",
+      "command": "uv run python -m pytest -q tests/scientist/test_resolve_parameters_node.py tests/foundry/methods/catalog/causal/test_parameter_transfer.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/phase15_parameters.log",
+      "duration_sec": 3.183
+    },
+    {
+      "label": "causal_methods_suite",
+      "phase": "phase-2-14",
+      "command": "uv run python -m pytest -q tests/foundry/methods/catalog/causal",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/causal_methods_suite.log",
+      "duration_sec": 52.116
+    },
+    {
+      "label": "governance_suite",
+      "phase": "phase-8",
+      "command": "uv run python -m pytest -q tests/scientist/governance",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/governance_suite.log",
+      "duration_sec": 2.376
+    },
+    {
+      "label": "ir_contracts_suite",
+      "phase": "cross-layer",
+      "command": "uv run python -m pytest -q tests/ir",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/ir_contracts_suite.log",
+      "duration_sec": 3.09
+    },
+    {
+      "label": "workflow_guards",
+      "phase": "phase--1",
+      "command": "uv run python -m pytest -q tests/scientist/test_causal_full_workflow_guard.py tests/scientist/test_default_workflow_guard.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_171157/workflow_guards.log",
+      "duration_sec": 1.95
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "pass": 11,
+    "fail": 1,
+    "timeout": 0
+  }
+}

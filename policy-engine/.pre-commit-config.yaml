@@ -2,12 +2,10 @@ exclude: >-
   (?x)^policy-engine/(
     docs/archive/|
     \.venv/|
-    \.venv_codex/|
     \.pytest_cache/|
     \.mypy_cache/|
     \.ruff_cache/|
     \.hypothesis/|
-    data/raw/|
     benchmark-results/|
     coverage/|
     dist/|
@@ -28,7 +26,7 @@ repos:
         args: ["--allow-multiple-documents"]
         files: ^policy-engine/.*\.(yaml|yml)$
         exclude: >-
-          (?x)^policy-engine/ops/helm/[^/]+/(
+          (?x)^policy-engine/ops/cloud/helm/[^/]+/(
             templates/.*\.(yaml|yml)$|
             tests/.*\.(yaml|yml)$
           )
@@ -40,7 +38,7 @@ repos:
     rev: v0.14.10
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--config=policy-engine/ruff.toml, --fix]
         files: >-
           (?x)^policy-engine/(
             src/polisyos/.*\.pyi?$|
@@ -48,13 +46,13 @@ repos:
             tools/.*\.pyi?$|
             benchmarks/.*\.pyi?$|
             schemas/.*\.pyi?$|
-            scripts/.*\.pyi?$|
             examples/.*\.pyi?$|
-            gcp/upload_gonka_secrets\.py$|
+            ops/cloud/gcp/.*\.pyi?$|
             jax_bootstrap\.py$|
             migrate\.py$
           )
       - id: ruff-format
+        args: [--config=policy-engine/ruff.toml]
         files: >-
           (?x)^policy-engine/(
             src/polisyos/.*\.pyi?$|
@@ -62,9 +60,8 @@ repos:
             tools/.*\.pyi?$|
             benchmarks/.*\.pyi?$|
             schemas/.*\.pyi?$|
-            scripts/.*\.pyi?$|
             examples/.*\.pyi?$|
-            gcp/upload_gonka_secrets\.py$|
+            ops/cloud/gcp/.*\.pyi?$|
             jax_bootstrap\.py$|
             migrate\.py$
           )
@@ -83,7 +80,7 @@ repos:
         args: ["-c", "policy-engine/.yamllint"]
         files: ^policy-engine/.*\.(yaml|yml)$
         exclude: >-
-          (?x)^policy-engine/ops/helm/[^/]+/(
+          (?x)^policy-engine/ops/cloud/helm/[^/]+/(
             templates/.*\.(yaml|yml)$|
             tests/.*\.(yaml|yml)$
           )
@@ -93,7 +90,7 @@ repos:
     hooks:
       - id: shfmt
         args: ["-i", "2", "-ci", "-sr", "-d"]
-        files: ^policy-engine/(install\.sh|scripts/|tools/|ops/scripts/|gcp/|cloud_deploy/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|frontend/runtime-dashboard/scripts/)
         types_or: [shell]
 
   - repo: local
@@ -103,8 +100,14 @@ repos:
         entry: uvx --from shellcheck-py==0.11.0.1 shellcheck
         language: system
         args: ["--severity=warning"]
-        files: ^policy-engine/(install\.sh|scripts/|tools/|ops/scripts/|gcp/|cloud_deploy/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|frontend/runtime-dashboard/scripts/)
         types_or: [shell]
+      - id: repository-sota-closeout
+        name: Repository SOTA closeout contract
+        entry: bash -lc 'cd policy-engine && uv run polisyos-tools workspace repository-sota-closeout --contract-only'
+        language: system
+        pass_filenames: false
+        always_run: true
 
   - repo: https://github.com/ComPWA/taplo-pre-commit
     rev: v0.9.3
@@ -117,4 +120,4 @@ repos:
     rev: v1.7.12
     hooks:
       - id: actionlint
-        files: ^policy-engine/\.github/workflows/.*\.(yaml|yml)$
+        files: ^\.github/workflows/.*\.(yaml|yml)$

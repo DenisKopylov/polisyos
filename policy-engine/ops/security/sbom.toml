@@ -2,10 +2,17 @@
 version = 1
 owner = "team-security"
 format = "cyclonedx-json"
-output_dir = "release/sbom"
+output_dir = "_build/release/sbom"
 
-inputs = ["uv.lock", "pyproject.toml", "Dockerfile.reproducible"]
+inputs = [
+  "uv.lock",
+  "pyproject.toml",
+  "Dockerfile.reproducible",
+  "pnpm-lock.yaml",
+]
 
 [sbom.frontend]
-lockfile = "frontend/pnpm-lock.yaml"
-optional = true
+lockfiles = [
+  "pnpm-lock.yaml",
+]
+optional = false

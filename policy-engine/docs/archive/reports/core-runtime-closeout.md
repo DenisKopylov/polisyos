@@ -1,6 +1,6 @@
 # Core Runtime Closeout Ledger
 
-- Plan: `/Users/deniskopylov/polisyos/policy-engine/docs/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`
+- Plan: `/Users/deniskopylov/polisyos/policy-engine/docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`
 - Ledger: `/Users/deniskopylov/polisyos/policy-engine/release/core-runtime-closeout.ledger.toml`
 - Implemented: 15
 - Partial: 0

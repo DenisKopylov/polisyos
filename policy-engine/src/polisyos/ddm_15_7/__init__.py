@@ -1,25 +1,30 @@
-"""Drift-and-Degradation Monitor for Phase 5 Problem 15.7."""
+"""Compatibility facade for :mod:`polisyos.ddm`.
 
-from polisyos.ddm_15_7.integration.events import (
+The implementation moved to the unversioned package name during Repository
+Structure Remediation Phase 4A. Keep this root import available until the
+2026-10-01 shim sunset; deep ``polisyos.ddm_15_7.*`` imports are internal and
+must migrate to ``polisyos.ddm.*``.
+"""
+
+from polisyos.ddm import (
     AffectedFeature,
     AffectedSlice,
     CalibrationAudit,
     DataQualitySignal,
+    DDMWindowResult,
+    DriftAndDegradationMonitor,
     IncidentPayload,
     MetricDirection,
+    ModelRegistryReadinessRecord,
     MonitoringWindow,
     PerformanceDegradationEvent,
     ReadinessState,
     ReadinessStateEvent,
+    RegistryGateDecision,
     RootCauseBundle,
     ShiftDetectedEvent,
     ShiftRiskEvent,
 )
-from polisyos.ddm_15_7.integration.model_registry import (
-    ModelRegistryReadinessRecord,
-    RegistryGateDecision,
-)
-from polisyos.ddm_15_7.integration.monitor import DDMWindowResult, DriftAndDegradationMonitor
 
 __all__ = [
     "AffectedFeature",

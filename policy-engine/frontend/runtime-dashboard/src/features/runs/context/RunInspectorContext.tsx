@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { createContext, useContext } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useRunLiveUpdates } from "@/features/runs/live/useRunLiveUpdates";
 import {
   type RunInspectorSummary,

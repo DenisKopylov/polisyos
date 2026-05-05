@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/orchestrator/decision_card.py`, `src/polisyos/scientist/claims/export.py`, `tests/scientist/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/tools/test_scientist_best_in_class_phase2_7.py`.
+Source of truth: `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/orchestrator/decision_card.py`, `src/polisyos/scientist/claims/export.py`, `tests/unit/scientist/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/tools/test_scientist_best_in_class_phase2_7.py`.
 
 The Phase 2.7 decision-grade compiler turns governed research artifacts into
 audience-specific outputs without losing provenance. Public summary, reviewer
@@ -98,7 +98,7 @@ the machine export has parity and public redaction tests remain green.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/test_decision_grade_compiler.py -q
+uv run pytest tests/unit/scientist/orchestrator/test_decision_grade_compiler.py -q
 uv run pytest tests/tools/test_scientist_best_in_class_phase2_7.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_7.py --repo-root . --output-format json --require-passing
 ```

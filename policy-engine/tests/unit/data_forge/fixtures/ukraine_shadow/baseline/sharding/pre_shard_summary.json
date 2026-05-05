@@ -1,0 +1,93 @@
+{
+  "cards_path": "data/data_lex/edrnpa_cards_20260501.xml",
+  "texts_path": "data/data_lex/edrnpa_texts_20260501.xml",
+  "snapshot_label": "20260501",
+  "shard_count": 2,
+  "compression_level": 6,
+  "processed_docs": 4,
+  "skipped_other_statuses": {},
+  "passes": {
+    "current": {
+      "total_docs": 3,
+      "total_text_chars": 300,
+      "total_compressed_bytes": 150,
+      "shards": [
+        {
+          "shard_index": 0,
+          "path": "current/shard_00_of_02.jsonl.zst",
+          "docs": 2,
+          "text_chars": 200,
+          "jsonl_bytes": 260,
+          "compressed_bytes": 100,
+          "avg_text_chars": 100.0,
+          "statuses": {
+            "Чинний": 2
+          }
+        },
+        {
+          "shard_index": 1,
+          "path": "current/shard_01_of_02.jsonl.zst",
+          "docs": 1,
+          "text_chars": 100,
+          "jsonl_bytes": 130,
+          "compressed_bytes": 50,
+          "avg_text_chars": 100.0,
+          "statuses": {
+            "Не набрав чинності": 1
+          }
+        }
+      ],
+      "balance": {
+        "docs_min": 1,
+        "docs_max": 2,
+        "docs_spread_pct_of_mean": 66.67,
+        "text_chars_min": 100,
+        "text_chars_max": 200,
+        "text_chars_spread_pct_of_mean": 66.67,
+        "compressed_bytes_min": 50,
+        "compressed_bytes_max": 100,
+        "compressed_bytes_spread_pct_of_mean": 66.67
+      }
+    },
+    "historical": {
+      "total_docs": 1,
+      "total_text_chars": 80,
+      "total_compressed_bytes": 40,
+      "shards": [
+        {
+          "shard_index": 0,
+          "path": "historical/shard_00_of_02.jsonl.zst",
+          "docs": 0,
+          "text_chars": 0,
+          "jsonl_bytes": 0,
+          "compressed_bytes": 0,
+          "avg_text_chars": 0.0,
+          "statuses": {}
+        },
+        {
+          "shard_index": 1,
+          "path": "historical/shard_01_of_02.jsonl.zst",
+          "docs": 1,
+          "text_chars": 80,
+          "jsonl_bytes": 110,
+          "compressed_bytes": 40,
+          "avg_text_chars": 80.0,
+          "statuses": {
+            "Втратив чинність": 1
+          }
+        }
+      ],
+      "balance": {
+        "docs_min": 0,
+        "docs_max": 1,
+        "docs_spread_pct_of_mean": 200.0,
+        "text_chars_min": 0,
+        "text_chars_max": 80,
+        "text_chars_spread_pct_of_mean": 200.0,
+        "compressed_bytes_min": 0,
+        "compressed_bytes_max": 40,
+        "compressed_bytes_spread_pct_of_mean": 200.0
+      }
+    }
+  }
+}

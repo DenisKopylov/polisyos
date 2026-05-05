@@ -10,8 +10,8 @@ import {
   type WorkspaceKey,
   type WorkspaceLayout,
 } from "@/app/workspaces";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/lib/capabilities";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { PageErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { Card, EmptyState, PageSkeleton } from "@/shared/ui";
 

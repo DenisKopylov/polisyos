@@ -111,7 +111,7 @@ Files created or modified in Phase 2.1:
 - New: `frontend/runtime-dashboard/src/shared/time/useTimeCursor.ts`
 - New: `frontend/runtime-dashboard/src/shared/time/time.test.tsx`
 - New: `policy-engine/src/policy_engine/runtime/as_of.py`
-- New: `policy-engine/tests/runtime/test_as_of.py`
+- New: `policy-engine/tests/unit/runtime/test_as_of.py`
 - Modified: every runtime route under `policy-engine/src/policy_engine/runtime/routes/**`
   that returns version-sensitive data (catalogued in Phase 2.1 scope).
 

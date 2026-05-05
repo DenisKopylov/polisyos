@@ -24,7 +24,7 @@
       }
     },
     "upload": {
-      "outputDir": "./lighthouse-report",
+      "outputDir": "../../_build/frontend/runtime-dashboard/lighthouse-report",
       "target": "filesystem"
     }
   }

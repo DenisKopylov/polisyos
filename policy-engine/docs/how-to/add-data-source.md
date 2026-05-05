@@ -22,8 +22,8 @@ Freshness: 2026-04-17.
 
 ```bash
 uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
-uv run pytest tests/fabric/connectors/test_registry.py -q
-uv run polisyos-tools validation fabric-schema-governance --check --evidence-out .tmp/fabric-schema-governance.json
+uv run pytest tests/unit/fabric/connectors/test_registry.py -q
+uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```
 
 ## Перед началом
@@ -60,8 +60,8 @@ discoverability.
 uv run polisyos-tools connectors scaffold create --name "MyDataSource" --type REST --dry-run
 ```
 
-`python tools/connectors/scaffold.py ...` остаётся compatibility wrapper, но в
-workflow-доках канонический boundary теперь `polisyos-tools connectors ...`.
+Path-based connector wrappers retired in Phase 1D; workflow-доках
+канонический boundary теперь `polisyos-tools connectors ...`.
 
 ## 2. Реализуйте connector class
 
@@ -144,8 +144,8 @@ Return matching `schema_id` and `schema_version` from `fetch()` and
 Run compatibility gates when schema contracts change:
 
 ```bash
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
@@ -158,21 +158,21 @@ when applicable.
 Minimum local checks:
 
 ```bash
-uv run pytest tests/fabric/connectors/test_registry.py -q
-uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
-uv run pytest tests/fabric/connectors/test_contract_system.py -q
-uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
+uv run pytest tests/unit/fabric/connectors/test_registry.py -q
+uv run pytest tests/unit/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/unit/fabric/connectors/sources/test_connector_family_expansion.py -q
 ```
 
-Add source-specific tests under `tests/fabric/connectors/sources/`. Live
+Add source-specific tests under `tests/unit/fabric/connectors/sources/`. Live
 upstream tests must be marked `integration` and should use recorded fixtures or
 record/replay mode where possible.
 
 For streaming, quarantine, or poison-row behavior:
 
 ```bash
-uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/test_ingestion_quarantine.py -q
-uv run pytest tests/fabric/data_plane/test_streaming_runtime.py tests/fabric/data_plane/test_streaming_windowed.py -q
+uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/test_ingestion_quarantine.py -q
+uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/data_plane/test_streaming_windowed.py -q
 ```
 
 ## Откат

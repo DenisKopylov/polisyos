@@ -8,8 +8,8 @@ import {
 } from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatBytes } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatBytes } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { EmptyState, PanelSkeleton } from "@/shared/ui";
 

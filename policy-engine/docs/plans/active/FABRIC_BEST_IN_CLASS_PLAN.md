@@ -34,7 +34,7 @@ The plan has three layers:
 
 1. **Wave 1 — Hardening to SOTA:** close security, correctness, concurrency,
    bounded-state, schema, observability, lineage, quality, access-control, and
-   time-travel gaps already identified in `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+   time-travel gaps already identified in `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 2. **Wave 2 — Best-in-class primitives:** make Fabric the backend spine for
    `QuantityValue`, `TemporalScope`, provenance-on-hover, Trust View, policy
    diff, counterfactual layer, replay, and branchable world state.
@@ -50,15 +50,15 @@ true for Fabric to become the category-defining policy data substrate?"
 
 | Concern | Source |
 | ------- | ------ |
-| Existing Fabric remediation | `policy-engine/docs/FABRIC_AUDIT_REMEDIATION_PLAN.md` |
+| Existing Fabric remediation | `policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md` |
 | Fabric reference surface | `policy-engine/docs/reference/fabric/**` |
 | Fabric package boundary | `policy-engine/src/polisyos/fabric/README.md` |
-| Fabric tests | `policy-engine/tests/fabric/**` |
+| Fabric tests | `policy-engine/tests/unit/fabric/**` |
 | Design integration | `policy-engine/docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md` |
 | Foundry research model | `policy-engine/docs/archive/plans/FOUNDRY_METHODS_RESEARCH_AGENDA.md` |
 | Causal research model | `policy-engine/docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md` |
 | Public facade | `policy-engine/docs/reference/public-surface.md` |
-| Repository topology | `policy-engine/docs/plans/active/REPOSITORY_SOTA_PLAN.md` |
+| Repository topology | `policy-engine/docs/plans/accepted/REPOSITORY_SOTA_PLAN.md` |
 
 ## 2. Current State
 
@@ -312,7 +312,7 @@ Manifest sketch:
         "src/polisyos/fabric/connectors/sources/world_bank.py"
       ],
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py"
+        "tests/unit/fabric/connectors/test_contract_system.py"
       ],
       "docs": [
         "docs/reference/fabric/connectors.md"
@@ -334,7 +334,7 @@ uv run pytest tests/tools/test_fabric_best_in_class_inventory.py -q
 
 #### Phase 1 — Security and Integrity
 
-This phase consumes Phase 0 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+This phase consumes Phase 0 of `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 **Scope**
 
@@ -356,7 +356,7 @@ This phase consumes Phase 0 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 #### Phase 2 — Concurrency and Bounded Runtime
 
-This phase consumes Phase 1 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+This phase consumes Phase 1 of `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 **Scope**
 
@@ -375,7 +375,7 @@ This phase consumes Phase 1 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 #### Phase 3 — Schema and Semantic Correctness
 
-This phase consumes Phase 2 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+This phase consumes Phase 2 of `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 **Scope**
 
@@ -398,7 +398,7 @@ This phase consumes Phase 2 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 #### Phase 4 — Observability, Governance, and Quality Baseline
 
-This phase consumes Phases 3 and 4 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+This phase consumes Phases 3 and 4 of `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 
 **Scope**
 
@@ -434,7 +434,7 @@ This phase consumes Phases 3 and 4 of `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
   Fabric quality evidence into Scientist governance state.
 - `docs/reference/fabric/observability-governance.md` maps SLI/SLO,
   telemetry, access/audit/retention, lineage, quality evidence, and runbooks.
-- Acceptance regression: `uv run pytest tests/fabric/test_observability_governance_quality_phase4.py -q`.
+- Acceptance regression: `uv run pytest tests/unit/fabric/test_observability_governance_quality_phase4.py -q`.
 
 ### Wave 2 — Best-in-Class Primitives
 
@@ -475,7 +475,7 @@ Closure artifacts:
 - `schemas/snapshots/fabric/source_scorecards.json`;
 - `tools/quality/validation/fabric_source_contracts.py`;
 - `docs/reference/fabric/source-platform.md`;
-- `tests/fabric/connectors/test_source_contract_v2.py`;
+- `tests/unit/fabric/connectors/test_source_contract_v2.py`;
 - `tests/tools/test_fabric_source_contracts.py`.
 
 **Deliverables**
@@ -595,9 +595,9 @@ status: active
 Tests:
 
 ```bash
-uv run pytest tests/fabric/connectors/test_contract_system.py -q
-uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
-uv run pytest tests/fabric/connectors/test_source_contract_v2.py -q
+uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/unit/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/unit/fabric/connectors/test_source_contract_v2.py -q
 uv run pytest tests/tools/test_fabric_source_contracts.py -q
 ```
 
@@ -729,9 +729,9 @@ Payload sketch:
 Tests:
 
 ```bash
-uv run pytest tests/fabric/test_decision_data_envelope.py -q
-uv run pytest tests/fabric/test_lineage.py tests/fabric/test_quality_indicators.py -q
-uv run pytest tests/runtime/http/test_lineage_routes.py tests/runtime/http/test_temporal_routes.py -q
+uv run pytest tests/unit/fabric/test_decision_data_envelope.py -q
+uv run pytest tests/unit/fabric/test_lineage.py tests/unit/fabric/test_quality_indicators.py -q
+uv run pytest tests/unit/runtime/http/test_lineage_routes.py tests/unit/runtime/http/test_temporal_routes.py -q
 uv run python tools/quality/validation/fabric_decision_data_coverage.py --check
 ```
 
@@ -767,7 +767,7 @@ world: time travel, branches, corrections, and scenario deltas are first-class.
 **Preconditions**
 
 - Phase 6 trust envelopes echo `TemporalScope`.
-- Existing time-travel tests in `tests/fabric/test_world_time_travel.py` remain
+- Existing time-travel tests in `tests/unit/fabric/test_world_time_travel.py` remain
   green.
 - `docs/reference/fabric/time-travel.md` is updated when semantics change.
 - Any scenario/counterfactual work stays labelled as scenario state, not
@@ -841,10 +841,10 @@ Mutation sketch:
 Tests:
 
 ```bash
-uv run pytest tests/fabric/test_world_time_travel.py -q
-uv run pytest tests/fabric/test_world_materialization.py -q
-uv run pytest tests/fabric/test_world_branch_governance.py -q
-uv run pytest tests/fabric/test_world_temporal_capabilities.py -q
+uv run pytest tests/unit/fabric/test_world_time_travel.py -q
+uv run pytest tests/unit/fabric/test_world_materialization.py -q
+uv run pytest tests/unit/fabric/test_world_branch_governance.py -q
+uv run pytest tests/unit/fabric/test_world_temporal_capabilities.py -q
 ```
 
 Gate:
@@ -1488,7 +1488,7 @@ Error-budget state gates expansion:
 
 1. Create the best-in-class inventory manifest in report-only mode.
 2. Wire manifest checks into current Fabric reference docs.
-3. Finish P0/P1 remediation from `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
+3. Finish P0/P1 remediation from `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`.
 4. Add source contract expansion: semantics, security, quality, SLA, owner,
    terms, replay, source trust.
 5. Add quality/trust references to decision-facing Fabric outputs.
@@ -1506,7 +1506,7 @@ The plan can move from `active/` to `accepted/` when:
 - owner review approves the product laws and phase boundaries;
 - required ADRs are listed for irreversible changes;
 - machine-checkable contract files are named and scoped;
-- Wave 1 work is tied to `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`;
+- Wave 1 work is tied to `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`;
 - Wave 2 dependencies on `DESIGN_BEST_IN_CLASS_PLAN.md` are explicit;
 - Wave R research tracks have promotion criteria;
 - no phase depends on unbounded AI discovery or ungoverned source ingestion;

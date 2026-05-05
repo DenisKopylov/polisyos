@@ -21,7 +21,7 @@ from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.llm_cycle import (
+from polisyos.scientist.llm.cycle import (
     evaluate_iteration,
     persist_evaluator_report,
     persist_iteration_state,

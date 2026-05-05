@@ -11,7 +11,7 @@ bundle manifests that Scientist and Foundry exchange.
 
 Freshness: 2026-04-17
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/refs.py`, `schemas/snapshots/ir/*.schema.json`, `tests/ir/observation/**`
+Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/refs.py`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/observation/**`
 Source plan phases: D1-L4 Phase 2 lineage/analysis contracts and Phase 4 transport/interoperability.
 
 ## Contract Layers
@@ -92,8 +92,8 @@ still documented primarily in source.
 
 | Claim                                                                       | Source of truth                                             | Evidence                                                                                                                                              |
 | --------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Observation records, panels, and family policies are ABI-visible contracts  | `src/polisyos/ir/observation/contracts.py`, `governance.py` | `schemas/snapshots/ir/observation_record.schema.json`, `schemas/snapshots/ir/observation_panel.schema.json`, `tests/ir/observation/test_contracts.py` |
-| Measurement routing selects trust tiers and identification modes explicitly | `src/polisyos/ir/observation/measurement.py`                | `tests/ir/observation/test_measurement.py`, `tests/ir/observation/test_causal_readiness.py`                                                           |
-| Bundle manifests preserve downstream contract targets and lineage           | `src/polisyos/ir/observation/bundles.py`                    | `tests/ir/observation/test_bundle_schemas.py`, [JSON Schema Catalog](../schemas.md)                                                                   |
-| Observation bridge contracts remain dependency-light                        | `src/polisyos/ir/observation/bridges.py`                    | `tests/ir/test_interoperability_bridges.py`                                                                                                           |
-| Execution bundles feed compiler-pipeline lineage analysis                   | `src/polisyos/ir/observation/causal_execution.py`           | `tests/ir/test_phase2_passes.py`                                                                                                                      |
+| Observation records, panels, and family policies are ABI-visible contracts  | `src/polisyos/ir/observation/contracts.py`, `governance.py` | `schemas/snapshots/ir/observation_record.schema.json`, `schemas/snapshots/ir/observation_panel.schema.json`, `tests/unit/ir/observation/test_contracts.py` |
+| Measurement routing selects trust tiers and identification modes explicitly | `src/polisyos/ir/observation/measurement.py`                | `tests/unit/ir/observation/test_measurement.py`, `tests/unit/ir/observation/test_causal_readiness.py`                                                           |
+| Bundle manifests preserve downstream contract targets and lineage           | `src/polisyos/ir/observation/bundles.py`                    | `tests/unit/ir/observation/test_bundle_schemas.py`, [JSON Schema Catalog](../schemas.md)                                                                   |
+| Observation bridge contracts remain dependency-light                        | `src/polisyos/ir/observation/bridges.py`                    | `tests/unit/ir/test_interoperability_bridges.py`                                                                                                           |
+| Execution bundles feed compiler-pipeline lineage analysis                   | `src/polisyos/ir/observation/causal_execution.py`           | `tests/unit/ir/test_phase2_passes.py`                                                                                                                      |

@@ -15,7 +15,7 @@ vi.mock("@/shared/telemetry/TelemetryProvider", () => ({
   useTelemetryReadyMark: vi.fn(),
 }));
 
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { FeatureErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { createTestQueryClient } from "@/test/queryClient";

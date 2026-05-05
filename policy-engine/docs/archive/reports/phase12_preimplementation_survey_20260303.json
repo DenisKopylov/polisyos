@@ -1,0 +1,55 @@
+{
+  "generated_at_utc": "2026-03-03T00:00:00Z",
+  "adr_ref": "ADR-0089",
+  "survey_version": "1.0",
+  "target_sample_size_range": {
+    "min_questions": 30,
+    "max_questions": 50
+  },
+  "questions": [
+    {"id": "Q01", "domain": "fiscal", "prompt": "Can treatment and outcome be identified with backdoor-only assumptions?", "answer": "YES"},
+    {"id": "Q02", "domain": "fiscal", "prompt": "Are mediator paths required for identification?", "answer": "NO"},
+    {"id": "Q03", "domain": "fiscal", "prompt": "Are legal constraints explicitly mapped to DAG nodes/edges?", "answer": "YES"},
+    {"id": "Q04", "domain": "fiscal", "prompt": "Do available datasets cover all treatment/outcome variables directly?", "answer": "NO"},
+    {"id": "Q05", "domain": "fiscal", "prompt": "Is proxy usage below policy risk threshold?", "answer": "MEDIUM"},
+    {"id": "Q06", "domain": "labor", "prompt": "Can target context be matched by country/time profile distance only?", "answer": "YES"},
+    {"id": "Q07", "domain": "labor", "prompt": "Do we observe lagged treatment effects requiring stationarity assumptions?", "answer": "YES"},
+    {"id": "Q08", "domain": "labor", "prompt": "Is there evidence for collider risk in selection nodes?", "answer": "MEDIUM"},
+    {"id": "Q09", "domain": "labor", "prompt": "Are legal hard constraints expected to block transportability?", "answer": "LOW"},
+    {"id": "Q10", "domain": "labor", "prompt": "Is front-door identification likely needed?", "answer": "NO"},
+    {"id": "Q11", "domain": "health", "prompt": "Do observational estimates require mandatory refutation in this domain?", "answer": "YES"},
+    {"id": "Q12", "domain": "health", "prompt": "Do we have sufficient RCT/IV evidence to reduce proxy dependence?", "answer": "MEDIUM"},
+    {"id": "Q13", "domain": "health", "prompt": "Are non-transportable outcomes expected for a significant share of cases?", "answer": "MEDIUM"},
+    {"id": "Q14", "domain": "health", "prompt": "Should Manski bounds be emitted when transport fails?", "answer": "YES"},
+    {"id": "Q15", "domain": "health", "prompt": "Is symbolic/full solver escalation required for critical decisions?", "answer": "YES"},
+    {"id": "Q16", "domain": "education", "prompt": "Can Simplified TR cover primary policy queries in this domain?", "answer": "YES"},
+    {"id": "Q17", "domain": "education", "prompt": "Do we require dynamic multi-lag S-diagram analysis?", "answer": "LOW"},
+    {"id": "Q18", "domain": "education", "prompt": "Is proxy exclusion validity frequently violated?", "answer": "LOW"},
+    {"id": "Q19", "domain": "education", "prompt": "Are expert-review flags needed for legal mappings by default?", "answer": "YES"},
+    {"id": "Q20", "domain": "education", "prompt": "Can confidence composition remain harmonic for proxy chains?", "answer": "YES"},
+    {"id": "Q21", "domain": "energy", "prompt": "Are cross-country transport queries dominant for this domain?", "answer": "YES"},
+    {"id": "Q22", "domain": "energy", "prompt": "Does domain require explicit outer-search policy tuning?", "answer": "YES"},
+    {"id": "Q23", "domain": "energy", "prompt": "Will bounded search caps (TAU/LAMBDA) be sufficient operationally?", "answer": "YES"},
+    {"id": "Q24", "domain": "energy", "prompt": "Do we need explicit budget exhaustion events for audit?", "answer": "YES"},
+    {"id": "Q25", "domain": "energy", "prompt": "Is fallback to simplified solver acceptable when symbolic backend unavailable?", "answer": "YES"},
+    {"id": "Q26", "domain": "migration", "prompt": "Are treatment effects likely non-stationary across time windows?", "answer": "HIGH"},
+    {"id": "Q27", "domain": "migration", "prompt": "Can dataset enrichment close key context gaps?", "answer": "MEDIUM"},
+    {"id": "Q28", "domain": "migration", "prompt": "Do legal constraints materially alter feasible transport paths?", "answer": "HIGH"},
+    {"id": "Q29", "domain": "migration", "prompt": "Should symbolic R fallback be supported for regulated environments?", "answer": "YES"},
+    {"id": "Q30", "domain": "migration", "prompt": "Is full_auto backend order y0->r acceptable as deterministic default?", "answer": "YES"}
+  ],
+  "aggregate": {
+    "in_scope_yes": 22,
+    "needs_symbolic_or_full": 6,
+    "blocked_by_data_only": 2
+  },
+  "decision": {
+    "default_mode": "simplified",
+    "escalation_mode": "full_auto",
+    "escalation_triggers": [
+      "frontdoor_or_symbolic_identification_required",
+      "hard_legal_constraint_with_data_gap",
+      "proxy_validity_exclusion_violation"
+    ]
+  }
+}

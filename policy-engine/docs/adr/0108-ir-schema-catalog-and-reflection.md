@@ -36,7 +36,7 @@ The catalog:
   `get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()`,
   `inspect_ir_schema()`, and `enumerate_ir_exports()`.
 
-`tools/diagnostics/gen_schema.py` now also regenerates/verifies:
+`tools/quality/diagnostics/gen_schema.py` now also regenerates/verifies:
 
 - `docs/reference/ir/schema-catalog.md`
 - `docs/reference/schemas.md`

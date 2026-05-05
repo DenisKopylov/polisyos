@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 from .gateway_client import GatewayLLMClient, GatewayLLMResponse
 

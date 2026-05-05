@@ -14,7 +14,7 @@ import jax.numpy as jnp
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.config import is_hpc_observability_enabled
-from polisyos.foundry._executor_models import ExecutionStrictness, get_state_path
+from polisyos.foundry.execute._models import ExecutionStrictness, get_state_path
 from polisyos.foundry.runtime.nan_guard import NaNGuard
 
 

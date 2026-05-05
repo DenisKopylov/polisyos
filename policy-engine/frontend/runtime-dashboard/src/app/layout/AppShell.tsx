@@ -7,7 +7,7 @@ import { GlobalRuntimeBanner } from "@/app/layout/GlobalRuntimeBanner";
 import type { CounterfactualMode } from "@/app/providers/scenario-scope";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
 import { CommandPalette } from "@/features/commandPalette";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useIsMobile } from "@/shared/ui/responsive";
 import { CounterfactualModeSwitch } from "@/shared/ui/counterfactual/CounterfactualModeSwitch";
 import { ScenarioPicker } from "@/shared/ui/counterfactual/ScenarioPicker";

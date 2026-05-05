@@ -1,0 +1,40 @@
+{
+  "kind": "consumer_readiness",
+  "component_dir": "tests/unit/data_forge/fixtures/legal_shadow/candidate",
+  "readiness": {
+    "db_ready": true,
+    "consumer_ready": true,
+    "grounded_layer_ready": true,
+    "normative_layer_ready": true
+  },
+  "release_readiness": {
+    "release_ready": false,
+    "quality_gate_passed": false,
+    "qc_passed": false,
+    "benchmark_passed": true,
+    "release_passed": false,
+    "release_failed_checks": [
+      "normative_ready_share"
+    ]
+  },
+  "table_counts": {
+    "lex_fact_grounded": 3,
+    "lex_normative_facts": 3,
+    "lex_reference_edges": 1
+  },
+  "quality_summary": {
+    "passed": false,
+    "metrics": {
+      "normative_ready_total": 3,
+      "normative_ready_share_pct": 75.0
+    }
+  },
+  "benchmark_summary": {
+    "passed": true,
+    "metrics": {
+      "benchmark_search_cases_total": 1,
+      "benchmark_search_top5_relevance_pct": 80.0
+    },
+    "failed_checks": []
+  }
+}

@@ -65,7 +65,7 @@ That manifest is the source of truth for:
 
 If you are only adding one new export inside an already listed package root,
 the manifest usually stays unchanged and the work lives in `__init__.py` plus
-tests/docs.
+tests/architecture/docs.
 
 ## 4. Regenerate and review the public-surface docs
 
@@ -92,7 +92,7 @@ uv run polisyos-tools architecture guardrails check
 Useful focused tests when the change touches IR facades:
 
 ```bash
-uv run pytest -q tests/ir/test_public_surface.py
+uv run pytest -q tests/unit/ir/test_public_surface.py
 ```
 
 ## Rollback

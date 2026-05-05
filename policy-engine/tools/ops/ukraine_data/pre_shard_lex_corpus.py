@@ -9,7 +9,6 @@ rule as ``BatchConfig.is_doc_in_shard(...)``.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import tempfile
@@ -21,38 +20,36 @@ from typing import TextIO
 
 import zstandard as zstd
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
-from polisyos.lex.batch.xml_parser import NPADocument, iter_documents
-from tools._lib.fs import atomic_write_json
-
-CURRENT_STATUSES = frozenset({"Чинний", "Не набрав чинності"})
-HISTORICAL_STATUSES = frozenset(
-    {"Втратив чинність", "Втратив чинність частково", "Дію призупинено"}
+from polisyos.data_forge.domains.ukraine.sharding import (  # noqa: E402
+    CURRENT_STATUSES as CURRENT_STATUSES,
 )
+from polisyos.data_forge.domains.ukraine.sharding import (
+    HISTORICAL_STATUSES as HISTORICAL_STATUSES,
+)
+from polisyos.data_forge.domains.ukraine.sharding import (
+    infer_lex_snapshot_label,
+    lex_pre_shard_index,
+    lex_pre_shard_pass_name,
+)
+from polisyos.data_forge.read_api.legal import NPADocument, iter_documents
+
+from tools.lib.fs import atomic_write_json
 
 
 def _infer_snapshot_label(cards_path: Path, texts_path: Path) -> str:
-    for path in (cards_path, texts_path):
-        stem = path.stem
-        if "_" in stem:
-            return stem.rsplit("_", 1)[-1]
-    return "snapshot"
+    return infer_lex_snapshot_label(cards_path, texts_path)
 
 
 def _shard_index(doc_id: str, shard_count: int) -> int:
-    digest = hashlib.sha1(doc_id.encode("utf-8")).digest()
-    return int.from_bytes(digest[:8], "big") % shard_count
+    return lex_pre_shard_index(doc_id, shard_count)
 
 
 def _pass_name(status: str) -> str | None:
-    if status in CURRENT_STATUSES:
-        return "current"
-    if status in HISTORICAL_STATUSES:
-        return "historical"
-    return None
+    return lex_pre_shard_pass_name(status)
 
 
 def _serialize_doc(doc: NPADocument) -> bytes:

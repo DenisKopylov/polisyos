@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/manifests/data_forge_publish_manifest_v1.schema.json",
+  "title": "Data Forge Publish Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "pipeline",
+    "published_at",
+    "artifacts",
+    "qc_report",
+    "trace_id",
+    "span_id"
+  ],
+  "properties": {
+    "kind": {
+      "const": "publish"
+    },
+    "pipeline": {
+      "type": "string",
+      "minLength": 1
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/manifest_artifact"
+      }
+    },
+    "qc_report": {
+      "type": "string"
+    },
+    "extra": {
+      "type": "object"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    }
+  },
+  "$defs": {
+    "manifest_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^$|^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

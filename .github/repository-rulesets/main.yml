@@ -21,9 +21,9 @@ ruleset:
   protected_control_plane_paths:
     - .github/**
     - .github/CODEOWNERS
-    - SECURITY.md
-    - SUPPORT.md
-    - CODE_OF_CONDUCT.md
+    - policy-engine/SECURITY.md
+    - policy-engine/SUPPORT.md
+    - policy-engine/CODE_OF_CONDUCT.md
   merge_queue:
     enabled: false
     rationale: >-

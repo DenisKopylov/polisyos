@@ -8,7 +8,7 @@ import argparse
 from ._common import run_command
 from ._repo_hygiene import uv_run
 
-RUNTIME_SCOPE = ("src/polisyos/runtime", "tests/runtime")
+RUNTIME_SCOPE = ("src/polisyos/runtime", "tests/unit/runtime")
 RUNTIME_SOURCE_SCOPE = ("src/polisyos/runtime",)
 
 
@@ -32,7 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--skip-tests",
         action="store_true",
-        help="Skip tests/runtime.",
+        help="Skip tests/unit/runtime.",
     )
     return parser
 
@@ -59,7 +59,13 @@ def main(argv: list[str] | None = None) -> int:
         commands.extend(
             [
                 uv_run("mypy runtime source", "mypy", *RUNTIME_SOURCE_SCOPE),
-                uv_run("basedpyright runtime source", "basedpyright", *RUNTIME_SOURCE_SCOPE),
+                uv_run(
+                    "basedpyright runtime source",
+                    "basedpyright",
+                    "--project",
+                    "basedpyright.toml",
+                    *RUNTIME_SOURCE_SCOPE,
+                ),
             ]
         )
 
@@ -68,12 +74,12 @@ def main(argv: list[str] | None = None) -> int:
             uv_run(
                 "runtime API contract",
                 "python",
-                "tools/runtime/check_runtime_api_contract.py",
+                "tools/ops/runtime/check_runtime_api_contract.py",
             )
         )
 
     if not args.skip_tests:
-        commands.append(uv_run("pytest runtime", "pytest", "tests/runtime"))
+        commands.append(uv_run("pytest runtime", "pytest", "tests/unit/runtime"))
 
     for command in commands:
         run_command(command)

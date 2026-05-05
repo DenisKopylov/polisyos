@@ -5,8 +5,8 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/errors.py`, `src/polisyos/runtime/http/{authz_middleware.py,jwt_auth_middleware.py,cell_router_middleware.py,mutation_policy.py}`, `src/polisyos/core/errors.py`, and `src/polisyos/core/security/exceptions.py`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_error_semantics.py tests/runtime/http/test_runtime_api_contract_hardening.py`
-- `uv run pytest -q tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py`
+- `uv run pytest -q tests/unit/runtime/http/test_error_semantics.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
+- `uv run pytest -q tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
 
 This page is manually maintained from the runtime exception handlers and the
 middleware/route helpers that emit typed `application/problem+json` responses.

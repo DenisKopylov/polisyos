@@ -158,7 +158,7 @@ def _cmd_replay_with_store(
         relative_tolerance=float(args.tolerance),
         confidence_level=float(args.confidence_level),
     )
-    replay_backend = importlib.import_module("polisyos.scientist.replay_backend")
+    replay_backend = importlib.import_module("polisyos.scientist.replay.backend")
     replay_packet = replay_backend.replay_packet
     result = replay_packet(
         store,

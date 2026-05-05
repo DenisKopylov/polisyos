@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { AlertTriangle, Clock3, GitBranch, UserRound } from "lucide-react";
 
 import type { ScenarioListPayload } from "@/api/validators";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 
 import { AssumptionPill } from "./AssumptionPill";
 import { CounterfactualBadge } from "./CounterfactualBadge";

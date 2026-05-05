@@ -30,7 +30,7 @@
 1. `D2` Freeze в CI (dry-run)
 
 - Добавлен workflow `/.github/workflows/arch-freeze.yml`.
-- Добавлен скрипт сравнения baseline: `tools/lint/compare_baseline.py`.
+- Добавлен скрипт сравнения baseline: `tools/quality/lint/compare_baseline.py`.
 - Dry-run статус публикуется и показывает дельты.
 - Dry-run пороги предупреждений:
   - `delta_package_cycles > 0`
@@ -58,8 +58,8 @@
 
 ## Артефакты автоматизации
 
-- Сбор метрик: `tools/lint/collect_arch_metrics.py`
-- Сравнение baseline/current: `tools/lint/compare_baseline.py`
+- Сбор метрик: `tools/quality/lint/collect_arch_metrics.py`
+- Сравнение baseline/current: `tools/quality/lint/compare_baseline.py`
 - CI freeze pipeline: `/.github/workflows/arch-freeze.yml`
 
 ## Статус

@@ -12,7 +12,7 @@ import {
 } from "@/app/providers/ThemeProvider";
 import { PREFERENCES_STORAGE_KEY } from "@/app/state/usePreferencesStore";
 import { ToastProvider } from "@/app/providers/ToastProvider";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import {
   HighContrastProvider,
   LiveAnnouncerProvider,

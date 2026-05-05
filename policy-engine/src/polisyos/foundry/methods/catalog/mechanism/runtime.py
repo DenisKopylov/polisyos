@@ -73,7 +73,7 @@ def _coerce_runtime_state(value: Any, *, allow_queue: bool = False) -> Any:
     if allow_queue and isinstance(value, Mapping) and "queue_length" in value:
         import jax.numpy as jnp
 
-        from polisyos.foundry.queue import QueueState
+        from polisyos.foundry.execute.queue import QueueState
 
         return QueueState(queue_length=jnp.asarray(value["queue_length"], dtype=jnp.float32))
     raise TypeError("mechanism runtime methods require a Foundry runtime state object")
@@ -101,7 +101,7 @@ def _apply_runtime_mechanism(
     mechanism_params = {key: params.get(key) for key in param_keys if key in params}
     import jax
 
-    from polisyos.foundry.registry import create_mechanism_from_spec
+    from polisyos.foundry._registry import create_mechanism_from_spec
 
     mechanism = create_mechanism_from_spec(
         mechanism_type,

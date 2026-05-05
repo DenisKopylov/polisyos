@@ -1,6 +1,7 @@
-# tools/data
+# tools/ops/data
 
-Data-prep and fixture-capture commands that used to live under `scripts/`.
+Data-prep and fixture-capture commands for committed fixtures, registries, and
+local evidence promotion.
 
 Canonical entry points:
 
@@ -12,5 +13,5 @@ uv run polisyos-tools data generate-wvs-registry --help
 uv run polisyos-tools data record-fixtures --help
 ```
 
-Legacy `scripts/*.py` paths remain as thin compatibility wrappers during the
-consolidation window.
+The product-root `scripts/` tree has been retired; use these commands through
+`polisyos-tools`.

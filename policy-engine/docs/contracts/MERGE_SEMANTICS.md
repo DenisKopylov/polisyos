@@ -120,6 +120,6 @@ All conflicts produce MergeConflict objects with:
 | Link type           | Current anchor                                                                                                                 |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Source plan phase   | D1-L4 Phase 0 registry/linker conflict containment and Phase 3 algebra/property verification                                   |
-| Contract tests      | `tests/contract/test_kernel_models.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_phase3_properties.py` |
+| Contract tests      | `tests/contract/test_kernel_models.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/unit/ir/test_phase3_properties.py` |
 | Schema snapshots    | `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`                              |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                         |

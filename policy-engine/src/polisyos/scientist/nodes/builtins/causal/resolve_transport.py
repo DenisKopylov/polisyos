@@ -10,16 +10,16 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.common.logger import get_logger
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.datasets.knowledge.proxy_resolver import (
+from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.data_forge.read_api.catalog import (
+    DatasetRegistry,
+    PStarZResult,
     compose_confidence_harmonic,
     resolve_proxy,
     validate_proxy,
 )
-from polisyos.datasets.knowledge.registry import DatasetRegistry
-from polisyos.datasets.knowledge.types import PStarZResult
 from polisyos.foundry.methods.catalog.causal.capabilities import (
     build_causal_capability_contract,
 )

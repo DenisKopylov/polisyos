@@ -120,7 +120,9 @@ class ForestDRLearnerEstimator:
     )
 
     @staticmethod
-    def pure_step(state: HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         try:
             require_econml()
             from econml.dr import ForestDRLearner

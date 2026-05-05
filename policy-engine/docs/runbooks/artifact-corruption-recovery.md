@@ -8,7 +8,7 @@ Related Fabric reference: [Fabric Data Plane](../reference/fabric/data-plane.md)
 
 Owner: `@platform-owners`
 Last tested: `2026-04-17` against the linked recovery checks and current retained-artifact evidence.
-Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/fabric/test_lineage.py`
+Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/fabric/test_lineage.py`
 Rollback path: isolate the corrupted artifact, restore from a trusted retained copy or reissue from trusted upstream state, and keep the corrupted evidence for postmortem.
 
 Freshness: 2026-04-17.
@@ -61,8 +61,8 @@ Freshness: 2026-04-17.
    against source contracts before restoring:
 
 ```bash
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 

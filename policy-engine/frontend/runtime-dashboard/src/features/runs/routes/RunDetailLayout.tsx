@@ -31,8 +31,8 @@ import {
   buildRunDeckHref,
   parseRunDetailLegacySearchParams,
 } from "@/features/runs/domain/searchParams";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
 import {
   PageErrorBoundary,
   PanelErrorBoundary,

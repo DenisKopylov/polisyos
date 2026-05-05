@@ -3,7 +3,7 @@
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/common/config.py` via `get_env_registry()`, `build_process_bootstrap_config()`, and `apply_process_bootstrap()`
-Validation: `uv run pytest -q tests/common/test_config_bootstrap.py`
+Validation: `uv run pytest -q tests/unit/common/test_config_bootstrap.py`
 
 This page is manually maintained from the explicit bootstrap registry in
 `polisyos.common.config`. It documents only the environment variables that the

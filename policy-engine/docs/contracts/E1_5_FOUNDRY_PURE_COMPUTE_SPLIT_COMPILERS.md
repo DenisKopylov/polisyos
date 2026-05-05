@@ -34,7 +34,7 @@
 
 4. **“До зелёного” по зависимостям**:
 
-   - import gate (`tools/lint/lint_imports.py` + `import_policy.toml`) зелёный
+   - import gate (`tools/quality/lint/lint_imports.py` + `architecture/imports/policy.toml`) зелёный
    - внутри Foundry нет импортов `polisyos.scientist.*` и реализаций `polisyos.fabric.*` (контракты `core.contracts.fabric` разрешены).
 
 ---
@@ -43,9 +43,9 @@
 
 ### 1.1 Import gate / Dependency-guard
 
-Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/import_policy.toml`, `policy-engine/tools/lint/lint_imports.py`, тест `policy-engine/tests/test_arch_import_gate.py`.
+Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/architecture/imports/policy.toml`, `policy-engine/tools/quality/lint/lint_imports.py`, тест `policy-engine/tests/architecture/test_arch_import_gate.py`.
 
-Текущее правило: `foundry` может импортировать только `foundry|core|ir|common` (см. `import_policy.toml`).
+Текущее правило: `foundry` может импортировать только `foundry|core|ir|common` (см. `architecture/imports/policy.toml`).
 
 ### 1.2 Trinity и Linker уже существуют
 
@@ -759,12 +759,12 @@ E1.5 может сделать один из вариантов (выбрать 
 
 ### 11.1 Dependency gate (уже есть)
 
-- `policy-engine/tests/test_arch_import_gate.py` должен оставаться зелёным.
-- В рамках E1.5 добавить регрессию: новые модули `foundry/compile/*` и `foundry/execute/*` не должны нарушать `import_policy.toml`.
+- `policy-engine/tests/architecture/test_arch_import_gate.py` должен оставаться зелёным.
+- В рамках E1.5 добавить регрессию: новые модули `foundry/compile/*` и `foundry/execute/*` не должны нарушать `architecture/imports/policy.toml`.
 
 ### 11.2 Unit tests: surface_compiler
 
-Добавить/обновить тесты в `policy-engine/tests/foundry/`:
+Добавить/обновить тесты в `policy-engine/tests/unit/foundry/`:
 
 - перевести существующие тесты компиляции на новый фасад (или оставить legacy wrapper до миграции):
   - `test_program_graph_ops.py`
@@ -877,6 +877,6 @@ Smoke test:
 | Link type           | Current anchor                                                                                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs                                                                                                                                    |
-| Contract tests      | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/foundry/compile/test_trinity_compiler.py`, `tests/foundry/test_trinity_field_coverage.py` |
+| Contract tests      | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/unit/foundry/compile/test_trinity_compiler.py`, `tests/unit/foundry/compile/test_trinity_field_coverage.py` |
 | Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`                                                              |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                        |

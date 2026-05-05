@@ -1,9 +1,9 @@
-"""Stable Lex facade for legal corpus ingestion, NormPack assembly, and intervention APIs.
+"""Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
 The root package keeps imports lazy so lightweight consumers can inspect Lex contracts without
 eagerly importing DuckDB, Foundry, or Scientist dependencies. Treat symbols exported through
-``__all__`` as the stable public surface for the ``ingest -> structure -> version index ->
-normpack -> legal evaluation`` pipeline and for legal-to-policy intervention compilation.
+``__all__`` as the stable public runtime surface. Offline legal preprocessing lives under
+``polisyos.data_forge.domains.legal``.
 """
 
 from __future__ import annotations
@@ -22,7 +22,6 @@ __all__ = [
     "HierarchicalPolicySearchPlan",
     "InterventionKnobDictionaryEntry",
     "InterventionKnobSpec",
-    "LegalDocSource",
     "LegalEvaluationRequest",
     "LegalKnowledgeGraph",
     "LegalReportRef",
@@ -30,8 +29,6 @@ __all__ = [
     "LexFabricEvidencePath",
     "LexIndexError",
     "LexIngestError",
-    "LexIngestOptions",
-    "LexIngestResult",
     "LexInterventionCompiler",
     "LexInterventionMapEntry",
     "LexNotReadyError",
@@ -39,11 +36,7 @@ __all__ = [
     "LexProvisionDirective",
     "LexProvisionMappingRegistry",
     "LexStructureError",
-    "LexStructureOptions",
-    "LexStructureResult",
     "LexValidationError",
-    "LexVersionIndexOptions",
-    "LexVersionIndexResult",
     "LexVersioningError",
     "MutationIntent",
     "NormChange",
@@ -64,11 +57,8 @@ __all__ = [
     "TemporalInterventionStepInput",
     "WorldEventRefLike",
     "assemble_norm_pack",
-    "build_legal_structure",
-    "build_version_index",
     "diff_norm_packs",
     "evaluate_legality",
-    "ingest_legal_doc_bytes",
     "lex_evidence_from_fabric_decision_data",
     "propose_changes",
     "resolve_active_version",
@@ -81,10 +71,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalReportRef": ("polisyos.core.contracts.lex", "LegalReportRef"),
     # api
     "assemble_norm_pack": ("polisyos.lex.api", "assemble_norm_pack"),
-    "build_legal_structure": ("polisyos.lex.api", "build_legal_structure"),
-    "build_version_index": ("polisyos.lex.api", "build_version_index"),
     "evaluate_legality": ("polisyos.lex.api", "evaluate_legality"),
-    "ingest_legal_doc_bytes": ("polisyos.lex.api", "ingest_legal_doc_bytes"),
     "propose_changes": ("polisyos.lex.api", "propose_changes"),
     "resolve_active_version": ("polisyos.lex.api", "resolve_active_version"),
     # errors
@@ -103,13 +90,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     # types
     "ActiveVersionResult": ("polisyos.lex.types", "ActiveVersionResult"),
     "ActiveVersionStrategy": ("polisyos.lex.types", "ActiveVersionStrategy"),
-    "LegalDocSource": ("polisyos.lex.types", "LegalDocSource"),
-    "LexIngestOptions": ("polisyos.lex.types", "LexIngestOptions"),
-    "LexIngestResult": ("polisyos.lex.types", "LexIngestResult"),
-    "LexStructureOptions": ("polisyos.lex.types", "LexStructureOptions"),
-    "LexStructureResult": ("polisyos.lex.types", "LexStructureResult"),
-    "LexVersionIndexOptions": ("polisyos.lex.types", "LexVersionIndexOptions"),
-    "LexVersionIndexResult": ("polisyos.lex.types", "LexVersionIndexResult"),
     "NormPackBudgets": ("polisyos.lex.types", "NormPackBudgets"),
     "NormPackBuildRequest": ("polisyos.lex.types", "NormPackBuildRequest"),
     "NormPackBuildResult": ("polisyos.lex.types", "NormPackBuildResult"),

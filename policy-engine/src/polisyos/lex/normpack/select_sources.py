@@ -6,11 +6,11 @@ from datetime import date
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
 from polisyos.lex.artifacts import load_doc_meta_artifact
 from polisyos.lex.common import latest_object_by_subject, parse_iso_date
-from polisyos.lex.corpus.versioning import resolve_active_version
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import ActiveVersionStrategy, NormPackBuildRequest, SelectedDocVersion
@@ -262,7 +262,7 @@ def select_active_doc_versions(
         explanation: list[str] = []
 
         try:
-            resolved = resolve_active_version(
+            resolved = legal_read_api.resolve_active_version(
                 cas=cas,
                 doc_source_id=doc_source_id,
                 as_of_iso=as_of_norm,

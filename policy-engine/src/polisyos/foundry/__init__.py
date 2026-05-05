@@ -21,9 +21,9 @@ from typing import Any
 __all__ = ["compile", "compile_program", "execute"]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "compile": ("polisyos.foundry.compile.api", "compile"),
-    "compile_program": ("polisyos.foundry.compile.api", "compile"),
-    "execute": ("polisyos.foundry.execute.api", "execute"),
+    "compile": ("polisyos.foundry.api", "compile"),
+    "compile_program": ("polisyos.foundry.api", "compile_program"),
+    "execute": ("polisyos.foundry.api", "execute"),
 }
 _RESOLVED_EXPORTS: dict[str, Any] = {}
 _RESOLVE_LOCK = threading.Lock()
@@ -52,11 +52,21 @@ def __getattr__(name: str) -> Any:
         The resolved function object, memoized in module globals.
 
     Raises:
-        AttributeError: If `name` is not part of the stable Foundry facade.
+        AttributeError: If `name` is neither part of the stable Foundry facade
+            nor a real Foundry submodule.
     """
-    if name not in _LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.foundry' has no attribute '{name}'")
-    return _resolve_lazy_export(name)
+    if name in _LAZY_IMPORTS:
+        return _resolve_lazy_export(name)
+
+    module_name = f"{__name__}.{name}"
+    try:
+        module = importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name == module_name:
+            raise AttributeError(f"module 'polisyos.foundry' has no attribute '{name}'") from None
+        raise
+    globals()[name] = module
+    return module
 
 
 def __dir__() -> list[str]:
@@ -78,7 +88,7 @@ class _FoundryFacadeModule(types.ModuleType):
         if name in lazy_imports:
             module_dict = types.ModuleType.__getattribute__(self, "__dict__")
             current = module_dict.get(name)
-            if isinstance(current, types.ModuleType) or current is None:
+            if current is None:
                 return _resolve_lazy_export(name)
         return types.ModuleType.__getattribute__(self, name)
 

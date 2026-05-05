@@ -35,9 +35,9 @@ def test_phase2_3_gate_reports_missing_reference_token(tmp_path) -> None:
     (repo / "src/polisyos/scientist/human_review").mkdir(parents=True)
     (repo / "src/polisyos/scientist/evidence").mkdir(parents=True)
     (repo / "tools/ci").mkdir(parents=True)
-    (repo / "tests/scientist/search").mkdir(parents=True)
-    (repo / "tests/scientist/evidence").mkdir(parents=True)
-    (repo / "tests/scientist/human_review").mkdir(parents=True)
+    (repo / "tests/unit/scientist/search").mkdir(parents=True)
+    (repo / "tests/unit/scientist/evidence").mkdir(parents=True)
+    (repo / "tests/unit/scientist/human_review").mkdir(parents=True)
     (repo / "tests/tools").mkdir(parents=True)
     for path in gate.REQUIRED_FILES:
         target = repo / path

@@ -42,13 +42,18 @@ export default tseslint.config(
     ignores: [
       "**/coverage/**",
       "**/dist/**",
+      "**/_build/**",
+      "**/_cache/**",
       "**/node_modules/**",
       "**/storybook-static/**",
       "**/test-results/**",
       "**/.tmp/**",
       ".eslintcache",
+      "../../_cache/frontend/runtime-dashboard/eslint/.eslintcache",
       "src/api/types.ts",
     ],
+  },
+  {
     linterOptions: {
       reportUnusedDisableDirectives: "error",
     },
@@ -91,9 +96,9 @@ export default tseslint.config(
         { type: "app", pattern: "src/app/**" },
         { type: "api", pattern: "src/api/**" },
         { type: "feature", pattern: "src/features/*/**" },
+        { type: "shared-lib", pattern: "src/shared/lib/**" },
+        { type: "shared-i18n", pattern: "src/shared/i18n/**" },
         { type: "shared", pattern: "src/shared/**" },
-        { type: "lib", pattern: "src/lib/**" },
-        { type: "i18n", pattern: "src/i18n/**" },
       ],
     },
     rules: {

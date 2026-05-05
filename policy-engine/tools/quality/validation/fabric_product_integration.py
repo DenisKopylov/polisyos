@@ -10,7 +10,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -188,13 +188,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         )
 
     fixtures_dir = (
-        repo_root
-        / "frontend"
-        / "runtime-dashboard"
-        / "src"
-        / "test"
-        / "contracts"
-        / "fixtures"
+        repo_root / "frontend" / "runtime-dashboard" / "src" / "test" / "contracts" / "fixtures"
     )
     fixture_registry_text = _read(
         repo_root
@@ -330,16 +324,9 @@ def _scientist_rows(repo_root: Path) -> list[dict[str, Any]]:
         / "fabric_trust_gate_pass.py"
     )
     registry_text = _read(
-        repo_root
-        / "src"
-        / "polisyos"
-        / "scientist"
-        / "governance"
-        / "pass_registry.py"
+        repo_root / "src" / "polisyos" / "scientist" / "governance" / "pass_registry.py"
     )
-    readiness_text = _read(
-        repo_root / "src" / "polisyos" / "scientist" / "search" / "readiness.py"
-    )
+    readiness_text = _read(repo_root / "src" / "polisyos" / "scientist" / "search" / "readiness.py")
     governance_tests_text = _read(
         repo_root / "tests" / "scientist" / "governance" / "test_fabric_trust_gate_pass.py"
     )

@@ -4143,6 +4143,11 @@ test = [
     { name = "uvicorn", extra = ["standard"] },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "libcst" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.9.0" },
@@ -4313,6 +4318,9 @@ requires-dist = [
     { name = "zstandard", specifier = ">=0.23.0" },
 ]
 provides-extras = ["core", "lint", "docs", "notebooks", "mutation", "agent-sim", "apple-metal", "kuzu", "analytics", "ml", "deep-learning", "optimization-advanced", "bayesian", "sensitivity", "causal", "causal-core", "causal-dowhy", "causal-bcf", "causal-nuisance", "causal-discovery", "causal-discovery-scale", "causal-symbolic", "causal-symbolic-y0", "causal-symbolic-r", "causal-full", "table-extraction", "solvers", "methods-full", "methods-milestone2", "methods-milestone3", "methods-milestone4", "observability", "runtime-http", "runtime", "multi-tenant", "security", "rag", "rag-local", "academic-skg", "sandbox", "shapesafe", "hotreload", "research", "agent-quality", "test", "dev", "all", "structured-logging", "search-bo", "search-mo"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "libcst", specifier = ">=1.5.0" }]
 
 [[package]]
 name = "pre-commit"

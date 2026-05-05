@@ -61,17 +61,17 @@ Run commands from the repository root `policy-engine/`.
 Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
-  `uv run pytest -q tests/common/test_async_tools.py tests/common/test_config_bootstrap.py tests/common/test_fast_json_serialization.py tests/common/test_serialization_properties.py tests/common/test_timestamps.py tests/common/test_migrations_purity.py`
+  `uv run pytest -q tests/unit/common/test_async_tools.py tests/unit/common/test_config_bootstrap.py tests/unit/common/test_fast_json_serialization.py tests/unit/common/test_serialization_properties.py tests/unit/common/test_timestamps.py tests/unit/common/test_migrations_purity.py`
 
-- Conceptual release gate: `uv run python tools/workspace/core_runtime_mypy.py`
+- Conceptual release gate: `uv run python tools/devx/workspace/core_runtime_mypy.py`
 - Conceptual release gate:
-  `uv run python tools/workspace/core_runtime_basedpyright.py`
+  `uv run python tools/devx/workspace/core_runtime_basedpyright.py`
 
 ## Reference docs
 
 - [Public Surface](../../../docs/reference/public-surface.md)
 - [Generated Artifacts](../../../docs/reference/generated-artifacts.md)
-- [Core / Common / Runtime Audit Remediation Plan](../../../docs/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
+- [Core / Common / Runtime Audit Remediation Plan](../../../docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
 - [Common migrations](migrations/README.md)
 
 - Last updated: 2026-04-17

@@ -43,10 +43,10 @@ capability.
 
 | Claim                                                                                       | Required artifact or status                                                                                                       | Evidence                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Default-path causal estimate is confidence-visible                                          | `scientist.causal_validity_bundle.confidence` and decision-packet `causal_validity` section                                       | `tests/scientist/test_causal_evaluation_node.py`, `tests/scientist/test_decision_packet_node_v3.py`                                                      |
-| Sensitivity and robustness are auditable                                                    | `checks.sensitivity`, sensitivity result ref, robustness summary                                                                  | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`                                                                                        |
-| Transportability, proxy, strategic, interference, and counterfactual readiness are explicit | Readiness entries and `run_causal_readiness` outputs, including blocker summaries where required                                  | `tests/scientist/nodes/builtins/causal/test_run_causal_readiness.py`, `tests/scientist/nodes/builtins/causal/test_counterfactual_identification_gate.py` |
-| Frontier causal methods are not default-on                                                  | `FrontierRuntimeReport.capabilities[*].status` plus `offline_validation_ref` and `benchmark_pack_ref` before offline availability | `tests/scientist/test_frontier_runtime.py`, [frontier-runtime.md](frontier-runtime.md)                                                                   |
+| Default-path causal estimate is confidence-visible                                          | `scientist.causal_validity_bundle.confidence` and decision-packet `causal_validity` section                                       | `tests/unit/scientist/causal/test_causal_evaluation_node.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`                                                      |
+| Sensitivity and robustness are auditable                                                    | `checks.sensitivity`, sensitivity result ref, robustness summary                                                                  | `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`                                                                                        |
+| Transportability, proxy, strategic, interference, and counterfactual readiness are explicit | Readiness entries and `run_causal_readiness` outputs, including blocker summaries where required                                  | `tests/unit/scientist/nodes/builtins/causal/test_run_causal_readiness.py`, `tests/unit/scientist/nodes/builtins/causal/test_counterfactual_identification_gate.py` |
+| Frontier causal methods are not default-on                                                  | `FrontierRuntimeReport.capabilities[*].status` plus `offline_validation_ref` and `benchmark_pack_ref` before offline availability | `tests/unit/scientist/search/test_frontier_runtime.py`, [frontier-runtime.md](frontier-runtime.md)                                                                   |
 
 ## Phase 2 Research-Result Closure Notes
 
@@ -96,9 +96,9 @@ statement, scope list, and the out-of-scope impossibility result.
 ## Validation Commands
 
 ```bash
-uv run pytest tests/scientist/nodes/builtins/causal -q
-uv run pytest tests/scientist/test_causal_evaluation_node.py tests/scientist/test_decision_packet_node_v3.py -q
-uv run pytest tests/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
+uv run pytest tests/unit/scientist/nodes/builtins/causal -q
+uv run pytest tests/unit/scientist/causal/test_causal_evaluation_node.py tests/unit/scientist/nodes/test_decision_packet_node_v3.py -q
+uv run pytest tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py -q
 ```
 
 ## Execution API

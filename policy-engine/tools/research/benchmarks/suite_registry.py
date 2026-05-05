@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tools._lib.compat import expose_module, run_module_entrypoint
+from tools.lib.compat import expose_module, run_module_entrypoint
 
 _TARGET = "benchmarks.suite_registry"
 

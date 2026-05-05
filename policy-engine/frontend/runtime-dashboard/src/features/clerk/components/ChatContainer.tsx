@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { Button } from "@/shared/ui";
 import { useChatStore } from "../state/useChatStore";

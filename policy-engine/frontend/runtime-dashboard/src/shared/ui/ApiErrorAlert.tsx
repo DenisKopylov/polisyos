@@ -1,5 +1,5 @@
 import { RuntimeApiRequestError } from "@/api/http";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 type ApiErrorAlertProps = {
   error: unknown;

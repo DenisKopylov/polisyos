@@ -1,4 +1,4 @@
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 
 export function SignatureBlock() {
   const { t } = useOptionalI18n();

@@ -1,0 +1,37 @@
+version: 1
+owner: team-observability
+mode: fail_closed
+service_namespace: polisyos
+signals:
+  traces:
+    exporter: otlp
+    required_attributes:
+      - service.name
+      - service.version
+      - deployment.environment
+      - polisyos.tenant_hash
+      - polisyos.run_id
+    forbidden_attributes:
+      - tenant_id
+      - raw_prompt
+      - secret
+  metrics:
+    exporter: prometheus
+    required_labels:
+      - service
+      - env
+    slo_sources:
+      - ops/observability/slo/
+      - ops/observability/prometheus/slo_alerts.yml
+      - ops/observability/prometheus/slo_recording_rules.yml
+  logs:
+    exporter: structured_json
+    redaction_policy: no_secrets_no_direct_pii
+    required_fields:
+      - timestamp
+      - level
+      - service
+      - event
+baseline_checks:
+  - docker compose -f ops/docker/observability.compose.yml config
+  - manual review: verify OTel attributes and SLO panels when telemetry contracts change

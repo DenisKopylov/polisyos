@@ -5,7 +5,7 @@
 
 - new DuckDB DDL contract: `policy-engine/src/polisyos/fabric/world/ddl/duckdb_world.sql`
 - new world materializer package (Phase 10): `policy-engine/src/polisyos/fabric/world/materialize/*`
-- new tests (Phase 10): `policy-engine/tests/fabric/test_world_materialization_phase10.py`
+- new tests (Phase 10): `policy-engine/tests/unit/fabric/test_world_materialization_phase10.py`
 
 This phase turns **World FactLog segments** (Phase 9 / E2.2) into a **DuckDB analytical schema** that is:
 
@@ -179,7 +179,7 @@ def apply_world_segment(
 Add Phase 10 tests:
 
 ```text
-policy-engine/tests/fabric/test_world_materialization_phase10.py
+policy-engine/tests/unit/fabric/test_world_materialization_phase10.py
 ```
 
 Required tests are specified in §9.
@@ -905,6 +905,6 @@ Phase 10 is complete when:
 | Link type           | Current anchor                                                                                                                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 world ABI determinism and Phase 4 ecosystem/materialization bridge                                                                                                       |
-| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/test_world_materialization.py`                                                          |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/unit/fabric/test_world_store.py`, `tests/unit/fabric/test_world_materialization.py`                                                          |
 | Schema snapshots    | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                 |

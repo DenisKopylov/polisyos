@@ -23,9 +23,9 @@ Freshness: 2026-04-17.
 uv run polisyos-tools architecture scaffold governance-pass \
   --name my_pass \
   --output src/polisyos/scientist/governance/passes/my_pass.py \
-  --test-output tests/scientist/governance/test_my_pass.py \
+  --test-output tests/unit/scientist/governance/test_my_pass.py \
   --dry-run
-uv run pytest tests/scientist/governance -x --tb=short
+uv run pytest tests/unit/scientist/governance -x --tb=short
 uv run --extra docs python -m mkdocs build --strict
 ```
 
@@ -35,7 +35,7 @@ uv run --extra docs python -m mkdocs build --strict
 uv run polisyos-tools architecture scaffold governance-pass \
   --name my_pass \
   --output src/polisyos/scientist/governance/passes/my_pass.py \
-  --test-output tests/scientist/governance/test_my_pass.py \
+  --test-output tests/unit/scientist/governance/test_my_pass.py \
   --dry-run
 ```
 
@@ -175,7 +175,7 @@ Target entry point должен разрешаться в:
 
 В текущем дереве тесты чаще всего создают `PassContext` напрямую, а не через специальную fixture helper-функцию.
 
-Паттерн из `tests/scientist/governance/test_strategic_response_pass.py`:
+Паттерн из `tests/unit/scientist/governance/test_strategic_response_pass.py`:
 
 ```python
 from polisyos.core.governance.passes.base import PassContext
@@ -199,8 +199,8 @@ def test_my_pass_blocks_missing_artifact() -> None:
 
 Хорошие места для изучения:
 
-- `tests/scientist/governance/test_strategic_response_pass.py`
-- `tests/scientist/governance/test_pass_registry.py`
+- `tests/unit/scientist/governance/test_strategic_response_pass.py`
+- `tests/unit/scientist/governance/test_pass_registry.py`
 
 ## 5a. Зафиксируйте evidence contract
 
@@ -220,8 +220,8 @@ calibration, accountability или SOTA-facing claim, должен иметь я
 Минимальные проверки:
 
 ```bash
-uv run pytest tests/scientist/governance/test_my_pass.py -q
-uv run pytest tests/scientist/governance/test_pass_registry.py -q
+uv run pytest tests/unit/scientist/governance/test_my_pass.py -q
+uv run pytest tests/unit/scientist/governance/test_pass_registry.py -q
 ```
 
 ## 6. Интеграция в workflow

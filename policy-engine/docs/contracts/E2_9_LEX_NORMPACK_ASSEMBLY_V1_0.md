@@ -32,14 +32,14 @@ Lex получает способность собрать **применимы�
 
 Существующие контрактные артефакты и API:
 
-- `lex.corpus.provision_index` (`polisyos.lex.corpus.ProvisionIndex`, v1.0)
-  - файл: `policy-engine/src/polisyos/lex/corpus/index.py`
+- `lex.corpus.provision_index` (`polisyos.data_forge.domains.legal.corpus.ProvisionIndex`, v1.0)
+  - файл: `policy-engine/src/polisyos/data_forge/domains/legal/corpus/index.py`
   - строится в `build_legal_structure(...)` и сохраняет список provisions:
     - `fragment_id` (WorldID `frag.sha256_...`)
     - `anchor_path` + offsets (python slice semantics)
     - `props["lex_kind"]` (article/point/...)
-- `lex.corpus.version_index` (`polisyos.lex.corpus.VersionIndex`, v1.0)
-  - файл: `policy-engine/src/polisyos/lex/corpus/versioning.py`
+- `lex.corpus.version_index` (`polisyos.data_forge.domains.legal.corpus.VersionIndex`, v1.0)
+  - файл: `policy-engine/src/polisyos/data_forge/domains/legal/corpus/versioning.py`
   - selection policy уже задана в Lex (`lex.versioning_v1.effective_range_then_published_at`)
 - `resolve_active_version(...)` — детерминированный выбор активной версии по `as_of` (date semantics)
 
@@ -88,7 +88,7 @@ policy-engine/src/polisyos/lex/normpack/
 Тесты:
 
 ```text
-policy-engine/tests/fabric/test_normpack_phase17.py
+policy-engine/tests/unit/fabric/test_normpack_phase17.py
 ```
 
 Док:
@@ -348,11 +348,11 @@ class NormPackBuildResult:
 
 Если provision index отсутствует — это LexNotReadyError:
 
-- “run `polisyos.lex.api.build_legal_structure` for this doc_version”
+- “run `polisyos.data_forge.domains.legal.corpus.build_legal_structure` for this doc_version”
 
 #### 5.2.2. Загрузка provision index
 
-- `ProvisionIndexV1 = polisyos.lex.corpus.index.load_provision_index(cas, provision_index_ref)`
+- `ProvisionIndexV1 = polisyos.data_forge.domains.legal.corpus.index.load_provision_index(cas, provision_index_ref)`
 - validate:
   - `index.doc_version_id == meta.doc_version_id`
   - `index.doc_source_id == meta.doc_source_id`
@@ -837,7 +837,7 @@ Event outputs:
 
 ## 8) Тесты (обязательные): `test_normpack_phase17.py`
 
-Размещение: `policy-engine/tests/fabric/test_normpack_phase17.py`
+Размещение: `policy-engine/tests/unit/fabric/test_normpack_phase17.py`
 
 ### 8.1. Unit тесты
 
@@ -956,6 +956,6 @@ Phase 17 считается выполненной, если:
 | Link type           | Current anchor                                                                                                                                                                    |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 norm/citation determinism and Phase 5 governance contract handoff                                                                                                   |
-| Contract tests      | `tests/contract/test_applicability_contract.py`, `tests/fabric/test_normpack.py`, `tests/fabric/test_conflicts.py`                                                                |
+| Contract tests      | `tests/contract/test_applicability_contract.py`, `tests/unit/fabric/test_normpack.py`, `tests/unit/fabric/test_conflicts.py`                                                                |
 | Schema snapshots    | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/claim.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                            |

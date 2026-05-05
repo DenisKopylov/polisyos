@@ -17,7 +17,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 TYPE_IGNORE_RE = re.compile(r"#\s*type:\s*ignore(?:\[[^\]]+\])?")
 NOQA_RE = re.compile(r"#\s*noqa(?::\s*[^#]+)?")

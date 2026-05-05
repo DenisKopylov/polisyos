@@ -164,7 +164,7 @@ archived: 2026-04-24
 
 Практический вывод:
 
-- `ops/opa/policies/**` - отдельная независимая полоса работ после foundation.
+- `ops/policy/policies/**` - отдельная независимая полоса работ после foundation.
 
 ## 4. Что входит в scope, а что нет
 
@@ -259,7 +259,7 @@ archived: 2026-04-24
    - `.markdownlint-cli2.jsonc`
    - будущие `.yamllint` и `.taplo.toml`
 4. Разделить authored, generated и runtime-state поверхности.
-5. Добавить canonical wrapper-команды в `tools/workspace` или `polisyos-tools`,
+5. Добавить canonical wrapper-команды в `tools/devx/workspace` или `polisyos-tools`,
    чтобы люди не изобретали 20 разных локальных команд.
 
 Без этого параллельные PR начнут конфликтовать в конфиге вместо того, чтобы
@@ -271,38 +271,38 @@ archived: 2026-04-24
 | ------------------ | ----------------------------------------------------------------------- | -------------------------------------------- |
 | F1                 | `frontend/runtime-dashboard`                                            | только frontend-specific config              |
 | F2                 | `frontend/runtime-api-client`, `runtime-reference-shell`                | generator contract / minimal frontend config |
-| P1                 | `src/polisyos/common` + `tests/common`                                  | foundation                                   |
+| P1                 | `src/polisyos/common` + `tests/unit/common`                                  | foundation                                   |
 | D1                 | `docs/**`, `README.md`, `CONTRIBUTING.md`                               | markdown policy                              |
 | C1                 | `architecture/**`, `release/**`, `release-fragments/**`, top-level TOML | taplo policy                                 |
 | O1                 | `ops/**`, `.github/**`                                                  | yamllint/actionlint/shell/rego policy        |
-| T1                 | `tools/_lib`, `tools/workspace`, `scripts/**`                           | foundation                                   |
+| T1                 | `tools/lib`, `tools/devx/workspace`, `scripts/**`                           | foundation                                   |
 | B1                 | `benchmarks/**`                                                         | python + shell policy                        |
 
 ### 6.3 Потоки, которые запускаются после первых merge
 
 | Параллельный поток | Scope                                                              | Блокируется чем |
 | ------------------ | ------------------------------------------------------------------ | --------------- |
-| P2                 | `src/polisyos/ir` + `tests/ir`                                     | P1              |
-| P3                 | `src/polisyos/core` + `tests/core`                                 | P2              |
-| T2                 | `tools/quality`, `tools/validation`, `tools/ci`                    | T1              |
-| T3                 | `tools/devx`, `tools/connectors`, `tools/runtime`, `tools/release` | T1              |
+| P2                 | `src/polisyos/ir` + `tests/unit/ir`                                     | P1              |
+| P3                 | `src/polisyos/core` + `tests/unit/core`                                 | P2              |
+| T2                 | `tools/quality`, `tools/quality/validation`, `tools/ci`                    | T1              |
+| T3                 | `tools/devx`, `tools/connectors`, `tools/ops/runtime`, `tools/ops/release` | T1              |
 
 ### 6.4 Доменные полосы после `core`
 
 | Параллельный поток | Scope                                                                          | Блокируется чем                                               |
 | ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | P4                 | `data_forge`, `academic`, `datasets`, `ukraine_data`, `batch_*` + owning tests | P3                                                            |
-| P5                 | `fabric` + `tests/fabric`                                                      | P3                                                            |
-| P6                 | `lex` + `tests/lex`                                                            | P3                                                            |
-| P7                 | `scholar` + `tests/scholar`                                                    | P3                                                            |
-| P8                 | `foundry` + `tests/foundry`                                                    | P3, желательно после стабилизации `fabric/data_forge` фасадов |
+| P5                 | `fabric` + `tests/unit/fabric`                                                      | P3                                                            |
+| P6                 | `lex` + `tests/unit/lex`                                                            | P3                                                            |
+| P7                 | `scholar` + `tests/unit/scholar`                                                    | P3                                                            |
+| P8                 | `foundry` + `tests/unit/foundry`                                                    | P3, желательно после стабилизации `fabric/data_forge` фасадов |
 
 ### 6.5 Последние Python consumer полосы
 
 | Параллельный поток | Scope                                    | Блокируется чем                             |
 | ------------------ | ---------------------------------------- | ------------------------------------------- |
-| P9                 | `scientist` + `tests/scientist`          | P4-P8                                       |
-| P10                | `runtime` + `tests/runtime`              | P4-P9 public facades                        |
+| P9                 | `scientist` + `tests/unit/scientist`          | P4-P8                                       |
+| P10                | `runtime` + `tests/unit/runtime`              | P4-P9 public facades                        |
 | P11                | `synthetic_world`, `calibration` + tests | P8-P9 в зависимости от фактических импортов |
 
 ## 7. Фазовый план
@@ -409,9 +409,9 @@ Frontend почти не зависит от Python import DAG; критичес
 
 ### Serial order
 
-1. `src/polisyos/common` + `tests/common`
-2. `src/polisyos/ir` + `tests/ir`
-3. `src/polisyos/core` + `tests/core`
+1. `src/polisyos/common` + `tests/unit/common`
+2. `src/polisyos/ir` + `tests/unit/ir`
+3. `src/polisyos/core` + `tests/unit/core`
 
 ### Почему строго последовательно
 
@@ -457,7 +457,7 @@ Scope:
 Scope:
 
 - `src/polisyos/fabric`
-- `tests/fabric`
+- `tests/unit/fabric`
 
 Особое правило:
 
@@ -469,8 +469,8 @@ Scope:
 
 Scope:
 
-- `src/polisyos/lex`, `tests/lex`
-- `src/polisyos/scholar`, `tests/scholar`
+- `src/polisyos/lex`, `tests/unit/lex`
+- `src/polisyos/scholar`, `tests/unit/scholar`
 
 Почему в одной волне:
 
@@ -479,7 +479,7 @@ Scope:
 
 Статус на 2026-04-24:
 
-- выполнено для `src/polisyos/lex`, `tests/lex`, `src/polisyos/scholar`, `tests/scholar`;
+- выполнено для `src/polisyos/lex`, `tests/unit/lex`, `src/polisyos/scholar`, `tests/unit/scholar`;
 - Ruff format/check, mypy, basedpyright и pytest проходят на scope волны;
 - legacy debt зафиксирован локальными ratchet-исключениями и basedpyright baseline.
 
@@ -488,7 +488,7 @@ Scope:
 Scope:
 
 - `src/polisyos/foundry`
-- `tests/foundry`
+- `tests/unit/foundry`
 
 Особое правило:
 
@@ -504,7 +504,7 @@ Scope:
 Scope:
 
 - `src/polisyos/scientist`
-- `tests/scientist`
+- `tests/unit/scientist`
 
 Почему поздно:
 
@@ -516,7 +516,7 @@ Scope:
 Scope:
 
 - `src/polisyos/runtime`
-- `tests/runtime`
+- `tests/unit/runtime`
 
 Особое правило:
 
@@ -528,7 +528,7 @@ Scope:
 - введен canonical gate `uv run polisyos-tools workspace runtime-surface`;
 - gate покрывает `ruff format --check`, `ruff check`, `mypy src/polisyos/runtime`,
   `basedpyright src/polisyos/runtime`, OpenAPI/client drift check и
-  `pytest tests/runtime`;
+  `pytest tests/unit/runtime`;
 
 - runtime Ruff debt оформлен explicit per-module ratchet для динамических
   HTTP/CAS/framework boundary точек, без wildcard на весь runtime package.
@@ -550,19 +550,19 @@ Scope:
 
 Сначала:
 
-- `tools/_lib`
-- `tools/workspace`
+- `tools/lib`
+- `tools/devx/workspace`
 - `scripts/**`
 
 Потом можно параллелить:
 
-- `tools/quality`, `tools/validation`, `tools/ci`
-- `tools/devx`, `tools/connectors`, `tools/runtime`, `tools/release`
-- `tools/cloud`, `tools/ops`, `tools/research`, `tools/benchmarks`
+- `tools/quality`, `tools/quality/validation`, `tools/ci`
+- `tools/devx`, `tools/connectors`, `tools/ops/runtime`, `tools/ops/release`
+- `tools/ops/cloud`, `tools/ops`, `tools/research`, `tools/research/benchmarks`
 
 ### Почему так
 
-`tools/_lib` и `tools/workspace` - это shared substrate. Пока они не в порядке,
+`tools/lib` и `tools/devx/workspace` - это shared substrate. Пока они не в порядке,
 остальные tool-пакеты будут расходиться по локальным конвенциям.
 
 ### File-type gates
@@ -576,11 +576,11 @@ Scope:
 
 ### Scope
 
-- `ops/grafana/**`
-- `ops/helm/**`
+- `ops/observability/grafana/**`
+- `ops/cloud/helm/**`
 - `ops/observability/**`
-- `ops/opa/**`
-- `ops/prometheus/**`
+- `ops/policy/**`
+- `ops/observability/prometheus/**`
 - `ops/security/**`
 - `ops/scripts/**`
 
@@ -624,16 +624,16 @@ frontend и Python domain waves после Phase 0.
 
 | Batch unit                                                                     | Почему это хороший размер                        |
 | ------------------------------------------------------------------------------ | ------------------------------------------------ |
-| `src/polisyos/common` + `tests/common`                                         | низкая зависимость, хороший foundation slice     |
-| `src/polisyos/ir` + `tests/ir`                                                 | отдельный слой DAG                               |
-| `src/polisyos/core` + `tests/core`                                             | естественный package boundary                    |
-| `src/polisyos/fabric` + `tests/fabric`                                         | высокий внутренний cohesion                      |
+| `src/polisyos/common` + `tests/unit/common`                                         | низкая зависимость, хороший foundation slice     |
+| `src/polisyos/ir` + `tests/unit/ir`                                                 | отдельный слой DAG                               |
+| `src/polisyos/core` + `tests/unit/core`                                             | естественный package boundary                    |
+| `src/polisyos/fabric` + `tests/unit/fabric`                                         | высокий внутренний cohesion                      |
 | `src/polisyos/foundry/analysis` или `foundry/runtime` и owning tests           | лучше, чем весь `foundry` сразу                  |
 | `src/polisyos/scientist/<subdomain>` и owning tests                            | иначе diff и type-signal станут слишком шумными  |
-| `tools/_lib` отдельно                                                          | shared substrate                                 |
-| `tools/quality/*` отдельно от `tools/cloud/*`                                  | разный риск и разный язык вспомогательных файлов |
-| `ops/opa` отдельно                                                             | свой toolchain                                   |
-| `ops/helm` отдельно                                                            | свой validation contract                         |
+| `tools/lib` отдельно                                                          | shared substrate                                 |
+| `tools/quality/*` отдельно от `tools/ops/cloud/*`                                  | разный риск и разный язык вспомогательных файлов |
+| `ops/policy` отдельно                                                             | свой toolchain                                   |
+| `ops/cloud/helm` отдельно                                                            | свой validation contract                         |
 | `docs/reference`, `docs/how-to`, `docs/plans/active` как отдельные doc batches | не смешивать authored prose с archive            |
 
 ## 9. Канонические команды по типам поверхностей
@@ -679,7 +679,7 @@ markdownlint-cli2 "docs/**/*.md" "README.md" "CONTRIBUTING.md"
 ```bash
 yamllint .
 actionlint
-helm lint ops/helm/<chart>
+helm lint ops/cloud/helm/<chart>
 ```
 
 ## 9.5 Shell
@@ -724,7 +724,7 @@ opa test <paths>
 - changed-directory formatting/lint/type gates;
 - frontend workspace gates, если затронут `frontend/**`;
 - `actionlint` при изменениях `.github/workflows/**`;
-- `opa check --strict` и `opa test` при изменениях `ops/opa/**`;
+- `opa check --strict` и `opa test` при изменениях `ops/policy/**`;
 - package-specific import/boundary checks на touched Python areas.
 
 ### 10.3 Scheduled full gate
@@ -774,8 +774,8 @@ opa test <paths>
 2. `docs + top-level prose`
 3. `architecture + release + release-fragments + schemas`
 4. `.github + ops`
-5. `tools/_lib + tools/workspace + scripts`
-6. `src/polisyos/common + tests/common`
+5. `tools/lib + tools/devx/workspace + scripts`
+6. `src/polisyos/common + tests/unit/common`
 7. `benchmarks`
 
 ### Шаг 3. После merge `common`
@@ -809,7 +809,7 @@ opa test <paths>
 
 - root formatting/lint policy files для всех релевантных типов файлов;
 - documented exclude registry;
-- canonical `polisyos-tools` / `tools/workspace` wrappers;
+- canonical `polisyos-tools` / `tools/devx/workspace` wrappers;
 - basedpyright baseline strategy;
 - directory status board: какие зоны уже "green and ratcheted";
 - CI split на fast changed-scope и full scheduled sweeps.

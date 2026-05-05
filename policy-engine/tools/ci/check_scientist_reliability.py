@@ -14,13 +14,13 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import ensure_repo_import_roots
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import ensure_repo_import_roots
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 _REPO_ROOT_LIB, _SRC_ROOT = ensure_repo_import_roots(__file__, include_src_root=True)
 
-from polisyos.scientist.reliability_scorecard import (  # noqa: E402
+from polisyos.scientist.validation.reliability_scorecard import (  # noqa: E402
     build_scientist_reliability_scorecard_from_evidence,
 )
 

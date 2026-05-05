@@ -4,11 +4,11 @@ Related reference: [Operations](../operations/index.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/scientist/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`
+Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/scientist/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`.
+> Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`.
 
 The Scientist reliability scorecard is the repo-tracked gate for runtime
 readiness. The canonical helper is
@@ -77,23 +77,23 @@ Missing evidence is recorded as:
 ## Minimum Evidence Build Commands
 
 ```bash
-uv run pytest tests/scientist/integration/test_workflow_reliability_scenarios.py \
-  --junitxml=.tmp/test-reports/scientist-reliability-scenarios.xml -q
+uv run pytest tests/integration/scientist/test_workflow_reliability_scenarios.py \
+  --junitxml=_build/.tmp/test-reports/scientist-reliability-scenarios.xml -q
 
-uv run pytest tests/scientist/test_reliability_operational_evidence.py \
-  --junitxml=.tmp/test-reports/scientist-reliability-operational.xml -q
+uv run pytest tests/unit/scientist/engine/test_reliability_operational_evidence.py \
+  --junitxml=_build/.tmp/test-reports/scientist-reliability-operational.xml -q
 
 uv run pytest tests/performance/test_scientist_runtime_paths.py \
   --benchmark-only \
-  --benchmark-json=.tmp/test-reports/scientist-runtime-benchmarks.json \
+  --benchmark-json=_build/.tmp/test-reports/scientist-runtime-benchmarks.json \
   --benchmark-warmup=on \
   --benchmark-min-rounds=5 \
   -q
 
 uv run python tools/ci/check_scientist_reliability.py \
-  --benchmark-json .tmp/test-reports/scientist-runtime-benchmarks.json \
-  --junit-xml .tmp/test-reports/scientist-reliability-scenarios.xml \
-  --junit-xml .tmp/test-reports/scientist-reliability-operational.xml \
+  --benchmark-json _build/.tmp/test-reports/scientist-runtime-benchmarks.json \
+  --junit-xml _build/.tmp/test-reports/scientist-reliability-scenarios.xml \
+  --junit-xml _build/.tmp/test-reports/scientist-reliability-operational.xml \
   --output-format json \
   --require-passing
 ```
@@ -101,5 +101,5 @@ uv run python tools/ci/check_scientist_reliability.py \
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/test_reliability_scorecard.py tests/tools/test_scientist_reliability_gate.py -q
+uv run pytest tests/unit/scientist/governance/test_reliability_scorecard.py tests/tools/test_scientist_reliability_gate.py -q
 ```

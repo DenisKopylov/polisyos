@@ -3,7 +3,7 @@
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
 Owner: `@lex-owners`
-Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/errors.py`, `src/polisyos/lex/simulator/**`, and `tests/lex/**`
+Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/errors.py`, `src/polisyos/lex/simulator/**`, and `tests/unit/lex/**`
 
 This page covers the public Lex API for the stage flow `ingest -> structure -> version index ->
 normpack -> legal evaluation`: ingest legal documents, structure provision anchors, resolve active

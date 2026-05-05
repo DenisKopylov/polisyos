@@ -23,7 +23,7 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentTrustLevel,
 )
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.scientist.latent_separation import (
+from polisyos.scientist.causal.latent_separation import (
     SEPARATION_DIAGNOSTIC_INPUTS_KEY,
     LatentSeparationDiagnosticInputs,
     LatentSeparationEnvironmentInput,

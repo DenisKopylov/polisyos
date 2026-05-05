@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .commit import AtomicCommitResult, CommitPlan
+from .commit import AtomicCommitResult, CommitPlan, commit_staged_path
 from .finalize import DEFAULT_PIPELINES, finalize_snapshot
 from .merkle import merkle_root
 from .retention import RetentionPolicy
@@ -18,6 +18,7 @@ __all__ = [
     "SnapshotResolver",
     "SnapshotTransaction",
     "SnapshotTransactionStatus",
+    "commit_staged_path",
     "finalize_snapshot",
     "merkle_root",
 ]

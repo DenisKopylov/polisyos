@@ -51,7 +51,7 @@ pip install -e ".[dev,test,academic-skg]" 2>&1 | tail -5
 
 # Verify key packages
 python -c "import aiohttp, openai, duckdb, pydantic, orjson; print('  Core packages OK')"
-python -c "from polisyos.academic.batch.cli import main; print('  Pipeline CLI OK')"
+python -c "from polisyos.data_forge.domains.academic.cli import main; print('  Pipeline CLI OK')"
 
 # --- 5. Environment variables template ---
 echo "[5/6] Checking .env file..."
@@ -76,5 +76,5 @@ echo "Next steps:"
 echo "  1. Upload .env file:  scp .env.server_N root@THIS_SERVER:/opt/polisyos/policy-engine/.env"
 echo "  2. Upload topics:     scp topics_shard_N.csv root@THIS_SERVER:/data/topics/topics.csv"
 echo "  3. Upload cache:      rsync -avz ext_shared_cache/ root@THIS_SERVER:/data/cache/"
-echo "  4. Start pipeline:    bash /opt/polisyos/policy-engine/tools/cloud/run_pipeline.sh"
+echo "  4. Start pipeline:    bash /opt/polisyos/policy-engine/tools/ops/cloud/run_pipeline.sh"
 echo ""

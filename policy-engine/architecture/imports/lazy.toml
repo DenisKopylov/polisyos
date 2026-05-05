@@ -1,0 +1,91 @@
+[lazy_imports]
+version = 1
+status = "fail_closed"
+owner = "team-architecture"
+phase = "3A"
+notes = "Allowed pre-decomposition lazy SCCs. New SCC signatures fail import_cycles_gate."
+
+[[allowed_cycle]]
+id = "cycle-a4951a692d2a"
+modules = ["polisyos.foundry.methods.catalog.causal.constraint_discovery", "polisyos.foundry.methods.catalog.causal.dagma_discovery"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-bfa8bb14adb5"
+modules = ["polisyos.foundry.methods.catalog.causal.do_calculus", "polisyos.foundry.methods.catalog.causal.sigma_calculus"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-218c8d8fdd38"
+modules = ["polisyos.foundry.methods.catalog.causal.transport_check", "polisyos.foundry.methods.catalog.causal.transport_engine"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-f13d182bf8b3"
+modules = ["polisyos.foundry.methods.catalog.network.generative_protocols", "polisyos.foundry.methods.catalog.network.protocols"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-9f0ef0d8389f"
+modules = ["polisyos.scientist.evals.authority", "polisyos.scientist.evals.reports"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-d57c0f6e43f7"
+modules = ["polisyos.scientist.search.judge_stack", "polisyos.scientist.search.readiness"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-0322a3ed4ee7"
+modules = ["polisyos.foundry.methods.catalog.causal._registry_boot", "polisyos.foundry.methods.catalog.causal.causal_engine", "polisyos.foundry.methods.catalog.causal.symbolic_identify"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-8b2db29fb7f8"
+modules = ["polisyos.foundry.methods.catalog.causal.ast_lowerer", "polisyos.foundry.methods.catalog.causal.cross_fit_schedule", "polisyos.foundry.methods.catalog.causal.estimand_compiler"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-dfebbf860268"
+modules = ["polisyos.scientist.autotune.execution_plan", "polisyos.scientist.autotune.runtime", "polisyos.scientist.search.controller"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-7f527c36fcc2"
+modules = ["polisyos.scientist.backtesting.abstraction_suite", "polisyos.scientist.backtesting.adversarial", "polisyos.scientist.backtesting.strategic_suite"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-d00d796e30b9"
+modules = ["polisyos.scientist.memory.applicability", "polisyos.scientist.memory.consolidation", "polisyos.scientist.memory.failure_lessons", "polisyos.scientist.memory.retrieval"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-053fc3091fd7"
+modules = ["polisyos.foundry.agent_sim.credit_assignment", "polisyos.foundry.agent_sim.distributions", "polisyos.foundry.agent_sim.population", "polisyos.foundry.agent_sim.rewards", "polisyos.foundry.agent_sim.state"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-b0970f791b3d"
+modules = ["polisyos.foundry.methods.base", "polisyos.foundry.methods.exceptions", "polisyos.foundry.methods.lifecycle", "polisyos.foundry.methods.registry", "polisyos.foundry.methods.resolution"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-d4e8d60558c5"
+modules = ["polisyos.scientist.engine.async_executor", "polisyos.scientist.engine.checkpoint", "polisyos.scientist.engine.executor", "polisyos.scientist.engine.runner._activity_worker", "polisyos.scientist.engine.runner.config", "polisyos.scientist.engine.runner.distributed_tier", "polisyos.scientist.engine.runner.fallback_runner", "polisyos.scientist.engine.runner.local_runner", "polisyos.scientist.engine.runner.ray_runner", "polisyos.scientist.engine.runner.temporal_runner", "polisyos.scientist.workflows.builder"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-0ce173e66d06"
+modules = ["polisyos.foundry.methods.backends", "polisyos.foundry.methods.backends.async_chain_executor", "polisyos.foundry.methods.backends.chain_executor", "polisyos.foundry.methods.backends.dispatch", "polisyos.foundry.methods.backends.jax_runner", "polisyos.foundry.methods.backends.ray_chain_executor", "polisyos.foundry.methods.compiler", "polisyos.foundry.methods.composer", "polisyos.foundry.methods.equivalence", "polisyos.foundry.methods.equivalence.calibrate", "polisyos.foundry.methods.observability", "polisyos.foundry.methods.output_monitor", "polisyos.foundry.methods.semantic_validator"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-c7a8328c701b"
+modules = ["polisyos.foundry.methods.bayesian", "polisyos.foundry.methods.catalog", "polisyos.foundry.methods.catalog.bayesian", "polisyos.foundry.methods.catalog.causal", "polisyos.foundry.methods.catalog.dependence", "polisyos.foundry.methods.catalog.econometrics", "polisyos.foundry.methods.catalog.microsim", "polisyos.foundry.methods.catalog.ml", "polisyos.foundry.methods.catalog.network", "polisyos.foundry.methods.catalog.optimization", "polisyos.foundry.methods.catalog.spatial", "polisyos.foundry.methods.causal", "polisyos.foundry.methods.dependence", "polisyos.foundry.methods.econometrics", "polisyos.foundry.methods.microsim", "polisyos.foundry.methods.ml", "polisyos.foundry.methods.network", "polisyos.foundry.methods.optimization", "polisyos.foundry.methods.spatial"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
+
+[[allowed_cycle]]
+id = "cycle-439f560d1f69"
+modules = ["polisyos.scientist.nodes.builtins", "polisyos.scientist.nodes.builtins.causal.build_literature_prior", "polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate", "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph", "polisyos.scientist.nodes.builtins.causal.resolve_transport", "polisyos.scientist.nodes.builtins.causal.run_abm_consistency", "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution", "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble", "polisyos.scientist.nodes.builtins.causal.run_causal_queries", "polisyos.scientist.nodes.builtins.causal.run_causal_readiness", "polisyos.scientist.nodes.builtins.compile.compile_foundry", "polisyos.scientist.nodes.builtins.compile.link_trinity", "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs", "polisyos.scientist.nodes.builtins.data.build_data_snapshot", "polisyos.scientist.nodes.builtins.data.enrich_knowledge", "polisyos.scientist.nodes.builtins.decide.build_decision_packet", "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle", "polisyos.scientist.nodes.builtins.decide.policy_runtime_request", "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "polisyos.scientist.nodes.builtins.decide.run_policy_promotion", "polisyos.scientist.nodes.builtins.decide.run_policy_translation", "polisyos.scientist.nodes.builtins.decide.run_translator_compliance", "polisyos.scientist.nodes.builtins.governance.data_plane_gate", "polisyos.scientist.nodes.builtins.governance.run_normative_arbitration", "polisyos.scientist.nodes.builtins.planning.ready_to_run", "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime", "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search", "polisyos.scientist.nodes.builtins.planning.run_preflight", "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation", "polisyos.scientist.nodes.builtins.simulate.run_simulation"]
+reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."

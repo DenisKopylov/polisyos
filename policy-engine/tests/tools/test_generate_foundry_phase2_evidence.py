@@ -19,16 +19,16 @@ def _write_manifest(path: Path) -> None:
                             "polisyos.ir.analytics.distributional.DistributionalBoundsBundle"
                         ],
                         "required_acceptance_tests": [
-                            "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::"
+                            "tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py::"
                             "test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
                         ],
                         "required_benchmarks": ["phase2_distributional_frontier"],
                         "required_synthetic_world_checks": [
-                            "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::"
+                            "tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py::"
                             "test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
                         ],
                         "required_judge_verdicts": [
-                            "tests/foundry/validation/test_phase2_judge_stack.py::"
+                            "tests/unit/foundry/validation/test_phase2_judge_stack.py::"
                             "test_phase2_distributional_frontier_six_judge_promote"
                         ],
                         "acceptance_predicate": "truth_in_envelope",
@@ -48,7 +48,7 @@ def _write_junit_reports(acceptance_path: Path, judge_path: Path) -> None:
     acceptance_path.write_text(
         '<testsuite name="phase2-acceptance">\n'
         "  <testcase "
-        'classname="tests.foundry.methods.catalog.causal.test_distributional_bounds" '
+        'classname="tests.unit.foundry.methods.catalog.causal.test_distributional_bounds" '
         'name="test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families'
         '[sd_theil-theil_t-params3-sd_theil]" />\n'
         "</testsuite>\n",
@@ -57,7 +57,7 @@ def _write_junit_reports(acceptance_path: Path, judge_path: Path) -> None:
     judge_path.write_text(
         '<testsuite name="phase2-judges">\n'
         "  <testcase "
-        'classname="tests.foundry.validation.test_phase2_judge_stack" '
+        'classname="tests.unit.foundry.validation.test_phase2_judge_stack" '
         'name="test_phase2_distributional_frontier_six_judge_promote" />\n'
         "</testsuite>\n",
         encoding="utf-8",
@@ -97,14 +97,14 @@ def test_generate_foundry_phase2_evidence_matches_pytest_junit_variants(tmp_path
     track = payload["tracks"]["P2.04"]
     assert (
         track["synthetic_world_checks"][
-            "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::"
+            "tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py::"
             "test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
         ]
         == "pass"
     )
     assert (
         track["judge_verdicts"][
-            "tests/foundry/validation/test_phase2_judge_stack.py::"
+            "tests/unit/foundry/validation/test_phase2_judge_stack.py::"
             "test_phase2_distributional_frontier_six_judge_promote"
         ]["composite_decision"]
         == "promote"

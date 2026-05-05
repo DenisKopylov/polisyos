@@ -3,7 +3,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { useDensity } from "@/app/providers/DensityProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
 import { readWorkspaceAppearancePreferences } from "@/app/workspaces";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useAuthorship } from "@/shared/ui/authored-text";
 import { Card } from "@/shared/ui";
 

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claims](claims.md), [Governance acco
 
 Owner: `@scientist-owners`
 Backup owner: `@governance-owners`
-Source of truth: `src/polisyos/scientist/human_review/**`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, and `tests/scientist/human_review/**`
+Source of truth: `src/polisyos/scientist/human_review/**`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, and `tests/unit/scientist/human_review/**`
 
 Phase 1.6 makes human oversight an operational control plane. Review packets,
 assignments, decisions and release-status summaries are typed runtime objects
@@ -77,6 +77,6 @@ require_human_review_for_publication=true
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/human_review -q
-uv run pytest tests/scientist/test_decision_packet_node_v3.py tests/scientist/test_run_governance_normative.py -q
+uv run pytest tests/unit/scientist/human_review -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py tests/unit/scientist/nodes/test_run_governance_normative.py -q
 ```

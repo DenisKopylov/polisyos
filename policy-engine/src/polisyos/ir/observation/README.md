@@ -56,7 +56,7 @@ Conceptual in this README refresh; run this suite before landing observation
 bundle or governance-registry changes.
 
 ```bash
-uv run pytest tests/ir/observation/test_bundle_schemas.py tests/ir/observation/test_governance_registry.py tests/ir/observation/test_causal_readiness.py tests/ir/test_interoperability_bridges.py -q
+uv run pytest tests/unit/ir/observation/test_bundle_schemas.py tests/unit/ir/observation/test_governance_registry.py tests/unit/ir/observation/test_causal_readiness.py tests/unit/ir/test_interoperability_bridges.py -q
 ```
 
 ## Reference docs

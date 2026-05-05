@@ -53,7 +53,7 @@ Conceptual in this README refresh; run these checks before landing kernel or
 schema-generation changes.
 
 ```bash
-uv run pytest tests/contract/test_trinity_linker_contract.py tests/ir/test_phase2_passes.py -q
+uv run pytest tests/contract/test_trinity_linker_contract.py tests/unit/ir/test_phase2_passes.py -q
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 

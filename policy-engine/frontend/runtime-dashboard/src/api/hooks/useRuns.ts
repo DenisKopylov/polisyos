@@ -8,7 +8,7 @@ import {
   RUNS_DEFAULT_LIMIT,
   RUNS_SAMPLE_LIMIT,
   RUNS_SAMPLE_STALE_MS,
-} from "../../lib/constants";
+} from "@/shared/lib/constants";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";

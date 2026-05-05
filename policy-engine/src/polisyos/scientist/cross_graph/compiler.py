@@ -9,9 +9,8 @@ from typing import Any
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.academic.knowledge.skg_query import ParameterCandidate, SKGQuery
-from polisyos.datasets.knowledge.proxy_resolver import resolve_proxy
-from polisyos.datasets.knowledge.registry import DatasetRegistry
+from polisyos.data_forge.read_api.academic import ParameterCandidate, SKGQuery
+from polisyos.data_forge.read_api.catalog import DatasetRegistry, resolve_proxy
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
@@ -50,7 +49,7 @@ from polisyos.scientist.cross_graph.alignment import (
     diagnostic_key,
 )
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
-from polisyos.scientist.evidence_sources import build_path_source_status, update_source_status
+from polisyos.scientist.evidence.sources import build_path_source_status, update_source_status
 
 _CROSS_GRAPH_QUERY_ERRORS = (
     duckdb.Error,

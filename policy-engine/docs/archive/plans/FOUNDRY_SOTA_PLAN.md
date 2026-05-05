@@ -44,7 +44,7 @@
 | DAG composition | `methods/composer.py`, `methods/linker.py` | 8.5 | Deterministic topological sort, slot linking, type adaptation |
 | Backend dispatch | `methods/backends/dispatch.py`, `backends/circuit_breaker.py` | 8.5 | Multi-runner (JAX/NumPy/Ray/Solver/Bayesian), circuit breaker, timing, reproducibility fingerprint |
 | Data plane bindings | `data_plane/bindings.py` | 8.5 | Input rules, bound snapshot, auto-rules, lineage |
-| Purity enforcement | `tools/lint/lint_foundry.py` | 8.0 | AST-level lint, 4 policy tiers (standard/infra/mixed/no_jax) |
+| Purity enforcement | `tools/quality/lint/lint_foundry.py` | 8.0 | AST-level lint, 4 policy tiers (standard/infra/mixed/no_jax) |
 | Artifact chain | `methods/artifacts.py`, `methods/_artifacts_*.py` | 8.0 | store/chain/evidence, fingerprint, provenance |
 
 ### Критические разрывы (сводка)
@@ -113,12 +113,12 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 ```
 
 **Тесты:**
-- `tests/foundry/methods/catalog/test_catalog_isolation.py`:
+- `tests/unit/foundry/methods/catalog/test_catalog_isolation.py`:
   - `test_ensure_all_methods_registered_without_causal()` — mock causal import failure, assert remaining 15 domains load
   - `test_ensure_all_methods_registered_with_causal()` — baseline: all 16 domains load
   - `test_catalog_snapshot_without_causal()` — snapshot builder produces valid output when causal unavailable
 
-**Критерий приёмки:** `uv run --extra methods-milestone2 pytest tests/foundry/methods/catalog/test_catalog_isolation.py -q` проходит без `causal-core` extra.
+**Критерий приёмки:** `uv run --extra methods-milestone2 pytest tests/unit/foundry/methods/catalog/test_catalog_isolation.py -q` проходит без `causal-core` extra.
 
 ### 1.2 — Fail-closed execution с typed FailureCard
 
@@ -200,7 +200,7 @@ def _classify_failure(exc: Exception) -> FailureSeverity:
 - `execute_program_graph()` — добавить `failure_cards: list[FailureCard]` в возвращаемые artifacts и `is_degraded: bool` flag.
 
 **Тесты:**
-- `tests/foundry/test_executor_fail_semantics.py`:
+- `tests/unit/foundry/runtime/test_executor_fail_semantics.py`:
   - `test_fail_closed_aborts_on_fatal()` — TypeError → MethodExecutionAbortError
   - `test_fail_closed_continues_on_recoverable()` — ModuleNotFoundError → continue with card
   - `test_degraded_mode_records_cards()` — multiple failures → all recorded
@@ -222,7 +222,7 @@ def _classify_failure(exc: Exception) -> FailureSeverity:
   - Включить provenance в ExecuteArtifacts
 
 **Тесты:**
-- `tests/foundry/test_executor_provenance.py`:
+- `tests/unit/foundry/runtime/test_executor_provenance.py`:
   - `test_provenance_records_method_per_patch()`
   - `test_provenance_multi_writer_same_slot()`
 
@@ -242,11 +242,11 @@ def export_jsonl(self, path: "Path") -> None:
 ```
 
 **Тесты:**
-- `tests/foundry/methods/test_registry_audit.py`:
+- `tests/unit/foundry/methods/test_registry_audit.py`:
   - `test_export_jsonl_writes_valid_file(tmp_path)`
   - `test_export_jsonl_empty_log(tmp_path)`
 
-**Критерий приёмки Phase 1:** все новые тесты + `pytest tests/foundry/ -q --tb=short` green.
+**Критерий приёмки Phase 1:** все новые тесты + `pytest tests/unit/foundry/ -q --tb=short` green.
 
 ---
 
@@ -359,7 +359,7 @@ class CompositeConstraint(BaseModel, frozen=True):
 - Safe expression evaluator (no eval(), ast.literal_eval + operator whitelist).
 
 **Тесты:**
-- `tests/foundry/test_constraints_v2.py`:
+- `tests/unit/foundry/validation/test_constraints_v2.py`:
   - `test_vector_constraint_mean()` — np.mean aggregation
   - `test_vector_constraint_all()` — elementwise check
   - `test_vector_constraint_quantile()` — percentile check
@@ -399,7 +399,7 @@ if preferred == "analytical":
 - Fallback: if ANALYTICAL fails (non-linear function), log warning + fallback to DELTA_METHOD → MONTE_CARLO.
 
 **Тесты:**
-- `tests/foundry/uncertainty/test_dispatcher_routing.py`:
+- `tests/unit/foundry/uncertainty/test_dispatcher_routing.py`:
   - `test_analytical_preferred_routes_correctly()`
   - `test_analytical_fallback_to_delta_on_nonlinear()`
   - `test_analytical_output_matches_delta_for_linear()`
@@ -504,21 +504,21 @@ class AggregationStrategy(str, Enum):
 - `bayesian_combination`: Gaussian conjugate update.
 
 **Тесты:**
-- `tests/foundry/uncertainty/test_analytical_routing.py`
-- `tests/foundry/uncertainty/test_quasi_mc.py`:
+- `tests/unit/foundry/uncertainty/test_analytical_routing.py`
+- `tests/unit/foundry/uncertainty/test_quasi_mc.py`:
   - `test_sobol_samples_uniformity()` — Kolmogorov-Smirnov test
   - `test_sobol_variance_reduction()` — QMC CI width < random MC CI width for same n_samples
   - `test_halton_dimensionality()`
-- `tests/foundry/uncertainty/test_adaptive_stopping.py`:
+- `tests/unit/foundry/uncertainty/test_adaptive_stopping.py`:
   - `test_adaptive_stops_early_on_convergence()`
   - `test_adaptive_respects_min_samples()`
   - `test_adaptive_respects_max_samples()`
-- `tests/foundry/uncertainty/test_sensitivity_indices.py`:
+- `tests/unit/foundry/uncertainty/test_sensitivity_indices.py`:
   - `test_linear_model_sobol_indices()` — known analytical solution
   - `test_independent_inputs_sum_to_one()`
-- `tests/foundry/uncertainty/test_tail_risk.py`:
+- `tests/unit/foundry/uncertainty/test_tail_risk.py`:
   - `test_cvar_less_than_quantile()` — CVaR ≤ 5th percentile
-- `tests/foundry/uncertainty/test_aggregation_strategies.py`:
+- `tests/unit/foundry/uncertainty/test_aggregation_strategies.py`:
   - `test_precision_weighted_narrows_ci()`
   - `test_widest_backward_compat()`
   - Property test: `test_aggregated_ci_contains_all_points()`
@@ -618,18 +618,18 @@ def diagnose_identifiability(hessian_result: HessianResult, param_names: list[st
 Каждый: `forward(x)`, `inverse(y)`, `log_det_jacobian(x)`.
 
 **Тесты:**
-- `tests/foundry/calibration/test_hessian.py`:
+- `tests/unit/foundry/calibration/test_hessian.py`:
   - `test_hessian_quadratic_function()` — known answer: H = 2I
   - `test_hessian_eigenvalue_repair()`
   - `test_finite_difference_matches_exact()`
-- `tests/foundry/calibration/test_multi_start.py`:
+- `tests/unit/foundry/calibration/test_multi_start.py`:
   - `test_multi_start_finds_global_minimum()`
   - `test_multi_start_identifiability_selection()`
-- `tests/foundry/calibration/test_identifiability.py`:
+- `tests/unit/foundry/calibration/test_identifiability.py`:
   - `test_identified_parameter()`
   - `test_sloppy_parameter_flagged()`
   - `test_non_identified_parameter_flagged()`
-- `tests/foundry/calibration/test_bijectors.py`:
+- `tests/unit/foundry/calibration/test_bijectors.py`:
   - `test_log_roundtrip()`
   - `test_logit_roundtrip()`
   - `test_chain_bijector_composition()`
@@ -745,7 +745,7 @@ def compute_voi(
 ```
 
 **Тесты:**
-- `tests/foundry/methods/test_selection_v2.py`:
+- `tests/unit/foundry/methods/test_selection_v2.py`:
   - `test_evidence_scorer_prefers_high_success_rate()`
   - `test_evidence_scorer_penalizes_budget_violation()`
   - `test_runtime_predictor_linear_scaling()`
@@ -828,12 +828,12 @@ if nan_guard_enabled:
 ```
 
 **Тесты:**
-- `tests/foundry/runtime/test_step_specialization.py`:
+- `tests/unit/foundry/runtime/test_step_specialization.py`:
   - `test_step_with_static_bundle_applies_nodes()`
   - `test_step_without_bundle_returns_identity()`
   - `test_step_nan_guard_strict_raises()`
   - `test_step_nan_guard_research_logs()`
-- `tests/foundry/runtime/test_timing.py`:
+- `tests/unit/foundry/runtime/test_timing.py`:
   - `test_compile_execute_timing_separation()`
   - `test_warmup_vs_cached_timing()`
 
@@ -930,11 +930,11 @@ if validate_semantics_level == SemanticValidationLevel.STRICT:
 ```
 
 **Тесты:**
-- `tests/foundry/methods/test_dispatch_fallback.py`:
+- `tests/unit/foundry/methods/test_dispatch_fallback.py`:
   - `test_fallback_skips_incompatible_backend()`
   - `test_fallback_selects_compatible_backend()`
   - `test_fallback_returns_none_when_no_option()`
-- `tests/foundry/methods/test_composer_hardening.py`:
+- `tests/unit/foundry/methods/test_composer_hardening.py`:
   - `test_semantic_validation_default_on()`
   - `test_dag_node_key_includes_upstream()`
   - `test_missing_requirement_strict_raises()`
@@ -955,22 +955,22 @@ if validate_semantics_level == SemanticValidationLevel.STRICT:
 
 | Файл | Covers | Min tests |
 |------|--------|-----------|
-| `tests/foundry/compile/test_trinity_compiler.py` | Link → lower → graph → plan | 8 |
-| `tests/foundry/compile/test_graph.py` | build_program_graph, exec_order | 5 |
-| `tests/foundry/compile/test_lowering.py` | lower_trinity, coverage tracking | 5 |
-| `tests/foundry/calibration/test_calibrator.py` | Calibrator.run() e2e | 6 |
-| `tests/foundry/calibration/test_pure_executor.py` | compile_program, run_pure_scan | 5 |
-| `tests/foundry/calibration/test_loss.py` | loss_components (huber, MSE) | 4 |
-| `tests/foundry/calibration/test_preflight.py` | Preflight checks | 4 |
-| `tests/foundry/uncertainty/test_dispatcher.py` | Strategy routing | 5 |
-| `tests/foundry/uncertainty/test_delta.py` | Jacobian propagation | 5 |
-| `tests/foundry/uncertainty/test_monte_carlo.py` | Sampling, batch, heuristic fallback | 6 |
-| `tests/foundry/uncertainty/test_covariance.py` | build_covariance_matrix, repair | 4 |
-| `tests/foundry/uncertainty/test_aggregator.py` | Widest, precision_weighted | 4 |
-| `tests/foundry/contracts/test_fidelity.py` | FidelityLevel contracts | 3 |
-| `tests/foundry/data_plane/test_bindings.py` | load_input_bindings | 4 |
-| `tests/foundry/runtime/test_nan_guard.py` | NaN detection | 4 |
-| `tests/foundry/runtime/test_fingerprint.py` | Library version capture | 3 |
+| `tests/unit/foundry/compile/test_trinity_compiler.py` | Link → lower → graph → plan | 8 |
+| `tests/unit/foundry/compile/test_graph.py` | build_program_graph, exec_order | 5 |
+| `tests/unit/foundry/compile/test_lowering.py` | lower_trinity, coverage tracking | 5 |
+| `tests/unit/foundry/calibration/test_calibrator.py` | Calibrator.run() e2e | 6 |
+| `tests/unit/foundry/calibration/test_pure_executor.py` | compile_program, run_pure_scan | 5 |
+| `tests/unit/foundry/calibration/test_loss.py` | loss_components (huber, MSE) | 4 |
+| `tests/unit/foundry/calibration/test_preflight.py` | Preflight checks | 4 |
+| `tests/unit/foundry/uncertainty/test_dispatcher.py` | Strategy routing | 5 |
+| `tests/unit/foundry/uncertainty/test_delta.py` | Jacobian propagation | 5 |
+| `tests/unit/foundry/uncertainty/test_monte_carlo.py` | Sampling, batch, heuristic fallback | 6 |
+| `tests/unit/foundry/uncertainty/test_covariance.py` | build_covariance_matrix, repair | 4 |
+| `tests/unit/foundry/uncertainty/test_aggregator.py` | Widest, precision_weighted | 4 |
+| `tests/unit/foundry/contracts/test_fidelity.py` | FidelityLevel contracts | 3 |
+| `tests/unit/foundry/data_plane/test_bindings.py` | load_input_bindings | 4 |
+| `tests/unit/foundry/runtime/test_nan_guard.py` | NaN detection | 4 |
+| `tests/unit/foundry/runtime/test_fingerprint.py` | Library version capture | 3 |
 | **Итого** | | **75 тестов** |
 
 ### 8.2 — Domain test gap closure (приоритет 2)
@@ -1021,12 +1021,12 @@ def test_poverty_rate_monotone_in_threshold(data):
 
 | Файл | Tests |
 |------|-------|
-| `tests/foundry/agent_sim/test_executor.py` | 4 |
-| `tests/foundry/agent_sim/test_mechanisms.py` | 4 |
-| `tests/foundry/agent_sim/test_distributions.py` | 4 |
-| `tests/foundry/agent_sim/test_training.py` | 3 |
-| `tests/foundry/agent_sim/test_evolution.py` | 3 |
-| `tests/foundry/agent_sim/test_population.py` | 3 |
+| `tests/unit/foundry/agent_sim/test_executor.py` | 4 |
+| `tests/unit/foundry/agent_sim/test_mechanisms.py` | 4 |
+| `tests/unit/foundry/agent_sim/test_distributions.py` | 4 |
+| `tests/unit/foundry/agent_sim/test_training.py` | 3 |
+| `tests/unit/foundry/agent_sim/test_evolution.py` | 3 |
+| `tests/unit/foundry/agent_sim/test_population.py` | 3 |
 
 **Критерий приёмки Phase 8:** ≥75 infrastructure tests + ≥45 domain tests + ≥30 property tests + ≥21 agent_sim tests = **≥171 новых тестов**; overall non-causal test count ≥ 250.
 
@@ -1070,7 +1070,7 @@ foundry/
 
 ### 9.2 — Data-plane lint расширение
 
-**Файл:** `tools/lint/lint_foundry_data_plane.py`:
+**Файл:** `tools/quality/lint/lint_foundry_data_plane.py`:
 
 Добавить проверки:
 - Все slots referenced в constraints_engine имеют state_path в SlotRegistry
@@ -1087,11 +1087,11 @@ foundry/
 - Version bump при reload (prevent stale cache hits)
 
 **Тесты:**
-- `tests/foundry/test_purity_boundaries.py`:
+- `tests/unit/foundry/hygiene/test_purity_boundaries.py`:
   - `test_pure_zone_no_banned_imports()`
   - `test_mixed_zone_allows_scipy()`
   - `test_infra_zone_no_restrictions()`
-- `tests/foundry/methods/test_hot_reload_safety.py`:
+- `tests/unit/foundry/methods/test_hot_reload_safety.py`:
   - `test_reload_invalidates_cache()`
   - `test_reload_thread_safe()`
 
@@ -1128,10 +1128,10 @@ class GoldenRegistry:
     def verify_all(self, registry: MethodRegistry) -> GoldenReport: ...
 ```
 
-- `tests/foundry/golden/` — YAML golden files per domain:
+- `tests/unit/foundry/golden/` — YAML golden files per domain:
 
 ```yaml
-# tests/foundry/golden/econometrics.yaml
+# tests/unit/foundry/golden/econometrics.yaml
 - method_fqn: "econometrics.panel.fixed_effects@1.0"
   input_data:
     y: [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]

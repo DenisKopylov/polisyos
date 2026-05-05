@@ -13,7 +13,7 @@ cross-cutting WS-10 documentation/observability surface from the Foundry plan.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/runtime/**`, `src/polisyos/foundry/methods/backends/**`, `src/polisyos/foundry/release_acceptance.py`, benchmark registry/help surfaces, and generated method snapshot inputs from `src/polisyos/foundry/methods/catalog_snapshot.py`
 
 ## Runtime Artifacts
@@ -49,7 +49,7 @@ replayability.
 
 The tolerance-budget implementation lives in
 `polisyos.foundry.methods.backends.runtime_fingerprint` and is exercised by
-`tests/foundry/methods/backends/test_backend_determinism.py`.
+`tests/unit/foundry/methods/backends/test_backend_determinism.py`.
 
 ## Capability Matrix
 
@@ -104,7 +104,7 @@ uv run polisyos-foundry release-acceptance \
 ```
 
 The release-gate workflow is asserted by
-`tests/foundry/test_release_gate.py`.
+`tests/unit/foundry/validation/test_release_gate.py`.
 
 For machine-readable automation, prefer the Python regeneration path above.
 Current CLI `--json` runs may include registry-bootstrap logs before the JSON
@@ -116,8 +116,8 @@ The current benchmark command boundary for this reference set is:
 
 ```bash
 uv run polisyos-tools benchmarks run-all --help
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
 ```
 
 `polisyos-tools benchmarks run-all --help` is the verified command entrypoint,
@@ -141,23 +141,23 @@ anchor linked from this page and from [Run Benchmarks](../../how-to/run-benchmar
 Numeric/JAX claims in this documentation should point to one of these anchors:
 
 - NaN guard model and runtime checks:
-  `tests/foundry/test_nan_guard.py`,
-  `tests/foundry/runtime/test_nan_guard.py`
+  `tests/unit/foundry/runtime/test_nan_guard_public.py`,
+  `tests/unit/foundry/runtime/test_nan_guard.py`
 
 - Numerical stability:
-  `tests/foundry/methods/backends/test_numerical_stability.py`
+  `tests/unit/foundry/methods/backends/test_numerical_stability.py`
 
 - Cross-backend consistency:
-  `tests/foundry/methods/test_cross_backend_consistency.py`
+  `tests/unit/foundry/methods/test_cross_backend_consistency.py`
 
 - Agent-sim JIT compatibility:
-  `tests/foundry/agent_sim/test_jit_compatibility.py`
+  `tests/unit/foundry/agent_sim/test_jit_compatibility.py`
 
 - Performance benchmark ratchet:
-  `tests/foundry/benchmarks/test_ws5_jax_perf.py`
+  `tests/unit/foundry/benchmarks/test_ws5_jax_perf.py`
 
 - Numeric policy note:
-  `docs/FOUNDRY_NUMERIC_GUARDRAILS.md`
+  `docs/reference/foundry/numeric-guardrails.md`
 
 ## Reference
 

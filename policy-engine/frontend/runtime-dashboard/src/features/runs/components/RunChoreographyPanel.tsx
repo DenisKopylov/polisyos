@@ -1,6 +1,6 @@
 import type { RunChoreographyView } from "@/features/runs/domain/runChoreography";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
 import { Badge, EmptyState } from "@/shared/ui";
 
 function statusKind(status: RunChoreographyView["lanes"][number]["status"]) {

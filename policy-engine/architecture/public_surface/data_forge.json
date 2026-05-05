@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "planned",
+  "status": "implemented",
   "module": "polisyos.data_forge",
   "owner": "team-data-forge",
   "public_entrypoints": [
@@ -11,5 +11,39 @@
     "polisyos.data_forge.kernel",
     "polisyos.data_forge.domains"
   ],
-  "exports": []
+  "exports": [
+    "ArtifactRef",
+    "AssetDefinition",
+    "AssetGroup",
+    "AssetKey",
+    "AssetSpec",
+    "CompatibilityMode",
+    "DataForgeError",
+    "DataForgeValidationError",
+    "DifferentialComparison",
+    "GoldenArtifact",
+    "GoldenCase",
+    "MaterializationContext",
+    "PIILevel",
+    "ProducerVersion",
+    "QCCheck",
+    "QCReport",
+    "RetentionClass",
+    "SchemaCompatibilityError",
+    "SchemaRegistry",
+    "SchemaVersion",
+    "SnapshotCommitError",
+    "SnapshotTransaction",
+    "SnapshotTransactionStatus",
+    "__version__",
+    "asset",
+    "capture_golden_file",
+    "compare_file_sha256",
+    "compare_json_files",
+    "evaluate_fail_fast",
+    "merkle_root",
+    "plan_asset_specs",
+    "read_api",
+    "verify_golden_file"
+  ]
 }

@@ -1,0 +1,446 @@
+[name_registry]
+version = 1
+status = "phase_1c_decided"
+owner = "team-architecture"
+phase = "repository-structure-remediation-phase-1c"
+description = "Allowed shared directory names across top-level packages plus explicit rename/removal backlog for unresolved collisions."
+
+[defaults]
+new_shared_names_allowed = false
+fail_closed_for_unregistered_collisions = true
+required_shared_fields = ["name", "allowed_in", "semantic_axis", "disambiguation", "owner", "target_phase", "sunset"]
+required_rename_backlog_fields = ["name", "packages", "locations", "action", "owner", "target_phase", "sunset"]
+
+[[shared_name]]
+name = "adapters"
+allowed_in = ["berl", "runtime", "scientist"]
+semantic_axis = "package-owned integration adapters"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "analytics"
+allowed_in = ["foundry", "ir"]
+semantic_axis = "analytical method families per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "artifacts"
+allowed_in = ["core", "ir"]
+semantic_axis = "artifact contracts and IR artifact projections"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "backends"
+allowed_in = ["core", "fabric", "foundry", "lex", "scientist"]
+semantic_axis = "private implementation backends per package"
+disambiguation = "qualified imports required; private backends are not cross-package APIs"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "cache"
+allowed_in = ["core", "fabric"]
+semantic_axis = "package-local cache infrastructure"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "catalog"
+allowed_in = ["data_forge", "fabric", "foundry"]
+semantic_axis = "package-specific registries/catalogs"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "causal"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "causal methods and scientist causal reasoning"
+disambiguation = "qualified imports required; foundry/methods/catalog/causal is canonical for Foundry methods"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "claims"
+allowed_in = ["fabric", "scientist"]
+semantic_axis = "claim storage/processing versus scientist claim reasoning"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "compile"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "package-specific compile steps"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "contracts"
+allowed_in = ["berl", "core", "ddm", "fabric", "foundry", "lex", "scientist"]
+semantic_axis = "Pydantic models per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "core"
+allowed_in = ["core", "foundry"]
+semantic_axis = "canonical top-level core package and Foundry agent-sim world internals"
+disambiguation = "qualified imports required; foundry/agent_sim/world/core is not a cross-package API"
+owner = "team-architecture"
+target_phase = "1C/4A"
+sunset = "none"
+
+[[shared_name]]
+name = "data"
+allowed_in = ["ir", "scientist"]
+semantic_axis = "IR data structures and scientist data nodes"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "data_plane"
+allowed_in = ["fabric", "foundry"]
+semantic_axis = "data-plane interfaces per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "ddl"
+allowed_in = ["fabric", "ir"]
+semantic_axis = "schema/DDL helpers per storage or IR context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "engine"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "execution engines per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "feedback"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "Foundry execution feedback versus Scientist decision-feedback loops"
+disambiguation = "qualified imports required; package-local feedback modules are bounded-context APIs"
+owner = "team-architecture"
+target_phase = "5/6"
+sunset = "none"
+
+[[shared_name]]
+name = "errors"
+allowed_in = ["core"]
+semantic_axis = "canonical package-level error taxonomy"
+disambiguation = "fixture directories named errors require backlog coverage and must not become package namespace contracts"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "governance"
+allowed_in = ["core", "foundry", "ir", "scientist"]
+semantic_axis = "policy enforcement / decision audit"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "io"
+allowed_in = ["data_forge", "fabric"]
+semantic_axis = "package-local IO helpers"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "kernel"
+allowed_in = ["data_forge", "ir", "scientist"]
+semantic_axis = "package-specific kernels"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "knowledge"
+allowed_in = ["data_forge", "lex"]
+semantic_axis = "knowledge assets per data or legal context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "legal"
+allowed_in = ["core", "data_forge", "scientist"]
+semantic_axis = "legal policy, legal corpus, and scientist legal review contexts"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "llm"
+allowed_in = ["core", "scientist"]
+semantic_axis = "LLM infrastructure and scientist LLM workflows"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "methods"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "method runtime/catalog versus scientist method selection context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "migrations"
+allowed_in = ["common", "ir"]
+semantic_axis = "migration helpers per owning package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "orchestrator"
+allowed_in = ["scholar", "scientist"]
+semantic_axis = "workflow orchestration per research package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "passes"
+allowed_in = ["core", "ir", "scientist"]
+semantic_axis = "compiler/governance passes per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "pipeline"
+allowed_in = ["core", "data_forge"]
+semantic_axis = "pipeline orchestration per owning package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "profiles"
+allowed_in = ["fabric", "foundry", "scientist"]
+semantic_axis = "source/runtime profiles per package and Foundry execution/runtime profiles"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C/6"
+sunset = "none"
+
+[[shared_name]]
+name = "provenance"
+allowed_in = ["fabric", "lex", "scientist"]
+semantic_axis = "provenance tracking per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "quality"
+allowed_in = ["data_forge", "fabric"]
+semantic_axis = "data quality controls per package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "resilience"
+allowed_in = ["core", "fabric"]
+semantic_axis = "resilience primitives per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "registry"
+allowed_in = ["core", "foundry"]
+semantic_axis = "core security/runtime registries and Foundry method/runtime registries"
+disambiguation = "qualified imports required; each registry is package-local and must not become a cross-package singleton"
+owner = "team-architecture"
+target_phase = "7"
+sunset = "none"
+
+[[shared_name]]
+name = "runtime"
+allowed_in = ["data_forge", "runtime"]
+semantic_axis = "top-level runtime package plus data_forge kernel runtime internals"
+disambiguation = "qualified imports required; package-local runtime directories in scientist/foundry require backlog coverage"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "search"
+allowed_in = ["scholar", "scientist"]
+semantic_axis = "search workflows per research package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "security"
+allowed_in = ["core", "fabric"]
+semantic_axis = "security helpers per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "sources"
+allowed_in = ["data_forge", "fabric"]
+semantic_axis = "source registry/data connectors per package"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "testing"
+allowed_in = ["data_forge", "fabric", "foundry"]
+semantic_axis = "package-local testing utilities"
+disambiguation = "qualified imports required; not public API"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "trace"
+allowed_in = ["core", "foundry"]
+semantic_axis = "core observability trace support and Foundry runtime trace helpers"
+disambiguation = "qualified imports required; trace helpers remain bounded-context specific"
+owner = "team-architecture"
+target_phase = "7"
+sunset = "none"
+
+[[shared_name]]
+name = "types"
+allowed_in = ["fabric", "foundry"]
+semantic_axis = "package-local type aliases and protocols"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "validation"
+allowed_in = ["foundry", "scientist"]
+semantic_axis = "validation per bounded context"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "world"
+allowed_in = ["fabric", "foundry", "ir"]
+semantic_axis = "world-store materialization, IR world model, and Foundry agent-sim synthetic world generation"
+disambiguation = "qualified imports required"
+owner = "team-architecture"
+target_phase = "1C/4A"
+sunset = "none"
+
+[[shared_name]]
+name = "calibration"
+allowed_in = ["calibration", "ddm", "foundry", "scientist"]
+semantic_axis = "shared diagnostics versus package-specific parameter/drift/orchestration calibration contexts"
+disambiguation = "polisyos.calibration is canonical for generic diagnostics; foundry/ddm/scientist usages must stay bounded-context specific"
+owner = "team-architecture"
+target_phase = "4A"
+sunset = "none"
+
+[[rename_backlog]]
+name = "discovery"
+packages = ["core", "foundry", "scientist"]
+locations = [
+  "src/polisyos/core/discovery",
+  "src/polisyos/foundry/discovery",
+  "src/polisyos/scientist/discovery",
+]
+action = "Resolve merge-versus-bounded-context decision before scientist/foundry decomposition moves."
+replacement = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md#discovery"
+owner = "team-architecture"
+target_phase = "3A/5/6"
+sunset = "2026-10-01"
+
+[[rename_backlog]]
+name = "runtime"
+packages = ["foundry", "scientist"]
+locations = [
+  "src/polisyos/foundry/runtime",
+  "src/polisyos/scientist/runtime",
+]
+action = "Rename inner runtime packages to _runtime_glue or fold facades into package APIs; reserve runtime/ for the top-level package."
+replacement = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md#runtime"
+owner = "team-foundry/team-scientist"
+target_phase = "5/6"
+sunset = "2026-10-01"
+
+[[rename_backlog]]
+name = "causal"
+packages = ["foundry"]
+locations = ["src/polisyos/foundry/methods/causal"]
+action = "Remove empty Foundry methods placeholder; foundry/methods/catalog/causal remains canonical."
+replacement = "src/polisyos/foundry/methods/catalog/causal"
+owner = "team-foundry"
+target_phase = "1A"
+sunset = "2026-06-15"
+
+[[rename_backlog]]
+name = "errors"
+packages = ["data_forge"]
+locations = ["src/polisyos/data_forge/domains/catalog/fixtures/academic/errors"]
+action = "Rename academic fixture taxonomy directory to academic_error_cases; this is fixture data, not a package namespace contract."
+replacement = "src/polisyos/data_forge/domains/catalog/fixtures/academic/academic_error_cases"
+owner = "team-architecture"
+target_phase = "4A"
+sunset = "2026-10-01"

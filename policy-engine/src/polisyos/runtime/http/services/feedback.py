@@ -20,7 +20,7 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.contracts.runtime import RunCompareView, RunEquilibriaView, RunFeedbackView
 from polisyos.core.run.context import new_run_id
-from polisyos.scientist.feedback import DecisionFeedbackService
+from polisyos.scientist.feedback.core import DecisionFeedbackService
 from polisyos.scientist.nodes.builtins.state_keys import INPUT_PARAMETER_OVERRIDE_BUNDLE_REF
 
 if TYPE_CHECKING:

@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 import { Badge } from "@/shared/ui/Badge";
 

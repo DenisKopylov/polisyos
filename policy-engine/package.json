@@ -1,0 +1,17 @@
+{
+  "name": "@polisyos/policy-engine-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "build": "corepack pnpm -r --workspace-concurrency=1 --if-present run build",
+    "test": "corepack pnpm -r --workspace-concurrency=1 --if-present run test",
+    "test:smoke": "corepack pnpm --filter @polisyos/runtime-api-client test && corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts && corepack pnpm --filter @polisyos/runtime-reference-shell test && corepack pnpm --filter @polisyos/cli test",
+    "lint": "corepack pnpm -r --workspace-concurrency=1 --if-present run lint",
+    "typecheck": "corepack pnpm -r --workspace-concurrency=1 --if-present run typecheck"
+  }
+}

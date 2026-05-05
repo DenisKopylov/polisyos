@@ -1,0 +1,1851 @@
+{
+  "build_outputs": [
+    {
+      "ignored": true,
+      "name": "_build",
+      "path": "policy-engine/_build",
+      "scope": "product_root"
+    },
+    {
+      "ignored": false,
+      "name": "release",
+      "path": "policy-engine/release",
+      "scope": "product_root"
+    },
+    {
+      "ignored": false,
+      "name": "release-fragments",
+      "path": "policy-engine/release-fragments",
+      "scope": "product_root"
+    }
+  ],
+  "cache_and_env_paths": [
+    {
+      "ignored": false,
+      "name": ".mypy_cache",
+      "path": "policy-engine/.mypy_cache",
+      "scope": "product_root"
+    },
+    {
+      "ignored": false,
+      "name": ".hypothesis",
+      "path": "policy-engine/.hypothesis",
+      "scope": "product_root"
+    },
+    {
+      "ignored": true,
+      "name": "_cache",
+      "path": "policy-engine/_cache",
+      "scope": "product_root"
+    },
+    {
+      "ignored": true,
+      "name": ".venv",
+      "path": "policy-engine/.venv",
+      "scope": "product_root"
+    },
+    {
+      "ignored": true,
+      "name": ".polisyos",
+      "path": "policy-engine/.polisyos",
+      "scope": "product_root"
+    }
+  ],
+  "duplicated_cache_or_env": [],
+  "empty_init_only_packages": [],
+  "foundry_methods_empty_placeholders": [],
+  "frontend": {
+    "build_outputs": [],
+    "lockfiles": [
+      {
+        "name": "pnpm-lock.yaml",
+        "path": "policy-engine/pnpm-lock.yaml"
+      },
+      {
+        "name": "pnpm-workspace.yaml",
+        "path": "policy-engine/pnpm-workspace.yaml"
+      }
+    ],
+    "source_duplicate_candidates": [
+      {
+        "both_exist": false,
+        "pair": "lib_vs_shared_lib",
+        "paths": [
+          "frontend/runtime-dashboard/src/lib",
+          "frontend/runtime-dashboard/src/shared/lib"
+        ]
+      },
+      {
+        "both_exist": false,
+        "pair": "i18n_vs_shared_i18n",
+        "paths": [
+          "frontend/runtime-dashboard/src/i18n",
+          "frontend/runtime-dashboard/src/shared/i18n"
+        ]
+      },
+      {
+        "both_exist": true,
+        "pair": "app_state_vs_app_providers",
+        "paths": [
+          "frontend/runtime-dashboard/src/app/state",
+          "frontend/runtime-dashboard/src/app/providers"
+        ]
+      }
+    ]
+  },
+  "git_root": ".",
+  "loose_root_modules": [
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 32,
+          "path": "src/polisyos/berl/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 117,
+          "path": "src/polisyos/berl/perturbations.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 449,
+          "path": "src/polisyos/berl/service.py"
+        }
+      ],
+      "non_facade_root_py_count": 2,
+      "package": "berl",
+      "root_py_count": 3
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 31,
+          "path": "src/polisyos/calibration/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 85,
+          "path": "src/polisyos/calibration/_sklearn_compat.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 199,
+          "path": "src/polisyos/calibration/adapters.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 354,
+          "path": "src/polisyos/calibration/continuous.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 79,
+          "path": "src/polisyos/calibration/curve.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 725,
+          "path": "src/polisyos/calibration/diagnostics.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 277,
+          "path": "src/polisyos/calibration/multiclass.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 732,
+          "path": "src/polisyos/calibration/recalibration.py"
+        }
+      ],
+      "non_facade_root_py_count": 7,
+      "package": "calibration",
+      "root_py_count": 8
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 43,
+          "path": "src/polisyos/common/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 139,
+          "path": "src/polisyos/common/async_tools.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 411,
+          "path": "src/polisyos/common/config.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 33,
+          "path": "src/polisyos/common/env_parsing.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 38,
+          "path": "src/polisyos/common/jax_env.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 237,
+          "path": "src/polisyos/common/logger.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 282,
+          "path": "src/polisyos/common/serialization.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 67,
+          "path": "src/polisyos/common/timestamps.py"
+        }
+      ],
+      "non_facade_root_py_count": 7,
+      "package": "common",
+      "root_py_count": 8
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 75,
+          "path": "src/polisyos/core/__init__.py"
+        }
+      ],
+      "non_facade_root_py_count": 0,
+      "package": "core",
+      "root_py_count": 1
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 115,
+          "path": "src/polisyos/data_forge/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 7,
+          "path": "src/polisyos/data_forge/_version.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 27,
+          "path": "src/polisyos/data_forge/errors.py"
+        }
+      ],
+      "non_facade_root_py_count": 2,
+      "package": "data_forge",
+      "root_py_count": 3
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 42,
+          "path": "src/polisyos/ddm/__init__.py"
+        }
+      ],
+      "non_facade_root_py_count": 0,
+      "package": "ddm",
+      "root_py_count": 1
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 47,
+          "path": "src/polisyos/ddm_15_7/__init__.py"
+        }
+      ],
+      "non_facade_root_py_count": 0,
+      "package": "ddm_15_7",
+      "root_py_count": 1
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 139,
+          "path": "src/polisyos/fabric/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 282,
+          "path": "src/polisyos/fabric/_connector_bridge.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 101,
+          "path": "src/polisyos/fabric/_numeric_parsing.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 107,
+          "path": "src/polisyos/fabric/compatibility.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 58,
+          "path": "src/polisyos/fabric/config.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 36,
+          "path": "src/polisyos/fabric/connectors_ingestion.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 694,
+          "path": "src/polisyos/fabric/decision_data.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 187,
+          "path": "src/polisyos/fabric/evidence.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 171,
+          "path": "src/polisyos/fabric/fact_writer.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 57,
+          "path": "src/polisyos/fabric/finite.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 263,
+          "path": "src/polisyos/fabric/fitness_report.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1081,
+          "path": "src/polisyos/fabric/ingestion.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 76,
+          "path": "src/polisyos/fabric/ingestion_providers.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 68,
+          "path": "src/polisyos/fabric/manifest.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 729,
+          "path": "src/polisyos/fabric/observability.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 279,
+          "path": "src/polisyos/fabric/processing_guarantees.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 143,
+          "path": "src/polisyos/fabric/product_integration.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 657,
+          "path": "src/polisyos/fabric/quality.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 48,
+          "path": "src/polisyos/fabric/registry.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 230,
+          "path": "src/polisyos/fabric/safety.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 15,
+          "path": "src/polisyos/fabric/segment_manifest.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 40,
+          "path": "src/polisyos/fabric/tabular.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 118,
+          "path": "src/polisyos/fabric/temporal.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 65,
+          "path": "src/polisyos/fabric/trust.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 49,
+          "path": "src/polisyos/fabric/trust_adapter.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 869,
+          "path": "src/polisyos/fabric/world_query.py"
+        }
+      ],
+      "non_facade_root_py_count": 25,
+      "package": "fabric",
+      "root_py_count": 26
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 86,
+          "path": "src/polisyos/foundry/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 116,
+          "path": "src/polisyos/foundry/_execution_posture.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1102,
+          "path": "src/polisyos/foundry/_executor_graph.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 252,
+          "path": "src/polisyos/foundry/_executor_models.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 395,
+          "path": "src/polisyos/foundry/_executor_ops.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 196,
+          "path": "src/polisyos/foundry/_executor_patching.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 289,
+          "path": "src/polisyos/foundry/_executor_snapshots.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 232,
+          "path": "src/polisyos/foundry/_numeric.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 70,
+          "path": "src/polisyos/foundry/agent_metrics.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 451,
+          "path": "src/polisyos/foundry/agents.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 274,
+          "path": "src/polisyos/foundry/conflict_checker.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 476,
+          "path": "src/polisyos/foundry/constraints_engine.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 366,
+          "path": "src/polisyos/foundry/cost_model.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 88,
+          "path": "src/polisyos/foundry/executor.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 97,
+          "path": "src/polisyos/foundry/layout.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 30,
+          "path": "src/polisyos/foundry/loss.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 107,
+          "path": "src/polisyos/foundry/mechanism_design.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 449,
+          "path": "src/polisyos/foundry/merge_engine.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 93,
+          "path": "src/polisyos/foundry/patch_vm.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 44,
+          "path": "src/polisyos/foundry/profiles.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 118,
+          "path": "src/polisyos/foundry/queue.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 508,
+          "path": "src/polisyos/foundry/quickstart.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 335,
+          "path": "src/polisyos/foundry/registry.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 482,
+          "path": "src/polisyos/foundry/release_acceptance.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 94,
+          "path": "src/polisyos/foundry/social_weights.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 165,
+          "path": "src/polisyos/foundry/specs.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 22,
+          "path": "src/polisyos/foundry/trace.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 126,
+          "path": "src/polisyos/foundry/utils.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 659,
+          "path": "src/polisyos/foundry/welfare_bounds.py"
+        }
+      ],
+      "non_facade_root_py_count": 28,
+      "package": "foundry",
+      "root_py_count": 29
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 984,
+          "path": "src/polisyos/ir/__init__.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 34,
+          "path": "src/polisyos/ir/_lazy_facade.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 371,
+          "path": "src/polisyos/ir/_validation.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 276,
+          "path": "src/polisyos/ir/canon.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 107,
+          "path": "src/polisyos/ir/citations.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 994,
+          "path": "src/polisyos/ir/connectors.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 153,
+          "path": "src/polisyos/ir/fact_log.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 119,
+          "path": "src/polisyos/ir/loaders.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 50,
+          "path": "src/polisyos/ir/migration_report.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 289,
+          "path": "src/polisyos/ir/model_spec.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 127,
+          "path": "src/polisyos/ir/norm_pack.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 317,
+          "path": "src/polisyos/ir/portfolio.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 79,
+          "path": "src/polisyos/ir/predicate.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1050,
+          "path": "src/polisyos/ir/public_surface.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 121,
+          "path": "src/polisyos/ir/queries.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1008,
+          "path": "src/polisyos/ir/refs.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 986,
+          "path": "src/polisyos/ir/registry_fragments.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 575,
+          "path": "src/polisyos/ir/schema_catalog.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 83,
+          "path": "src/polisyos/ir/types.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 26,
+          "path": "src/polisyos/ir/units.py"
+        }
+      ],
+      "non_facade_root_py_count": 19,
+      "package": "ir",
+      "root_py_count": 20
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 193,
+          "path": "src/polisyos/lex/__init__.py"
+        },
+        {
+          "facade_allowed": true,
+          "lines": 238,
+          "path": "src/polisyos/lex/api.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 66,
+          "path": "src/polisyos/lex/artifacts.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 63,
+          "path": "src/polisyos/lex/common.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 85,
+          "path": "src/polisyos/lex/errors.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 40,
+          "path": "src/polisyos/lex/factlog.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 450,
+          "path": "src/polisyos/lex/intervention_artifacts.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1259,
+          "path": "src/polisyos/lex/interventions.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 68,
+          "path": "src/polisyos/lex/provenance.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 323,
+          "path": "src/polisyos/lex/types.py"
+        }
+      ],
+      "non_facade_root_py_count": 8,
+      "package": "lex",
+      "root_py_count": 10
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 73,
+          "path": "src/polisyos/runtime/__init__.py"
+        },
+        {
+          "facade_allowed": true,
+          "lines": 582,
+          "path": "src/polisyos/runtime/api.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 56,
+          "path": "src/polisyos/runtime/manifest.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 890,
+          "path": "src/polisyos/runtime/replay.py"
+        }
+      ],
+      "non_facade_root_py_count": 2,
+      "package": "runtime",
+      "root_py_count": 4
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 71,
+          "path": "src/polisyos/scholar/__init__.py"
+        },
+        {
+          "facade_allowed": true,
+          "lines": 249,
+          "path": "src/polisyos/scholar/api.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 85,
+          "path": "src/polisyos/scholar/errors.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 291,
+          "path": "src/polisyos/scholar/freshness.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 226,
+          "path": "src/polisyos/scholar/freshness_store.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 163,
+          "path": "src/polisyos/scholar/policies.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 63,
+          "path": "src/polisyos/scholar/provenance.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 149,
+          "path": "src/polisyos/scholar/types.py"
+        }
+      ],
+      "non_facade_root_py_count": 6,
+      "package": "scholar",
+      "root_py_count": 8
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 49,
+          "path": "src/polisyos/scientist/__init__.py"
+        },
+        {
+          "facade_allowed": true,
+          "lines": 279,
+          "path": "src/polisyos/scientist/api.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1168,
+          "path": "src/polisyos/scientist/decision_validity.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 170,
+          "path": "src/polisyos/scientist/error_semantics.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 155,
+          "path": "src/polisyos/scientist/evidence_sources.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 837,
+          "path": "src/polisyos/scientist/feedback.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 185,
+          "path": "src/polisyos/scientist/feedback_utils.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 310,
+          "path": "src/polisyos/scientist/frontier_runtime.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 1762,
+          "path": "src/polisyos/scientist/latent_separation.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 607,
+          "path": "src/polisyos/scientist/llm_cycle.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 759,
+          "path": "src/polisyos/scientist/publisher.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 251,
+          "path": "src/polisyos/scientist/reliability_scorecard.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 958,
+          "path": "src/polisyos/scientist/remediation_status.py"
+        },
+        {
+          "facade_allowed": false,
+          "lines": 430,
+          "path": "src/polisyos/scientist/replay_backend.py"
+        }
+      ],
+      "non_facade_root_py_count": 12,
+      "package": "scientist",
+      "root_py_count": 14
+    },
+    {
+      "modules": [
+        {
+          "facade_allowed": true,
+          "lines": 59,
+          "path": "src/polisyos/synthetic_world/__init__.py"
+        }
+      ],
+      "non_facade_root_py_count": 0,
+      "package": "synthetic_world",
+      "root_py_count": 1
+    }
+  ],
+  "package_file_counts": [
+    {
+      "file_count": 33,
+      "package": "berl",
+      "python_file_count": 31
+    },
+    {
+      "file_count": 9,
+      "package": "calibration",
+      "python_file_count": 8
+    },
+    {
+      "file_count": 13,
+      "package": "common",
+      "python_file_count": 11
+    },
+    {
+      "file_count": 197,
+      "package": "core",
+      "python_file_count": 185
+    },
+    {
+      "file_count": 268,
+      "package": "data_forge",
+      "python_file_count": 240
+    },
+    {
+      "file_count": 33,
+      "package": "ddm",
+      "python_file_count": 17
+    },
+    {
+      "file_count": 2,
+      "package": "ddm_15_7",
+      "python_file_count": 1
+    },
+    {
+      "file_count": 289,
+      "package": "fabric",
+      "python_file_count": 279
+    },
+    {
+      "file_count": 557,
+      "package": "foundry",
+      "python_file_count": 536
+    },
+    {
+      "file_count": 197,
+      "package": "ir",
+      "python_file_count": 185
+    },
+    {
+      "file_count": 40,
+      "package": "lex",
+      "python_file_count": 35
+    },
+    {
+      "file_count": 64,
+      "package": "runtime",
+      "python_file_count": 60
+    },
+    {
+      "file_count": 28,
+      "package": "scholar",
+      "python_file_count": 25
+    },
+    {
+      "file_count": 534,
+      "package": "scientist",
+      "python_file_count": 517
+    },
+    {
+      "file_count": 2,
+      "package": "synthetic_world",
+      "python_file_count": 1
+    }
+  ],
+  "phase": "repository_structure_remediation_phase_0",
+  "pyproject": {
+    "line_count": 275,
+    "path": "pyproject.toml",
+    "tool_section_count": 3,
+    "tool_section_details": [
+      {
+        "header": "[tool.hatch.build.targets.wheel]",
+        "line_count": 3,
+        "line_end": 255,
+        "line_start": 253,
+        "name": "hatch.build.targets.wheel"
+      },
+      {
+        "header": "[tool.hatch.build]",
+        "line_count": 3,
+        "line_end": 258,
+        "line_start": 256,
+        "name": "hatch.build"
+      },
+      {
+        "header": "[tool.hatch.build.targets.sdist]",
+        "line_count": 17,
+        "line_end": 275,
+        "line_start": 259,
+        "name": "hatch.build.targets.sdist"
+      }
+    ],
+    "tool_sections": [
+      "hatch.build",
+      "hatch.build.targets.sdist",
+      "hatch.build.targets.wheel"
+    ]
+  },
+  "repeated_directory_names": [
+    {
+      "name": "adapters",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/berl/adapters"
+          ],
+          "package": "berl"
+        },
+        {
+          "locations": [
+            "src/polisyos/runtime/http/services/adapters"
+          ],
+          "package": "runtime"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/adapters"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "artifacts",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/artifacts"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/artifacts"
+          ],
+          "package": "ir"
+        }
+      ]
+    },
+    {
+      "name": "backends",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/artifacts/backends",
+            "src/polisyos/core/backends",
+            "src/polisyos/core/governance/legal/backends"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/claims/backends",
+            "src/polisyos/fabric/docs/backends"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/backends"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/lex/legal_evaluation/backends"
+          ],
+          "package": "lex"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/governance/legal/backends"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "cache",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/cache"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/cache"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "calibration",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/calibration"
+          ],
+          "package": "calibration"
+        },
+        {
+          "locations": [
+            "src/polisyos/ddm/calibration"
+          ],
+          "package": "ddm"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/calibration"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "catalog",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/domains/catalog"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/catalog"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/catalog"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "causal",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/catalog/causal"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/causal",
+            "src/polisyos/scientist/nodes/builtins/causal"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "claims",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/claims"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/claims"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "compile",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/compile"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/nodes/builtins/compile"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "contracts",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/berl/contracts"
+          ],
+          "package": "berl"
+        },
+        {
+          "locations": [
+            "src/polisyos/core/contracts"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ddm/contracts"
+          ],
+          "package": "ddm"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/contracts"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/contracts"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "core",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/agent_sim/world/core"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "data",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/ir/data"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/nodes/builtins/data"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "data_plane",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/data_plane"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/data_plane"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "ddl",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/world/ddl"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/analytics/ddl"
+          ],
+          "package": "ir"
+        }
+      ]
+    },
+    {
+      "name": "discovery",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/discovery"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/discovery"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "errors",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/errors"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/data_forge/domains/catalog/fixtures/academic/errors"
+          ],
+          "package": "data_forge"
+        }
+      ]
+    },
+    {
+      "name": "governance",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/governance"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/governance"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/governance",
+            "src/polisyos/scientist/nodes/builtins/governance"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "io",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel/io"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/io"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "kernel",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/kernel"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/kernel"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "knowledge",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/domains/academic/knowledge",
+            "src/polisyos/data_forge/domains/catalog/knowledge"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/lex/knowledge"
+          ],
+          "package": "lex"
+        }
+      ]
+    },
+    {
+      "name": "legal",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/governance/legal"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/data_forge/domains/legal"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/governance/legal"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "llm",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/llm"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/llm"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "migrations",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/common/migrations"
+          ],
+          "package": "common"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/migrations"
+          ],
+          "package": "ir"
+        }
+      ]
+    },
+    {
+      "name": "orchestrator",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/scholar/orchestrator"
+          ],
+          "package": "scholar"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/orchestrator"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "passes",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/governance/passes"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/passes"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/governance/passes"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "pipeline",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/pipeline"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel/pipeline"
+          ],
+          "package": "data_forge"
+        }
+      ]
+    },
+    {
+      "name": "profiles",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/profiles"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/llm/profiles"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "provenance",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/provenance"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/provenance"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "quality",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel/quality"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/quality"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "resilience",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/resilience"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/resilience"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "runtime",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel/runtime"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/runtime"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/runtime"
+          ],
+          "package": "runtime"
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/scholar/search"
+          ],
+          "package": "scholar"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/search"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "security",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/security"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/security"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "sources",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/domains/catalog/sources"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/sources"
+          ],
+          "package": "fabric"
+        }
+      ]
+    },
+    {
+      "name": "testing",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel/testing"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/testing"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/testing"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "types",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors/types"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/types"
+          ],
+          "package": "foundry"
+        }
+      ]
+    },
+    {
+      "name": "validation",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/methods/catalog/validation",
+            "src/polisyos/foundry/validation"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/validation"
+          ],
+          "package": "scientist"
+        }
+      ]
+    },
+    {
+      "name": "world",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/world"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/agent_sim/world"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/world"
+          ],
+          "package": "ir"
+        }
+      ]
+    }
+  ],
+  "repo_root": "policy-engine",
+  "tests": {
+    "fixture_path_exists": true,
+    "integration_packages": [
+      "scientist"
+    ],
+    "property_packages": [
+      "common",
+      "foundry",
+      "ir",
+      "runtime",
+      "scientist"
+    ],
+    "top_level_dirs": [
+      {
+        "conftest_count": 0,
+        "name": "architecture",
+        "path": "tests/architecture",
+        "test_file_count": 17
+      },
+      {
+        "conftest_count": 1,
+        "name": "contract",
+        "path": "tests/contract",
+        "test_file_count": 20
+      },
+      {
+        "conftest_count": 0,
+        "name": "e2e",
+        "path": "tests/e2e",
+        "test_file_count": 1
+      },
+      {
+        "conftest_count": 0,
+        "name": "fixtures",
+        "path": "tests/fixtures",
+        "test_file_count": 1
+      },
+      {
+        "conftest_count": 0,
+        "name": "golden",
+        "path": "tests/golden",
+        "test_file_count": 0
+      },
+      {
+        "conftest_count": 0,
+        "name": "integration",
+        "path": "tests/integration",
+        "test_file_count": 6
+      },
+      {
+        "conftest_count": 0,
+        "name": "lint",
+        "path": "tests/lint",
+        "test_file_count": 1
+      },
+      {
+        "conftest_count": 0,
+        "name": "performance",
+        "path": "tests/performance",
+        "test_file_count": 10
+      },
+      {
+        "conftest_count": 0,
+        "name": "property",
+        "path": "tests/property",
+        "test_file_count": 36
+      },
+      {
+        "conftest_count": 1,
+        "name": "tools",
+        "path": "tests/tools",
+        "test_file_count": 52
+      },
+      {
+        "conftest_count": 26,
+        "name": "unit",
+        "path": "tests/unit",
+        "test_file_count": 1253
+      }
+    ],
+    "unit_packages": [
+      "berl",
+      "calibration",
+      "common",
+      "core",
+      "data_forge",
+      "ddm",
+      "ddm_15_7",
+      "fabric",
+      "foundry",
+      "ir",
+      "lex",
+      "runtime",
+      "scholar",
+      "scientist",
+      "synthetic_world"
+    ]
+  },
+  "version": 1
+}

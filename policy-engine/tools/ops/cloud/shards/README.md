@@ -1,3 +1,3 @@
-# tools/cloud/shards
+# tools/ops/cloud/shards
 
 Shard preparation and progress-inspection helpers for multi-server cloud runs.

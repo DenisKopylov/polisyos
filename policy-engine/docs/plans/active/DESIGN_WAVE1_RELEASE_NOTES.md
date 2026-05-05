@@ -52,7 +52,7 @@ rather than manual notes or one-off review rituals.
 - Build command: `npm run build-storybook`
 - Build date: `2026-04-22`
 - Local static output:
-  [`frontend/runtime-dashboard/storybook-static/index.html`](../../../frontend/runtime-dashboard/storybook-static/index.html)
+  `_build/frontend/runtime-dashboard/storybook-static/index.html`
 
 - Archived story index:
   [`stories.index.json`](../../brand/storybook-wave1-snapshot/stories.index.json)
@@ -64,7 +64,7 @@ rather than manual notes or one-off review rituals.
 
 The Storybook snapshot is archived as a manifest-centric closeout pack rather
 than a second full copy of static assets. The canonical generated site remains
-in `frontend/runtime-dashboard/storybook-static/`; the archive folder stores the
+in `_build/frontend/runtime-dashboard/storybook-static/`; the archive folder stores the
 review index, rollout manifest, and team-onboarding script required for Wave 1
 closeout.
 

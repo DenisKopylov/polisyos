@@ -6,10 +6,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
-from tools._lib.runner import ToolStatus
-from tools._lib.timing import ToolRunRecord, append_timing_record, read_timing_records
 from tools.cli import EX_CONFIG, main
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.runner import ToolStatus
+from tools.lib.timing import ToolRunRecord, append_timing_record, read_timing_records
 from tools.registry import (
     CATEGORY_MANIFEST,
     TOOL_SPECS_BY_KEY,
@@ -223,7 +223,7 @@ def test_python_module_cli_smoke_subprocess() -> None:
 def test_python_module_compatibility_shim_smoke_subprocess() -> None:
     result = subprocess.run(  # noqa: S603 - trusted compatibility shim smoke test
         # Trusted smoke invocation of the compatibility shim.
-        [sys.executable, "-m", "tools.workspace.bootstrap", "--help"],
+        [sys.executable, "-m", "tools.devx.workspace.bootstrap", "--help"],
         cwd=REPO_ROOT,
         check=False,
         capture_output=True,

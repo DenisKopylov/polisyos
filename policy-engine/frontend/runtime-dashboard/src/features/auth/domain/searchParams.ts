@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSearchHref,
   parseSearchParamsWithSchema,
-} from "@/lib/searchParams";
+} from "@/shared/lib/searchParams";
 
 const loginSearchSchema = z.object({
   next: z.string().trim().min(1).optional().catch(undefined),

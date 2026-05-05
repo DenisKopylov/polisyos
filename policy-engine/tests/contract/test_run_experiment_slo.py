@@ -4,9 +4,8 @@ import sys
 import types
 from contextlib import contextmanager
 
-import pytest
-
 import polisyos.scientist as scientist_api
+import pytest
 from polisyos.scientist.engine.state import ExperimentState
 
 
@@ -84,7 +83,7 @@ def test_run_experiment_records_slo_success(monkeypatch) -> None:
     stub_pkg = types.ModuleType("polisyos.scientist.workflows")
     stub_builder = types.ModuleType("polisyos.scientist.workflows.builder")
     stub_builder.resolve_workflow_id = lambda _initial_state: "scientist_default"  # type: ignore[attr-defined]
-    stub_builder.run_selected_workflow = lambda _initial_state: _Result()  # type: ignore[attr-defined]
+    stub_builder.run_selected_workflow = lambda _initial_state, **_kwargs: _Result()  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows", stub_pkg)
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", stub_builder)
@@ -103,7 +102,7 @@ def test_run_experiment_records_slo_error(monkeypatch) -> None:
     monkeypatch.setattr(scientist_api, "get_metrics", lambda: fake_metrics)
     monkeypatch.setattr(scientist_api, "get_tracer", lambda: _FakeTracer())
 
-    def _raise(_initial_state):
+    def _raise(_initial_state, **_kwargs):
         raise RuntimeError("boom")
 
     stub_pkg = types.ModuleType("polisyos.scientist.workflows")

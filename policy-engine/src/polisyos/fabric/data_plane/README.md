@@ -69,13 +69,13 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/data_plane/test_modes.py tests/fabric/data_plane/test_orchestrator.py -q`
+- `uv run pytest tests/unit/fabric/data_plane/test_modes.py tests/unit/fabric/data_plane/test_orchestrator.py -q`
   Batch and orchestrator smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane/test_streaming_runtime.py -q`
+- `uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/data_plane/test_streaming_runtime.py -q`
   Quarantine and streaming smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/data_plane -q`
+- `uv run pytest tests/unit/fabric/data_plane -q`
   Full data-plane suite. Conceptual in this README refresh; not run in this
   pass.
 
@@ -87,4 +87,4 @@ Run from the repository root (`policy-engine/`).
 - [Cache rebuild storm runbook](../../../../docs/runbooks/cache-rebuild-storm.md)
 - [Retained artifact recovery runbook](../../../../docs/runbooks/retained-artifact-recovery.md)
 - [Artifact corruption recovery runbook](../../../../docs/runbooks/artifact-corruption-recovery.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

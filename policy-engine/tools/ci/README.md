@@ -13,7 +13,7 @@ polisyos-tools ci check-action-freshness --help
 Operational rules:
 
 - Prefer structured JSON/Markdown outputs written atomically through
-  `tools._lib.fs`.
+  `tools.lib.fs`.
 
 - Network checks must use explicit timeouts, bounded response reads, and a
   degraded status instead of silently passing when upstream services are

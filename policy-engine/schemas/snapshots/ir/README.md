@@ -1,6 +1,6 @@
 # snapshots/ir — ABI baseline для IR моделей
 
-Папка содержит JSON Schema snapshot IR-контрактов и используется как baseline в semantic diff (`tools/diagnostics/abi_diff.py`).
+Папка содержит JSON Schema snapshot IR-контрактов и используется как baseline в semantic diff (`tools/quality/diagnostics/abi_diff.py`).
 
 ## Роль в системе
 
@@ -10,8 +10,8 @@
 ## Источники
 
 - Реестр: `schemas/abi_models.py` (entries с `module="ir"`).
-- Генератор: `tools/diagnostics/gen_schema.py`.
-- Проверка совместимости: `tools/diagnostics/abi_diff.py`.
+- Генератор: `tools/quality/diagnostics/gen_schema.py`.
+- Проверка совместимости: `tools/quality/diagnostics/abi_diff.py`.
 
 ## Что хранится
 
@@ -40,14 +40,14 @@
 
 ```bash
 # Проверка и обновление только IR snapshot
-python3 tools/diagnostics/gen_schema.py --models ir --check
-python3 tools/diagnostics/gen_schema.py --models ir
+python3 tools/quality/diagnostics/gen_schema.py --models ir --check
+python3 tools/quality/diagnostics/gen_schema.py --models ir
 ```
 
 ```bash
 # Локальный semantic diff перед PR
-python3 tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
-python3 tools/diagnostics/abi_diff.py \
+python3 tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
+python3 tools/quality/diagnostics/abi_diff.py \
   --baseline schemas/snapshots \
   --current /tmp/current_schemas \
   --format markdown

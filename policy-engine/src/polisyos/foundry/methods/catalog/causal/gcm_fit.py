@@ -317,7 +317,9 @@ class HybridSCMFit:
     )
 
     @staticmethod
-    def pure_step(state: SCMFitData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: SCMFitData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         payload = state if isinstance(state, SCMFitData) else SCMFitData.model_validate(state)
         graph = (
             payload.graph

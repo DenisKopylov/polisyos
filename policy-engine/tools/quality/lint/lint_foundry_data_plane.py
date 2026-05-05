@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT_DEFAULT, SRC_ROOT = ensure_repo_import_roots(__file__)
 

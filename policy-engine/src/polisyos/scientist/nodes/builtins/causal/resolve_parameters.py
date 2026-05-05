@@ -9,9 +9,8 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.academic.knowledge.parameter_selector import ParameterSelector
-from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model

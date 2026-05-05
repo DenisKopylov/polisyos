@@ -39,10 +39,10 @@ jobs:
 
       - name: Run core-runtime long soak
         run: |
-          mkdir -p .tmp/reports
+          mkdir -p _build/.tmp/reports
           uv run polisyos-tools workspace core-runtime-long-soak \
-            --summary .tmp/reports/core-runtime-long-soak.md \
-            --json-output .tmp/reports/core-runtime-long-soak.json
+            --summary _build/.tmp/reports/core-runtime-long-soak.md \
+            --json-output _build/.tmp/reports/core-runtime-long-soak.json
 
       - name: Upload long-soak evidence
         if: always()
@@ -50,7 +50,7 @@ jobs:
         with:
           name: core-runtime-long-soak
           path: |
-            policy-engine/.tmp/reports/core-runtime-long-soak.md
-            policy-engine/.tmp/reports/core-runtime-long-soak.json
+            policy-engine/_build/.tmp/reports/core-runtime-long-soak.md
+            policy-engine/_build/.tmp/reports/core-runtime-long-soak.json
           if-no-files-found: warn
           retention-days: 30

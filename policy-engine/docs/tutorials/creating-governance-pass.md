@@ -20,7 +20,7 @@ Python 3.14 и `uv`.
 uv run polisyos-tools architecture scaffold governance-pass \
   --name my_pass \
   --output src/polisyos/scientist/governance/passes/my_pass.py \
-  --test-output tests/scientist/governance/test_my_pass.py \
+  --test-output tests/unit/scientist/governance/test_my_pass.py \
   --dry-run
 ```
 
@@ -137,9 +137,9 @@ def test_my_pass_blocks_missing_artifact() -> None:
 Минимальный локальный набор:
 
 ```bash
-pytest tests/scientist/governance -x --tb=short
+pytest tests/unit/scientist/governance -x --tb=short
 uv run --extra docs python -m mkdocs build --strict
-uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt
+uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
 Если pass стал частью canonical governance surface, дополнительно проверьте reference page и observation-family mapping.

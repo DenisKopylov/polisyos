@@ -1,0 +1,715 @@
+[migration_shims]
+version = 2
+status = "active"
+description = """
+Registry of remaining compatibility and file-relocation records after the
+Repository SOTA clean cut. Every active entry must carry an owner, sunset_date,
+and migration target. CI enforces sunset: expired shims fail the build.
+"""
+
+# ---------------------------------------------------------------------------
+# Active compatibility or relocation records whose sources remain reviewable.
+# ---------------------------------------------------------------------------
+
+[[shim]]
+id = "product-install-sh-to-workspace-bootstrap"
+source_path = "install.sh"
+target_path = "tools/devx/workspace/bootstrap.py"
+type = "wrapper_only"
+reason = "Consolidate bootstrap entrypoints under polisyos-tools workspace bootstrap"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
+
+[[shim]]
+id = "product-migrate-py-to-tools-migrations"
+source_path = "migrate.py"
+target_path = "tools/ops/migrations/migrate.py"
+type = "wrapper_only"
+reason = "Move migration command into the canonical tools tree"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
+
+[[shim]]
+id = "product-jax-bootstrap-to-workspace-vendor"
+source_path = "jax_bootstrap.py"
+target_path = "src/polisyos/common/jax_env.py"
+type = "wrapper_only"
+reason = "Move JAX/toolchain bootstrap into workspace tooling"
+owner = "team-devx"
+created = "2026-04-18"
+sunset_date = "2026-08-01"
+issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
+
+[[shim]]
+id = "repo-filter-topics-to-tools-research"
+source_path = "../filter_topics.py"
+target_path = "tools/research/experiments/filter_topics.py"
+type = "file_relocation"
+reason = "Move root research scripts into the product-root research experiments tool bucket"
+owner = "team-research"
+created = "2026-04-18"
+sunset_date = "2026-07-01"
+issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
+
+[[shim]]
+id = "repo-organize-relevant-topics-to-tools-research"
+source_path = "../organize_relevant_topics.py"
+target_path = "tools/research/experiments/organize_relevant_topics.py"
+type = "file_relocation"
+reason = "Move root research scripts into the product-root research experiments tool bucket"
+owner = "team-research"
+created = "2026-04-18"
+sunset_date = "2026-07-01"
+issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
+
+[[shim]]
+id = "imports-policy-config-relocation"
+source_path = "import_policy.toml"
+target_path = "architecture/imports/policy.toml"
+type = "file_relocation"
+reason = "Move import policy governance under the architecture imports contract"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "imports-exceptions-config-relocation"
+source_path = "import_exceptions.toml"
+target_path = "architecture/imports/exceptions.toml"
+type = "file_relocation"
+reason = "Move import exception policy under the architecture imports contract"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "imports-exceptions-registry-relocation"
+source_path = "import_exceptions_registry.md"
+target_path = "architecture/imports/exceptions.md"
+type = "file_relocation"
+reason = "Move the human-readable import exception registry under architecture imports"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "imports-gate-baseline-relocation"
+source_path = "baseline/import_gate.txt"
+target_path = "architecture/imports/gate_baseline.txt"
+type = "file_relocation"
+reason = "Move import gate freeze evidence under architecture imports"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "imports-gate-summary-relocation"
+source_path = "baseline/summary.json"
+target_path = "architecture/imports/gate_summary.json"
+type = "file_relocation"
+reason = "Move import gate summary evidence under architecture imports"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "freeze-policy-relocation"
+source_path = "freeze_policy.md"
+target_path = "architecture/policies/freeze.md"
+type = "file_relocation"
+reason = "Move freeze policy governance under architecture policies"
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#113-migration-shims"
+
+[[shim]]
+id = "ddm-15-7-rename"
+source_path = "src/polisyos/ddm_15_7"
+target_path = "src/polisyos/ddm"
+type = "wrapper_only"
+reason = "Remove version/problem number from the Python package name."
+owner = "team-architecture"
+created = "2026-05-03"
+sunset_date = "2026-10-01"
+issue = "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-ddm"
+
+[[shim]]
+id = "synthetic-world-to-agent-sim-world"
+source_path = "src/polisyos/synthetic_world"
+target_path = "src/polisyos/foundry/agent_sim/world"
+type = "wrapper_only"
+reason = "Consolidate truth-centric world generation under the Foundry agent simulation owner."
+owner = "team-foundry"
+created = "2026-05-03"
+sunset_date = "2026-10-01"
+issue = "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#synthetic_world-into-foundryagentsimworld"
+
+[[shim]]
+id = "decomp-scientist-decision_validity"
+source_path = "src/polisyos/scientist/decision_validity/__init__.py"
+target_path = "src/polisyos/scientist/validation/decision_validity.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.decision_validity"
+target_fqn = "polisyos.scientist.validation.decision_validity"
+reexported_names = ["DecisionValidityService", "DecisionValidityStateStore"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-error_semantics"
+source_path = "src/polisyos/scientist/error_semantics/__init__.py"
+target_path = "src/polisyos/scientist/engine/error_semantics.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.error_semantics"
+target_fqn = "polisyos.scientist.engine.error_semantics"
+reexported_names = ["ErrorEnvelope", "build_error_envelope", "emit_degraded_path"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-evidence_sources"
+source_path = "src/polisyos/scientist/evidence_sources/__init__.py"
+target_path = "src/polisyos/scientist/evidence/sources.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.evidence_sources"
+target_fqn = "polisyos.scientist.evidence.sources"
+reexported_names = ["EvidenceSourcesConfig", "build_path_source_status", "merge_evidence_sources_payload", "normalize_evidence_sources_config", "update_source_status"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-feedback"
+source_path = "src/polisyos/scientist/feedback/__init__.py"
+target_path = "src/polisyos/scientist/feedback/core.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.feedback"
+target_fqn = "polisyos.scientist.feedback.core"
+reexported_names = ["DecisionFeedbackService", "FeedbackArtifacts", "build_monitoring_contract_from_packet", "build_parameter_override_bundle"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-feedback_utils"
+source_path = "src/polisyos/scientist/feedback_utils/__init__.py"
+target_path = "src/polisyos/scientist/feedback/utils.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.feedback_utils"
+target_fqn = "polisyos.scientist.feedback.utils"
+reexported_names = ["_aggregate_monitoring_verdict", "_as_bool_or_none", "_as_float", "_as_str", "_extract_artifact_id", "_extract_feedback_ref", "_extract_metric_observation", "_extract_numeric_value", "_extract_revised_metric_ids", "_extract_rows", "_outside_range", "_path_get", "_within_range"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-frontier_runtime"
+source_path = "src/polisyos/scientist/frontier_runtime/__init__.py"
+target_path = "src/polisyos/scientist/engine/frontier_runtime.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.frontier_runtime"
+target_fqn = "polisyos.scientist.engine.frontier_runtime"
+reexported_names = ["FrontierCapability", "FrontierCapabilityStatus", "FrontierRuntimeConfig", "FrontierRuntimeReport", "build_frontier_runtime_report", "summarize_agent_promotion_frontier_status"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-latent_separation"
+source_path = "src/polisyos/scientist/latent_separation/__init__.py"
+target_path = "src/polisyos/scientist/causal/latent_separation.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.latent_separation"
+target_fqn = "polisyos.scientist.causal.latent_separation"
+reexported_names = ["LatentSeparationDiagnosticInputs", "LatentSeparationEnvironmentInput", "LatentSeparationMeasurementInput", "LatentSeparationProxyInput", "SEPARATION_DIAGNOSTICS_KEY", "SEPARATION_DIAGNOSTIC_INPUTS_KEY", "certified_latent_separation_pairs", "certify_latent_separation_trust", "compute_latent_separation_diagnostics", "compute_latent_separation_diagnostics_from_inputs", "latent_separation_assumption_surfaces", "latent_separation_falsification_surfaces", "merge_latent_separation_diagnostics_payloads", "metadata_with_computed_latent_separation", "separation_diagnostics_payload"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-llm_cycle"
+source_path = "src/polisyos/scientist/llm_cycle/__init__.py"
+target_path = "src/polisyos/scientist/llm/cycle.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.llm_cycle"
+target_fqn = "polisyos.scientist.llm.cycle"
+reexported_names = ["build_causal_execution_plan", "build_default_execution_plan", "build_reproducibility_manifest", "evaluate_iteration", "persist_evaluator_report", "persist_execution_plan", "persist_iteration_state", "persist_preflight_report", "persist_reproducibility_manifest", "preflight_execution_plan"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-publisher"
+source_path = "src/polisyos/scientist/publisher/__init__.py"
+target_path = "src/polisyos/scientist/orchestrator/publisher.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.publisher"
+target_fqn = "polisyos.scientist.orchestrator.publisher"
+reexported_names = ["COMPILER_BACKED_DECISION_CARD_FLAG", "DECISION_GRADE_COMPILER_FLAG", "DECISION_GRADE_EXPORT_KIND", "DECISION_GRADE_EXPORT_SCHEMA_NAME", "DECISION_GRADE_EXPORT_SCHEMA_VERSION", "DecisionGradeExport", "FORBIDDEN_PUBLIC_EXPORT_TOKENS", "OutputAudience", "OutputOmissionRecord", "assert_decision_grade_exports_consistent", "compile_decision_grade_export", "compile_decision_grade_exports", "decision_grade_export_inputs", "load_decision_grade_export", "persist_decision_grade_export", "publish_decision"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-reliability_scorecard"
+source_path = "src/polisyos/scientist/reliability_scorecard/__init__.py"
+target_path = "src/polisyos/scientist/validation/reliability_scorecard.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.reliability_scorecard"
+target_fqn = "polisyos.scientist.validation.reliability_scorecard"
+reexported_names = ["BENCHMARK_EVIDENCE_CASES", "OPERATIONAL_EVIDENCE_CASES", "REQUIRED_BENCHMARKS", "REQUIRED_OPERATIONAL_SIGNALS", "REQUIRED_SCENARIOS", "SCENARIO_EVIDENCE_CASES", "ScientistReliabilityScorecard", "build_scientist_reliability_scorecard", "build_scientist_reliability_scorecard_from_evidence"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-remediation_status"
+source_path = "src/polisyos/scientist/remediation_status/__init__.py"
+target_path = "src/polisyos/scientist/governance/remediation_status.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.remediation_status"
+target_fqn = "polisyos.scientist.governance.remediation_status"
+reexported_names = ["RemediationStatusLevel", "ScientistPhaseStatus", "ScientistRemediationStatusReport", "ScientistWorkstreamStatus", "WORKSTREAM_IDS", "build_scientist_remediation_status_report"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-scientist-replay_backend"
+source_path = "src/polisyos/scientist/replay_backend/__init__.py"
+target_path = "src/polisyos/scientist/replay/backend.py"
+type = "python_reexport"
+source_fqn = "polisyos.scientist.replay_backend"
+target_fqn = "polisyos.scientist.replay.backend"
+reexported_names = ["DeadLetterCorruptedError", "DeadLetterError", "DeadLetterNotFoundError", "DeadLetterRecord", "ReplayBackendResult", "list_dead_letters", "load_dead_letter", "replay_dead_letter", "replay_packet"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_execution_posture"
+source_path = "src/polisyos/foundry/_execution_posture/__init__.py"
+target_path = "src/polisyos/foundry/execute/_posture.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._execution_posture"
+target_fqn = "polisyos.foundry.execute._posture"
+reexported_names = ["ResolvedExecutionPosture", "resolve_execution_posture"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_executor_graph"
+source_path = "src/polisyos/foundry/_executor_graph/__init__.py"
+target_path = "src/polisyos/foundry/execute/_graph.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._executor_graph"
+target_fqn = "polisyos.foundry.execute._graph"
+reexported_names = ["execute_program_graph"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_executor_models"
+source_path = "src/polisyos/foundry/_executor_models/__init__.py"
+target_path = "src/polisyos/foundry/execute/_models.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._executor_models"
+target_fqn = "polisyos.foundry.execute._models"
+reexported_names = ["ApplyArtifacts", "ExecuteArtifacts", "ExecutionStrictness", "FailureCard", "FailureKind", "FailureSeverity", "artifact_id", "get_state_path", "load_model", "load_payload", "load_tensor", "put_tensor", "set_state_path"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_executor_ops"
+source_path = "src/polisyos/foundry/_executor_ops/__init__.py"
+target_path = "src/polisyos/foundry/execute/_ops.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._executor_ops"
+target_fqn = "polisyos.foundry.execute._ops"
+reexported_names = ["apply_op", "apply_operator", "apply_ops_for_slot", "apply_ops_to_state", "check_constraints", "coerce_number", "coerce_selector_scalar", "evaluate_selector", "selector_field_values", "validate_ops_compatibility"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_executor_patching"
+source_path = "src/polisyos/foundry/_executor_patching/__init__.py"
+target_path = "src/polisyos/foundry/execute/_patching.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._executor_patching"
+target_fqn = "polisyos.foundry.execute._patching"
+reexported_names = ["apply_patch_map", "apply_patch_records", "apply_state_delta", "apply_state_delta_and_snapshot"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_executor_snapshots"
+source_path = "src/polisyos/foundry/_executor_snapshots/__init__.py"
+target_path = "src/polisyos/foundry/execute/_snapshots.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._executor_snapshots"
+target_fqn = "polisyos.foundry.execute._snapshots"
+reexported_names = ["export_seed_state_npz", "import_seed_state_npz", "load_state_snapshot", "put_state_snapshot"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-_numeric"
+source_path = "src/polisyos/foundry/_numeric/__init__.py"
+target_path = "src/polisyos/foundry/runtime/numeric.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry._numeric"
+target_fqn = "polisyos.foundry.runtime.numeric"
+reexported_names = ["ACTOR_LOG_STD_MAX", "ACTOR_LOG_STD_MIN", "NumericDomain", "clip_probability", "decimal_from_numeric", "economic_percent_delta", "epsilon_for", "finite_loss_or_inf", "is_jax_tracer", "require_finite_numpy", "safe_exp_from_log_std", "softplus_inverse", "stable_logit", "stable_normal_entropy", "stable_normal_log_prob", "symmetric_percent_delta", "validate_quantile"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-agent_metrics"
+source_path = "src/polisyos/foundry/agent_metrics/__init__.py"
+target_path = "src/polisyos/foundry/agent_sim/agent_metrics.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.agent_metrics"
+target_fqn = "polisyos.foundry.agent_sim.agent_metrics"
+reexported_names = ["normalize_action", "policy_entropy", "risk_action_correlation", "risk_action_gap", "saturation_rate"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-agents"
+source_path = "src/polisyos/foundry/agents/__init__.py"
+target_path = "src/polisyos/foundry/agent_sim/agents.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.agents"
+target_fqn = "polisyos.foundry.agent_sim.agents"
+reexported_names = ["AdaptiveAgentMechanism", "AgentPolicy", "build_observations", "continuous_actions_from_logits"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-conflict_checker"
+source_path = "src/polisyos/foundry/conflict_checker/__init__.py"
+target_path = "src/polisyos/foundry/validation/conflict_checker.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.conflict_checker"
+target_fqn = "polisyos.foundry.validation.conflict_checker"
+reexported_names = ["CompileTimeConflictChecker", "ConflictReport", "SlotConflict", "create_conflict_checker"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-constraints_engine"
+source_path = "src/polisyos/foundry/constraints_engine/__init__.py"
+target_path = "src/polisyos/foundry/validation/constraints_engine.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.constraints_engine"
+target_fqn = "polisyos.foundry.validation.constraints_engine"
+reexported_names = ["AggregationFunction", "check_composite_constraints", "check_constraints"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-cost_model"
+source_path = "src/polisyos/foundry/cost_model/__init__.py"
+target_path = "src/polisyos/foundry/methods/cost_model.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.cost_model"
+target_fqn = "polisyos.foundry.methods.cost_model"
+reexported_names = ["CostBudget", "CostEstimate", "CostModel", "create_cost_model"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-executor"
+source_path = "src/polisyos/foundry/executor/__init__.py"
+target_path = "src/polisyos/foundry/execute/executor.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.executor"
+target_fqn = "polisyos.foundry.execute.executor"
+reexported_names = ["ApplyArtifacts", "ExecuteArtifacts", "apply_op", "apply_operator", "apply_ops_for_slot", "apply_ops_to_state", "apply_patch_map", "apply_patch_records", "apply_state_delta", "apply_state_delta_and_snapshot", "artifact_id", "check_constraints", "coerce_number", "coerce_selector_scalar", "evaluate_selector", "execute_program_graph", "export_seed_state_npz", "get_state_path", "import_seed_state_npz", "load_model", "load_payload", "load_state_snapshot", "load_tensor", "put_state_snapshot", "put_tensor", "selector_field_values", "set_state_path", "validate_ops_compatibility"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-layout"
+source_path = "src/polisyos/foundry/layout/__init__.py"
+target_path = "src/polisyos/foundry/methods/layout.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.layout"
+target_fqn = "polisyos.foundry.methods.layout"
+reexported_names = ["SlotFamily", "SlotFamilyManifest", "SlotLayout", "build_slot_family_manifest", "build_slot_layout"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-loss"
+source_path = "src/polisyos/foundry/loss/__init__.py"
+target_path = "src/polisyos/foundry/methods/loss.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.loss"
+target_fqn = "polisyos.foundry.methods.loss"
+reexported_names = ["policy_loss_fn"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-mechanism_design"
+source_path = "src/polisyos/foundry/mechanism_design/__init__.py"
+target_path = "src/polisyos/foundry/mechanisms/design.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.mechanism_design"
+target_fqn = "polisyos.foundry.mechanisms.design"
+reexported_names = ["build_reserve_auction_welfare_loss_bound", "certify_affine_tax", "certify_license_scoring_auction", "certify_piecewise_linear_tax", "get_mechanism_family_spec", "mechanism_family_catalog"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-merge_engine"
+source_path = "src/polisyos/foundry/merge_engine/__init__.py"
+target_path = "src/polisyos/foundry/methods/merge_engine.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.merge_engine"
+target_fqn = "polisyos.foundry.methods.merge_engine"
+reexported_names = ["JAXMergeEngine", "MergeConflict", "MergeConflictContract", "MergeConflictError", "MergeConflictKind", "MergeEngine", "MergeRecord", "MergeReport", "MergeReportContract"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-patch_vm"
+source_path = "src/polisyos/foundry/patch_vm/__init__.py"
+target_path = "src/polisyos/foundry/execute/patch_vm.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.patch_vm"
+target_fqn = "polisyos.foundry.execute.patch_vm"
+reexported_names = ["merge_patch_records"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-profiles"
+source_path = "src/polisyos/foundry/profiles/__init__.py"
+target_path = "src/polisyos/foundry/runtime/profiles.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.profiles"
+target_fqn = "polisyos.foundry.runtime.profiles"
+reexported_names = ["CompileProfileLevel", "FoundryCompileProfile"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-queue"
+source_path = "src/polisyos/foundry/queue/__init__.py"
+target_path = "src/polisyos/foundry/execute/queue.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.queue"
+target_fqn = "polisyos.foundry.execute.queue"
+reexported_names = ["QueueMechanism", "QueueState", "fidelity_gap_report", "simulate_queue"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-quickstart"
+source_path = "src/polisyos/foundry/quickstart/__init__.py"
+target_path = "src/polisyos/foundry/_quickstart.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.quickstart"
+target_fqn = "polisyos.foundry._quickstart"
+reexported_names = ["FeedbackQuickstartRunResult", "QuickstartRunResult", "build_trivial_trinity_bundle", "prepare_trivial_feedback_config", "prepare_trivial_input_bindings", "prepare_trivial_multiplicity_config", "put_trivial_trinity_bundle", "resolve_registry_bundle_ref", "run_feedback_compile_execute", "run_feedback_multiplicity_demo", "run_trivial_compile_execute"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-registry"
+source_path = "src/polisyos/foundry/registry/__init__.py"
+target_path = "src/polisyos/foundry/_registry.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.registry"
+target_fqn = "polisyos.foundry._registry"
+reexported_names = ["MECHANISM_REGISTRY", "MECHANISM_SPECS", "MechanismRuntimeDescriptor", "MissingRuntimeMechanismSupportError", "UnsupportedRuntimeFidelityError", "create_mechanism", "create_mechanism_from_spec", "get_mechanism_class", "get_mechanism_descriptor", "get_mechanism_spec", "has_runtime_mechanism_support", "mechanism_catalog", "resolve_runtime_fidelity", "validate_mechanism_params"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-release_acceptance"
+source_path = "src/polisyos/foundry/release_acceptance/__init__.py"
+target_path = "src/polisyos/foundry/validation/release_acceptance.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.release_acceptance"
+target_fqn = "polisyos.foundry.validation.release_acceptance"
+reexported_names = ["ReleaseAcceptanceReport", "ReleaseAcceptanceRunner", "ReleaseAcceptanceStep"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-social_weights"
+source_path = "src/polisyos/foundry/social_weights/__init__.py"
+target_path = "src/polisyos/foundry/welfare/social_weights.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.social_weights"
+target_fqn = "polisyos.foundry.welfare.social_weights"
+reexported_names = ["prepare_social_weight_schedule", "social_weighted_resource", "social_weights_for_incomes"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-specs"
+source_path = "src/polisyos/foundry/specs/__init__.py"
+target_path = "src/polisyos/foundry/contracts/specs.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.specs"
+target_fqn = "polisyos.foundry.contracts.specs"
+reexported_names = ["MechanismSpec", "get_mechanism_spec", "mechanism_catalog", "validate_mechanism_params"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-trace"
+source_path = "src/polisyos/foundry/trace/__init__.py"
+target_path = "src/polisyos/foundry/runtime/trace.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.trace"
+target_fqn = "polisyos.foundry.runtime.trace"
+reexported_names = ["TraceEvent", "TraceSlice"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-utils"
+source_path = "src/polisyos/foundry/utils/__init__.py"
+target_path = "src/polisyos/foundry/_internal/utils.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.utils"
+target_fqn = "polisyos.foundry._internal.utils"
+reexported_names = ["GradientHealthReport", "gradient_health", "gradient_health_report", "soft_clamp", "soft_step"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"
+
+[[shim]]
+id = "decomp-foundry-welfare_bounds"
+source_path = "src/polisyos/foundry/welfare_bounds/__init__.py"
+target_path = "src/polisyos/foundry/welfare/bounds.py"
+type = "python_reexport"
+source_fqn = "polisyos.foundry.welfare_bounds"
+target_fqn = "polisyos.foundry.welfare.bounds"
+reexported_names = ["compute_mechanism_welfare_bound_report", "load_observed_range_bundle", "load_welfare_bound_report", "persist_observed_range_bundle", "persist_welfare_bound_report", "safe_compute_mechanism_welfare_bound_report"]
+reason = "Phase 5/6 decomposition compatibility shim"
+owner = "team-scientist/team-foundry"
+created = "2026-05-04"
+sunset_date = "2027-03-02"
+issue = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md"

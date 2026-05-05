@@ -90,7 +90,7 @@ jobs:
         env:
           BENCH_MODE: smoke
           BENCH_JSON_ROOT: /tmp/polisyos-benchmarks/nightly
-        run: bash tools/validation/run_benchmark_contours.sh
+        run: bash tools/quality/validation/run_benchmark_contours.sh
 
       - name: Upload benchmark summaries
         if: always()
@@ -134,8 +134,8 @@ jobs:
 
       - name: Start fixture runtime API
         run: |
-          mkdir -p frontend/runtime-dashboard/.tmp
-          PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file frontend/runtime-dashboard/.tmp/fixture-runtime.json &
+          mkdir -p _build/frontend/runtime-dashboard/.tmp
+          PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file _build/frontend/runtime-dashboard/.tmp/fixture-runtime.json &
           echo $! > /tmp/runtime-dashboard-fixture.pid
 
       - name: Start dashboard preview server
@@ -180,7 +180,7 @@ jobs:
           path: |
             policy-engine/frontend/runtime-dashboard/lighthouse-report
             policy-engine/frontend/runtime-dashboard/lighthouse-summary.md
-            policy-engine/frontend/runtime-dashboard/dist/security
+            policy-engine/_build/frontend/runtime-dashboard/dist/security
           if-no-files-found: warn
           retention-days: 30
 
@@ -212,7 +212,7 @@ jobs:
           "${{ steps.tools.outputs.bin }}/grype" sbom:/tmp/nightly-sbom.cdx.json -o json > /tmp/nightly-grype.json
 
       - name: Evaluate vulnerability policy
-        run: python3 policy-engine/tools/release/evaluate_vuln_report.py --report /tmp/nightly-grype.json --exceptions policy-engine/release/cve-exceptions.toml --summary /tmp/nightly-vulnerability-policy.md
+        run: python3 policy-engine/tools/ops/release/evaluate_vuln_report.py --report /tmp/nightly-grype.json --exceptions policy-engine/release/cve-exceptions.toml --summary /tmp/nightly-vulnerability-policy.md
 
       - name: Upload supply-chain audit artifacts
         if: always()

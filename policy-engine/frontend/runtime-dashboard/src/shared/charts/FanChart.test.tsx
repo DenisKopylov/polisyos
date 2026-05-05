@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { FanChart } from "@/shared/charts/FanChart";
+import { renderWithProviders } from "@/test/render";
 
 describe("FanChart", () => {
   it("renders fan labels and as-of marker", () => {
-    render(
+    renderWithProviders(
       <FanChart
         label="Employment rate forecast"
         asOfIndex={1}

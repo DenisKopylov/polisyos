@@ -4,12 +4,12 @@ Related how-to: [Installation](../how-to/install.md). Related reference:
 [Configuration](../reference/configuration.md).
 
 > Используйте этот runbook, когда regression появилась после upgrade Python,
-> Node, `uv.lock`, `package-lock.json`, npm package, PyPI dependency или
+> Node, `uv.lock`, `pnpm-lock.yaml`, npm package, PyPI dependency или
 > optional extra.
 
 Owner: `@platform-owners`
 Last tested: `2026-04-17` against current dependency-platform and acceptance-audit references.
-Evidence path: `docs/reference/dependency-platform.md`; `docs/archive/reports/platform-acceptance.md`; `.github/workflows/arch.yml`
+Evidence path: `docs/reference/dependency-platform.md`; `docs/archive/reports/platform-acceptance.md`; `ops/ci/templates/workflows/arch.yml`
 Rollback path: revert the offending dependency or lockfile delta, restore the previous supported toolchain baseline, and freeze further bumps in that family until triage is complete.
 
 ## Symptom
@@ -24,7 +24,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
 ## Likely Causes
 
-- несовместимый transitive bump в `uv.lock` или `package-lock.json`;
+- несовместимый transitive bump в `uv.lock` или `pnpm-lock.yaml`;
 - dependency требует другой baseline, чем текущие Python `3.14.x` или Node
   `22.x`;
 
@@ -41,7 +41,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 - какие файлы менялись:
   `pyproject.toml`, `uv.lock`,
   `frontend/runtime-dashboard/package.json`,
-  `frontend/runtime-dashboard/package-lock.json`,
+  `pnpm-lock.yaml`,
   `.python-version`, `.nvmrc`;
 
 - полный список failing commands и их exit codes;
@@ -66,7 +66,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
      policy-engine/.python-version \
      policy-engine/.nvmrc \
      policy-engine/frontend/runtime-dashboard/package.json \
-     policy-engine/frontend/runtime-dashboard/package-lock.json
+     policy-engine/pnpm-lock.yaml
    ```
 
 3. Разделите regression по поверхности:
@@ -81,9 +81,9 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
    ```bash
    cd policy-engine
-   uv run --extra ml python tools/diagnostics/gen_schema.py --check
-   uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-   cd frontend/runtime-dashboard && npm run contracts:verify
+   uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+   uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+   corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify
    ```
 
 5. Если regression явно вызвана одним bump, попробуйте pin rollback в ветке и

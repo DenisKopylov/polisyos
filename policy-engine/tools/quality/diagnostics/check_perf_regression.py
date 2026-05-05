@@ -16,9 +16,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import ensure_repo_import_roots
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import ensure_repo_import_roots
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__, include_src_root=False)
 

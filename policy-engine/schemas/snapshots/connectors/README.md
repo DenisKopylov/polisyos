@@ -6,7 +6,7 @@
 
 - Фиксирует публичные контракты, на которые опираются source connectors.
 - Проверяет эволюцию схем через `SchemaEvolution` (major/minor/patch рекомендации).
-- Валидируется в CI (`tools/connectors/check_contracts.py --check`, workflow `.github/workflows/arch.yml`).
+- Валидируется в CI (`polisyos-tools connectors check-contracts --check`, workflow `.github/workflows/arch.yml`).
 
 ## Формат `contracts.json`
 
@@ -28,18 +28,18 @@
 ## Источники и инструменты
 
 - Источник контрактов: `src/polisyos/fabric/connectors/sources/_contracts`.
-- Проверка и обновление snapshot: `tools/connectors/check_contracts.py`.
+- Проверка и обновление snapshot: `polisyos-tools connectors check-contracts`.
 
 ## Команды (из `policy-engine/`)
 
 ```bash
 # Проверка (по умолчанию script тоже работает в check-mode)
-python3 tools/connectors/check_contracts.py --check
+uv run polisyos-tools connectors check-contracts --check
 ```
 
 ```bash
 # Обновление snapshot
-python3 tools/connectors/check_contracts.py --update
+uv run polisyos-tools connectors check-contracts --update
 ```
 
 ## Инварианты

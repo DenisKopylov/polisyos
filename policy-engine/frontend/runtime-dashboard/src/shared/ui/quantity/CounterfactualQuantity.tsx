@@ -1,8 +1,8 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 import type { TemporalScope } from "@/app/providers/temporal-scope";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { CounterfactualBadge } from "@/shared/ui/counterfactual/CounterfactualBadge";
 import { CounterfactualDelta } from "@/shared/ui/counterfactual/CounterfactualDelta";
 

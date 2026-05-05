@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatTime } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatTime } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui";
 
 export type ReviewCollaborator = {

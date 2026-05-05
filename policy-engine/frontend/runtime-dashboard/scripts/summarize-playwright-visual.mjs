@@ -4,8 +4,14 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
-const testResultsDir = path.join(dashboardRoot, "test-results");
-const summaryPath = path.join(dashboardRoot, "visual-regression-summary.md");
+const buildRoot = path.resolve(
+  dashboardRoot,
+  "../../_build/frontend/runtime-dashboard",
+);
+const testResultsDir = path.join(buildRoot, "test-results");
+const summaryPath = path.join(buildRoot, "visual-regression-summary.md");
+
+fs.mkdirSync(buildRoot, { recursive: true });
 
 function listDiffArtifacts(directory) {
   if (!fs.existsSync(directory)) {
@@ -22,7 +28,7 @@ function listDiffArtifacts(directory) {
       continue;
     }
     if (entry.name.includes("-diff")) {
-      files.push(path.relative(dashboardRoot, nextPath));
+      files.push(path.relative(buildRoot, nextPath));
     }
   }
 

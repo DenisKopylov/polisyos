@@ -30,7 +30,7 @@ import {
   publicDecisionViewerRoute,
   runsRoutes,
 } from "@/features/runs/routes.public";
-import { LOGIN_PATH } from "@/lib/constants";
+import { LOGIN_PATH } from "@/shared/lib/constants";
 import {
   setActiveRouteTelemetryContext,
   setActiveRouteViewTiming,

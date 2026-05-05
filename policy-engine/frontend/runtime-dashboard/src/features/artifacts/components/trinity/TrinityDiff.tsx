@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import type { TrinityDiffSummary } from "@/lib/domain/trinity";
-import { diffTrinityBundles } from "@/lib/domain/trinity";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import type { TrinityDiffSummary } from "@/shared/lib/domain/trinity";
+import { diffTrinityBundles } from "@/shared/lib/domain/trinity";
 
 type TrinityDiffProps = {
   currentPayload: unknown;

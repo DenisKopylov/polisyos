@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSearchHref,
   parseSearchParamsWithSchema,
-} from "@/lib/searchParams";
+} from "@/shared/lib/searchParams";
 
 const platformSearchSchema = z.object({
   section: z

@@ -1273,7 +1273,7 @@ class StrategicNetworkFormationEstimator:
 
     @staticmethod
     def pure_step(
-        state: StrategicNetworkFormationData, params: Mapping[str, Any]
+        state: StrategicNetworkFormationData | Mapping[str, Any], params: Mapping[str, Any]
     ) -> dict[str, Any]:
         data = (
             state

@@ -15,8 +15,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Protocol
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_wave2"
 TOOL_NAME = "ci.check-scientist-best-in-class-wave2"
@@ -196,9 +196,11 @@ def _run_gate_module(
     try:
         module = importlib.import_module(module_name)
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-        return False, {"passes_all": False}, [
-            f"{gate_id}:gate_import_failed:{exc.__class__.__name__}:{exc}"
-        ]
+        return (
+            False,
+            {"passes_all": False},
+            [f"{gate_id}:gate_import_failed:{exc.__class__.__name__}:{exc}"],
+        )
     with TemporaryDirectory() as tmp:
         output_path = Path(tmp) / f"{gate_id}.json"
         try:
@@ -215,9 +217,11 @@ def _run_gate_module(
             )
             payload = json.loads(output_path.read_text(encoding="utf-8"))
         except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-            return False, {"passes_all": False}, [
-                f"{gate_id}:gate_run_failed:{exc.__class__.__name__}:{exc}"
-            ]
+            return (
+                False,
+                {"passes_all": False},
+                [f"{gate_id}:gate_run_failed:{exc.__class__.__name__}:{exc}"],
+            )
     notes: list[str] = []
     if exit_code != 0 or payload.get("passes_all") is not True:
         notes.append(f"{gate_id}:gate_failed")
@@ -255,8 +259,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
 
     notes: list[str] = []
     try:
-        from pydantic import ValidationError
-
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.scientist.claims.diff import diff_claim_ledgers
@@ -298,7 +300,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             assert_reusable_memory_clean,
             retrieve_reflexive_lessons,
         )
-        from polisyos.scientist.publisher import (
+        from polisyos.scientist.orchestrator.publisher import (
             DecisionGradeExport,
             OutputAudience,
             assert_decision_grade_exports_consistent,
@@ -320,6 +322,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             VOIDecisionType,
             VOIRunReport,
         )
+        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"wave2_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -716,8 +719,7 @@ def _claim_changes_missing_from_replay_diff(
     replay_changed_claim_ids: list[str],
 ) -> list[str]:
     explained = {
-        item.split(":", 1)[1] if ":" in item else item
-        for item in replay_changed_claim_ids
+        item.split(":", 1)[1] if ":" in item else item for item in replay_changed_claim_ids
     }
     return sorted(changed_claim_ids - explained)
 

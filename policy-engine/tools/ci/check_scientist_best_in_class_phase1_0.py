@@ -11,8 +11,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_0"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-0"
@@ -57,7 +57,7 @@ REQUIRED_CAPABILITY_IDS: tuple[str, ...] = (
 
 HISTORICAL_PLAN_SPECS: tuple[tuple[Path, str, re.Pattern[str]], ...] = (
     (
-        Path("docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md"),
+        Path("docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md"),
         "SCIENTIST_AUDIT_REMEDIATION_PLAN",
         re.compile(r"^### (WS-\d+[A-Z])\.\s+(.+)$", re.MULTILINE),
     ),
@@ -102,9 +102,7 @@ def _top_level_dirs(root: Path) -> list[str]:
     if not root.is_dir():
         return []
     return sorted(
-        item.name
-        for item in root.iterdir()
-        if item.is_dir() and item.name != "__pycache__"
+        item.name for item in root.iterdir() if item.is_dir() and item.name != "__pycache__"
     )
 
 
@@ -128,7 +126,9 @@ def _extract_historical_items(repo_root: Path) -> tuple[list[HistoricalItem], li
                 item_id = f"{prefix}:PHASE_{raw_id}"
             else:
                 item_id = f"{prefix}:{raw_id}"
-            items.append(HistoricalItem(item_id=item_id, title=title, source_path=str(relative_path)))
+            items.append(
+                HistoricalItem(item_id=item_id, title=title, source_path=str(relative_path))
+            )
     return items, notes
 
 
@@ -164,7 +164,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
     notes.extend(f"missing_capability:{item}" for item in capability_missing)
 
     source_root = repo_root / "src/polisyos/scientist"
-    test_root = repo_root / "tests/scientist"
+    test_root = repo_root / "tests/unit/scientist"
     source_packages = _top_level_dirs(source_root)
     test_packages = _top_level_dirs(test_root)
     source_missing = [
@@ -175,7 +175,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
     test_missing = [
         name
         for name in test_packages
-        if not _contains_token(inventory_text, f"tests/scientist/{name}/**")
+        if not _contains_token(inventory_text, f"tests/unit/scientist/{name}/**")
     ]
     notes.extend(f"missing_source_inventory:{item}" for item in source_missing)
     notes.extend(f"missing_test_inventory:{item}" for item in test_missing)

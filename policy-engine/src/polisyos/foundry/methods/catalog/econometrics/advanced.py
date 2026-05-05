@@ -952,7 +952,9 @@ class QuantileRegressionEstimator:
         return PanelData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         import statsmodels.api as sm
 
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
@@ -1050,7 +1052,9 @@ class EventStudyEstimator:
         return PanelObservationalData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: PanelObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state
             if isinstance(state, PanelObservationalData)
@@ -1186,7 +1190,9 @@ class LocalProjectionsEstimator:
         return TimeSeriesData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: TimeSeriesData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: TimeSeriesData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         import statsmodels.api as sm
 
         data = state if isinstance(state, TimeSeriesData) else TimeSeriesData.model_validate(state)
@@ -1296,7 +1302,9 @@ class GARCHEstimator:
         return TimeSeriesData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: TimeSeriesData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: TimeSeriesData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         from arch import arch_model
 
         data = state if isinstance(state, TimeSeriesData) else TimeSeriesData.model_validate(state)
@@ -1409,7 +1417,9 @@ class NonstationaryGARCHEstimator:
         return PanelData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
         y_matrix, x_tensor, entities, times = _balanced_panel_arrays(data)
         group_map, grouping_strategy = _resolve_entity_group_map(data, entities)
@@ -1980,7 +1990,9 @@ class ChangePointEstimator:
         return TimeSeriesData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: TimeSeriesData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: TimeSeriesData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         import ruptures as rpt
 
         data = state if isinstance(state, TimeSeriesData) else TimeSeriesData.model_validate(state)

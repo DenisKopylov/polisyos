@@ -110,7 +110,7 @@ def _run_scope(label: str, paths: list[str]) -> int:
         return 0
     print(f"[basedpyright] {label}")
     completed = subprocess.run(
-        ["basedpyright", *paths],
+        ["basedpyright", "--project", "basedpyright.toml", *paths],
         cwd=PRODUCT_ROOT,
         text=True,
         capture_output=True,

@@ -7,7 +7,7 @@ import argparse
 import os
 import sys
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 ensure_repo_import_roots(__file__, include_src_root=False)
 
@@ -51,7 +51,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
     command = [
         sys.executable,
-        "tools/workspace/doctor.py",
+        "tools/devx/workspace/doctor.py",
         "--skip-contract-checks",
     ]
     for surface in surfaces:
@@ -102,7 +102,7 @@ def _build_backend_pytest_commands(
         # Treat xdist as available by contract when parallel workers are requested.
         xdist_available = True
 
-    base_pytest_args = ("pytest", "-m", "not integration", "--ignore=tests/runtime/http")
+    base_pytest_args = ("pytest", "-m", "not integration", "--ignore=tests/unit/runtime/http")
     if pytest_workers is None or pytest_workers == "1" or not xdist_available:
         return [
             CommandSpec(
@@ -126,7 +126,7 @@ def _build_backend_pytest_commands(
                 pytest_dist,
                 "-m",
                 "not integration and not benchmark",
-                "--ignore=tests/runtime/http",
+                "--ignore=tests/unit/runtime/http",
             ),
             cwd=PRODUCT_ROOT,
             env=PYTEST_NUMERICAL_ENV,
@@ -139,7 +139,7 @@ def _build_backend_pytest_commands(
                 "pytest",
                 "-m",
                 "benchmark and not integration",
-                "--ignore=tests/runtime/http",
+                "--ignore=tests/unit/runtime/http",
             ),
             cwd=PRODUCT_ROOT,
             env=PYTEST_NUMERICAL_ENV,
@@ -156,32 +156,32 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 *uv,
                 "run",
                 "python",
-                "tools/lint/lint_imports.py",
+                "tools/quality/lint/lint_imports.py",
                 "--policy",
-                "import_policy.toml",
+                "architecture/imports/policy.toml",
                 "--exceptions",
-                "import_exceptions.toml",
+                "architecture/imports/exceptions.toml",
             ),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
             label="lint foundry",
-            argv=(*uv, "run", "python", "tools/lint/lint_foundry.py", "--repo-root", "."),
+            argv=(*uv, "run", "python", "tools/quality/lint/lint_foundry.py", "--repo-root", "."),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
             label="check state reads",
-            argv=(*uv, "run", "python", "tools/diagnostics/check_state_reads.py"),
+            argv=(*uv, "run", "python", "tools/quality/diagnostics/check_state_reads.py"),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
             label="check scholar imports",
-            argv=(*uv, "run", "python", "tools/lint/check_scholar_imports.py"),
+            argv=(*uv, "run", "python", "tools/quality/lint/check_scholar_imports.py"),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
             label="check connector contracts",
-            argv=(*uv, "run", "python", "tools/connectors/check_contracts.py", "--check"),
+            argv=(*uv, "run", "polisyos-tools", "connectors", "check-contracts", "--check"),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
@@ -192,7 +192,7 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 "--extra",
                 "ml",
                 "python",
-                "tools/diagnostics/gen_schema.py",
+                "tools/quality/diagnostics/gen_schema.py",
                 "--check",
             ),
             cwd=PRODUCT_ROOT,
@@ -207,7 +207,7 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 "--extra",
                 "ml",
                 "python",
-                "tools/runtime/check_runtime_api_contract.py",
+                "tools/ops/runtime/check_runtime_api_contract.py",
             ),
             cwd=PRODUCT_ROOT,
         ),

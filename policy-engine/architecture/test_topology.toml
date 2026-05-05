@@ -1,0 +1,169 @@
+[test_topology]
+version = 2
+status = "active"
+owner = "team-quality"
+phase = "repository-structure-remediation-phase-1e"
+last_verified = "2026-05-03"
+description = "Package-level test topology contract: one unit hub and local conftest per active source package, integration tests outside unit, and explicit property-test parity decisions."
+source_package_root = "src/polisyos"
+unit_root = "tests/unit"
+integration_root = "tests/integration"
+property_root = "tests/property"
+
+[defaults]
+unit_required = true
+integration_required = "package_specific"
+property_required = "package_specific"
+fixtures_root = "tests/fixtures"
+global_conftest = "tests/conftest.py"
+package_conftest_pattern = "tests/unit/<package>/conftest.py"
+
+[[topology_rule]]
+id = "unit-tests-mirror-source-package"
+description = "Each active top-level source package has tests/unit/<package>/ and tests/unit/<package>/conftest.py."
+owner = "team-quality"
+mode = "fail_closed"
+target_phase = "1E"
+
+[[topology_rule]]
+id = "integration-tests-live-outside-unit"
+description = "Package integration tests live in tests/integration/<package>/, never in tests/unit/<package>/integration/."
+owner = "team-quality"
+mode = "fail_closed"
+target_phase = "1E"
+
+[[topology_rule]]
+id = "property-tests-declared-or-excepted"
+description = "Each active top-level package either has tests/property/<package>/ or a documented property-test exception."
+owner = "team-quality"
+mode = "fail_closed"
+target_phase = "1E"
+
+[[topology_rule]]
+id = "no-loose-package-test-sprawl"
+description = "Large package roots keep tests in local subpackage hubs rather than loose tests/unit/<package>/test_*.py files."
+owner = "team-quality"
+mode = "fail_closed"
+target_phase = "1E"
+
+[[move]]
+id = "data-forge-unit-hub"
+from = "tests/data_forge"
+to = "tests/unit/data_forge"
+reason = "Data Forge now follows the same tests/unit/<package>/ hub as the other top-level packages."
+
+[[move]]
+id = "scientist-integration-hub"
+from = "tests/unit/scientist/integration"
+to = "tests/integration/scientist"
+reason = "Scientist integration coverage is no longer collected from the unit topology."
+
+[[move]]
+id = "scientist-wave2-rename"
+from = "tests/unit/scientist/wave2"
+to = "tests/unit/scientist/orchestrator_v2"
+reason = "Wave-specific label replaced by the stable orchestrator_v2 contract hub."
+
+[[package]]
+name = "berl"
+source_path = "src/polisyos/berl"
+unit_path = "tests/unit/berl"
+conftest_path = "tests/unit/berl/conftest.py"
+integration = { required = false, reason = "No package-specific integration lane; BERL coverage is unit scoped while the package remains small." }
+property = { required = false, reason = "Legacy/compatibility package with deterministic unit coverage only in Phase 1E." }
+
+[[package]]
+name = "calibration"
+source_path = "src/polisyos/calibration"
+unit_path = "tests/unit/calibration"
+conftest_path = "tests/unit/calibration/conftest.py"
+integration = { required = false, reason = "Calibration integration coverage is owned by Foundry/Scientist package slices." }
+property = { required = false, reason = "Top-level calibration is a compatibility surface; package-specific property coverage lives with Foundry/Scientist calibration domains." }
+
+[[package]]
+name = "common"
+source_path = "src/polisyos/common"
+unit_path = "tests/unit/common"
+conftest_path = "tests/unit/common/conftest.py"
+integration = { required = false, reason = "Common primitives are exercised through unit, contract, and dependent package tests." }
+property = { required = true, path = "tests/property/common" }
+
+[[package]]
+name = "core"
+source_path = "src/polisyos/core"
+unit_path = "tests/unit/core"
+conftest_path = "tests/unit/core/conftest.py"
+integration = { required = false, reason = "Core cross-layer compatibility is covered by tests/contract and package integration suites." }
+property = { required = false, reason = "Core currently uses schema/contract tests for invariants; dedicated property suite is deferred until artifact contracts stabilize." }
+
+[[package]]
+name = "data_forge"
+source_path = "src/polisyos/data_forge"
+unit_path = "tests/unit/data_forge"
+conftest_path = "tests/unit/data_forge/conftest.py"
+integration = { required = false, reason = "Data Forge domain flows are covered by local golden/shadow/replay tests inside tests/unit/data_forge." }
+property = { required = false, reason = "Data Forge relies on fixture-backed golden and differential suites in Phase 1E; property generators need a separate domain-fixture contract." }
+
+[[package]]
+name = "ddm"
+source_path = "src/polisyos/ddm"
+unit_path = "tests/unit/ddm"
+conftest_path = "tests/unit/ddm/conftest.py"
+integration = { required = false, reason = "DDM coverage is unit scoped; compatibility shim smoke tests remain under tests/unit/ddm_15_7." }
+property = { required = false, reason = "DDM has deterministic replay and acceptance unit tests; property coverage is deferred until the monitor API stabilizes." }
+
+[[package]]
+name = "fabric"
+source_path = "src/polisyos/fabric"
+unit_path = "tests/unit/fabric"
+conftest_path = "tests/unit/fabric/conftest.py"
+integration = { required = false, reason = "Connector/reference integration cases are marked from package-local unit subtrees until external service lanes are split." }
+property = { required = false, reason = "Fabric invariants are currently covered by unit, contract, and replay tests; property suite requires source-contract generators." }
+
+[[package]]
+name = "foundry"
+source_path = "src/polisyos/foundry"
+unit_path = "tests/unit/foundry"
+conftest_path = "tests/unit/foundry/conftest.py"
+integration = { required = false, reason = "Foundry does not keep tests/unit/foundry/integration; runtime and benchmark-style coverage lives in local subpackage hubs." }
+property = { required = true, path = "tests/property/foundry" }
+
+[[package]]
+name = "ir"
+source_path = "src/polisyos/ir"
+unit_path = "tests/unit/ir"
+conftest_path = "tests/unit/ir/conftest.py"
+integration = { required = false, reason = "IR integration behavior is covered through contract tests and consuming package suites." }
+property = { required = true, path = "tests/property/ir" }
+
+[[package]]
+name = "lex"
+source_path = "src/polisyos/lex"
+unit_path = "tests/unit/lex"
+conftest_path = "tests/unit/lex/conftest.py"
+integration = { required = false, reason = "Lex domain batch coverage is now localized through tests/unit/data_forge/legal_batch plus tests/unit/lex." }
+property = { required = false, reason = "Lex legal-corpus invariants use golden and schema tests; property generators need curated legal fixtures before activation." }
+
+[[package]]
+name = "runtime"
+source_path = "src/polisyos/runtime"
+unit_path = "tests/unit/runtime"
+conftest_path = "tests/unit/runtime/conftest.py"
+integration = { required = true, path = "tests/unit/runtime/http", reason = "Runtime HTTP tests are marked integration but remain package-local because they exercise the local ASGI boundary." }
+property = { required = true, path = "tests/property/runtime" }
+
+[[package]]
+name = "scholar"
+source_path = "src/polisyos/scholar"
+unit_path = "tests/unit/scholar"
+conftest_path = "tests/unit/scholar/conftest.py"
+integration = { required = false, reason = "Scholar freshness/search coverage is unit scoped; networked integration remains out of Phase 1E." }
+property = { required = false, reason = "Scholar property coverage depends on stable frozen-search fixtures and is not required in Phase 1E." }
+
+[[package]]
+name = "scientist"
+source_path = "src/polisyos/scientist"
+unit_path = "tests/unit/scientist"
+conftest_path = "tests/unit/scientist/conftest.py"
+integration = { required = true, path = "tests/integration/scientist" }
+property = { required = true, path = "tests/property/scientist" }

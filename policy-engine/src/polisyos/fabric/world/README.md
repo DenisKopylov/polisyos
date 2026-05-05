@@ -28,7 +28,7 @@ mechanics behind time travel and recovery workflows.
 
 - Follow downstream links to [../docs/README.md](../docs/README.md),
   [../claims/README.md](../claims/README.md), and
-  [../../../../tests/fabric/README.md](../../../../tests/fabric/README.md) for
+  [../../../../tests/unit/fabric/README.md](../../../../tests/unit/fabric/README.md) for
   pipeline and validation context.
 
 ## Public Entrypoints
@@ -73,14 +73,14 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/test_world_store.py tests/fabric/test_world_materialization.py -q`
+- `uv run pytest tests/unit/fabric/test_world_store.py tests/unit/fabric/test_world_materialization.py -q`
   World write-path and materialization smoke suite. Smoke-tested on
   2026-04-17.
 
-- `uv run pytest tests/fabric/test_world_time_travel.py tests/fabric/test_world_query_multibackend.py -q`
+- `uv run pytest tests/unit/fabric/test_world_time_travel.py tests/unit/fabric/test_world_query_multibackend.py -q`
   Time-travel and query smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/test_lineage.py tests/fabric/test_access_control.py -q`
+- `uv run pytest tests/unit/fabric/test_lineage.py tests/unit/fabric/test_access_control.py -q`
   Lineage and access-control coverage for world consumers. Conceptual in this
   README refresh; not run in this pass.
 
@@ -91,4 +91,4 @@ Run from the repository root (`policy-engine/`).
 - [Fabric time-travel reference](../../../../docs/reference/fabric/time-travel.md)
 - [E2.2 World store contract](../../../../docs/contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md)
 - [E2.3 DuckDB materialization contract](../../../../docs/contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

@@ -13,12 +13,12 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.runner import run_command
+from tools.lib.runner import run_command
 
 _ALLOWED_COMMAND_PREFIXES: tuple[tuple[str, ...], ...] = (("uv", "run", "python"),)
 
@@ -134,7 +134,7 @@ def _run_base_verification(repo_root: Path, output_dir: Path, timeout_sec: int) 
         "uv",
         "run",
         "python",
-        "tools/diagnostics/verify_scm_v3.py",
+        "tools/quality/diagnostics/verify_scm_v3.py",
         "--profile",
         "full",
         "--output-dir",

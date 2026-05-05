@@ -12,12 +12,12 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.runner import parse_trusted_command, render_command, run_command
+from tools.lib.runner import parse_trusted_command, render_command, run_command
 
 _ALLOWED_COMMAND_PREFIXES: tuple[tuple[str, ...], ...] = (("uv", "run", "python"),)
 
@@ -49,20 +49,20 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         label="gate_lint_imports",
         phase="phase--1",
         command=_trusted_command(
-            "uv run python tools/lint/lint_imports.py "
-            "--policy import_policy.toml --exceptions import_exceptions.toml"
+            "uv run python tools/quality/lint/lint_imports.py "
+            "--policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml"
         ),
     ),
     CheckSpec(
         label="gate_lint_foundry",
         phase="phase--1",
-        command=_trusted_command("uv run python tools/lint/lint_foundry.py --repo-root ."),
+        command=_trusted_command("uv run python tools/quality/lint/lint_foundry.py --repo-root ."),
     ),
     CheckSpec(
         label="gate_schema_ir",
         phase="phase--1",
         command=_trusted_command(
-            "uv run python tools/diagnostics/gen_schema.py "
+            "uv run python tools/quality/diagnostics/gen_schema.py "
             "--models ir --check --output-dir schemas/snapshots"
         ),
     ),
@@ -70,7 +70,7 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         label="gate_schema_fabric",
         phase="phase--1",
         command=_trusted_command(
-            "uv run python tools/diagnostics/gen_schema.py "
+            "uv run python tools/quality/diagnostics/gen_schema.py "
             "--models fabric --check --output-dir schemas/snapshots"
         ),
     ),
@@ -87,7 +87,7 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         phase="phase-9",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/foundry/methods/catalog/causal/test_graph_reconciliation.py"
+            "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py"
         ),
     ),
     CheckSpec(
@@ -95,8 +95,8 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         phase="phase-12",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/foundry/methods/catalog/causal/test_transport_check.py "
-            "tests/scientist/test_run_transportability_node.py"
+            "tests/unit/foundry/methods/catalog/causal/test_transport_check.py "
+            "tests/unit/scientist/causal/test_run_transportability_node.py"
         ),
     ),
     CheckSpec(
@@ -104,8 +104,8 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         phase="phase-12b",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/foundry/methods/catalog/causal/test_symbolic_identify_y0.py "
-            "tests/foundry/methods/catalog/causal/test_full_transport_bridge.py"
+            "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py "
+            "tests/unit/foundry/methods/catalog/causal/test_full_transport_bridge.py"
         ),
     ),
     CheckSpec(
@@ -113,9 +113,9 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         phase="phase-6-7",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/foundry/methods/catalog/causal/test_ci_backends_jax.py "
-            "tests/foundry/methods/catalog/causal/test_pcmci_discovery.py "
-            "tests/foundry/methods/catalog/causal/test_constraint_discovery.py"
+            "tests/unit/foundry/methods/catalog/causal/test_ci_backends_jax.py "
+            "tests/unit/foundry/methods/catalog/causal/test_pcmci_discovery.py "
+            "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py"
         ),
     ),
     CheckSpec(
@@ -123,8 +123,8 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
         phase="phase-15",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/scientist/test_resolve_parameters_node.py "
-            "tests/foundry/methods/catalog/causal/test_parameter_transfer.py"
+            "tests/unit/scientist/causal/test_resolve_parameters_node.py "
+            "tests/unit/foundry/methods/catalog/causal/test_parameter_transfer.py"
         ),
     ),
 )
@@ -133,25 +133,27 @@ FULL_CHECKS: tuple[CheckSpec, ...] = QUICK_CHECKS + (
     CheckSpec(
         label="causal_methods_suite",
         phase="phase-2-14",
-        command=_trusted_command("uv run python -m pytest -q tests/foundry/methods/catalog/causal"),
+        command=_trusted_command(
+            "uv run python -m pytest -q tests/unit/foundry/methods/catalog/causal"
+        ),
     ),
     CheckSpec(
         label="governance_suite",
         phase="phase-8",
-        command=_trusted_command("uv run python -m pytest -q tests/scientist/governance"),
+        command=_trusted_command("uv run python -m pytest -q tests/unit/scientist/governance"),
     ),
     CheckSpec(
         label="ir_contracts_suite",
         phase="cross-layer",
-        command=_trusted_command("uv run python -m pytest -q tests/ir"),
+        command=_trusted_command("uv run python -m pytest -q tests/unit/ir"),
     ),
     CheckSpec(
         label="workflow_guards",
         phase="phase--1",
         command=_trusted_command(
             "uv run python -m pytest -q "
-            "tests/scientist/test_causal_full_workflow_guard.py "
-            "tests/scientist/test_default_workflow_guard.py"
+            "tests/unit/scientist/workflows/test_causal_full_workflow_guard.py "
+            "tests/unit/scientist/workflows/test_default_workflow_guard.py"
         ),
     ),
 )

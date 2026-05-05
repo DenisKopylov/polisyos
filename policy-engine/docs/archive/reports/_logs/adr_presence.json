@@ -1,0 +1,372 @@
+{
+  "total_spec_adr_ids": 71,
+  "present_count": 5,
+  "missing_count": 66,
+  "rows": [
+    {
+      "adr_id": "ADR-0025",
+      "present": true,
+      "files": [
+        "0025-scm-structural-causal-model-vs-synthetic-control.md"
+      ]
+    },
+    {
+      "adr_id": "ADR-0026",
+      "present": true,
+      "files": [
+        "0026-notears-excluded-from-default-discovery.md"
+      ]
+    },
+    {
+      "adr_id": "ADR-0027",
+      "present": true,
+      "files": [
+        "0027-dowhy-primary-graph-identify-estimate.md"
+      ]
+    },
+    {
+      "adr_id": "ADR-0028",
+      "present": true,
+      "files": [
+        "0028-refutation-mandatory-for-observational-estimates.md"
+      ]
+    },
+    {
+      "adr_id": "ADR-0029",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0030",
+      "present": true,
+      "files": [
+        "0030-causal-graph-model-ir-artifact.md"
+      ]
+    },
+    {
+      "adr_id": "ADR-0031",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0032",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0033",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0034",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0035",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0036",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0037",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0038",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0039",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0040",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0041",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0042",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0043",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0044",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0045",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0046",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0047",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0048",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0049",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0050",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0051",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0052",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0053",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0054",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0055",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0056",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0057",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0058",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0059",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0060",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0061",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0062",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0063",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0064",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0065",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0066",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0067",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0068",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0069",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0070",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0071",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0072",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0073",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0074",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0075",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0076",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0077",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0078",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0079",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0080",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0081",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0082",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0083",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0084",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0085",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0086",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0087",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0088",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0089",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0090",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0091",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0092",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0093",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0094",
+      "present": false,
+      "files": []
+    },
+    {
+      "adr_id": "ADR-0095",
+      "present": false,
+      "files": []
+    }
+  ]
+}

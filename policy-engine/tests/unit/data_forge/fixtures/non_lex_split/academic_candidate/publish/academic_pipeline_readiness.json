@@ -1,0 +1,25 @@
+{
+  "kind": "academic_pipeline_readiness",
+  "component_dir": "tests/unit/data_forge/fixtures/non_lex_split/academic_candidate",
+  "readiness": {
+    "canonical_runtime_ready": true,
+    "parameter_utility_ready": false,
+    "causal_prior_utility_ready": true,
+    "cross_graph_utility_ready": true,
+    "transport_utility_ready": true,
+    "scholar_retrieval_ready": true,
+    "operational_stability_ready": false,
+    "consumer_ready": false
+  },
+  "benchmark_metrics": {
+    "parameter_supported_ratio": 0.6,
+    "causal_supported_ratio": 0.5,
+    "causal_supported_plus_mixed_ratio": 0.75,
+    "scholar_query_coverage_ratio": 0.7,
+    "non_default_transport_evidence_ratio": 0.65
+  },
+  "qc_metrics": {
+    "runtime_demanded_canonical_resolution_rate_pct": 92.0,
+    "global_canonical_resolution_rate_pct": 91.0
+  }
+}

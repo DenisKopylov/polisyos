@@ -64,7 +64,7 @@ That policy is part of the IR payload and therefore part of schema evolution and
 
 | Claim                                                                       | Source of truth                            | Evidence                                                                            |
 | --------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Pass ordering and analysis cache are deterministic                          | `src/polisyos/ir/passes/**`                | `tests/ir/test_phase2_passes.py`                                                    |
-| Estimand hashes ignore presentation-only ordering                           | `src/polisyos/ir/analytics/estimand.py`    | `tests/ir/analytics/test_estimand_normalization.py`                                 |
-| Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py`     | `tests/ir/test_phase2_passes.py`                                                    |
-| Uncertainty algebra uses explicit numeric policy                            | `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |
+| Pass ordering and analysis cache are deterministic                          | `src/polisyos/ir/passes/**`                | `tests/unit/ir/test_phase2_passes.py`                                                    |
+| Estimand hashes ignore presentation-only ordering                           | `src/polisyos/ir/analytics/estimand.py`    | `tests/unit/ir/analytics/test_estimand_normalization.py`                                 |
+| Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py`     | `tests/unit/ir/test_phase2_passes.py`                                                    |
+| Uncertainty algebra uses explicit numeric policy                            | `src/polisyos/ir/analytics/uncertainty.py` | `tests/unit/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |

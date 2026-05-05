@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { chartTheme, categoricalPalette, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { ParallelAxis, ParallelRow } from "./types";

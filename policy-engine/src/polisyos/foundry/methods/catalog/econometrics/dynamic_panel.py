@@ -1324,7 +1324,9 @@ class DifferenceGMMEstimator:
     metadata: ClassVar[MethodMetadata] = _DIFFERENCE_GMM_METADATA
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
         result = _run_dynamic_panel_gmm(
             data,
@@ -1373,7 +1375,9 @@ class SystemGMMEstimator:
     metadata: ClassVar[MethodMetadata] = _SYSTEM_GMM_METADATA
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
         result = _run_dynamic_panel_gmm(
             data,

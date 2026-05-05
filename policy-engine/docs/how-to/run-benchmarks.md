@@ -23,7 +23,7 @@ Freshness: 2026-04-17.
 ```bash
 uv run polisyos-tools benchmarks run-all --help
 uv run polisyos-tools benchmarks run-all --mode smoke
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
 ```
 
 ## Canonical Commands
@@ -88,15 +88,15 @@ Foundry Phase 4 benchmark evidence is split between registry circuits and
 pytest benchmark tests. For JAX-sensitive hot paths:
 
 ```bash
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
 ```
 
 For local domain probes:
 
 ```bash
-PYTHONPATH=src:. uv run python tools/benchmarks/jax/bench_domain.py --repeat 3 --json
-PYTHONPATH=src:. uv run python tools/benchmarks/jax/bench_simulation.py --agents 20000 --steps 24 --json
+PYTHONPATH=src:. uv run python tools/research/benchmarks/jax/bench_domain.py --repeat 3 --json
+PYTHONPATH=src:. uv run python tools/research/benchmarks/jax/bench_simulation.py --agents 20000 --steps 24 --json
 ```
 
 ## Reports
@@ -105,7 +105,7 @@ Canonical runner reports land in one of these locations depending on entry
 point and `BENCH_JSON_DIR`:
 
 - `benchmarks/_reports/`
-- `tools/benchmarks/_reports/`
+- `tools/research/benchmarks/_reports/`
 - `tools/research/benchmarks/_reports/`
 
 `polisyos-tools benchmarks build-release-summary` aggregates per-suite JSON into
@@ -116,7 +116,7 @@ gate-result fields.
 
 The benchmark registry and CI quality gates are related but not identical.
 Foundry release-gate behavior is asserted by
-`tests/foundry/test_release_gate.py`.
+`tests/unit/foundry/validation/test_release_gate.py`.
 Benchmark suites remain the canonical way to run local or release benchmark
 circuits and produce JSON evidence.
 

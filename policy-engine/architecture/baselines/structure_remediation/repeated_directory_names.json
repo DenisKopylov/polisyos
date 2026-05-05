@@ -1,0 +1,751 @@
+[
+  {
+    "name": "adapters",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/berl/adapters"
+        ],
+        "package": "berl"
+      },
+      {
+        "locations": [
+          "src/polisyos/runtime/http/services/adapters"
+        ],
+        "package": "runtime"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/adapters"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "artifacts",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/artifacts"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/artifacts"
+        ],
+        "package": "ir"
+      }
+    ]
+  },
+  {
+    "name": "backends",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/artifacts/backends",
+          "src/polisyos/core/backends",
+          "src/polisyos/core/governance/legal/backends"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/claims/backends",
+          "src/polisyos/fabric/docs/backends"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/backends"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/lex/legal_evaluation/backends"
+        ],
+        "package": "lex"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/governance/legal/backends"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "cache",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/cache"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/cache"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "calibration",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/calibration"
+        ],
+        "package": "calibration"
+      },
+      {
+        "locations": [
+          "src/polisyos/ddm/calibration"
+        ],
+        "package": "ddm"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/calibration"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "catalog",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/domains/catalog"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/catalog"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/catalog"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "causal",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/catalog/causal"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/causal",
+          "src/polisyos/scientist/nodes/builtins/causal"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "claims",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/claims"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/claims"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "compile",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/foundry/compile"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/nodes/builtins/compile"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "contracts",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/berl/contracts"
+        ],
+        "package": "berl"
+      },
+      {
+        "locations": [
+          "src/polisyos/core/contracts"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/ddm/contracts"
+        ],
+        "package": "ddm"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/contracts"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/contracts"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "core",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/agent_sim/world/core"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "data",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/ir/data"
+        ],
+        "package": "ir"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/nodes/builtins/data"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "data_plane",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/data_plane"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/data_plane"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "ddl",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/world/ddl"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/analytics/ddl"
+        ],
+        "package": "ir"
+      }
+    ]
+  },
+  {
+    "name": "discovery",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/discovery"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/discovery"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "errors",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/errors"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/data_forge/domains/catalog/fixtures/academic/errors"
+        ],
+        "package": "data_forge"
+      }
+    ]
+  },
+  {
+    "name": "governance",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/governance"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/governance"
+        ],
+        "package": "ir"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/governance",
+          "src/polisyos/scientist/nodes/builtins/governance"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "io",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel/io"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/io"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "kernel",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/kernel"
+        ],
+        "package": "ir"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/kernel"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "knowledge",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/domains/academic/knowledge",
+          "src/polisyos/data_forge/domains/catalog/knowledge"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/lex/knowledge"
+        ],
+        "package": "lex"
+      }
+    ]
+  },
+  {
+    "name": "legal",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/governance/legal"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/data_forge/domains/legal"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/governance/legal"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "llm",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/llm"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/llm"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "migrations",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/common/migrations"
+        ],
+        "package": "common"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/migrations"
+        ],
+        "package": "ir"
+      }
+    ]
+  },
+  {
+    "name": "orchestrator",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/scholar/orchestrator"
+        ],
+        "package": "scholar"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/orchestrator"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "passes",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/governance/passes"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/passes"
+        ],
+        "package": "ir"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/governance/passes"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "pipeline",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/pipeline"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel/pipeline"
+        ],
+        "package": "data_forge"
+      }
+    ]
+  },
+  {
+    "name": "profiles",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/profiles"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/llm/profiles"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "provenance",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/provenance"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/provenance"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "quality",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel/quality"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/quality"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "resilience",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/resilience"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/resilience"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "runtime",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel/runtime"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/runtime"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/runtime"
+        ],
+        "package": "runtime"
+      }
+    ]
+  },
+  {
+    "name": "search",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/scholar/search"
+        ],
+        "package": "scholar"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/search"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "security",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/core/security"
+        ],
+        "package": "core"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/security"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "sources",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/domains/catalog/sources"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/sources"
+        ],
+        "package": "fabric"
+      }
+    ]
+  },
+  {
+    "name": "testing",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/data_forge/kernel/testing"
+        ],
+        "package": "data_forge"
+      },
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/testing"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/testing"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "types",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/connectors/types"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/types"
+        ],
+        "package": "foundry"
+      }
+    ]
+  },
+  {
+    "name": "validation",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/foundry/methods/catalog/validation",
+          "src/polisyos/foundry/validation"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/scientist/validation"
+        ],
+        "package": "scientist"
+      }
+    ]
+  },
+  {
+    "name": "world",
+    "packages": [
+      {
+        "locations": [
+          "src/polisyos/fabric/world"
+        ],
+        "package": "fabric"
+      },
+      {
+        "locations": [
+          "src/polisyos/foundry/agent_sim/world"
+        ],
+        "package": "foundry"
+      },
+      {
+        "locations": [
+          "src/polisyos/ir/world"
+        ],
+        "package": "ir"
+      }
+    ]
+  }
+]

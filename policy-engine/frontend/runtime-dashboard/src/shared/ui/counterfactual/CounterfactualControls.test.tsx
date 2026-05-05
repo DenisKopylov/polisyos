@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { CounterfactualProvider } from "@/app/providers/CounterfactualProvider";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import type {
   CounterfactualMetric,
   QuantityValue,

@@ -27,21 +27,21 @@ governance, and publishes replayable decision artifacts across the `ir`,
 ## Depends On / Depended On By
 
 - Depends on: [`../core/README.md`](../core/README.md), [`../ir/README.md`](../ir/README.md), [`../foundry/README.md`](../foundry/README.md), [`../fabric/README.md`](../fabric/README.md), [`../lex/README.md`](../lex/README.md), and [`../scholar/README.md`](../scholar/README.md)
-- Depended on by: runtime/control flows, policy-design entrypoints, and the Scientist verification surface in [`../../../tests/scientist/README.md`](../../../tests/scientist/README.md)
+- Depended on by: runtime/control flows, policy-design entrypoints, and the Scientist verification surface in [`../../../tests/unit/scientist/README.md`](../../../tests/unit/scientist/README.md)
 
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist import ExperimentState, run_experiment; print(ExperimentState.__name__, callable(run_experiment))"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/test_workflow_selection.py tests/scientist/test_reliability_scorecard.py -q
+uv run pytest tests/unit/scientist/workflows/test_workflow_selection.py tests/unit/scientist/governance/test_reliability_scorecard.py -q
 ```
 
 ## Reference Docs
@@ -50,7 +50,7 @@ uv run pytest tests/scientist/test_workflow_selection.py tests/scientist/test_re
 - Workflow catalog: [`../../../docs/reference/scientist/workflows.md`](../../../docs/reference/scientist/workflows.md)
 - Builtin node reference: [`../../../docs/reference/scientist/nodes.md`](../../../docs/reference/scientist/nodes.md)
 - Reliability and release gates: [`../../../docs/reference/scientist/reliability-scorecard.md`](../../../docs/reference/scientist/reliability-scorecard.md)
-- Lane source plan: [`../../../docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`](../../../docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md)
+- Lane source plan: [`../../../docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`](../../../docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md)
 
 ## Last Updated
 

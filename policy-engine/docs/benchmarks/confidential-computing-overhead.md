@@ -20,8 +20,8 @@ Use the current benchmark command boundary:
 ```bash
 uv run polisyos-tools benchmarks run-all --mode smoke
 uv run polisyos-tools benchmarks run-all --circuit symbolic --mode smoke
-uv run pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
-PYTHONPATH=src:. uv run python tools/benchmarks/jax/bench_simulation.py --agents 20000 --steps 24 --json
+uv run pytest tests/unit/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-only
+PYTHONPATH=src:. uv run python tools/research/benchmarks/jax/bench_simulation.py --agents 20000 --steps 24 --json
 ```
 
 For broader performance tests:

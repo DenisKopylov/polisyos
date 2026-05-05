@@ -5,8 +5,8 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/{jwt_auth_middleware.py,cell_router_middleware.py,authz_middleware.py,fail_closed_middleware.py,dev_identity_middleware.py,security.py}`, `src/polisyos/runtime/http/routes/auth.py`, `src/polisyos/core/security/settings.py`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_auth_api.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_api_maturity.py`
-- `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py`
+- `uv run pytest -q tests/unit/runtime/http/test_auth_api.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_api_maturity.py`
+- `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py`
 
 This page is manually maintained from the runtime HTTP security chain. It
 describes current request authentication, tenant routing, cell binding, and

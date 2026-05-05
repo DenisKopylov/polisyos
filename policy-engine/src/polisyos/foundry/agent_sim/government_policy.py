@@ -15,7 +15,7 @@ from polisyos.foundry.agent_sim.actor_critic import ActorCritic, NormalizedMLP
 from polisyos.foundry.agent_sim.credit_assignment import CentralizedCritic
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
-from polisyos.foundry.social_weights import (
+from polisyos.foundry.welfare.social_weights import (
     prepare_social_weight_schedule,
     social_weighted_resource,
 )

@@ -49,7 +49,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.evidence_sources import (
+from polisyos.scientist.evidence.sources import (
     build_path_source_status,
 )
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
@@ -819,9 +819,7 @@ class RunPolicyBlueprintRuntimeNode:
             ],
         )
         voi_input_refs = [
-            ref
-            for ref in (candidate_ref, final_evaluation_ref, evidence_ref)
-            if ref is not None
+            ref for ref in (candidate_ref, final_evaluation_ref, evidence_ref) if ref is not None
         ]
         voi_report = predictive_voi.report_for_decisions(
             run_id=state.run_id,

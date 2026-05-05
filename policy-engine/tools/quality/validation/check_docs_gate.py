@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -155,7 +155,15 @@ GATE_COMMANDS: dict[str, GateCommand] = {
     "schema_docs": GateCommand(
         key="schema_docs",
         label="verify schema snapshots and IR reference docs",
-        argv=("uv", "run", "--extra", "ml", "python", "tools/diagnostics/gen_schema.py", "--check"),
+        argv=(
+            "uv",
+            "run",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check",
+        ),
     ),
     "runtime_api": GateCommand(
         key="runtime_api",
@@ -168,20 +176,19 @@ GATE_COMMANDS: dict[str, GateCommand] = {
             "--extra",
             "ml",
             "python",
-            "tools/runtime/check_runtime_api_contract.py",
+            "tools/ops/runtime/check_runtime_api_contract.py",
         ),
     ),
     "docs_accuracy": GateCommand(
         key="docs_accuracy",
-        label="verify docs accuracy",
+        label="verify docs freshness baseline",
         argv=(
             "uv",
             "run",
             "polisyos-tools",
-            "validation",
-            "check-docs-accuracy",
-            "--repo-root",
-            ".",
+            "workspace",
+            "repository-sota-closeout",
+            "--skip-generated-checks",
         ),
     ),
     "semantic_docstrings": GateCommand(
@@ -391,7 +398,7 @@ def _build_semantic_docstrings_command(changed_paths: Sequence[str]) -> GateComm
         "--repo-root",
         ".",
         "--allowlist",
-        "tools/validation/docstring_quality_allowlist.txt",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
         "--coverage-scope",
         "public-surface",
         "--minimum-coverage",

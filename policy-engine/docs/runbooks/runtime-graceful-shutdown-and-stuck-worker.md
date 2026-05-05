@@ -9,7 +9,7 @@ Related reference: [Platform Architecture Diagrams](../reference/operations/plat
 
 Owner: `@runtime-owners`
 Last tested: `2026-04-17` against current lifecycle and resilience checks.
-Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/runtime/http/test_runtime_api_write_path_hardening.py`; `tests/runtime/http/test_resilience_guards.py`
+Evidence path: `docs/archive/reports/core-runtime-closeout.md`; `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`; `tests/unit/runtime/http/test_resilience_guards.py`
 Rollback path: capture lifecycle evidence, prefer one controlled restart, and avoid repeated hard-kill loops that destroy the signal needed for a fix.
 
 ## Operational Metadata
@@ -19,7 +19,7 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 | Primary owner      | `@runtime-owners`                                                                                                                                 |
 | Coordination owner | `@platform-owners`                                                                                                                                |
 | Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                   |
-| Evidence anchors   | `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/runtime/http/test_resilience_guards.py`, `src/polisyos/runtime/http/app.py` |
+| Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/unit/runtime/http/test_resilience_guards.py`, `src/polisyos/runtime/http/app.py` |
 | Rollback posture   | capture lifecycle evidence first, then prefer one controlled restart over repeated hard-kill loops                                                |
 
 ## Symptom

@@ -2,7 +2,7 @@ import type { CSSProperties, HTMLAttributes } from "react";
 import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import type { DataTableColumn } from "@/shared/ui/DataTable";
 
 type VirtualTableProps<Row> = {

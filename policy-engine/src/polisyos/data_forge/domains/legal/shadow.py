@@ -12,6 +12,13 @@ from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.io import sha256_file
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
+CACHE_RESUME_MARKER_GLOBS = (
+    "cache/**/*.json",
+    "checkpoints/**/*.json",
+    "progress/**/*.json",
+    "spo_cache*.json",
+    "progress*.json",
+)
 
 
 class LegalShadowArtifact(DataForgeModel):
@@ -51,6 +58,7 @@ class LegalShadowBundle(DataForgeModel):
     quality_summary: dict[str, object] = Field(default_factory=dict)
     benchmark_summary: dict[str, object] = Field(default_factory=dict)
     table_counts: dict[str, int] = Field(default_factory=dict)
+    cache_resume_markers: tuple[LegalShadowArtifact, ...] = Field(default_factory=tuple)
     stage_manifests: tuple[LegalStageManifest, ...] = Field(default_factory=tuple)
     warnings: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -70,6 +78,9 @@ class LegalShadowDiff(DataForgeModel):
     added_artifacts: tuple[str, ...] = Field(default_factory=tuple)
     removed_artifacts: tuple[str, ...] = Field(default_factory=tuple)
     changed_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    added_cache_resume_markers: tuple[str, ...] = Field(default_factory=tuple)
+    removed_cache_resume_markers: tuple[str, ...] = Field(default_factory=tuple)
+    changed_cache_resume_markers: tuple[str, ...] = Field(default_factory=tuple)
     readiness_changes: dict[str, tuple[object, object]] = Field(default_factory=dict)
     metric_deltas: dict[str, float] = Field(default_factory=dict)
 
@@ -80,6 +91,9 @@ class LegalShadowDiff(DataForgeModel):
             self.added_artifacts
             or self.removed_artifacts
             or self.changed_artifacts
+            or self.added_cache_resume_markers
+            or self.removed_cache_resume_markers
+            or self.changed_cache_resume_markers
             or self.readiness_changes
             or self.metric_deltas
         )
@@ -98,10 +112,26 @@ def load_lex_shadow_bundle(root: str | Path) -> LegalShadowBundle:
     readiness = _dict_value(consumer_readiness.get("readiness"))
 
     warnings: list[str] = []
+    artifacts_by_path = {
+        "publish/manifest.json": _load_path_artifact(
+            root_path,
+            publish_manifest_path,
+            "publish/manifest.json",
+            warnings,
+        )
+    }
+    artifacts_by_path.update(
+        {
+            artifact.relative_path: artifact
+            for artifact in (
+                _load_artifact(root_path, item, warnings)
+                for item in _list_value(manifest.get("artifacts"))
+                if isinstance(item, dict)
+            )
+        }
+    )
     artifacts = tuple(
-        _load_artifact(root_path, item, warnings)
-        for item in _list_value(manifest.get("artifacts"))
-        if isinstance(item, dict)
+        artifacts_by_path[relative_path] for relative_path in sorted(artifacts_by_path)
     )
 
     consumer_ready = _bool_value(readiness.get("consumer_ready"), consumer_readiness.get("ready"))
@@ -120,6 +150,7 @@ def load_lex_shadow_bundle(root: str | Path) -> LegalShadowBundle:
         quality_summary=quality_summary,
         benchmark_summary=benchmark_summary,
         table_counts=table_counts,
+        cache_resume_markers=_load_cache_resume_markers(root_path),
         stage_manifests=_load_stage_manifests(root_path),
         warnings=tuple(warnings),
     )
@@ -134,6 +165,10 @@ def compare_lex_shadow_bundles(
     candidate_artifacts = {artifact.relative_path: artifact for artifact in candidate.artifacts}
     baseline_paths = set(baseline_artifacts)
     candidate_paths = set(candidate_artifacts)
+    baseline_markers = {marker.relative_path: marker for marker in baseline.cache_resume_markers}
+    candidate_markers = {marker.relative_path: marker for marker in candidate.cache_resume_markers}
+    baseline_marker_paths = set(baseline_markers)
+    candidate_marker_paths = set(candidate_markers)
 
     changed = []
     for relative_path in sorted(baseline_paths & candidate_paths):
@@ -141,6 +176,13 @@ def compare_lex_shadow_bundles(
         candidate_hash = _best_hash(candidate_artifacts[relative_path])
         if baseline_hash != candidate_hash:
             changed.append(relative_path)
+
+    changed_markers = []
+    for relative_path in sorted(baseline_marker_paths & candidate_marker_paths):
+        baseline_hash = _best_hash(baseline_markers[relative_path])
+        candidate_hash = _best_hash(candidate_markers[relative_path])
+        if baseline_hash != candidate_hash:
+            changed_markers.append(relative_path)
 
     readiness_changes: dict[str, tuple[object, object]] = {}
     for name in ("consumer_ready", "release_ready"):
@@ -155,8 +197,31 @@ def compare_lex_shadow_bundles(
         added_artifacts=tuple(sorted(candidate_paths - baseline_paths)),
         removed_artifacts=tuple(sorted(baseline_paths - candidate_paths)),
         changed_artifacts=tuple(changed),
+        added_cache_resume_markers=tuple(sorted(candidate_marker_paths - baseline_marker_paths)),
+        removed_cache_resume_markers=tuple(sorted(baseline_marker_paths - candidate_marker_paths)),
+        changed_cache_resume_markers=tuple(changed_markers),
         readiness_changes=readiness_changes,
         metric_deltas=_metric_deltas(baseline, candidate),
+    )
+
+
+def _load_path_artifact(
+    root: Path,
+    path: Path,
+    relative_path: str,
+    warnings: list[str],
+) -> LegalShadowArtifact:
+    exists = path.exists()
+    if not exists:
+        warnings.append(f"missing artifact: {relative_path}")
+    return LegalShadowArtifact(
+        path=str(path),
+        relative_path=relative_path,
+        declared_sha256=None,
+        observed_sha256=sha256_file(path) if exists else None,
+        exists=exists,
+        size_bytes=path.stat().st_size if exists else None,
+        checksum_ok=None,
     )
 
 
@@ -212,6 +277,25 @@ def _load_stage_manifests(root: Path) -> tuple[LegalStageManifest, ...]:
             )
         )
     return tuple(stage_manifests)
+
+
+def _load_cache_resume_markers(root: Path) -> tuple[LegalShadowArtifact, ...]:
+    markers: dict[str, LegalShadowArtifact] = {}
+    for pattern in CACHE_RESUME_MARKER_GLOBS:
+        for path in sorted(root.glob(pattern)):
+            if not path.is_file():
+                continue
+            relative_path = _relative_path(root, path)
+            markers[relative_path] = LegalShadowArtifact(
+                path=str(path),
+                relative_path=relative_path,
+                declared_sha256=None,
+                observed_sha256=sha256_file(path),
+                exists=True,
+                size_bytes=path.stat().st_size,
+                checksum_ok=None,
+            )
+    return tuple(markers[path] for path in sorted(markers))
 
 
 def _read_json(path: Path) -> dict[str, object]:

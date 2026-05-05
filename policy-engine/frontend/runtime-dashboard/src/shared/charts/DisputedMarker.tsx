@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { Glyph } from "@/shared/brand/Glyph";
 import {
   Tooltip,

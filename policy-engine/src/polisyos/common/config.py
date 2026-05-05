@@ -210,7 +210,7 @@ def build_process_bootstrap_config(
     total_cores: int | None = None,
 ) -> ProcessBootstrapConfig:
     """Resolve bootstrap defaults from environment and host CPU topology."""
-    source = env or os.environ
+    source = os.environ if env is None else env
     cores = max(1, total_cores or multiprocessing.cpu_count())
     reserved_cores = max(1, int(cores * 0.20))
     allowed_cores = max(1, cores - reserved_cores)
@@ -298,7 +298,7 @@ def apply_process_bootstrap(
     config: ProcessBootstrapConfig | None = None,
     load_dotenv_file: bool = True,
     configure_logging_sinks: bool = True,
-    logs_root: Path | str = Path("logs"),
+    logs_root: Path | str = Path("_build/logs"),
 ) -> ProcessBootstrapConfig:
     """Apply resolved env defaults and optional logging bootstrap explicitly."""
     if load_dotenv_file and load_dotenv is not None:
@@ -349,7 +349,11 @@ def apply_process_bootstrap(
     return resolved
 
 
-def configure_logging(*, log_level: str = "DEBUG", logs_root: Path | str = Path("logs")) -> None:
+def configure_logging(
+    *,
+    log_level: str = "DEBUG",
+    logs_root: Path | str = Path("_build/logs"),
+) -> None:
     """Configure console and JSON log sinks once per process."""
     global _LOGGING_BOOTSTRAPPED
     if logger is None:

@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"

@@ -21,7 +21,7 @@ artifacts and a machine-readable manifest.
 
 ## Storybook
 
-- Static build: `frontend/runtime-dashboard/storybook-static/`
+- Static build: `_build/frontend/runtime-dashboard/storybook-static/`
 - Snapshot manifest: `docs/brand/storybook-wave1-snapshot/stories.index.json`
 - Rollout manifest: `docs/brand/storybook-wave1-snapshot/staging-feature-flags.all_on.json`
 - Team walkthrough script:

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Wave 2 runtime contracts](wave2-runt
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/memory/**`, `src/polisyos/scientist/search/failure_cards.py`, `src/polisyos/scientist/search/lessons.py`, `src/polisyos/scientist/research_dag/projections.py`, `src/polisyos/scientist/evals/leakage.py`, `tests/scientist/memory/**`, and `tools/ci/check_scientist_best_in_class_phase2_4.py`.
+Source of truth: `src/polisyos/scientist/memory/**`, `src/polisyos/scientist/search/failure_cards.py`, `src/polisyos/scientist/search/lessons.py`, `src/polisyos/scientist/research_dag/projections.py`, `src/polisyos/scientist/evals/leakage.py`, `tests/unit/scientist/memory/**`, and `tools/ci/check_scientist_best_in_class_phase2_4.py`.
 
 Phase 2.4 makes failure intelligence reusable without making it silent
 evidence. Reflexive memory wraps the existing failure-card and lesson-card
@@ -114,6 +114,6 @@ remain non-default until Wave 2 closeout accepts memory influence rules.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/memory tests/tools/test_scientist_best_in_class_phase2_4.py -q
+uv run pytest tests/unit/scientist/memory tests/tools/test_scientist_best_in_class_phase2_4.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_4.py --repo-root . --output-format json --require-passing
 ```

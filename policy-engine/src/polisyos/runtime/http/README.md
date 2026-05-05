@@ -61,23 +61,23 @@ Run commands from the repository root `policy-engine/`.
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
 
 ## Test/verification commands
 
 Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
 
 - Smoke-tested:
-  `uv run pytest -q tests/runtime/http/test_runtime_api_contract_hardening.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py`
+  `uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
 
 - Smoke-tested:
-  `uv run pytest -q tests/runtime/http/test_runtime_api_observability.py tests/runtime/http/test_api_maturity.py tests/runtime/http/test_access_invariants_properties.py tests/runtime/http/test_control_service_di.py tests/runtime/http/test_resilience_guards.py`
+  `uv run pytest -q tests/unit/runtime/http/test_runtime_api_observability.py tests/unit/runtime/http/test_api_maturity.py tests/unit/runtime/http/test_access_invariants_properties.py tests/unit/runtime/http/test_control_service_di.py tests/unit/runtime/http/test_resilience_guards.py`
 
 ## Reference docs
 

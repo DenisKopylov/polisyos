@@ -66,7 +66,7 @@ echo "  Fulltext target:     50/topic"
 echo "  Expected: ~400-600 papers, ~200 with fulltext"
 echo ""
 
-python3 -m polisyos.academic.batch.cli run \
+python3 -m polisyos.data_forge.domains.academic.cli run \
   --snapshot-root "$SNAPSHOT_ROOT" \
   --topics-dir "$TOPICS_DIR" \
   --topic-limit 8 \

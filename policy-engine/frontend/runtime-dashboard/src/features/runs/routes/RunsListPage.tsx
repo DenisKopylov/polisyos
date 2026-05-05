@@ -5,8 +5,8 @@ import { useRuns } from "@/api/hooks/useRuns";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { buildEvidenceHref } from "@/features/evidence";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatDuration } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatDuration } from "@/shared/lib/utils";
 import {
   buildRunDeckHref,
   buildRunDetailHref,

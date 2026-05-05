@@ -1,0 +1,209 @@
+from __future__ import annotations
+
+from typing import Any, ClassVar
+
+import numpy as np
+import pytest
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.foundry.methods import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodMetadata,
+    MethodRegistry,
+    MethodSignature,
+    ParameterSpec,
+    SlotSpec,
+    SlotType,
+    Unit,
+)
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.scientist.compute.job_spec import JobKey, JobSpec
+from polisyos.scientist.compute.runner import run_job
+
+
+@pytest.fixture(autouse=True)
+def _reset_registry():
+    MethodRegistry.reset_instance()
+    yield
+    MethodRegistry.reset_instance()
+
+
+class _MethodJobIncrement:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="method_job_increment",
+        namespace="tests.scientist",
+        version="1.0.0",
+        input_slots=frozenset({SlotSpec("state", SlotType.VECTOR, Unit("dimensionless", "array"))}),
+        output_slots=frozenset(
+            {SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}
+        ),
+        parameters=(ParameterSpec(name="delta", default=1.0),),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="method job increment")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        values = np.asarray(state["state"])
+        return {"values": values + float(params["delta"])}
+
+
+class _ArtifactStoreProxy:
+    def __init__(self, store: FileSystemCAS) -> None:
+        self._store = store
+
+    def __getattr__(self, name: str):
+        return getattr(self._store, name)
+
+
+def test_job_spec_kind_validation():
+    with pytest.raises(ValueError, match="job_kind"):
+        JobSpec(job_kind="unknown")
+
+
+def test_job_key_legacy_ignores_polyglot_fields():
+    spec_a = JobSpec(
+        job_kind="legacy_program",
+        program_ref={
+            "artifact_id": "sha256:" + ("a" * 64),
+            "kind": "x",
+            "media_type": "application/json",
+        },
+    )
+    spec_b = JobSpec(
+        job_kind="legacy_program",
+        program_ref={
+            "artifact_id": "sha256:" + ("a" * 64),
+            "kind": "x",
+            "media_type": "application/json",
+        },
+        method_fqn="tests.unit.scientist.method_job_increment@1.0.0",
+    )
+    assert JobKey.from_spec(spec_a) == JobKey.from_spec(spec_a)
+    assert JobKey.from_spec(spec_a) != JobKey.from_spec(spec_b)
+
+
+def test_run_job_method_flow(tmp_path):
+    registry = MethodRegistry.get_instance()
+    registry.register(_MethodJobIncrement, override=True)
+
+    cas = FileSystemCAS(tmp_path)
+    input_ref = cas.put_json(
+        [1, 2],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params={"delta": 3},
+    )
+    result = run_job(spec, cas_root=tmp_path)
+
+    assert not result.issues
+    assert result.simulation_results_ref is not None
+    assert result.method_result_ref is not None
+    assert result.method_evidence_ref is not None
+    assert result.final_state is not None
+    assert np.allclose(np.asarray(result.final_state["values"]), np.array([4.0, 5.0]))
+
+
+def test_run_job_method_without_fqn_returns_issue(tmp_path):
+    spec = JobSpec(job_kind="method")
+    result = run_job(spec, cas_root=tmp_path)
+    assert result.issues
+
+
+def test_run_job_method_flow_accepts_injected_store_and_method_providers(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    registry = MethodRegistry()
+    registry.register(_MethodJobIncrement, override=True)
+    dispatcher = MethodDispatcher()
+    store_paths: list[object] = []
+
+    def _store_factory(path):
+        store_paths.append(path)
+        return FileSystemCAS(path)
+
+    def _unexpected(cls, *args, **kwargs):
+        del cls, args, kwargs
+        raise AssertionError("global singleton lookup should not be used")
+
+    monkeypatch.setattr(MethodRegistry, "get_instance", classmethod(_unexpected))
+    monkeypatch.setattr(MethodDispatcher, "get_instance", classmethod(_unexpected))
+
+    cas = FileSystemCAS(tmp_path)
+    input_ref = cas.put_json(
+        [5, 6],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params={"delta": 2},
+    )
+
+    result = run_job(
+        spec,
+        cas_root=tmp_path,
+        store_factory=_store_factory,
+        method_registry_provider=lambda: registry,
+        method_dispatcher_provider=lambda: dispatcher,
+    )
+
+    assert not result.issues
+    assert result.method_result_ref is not None
+    assert result.method_evidence_ref is not None
+    assert np.allclose(np.asarray(result.final_state["values"]), np.array([7.0, 8.0]))
+    assert store_paths
+    assert all(path == tmp_path for path in store_paths)
+
+
+def test_run_job_method_flow_accepts_protocol_store_factory(tmp_path) -> None:
+    registry = MethodRegistry.get_instance()
+    registry.register(_MethodJobIncrement, override=True)
+
+    def _store_factory(path):
+        return _ArtifactStoreProxy(FileSystemCAS(path))
+
+    cas = FileSystemCAS(tmp_path)
+    input_ref = cas.put_json(
+        [10, 11],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params={"delta": 4},
+    )
+
+    result = run_job(spec, cas_root=tmp_path, store_factory=_store_factory)
+
+    assert not result.issues
+    assert result.method_result_ref is not None
+    assert result.method_evidence_ref is not None
+    assert np.allclose(np.asarray(result.final_state["values"]), np.array([14.0, 15.0]))

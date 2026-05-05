@@ -9,7 +9,7 @@ frontier work from the Foundry remediation plan.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/calibration/**`, `src/polisyos/foundry/uncertainty/**`, linked ADRs, and the referenced calibration tests
 
 The package facade is intentionally split: measurement/reporting contracts
@@ -65,11 +65,11 @@ imports succeed.
 
 - Non-finite calibration losses reduce to `+inf` rather than being reported as
   a valid numeric fit. This is tested in
-  `tests/foundry/calibration/test_measurement.py`.
+  `tests/unit/foundry/calibration/test_measurement.py`.
 
 - Hessian-derived Gaussian envelopes are documented as heuristic uncertainty
   unless gate eligibility is explicitly justified. See
-  `docs/FOUNDRY_NUMERIC_GUARDRAILS.md`
+  `docs/reference/foundry/numeric-guardrails.md`
   and [`docs/adr/0012-uncertainty-envelope-ir-contract.md`](../../adr/0012-uncertainty-envelope-ir-contract.md).
 
 ## Minimal Fit Loop
@@ -94,16 +94,16 @@ report = Calibrator(
 ## Evidence Links
 
 - Measurement-aware weighting and finite gradient:
-  `tests/foundry/calibration/test_measurement.py`
+  `tests/unit/foundry/calibration/test_measurement.py`
 
 - Stable bounded transforms:
-  `tests/foundry/calibration/test_bijectors.py`
+  `tests/unit/foundry/calibration/test_bijectors.py`
 
 - Hessian repair and condition-number semantics:
-  `tests/foundry/calibration/test_hessian.py`
+  `tests/unit/foundry/calibration/test_hessian.py`
 
 - Pure executor semantics:
-  `tests/foundry/calibration/test_pure_executor.py`
+  `tests/unit/foundry/calibration/test_pure_executor.py`
 
 - Uncertainty propagation ADR:
   [`docs/adr/0013-uncertainty-propagation-pipeline.md`](../../adr/0013-uncertainty-propagation-pipeline.md)

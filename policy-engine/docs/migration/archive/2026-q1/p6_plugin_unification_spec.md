@@ -259,7 +259,7 @@ Deprecation requirements:
 1. `PR-A`: core component taxonomy/discovery/compliance extension for connectors.
 2. `PR-B`: connector bridge + `_registry_lifecycle` bootstrap cutover.
 3. `PR-C`: method bootstrap cutover + compatibility wrapper in `foundry.methods.discovery`.
-4. `PR-D`: shared bootstrap adoption in lex/scholar/scientist + tests/docs.
+4. `PR-D`: shared bootstrap adoption in lex/scholar/scientist + tests/architecture/docs.
 
 ## 7. CI and Governance Updates
 
@@ -280,13 +280,13 @@ Deprecation requirements:
 Architecture freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p6_metrics \
   --summary-path .tmp/p6_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p6_metrics/summary.json \
   --mode blocking \
@@ -301,23 +301,23 @@ Targeted tests (minimum):
 
 ```bash
 python3 -m pytest \
-  tests/test_components_discovery.py \
-  tests/test_components_bridge.py \
-  tests/fabric/test_scholar_extractor_components.py \
-  tests/fabric/connectors/test_registry.py \
-  tests/foundry/methods/test_discovery.py \
-  tests/scientist/test_engine_registry_v0.py
+  tests/architecture/test_components_discovery.py \
+  tests/architecture/test_components_bridge.py \
+  tests/unit/fabric/test_scholar_extractor_components.py \
+  tests/unit/fabric/connectors/test_registry.py \
+  tests/unit/foundry/methods/test_discovery.py \
+  tests/unit/scientist/test_engine_registry_v0.py
 ```
 
 Required new tests (P6):
 
 ```bash
 python3 -m pytest \
-  tests/fabric/connectors/test_components_bridge.py \
-  tests/foundry/methods/test_components_bootstrap_adapter.py \
-  tests/scientist/test_node_registry_components_bootstrap.py \
-  tests/core/components/test_connector_kind_compliance.py \
-  tests/core/components/test_unified_bootstrap_idempotency.py
+  tests/unit/fabric/connectors/test_components_bridge.py \
+  tests/unit/foundry/methods/test_components_bootstrap_adapter.py \
+  tests/unit/scientist/test_node_registry_components_bootstrap.py \
+  tests/unit/core/components/test_connector_kind_compliance.py \
+  tests/unit/core/components/test_unified_bootstrap_idempotency.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -439,11 +439,11 @@ This confirms P6 is a consolidation phase, not a cycle-break phase.
 
 ### 12.5 Tests added
 
-1. `tests/core/components/test_connector_kind_compliance.py`
-2. `tests/core/components/test_unified_bootstrap_idempotency.py`
-3. `tests/fabric/connectors/test_components_bridge.py`
-4. `tests/scientist/test_node_registry_components_bootstrap.py`
-5. `tests/foundry/methods/test_components_bootstrap_adapter.py`
+1. `tests/unit/core/components/test_connector_kind_compliance.py`
+2. `tests/unit/core/components/test_unified_bootstrap_idempotency.py`
+3. `tests/unit/fabric/connectors/test_components_bridge.py`
+4. `tests/unit/scientist/test_node_registry_components_bootstrap.py`
+5. `tests/unit/foundry/methods/test_components_bootstrap_adapter.py`
 
 ### 12.6 Verification
 
@@ -451,14 +451,14 @@ Executed locally:
 
 1. Targeted regression + new P6 tests:
 
-   - `python3 -m pytest tests/core/components/test_connector_kind_compliance.py tests/fabric/connectors/test_components_bridge.py tests/scientist/test_node_registry_components_bootstrap.py tests/core/components/test_unified_bootstrap_idempotency.py tests/test_components_discovery.py tests/test_components_bridge.py tests/fabric/test_scholar_extractor_components.py tests/scientist/test_engine_registry_v0.py`
+   - `python3 -m pytest tests/unit/core/components/test_connector_kind_compliance.py tests/unit/fabric/connectors/test_components_bridge.py tests/unit/scientist/test_node_registry_components_bootstrap.py tests/unit/core/components/test_unified_bootstrap_idempotency.py tests/architecture/test_components_discovery.py tests/architecture/test_components_bridge.py tests/unit/fabric/test_scholar_extractor_components.py tests/unit/scientist/test_engine_registry_v0.py`
    - Result: `14 passed`
 2. Architecture metrics and freeze blocking check:
 
-   - `python3 tools/lint/collect_arch_metrics.py ...`
-   - `python3 tools/lint/compare_baseline.py --mode blocking ...`
+   - `python3 tools/quality/lint/collect_arch_metrics.py ...`
+   - `python3 tools/quality/lint/compare_baseline.py --mode blocking ...`
    - Result: `[OK] Architecture freeze checks passed.`
 
 Environment limitations:
 
-1. `tests/foundry/methods/*` suite requires `jax` in this environment and was not executable end-to-end (`ModuleNotFoundError: jax` during conftest import). New file `tests/foundry/methods/test_components_bootstrap_adapter.py` was added and syntax-validated.
+1. `tests/unit/foundry/methods/*` suite requires `jax` in this environment and was not executable end-to-end (`ModuleNotFoundError: jax` during conftest import). New file `tests/unit/foundry/methods/test_components_bootstrap_adapter.py` was added and syntax-validated.

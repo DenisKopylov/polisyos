@@ -3,7 +3,7 @@
 Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/governance/{accountability,backtest_matrix,calibration,calibration_leaderboard,calibration_validation,stress_scenarios}.py` and `tests/scientist/governance/**`
+Source of truth: `src/polisyos/scientist/governance/{accountability,backtest_matrix,calibration,calibration_leaderboard,calibration_validation,stress_scenarios}.py` and `tests/unit/scientist/governance/**`
 
 Calibration governance extends the base validation pipeline with observation-family policy mapping, adversarial challenge suites, backtest matrices, stress scenarios, and leaderboard rollups.
 
@@ -61,16 +61,16 @@ never as inferred calibration quality.
 
 | Claim                                                                    | Artifact surface                                                                                | Regression evidence                                                                                    |
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Calibration quality is measured with scoring rules and reliability bins. | `CalibrationValidationBundle.readout_summary()`, `GovernanceAccountabilityArtifact.calibration` | `tests/scientist/governance/test_calibration_validation.py`                                            |
-| Fairness and group calibration are auditable.                            | `GovernanceAccountabilityArtifact.fairness`, threshold registry entries, missing-evidence gaps  | `tests/scientist/governance/test_accountability.py`                                                    |
-| Risk-weighted verdicts and escalation policy are explainable.            | `risk_weighted_verdict`, `requires_human_review`, `escalation_policy`                           | `tests/scientist/governance/test_accountability.py`, `tests/scientist/test_decision_packet_node_v3.py` |
-| Policy output bundles carry calibration governance evidence forward.     | `calibration_validation_summary`, `governance_accountability_artifact_ref`                      | `tests/scientist/nodes/test_build_policy_output_bundle.py`                                             |
+| Calibration quality is measured with scoring rules and reliability bins. | `CalibrationValidationBundle.readout_summary()`, `GovernanceAccountabilityArtifact.calibration` | `tests/unit/scientist/governance/test_calibration_validation.py`                                            |
+| Fairness and group calibration are auditable.                            | `GovernanceAccountabilityArtifact.fairness`, threshold registry entries, missing-evidence gaps  | `tests/unit/scientist/governance/test_accountability.py`                                                    |
+| Risk-weighted verdicts and escalation policy are explainable.            | `risk_weighted_verdict`, `requires_human_review`, `escalation_policy`                           | `tests/unit/scientist/governance/test_accountability.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py` |
+| Policy output bundles carry calibration governance evidence forward.     | `calibration_validation_summary`, `governance_accountability_artifact_ref`                      | `tests/unit/scientist/nodes/test_build_policy_output_bundle.py`                                             |
 
 ## Validation Commands
 
 ```bash
-uv run pytest tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py -q
-uv run pytest tests/scientist/test_decision_packet_node_v3.py tests/scientist/nodes/test_build_policy_output_bundle.py -q
+uv run pytest tests/unit/scientist/governance/test_accountability.py tests/unit/scientist/governance/test_calibration_validation.py -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py tests/unit/scientist/nodes/test_build_policy_output_bundle.py -q
 ```
 
 ## API Reference

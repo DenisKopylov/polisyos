@@ -10,9 +10,9 @@ const { normalizeAgentPipelineMock, normalizeWorkflowMock } = vi.hoisted(
   }),
 );
 
-vi.mock("@/lib/domain/agents", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/domain/agents")>(
-    "@/lib/domain/agents",
+vi.mock("@/shared/lib/domain/agents", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/lib/domain/agents")>(
+    "@/shared/lib/domain/agents",
   );
   return {
     ...actual,
@@ -21,9 +21,9 @@ vi.mock("@/lib/domain/agents", async () => {
   };
 });
 
-vi.mock("@/lib/domain/workflow", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/domain/workflow")>(
-    "@/lib/domain/workflow",
+vi.mock("@/shared/lib/domain/workflow", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/lib/domain/workflow")>(
+    "@/shared/lib/domain/workflow",
   );
   return {
     ...actual,
@@ -31,9 +31,9 @@ vi.mock("@/lib/domain/workflow", async () => {
   };
 });
 
-vi.mock("@/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
-    "@/i18n/LocaleProvider",
+vi.mock("@/shared/i18n/LocaleProvider", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
+    "@/shared/i18n/LocaleProvider",
   );
   return {
     ...actual,

@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { UncertaintyBand } from "@/shared/charts/UncertaintyBand";
+import { renderWithProviders } from "@/test/render";
 
 describe("UncertaintyBand", () => {
   it("renders scalar intervals through the graded error bar wrapper", () => {
-    render(
+    renderWithProviders(
       <UncertaintyBand
         estimate={0.23}
         bands={[{ lower: 0.09, upper: 0.37, level: 0.95 }]}
@@ -19,7 +20,7 @@ describe("UncertaintyBand", () => {
   });
 
   it("renders requested series bands and disputed state", () => {
-    render(
+    renderWithProviders(
       <UncertaintyBand
         label="Employment outlook"
         disputed

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { fadeInUp } from "@/shared/ui/motion";
 
 export type ChapterStatus = "pending" | "active" | "completed";

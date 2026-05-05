@@ -1,7 +1,7 @@
 import type { CSSProperties, HTMLAttributes } from "react";
 import { useId } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export type EvidenceSigilSize = 48 | 64 | 96;
 

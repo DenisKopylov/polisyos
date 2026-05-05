@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
 
 import { server } from "@/test/msw/server";
 
@@ -35,6 +35,18 @@ if (
   !HTMLElement.prototype.scrollIntoView
 ) {
   HTMLElement.prototype.scrollIntoView = () => undefined;
+}
+
+if (typeof HTMLCanvasElement !== "undefined") {
+  Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+    value: vi.fn(() => null),
+    writable: true,
+  });
+}
+
+if (typeof window !== "undefined" && window.getComputedStyle) {
+  const getComputedStyle = window.getComputedStyle.bind(window);
+  window.getComputedStyle = (element) => getComputedStyle(element);
 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));

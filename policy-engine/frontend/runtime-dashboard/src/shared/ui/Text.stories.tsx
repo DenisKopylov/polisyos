@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card, CardContent, CardHeader, CardTitle, Text } from "@/shared/ui";
 
 function LocaleSetter() {

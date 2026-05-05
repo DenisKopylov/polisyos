@@ -18,7 +18,7 @@ import {
 } from "@/features/artifacts/reading-view/MonographLayout";
 import { ReadingViewToggle } from "@/features/artifacts/reading-view/ReadingViewToggle";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import type { BadgeKind } from "@/shared/ui";
 import {
   Button,
@@ -30,10 +30,10 @@ import {
 import { UncertaintyBand } from "@/shared/charts";
 import { EvidenceSigil } from "@/shared/brand/EvidenceSigil";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-import type { DecisionCardViewModel } from "@/lib/domain/decision";
-import { parseDecisionCardPayload } from "@/lib/domain/decision";
-import { useGlobalShortcut } from "@/lib/hooks/useKeyboardShortcuts";
-import { formatDate, formatDuration } from "@/lib/utils";
+import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
+import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
+import { useGlobalShortcut } from "@/shared/lib/hooks/useKeyboardShortcuts";
+import { formatDate, formatDuration } from "@/shared/lib/utils";
 import { triggerPrint } from "@/shared/export/printExport";
 
 type DecisionCardViewProps = {

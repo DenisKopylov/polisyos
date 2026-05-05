@@ -9,7 +9,7 @@ how-to: [Use Control Plane](../how-to/use-control-plane.md),
 
 Owner: `@platform-owners`
 Last tested: `2026-04-17` against current replay/checkpoint regressions and retained-artifact references.
-Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/platform-acceptance-manual.md`; `tests/fabric/data_plane/test_record_replay.py`
+Evidence path: `docs/reference/operations/retention-and-recovery.md`; `docs/archive/reports/platform-acceptance-manual.md`; `tests/unit/fabric/data_plane/test_record_replay.py`
 Rollback path: stop destructive restore steps, preserve the current broken head or replay bundle, and switch to another trusted retained copy or documented replay source.
 
 ## Symptom
@@ -60,22 +60,22 @@ Finalize snapshot manifest:
 
 ```bash
 cd policy-engine
-uv run python -m polisyos.batch_snapshot.cli finalize --snapshot-root /path/to/snapshot
+uv run python -m polisyos.data_forge.kernel.snapshot.cli finalize --snapshot-root /path/to/snapshot
 ```
 
 Archive legacy runs with report:
 
 ```bash
 cd policy-engine
-uv run python tools/runtime/archive_legacy_runs.py --runs-root runs --archive-dir .tmp/legacy_runs_archive
+uv run python tools/ops/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
 ```
 
 Record/replay regression coverage:
 
 ```bash
 cd policy-engine
-uv run pytest tests/fabric/data_plane/test_record_replay.py
-uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_checkpoint_gc.py
+uv run pytest tests/unit/fabric/data_plane/test_record_replay.py
+uv run pytest tests/unit/scientist/engine/test_checkpoint.py tests/unit/scientist/engine/test_checkpoint_gc.py
 ```
 
 ## Rollback / Mitigation

@@ -13,11 +13,11 @@ outputs = [
   "schemas/snapshots/fabric/node_kind.schema.json",
   "schemas/snapshots/fabric/_manifest.json",
 ]
-regenerate_commands = ["PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py"]
+regenerate_commands = ["PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py"]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever ABI-visible IR or Fabric contracts change."
 drift_gate = "automated"
-workflow = ".github/workflows/abi.yml"
+workflow = "../.github/workflows/abi.yml"
 check_cwd = "."
 check_command = [
   "uv",
@@ -25,7 +25,7 @@ check_command = [
   "--extra",
   "ml",
   "python",
-  "tools/diagnostics/gen_schema.py",
+  "tools/quality/diagnostics/gen_schema.py",
   "--check",
 ]
 
@@ -35,7 +35,11 @@ label = "Fabric connector contract registry"
 owner = "team-polisyos"
 approval_owner = "team-polisyos"
 source_of_truth = "polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS and tools/quality/validation/fabric_schema_governance.py"
-outputs = ["schemas/snapshots/fabric/connector_contract_registry.json"]
+outputs = [
+  "schemas/snapshots/fabric/connector_contract_registry.json",
+  "schemas/snapshots/fabric/source_contracts_v2.json",
+  "schemas/snapshots/fabric/source_scorecards.json",
+]
 regenerate_commands = ["uv run python tools/ci/check_fabric_schema_registry.py --update"]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever source connector contracts or their governance metadata change."
@@ -49,7 +53,7 @@ check_command = [
   "tools/ci/check_fabric_schema_registry.py",
   "--check",
   "--evidence-out",
-  ".tmp/fabric-schema-governance.json",
+  "_build/.tmp/fabric-schema-governance.json",
 ]
 
 [[family]]
@@ -60,12 +64,12 @@ approval_owner = "team-polisyos"
 source_of_truth = "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts"
 outputs = ["schemas/runtime_api_v1.openapi.json"]
 regenerate_commands = [
-  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
+  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change."
 drift_gate = "automated"
-workflow = ".github/workflows/arch.yml"
+workflow = "ops/ci/templates/workflows/arch.yml"
 check_cwd = "."
 check_command = [
   "uv",
@@ -75,7 +79,7 @@ check_command = [
   "--extra",
   "ml",
   "python",
-  "tools/runtime/check_runtime_api_contract.py",
+  "tools/ops/runtime/check_runtime_api_contract.py",
   "--skip-client-drift",
 ]
 
@@ -90,12 +94,12 @@ outputs = [
   "frontend/runtime-api-client/runtimeApiClient.js",
 ]
 regenerate_commands = [
-  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js",
+  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
 drift_gate = "automated"
-workflow = ".github/workflows/arch.yml"
+workflow = "ops/ci/templates/workflows/arch.yml"
 check_cwd = "."
 check_command = [
   "uv",
@@ -105,7 +109,7 @@ check_command = [
   "--extra",
   "ml",
   "python",
-  "tools/runtime/check_runtime_api_contract.py",
+  "tools/ops/runtime/check_runtime_api_contract.py",
 ]
 
 [[family]]
@@ -115,13 +119,13 @@ owner = "team-polisyos"
 approval_owner = "team-polisyos"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = ["frontend/runtime-dashboard/src/api/types.ts"]
-regenerate_commands = ["cd frontend/runtime-dashboard && npm run generate:api"]
+regenerate_commands = ["pnpm --filter @polisyos/runtime-dashboard run generate:api"]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever runtime OpenAPI changes affect dashboard-facing types."
 drift_gate = "automated"
-workflow = ".github/workflows/arch.yml"
+workflow = "ops/ci/templates/workflows/arch.yml"
 check_cwd = "frontend/runtime-dashboard"
-check_command = ["npm", "run", "generate:api"]
+check_command = ["pnpm", "run", "generate:api"]
 check_git_diff_paths = ["src/api/types.ts"]
 
 [[family]]
@@ -129,17 +133,32 @@ id = "connector-recorded-fixtures"
 label = "Recorded connector fixtures"
 owner = "team-polisyos"
 approval_owner = "team-polisyos"
-source_of_truth = "Live upstream connector responses captured through scripts/record_fixtures.py"
-outputs = ["tests/fabric/connectors/sources/fixtures/"]
+source_of_truth = "Live upstream connector responses captured through polisyos-tools data record-fixtures."
+outputs = ["tests/unit/fabric/connectors/sources/fixtures/"]
 regenerate_commands = [
-  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 1",
-  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 2",
-  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 3",
+  "uv run polisyos-tools data record-fixtures --wave 1",
+  "uv run polisyos-tools data record-fixtures --wave 2",
+  "uv run polisyos-tools data record-fixtures --wave 3",
 ]
 commit_policy = "committed"
 freshness_rule = "Refresh intentionally when connector contracts, source profiles, or upstream response shapes change."
 drift_gate = "manual_review"
-workflow = "scripts/record_fixtures.py"
+workflow = "tools/ops/data/record_fixtures.py"
+
+[[family]]
+id = "catalog-relevant-topics-domain-fixtures"
+label = "Catalog relevant topics domain fixtures"
+owner = "team-data-forge"
+approval_owner = "team-data-forge"
+source_of_truth = "OpenAlex topic CSV curation via tools/research/experiments/filter_topics.py and tools/research/experiments/organize_relevant_topics.py"
+outputs = ["src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/"]
+regenerate_commands = [
+  "uv run python tools/research/experiments/filter_topics.py --input <approved-openalex-topics.csv> --output <workdir>/relevant_topics.csv",
+  "uv run python tools/research/experiments/organize_relevant_topics.py --input <workdir>/relevant_topics.csv --labeled-output <workdir>/relevant_topics_thematic.csv --summary-output src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/relevant_topics_thematic_summary.csv",
+]
+commit_policy = "committed"
+freshness_rule = "Refresh only when topic taxonomy fixtures are intentionally regenerated and reviewed."
+drift_gate = "manual_review"
 
 [[family]]
 id = "runtime-dashboard-contract-fixtures"
@@ -148,7 +167,7 @@ owner = "team-polisyos"
 approval_owner = "team-polisyos"
 source_of_truth = "Live Runtime API responses captured via frontend/runtime-dashboard/scripts/record-runtime-contracts.mjs"
 outputs = ["frontend/runtime-dashboard/src/test/contracts/fixtures/"]
-regenerate_commands = ["cd frontend/runtime-dashboard && npm run contracts:record"]
+regenerate_commands = ["pnpm --filter @polisyos/runtime-dashboard run contracts:record"]
 commit_policy = "committed"
 freshness_rule = "Refresh when dashboard contract fixtures are intentionally updated to match runtime API behavior."
 drift_gate = "manual_review"
@@ -160,15 +179,15 @@ label = "Benchmark reports and bundle stats"
 owner = "team-polisyos"
 approval_owner = "team-polisyos"
 source_of_truth = "benchmarks/** runners, frontend/runtime-dashboard/scripts/emit-bundle-stats.mjs, and benchmark publication helpers"
-outputs = ["benchmarks/_reports/", "frontend/runtime-dashboard/dist/bundle-stats.json"]
+outputs = ["benchmarks/_reports/", "_build/frontend/runtime-dashboard/dist/bundle-stats.json"]
 regenerate_commands = [
   "uv run polisyos-tools benchmarks run-all",
-  "cd frontend/runtime-dashboard && npm run bundle:stats",
+  "pnpm --filter @polisyos/runtime-dashboard run bundle:stats",
 ]
 commit_policy = "mixed"
-freshness_rule = "Commit benchmark reports only when they serve as intentional baselines, evidence packs, or review artifacts. `frontend/runtime-dashboard/dist/bundle-stats.json` is local by default and is committed only when reviewers explicitly want a checked-in bundle baseline."
+freshness_rule = "Commit benchmark reports only when they serve as intentional baselines, evidence packs, or review artifacts. `_build/frontend/runtime-dashboard/dist/bundle-stats.json` is local by default and is committed only when reviewers explicitly want a checked-in bundle baseline."
 drift_gate = "manual_review"
-workflow = ".github/workflows/perf.yml"
+workflow = "ops/ci/templates/workflows/perf.yml"
 
 [[family]]
 id = "audit-and-evidence-artifacts"
@@ -178,12 +197,12 @@ approval_owner = "team-polisyos"
 source_of_truth = "Dedicated audit/report generators such as frontend/runtime-dashboard/scripts/run-audit.mjs and curated evidence/report pipelines"
 outputs = [
   "docs/archive/reports/",
-  "frontend/runtime-dashboard/npm-audit-report.json",
-  "frontend/runtime-dashboard/npm-audit-summary.md",
+  "_build/frontend/runtime-dashboard/audit/pnpm-audit-report.json",
+  "_build/frontend/runtime-dashboard/audit/pnpm-audit-summary.md",
 ]
-regenerate_commands = ["cd frontend/runtime-dashboard && npm run audit:ci"]
+regenerate_commands = ["pnpm --filter @polisyos/runtime-dashboard run audit:ci"]
 commit_policy = "mixed"
-freshness_rule = "Only intentionally reviewed evidence packs and audit outputs stay committed; transient local diagnostics such as raw audit captures remain ignored."
+freshness_rule = "Only intentionally reviewed evidence packs stay committed; frontend audit outputs stay local under `_build/frontend/runtime-dashboard/audit/` unless promoted to a reviewed baseline."
 drift_gate = "manual_review"
 workflow = "frontend/runtime-dashboard/scripts/run-audit.mjs"
 
@@ -198,17 +217,238 @@ regenerate_commands = ["uv run polisyos-tools quality public-surface snapshot --
 commit_policy = "committed"
 freshness_rule = "Regenerate whenever supported public entrypoints, __all__, or public signatures change."
 drift_gate = "automated"
-workflow = ".github/workflows/arch.yml"
+workflow = "ops/ci/templates/workflows/arch.yml"
 
 [[family]]
 id = "release-sbom"
 label = "Release SBOM"
 owner = "team-security"
 approval_owner = "team-security"
-source_of_truth = "uv.lock, frontend workspace lockfile, Dockerfile.reproducible, and release manifest inputs"
-outputs = ["release/sbom/"]
-regenerate_commands = ["uv run polisyos-tools security sbom --output release/sbom/"]
+source_of_truth = "uv.lock, pnpm-lock.yaml, Dockerfile.reproducible, and release manifest inputs"
+outputs = ["_build/release/sbom/"]
+regenerate_commands = ["uv run polisyos-tools security sbom --output _build/release/sbom/"]
+commit_policy = "local_ignored"
+freshness_rule = "Regenerate for every release candidate or dependency-lock change; publish through CI/release artifacts rather than committing local SBOM output."
+drift_gate = "ignored_by_policy"
+workflow = "ops/ci/templates/workflows/build-and-push.yml"
+
+[[family]]
+id = "data-forge-migration-fixture-baselines"
+label = "Data Forge migration fixture baselines"
+owner = "team-data-forge"
+approval_owner = "team-architecture"
+source_of_truth = "tests/unit/data_forge/** golden, shadow, replay, and differential fixture contracts"
+outputs = [
+  "tests/unit/data_forge/fixtures/non_lex_split/",
+  "tests/unit/data_forge/fixtures/legal_shadow/",
+  "tests/unit/data_forge/fixtures/ukraine_shadow/",
+]
+regenerate_commands = [
+  "manual review: refresh paired baseline/candidate fixtures and run uv run pytest tests/unit/data_forge/test_phase1_shared_kernel_cutover.py tests/unit/data_forge/test_phase7_schema_quality_observability.py tests/unit/data_forge/test_repository_sota_phase1_foundation.py -q",
+]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit for every release candidate or dependency-lock change that enters a release branch."
-drift_gate = "automated"
-workflow = ".github/workflows/build-and-push.yml"
+freshness_rule = "Refresh when Data Forge behavior-changing migrations intentionally update golden, replay, shadow, or differential baselines."
+drift_gate = "manual_review"
+workflow = "tests/unit/data_forge"
+
+[[family]]
+id = "data-forge-contract-schemas"
+label = "Data Forge artifact and manifest contract schemas"
+owner = "team-data-forge"
+approval_owner = "team-architecture"
+source_of_truth = "src/polisyos/data_forge/kernel/** ArtifactRef, trace metadata, domain artifact, and manifest contracts"
+outputs = [
+  "schemas/artifacts/data_forge_artifact_ref_v1.schema.json",
+  "schemas/artifacts/data_forge_artifact_trace_metadata_v1.schema.json",
+  "schemas/artifacts/data_forge_domain_artifact_v1.schema.json",
+  "schemas/manifests/data_forge_publish_manifest_v1.schema.json",
+  "schemas/manifests/data_forge_raw_manifest_v1.schema.json",
+  "schemas/manifests/data_forge_stage_manifest_v1.schema.json",
+]
+regenerate_commands = [
+  "manual review: update JSON Schema alongside Data Forge kernel manifest/model changes",
+]
+commit_policy = "committed"
+freshness_rule = "Review whenever Data Forge ArtifactRef, trace metadata, domain artifact, raw/stage/publish manifest, or publish-manifest contracts change."
+drift_gate = "manual_review"
+workflow = "docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md"
+check_cwd = "."
+
+[[family]]
+id = "frontend-workspace-lockfiles"
+label = "Frontend workspace lockfile"
+owner = "team-frontend"
+approval_owner = "team-frontend"
+source_of_truth = "pnpm-workspace.yaml, package.json, frontend/*/package.json, packages/*/package.json, and the Node 22 contributor baseline"
+outputs = [
+  "pnpm-lock.yaml",
+]
+regenerate_commands = ["pnpm install --lockfile-only"]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit the root pnpm lockfile whenever any workspace package dependency graph changes."
+drift_gate = "manual_review"
+workflow = "../.github/workflows/frontend-quality.yml"
+
+[[family]]
+id = "frontend-local-generated-outputs"
+label = "Frontend local generated outputs"
+owner = "team-frontend"
+approval_owner = "team-frontend"
+source_of_truth = "frontend workspace build, coverage, audit, Playwright, Storybook, cache, and package manager commands"
+outputs = [
+  "node_modules/",
+  "frontend/runtime-api-client/node_modules/",
+  "_build/frontend/runtime-api-client/coverage/",
+  "_build/frontend/runtime-api-client/dist/",
+  "_build/frontend/runtime-api-client/.tmp/",
+  "_cache/frontend/runtime-api-client/eslint/.eslintcache",
+  "frontend/runtime-dashboard/node_modules/",
+  "_build/frontend/runtime-dashboard/coverage/",
+  "_build/frontend/runtime-dashboard/dist/",
+  "_build/frontend/runtime-dashboard/output/",
+  "_build/frontend/runtime-dashboard/playwright-report/",
+  "_build/frontend/runtime-dashboard/storybook-static/",
+  "_build/frontend/runtime-dashboard/test-results/",
+  "_build/frontend/runtime-dashboard/.tmp/",
+  "_cache/frontend/runtime-dashboard/eslint/.eslintcache",
+  "frontend/runtime-reference-shell/node_modules/",
+  "_build/frontend/runtime-reference-shell/coverage/",
+  "_build/frontend/runtime-reference-shell/dist/",
+  "_build/frontend/runtime-reference-shell/.tmp/",
+  "_cache/frontend/runtime-reference-shell/eslint/.eslintcache",
+  "packages/cli/node_modules/",
+  "_cache/frontend/cli/eslint/.eslintcache",
+]
+regenerate_commands = [
+  "pnpm --filter @polisyos/runtime-dashboard run build",
+  "pnpm --filter @polisyos/runtime-dashboard run test:coverage",
+  "pnpm --filter @polisyos/runtime-dashboard run build-storybook",
+]
+commit_policy = "local_ignored"
+freshness_rule = "Keep local generated outputs ignored. Commit only explicit reviewed baselines registered in a committed artifact family."
+drift_gate = "ignored_by_policy"
+workflow = "docs/reference/frontend/workspace-contract.md"
+
+[[family]]
+id = "committed-data-fixtures-and-catalogs"
+label = "Committed data fixtures and catalogs"
+owner = "team-data-forge"
+approval_owner = "team-data-forge"
+source_of_truth = "data/README.md, data/academic_gold/** tiny examples, and data/dataset_catalog/*.yaml registry entries"
+outputs = [
+  "data/academic_gold/",
+  "data/dataset_catalog/",
+]
+regenerate_commands = [
+  "manual review: refresh tiny gold fixtures or catalog YAML alongside the source schema/contract change",
+]
+commit_policy = "committed"
+freshness_rule = "Commit only small fixtures, contracts, manifests, registry entries, or tiny gold examples. Bulk raw/curated/database outputs remain ignored local data."
+drift_gate = "manual_review"
+workflow = "docs/reference/data-lake-policy.md"
+
+[[family]]
+id = "local-medallion-data-lake"
+label = "Local medallion data lake"
+owner = "team-data-forge"
+approval_owner = "team-data-forge"
+source_of_truth = "architecture/data_policy.toml"
+outputs = [
+  "data/bronze/",
+  "data/silver/",
+  "data/gold/",
+  "data/manifests/",
+  "data/quarantine/",
+]
+regenerate_commands = [
+  "manual/local: create medallion directories under the ignored product-root data/ lake as needed",
+]
+commit_policy = "local_ignored"
+freshness_rule = "Local data lake content is local runtime or corpus state and must stay ignored unless promoted to a registered tiny fixture."
+drift_gate = "ignored_by_policy"
+workflow = "docs/reference/data-lake-policy.md"
+
+[[family]]
+id = "local-runtime-state"
+label = "Local PolisyOS runtime state"
+owner = "team-platform"
+approval_owner = "team-platform"
+source_of_truth = "architecture/local_runtime_state.toml"
+outputs = [
+  ".polisyos/",
+]
+regenerate_commands = [
+  "manual/local: runtime runs, reports, artifact-cache, and provider-verification commands create .polisyos state",
+]
+commit_policy = "local_ignored"
+freshness_rule = "Keep runtime state ignored, retention-classed, and cleanable through the documented cleanup commands."
+drift_gate = "ignored_by_policy"
+workflow = "docs/reference/local-runtime-state.md"
+
+[[family]]
+id = "ops-observability-baselines"
+label = "Ops observability baselines"
+owner = "team-observability"
+approval_owner = "team-platform"
+source_of_truth = "ops/observability, ops/observability/prometheus, ops/observability/grafana, and runtime telemetry conventions"
+outputs = [
+  "ops/observability/otel/baseline.yaml",
+  "ops/observability/slo/",
+  "ops/observability/prometheus/",
+  "ops/observability/grafana/dashboards/",
+]
+regenerate_commands = [
+  "docker compose -f ops/docker/observability.compose.yml config",
+  "manual review: update OTel, SLO, Prometheus, and Grafana baselines together with emitted telemetry changes",
+]
+commit_policy = "committed"
+freshness_rule = "Review whenever runtime metrics, trace attributes, SLO objectives, or dashboard panels change."
+drift_gate = "manual_review"
+workflow = "../.github/workflows/core-runtime-release-gate.yml"
+
+[[family]]
+id = "ops-security-release-baselines"
+label = "Ops security and release baselines"
+owner = "team-security"
+approval_owner = "team-platform"
+source_of_truth = "ops/security, ops/release, release-fragments, dependency locks, and Dockerfile.reproducible"
+outputs = [
+  "ops/security/gitleaks.toml",
+  "ops/security/trufflehog.yaml",
+  "ops/security/osv-scanner.toml",
+  "ops/security/sbom.toml",
+  "ops/security/secrets-baseline.toml",
+  "ops/release/release-fragment-policy.toml",
+  "ops/release/commit-policy.toml",
+]
+regenerate_commands = [
+  "manual review: run gitleaks, trufflehog, OSV, SBOM, release-fragment, and commit-policy checks for release candidates",
+]
+commit_policy = "committed"
+freshness_rule = "Review whenever secret scanning policy, dependency lock inputs, SBOM format, release-fragment rules, or commit policy changes."
+drift_gate = "manual_review"
+workflow = "../.github/workflows/release.yml"
+
+[[family]]
+id = "ops-runtime-and-migration-baselines"
+label = "Ops runtime and migration baselines"
+owner = "team-platform"
+approval_owner = "team-platform"
+source_of_truth = "ops/runtime, ops/migrations, runtime deployment contracts, and tenant/RLS SQL chain"
+outputs = [
+  "ops/runtime/runtime-contracts.toml",
+  "ops/migrations/README.md",
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/001_tenant_columns.sql",
+  "ops/migrations/002_tenant_backfill.sql",
+  "ops/migrations/003_rls_enable.sql",
+  "ops/migrations/003_rls_disable_rollback.sql",
+  "ops/migrations/004_roles_grants.sql",
+]
+regenerate_commands = [
+  "manual review: update runtime and SQL migration baselines alongside deployment/runtime security contract changes",
+]
+commit_policy = "committed"
+freshness_rule = "Review whenever runtime deployment contracts, tenant isolation, RLS, rollback, or migration sequencing changes."
+drift_gate = "manual_review"
+workflow = "ops/ci/templates/workflows/arch.yml"

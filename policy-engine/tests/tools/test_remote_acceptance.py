@@ -106,11 +106,13 @@ def test_rsync_excludes_cover_local_caches() -> None:
     assert ".git/" in remote_acceptance.RSYNC_EXCLUDES
     assert "node_modules/" in remote_acceptance.RSYNC_EXCLUDES
     assert ".venv*/" in remote_acceptance.RSYNC_EXCLUDES
-    assert ".hypothesis/" in remote_acceptance.RSYNC_EXCLUDES
+    assert "_build/" in remote_acceptance.RSYNC_EXCLUDES
+    assert "_cache/" in remote_acceptance.RSYNC_EXCLUDES
     assert ".polisyos/" in remote_acceptance.RSYNC_EXCLUDES
+    assert "/policy-engine/data/policy-engine-local/" in remote_acceptance.RSYNC_EXCLUDES
     assert "data/raw/" in remote_acceptance.RSYNC_EXCLUDES
     assert "data/dataset_catalog/" not in remote_acceptance.RSYNC_EXCLUDES
-    assert "/policy-engine/runs/" in remote_acceptance.RSYNC_EXCLUDES
+    assert "/policy-engine/runs/" not in remote_acceptance.RSYNC_EXCLUDES
     assert "runs/" not in remote_acceptance.RSYNC_EXCLUDES
 
 
@@ -119,8 +121,6 @@ def test_rsync_command_syncs_only_required_workspace_roots() -> None:
 
     argv = remote_acceptance._rsync_command(config, delete=True)
 
-    assert str(remote_acceptance.WORKSPACE_ROOT / "README.md") in argv
-    assert str(remote_acceptance.WORKSPACE_ROOT / "SECURITY.md") in argv
     assert str(remote_acceptance.WORKSPACE_ROOT / "renovate.json") in argv
     assert str(remote_acceptance.WORKSPACE_ROOT / ".github") in argv
     assert str(remote_acceptance.WORKSPACE_ROOT / "policy-engine") in argv

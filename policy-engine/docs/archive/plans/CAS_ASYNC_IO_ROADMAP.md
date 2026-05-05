@@ -31,9 +31,9 @@ not only a roadmap:
   `src/polisyos/fabric/data_plane/modes.py`,
   `src/polisyos/scholar/search/jobs.py`
 - Tests:
-  `tests/core/artifacts/test_async_store.py`,
-  `tests/core/artifacts/backends/test_config.py`,
-  `tests/runtime/http/test_control_service_di.py`,
+  `tests/unit/core/artifacts/test_async_store.py`,
+  `tests/unit/core/artifacts/backends/test_config.py`,
+  `tests/unit/runtime/http/test_control_service_di.py`,
   `tests/performance/test_runtime_hot_paths.py`,
   `tests/performance/test_scientist_runtime_paths.py`
 - Long-soak:

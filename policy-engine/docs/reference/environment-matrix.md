@@ -3,7 +3,7 @@
 Related guides: [Installation](../how-to/install.md), [Dependency Platform](dependency-platform.md).
 
 Owner: `@platform-owners`
-Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, and `.github/workflows/{abi,arch,docs,perf,foundry-release-gate,replay,signatures}.yml`
+Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, repository-root `.github/workflows/{abi,ci,core-runtime-release-gate,docs-pages,release}.yml`, and reusable product workflow templates under `ops/ci/templates/workflows/`
 
 This document is the reference point for contributor setup, CI design, and bug
 triage.

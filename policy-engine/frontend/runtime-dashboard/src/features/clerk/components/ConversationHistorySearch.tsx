@@ -1,5 +1,5 @@
-import { cn, formatDate } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn, formatDate } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card, Button, Badge, Input } from "@/shared/ui/primitives";
 
 import {

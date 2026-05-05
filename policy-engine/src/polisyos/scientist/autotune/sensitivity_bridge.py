@@ -72,8 +72,9 @@ class SensitivityBridge:
         param_specs = [
             ParameterSpec(
                 name=b["name"],
-                lower=b.get("lower", 0.0),
-                upper=b.get("upper", 1.0),
+                lower_bound=b.get("lower", 0.0),
+                upper_bound=b.get("upper", 1.0),
+                num_levels=n_levels,
             )
             for b in bounds
         ]
@@ -83,7 +84,6 @@ class SensitivityBridge:
             method=sa_method,
             parameter_specs=param_specs,
             n_trajectories=n_trajectories,
-            n_levels=n_levels,
         )
 
         # Generate samples using SALib
@@ -93,7 +93,7 @@ class SensitivityBridge:
         problem = {
             "num_vars": len(param_specs),
             "names": [p.name for p in param_specs],
-            "bounds": [[p.lower, p.upper] for p in param_specs],
+            "bounds": [[p.lower_bound, p.upper_bound] for p in param_specs],
         }
 
         if sa_method == SensitivityMethod.MORRIS:
@@ -111,15 +111,15 @@ class SensitivityBridge:
 
         result = analyze_sensitivity(plan, samples, outputs)
 
-        # Extract ranking from indices
-        ranking = sorted(
-            result.parameter_names,
-            key=lambda name: abs(
-                result.indices.get(name, {}).get("mu_star", 0.0)
-                if "mu_star" in result.indices.get(name, {})
-                else result.indices.get(name, {}).get("S1", 0.0)
-            ),
-            reverse=True,
-        )
+        # DOE now exposes normalized method-specific maps plus a canonical ranking.
+        if result.ranking:
+            ranking = list(result.ranking)
+        else:
+            scores = result.mu_star or result.st or result.s1
+            ranking = sorted(
+                result.parameter_names,
+                key=lambda name: abs(float(scores.get(name, 0.0))),
+                reverse=True,
+            )
 
         return {"ranking": ranking, "result": result, "method": method}

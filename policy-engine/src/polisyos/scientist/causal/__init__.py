@@ -6,15 +6,10 @@ without mutating `ExperimentState` directly. Node adapters in
 governance-ready readiness bundles and bounded-execution outputs.
 """
 
-from polisyos.scientist.causal.execution import BoundsEstimationRunner
-from polisyos.scientist.causal.readiness import (
-    CounterfactualQueryRunner,
-    ProxyIdentificationRunner,
-    StrategicResponseRunner,
-    TransportabilityChecker,
-    build_interference_readiness_entries,
-)
-from polisyos.scientist.causal.validity import persist_causal_validity_bundle
+from __future__ import annotations
+
+import importlib
+from typing import Any
 
 __all__ = [
     "BoundsEstimationRunner",
@@ -25,3 +20,44 @@ __all__ = [
     "build_interference_readiness_entries",
     "persist_causal_validity_bundle",
 ]
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "BoundsEstimationRunner": ("polisyos.scientist.causal.execution", "BoundsEstimationRunner"),
+    "CounterfactualQueryRunner": (
+        "polisyos.scientist.causal.readiness",
+        "CounterfactualQueryRunner",
+    ),
+    "ProxyIdentificationRunner": (
+        "polisyos.scientist.causal.readiness",
+        "ProxyIdentificationRunner",
+    ),
+    "StrategicResponseRunner": (
+        "polisyos.scientist.causal.readiness",
+        "StrategicResponseRunner",
+    ),
+    "TransportabilityChecker": (
+        "polisyos.scientist.causal.readiness",
+        "TransportabilityChecker",
+    ),
+    "build_interference_readiness_entries": (
+        "polisyos.scientist.causal.readiness",
+        "build_interference_readiness_entries",
+    ),
+    "persist_causal_validity_bundle": (
+        "polisyos.scientist.causal.validity",
+        "persist_causal_validity_bundle",
+    ),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _LAZY_IMPORTS:
+        raise AttributeError(f"module 'polisyos.scientist.causal' has no attribute {name!r}")
+    module_name, attr_name = _LAZY_IMPORTS[name]
+    value = getattr(importlib.import_module(module_name), attr_name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

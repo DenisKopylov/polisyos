@@ -1,0 +1,32 @@
+Phase 3A full-suite baseline status
+===================================
+
+Command requested by the original Phase 3A plan:
+  uv run pytest tests/unit tests/integration tests/property tests/contract tests/golden -q
+
+Local status:
+  not completed
+
+Reason:
+  The local full-suite run was intentionally stopped because it put too much
+  thermal load on the developer laptop. This is not treated as a green baseline.
+
+Partial local evidence:
+  - The run reached approximately 46% progress before it was stopped.
+  - Existing failures were already visible in the partial run.
+  - No authoritative passed/failed/skipped counts were produced.
+
+Replacement closeout action:
+  Run the same command in Phase 7 on a cloud runner or other stronger machine
+  after the rest of the repository-structure remediation plan is implemented.
+  Record the final passed/failed/skipped counts in this file or in the Phase 7
+  closeout report before moving the plan to accepted.
+
+Phase 3A focused safety-net status:
+  - uv run python tools/quality/validation/decomposition_preflight.py gate
+    passed locally.
+  - uv run pytest tests/contract/test_pickle_compat.py
+    tests/architecture/test_public_surface_snapshot.py
+    tests/architecture/test_schema_diff.py
+    tests/architecture/test_decomposition_preflight_gates.py -q
+    passed locally.

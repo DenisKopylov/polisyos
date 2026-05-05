@@ -79,9 +79,9 @@ vi.mock("@/app/routes/PrefetchButton", () => ({
   ),
 }));
 
-vi.mock("@/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
-    "@/i18n/LocaleProvider",
+vi.mock("@/shared/i18n/LocaleProvider", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
+    "@/shared/i18n/LocaleProvider",
   );
   return {
     ...actual,

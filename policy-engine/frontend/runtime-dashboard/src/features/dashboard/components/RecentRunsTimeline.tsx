@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatDuration } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/Badge";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 

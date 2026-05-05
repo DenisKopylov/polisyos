@@ -29,7 +29,7 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     LatentBridgeStatus,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.latent_separation import (
+from polisyos.scientist.causal.latent_separation import (
     SEPARATION_DIAGNOSTICS_KEY,
     certified_latent_separation_pairs,
     certify_latent_separation_trust,

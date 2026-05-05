@@ -1,0 +1,261 @@
+[domain_migration_batches]
+version = 1
+status = "active"
+updated = "2026-05-02"
+description = """
+Repository SOTA Phase 2 source-to-target map for domain code and production
+entrypoint migration. Entries describe the accepted target topology, public
+facades, behavior evidence, and compatibility posture for each migration batch.
+"""
+
+[[batch]]
+id = "academic-to-data-forge"
+area = "academic"
+owner = "team-data-forge"
+risk_class = "M"
+status = "complete"
+compatibility_status = "removed_after_shim_sunset"
+source_paths = ["src/polisyos/academic"]
+target_paths = [
+  "src/polisyos/data_forge/domains/academic",
+  "src/polisyos/data_forge/read_api/academic.py",
+]
+public_facades = ["polisyos.data_forge.read_api.academic"]
+entrypoints = ["polisyos.data_forge.domains.academic.cli"]
+shim_ids = []
+evidence_paths = [
+  "tests/unit/data_forge/fixtures/non_lex_split/academic",
+  "tests/unit/data_forge/fixtures/non_lex_split/academic_candidate",
+]
+acceptance_tests = [
+  "tests/unit/data_forge/test_phase2_academic_completion.py",
+  "tests/unit/data_forge/domains/academic",
+]
+removal_criteria = "Legacy polisyos.academic package removed after read consumers moved to read_api.academic."
+
+[[batch]]
+id = "catalog-to-data-forge"
+area = "catalog"
+owner = "team-data-forge"
+risk_class = "M"
+status = "complete"
+compatibility_status = "removed_after_shim_sunset"
+source_paths = ["src/polisyos/datasets"]
+target_paths = [
+  "src/polisyos/data_forge/domains/catalog",
+  "src/polisyos/data_forge/read_api/catalog.py",
+]
+public_facades = ["polisyos.data_forge.read_api.catalog"]
+entrypoints = ["polisyos.data_forge.domains.catalog.cli"]
+shim_ids = []
+evidence_paths = [
+  "tests/unit/data_forge/fixtures/non_lex_split/catalog",
+  "tests/unit/data_forge/fixtures/non_lex_split/catalog_candidate",
+]
+acceptance_tests = [
+  "tests/unit/data_forge/test_phase3_catalog_completion.py",
+  "tests/unit/data_forge/domains/catalog",
+]
+removal_criteria = "Legacy polisyos.datasets package removed after catalog consumers moved to read_api.catalog."
+
+[[batch]]
+id = "legal-offline-to-data-forge"
+area = "legal"
+owner = "team-data-forge"
+risk_class = "H"
+status = "complete"
+compatibility_status = "removed_after_shim_sunset"
+source_paths = [
+  "src/polisyos/lex/batch",
+  "src/polisyos/lex/corpus",
+]
+target_paths = [
+  "src/polisyos/data_forge/domains/legal/batch",
+  "src/polisyos/data_forge/domains/legal/corpus",
+  "src/polisyos/data_forge/read_api/legal.py",
+]
+public_facades = [
+  "polisyos.lex",
+  "polisyos.data_forge.read_api.legal",
+]
+entrypoints = [
+  "python -m polisyos.data_forge.domains.legal.batch",
+  "tools/ops/cloud/run_lex_from_manifest.py",
+]
+shim_ids = []
+evidence_paths = [
+  "tests/unit/data_forge/fixtures/legal_shadow/accepted_artifact_root.json",
+  "tests/unit/data_forge/fixtures/legal_shadow/baseline",
+  "tests/unit/data_forge/fixtures/legal_shadow/candidate",
+]
+acceptance_tests = [
+  "tests/unit/data_forge/test_phase4_legal_cutover.py",
+  "tests/unit/data_forge/legal_batch",
+]
+removal_criteria = "Legacy Lex offline batch and corpus packages removed after cloud runner and runtime jobs moved to Data Forge read_api/legal batch targets."
+
+[[batch]]
+id = "ukraine-to-data-forge"
+area = "ukraine"
+owner = "team-data-forge"
+risk_class = "H"
+status = "complete"
+compatibility_status = "removed_after_shim_sunset"
+source_paths = ["src/polisyos/ukraine_data"]
+target_paths = [
+  "src/polisyos/data_forge/domains/ukraine",
+  "src/polisyos/data_forge/read_api/ukraine.py",
+]
+public_facades = ["polisyos.data_forge.read_api.ukraine"]
+entrypoints = ["ukraine-data = polisyos.data_forge.domains.ukraine.cli:main"]
+shim_ids = []
+evidence_paths = [
+  "tests/unit/data_forge/fixtures/ukraine_shadow/baseline",
+  "tests/unit/data_forge/fixtures/ukraine_shadow/candidate",
+]
+acceptance_tests = [
+  "tests/unit/data_forge/test_phase5_ukraine_scaffolding.py",
+  "tests/unit/data_forge/domains/ukraine",
+]
+removal_criteria = "Legacy polisyos.ukraine_data package removed after builders, server/orchestrator, CLI, and read consumers moved to Data Forge Ukraine."
+
+[[batch]]
+id = "shared-batch-to-data-forge-kernel"
+area = "shared-batch"
+owner = "team-data-forge"
+risk_class = "M"
+status = "complete"
+compatibility_status = "removed_after_shim_sunset"
+source_paths = [
+  "src/polisyos/batch_common",
+  "src/polisyos/batch_snapshot",
+]
+target_paths = [
+  "src/polisyos/data_forge/kernel/io",
+  "src/polisyos/data_forge/kernel/pipeline",
+  "src/polisyos/data_forge/kernel/quality",
+  "src/polisyos/data_forge/kernel/runtime",
+  "src/polisyos/data_forge/kernel/snapshot",
+]
+public_facades = ["polisyos.data_forge"]
+entrypoints = ["polisyos.data_forge.kernel.snapshot.cli"]
+shim_ids = []
+evidence_paths = [
+  "tests/unit/data_forge/test_phase1_shared_kernel_cutover.py",
+  "docs/migration/data_forge_shim_sunset_release_notes.md",
+  "docs/migration/data_forge_shim_sunset_rollback.md",
+]
+acceptance_tests = [
+  "tests/unit/data_forge/test_phase1_shared_kernel_cutover.py",
+  "tests/unit/data_forge/test_phase8_shim_sunset.py",
+]
+removal_criteria = "Shared batch compatibility packages removed after Data Forge kernel compatibility tests and release/rollback notes were accepted."
+
+[[batch]]
+id = "lex-runtime-public-facade"
+area = "lex"
+owner = "team-lex"
+risk_class = "M"
+status = "complete"
+compatibility_status = "public_facade"
+source_paths = [
+  "src/polisyos/lex/legal_evaluation",
+  "src/polisyos/lex/normpack",
+  "src/polisyos/lex/simulator",
+]
+target_paths = [
+  "src/polisyos/lex/__init__.py",
+  "src/polisyos/lex/api.py",
+]
+public_facades = ["polisyos.lex"]
+entrypoints = ["polisyos.lex"]
+shim_ids = []
+evidence_paths = ["tests/unit/lex"]
+acceptance_tests = [
+  "tests/unit/lex/test_api_transport_constraints.py",
+  "tests/unit/lex/test_interventions.py",
+  "tests/unit/lex/simulator",
+]
+removal_criteria = "Runtime Lex remains under the public polisyos.lex facade; offline preprocessing is owned by Data Forge legal."
+
+[[batch]]
+id = "foundry-public-facade"
+area = "foundry"
+owner = "team-foundry"
+risk_class = "M"
+status = "complete"
+compatibility_status = "public_facade"
+source_paths = [
+  "src/polisyos/foundry/compile",
+  "src/polisyos/foundry/execute",
+  "src/polisyos/foundry/methods",
+]
+target_paths = [
+  "src/polisyos/foundry/__init__.py",
+  "src/polisyos/foundry/compile/api.py",
+  "src/polisyos/foundry/execute/api.py",
+]
+public_facades = ["polisyos.foundry"]
+entrypoints = ["polisyos.foundry.compile", "polisyos.foundry.execute"]
+shim_ids = []
+evidence_paths = ["tests/unit/foundry", "tests/contract/test_foundry_facade_contracts.py"]
+acceptance_tests = [
+  "tests/contract/test_foundry_facade_contracts.py",
+  "tests/unit/foundry/facade/test_compile_facade.py",
+  "tests/unit/foundry/facade/test_execute_facade_smoke.py",
+]
+removal_criteria = "Foundry callers use the root facade or compile/execute APIs instead of private method internals."
+
+[[batch]]
+id = "scholar-public-facade"
+area = "scholar"
+owner = "team-scholar"
+risk_class = "M"
+status = "complete"
+compatibility_status = "public_facade"
+source_paths = [
+  "src/polisyos/scholar/discover",
+  "src/polisyos/scholar/search",
+  "src/polisyos/scholar/orchestrator",
+]
+target_paths = [
+  "src/polisyos/scholar/__init__.py",
+  "src/polisyos/scholar/api.py",
+]
+public_facades = ["polisyos.scholar"]
+entrypoints = ["polisyos.scholar.enrich_topic", "polisyos.scholar.ScholarService"]
+shim_ids = []
+evidence_paths = ["tests/unit/scholar", "tests/unit/scientist/evidence/test_scholar_search_tools.py"]
+acceptance_tests = [
+  "tests/unit/scholar/test_api_web_bootstrap.py",
+  "tests/unit/scholar/search/test_service_jobs_tools.py",
+  "tests/unit/scientist/evidence/test_scholar_search_tools.py",
+]
+removal_criteria = "Scholar callers use the root facade for enrichment and service boundaries."
+
+[[batch]]
+id = "scientist-public-facade"
+area = "scientist"
+owner = "team-scientist"
+risk_class = "M"
+status = "complete"
+compatibility_status = "public_facade"
+source_paths = [
+  "src/polisyos/scientist/engine",
+  "src/polisyos/scientist/nodes",
+  "src/polisyos/scientist/governance",
+]
+target_paths = [
+  "src/polisyos/scientist/__init__.py",
+  "src/polisyos/scientist/api.py",
+]
+public_facades = ["polisyos.scientist"]
+entrypoints = ["polisyos.scientist.run_experiment"]
+shim_ids = []
+evidence_paths = ["tests/unit/scientist", "tests/contract/test_c0_foundry_scientist_compat.py"]
+acceptance_tests = [
+  "tests/unit/scientist/facade/test_api.py",
+  "tests/unit/scientist/nodes/test_builtin_registry_cutover.py",
+  "tests/contract/test_c0_foundry_scientist_compat.py",
+]
+removal_criteria = "Scientist callers use the root facade for orchestration and stable observability boundaries."

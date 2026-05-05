@@ -1,6 +1,6 @@
 import sys
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -8,10 +8,9 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 # check_udf.py
-from polisyos.fabric.udf.engine import UDFEngine  # noqa: E402
-
 from polisyos.common.logger import logger  # noqa: E402
 from polisyos.fabric.io.db import SimulationDB  # noqa: E402
+from polisyos.fabric.udf.engine import UDFEngine  # noqa: E402
 from polisyos.ir.analytics.data_views import AccessTier, DataFilter, DataViewRequest  # noqa: E402
 
 
@@ -41,7 +40,7 @@ def main():
         logger.success("✅ Panel View works!")
     else:
         logger.warning(
-            "⚠️ Panel is empty (maybe DB is empty? Run tools/demos/run_export_demo.py first)"
+            "⚠️ Panel is empty (maybe DB is empty? Run polisyos-tools demos run-export-demo first)"
         )
 
     # 3. Сценарий 2: LLM просит "Какой средний доход у безработных на шаге 6?"

@@ -1,20 +1,20 @@
 # PolicyOS Scientist - Best-in-Class Plan
 
-> Дата: 2026-04-26  
-> Статус: active proposal  
-> Владелец: Denis Kopylov  
-> Область: `policy-engine/src/polisyos/scientist/**`  
-> Companion docs:  
-> - `docs/reference/scientist/index.md` - factual reference surface  
-> - `docs/reference/scientist/remediation-status.md` - current Phase 0-4 closure  
-> - `docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md` - historical audit remediation plan  
-> - `docs/reference/scientist/best-in-class-readiness.md` - Phase 1.0 readiness index  
-> - `docs/reference/scientist/scientist-capability-inventory.md` - Phase 1.0 inventory and reconciliation map  
-> - `docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md` - historical SOTA roadmap  
-> - `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md` - historical agent roadmap  
-> - `docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md` - historical autoresearch blueprint  
-> - `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md` - sibling frontend/design best-in-class plan  
-> - `docs/archive/plans/FOUNDRY_METHODS_RESEARCH_AGENDA.md` - sibling methods research agenda  
+> Дата: 2026-04-26
+> Статус: active proposal
+> Владелец: Denis Kopylov
+> Область: `policy-engine/src/polisyos/scientist/**`
+> Companion docs:
+> - `docs/reference/scientist/index.md` - factual reference surface
+> - `docs/reference/scientist/remediation-status.md` - current Phase 0-4 closure
+> - `docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md` - historical audit remediation plan
+> - `docs/reference/scientist/best-in-class-readiness.md` - Phase 1.0 readiness index
+> - `docs/reference/scientist/scientist-capability-inventory.md` - Phase 1.0 inventory and reconciliation map
+> - `docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md` - historical SOTA roadmap
+> - `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md` - historical agent roadmap
+> - `docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md` - historical autoresearch blueprint
+> - `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md` - sibling frontend/design best-in-class plan
+> - `docs/archive/plans/FOUNDRY_METHODS_RESEARCH_AGENDA.md` - sibling methods research agenda
 > - `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md` - sibling causal research agenda
 
 ---
@@ -353,7 +353,7 @@ scientist.best_in_class.wave{N}.phase{M}.{slug}
 
 ## Фаза 1.0 - Status reconciliation
 
-**Длительность:** 1-2 недели.  
+**Длительность:** 1-2 недели.
 **Тезис:** перед новой архитектурой нужно зафиксировать, что старые Scientist
 планы уже закрыты, что реально живет в коде, а что остается gated/backlog.
 **Implementation status:** `closed` by
@@ -363,7 +363,7 @@ scientist.best_in_class.wave{N}.phase{M}.{slug}
 
 ### Scope
 
-- Инвентаризация `src/polisyos/scientist/**`, `tests/scientist/**`,
+- Инвентаризация `src/polisyos/scientist/**`, `tests/unit/scientist/**`,
   `docs/reference/scientist/**`.
 - Маппинг старых roadmap workstreams в current reference/gate status.
 - Новый canonical active plan index.
@@ -389,7 +389,7 @@ policy-engine/tests/tools/test_scientist_best_in_class_phase1_0.py
 
 ## Фаза 1.1 - Claim/Evidence/Readiness spine
 
-**Длительность:** 3-4 недели.  
+**Длительность:** 3-4 недели.
 **Тезис:** claims становятся typed runtime objects, а не prose inside reports.
 **Implementation status:** `closed` by
 `src/polisyos/scientist/claims/**`,
@@ -487,7 +487,7 @@ policy-engine/src/polisyos/scientist/claims/
 └── validators.py
 
 policy-engine/docs/reference/scientist/claims.md
-policy-engine/tests/scientist/claims/
+policy-engine/tests/unit/scientist/claims/
 ├── test_models.py
 ├── test_readiness.py
 ├── test_ledger.py
@@ -530,8 +530,8 @@ policy-engine/tests/tools/test_scientist_best_in_class_phase1_1.py
 Minimum baseline:
 
 ```bash
-uv run pytest tests/scientist/test_decision_packet_node_v3.py tests/scientist/nodes/test_build_policy_output_bundle.py -q
-uv run pytest tests/scientist/search/test_phase_b_policy_runtime.py tests/scientist/search/test_benchmark_registry.py -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py tests/unit/scientist/nodes/test_build_policy_output_bundle.py -q
+uv run pytest tests/unit/scientist/search/test_phase_b_policy_runtime.py tests/unit/scientist/search/test_benchmark_registry.py -q
 ```
 
 #### Non-goals
@@ -561,12 +561,12 @@ src/polisyos/scientist/frontier_runtime.py
 Existing tests to preserve and extend:
 
 ```text
-tests/scientist/test_decision_packet_node_v3.py
-tests/scientist/nodes/test_build_policy_output_bundle.py
-tests/scientist/nodes/builtins/decide/test_build_verified_policy_report.py
-tests/scientist/policy_design/test_phase_b_output.py
-tests/scientist/policy_design/test_phase_b_hierarchical_search.py
-tests/scientist/search/test_phase_b_policy_runtime.py
+tests/unit/scientist/nodes/test_decision_packet_node_v3.py
+tests/unit/scientist/nodes/test_build_policy_output_bundle.py
+tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_report.py
+tests/unit/scientist/policy_design/test_phase_b_output.py
+tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py
+tests/unit/scientist/search/test_phase_b_policy_runtime.py
 ```
 
 #### Work packages
@@ -574,7 +574,7 @@ tests/scientist/search/test_phase_b_policy_runtime.py
 | WP | Name | Files | Output | Gate |
 | --- | --- | --- | --- | --- |
 | 1.1A | Claim-bearing inventory | `docs/reference/scientist/claims.md` | Table of decision-bearing surfaces and first projection owner | Docs/CI text check |
-| 1.1B | Core claim contracts | `claims/models.py`, `claims/readiness.py` | Pydantic claim and ledger models | `tests/scientist/claims/test_models.py` |
+| 1.1B | Core claim contracts | `claims/models.py`, `claims/readiness.py` | Pydantic claim and ledger models | `tests/unit/scientist/claims/test_models.py` |
 | 1.1C | Ledger persistence | `claims/ledger.py` | Persist/load `ClaimLedger` via ArtifactStore/CAS | `test_ledger.py` |
 | 1.1D | Projection helpers | `claims/projections.py` | Convert existing legal/causal/policy/governance outputs into claims | `test_projections.py` |
 | 1.1E | Naked-claim validator | `claims/validators.py`, governance pass hook | Detect required outputs without claim refs | negative tests |
@@ -652,7 +652,7 @@ Do not promote this phase if:
 
 ## Фаза 1.2 - Research DAG as first-class runtime object
 
-**Длительность:** 3-4 недели.  
+**Длительность:** 3-4 недели.
 **Тезис:** research process должен быть replayable DAG, не transcript.
 
 **Implementation status:** `closed` by
@@ -756,7 +756,7 @@ policy-engine/src/polisyos/scientist/research_dag/
 └── projections.py
 
 policy-engine/docs/reference/scientist/research-dag.md
-policy-engine/tests/scientist/research_dag/
+policy-engine/tests/unit/scientist/research_dag/
 ```
 
 ### Integration targets
@@ -797,8 +797,8 @@ of every LLM token.
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/workflows/test_builder_pinning.py -q
-uv run pytest tests/scientist/test_checkpoint.py tests/scientist/integration/test_checkpoint_resume.py -q
+uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_builder_pinning.py -q
+uv run pytest tests/unit/scientist/engine/test_checkpoint.py tests/integration/scientist/test_checkpoint_resume.py -q
 ```
 
 #### Non-goals
@@ -833,7 +833,7 @@ src/polisyos/scientist/nodes/builtins/decide/
 | 1.2D | Workflow projection | `research_dag/projections.py`, workflow builder | Workflow and node outcomes become DAG nodes | workflow integration test |
 | 1.2E | Tool-loop projection | `agent/tools/tool_loop.py` adapter only | Tool calls summarized as acquisition/read/extract nodes | agent/tool test |
 | 1.2F | Minimal replay/diff | `research_dag/replay.py`, `diff.py` | Compare two DAGs by sources/claims/governance | `test_diff.py` |
-| 1.2G | CI gate | `tools/ci/check_scientist_best_in_class_phase1_2.py` | Required files/tests/docs check | tools test |
+| 1.2G | CI gate | `tools/ci/check_scientist_best_in_class_phase1_2.py` | Required files/tests/architecture/docs check | tools test |
 
 #### Migration plan
 
@@ -941,7 +941,7 @@ policy-engine/src/polisyos/scientist/evidence/
 policy-engine/src/polisyos/scientist/agent/tools/scholar_search_tools.py
 policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py
 policy-engine/docs/reference/scientist/deep-research-evidence.md
-policy-engine/tests/scientist/evidence/
+policy-engine/tests/unit/scientist/evidence/
 ```
 
 ### Existing useful evidence models
@@ -1021,14 +1021,14 @@ bundles may continue to use local ids, but projection must record
 
 - Phase 1.1 provides stable claim ids or a temporary claim id strategy.
 - Existing Scholar web evidence formatting tests are green:
-  `tests/scientist/agent/test_knowledge_tools_web_evidence.py`.
+  `tests/unit/scientist/agent/test_knowledge_tools_web_evidence.py`.
 - Existing tool schema/runtime validation remains green.
 
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/agent/test_knowledge_tools_web_evidence.py tests/scientist/agent/test_workers.py -q
-uv run pytest tests/scientist/agent/test_eval_harness.py tests/scientist/agent/test_reasoning.py -q
+uv run pytest tests/unit/scientist/agent/test_knowledge_tools_web_evidence.py tests/unit/scientist/agent/test_workers.py -q
+uv run pytest tests/unit/scientist/agent/test_eval_harness.py tests/unit/scientist/agent/test_reasoning.py -q
 ```
 
 #### Non-goals
@@ -1048,8 +1048,8 @@ src/polisyos/scientist/agent/tools/scholar_search_tools.py
 src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py
 src/polisyos/scientist/agent/fabric.py
 src/polisyos/scientist/agent/eval_harness.py
-tests/scientist/agent/test_knowledge_tools_web_evidence.py
-tests/scientist/agent/test_workers.py
+tests/unit/scientist/agent/test_knowledge_tools_web_evidence.py
+tests/unit/scientist/agent/test_workers.py
 ```
 
 #### Work packages
@@ -1137,9 +1137,9 @@ Do not promote if:
 
 ## Фаза 1.4 - Agent and tool runtime promotion gates
 
-**Длительность:** 3-4 недели.  
+**Длительность:** 3-4 недели.
 **Статус:** closed - реализован read-only promotion surface, CI gate и reference
-страница; runtime defaults не изменены.  
+страница; runtime defaults не изменены.
 **Тезис:** agentic features должны иметь один promotion surface, а не разрозненные
 reports.
 
@@ -1225,8 +1225,8 @@ features cannot become default merely because a class exists.
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/agent/test_reasoning.py tests/scientist/agent/test_eval_harness.py -q
-uv run pytest tests/scientist/agent/test_supervisor.py tests/scientist/search/strategies/test_advanced_policy.py -q
+uv run pytest tests/unit/scientist/agent/test_reasoning.py tests/unit/scientist/agent/test_eval_harness.py -q
+uv run pytest tests/unit/scientist/agent/test_supervisor.py tests/unit/scientist/search/strategies/test_advanced_policy.py -q
 ```
 
 #### Non-goals
@@ -1317,10 +1317,10 @@ Do not promote if:
 
 ## Фаза 1.5 - Benchmark authority and hidden eval packs
 
-**Длительность:** 4-5 недель.  
+**Длительность:** 4-5 недель.
 **Статус:** closed - реализован read-only `BenchmarkAuthority` facade поверх
 `BenchmarkRegistry`, staleness/leakage controls, eval-pack contracts, docs и CI
-gate; large real hidden datasets остаются non-goal этой фазы.  
+gate; large real hidden datasets остаются non-goal этой фазы.
 **Тезис:** promotion must cite one benchmark authority across Scientist.
 
 ### Scope
@@ -1415,8 +1415,8 @@ class BenchmarkAuthorityVerdict(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/search/test_benchmark_registry.py tests/scientist/test_frontier_runtime.py -q
-uv run pytest tests/scientist/search/test_phase_d4_runtime_integration.py -q
+uv run pytest tests/unit/scientist/search/test_benchmark_registry.py tests/unit/scientist/search/test_frontier_runtime.py -q
+uv run pytest tests/unit/scientist/search/test_phase_d4_runtime_integration.py -q
 ```
 
 #### Non-goals
@@ -1434,9 +1434,9 @@ src/polisyos/scientist/search/registry_contracts.py
 src/polisyos/scientist/frontier_runtime.py
 src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py
 src/polisyos/scientist/search/compliance_audit.py
-tests/scientist/search/test_benchmark_registry.py
-tests/scientist/search/test_phase_d4_runtime_integration.py
-tests/scientist/test_frontier_runtime.py
+tests/unit/scientist/search/test_benchmark_registry.py
+tests/unit/scientist/search/test_phase_d4_runtime_integration.py
+tests/unit/scientist/search/test_frontier_runtime.py
 ```
 
 Current useful concepts:
@@ -1524,10 +1524,10 @@ Do not promote if:
 
 ## Фаза 1.6 - Human oversight and accountable release packets
 
-**Длительность:** 3-4 недели.  
+**Длительность:** 3-4 недели.
 **Статус:** closed - реализованы typed review packets, queue assignments,
 CAS-persisted review decisions, oversight policy gate, audit helpers,
-governance report links, decision-packet validation and reference docs.  
+governance report links, decision-packet validation and reference docs.
 **Тезис:** human oversight must be an operational control plane, not prose.
 
 ### Scope
@@ -1552,7 +1552,7 @@ policy-engine/src/polisyos/scientist/human_review/
 └── audit.py
 
 policy-engine/docs/reference/scientist/human-oversight.md
-policy-engine/tests/scientist/human_review/
+policy-engine/tests/unit/scientist/human_review/
 ```
 
 ### Review packet contents
@@ -1581,10 +1581,10 @@ policy-engine/tests/scientist/human_review/
 
 ## Фаза 1.7 - Wave 1 closeout
 
-**Длительность:** 1-2 недели.  
+**Длительность:** 1-2 недели.
 **Статус:** closed - `docs/reference/scientist/best-in-class-wave1-acceptance.md`
 and `tools/ci/check_scientist_best_in_class_wave1.py` verify the Wave 1
-cross-phase acceptance surface.  
+cross-phase acceptance surface.
 **Тезис:** Wave 1 is accepted only when claims, evidence, readiness, research DAG,
 agent promotion, benchmark authority and human review agree.
 
@@ -1610,7 +1610,7 @@ policy-engine/tests/tools/test_scientist_best_in_class_wave1.py
 
 ## Фаза 2.0 - Scientist OS foundation
 
-**Длительность:** 2 недели.  
+**Длительность:** 2 недели.
 **Тезис:** Wave 2 begins only after Scientist has a shared runtime vocabulary:
 claim, research DAG, benchmark, review, VOI, reissue.
 
@@ -1634,7 +1634,7 @@ policy-engine/docs/adr/0131-scientist-readiness-ladder.md
 policy-engine/docs/adr/0132-scientist-voi-compute-law.md
 policy-engine/docs/reference/scientist/wave2-runtime-contracts.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_0.py
-policy-engine/tests/scientist/wave2/test_compatibility_contracts.py
+policy-engine/tests/unit/scientist/orchestrator_v2/test_compatibility_contracts.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_0.py
 ```
 
@@ -1698,7 +1698,7 @@ docs/reference/scientist/best-in-class-wave1-acceptance.md
 | --- | --- | --- | --- | --- |
 | 2.0A | Boundary ADRs | `docs/adr/0129-scientist-*.md` through `docs/adr/0132-scientist-*.md` | Accepted package, artifact and migration decisions | ADR lint/docs gate |
 | 2.0B | Versioning map | `docs/reference/scientist/wave2-runtime-contracts.md` | Artifact schemas, deprecation posture, feature-flag map | docs token gate |
-| 2.0C | Compatibility fixtures | `tests/scientist/wave2/test_compatibility_contracts.py` | Legacy packet/sidecar fixture loading | pytest |
+| 2.0C | Compatibility fixtures | `tests/unit/scientist/orchestrator_v2/test_compatibility_contracts.py` | Legacy packet/sidecar fixture loading | pytest |
 | 2.0D | Phase gate | `tools/ci/check_scientist_best_in_class_phase2_0.py` | Machine-readable readiness report | tools test |
 
 #### Required negative tests
@@ -1745,7 +1745,7 @@ Do not promote Phase 2.0 if:
 
 ## Фаза 2.1 - Claim Ledger
 
-**Длительность:** 4-5 недель.  
+**Длительность:** 4-5 недель.
 **Тезис:** Claim Ledger становится главным объектом, который связывает research,
 governance, provenance, UI, export и audit.
 
@@ -1769,10 +1769,10 @@ policy-engine/src/polisyos/scientist/claims/export.py
 policy-engine/src/polisyos/scientist/claims/diff.py
 policy-engine/docs/reference/scientist/claim-ledger.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_1.py
-policy-engine/tests/scientist/claims/test_lifecycle.py
-policy-engine/tests/scientist/claims/test_audit.py
-policy-engine/tests/scientist/claims/test_diff.py
-policy-engine/tests/scientist/claims/test_export.py
+policy-engine/tests/unit/scientist/claims/test_lifecycle.py
+policy-engine/tests/unit/scientist/claims/test_audit.py
+policy-engine/tests/unit/scientist/claims/test_diff.py
+policy-engine/tests/unit/scientist/claims/test_export.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_1.py
 ```
 
@@ -1856,8 +1856,8 @@ class AppendOnlyClaimLedger(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/claims tests/scientist/test_decision_packet_node_v3.py -q
-uv run pytest tests/scientist/nodes/test_build_policy_output_bundle.py -q
+uv run pytest tests/unit/scientist/claims tests/unit/scientist/nodes/test_decision_packet_node_v3.py -q
+uv run pytest tests/unit/scientist/nodes/test_build_policy_output_bundle.py -q
 ```
 
 #### Non-goals
@@ -1952,7 +1952,7 @@ Do not promote if:
 
 ## Фаза 2.2 - Research DAG replay and comparison
 
-**Длительность:** 4-5 недель.  
+**Длительность:** 4-5 недель.
 **Тезис:** Research DAG is not only stored; it can be replayed, compared and
 used to diagnose why decisions changed.
 
@@ -1976,9 +1976,9 @@ policy-engine/src/polisyos/scientist/research_dag/invalidation.py
 policy-engine/src/polisyos/scientist/research_dag/comparison.py
 policy-engine/docs/reference/scientist/research-dag-replay.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_2.py
-policy-engine/tests/scientist/research_dag/test_replay_plan.py
-policy-engine/tests/scientist/research_dag/test_comparison.py
-policy-engine/tests/scientist/research_dag/test_invalidation.py
+policy-engine/tests/unit/scientist/research_dag/test_replay_plan.py
+policy-engine/tests/unit/scientist/research_dag/test_comparison.py
+policy-engine/tests/unit/scientist/research_dag/test_invalidation.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_2.py
 ```
 
@@ -2043,7 +2043,7 @@ class SourceInvalidationEvent(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/research_dag tests/scientist/evidence -q
+uv run pytest tests/unit/scientist/research_dag tests/unit/scientist/evidence -q
 uv run pytest tests/tools/test_scientist_best_in_class_phase1_2.py -q
 ```
 
@@ -2164,11 +2164,11 @@ policy-engine/src/polisyos/scientist/search/voi_calibration.py
 policy-engine/src/polisyos/scientist/human_review/voi_escalation.py
 policy-engine/docs/reference/scientist/voi-scheduler.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_3.py
-policy-engine/tests/scientist/search/test_voi_models.py
-policy-engine/tests/scientist/search/test_voi_reports.py
-policy-engine/tests/scientist/search/test_voi_calibration.py
-policy-engine/tests/scientist/evidence/test_claim_support_voi.py
-policy-engine/tests/scientist/human_review/test_voi_escalation.py
+policy-engine/tests/unit/scientist/search/test_voi_models.py
+policy-engine/tests/unit/scientist/search/test_voi_reports.py
+policy-engine/tests/unit/scientist/search/test_voi_calibration.py
+policy-engine/tests/unit/scientist/evidence/test_claim_support_voi.py
+policy-engine/tests/unit/scientist/human_review/test_voi_escalation.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_3.py
 ```
 
@@ -2247,8 +2247,8 @@ class VOIRunReport(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/search tests/scientist/autotune -q
-uv run pytest tests/scientist/human_review tests/scientist/evals -q
+uv run pytest tests/unit/scientist/search tests/unit/scientist/autotune -q
+uv run pytest tests/unit/scientist/human_review tests/unit/scientist/evals -q
 ```
 
 #### Non-goals
@@ -2374,12 +2374,12 @@ policy-engine/src/polisyos/scientist/memory/
 
 policy-engine/docs/reference/scientist/reflexive-memory.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_4.py
-policy-engine/tests/scientist/memory/test_failure_lessons.py
-policy-engine/tests/scientist/memory/test_applicability.py
-policy-engine/tests/scientist/memory/test_contamination.py
-policy-engine/tests/scientist/memory/test_retrieval.py
-policy-engine/tests/scientist/memory/test_consolidation.py
-policy-engine/tests/scientist/memory/test_research_dag_projection.py
+policy-engine/tests/unit/scientist/memory/test_failure_lessons.py
+policy-engine/tests/unit/scientist/memory/test_applicability.py
+policy-engine/tests/unit/scientist/memory/test_contamination.py
+policy-engine/tests/unit/scientist/memory/test_retrieval.py
+policy-engine/tests/unit/scientist/memory/test_consolidation.py
+policy-engine/tests/unit/scientist/memory/test_research_dag_projection.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_4.py
 ```
 
@@ -2448,8 +2448,8 @@ class ReflexiveMemoryEvent(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/search tests/scientist/agent -q
-uv run pytest tests/scientist/evals/test_leakage.py -q
+uv run pytest tests/unit/scientist/search tests/unit/scientist/agent -q
+uv run pytest tests/unit/scientist/evals/test_leakage.py -q
 ```
 
 #### Non-goals
@@ -2572,10 +2572,10 @@ policy-engine/src/polisyos/scientist/evals/red_team.py
 policy-engine/src/polisyos/scientist/evals/rotation.py
 policy-engine/docs/reference/scientist/adversarial-challenge-factory.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_5.py
-policy-engine/tests/scientist/evals/test_challenge_factory.py
-policy-engine/tests/scientist/evals/test_sentinels.py
-policy-engine/tests/scientist/evals/test_red_team.py
-policy-engine/tests/scientist/evals/test_rotation.py
+policy-engine/tests/unit/scientist/evals/test_challenge_factory.py
+policy-engine/tests/unit/scientist/evals/test_sentinels.py
+policy-engine/tests/unit/scientist/evals/test_red_team.py
+policy-engine/tests/unit/scientist/evals/test_rotation.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_5.py
 ```
 
@@ -2654,7 +2654,7 @@ class ChallengeFactoryReport(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/evals tests/scientist/search -q
+uv run pytest tests/unit/scientist/evals tests/unit/scientist/search -q
 uv run pytest tests/tools/test_scientist_benchmark_authority.py -q
 ```
 
@@ -2754,7 +2754,7 @@ with monitor events, source invalidation bridge, reissue packets, incidents,
 withdrawal records, validity reports, governance/decision-packet links and a
 Phase 2.6 CI gate. Runtime effects remain shadow/governance-controlled.
 
-**Длительность:** 4-5 недель.  
+**Длительность:** 4-5 недель.
 **Тезис:** A decision artifact is not final forever; it can become stale,
 invalidated, superseded, reissued or withdrawn.
 
@@ -2781,7 +2781,7 @@ policy-engine/src/polisyos/scientist/continuous_governance/
 policy-engine/docs/reference/scientist/continuous-governance.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_6.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_6.py
-policy-engine/tests/scientist/continuous_governance/
+policy-engine/tests/unit/scientist/continuous_governance/
 ```
 
 ### Acceptance criteria
@@ -2846,8 +2846,8 @@ class ReissuePacket(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/claims tests/scientist/research_dag tests/scientist/human_review -q
-uv run pytest tests/scientist/governance -q
+uv run pytest tests/unit/scientist/claims tests/unit/scientist/research_dag tests/unit/scientist/human_review -q
+uv run pytest tests/unit/scientist/governance -q
 ```
 
 #### Non-goals
@@ -2948,7 +2948,7 @@ Do not promote if:
 `docs/reference/scientist/decision-grade-compiler.md`, and
 `tools/ci/check_scientist_best_in_class_phase2_7.py`.
 
-**Длительность:** 3-4 недели.  
+**Длительность:** 3-4 недели.
 **Тезис:** Scientist output should compile from research artifacts into
 audience-specific packets without losing provenance.
 
@@ -2969,7 +2969,7 @@ policy-engine/src/polisyos/scientist/orchestrator/decision_card.py
 policy-engine/src/polisyos/scientist/claims/export.py
 policy-engine/docs/reference/scientist/decision-grade-compiler.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_7.py
-policy-engine/tests/scientist/test_decision_grade_compiler.py
+policy-engine/tests/unit/scientist/orchestrator/test_decision_grade_compiler.py
 policy-engine/tests/tools/test_scientist_best_in_class_phase2_7.py
 ```
 
@@ -3040,8 +3040,8 @@ class DecisionGradeExport(BaseModel):
 Baseline:
 
 ```bash
-uv run pytest tests/scientist/test_decision_packet_node_v3.py tests/scientist/orchestrator -q
-uv run pytest tests/scientist/claims tests/scientist/human_review -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py tests/unit/scientist/orchestrator -q
+uv run pytest tests/unit/scientist/claims tests/unit/scientist/human_review -q
 ```
 
 #### Non-goals
@@ -3140,7 +3140,7 @@ Do not promote if:
 `tools/ci/check_scientist_best_in_class_wave2.py`, and
 `tests/tools/test_scientist_best_in_class_wave2.py`.
 
-**Длительность:** 1-2 недели.  
+**Длительность:** 1-2 недели.
 **Тезис:** Wave 2 is closed only with metrics, docs, CI gates, shadow evidence
 and migration notes.
 

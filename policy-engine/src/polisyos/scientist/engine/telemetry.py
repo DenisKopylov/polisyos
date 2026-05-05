@@ -6,8 +6,8 @@ from collections.abc import Iterable
 from contextlib import nullcontext
 from typing import Any
 
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeEvent
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 NODE_SPAN_NAME = "scientist.node"
 _TELEMETRY_RUNTIME_ERRORS = (

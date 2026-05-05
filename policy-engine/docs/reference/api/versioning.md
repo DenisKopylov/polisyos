@@ -5,7 +5,7 @@ Related reference: [REST API Reference](index.md), [Runtime API Migration Guide]
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/runtime/http/routes/{runs.py,artifacts.py}`, and [ADR-0100](../../adr/0100-runtime-api-versioning-and-deprecation-policy.md)
-Validation: `uv run pytest -q tests/runtime/http/test_api_maturity.py tests/runtime/http/test_runtime_api_contract_hardening.py`
+Validation: `uv run pytest -q tests/unit/runtime/http/test_api_maturity.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
 
 `/api/v1/*` is the current stable runtime HTTP surface.
 ADR reference: [ADR-0100](../../adr/0100-runtime-api-versioning-and-deprecation-policy.md).
@@ -36,12 +36,12 @@ The versioning contract is checked together with OpenAPI drift and generated
 clients:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 Relevant test and workflow anchors:
 
-- `tests/runtime/http/test_api_maturity.py`
-- `tests/runtime/http/test_runtime_api_contract_hardening.py`
+- `tests/unit/runtime/http/test_api_maturity.py`
+- `tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
 - Architecture Import Gate workflow
-- `.github/workflows/arch.yml`
+- `ops/ci/templates/workflows/arch.yml`

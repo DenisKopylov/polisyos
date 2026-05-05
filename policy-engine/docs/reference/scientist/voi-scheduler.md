@@ -4,7 +4,7 @@ Related references: [Claim Ledger](claim-ledger.md), [Deep research evidence](de
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/search/voi_models.py`, `src/polisyos/scientist/search/voi_scheduler.py`, `src/polisyos/scientist/search/voi_calibration.py`, `src/polisyos/scientist/evidence/claim_support.py`, `src/polisyos/scientist/human_review/voi_escalation.py`, `tests/scientist/search/test_voi_models.py`, `tests/scientist/search/test_voi_reports.py`, `tests/scientist/search/test_voi_calibration.py`, `tests/scientist/evidence/test_claim_support_voi.py`, `tests/scientist/human_review/test_voi_escalation.py`, and `tools/ci/check_scientist_best_in_class_phase2_3.py`.
+Source of truth: `src/polisyos/scientist/search/voi_models.py`, `src/polisyos/scientist/search/voi_scheduler.py`, `src/polisyos/scientist/search/voi_calibration.py`, `src/polisyos/scientist/evidence/claim_support.py`, `src/polisyos/scientist/human_review/voi_escalation.py`, `tests/unit/scientist/search/test_voi_models.py`, `tests/unit/scientist/search/test_voi_reports.py`, `tests/unit/scientist/search/test_voi_calibration.py`, `tests/unit/scientist/evidence/test_claim_support_voi.py`, `tests/unit/scientist/human_review/test_voi_escalation.py`, and `tools/ci/check_scientist_best_in_class_phase2_3.py`.
 
 The VOI scheduler explains why Scientist spends or does not spend compute. It
 can prioritize candidate evaluation, source verification, human escalation,
@@ -96,6 +96,6 @@ Default rollout is report-only shadow mode.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/search/test_voi_models.py tests/scientist/search/test_voi_reports.py tests/scientist/search/test_voi_calibration.py tests/scientist/evidence/test_claim_support_voi.py tests/scientist/human_review/test_voi_escalation.py -q
+uv run pytest tests/unit/scientist/search/test_voi_models.py tests/unit/scientist/search/test_voi_reports.py tests/unit/scientist/search/test_voi_calibration.py tests/unit/scientist/evidence/test_claim_support_voi.py tests/unit/scientist/human_review/test_voi_escalation.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_3.py --repo-root . --output-format json --require-passing
 ```

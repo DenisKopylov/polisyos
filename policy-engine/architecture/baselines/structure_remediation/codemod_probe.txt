@@ -1,0 +1,39 @@
+Phase 3A codemod probe
+======================
+
+Command:
+  uv run python tools/devx/refactor/move_module.py \
+    --repo-root _cache/phase3a_codemod_probe \
+    --from polisyos.foundry.agent_sim.world.world \
+    --to polisyos.foundry.agent_sim.world.runtime.world
+
+Result:
+  move_returncode = 0
+
+Status after move:
+ M architecture/shims.toml
+R  src/polisyos/foundry/agent_sim/world/world.py -> src/polisyos/foundry/agent_sim/world/runtime/world.py
+ M tests/consumer.py
+?? src/polisyos/foundry/agent_sim/world/runtime/__init__.py
+?? src/polisyos/foundry/agent_sim/world/world.py
+
+Consumer import rewrite sample:
+from polisyos.foundry.agent_sim.world.runtime import world
+from polisyos.foundry.agent_sim.world.runtime.world import SyntheticWorld
+
+Shim sample:
+"""Compatibility shim for a Phase 5/6 decomposition module move."""
+
+from __future__ import annotations
+
+from .runtime.world import SyntheticWorld, phase0_seed_benchmark_binding, phase0_seed_world_specs  # noqa: F401
+
+__all__ = ("SyntheticWorld", "phase0_seed_benchmark_binding", "phase0_seed_world_specs",)
+
+Rollback:
+  git restore --staged .
+  git checkout -- .
+  git clean -fd
+
+Status after rollback:
+  <clean>

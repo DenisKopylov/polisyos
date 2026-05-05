@@ -27,7 +27,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import urlparse
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 try:
     import yaml

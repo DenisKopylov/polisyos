@@ -4,16 +4,14 @@ from __future__ import annotations
 
 import json
 import pathlib
-
-from pydantic import Field
-
-from polisyos.data_forge.kernel._base import DataForgeModel
+from dataclasses import dataclass, field
 
 
-class QCCheck(DataForgeModel):
+@dataclass(frozen=True)
+class QCCheck:
     """Capture one quality-gate result and its threshold/message metadata."""
 
-    name: str = Field(min_length=1)
+    name: str
     passed: bool
     group: str = ""
     severity: str = "critical"
@@ -23,12 +21,13 @@ class QCCheck(DataForgeModel):
     status: str = ""
 
 
-class QCReport(DataForgeModel):
+@dataclass
+class QCReport:
     """Aggregate quality-gate checks and auxiliary metrics for one pipeline scope."""
 
-    scope: str = Field(min_length=1)
-    checks: tuple[QCCheck, ...] = Field(default_factory=tuple)
-    metrics: dict[str, object] = Field(default_factory=dict)
+    scope: str
+    checks: list[QCCheck] | tuple[QCCheck, ...] = field(default_factory=list)
+    metrics: dict[str, object] = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:

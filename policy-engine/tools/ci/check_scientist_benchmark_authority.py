@@ -11,8 +11,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_benchmark_authority_phase1_5"
 TOOL_NAME = "ci.check-scientist-benchmark-authority"
@@ -33,17 +33,17 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/frontier_runtime.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/evals/test_authority.py"),
-    Path("tests/scientist/evals/test_datasets.py"),
-    Path("tests/scientist/evals/test_leakage.py"),
-    Path("tests/scientist/evals/test_graders.py"),
-    Path("tests/scientist/evals/test_frozen_web.py"),
-    Path("tests/scientist/evals/test_policy_cases.py"),
-    Path("tests/scientist/evals/test_challenge_packs.py"),
-    Path("tests/scientist/evals/test_authority_integration.py"),
-    Path("tests/scientist/search/test_benchmark_registry.py"),
-    Path("tests/scientist/search/test_phase_d4_runtime_integration.py"),
-    Path("tests/scientist/test_frontier_runtime.py"),
+    Path("tests/unit/scientist/evals/test_authority.py"),
+    Path("tests/unit/scientist/evals/test_datasets.py"),
+    Path("tests/unit/scientist/evals/test_leakage.py"),
+    Path("tests/unit/scientist/evals/test_graders.py"),
+    Path("tests/unit/scientist/evals/test_frozen_web.py"),
+    Path("tests/unit/scientist/evals/test_policy_cases.py"),
+    Path("tests/unit/scientist/evals/test_challenge_packs.py"),
+    Path("tests/unit/scientist/evals/test_authority_integration.py"),
+    Path("tests/unit/scientist/search/test_benchmark_registry.py"),
+    Path("tests/unit/scientist/search/test_phase_d4_runtime_integration.py"),
+    Path("tests/unit/scientist/search/test_frontier_runtime.py"),
     Path("tests/tools/test_scientist_benchmark_authority.py"),
 )
 REQUIRED_SPLIT_DOC_TOKENS: tuple[str, ...] = (
@@ -64,14 +64,14 @@ REFERENCE_TOKENS: tuple[str, ...] = (
     "public_export",
 )
 NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/evals/test_authority.py"): (
+    Path("tests/unit/scientist/evals/test_authority.py"): (
         "hidden_holdout_evaluation_ref",
         "rotating_challenge_evaluation_refs",
         "revision_status",
         "benchmark_pack_ref",
         "registered_benchmark_pack_ref",
     ),
-    Path("tests/scientist/evals/test_leakage.py"): (
+    Path("tests/unit/scientist/evals/test_leakage.py"): (
         "public_verdict_export_redacts_hidden_holdout_refs",
         "detect_benchmark_contamination",
     ),
@@ -206,7 +206,9 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         token for token in REFERENCE_TOKENS if not _contains(repo_root / REFERENCE_DOC, token)
     ]
     missing_split_tokens = [
-        token for token in REQUIRED_SPLIT_DOC_TOKENS if not _contains(repo_root / REFERENCE_DOC, token)
+        token
+        for token in REQUIRED_SPLIT_DOC_TOKENS
+        if not _contains(repo_root / REFERENCE_DOC, token)
     ]
     notes.extend(f"missing_reference_token:{token}" for token in missing_reference_tokens)
     notes.extend(f"missing_split_doc_token:{token}" for token in missing_split_tokens)
@@ -222,8 +224,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     integration_tokens = {
@@ -244,8 +245,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_phase1_5_integration_token:{token}"
-        for token in missing_integration_tokens
+        f"missing_phase1_5_integration_token:{token}" for token in missing_integration_tokens
     )
 
     active_plan_tokens = ("1.5", "Benchmark authority", "closed")

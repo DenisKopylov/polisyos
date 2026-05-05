@@ -4,8 +4,8 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world_query.py`, `tests/fabric/data_plane/**`, `tests/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world_query.py`, `tests/unit/fabric/data_plane/**`, `tests/unit/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 Processing guarantees: [processing-guarantees.md](processing-guarantees.md)
 
@@ -57,11 +57,11 @@ The current examples are executable tests, not hand-written sample payloads:
 
 | Artifact or API                             | Current example                                                                                                                                                                                                                                    |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `QualityIndicators` and `DataFitnessReport` | `tests/fabric/test_quality_indicators.py` covers finite quality bounds, DuckDB identifier safety, injected metrics, and `DataFitnessReport.from_dict()` diagnostics                                                                                |
-| `FabricLineageTracker`                      | `tests/fabric/test_lineage.py` builds graph `graph.lineage.test` from `worldbank.wdi` source field `gdp_local` to materialized table `world_gdp`, claim `claim-1`, world fact `fact-1`, query `query-1`, OpenLineage JSON, and visualization graph |
-| Quarantine records                          | `tests/fabric/data_plane/test_quarantine.py` persists `transform_error`, `non_finite_metric`, and `poison_stream_message` records with downstream impacts and reprocess results                                                                    |
-| CDC schema-change events                    | `tests/fabric/data_plane/test_streaming_runtime.py` asserts persisted CAS kind `fabric.cdc_schema_change` when stream rows introduce `new_field`                                                                                                   |
-| Semantic diff reports                       | `tests/fabric/test_semantic_diff.py` covers historical comparison paths used by quality/materialization regression checks                                                                                                                          |
+| `QualityIndicators` and `DataFitnessReport` | `tests/unit/fabric/test_quality_indicators.py` covers finite quality bounds, DuckDB identifier safety, injected metrics, and `DataFitnessReport.from_dict()` diagnostics                                                                                |
+| `FabricLineageTracker`                      | `tests/unit/fabric/test_lineage.py` builds graph `graph.lineage.test` from `worldbank.wdi` source field `gdp_local` to materialized table `world_gdp`, claim `claim-1`, world fact `fact-1`, query `query-1`, OpenLineage JSON, and visualization graph |
+| Quarantine records                          | `tests/unit/fabric/data_plane/test_quarantine.py` persists `transform_error`, `non_finite_metric`, and `poison_stream_message` records with downstream impacts and reprocess results                                                                    |
+| CDC schema-change events                    | `tests/unit/fabric/data_plane/test_streaming_runtime.py` asserts persisted CAS kind `fabric.cdc_schema_change` when stream rows introduce `new_field`                                                                                                   |
+| Semantic diff reports                       | `tests/unit/fabric/test_semantic_diff.py` covers historical comparison paths used by quality/materialization regression checks                                                                                                                          |
 
 Dedicated reference pages split these surfaces by responsibility:
 
@@ -81,8 +81,8 @@ Dedicated reference pages split these surfaces by responsibility:
 
 | Gate                                                                                                               | Purpose                                                                                                                                                          |
 | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` | Validates Fabric connector contract evolution against `schemas/snapshots/fabric/connector_contract_registry.json` and writes impacted-surface/migration evidence |
-| `uv run python tools/connectors/check_contracts.py --check`                                                        | Validates the legacy connector contract snapshot at `schemas/snapshots/connectors/contracts.json`                                                                |
+| `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` | Validates Fabric connector contract evolution against `schemas/snapshots/fabric/connector_contract_registry.json` and writes impacted-surface/migration evidence |
+| `uv run polisyos-tools connectors check-contracts --check`                                                        | Validates the legacy connector contract snapshot at `schemas/snapshots/connectors/contracts.json`                                                                |
 | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  | Validates Fabric ABI snapshots such as `schemas/snapshots/fabric/edge_kind.schema.json` and `node_kind.schema.json`                                              |
 
 ## Orchestration Notes
@@ -103,12 +103,12 @@ Dedicated reference pages split these surfaces by responsibility:
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/data_plane/test_modes.py tests/fabric/data_plane/test_orchestrator.py -q
-uv run pytest tests/fabric/data_plane/test_cursor_store.py tests/fabric/data_plane/test_record_replay.py -q
-uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/test_ingestion_quarantine.py -q
-uv run pytest tests/fabric/data_plane/test_streaming_runtime.py tests/fabric/data_plane/test_streaming_windowed.py -q
-uv run pytest tests/fabric/test_quality_indicators.py tests/fabric/test_lineage.py -q
-uv run pytest tests/fabric/test_world_materialization.py tests/fabric/test_world_time_travel.py -q
+uv run pytest tests/unit/fabric/data_plane/test_modes.py tests/unit/fabric/data_plane/test_orchestrator.py -q
+uv run pytest tests/unit/fabric/data_plane/test_cursor_store.py tests/unit/fabric/data_plane/test_record_replay.py -q
+uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/test_ingestion_quarantine.py -q
+uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/data_plane/test_streaming_windowed.py -q
+uv run pytest tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/test_lineage.py -q
+uv run pytest tests/unit/fabric/test_world_materialization.py tests/unit/fabric/test_world_time_travel.py -q
 ```
 
 ## API Reference

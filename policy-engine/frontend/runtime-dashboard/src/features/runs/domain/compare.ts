@@ -1,5 +1,5 @@
 import type { RunTimelinePayload, RunErrorsPayload } from "@/api/validators";
-import type { GovernanceIssueView } from "@/lib/domain/governance";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import type { RunDetailSummary } from "@/features/runs/routes/useRunDetailSummary";
 
 type ComparisonRow = {

@@ -14,12 +14,10 @@ from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import TransportabilityResultRef
 
 if TYPE_CHECKING:
-    from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
-    from polisyos.datasets.knowledge.types import PStarZResult
+    from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult
     from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
 else:
-    from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
-    from polisyos.datasets.knowledge.types import PStarZResult
+    from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult
     from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
 
 CONTEXT_VARIABLE_SENSITIVITY: dict[str, list[str]] = {

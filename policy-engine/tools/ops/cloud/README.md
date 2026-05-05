@@ -1,4 +1,4 @@
-# tools/cloud
+# tools/ops/cloud
 
 Canonical cloud tooling surface for shard preparation, reviewed deployment,
 pipeline execution, and cloud preflight.
@@ -18,8 +18,7 @@ Canonical layout:
 - `preflight/`: explicit preflight contracts
 
 Dependency ordering is declared in `tools.registry`; for example, GCP preflight
-precedes `run-lex-from-manifest`, which precedes shard merge workflows. The
-legacy `cloud_deploy/` directory is now a compatibility bridge only.
+precedes `run-lex-from-manifest`, which precedes shard merge workflows.
 
 Operational rules:
 
@@ -29,5 +28,5 @@ Operational rules:
 - Long-running commands should emit timing records via `--timing-log` or
   `POLISYOS_TOOLS_TIMING_LOG`.
 
-- External commands must use `tools._lib.runner.run_command`, not shell strings.
-- Canonical generated shard/env assets default to `tools/cloud/deploy/assets/`.
+- External commands must use `tools.lib.runner.run_command`, not shell strings.
+- Canonical generated shard/env assets default to `ops/cloud/deploy/assets/`.

@@ -8,7 +8,7 @@ const { tMock, useRunDetailSummaryMock, useRunLiveUpdatesMock } = vi.hoisted(
   }),
 );
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: tMock,
   }),

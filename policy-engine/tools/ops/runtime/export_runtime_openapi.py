@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 
 def _parse_args() -> argparse.Namespace:

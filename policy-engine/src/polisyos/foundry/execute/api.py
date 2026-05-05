@@ -47,17 +47,18 @@ from polisyos.core.contracts.foundry import (
     WelfareBoundReportRef,
 )
 from polisyos.core.registry import RegistryBundleContent, load_registry_bundle_content
-from polisyos.foundry._execution_posture import (
-    ResolvedExecutionPosture,
-    resolve_execution_posture,
-)
+from polisyos.foundry._registry import MissingRuntimeMechanismSupportError
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
     extract_feedback_state,
     inject_feedback_state,
     load_input_bindings,
 )
-from polisyos.foundry.executor import (
+from polisyos.foundry.execute._posture import (
+    ResolvedExecutionPosture,
+    resolve_execution_posture,
+)
+from polisyos.foundry.execute.executor import (
     ExecuteArtifacts,
     apply_state_delta,
     apply_state_delta_and_snapshot,
@@ -75,7 +76,6 @@ from polisyos.foundry.feedback import (
     snapshot_from_vector,
     solve_fixed_point,
 )
-from polisyos.foundry.registry import MissingRuntimeMechanismSupportError
 
 
 @dataclass(frozen=True)
@@ -1072,9 +1072,7 @@ def _persist_feedback_jacobian(
         spectral_radius=outcome.jacobian.spectral_radius,
         operator_norm_inf=outcome.jacobian.operator_norm_inf,
         condition_number=outcome.jacobian.condition_number,
-        smallest_singular_value_i_minus_j=(
-            outcome.jacobian.smallest_singular_value_i_minus_j
-        ),
+        smallest_singular_value_i_minus_j=(outcome.jacobian.smallest_singular_value_i_minus_j),
         near_fold=outcome.jacobian.near_fold,
         near_flip=outcome.jacobian.near_flip,
         near_loss_of_stability=outcome.jacobian.near_loss_of_stability,

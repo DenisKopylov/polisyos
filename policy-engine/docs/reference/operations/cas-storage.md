@@ -5,8 +5,8 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/core/artifacts/{protocol.py,store.py,backends/config.py}`, `src/polisyos/runtime/http/{dependencies.py,resilience.py}`, `src/polisyos/fabric/storage/tenant_cas.py`, and ADRs `0098`/`0103`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_api_maturity.py`
-- `uv run pytest -q tests/core/artifacts/backends/test_config.py tests/fabric/test_storage_port.py tests/fabric/test_duckdb_storage_access_control.py`
+- `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_api_maturity.py`
+- `uv run pytest -q tests/unit/core/artifacts/backends/test_config.py tests/unit/fabric/test_storage_port.py tests/unit/fabric/test_duckdb_storage_access_control.py`
 
 This page is manually maintained from the current Core CAS contracts and the
 runtime binding code that turns them into guarded HTTP-facing services.

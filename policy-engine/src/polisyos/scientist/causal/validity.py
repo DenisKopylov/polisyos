@@ -40,7 +40,7 @@ from polisyos.scientist.claims.ledger import persist_claim_ledger
 from polisyos.scientist.claims.projections import project_causal_validity_bundle_claims
 from polisyos.scientist.compute.job_spec import JobResult, JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.frontier_runtime import (
+from polisyos.scientist.engine.frontier_runtime import (
     FrontierRuntimeConfig,
     build_frontier_runtime_report,
 )

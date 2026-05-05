@@ -141,7 +141,7 @@ surface_ir, report = migrate_trinity_to_surface_ir(bundle)
 
 ## JSON Schema Snapshots
 
-Schema snapshots are generated via `tools/diagnostics/gen_schema.py` and stored under `schemas/snapshots/ir/`:
+Schema snapshots are generated via `tools/quality/diagnostics/gen_schema.py` and stored under `schemas/snapshots/ir/`:
 
 - `trinity_bundle.schema.json`
 - `problem_frame.schema.json`
@@ -168,6 +168,6 @@ Example schema fragment (ProblemFrame):
 | Link type           | Current anchor                                                                                                                                                                                     |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 canon/CAS and registry/linker, Phase 1 schema compatibility                                                                                                                          |
-| Contract tests      | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py`                       |
+| Contract tests      | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/unit/ir/test_trinity_loaders.py`                       |
 | Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/problem_frame.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/model_spec.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                             |

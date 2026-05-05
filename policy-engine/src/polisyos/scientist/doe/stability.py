@@ -69,7 +69,7 @@ class RankingStabilityChecker:
             except Exception:
                 continue
 
-        if not any(rank_positions[names[0]]):
+        if not rank_positions[names[0]]:
             return StabilityReport(
                 rank_stability_score=0.0,
                 n_bootstrap=0,

@@ -24,7 +24,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import is_type_checking_test, repo_root_from
+from tools.lib.imports import is_type_checking_test, repo_root_from
 
 FORBIDDEN_PREFIXES: dict[str, str] = {
     "polisyos.scientist": "Law A (Import Gate)",

@@ -1,0 +1,50 @@
+name: Artifact Signatures
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/polisyos/core/artifacts/**"
+      - "src/polisyos/core/components/cli.py"
+      - "tests/unit/core_phase0/test_signing.py"
+      - "tests/unit/core_phase0/test_store_signing.py"
+      - "tests/unit/core_phase0/test_cli_signing.py"
+      - ".github/workflows/signatures.yml"
+      - "pyproject.toml"
+      - "env_example.txt"
+  push:
+    branches: [main]
+
+jobs:
+  signing-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -e ".[dev,test,causal-discovery]"
+      - name: Run signing test suite
+        run: |
+          pytest \
+            tests/unit/core_phase0/test_signing.py \
+            tests/unit/core_phase0/test_store_signing.py \
+            tests/unit/core_phase0/test_cli_signing.py \
+            -q
+
+  no-private-pem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if private key material is tracked
+        run: |
+          set -euo pipefail
+          if git ls-files '*.pem' | grep -E '.+'; then
+            echo 'ERROR: PEM files are tracked. Private keys must never be committed.'
+            exit 1
+          fi
+          if git grep -n 'BEGIN PRIVATE KEY' -- . ':!*.md'; then
+            echo 'ERROR: Private key material detected in tracked files.'
+            exit 1
+          fi

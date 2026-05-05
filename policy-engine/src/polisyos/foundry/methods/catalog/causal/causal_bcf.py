@@ -551,7 +551,9 @@ class CausalBCF:
     )
 
     @staticmethod
-    def pure_step(state: HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state
             if isinstance(state, HTEObservationalData)

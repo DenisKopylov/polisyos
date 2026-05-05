@@ -1,0 +1,215 @@
+name: Performance Regression
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/polisyos/**'
+      - 'tests/performance/**'
+      - 'tests/unit/scientist/**'
+      - 'tools/ci/**'
+      - '.github/workflows/perf.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/polisyos/**'
+      - 'tests/performance/**'
+      - 'tests/unit/scientist/**'
+      - 'tools/ci/**'
+      - '.github/workflows/perf.yml'
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Git ref to compare against (default: main)'
+        required: false
+        default: 'main'
+
+env:
+  # Performance thresholds (configurable)
+  LATENCY_THRESHOLD_PERCENT: 5
+  THROUGHPUT_THRESHOLD_PERCENT: 5
+  OVERHEAD_THRESHOLD_PERCENT: 2
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for baseline comparison
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          pip install -e ".[dev,test,causal-discovery]"
+          pip install pytest-benchmark
+
+      - name: Configure JAX for CPU
+        run: |
+          echo "JAX_PLATFORM_NAME=cpu" >> $GITHUB_ENV
+          echo "XLA_PYTHON_CLIENT_PREALLOCATE=false" >> $GITHUB_ENV
+
+      - name: Run Baseline Benchmark (main)
+        run: |
+          git stash || true
+          git checkout ${{ inputs.baseline_ref || 'main' }}
+          pip install -e . --quiet
+
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
+            --benchmark-only \
+            --benchmark-json=baseline.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=10 \
+            -v
+
+          git checkout -
+          git stash pop || true
+
+      - name: Run Current Benchmark (PR)
+        run: |
+          pip install -e . --quiet
+
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
+            --benchmark-only \
+            --benchmark-json=current.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=10 \
+            -v
+
+      - name: Compare Results
+        id: compare
+        run: |
+          python tools/quality/diagnostics/check_perf_regression.py \
+            --baseline baseline.json \
+            --current current.json \
+            --latency-threshold ${{ env.LATENCY_THRESHOLD_PERCENT }} \
+            --throughput-threshold ${{ env.THROUGHPUT_THRESHOLD_PERCENT }} \
+            --output-format github
+
+      - name: Upload Benchmark Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            baseline.json
+            current.json
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comparison = fs.readFileSync('comparison_report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comparison
+            });
+
+  overhead-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -e ".[dev,test,causal-discovery]"
+
+      - name: Configure JAX
+        run: |
+          echo "JAX_PLATFORM_NAME=cpu" >> $GITHUB_ENV
+          echo "XLA_PYTHON_CLIENT_PREALLOCATE=false" >> $GITHUB_ENV
+
+      - name: Run Overhead Validation
+        run: |
+          pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py \
+            tests/performance/test_runtime_hot_paths.py \
+            -v \
+            --tb=short \
+            -x  # Stop on first failure
+
+  scientist-gate2-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          pip install -e ".[dev,test,causal-discovery]"
+          pip install pytest-benchmark
+
+      - name: Configure JAX
+        run: |
+          echo "JAX_PLATFORM_NAME=cpu" >> $GITHUB_ENV
+          echo "XLA_PYTHON_CLIENT_PREALLOCATE=false" >> $GITHUB_ENV
+
+      - name: Run Scientist reliability scenarios
+        run: |
+          pytest tests/integration/scientist/test_workflow_reliability_scenarios.py \
+            -q \
+            --junitxml=scientist-reliability-scenarios.xml
+
+      - name: Run Scientist operational evidence
+        run: |
+          pytest tests/unit/scientist/engine/test_reliability_operational_evidence.py \
+            -q \
+            --junitxml=scientist-operational-evidence.xml
+
+      - name: Run Scientist benchmark evidence
+        run: |
+          pytest tests/performance/test_scientist_runtime_paths.py \
+            --benchmark-only \
+            --benchmark-json=scientist-benchmarks.json \
+            --benchmark-warmup=on \
+            --benchmark-min-rounds=5 \
+            -q
+
+      - name: Build Scientist reliability scorecard
+        run: |
+          uv run polisyos-tools ci check-scientist-reliability \
+            --benchmark-json scientist-benchmarks.json \
+            --junit-xml scientist-reliability-scenarios.xml \
+            --junit-xml scientist-operational-evidence.xml \
+            --output scientist-reliability-scorecard.json \
+            --output-format json \
+            --require-passing
+
+      - name: Upload Scientist Gate 2 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: scientist-gate2-evidence
+          path: |
+            scientist-benchmarks.json
+            scientist-reliability-scenarios.xml
+            scientist-operational-evidence.xml
+            scientist-reliability-scorecard.json
+          retention-days: 30

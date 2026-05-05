@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export const VIRTUALIZATION_THRESHOLD = 30;
 

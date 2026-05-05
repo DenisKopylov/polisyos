@@ -28,8 +28,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore

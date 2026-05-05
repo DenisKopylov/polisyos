@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { queryKeys } from "@/api/queryKeys";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { PolicyDiffView } from "./PolicyDiffView";
 import { policyDiffFixture } from "./fixtures";

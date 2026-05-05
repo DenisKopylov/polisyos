@@ -47,7 +47,7 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 - `src/polisyos/ir`
 - `src/polisyos/foundry`
 - `src/polisyos/scientist`
-- [`../../tools/diagnostics/abi_diff.py`](../../tools/diagnostics/abi_diff.py)
+- [`../../tools/quality/diagnostics/abi_diff.py`](../../tools/quality/diagnostics/abi_diff.py)
 
 ### Depended On By
 

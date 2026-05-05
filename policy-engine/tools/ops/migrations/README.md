@@ -1,4 +1,4 @@
-# tools/migrations
+# tools/ops/migrations
 
 Операционные и форматные миграции для артефактов и хранилищ данных.
 
@@ -18,7 +18,7 @@
 ## Типовой запуск
 
 ```bash
-PYTHONPATH=src:. uv run python tools/migrations/migrate_duckdb_to_pg.py --duckdb-path integration.duckdb --pg-dsn postgresql://... --tenant-id 11111111-1111-1111-1111-111111111111 --dry-run
+uv run polisyos-tools migrations migrate-duckdb-to-pg --duckdb-path integration.duckdb --pg-dsn postgresql://... --tenant-id 11111111-1111-1111-1111-111111111111 --dry-run
 uv run polisyos-tools migrations migrate policy_ir input.json output.json --to 1.0
 ```
 

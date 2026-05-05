@@ -4,38 +4,48 @@ on:
   pull_request:
     paths:
       - ".github/workflows/fabric-remediation.yml"
-      - "policy-engine/docs/FABRIC_AUDIT_REMEDIATION_PLAN.md"
-      - "policy-engine/docs/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
+      - "policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md"
+      - "policy-engine/docs/archive/reports/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
       - "policy-engine/pyproject.toml"
-      - "policy-engine/scripts/testing/**"
+      - "policy-engine/ruff.toml"
+      - "policy-engine/mypy.ini"
+      - "policy-engine/basedpyright.toml"
+      - "policy-engine/pytest.ini"
+      - "policy-engine/mutmut.cfg"
+      - "policy-engine/tools/quality/testing/**"
       - "policy-engine/schemas/snapshots/fabric/**"
       - "policy-engine/src/polisyos/core/security/db_backend.py"
       - "policy-engine/src/polisyos/fabric/**"
-      - "policy-engine/tests/fabric/**"
+      - "policy-engine/tests/unit/fabric/**"
       - "policy-engine/tests/tools/test_fabric_schema_governance.py"
       - "policy-engine/tools/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
-      - "policy-engine/tools/validation/fabric_schema_governance.py"
+      - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
       - "policy-engine/uv.lock"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/fabric-remediation.yml"
-      - "policy-engine/docs/FABRIC_AUDIT_REMEDIATION_PLAN.md"
-      - "policy-engine/docs/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
+      - "policy-engine/docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md"
+      - "policy-engine/docs/archive/reports/FABRIC_REMEDIATION_CLOSURE_MATRIX.md"
       - "policy-engine/pyproject.toml"
-      - "policy-engine/scripts/testing/**"
+      - "policy-engine/ruff.toml"
+      - "policy-engine/mypy.ini"
+      - "policy-engine/basedpyright.toml"
+      - "policy-engine/pytest.ini"
+      - "policy-engine/mutmut.cfg"
+      - "policy-engine/tools/quality/testing/**"
       - "policy-engine/schemas/snapshots/fabric/**"
       - "policy-engine/src/polisyos/core/security/db_backend.py"
       - "policy-engine/src/polisyos/fabric/**"
-      - "policy-engine/tests/fabric/**"
+      - "policy-engine/tests/unit/fabric/**"
       - "policy-engine/tests/tools/test_fabric_schema_governance.py"
       - "policy-engine/tools/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/ci/check_fabric_schema_registry.py"
       - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
-      - "policy-engine/tools/validation/fabric_schema_governance.py"
+      - "policy-engine/tools/quality/validation/fabric_schema_governance.py"
       - "policy-engine/uv.lock"
   workflow_dispatch:
 
@@ -68,15 +78,15 @@ jobs:
 
       - name: Run Fabric suite
         run: |
-          mkdir -p .tmp/test-reports
-          uv run pytest tests/fabric --durations=25 --junitxml=.tmp/test-reports/fabric.xml
+          mkdir -p _build/.tmp/test-reports
+          uv run pytest tests/unit/fabric --durations=25 --junitxml=_build/.tmp/test-reports/fabric.xml
 
       - name: Upload Fabric JUnit
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: junit-fabric
-          path: policy-engine/.tmp/test-reports/fabric.xml
+          path: policy-engine/_build/.tmp/test-reports/fabric.xml
           if-no-files-found: warn
           retention-days: 14
 
@@ -97,13 +107,13 @@ jobs:
           extras: "lint test"
 
       - name: Check broad-exception baseline
-        run: uv run python scripts/testing/check_fabric_exception_baseline.py
+        run: uv run python tools/quality/testing/check_fabric_exception_baseline.py
 
       - name: Run Fabric schema governance gate
         run: |
-          mkdir -p .tmp/test-reports
-          uv run python tools/ci/check_fabric_schema_registry.py --check \
-            --evidence-out .tmp/test-reports/fabric-schema-governance.json
+          mkdir -p _build/.tmp/test-reports
+          uv run polisyos-tools ci check-fabric-schema-registry --check \
+            --evidence-out _build/.tmp/test-reports/fabric-schema-governance.json
 
       - name: Ban query.replace in Fabric connector and world paths
         run: |
@@ -122,7 +132,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: fabric-schema-governance
-          path: policy-engine/.tmp/test-reports/fabric-schema-governance.json
+          path: policy-engine/_build/.tmp/test-reports/fabric-schema-governance.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -144,15 +154,15 @@ jobs:
 
       - name: Repeat resilience concurrency smoke
         run: |
-          uv run python scripts/testing/repeat_pytest.py --count 5 --fail-fast -- \
-            tests/fabric/connectors/test_resilience.py -k "half_open or rate_limiter or fallback"
+          uv run python tools/quality/testing/repeat_pytest.py --count 5 --fail-fast -- \
+            tests/unit/fabric/connectors/test_resilience.py -k "half_open or rate_limiter or fallback"
 
       - name: Repeat cache and tenant isolation smoke
         run: |
-          uv run python scripts/testing/repeat_pytest.py --count 5 --fail-fast -- \
-            tests/fabric/connectors/test_cache_system.py -k "concurrency or atomic or leak" \
-            tests/fabric/test_world_query_column_masking.py \
-            tests/fabric/test_duckdb_storage_access_control.py
+          uv run python tools/quality/testing/repeat_pytest.py --count 5 --fail-fast -- \
+            tests/unit/fabric/connectors/test_cache_system.py -k "concurrency or atomic or leak" \
+            tests/unit/fabric/test_world_query_column_masking.py \
+            tests/unit/fabric/test_duckdb_storage_access_control.py
 
   fabric-performance-smoke:
     name: Fabric / Performance smoke
@@ -172,4 +182,4 @@ jobs:
 
       - name: Run Fabric benchmark smoke
         run: |
-          uv run pytest tests/fabric/data_plane/test_benchmarks.py --durations=10
+          uv run pytest tests/unit/fabric/data_plane/test_benchmarks.py --durations=10

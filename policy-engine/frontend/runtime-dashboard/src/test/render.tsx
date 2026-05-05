@@ -15,7 +15,7 @@ import { TelemetryProvider } from "@/app/providers/TelemetryProvider";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
 import { ToastProvider } from "@/app/providers/ToastProvider";
 import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import {
   HighContrastProvider,
   LiveAnnouncerProvider,

@@ -17,7 +17,7 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
 from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness
 from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.runtime import resolve_mode, resolve_tier
-from polisyos.synthetic_world import (
+from polisyos.foundry.agent_sim.world import (
     SyntheticWorld,
     SyntheticWorldDGP,
     WorldFamily,

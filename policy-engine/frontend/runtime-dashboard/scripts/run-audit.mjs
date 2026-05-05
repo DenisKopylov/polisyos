@@ -5,9 +5,14 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
 const allowlistPath = path.join(dashboardRoot, "audit-allowlist.json");
-const rawAuditPath = path.join(dashboardRoot, "npm-audit-raw.json");
-const outputPath = path.join(dashboardRoot, "npm-audit-report.json");
-const summaryPath = path.join(dashboardRoot, "npm-audit-summary.md");
+const buildRoot = path.resolve(
+  dashboardRoot,
+  "../../_build/frontend/runtime-dashboard",
+);
+const auditRoot = path.join(buildRoot, "audit");
+const rawAuditPath = path.join(auditRoot, "pnpm-audit-raw.json");
+const outputPath = path.join(auditRoot, "pnpm-audit-report.json");
+const summaryPath = path.join(auditRoot, "pnpm-audit-summary.md");
 
 function loadAllowlist() {
   if (!fs.existsSync(allowlistPath)) {
@@ -42,9 +47,10 @@ function isAllowlisted(vulnerability, allowlist) {
 }
 
 if (!fs.existsSync(rawAuditPath)) {
-  throw new Error(`Missing npm audit input file at ${rawAuditPath}`);
+  throw new Error(`Missing pnpm audit input file at ${rawAuditPath}`);
 }
 
+fs.mkdirSync(auditRoot, { recursive: true });
 const rawAudit = JSON.parse(fs.readFileSync(rawAuditPath, "utf8"));
 const allowlist = loadAllowlist();
 const vulnerabilities = Object.values(rawAudit.vulnerabilities ?? {});

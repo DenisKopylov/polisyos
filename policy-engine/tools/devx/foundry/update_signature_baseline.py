@@ -8,8 +8,8 @@ import sys
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import repo_root_from
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"

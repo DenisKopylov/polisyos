@@ -27,13 +27,13 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.errors import (
     CircuitBreakerOpenError,
     NodeTimeoutError,
     RetryExhaustedError,
 )
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.circuit_breaker import CircuitBreaker

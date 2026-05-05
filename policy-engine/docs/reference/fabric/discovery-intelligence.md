@@ -1,6 +1,6 @@
 # Fabric Discovery And Entity Intelligence
 
-Related plan: [FABRIC_BEST_IN_CLASS_PLAN.md](../../plans/active/FABRIC_BEST_IN_CLASS_PLAN.md).
+Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md).
 
 Phase 9 keeps discovery explainable, reversible, stale-aware, and contract-bound.
@@ -74,5 +74,5 @@ Validation:
 
 ```bash
 uv run python tools/quality/validation/fabric_discovery_intelligence.py --check
-uv run pytest tests/fabric/test_discovery_intelligence.py tests/fabric/test_entity_resolution.py -q
+uv run pytest tests/unit/fabric/test_discovery_intelligence.py tests/unit/fabric/test_entity_resolution.py -q
 ```

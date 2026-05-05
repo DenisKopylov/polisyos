@@ -121,7 +121,7 @@ policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py
 Новый файл:
 
 ```text
-policy-engine/tests/fabric/test_legal_evaluation_phase18.py
+policy-engine/tests/unit/fabric/test_legal_evaluation_phase18.py
 ```
 
 ### 2.5. Документ контракта
@@ -882,7 +882,7 @@ Node пишет:
 
 ## 12) Тесты (обязательные)
 
-Файл: `policy-engine/tests/fabric/test_legal_evaluation_phase18.py`
+Файл: `policy-engine/tests/unit/fabric/test_legal_evaluation_phase18.py`
 
 ### 12.1. Unit tests
 
@@ -941,6 +941,6 @@ Fixture‑минимум:
 | Link type           | Current anchor                                                                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 5 governance/frontier contract and Phase 4 world-event interoperability                                                          |
-| Contract tests      | `tests/fabric/test_legal_evaluation.py`, `tests/scientist/test_legal_check_node.py`, `tests/scientist/governance/test_legal_pass.py`         |
+| Contract tests      | `tests/unit/fabric/test_legal_evaluation.py`, `tests/unit/scientist/nodes/test_legal_check_node.py`, `tests/unit/scientist/governance/test_legal_pass.py`         |
 | Schema snapshots    | `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                       |

@@ -1,6 +1,6 @@
 import type { CSSProperties, HTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export type JanusGlyphSize = 16 | 24 | 32;
 export type JanusGlyphVariant = "mark" | "line" | "serif-punctuation";

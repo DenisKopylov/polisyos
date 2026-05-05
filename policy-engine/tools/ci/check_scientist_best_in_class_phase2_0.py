@@ -14,8 +14,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase2_0"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase2-0"
@@ -38,7 +38,7 @@ REQUIRED_FILES: tuple[Path, ...] = (
     *ADR_FILES,
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_0.py"),
-    Path("tests/scientist/wave2/test_compatibility_contracts.py"),
+    Path("tests/unit/scientist/orchestrator_v2/test_compatibility_contracts.py"),
     Path("tests/tools/test_scientist_best_in_class_phase2_0.py"),
 )
 
@@ -91,9 +91,7 @@ INDEX_TOKENS: tuple[str, ...] = (
     "wave2-runtime-contracts.md",
     "Wave 2 runtime contracts",
 )
-MKDOCS_TOKENS: tuple[str, ...] = (
-    "reference/scientist/wave2-runtime-contracts.md",
-)
+MKDOCS_TOKENS: tuple[str, ...] = ("reference/scientist/wave2-runtime-contracts.md",)
 
 LEGACY_PUBLIC_PACKET_FIELDS: frozenset[str] = frozenset(
     {
@@ -245,9 +243,11 @@ def _run_wave1_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]]:
     try:
         module = importlib.import_module("tools.ci.check_scientist_best_in_class_wave1")
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-        return False, {"passes_all": False}, [
-            f"wave1_gate_import_failed:{exc.__class__.__name__}:{exc}"
-        ]
+        return (
+            False,
+            {"passes_all": False},
+            [f"wave1_gate_import_failed:{exc.__class__.__name__}:{exc}"],
+        )
 
     with TemporaryDirectory() as tmp:
         output_path = Path(tmp) / "wave1.json"
@@ -265,9 +265,11 @@ def _run_wave1_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]]:
             )
             payload = json.loads(output_path.read_text(encoding="utf-8"))
         except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-            return False, {"passes_all": False}, [
-                f"wave1_gate_run_failed:{exc.__class__.__name__}:{exc}"
-            ]
+            return (
+                False,
+                {"passes_all": False},
+                [f"wave1_gate_run_failed:{exc.__class__.__name__}:{exc}"],
+            )
     notes: list[str] = []
     if exit_code != 0 or payload.get("passes_all") is not True:
         notes.append("wave1_gate_failed")
@@ -312,9 +314,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     if legacy_research_dag_status(None) != "legacy_missing":
         notes.append("legacy_research_dag_status_not_legacy_missing")
 
-    artifact_id = ArtifactID.model_validate(
-        "sha256:" + hashlib.sha256(b"phase2_0").hexdigest()
-    )
+    artifact_id = ArtifactID.model_validate("sha256:" + hashlib.sha256(b"phase2_0").hexdigest())
     ref = ArtifactRef(
         artifact_id=artifact_id,
         kind="scientist.phase2_0.fixture",
@@ -335,7 +335,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     return not notes, notes
 
 
-def _doc_tokens_missing(repo_root: Path, path: Path, tokens: tuple[str, ...], prefix: str) -> list[str]:
+def _doc_tokens_missing(
+    repo_root: Path, path: Path, tokens: tuple[str, ...], prefix: str
+) -> list[str]:
     absolute = repo_root / path
     return [f"{prefix}:{token}" for token in tokens if not _contains(absolute, token)]
 

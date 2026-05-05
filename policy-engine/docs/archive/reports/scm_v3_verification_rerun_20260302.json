@@ -1,0 +1,35 @@
+{
+  "generated_utc": "2026-03-02T18:43:41Z",
+  "workspace": "/Users/deniskopylov/polisyos/policy-engine",
+  "base_run_log": "docs/reports/_logs_rerun_20260302_203535",
+  "structured_status_counts": {
+    "PASS": 66,
+    "FAIL": 0,
+    "BLOCKED": 0
+  },
+  "post_sync_rechecks": [
+    {
+      "test": "tests/ir/test_causal_graph_kuzu.py",
+      "status": "PASS"
+    },
+    {
+      "test": "tests/foundry/methods/catalog/causal/test_pcmci_discovery.py",
+      "status": "PASS"
+    },
+    {
+      "test": "tests/foundry/methods/catalog/causal/test_transport_check.py + tests/scientist/governance/test_transportability_required_pass.py",
+      "status": "PASS"
+    },
+    {
+      "test": "tests/runtime/http/test_timeline_api.py::test_run_lineage_endpoint_returns_dependency_graph",
+      "status": "PASS"
+    }
+  ],
+  "backlog_b_readiness": {
+    "B1_DAGMA": "READY",
+    "B2_Y0_PHASE12B": "READY",
+    "B3_ORJSON": "READY",
+    "B4_JAX_CI_VECTORIZE": "READY",
+    "B5_TRANSPORT_CACHE": "READY"
+  }
+}

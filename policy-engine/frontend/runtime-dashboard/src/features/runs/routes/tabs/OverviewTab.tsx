@@ -9,23 +9,23 @@ import { buildArtifactHref } from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScenarioWorkbench } from "@/features/whatif";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   findRunEvidenceNeed,
   findRunEvidencePlan,
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
-} from "@/lib/domain/evidence";
+} from "@/shared/lib/domain/evidence";
 import {
   normalizeGovernanceIssues,
   summarizeGovernanceIssues,
-} from "@/lib/domain/governance";
+} from "@/shared/lib/domain/governance";
 import {
   formatDate,
   formatDuration,
   formatNumber,
   formatPercent,
-} from "@/lib/utils";
+} from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   markUiMilestone,

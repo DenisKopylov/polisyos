@@ -32,7 +32,7 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.contracts.state import FeedbackState, GlobalState
-from polisyos.foundry.executor import (
+from polisyos.foundry.execute.executor import (
     get_state_path,
     load_state_snapshot,
     put_state_snapshot,

@@ -2,7 +2,7 @@
 
 Related reference: [Auth and tenant model](../reference/api/auth-tenant-model.md), [error semantics](../reference/api/error-semantics.md), [security and compliance operations](../reference/security-compliance.md), [operations diagrams](../reference/operations/platform-architecture-diagrams.md).
 Related ADRs: [ADR-0097](../adr/0097-runtime-rate-limiting-and-idempotency.md), [ADR-0100](../adr/0100-runtime-api-versioning-and-deprecation-policy.md), [ADR-0101](../adr/0101-runtime-audit-trail-model.md), [ADR-0102](../adr/0102-key-rotation-lifecycle-and-trust-store-policy.md).
-Evidence: `tests/runtime/http/test_runtime_api_authz.py`, `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/core/security/test_auth_middlewares.py`, `tests/core/security/test_audit_chain.py`, [key rotation runbook](../runbooks/key-rotation.md), [CAS or OPA outage runbook](../runbooks/cas-opa-outage.md).
+Evidence: `tests/unit/runtime/http/test_runtime_api_authz.py`, `tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/unit/core/security/test_auth_middlewares.py`, `tests/unit/core/security/test_audit_chain.py`, [key rotation runbook](../runbooks/key-rotation.md), [CAS or OPA outage runbook](../runbooks/cas-opa-outage.md).
 
 The default runtime posture is fail closed: missing identity, tenant mismatch,
 OPA failure, or integrity failure should stop the request before policy work or

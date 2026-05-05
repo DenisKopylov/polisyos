@@ -6,10 +6,10 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from polisyos.foundry._numeric import is_jax_tracer
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.runtime.numeric import is_jax_tracer
 
 
 def _combine_masks(

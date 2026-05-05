@@ -13,8 +13,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_wave1"
 TOOL_NAME = "ci.check-scientist-best-in-class-wave1"
@@ -69,9 +69,7 @@ INDEX_TOKENS: tuple[str, ...] = (
     "best-in-class-wave1-acceptance.md",
     "Wave 1 acceptance",
 )
-MKDOCS_TOKENS: tuple[str, ...] = (
-    "reference/scientist/best-in-class-wave1-acceptance.md",
-)
+MKDOCS_TOKENS: tuple[str, ...] = ("reference/scientist/best-in-class-wave1-acceptance.md",)
 DECISION_PACKET_TOKENS: dict[Path, tuple[str, ...]] = {
     Path("src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"): (
         "claims_ref",
@@ -80,16 +78,16 @@ DECISION_PACKET_TOKENS: dict[Path, tuple[str, ...]] = {
         "_attach_claim_ledger_to_packet",
         "validate_human_reviewed_readiness",
     ),
-    Path("tests/scientist/test_decision_packet_node_v3.py"): (
+    Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
         'payload["claims_ref"]',
         'payload["research_dag_ref"]',
         "missing_claims_ref_for_decision_bearing_payload",
     ),
-    Path("tests/scientist/research_dag/test_workflow_integration.py"): (
+    Path("tests/unit/scientist/research_dag/test_workflow_integration.py"): (
         "research_dag_ref",
         "scientist_policy_design",
     ),
-    Path("tests/scientist/human_review/test_decision_packet_integration.py"): (
+    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"): (
         "missing_human_review_packet_ref",
         "human_review_validation_failed",
     ),
@@ -158,13 +156,13 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_naked_decision_claims,
             validate_state_claim_projection,
         )
+        from polisyos.scientist.engine.frontier_runtime import (
+            FrontierRuntimeConfig,
+            build_frontier_runtime_report,
+        )
         from polisyos.scientist.evals.authority import (
             BenchmarkAuthority,
             PromotionEvidenceRequest,
-        )
-        from polisyos.scientist.frontier_runtime import (
-            FrontierRuntimeConfig,
-            build_frontier_runtime_report,
         )
         from polisyos.scientist.human_review.audit import signature_for_decision
         from polisyos.scientist.human_review.decisions import human_review_status
@@ -267,10 +265,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     }
     if packet_payload["claims_ref"] != packet_payload["artifacts"][ARTIFACT_CLAIMS_REF]:
         notes.append("decision_packet_claims_ref_not_projected_into_artifacts")
-    if (
-        packet_payload["research_dag_ref"]
-        != packet_payload["artifacts"][ARTIFACT_RESEARCH_DAG_REF]
-    ):
+    if packet_payload["research_dag_ref"] != packet_payload["artifacts"][ARTIFACT_RESEARCH_DAG_REF]:
         notes.append("decision_packet_research_dag_ref_not_projected_into_artifacts")
 
     tool_summary = summarize_tool_contracts(
@@ -469,8 +464,7 @@ def _build_payload(repo_root: Path) -> dict[str, Any]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_wave1_integration_token:{token}"
-        for token in missing_decision_packet_tokens
+        f"missing_wave1_integration_token:{token}" for token in missing_decision_packet_tokens
     )
 
     category_results = {

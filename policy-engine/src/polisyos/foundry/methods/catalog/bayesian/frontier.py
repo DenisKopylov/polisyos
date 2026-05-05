@@ -133,11 +133,14 @@ def _runtime_backend(params: Mapping[str, Any]) -> str:
     return str(params.get("__bayesian_runtime_backend__", "unavailable")).strip().lower()
 
 
-def _require_backend(params: Mapping[str, Any], expected: str) -> None:
+def _require_backend(
+    params: Mapping[str, Any], expected: str, *, method_variant: str | None = None
+) -> None:
     actual = _runtime_backend(params)
     if actual != expected:
+        method_label = f" {method_variant}" if method_variant else ""
         raise RuntimeError(
-            f"Bayesian frontier method requires runtime_backend={expected!r}; "
+            f"Bayesian frontier method{method_label} requires runtime_backend={expected!r}; "
             f"resolved runtime_backend={actual!r}"
         )
 
@@ -267,9 +270,7 @@ _SBI_IDENTIFIABLE_TARGET = {
 _SBI_COVERAGE_CONTRACT = {
     "coverage_target": 0.90,
     "coverage_tolerance": 0.03,
-    "budget_lower_bound_formula": (
-        "C*(d_id+log(1/delta))/eps_cov^2 * regime_cover_cost"
-    ),
+    "budget_lower_bound_formula": ("C*(d_id+log(1/delta))/eps_cov^2 * regime_cover_cost"),
     "locality": "conditional_on_regime",
 }
 _SBI_DIAGNOSTIC_CONTRACT = {
@@ -587,7 +588,9 @@ def _build_sbi_diagnostic_artifact(
         thresholds.get("support_quantile_min", default_thresholds["support_quantile_min"])
     )
     max_knn_radius = float(
-        thresholds.get("knn_radius_mahalanobis_max", default_thresholds["knn_radius_mahalanobis_max"])
+        thresholds.get(
+            "knn_radius_mahalanobis_max", default_thresholds["knn_radius_mahalanobis_max"]
+        )
     )
     min_local = float(
         thresholds.get(
@@ -640,15 +643,9 @@ def _build_sbi_diagnostic_artifact(
         support_quantile=support_quantile,
         knn_radius_mahalanobis=knn_radius,
         effective_local_simulations=int(float(diagnostics.get("effective_local_simulations", 0))),
-        local_c2st_score=None
-        if local_c2st_score is None
-        else float(local_c2st_score),
-        posterior_sbc_error=None
-        if posterior_sbc_error is None
-        else float(posterior_sbc_error),
-        tarp_coverage_error=None
-        if tarp_coverage_error is None
-        else float(tarp_coverage_error),
+        local_c2st_score=None if local_c2st_score is None else float(local_c2st_score),
+        posterior_sbc_error=None if posterior_sbc_error is None else float(posterior_sbc_error),
+        tarp_coverage_error=None if tarp_coverage_error is None else float(tarp_coverage_error),
         ppc_mahalanobis=None if ppc_mahalanobis is None else float(ppc_mahalanobis),
         status="fail" if failure_modes else "pass",
         failure_mode=tuple(failure_modes),
@@ -1529,7 +1526,7 @@ class _SBIBase:
     def _run(
         cls, state: Mapping[str, Any], params: Mapping[str, Any], *, algorithm: str
     ) -> dict[str, Any]:
-        _require_backend(params, "sbi")
+        _require_backend(params, "sbi", method_variant=algorithm)
         parameter_draws, simulations, observed_summary = _coerce_sbi_payload(state)
         num_training_epochs = max(1, int(params.get("num_training_epochs", 64)))
         num_posterior_samples = max(32, int(params.get("num_posterior_samples", 256)))

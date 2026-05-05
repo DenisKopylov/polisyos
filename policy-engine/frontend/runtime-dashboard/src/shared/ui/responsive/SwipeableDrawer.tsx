@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Types

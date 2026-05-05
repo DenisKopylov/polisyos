@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.workspace import acceptance_audit
+from tools.devx.workspace import acceptance_audit
 
 
 def test_acceptance_audit_has_no_automated_blockers_for_repo() -> None:

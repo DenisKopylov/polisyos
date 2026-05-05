@@ -3,7 +3,7 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["node_modules/**", "package-lock.json"],
+    ignores: ["node_modules/**"],
     linterOptions: {
       reportUnusedDisableDirectives: "error",
     },

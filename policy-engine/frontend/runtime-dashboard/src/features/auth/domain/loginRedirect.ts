@@ -1,4 +1,4 @@
-import { LOGIN_PATH, LOGIN_URL } from "@/lib/constants";
+import { LOGIN_PATH, LOGIN_URL } from "@/shared/lib/constants";
 
 export type LoginNavigationMode = "document" | "spa";
 

@@ -39,7 +39,7 @@ connector-backed results.
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.fabric.catalog`, `polisyos.fabric.connectors`,
-  `polisyos.datasets.batch.source_registry`, and
+  `polisyos.data_forge.read_api.catalog`, and
   `polisyos.core.contracts.control`.
 
 - Depended on by: `polisyos.runtime.http.services.control` and any runtime or
@@ -65,14 +65,14 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/test_retrieval_service_catalog.py -q`
+- `uv run pytest tests/unit/fabric/test_retrieval_service_catalog.py -q`
   Retrieval service smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric/test_data_catalog.py tests/fabric/test_entity_resolution.py -q`
+- `uv run pytest tests/unit/fabric/test_data_catalog.py tests/unit/fabric/test_entity_resolution.py -q`
   Catalog and entity-resolution integration smoke suite. Smoke-tested on
   2026-04-17.
 
-- `uv run pytest tests/fabric -q`
+- `uv run pytest tests/unit/fabric -q`
   Full Fabric suite. Conceptual in this README refresh; not run in this pass.
 
 ## Reference Docs
@@ -81,4 +81,4 @@ Run from the repository root (`policy-engine/`).
 - [Fabric connectors reference](../../../../docs/reference/fabric/connectors.md)
 - [Fabric data-plane reference](../../../../docs/reference/fabric/data-plane.md)
 - [Catalog README](../catalog/README.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

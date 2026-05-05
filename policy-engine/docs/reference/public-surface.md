@@ -16,22 +16,24 @@ Classification policy:
 - `public_experimental`: documented entrypoint that should stay visible in docs and release notes when touched, but it does not promise long-term compatibility.
 - `internal`: any `polisyos.*` path not listed here; keep it out of public docs and release notes unless operators must care.
 
-| Package                   | Classification        | Facade            | Exports | Owner             | README                                  |
-| ------------------------- | --------------------- | ----------------- | ------: | ----------------- | --------------------------------------- |
-| `polisyos.common`         | `public_stable`       | `lazy_facade`     | 7       | `team-polisyos`   | `src/polisyos/common/README.md`         |
-| `polisyos.core`           | `public_stable`       | `lazy_facade`     | 15      | `team-polisyos`   | `src/polisyos/core/README.md`           |
-| `polisyos.ir`             | `public_stable`       | `lazy_facade`     | 228     | `team-polisyos`   | `src/polisyos/ir/README.md`             |
-| `polisyos.fabric`         | `public_stable`       | `lazy_facade`     | 9       | `team-polisyos`   | `src/polisyos/fabric/README.md`         |
-| `polisyos.foundry`        | `public_stable`       | `lazy_facade`     | 3       | `team-polisyos`   | `src/polisyos/foundry/README.md`        |
-| `polisyos.scientist`      | `public_stable`       | `lazy_facade`     | 4       | `team-polisyos`   | `src/polisyos/scientist/README.md`      |
-| `polisyos.runtime`        | `public_stable`       | `lazy_facade`     | 10      | `team-polisyos`   | `src/polisyos/runtime/README.md`        |
-| `polisyos.lex`            | `public_stable`       | `lazy_facade`     | 58      | `team-polisyos`   | `src/polisyos/lex/README.md`            |
-| `polisyos.scholar`        | `public_experimental` | `lazy_facade`     | 14      | `team-polisyos`   | `src/polisyos/scholar/README.md`        |
-| `polisyos.data_forge`     | `public_experimental` | `eager_exports`   | 1       | `team-data-forge` | `src/polisyos/data_forge/README.md`     |
-| `polisyos.academic`       | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/academic/README.md`       |
-| `polisyos.datasets`       | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/datasets/README.md`       |
-| `polisyos.batch_common`   | `public_experimental` | `eager_exports`   | 17      | `team-polisyos`   | `src/polisyos/batch_common/README.md`   |
-| `polisyos.batch_snapshot` | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/batch_snapshot/README.md` |
+| Package | Classification | Facade | Exports | Owner | README |
+| --- | --- | --- | ---: | --- | --- |
+| `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 28 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 3 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 50 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.scholar` | `public_experimental` | `lazy_facade` | 16 | `team-polisyos` | `src/polisyos/scholar/README.md` |
+| `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 33 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
+| `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
+| `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
+| `polisyos.ddm` | `internal` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
+| `polisyos.ddm_15_7` | `compatibility` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm_15_7/README.md` |
+| `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
+| `polisyos.synthetic_world` | `compatibility` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/synthetic_world/README.md` |
 
 ## `polisyos.common`
 
@@ -79,13 +81,13 @@ canon
 components
 contracts
 discovery
-evaluation
 errors
+evaluation
 llm
 observability
 pipeline
-resilience
 registry
+resilience
 run
 ```
 
@@ -102,63 +104,104 @@ run
 - Notes: Primary compatibility boundary for policy, governance, analytics, and observation contracts.
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Supported exports (228)</summary>
+<details><summary>Supported exports (273)</summary>
 
 ```text
+ABMBifurcationReport
+ABMIdentifiabilityCertificate
+ABMResult
+ABMResultRef
 AccessTier
+AdministrativeMissingnessClass
+AdministrativeMissingnessDirection
+AdministrativeMissingnessMetadata
+AdministrativeMissingnessScenarioFamily
+AdministrativeMissingnessUnitScope
+AgentConfig
+AgentTypeConfig
+AssumptionSpec
+AssumptionType
+BacktestPlanBundle
+BacktestReport
+BacktestScenario
+BiasDirection
+BlockSupportReport
+BoundsEstimationBundle
+BoundsEstimationEntry
+BoundsEstimationInput
+BoundsEstimationTask
+CalibrationConfig
+CalibrationSplitLabel
+CalibrationSplitPlan
+CalibrationSplitWindow
+CalibrationTarget
+CalibrationTargetBundleManifest
+CausalBlockBridge
+CausalBlockBridgeRef
+CausalDiscoveryReport
+CausalEffectReport
+CausalExecutionBundle
+CausalExecutionBundleRef
+CausalInterventionSpec
+CausalMethod
+CausalModelEnsemble
+CausalModelEnsembleRef
+CausalPanelBundleManifest
+CausalQuery
+CausalQueryResult
+CausalQueryResultRef
+CausalReadinessBundle
+CohortDimension
+CohortImpact
 ConnectorCapability
 ConnectorMetadataSpec
+ConstraintType
+CounterfactualCheckBundle
+DTRTreatmentSequenceBundleManifest
 DataFilter
 DataViewRequest
 DataViewType
-QualityTier
-TrustLevel
-NormPack
-NormRule
-NormRef
-RuleType
-load_policy
-IRExportInfo
-IRFieldInfo
-IRPublicStatus
-IRSchemaCatalog
-IRTypeInfo
-IRTypeKind
-enumerate_ir_exports
-get_ir_schema_catalog
-get_ir_type
-inspect_ir_schema
-list_ir_types
-CalibrationConfig
-CalibrationTarget
-ProblemFrame
-ProblemDomain
-KPISpec
-SuccessCriterion
-ProblemConstraintSpec
-ConstraintType
-StakeholderSpec
-PolicySpec
-PolicyInterventionSpec
-MechanismBinding
-ParameterSpec
-PolicyPortfolio
-PolicyInteraction
-InteractionMatrix
-InteractionType
-ModelSpec
-FidelityLevel
-GovernancePassAlias
-GovernancePassAliasRegistry
-GovernancePassAliasStatus
-GovernancePassMappingRegistry
-GovernancePassMappingBundle
-AssumptionSpec
-AssumptionType
-AgentConfig
-AgentTypeConfig
+DependenceStructure
+DependenceStructureRef
+DependentSensitivityAnalysisBundle
+DependentSensitivityAnalysisBundleRef
+DependentSensitivityResult
+DependentSensitivityResultRef
+DriftReadinessRef
+ExplanationBundleRef
+JudgeVerdictRef
+SensitivityAnalysisBundle
+SensitivityAnalysisBundleRef
+SensitivityAnalysisIndex
+DetectorResult
+DiagnosticTest
+DimensionBreakdown
+DistributionFamily
+DistributionalReport
+DynamicMicrosimValidationReport
+DynamicMicrosimValidationReportRef
+EnsembleMember
+EntityScope
 EnvironmentConfig
 EnvironmentParam
+EquilibriumMultiplicityWelfareAnnotation
+EstimationStatus
+ExposureMappingType
+FanChartSpec
+FeatureImportance
+FidelityLevel
+FirmEvents
+FirmPanels
+ForecastCalibrationMethod
+ForecastCoverageDiagnostic
+ForecastIntervalSemantics
+ForecastShiftTypeAssessment
+ForecastingUncertaintyBundle
+ForecastingUncertaintyBundleRef
+ForecastingUncertaintyBundleV2
+GEUncertaintyBundle
+GEUncertaintyBundleRef
+GEUncertaintyRepresentation
 GateContext
 GateDecision
 GateEvent
@@ -166,20 +209,156 @@ GateEventType
 GatePriority
 GateRequest
 GateVerdict
-DistributionFamily
-ForecastCalibrationMethod
-ForecastCoverageDiagnostic
-ForecastIntervalSemantics
-ForecastingUncertaintyBundle
-ForecastingUncertaintyBundleRef
-GEUncertaintyBundle
-GEUncertaintyBundleRef
-GEUncertaintyRepresentation
-FanChartSpec
+GovernancePassAlias
+GovernancePassAliasRegistry
+GovernancePassAliasStatus
+GovernancePassMappingBundle
+GovernancePassMappingRegistry
+GraphArtifacts
+HTEResult
 HorizonInterval
 HorizonPolicySpec
+IRExportInfo
+IRFieldInfo
+IRPublicStatus
+IRSchemaCatalog
+IRTypeInfo
+IRTypeKind
+IdentificationMode
+IdentificationModeRouter
+IdentificationRoute
+ImpactDirection
+InteractionComplex
+InteractionComplexRef
+InteractionMatrix
+InteractionType
+InterferenceCertificate
+InterferenceCertificateRef
+InterferenceEffectDecomposition
+InterferenceLossSpecBundle
+InterferenceMethod
 IntervalSemantics
+InterventionSpec
+InterventionType
+KPISpec
+LeontiefIOBundle
+LeontiefIOInput
+LessonRegistrySeedBundle
+MAUPInvarianceCertificate
+MAUPInvarianceCertificateRef
+MAUPPartitionCheck
+MeasurementRegistry
+MeasurementTrustTier
+MechanismBinding
+MechanismFamily
+MechanismSource
+MetricUnit
+MicrosimCalibrationReport
+MicrosimCalibrationReportRef
+MicrosimSurveyContractBundle
+MissingnessAssessmentProvenance
+MissingnessAssessmentReport
+MissingnessAssessmentStatus
+MissingnessEstimandRisk
+MissingnessEvidenceItem
+MobilityReport
+MobilityReportRef
+ModelSpec
+MultiplexGraphLayerId
+NegativeControlSpec
+NetworkCausalContractBundle
+NetworkContractBundle
+NetworkInterferenceReport
+NodeMechanism
+NormPack
+NormRef
+NormRule
+ObservationContractCompilerSuite
+ObservationFamily
+ObservationFamilyPolicy
+ObservationFamilyPolicyRegistry
+ObservationPanel
+ObservationRecord
+ObservationToContractManifest
+OperatingCharacteristicKey
+OperatingCharacteristicLibrary
+OperatingCharacteristicRecord
+OutcomeComparison
+PanelEconometricBundleManifest
+ParameterSpec
+Phase4DynamicsGate
+Phase4GateStatus
+Phase4TemporalPolicyGateVerdict
+PlaceboResult
+PolicyInteraction
+PolicyInterventionSpec
+PolicyPortfolio
+PolicyRecommendation
+PolicySpec
+ProblemConstraintSpec
+ProblemDomain
+ProblemFrame
 PropagationMethod
+ProxyIdentificationBundle
+ProxyMap
+QualityTier
+QueryType
+ReadinessImpact
+ReconciliationCertificate
+ReconciliationMethod
+ReconciliationStatus
+RefutationResult
+RefutationTestType
+RegimeBenchmarkStatus
+RegimeCalendar
+RegimeForecastCalibrationStatus
+RegimeIdentifiabilityStatus
+RegimeModelFamily
+RegimeShiftForecastBundle
+RegimeShiftForecastBundleRef
+RegionSectorPanels
+RuleType
+SchemaChangepoint
+SchemaRegimeRegistry
+SchemaRegimeSpec
+ShiftComponent
+ShiftDiagnosticReport
+ShiftDiagnosticReportRef
+ShockCalendar
+SourceConfidenceTier
+SpaceTimeCausalCertificate
+SpaceTimeCausalCertificateRef
+SparseDenseBridge
+SpatialResult
+SpecificationCurveBundle
+SpecificationCurveInput
+StakeholderSpec
+StrategicResponseChannel
+StrategicResponseSpecsBundle
+StructuralCausalModelSpec
+SubgroupEffect
+SuccessCriterion
+SurveyAssumptionComponent
+SurveyAssumptionLayer
+SurveyAssumptionStatus
+SurveyQualityCertificate
+SurveyQualityCertificateRef
+SurveyRequestedRegime
+SurveyValidatedRegime
+SurveyVarianceMode
+SurvivalDataBundleManifest
+SystematicBias
+TargetingRule
+TemporalDTRExecutionEntry
+TemporalDTRTask
+TemporalGraphCausalCertificate
+TemporalGraphCausalCertificateRef
+TemporalInterventionSequence
+TemporalInterventionStep
+TransportabilityCheckBundle
+TransportabilityResult
+TransportabilityResultRef
+TrustLevel
 UncertaintyEnvelope
 UncertaintySource
 WelfareBundle
@@ -189,150 +368,18 @@ WelfareMethod
 WelfareSampleBundle
 WelfareSampleBundleRef
 WelfareStatus
-CausalMethod
-EstimationStatus
-RefutationTestType
-RefutationResult
-CausalEffectReport
-QueryType
-InterventionType
-InterventionSpec
-CausalInterventionSpec
-CausalQuery
-CausalQueryResult
-CausalQueryResultRef
-CausalExecutionBundleRef
-BlockSupportReport
-CausalBlockBridge
-CausalBlockBridgeRef
-ExposureMappingType
-InteractionComplex
-InteractionComplexRef
-InterferenceCertificate
-InterferenceCertificateRef
-InterferenceEffectDecomposition
-InterferenceMethod
-MAUPInvarianceCertificate
-MAUPInvarianceCertificateRef
-MAUPPartitionCheck
-NetworkInterferenceReport
-SpatialResult
-EnsembleMember
-CausalModelEnsemble
-CausalModelEnsembleRef
-TransportabilityResult
-TransportabilityResultRef
-CausalDiscoveryReport
-DiagnosticTest
-MechanismFamily
-MechanismSource
-NodeMechanism
-StructuralCausalModelSpec
-PlaceboResult
-CohortDimension
-ImpactDirection
-MetricUnit
-CohortImpact
-DimensionBreakdown
 WinnersLosersEntry
 WinnersLosersTable
-DistributionalReport
-SubgroupEffect
-FeatureImportance
-HTEResult
-TargetingRule
-PolicyRecommendation
-BiasDirection
-OutcomeComparison
-SystematicBias
-BacktestScenario
-BacktestReport
-AdministrativeMissingnessClass
-AdministrativeMissingnessDirection
-AdministrativeMissingnessMetadata
-AdministrativeMissingnessScenarioFamily
-AdministrativeMissingnessUnitScope
-MissingnessAssessmentProvenance
-MissingnessAssessmentReport
-MissingnessAssessmentStatus
-MissingnessEstimandRisk
-MissingnessEvidenceItem
-SurveyAssumptionComponent
-SurveyAssumptionLayer
-SurveyAssumptionStatus
-SurveyRequestedRegime
-SurveyValidatedRegime
-SurveyVarianceMode
-SurveyQualityCertificate
-SurveyQualityCertificateRef
-MicrosimCalibrationReport
-MicrosimCalibrationReportRef
-DependenceStructure
-DependenceStructureRef
-MobilityReport
-MobilityReportRef
-BacktestPlanBundle
-BoundsEstimationBundle
-CalibrationTargetBundleManifest
-CalibrationSplitLabel
-CalibrationSplitPlan
-CalibrationSplitWindow
-CausalPanelBundleManifest
-DTRTreatmentSequenceBundleManifest
-EntityScope
-IdentificationMode
-LessonRegistrySeedBundle
-LeontiefIOBundle
-MicrosimSurveyContractBundle
-MultiplexGraphLayerId
-NetworkCausalContractBundle
-NetworkContractBundle
-ObservationFamily
-ObservationFamilyPolicy
-ObservationFamilyPolicyRegistry
-IdentificationModeRouter
-IdentificationRoute
-MeasurementRegistry
-MeasurementTrustTier
-NegativeControlSpec
-ObservationPanel
-ObservationRecord
-ObservationToContractManifest
-BoundsEstimationInput
-FirmEvents
-FirmPanels
-GraphArtifacts
-LeontiefIOInput
-ObservationContractCompilerSuite
-PanelEconometricBundleManifest
-ProxyMap
-ProxyIdentificationBundle
-TransportabilityCheckBundle
-CounterfactualCheckBundle
-InterferenceLossSpecBundle
-CausalReadinessBundle
-BoundsEstimationTask
-BoundsEstimationEntry
-TemporalDTRTask
-TemporalDTRExecutionEntry
-CausalExecutionBundle
+enumerate_ir_exports
+get_ir_schema_catalog
+get_ir_type
+inspect_ir_schema
+list_ir_types
 load_causal_execution_bundle
+load_dependent_sensitivity_result
+load_policy
 persist_causal_execution_bundle
-RegionSectorPanels
-SourceConfidenceTier
-SpecificationCurveInput
-SparseDenseBridge
-SpecificationCurveBundle
-StrategicResponseChannel
-StrategicResponseSpecsBundle
-SurvivalDataBundleManifest
-RegimeCalendar
-SchemaChangepoint
-SchemaRegimeRegistry
-SchemaRegimeSpec
-ShockCalendar
-TemporalInterventionSequence
-TemporalInterventionStep
+persist_dependent_sensitivity_result
 ```
 
 </details>
@@ -348,17 +395,36 @@ TemporalInterventionStep
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (9)</summary>
+<details><summary>Supported exports (28)</summary>
 
 ```text
-fabric_get_data
+AccessRef
+AuthoredText
+FabricDecisionData
+FabricDecisionDataCoverage
+FabricDecisionDataResponse
+LineageRef
+ProcessingGuarantee
+ProcessingGuaranteeContract
+QualityRef
+ReplayRef
+SourceContractRef
+TemporalRef
+TypedGap
+UnitRef
+WorldQueryError
+WorldQueryRequest
+batch_processing_contract
 execute_world_query
+fabric_claim_to_authored_text
+fabric_event_to_authored_text
+fabric_fact_to_quantity_value
+fabric_get_data
 query_claims
 query_events
 query_world_table
 run_connectors_ingestion
-WorldQueryError
-WorldQueryRequest
+stream_processing_contract
 world
 ```
 
@@ -367,12 +433,12 @@ world
 ## `polisyos.foundry`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.foundry`
+- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.execute`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Stable compile/execute facade over the compute and method stack.
+- Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
 <details><summary>Supported exports (3)</summary>
@@ -421,12 +487,12 @@ run_experiment
 <details><summary>Supported exports (10)</summary>
 
 ```text
-ReplayStrategy
-ReplayPlan
 CompletenessLevel
 CompletenessReport
-VerificationMode
+ReplayPlan
+ReplayStrategy
 VerificationConfig
+VerificationMode
 VerificationResult
 build_replay_plan
 completeness_check
@@ -443,68 +509,60 @@ verify_replay
 - Owner: `team-polisyos`
 - README: `src/polisyos/lex/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Stable legal-ingestion, normpack, and intervention facade.
-- Summary: Stable Lex facade for legal corpus ingestion, NormPack assembly, and intervention APIs.
+- Notes: Stable runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and read-only legal knowledge APIs. Offline legal preprocessing is owned by polisyos.data_forge.domains.legal.
+- Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Supported exports (58)</summary>
+<details><summary>Supported exports (50)</summary>
 
 ```text
 ActiveVersionResult
 ActiveVersionStrategy
+AffectedKPI
 ChangeProposalRef
-LegalDocSource
+ComplianceDelta
+ComplianceTransition
+HierarchicalPolicySearchAdapter
+HierarchicalPolicySearchPlan
+InterventionKnobDictionaryEntry
+InterventionKnobSpec
 LegalEvaluationRequest
+LegalKnowledgeGraph
 LegalReportRef
 LexError
+LexFabricEvidencePath
 LexIndexError
 LexIngestError
-LexIngestOptions
-LexIngestResult
-LexNotReadyError
-LexStructureError
-LexStructureOptions
-LexStructureResult
-LexValidationError
-LexVersionIndexOptions
-LexVersionIndexResult
-LexVersioningError
 LexInterventionCompiler
+LexInterventionMapEntry
+LexNotReadyError
+LexPolicyBundleInput
 LexProvisionDirective
-NormPackBuildRequest
-NormPackBuildResult
-NormPackBudgets
+LexProvisionMappingRegistry
+LexStructureError
+LexValidationError
+LexVersioningError
 MutationIntent
-NormPackMutator
-NormChangeType
 NormChange
+NormChangeType
 NormDiff
 NormImpactAnalyzer
 NormImpactReport
-ComplianceTransition
-ComplianceDelta
-AffectedKPI
-diff_norm_packs
-LegalKnowledgeGraph
-InterventionKnobDictionaryEntry
-HierarchicalPolicySearchAdapter
-HierarchicalPolicySearchPlan
-InterventionKnobSpec
-LexInterventionMapEntry
+NormPackBudgets
+NormPackBuildRequest
+NormPackBuildResult
+NormPackMutator
+ProvisionProgramCrosswalkEntry
 StrategicResponseRegistryEntry
 StrategicResponseSpecRegistry
-LexPolicyBundleInput
-TemporalInterventionSequenceCompiler
 TemporalInterventionSequenceCompileResult
+TemporalInterventionSequenceCompiler
 TemporalInterventionSequencer
 TemporalInterventionStepInput
-LexProvisionMappingRegistry
-ProvisionProgramCrosswalkEntry
 WorldEventRefLike
 assemble_norm_pack
-build_legal_structure
-build_version_index
+diff_norm_packs
 evaluate_legality
-ingest_legal_doc_bytes
+lex_evidence_from_fabric_decision_data
 propose_changes
 resolve_active_version
 ```
@@ -522,7 +580,7 @@ resolve_active_version
 - Notes: Topic enrichment service facade; API is user-facing but still evolving.
 - Summary: Expose Scholar enrichment entrypoints and contracts via lazy imports.
 
-<details><summary>Supported exports (14)</summary>
+<details><summary>Supported exports (16)</summary>
 
 ```text
 EnrichResultV1
@@ -534,11 +592,13 @@ ScholarClaimsError
 ScholarDiscoverError
 ScholarDocsError
 ScholarError
+ScholarFabricCitation
 ScholarPolicy
 ScholarReconcileError
 ScholarService
 ScholarValidationError
 enrich_topic
+scholar_citation_from_fabric_decision_data
 ```
 
 </details>
@@ -547,91 +607,258 @@ enrich_topic
 
 - Classification: `public_experimental`
 - Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-data-forge`
 - README: `src/polisyos/data_forge/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Experimental asset-centric build-time data forge facade. The top-level package currently re-exports read_api eagerly; kernel/domains remain internal and read_api is the only runtime import surface.
-- Summary: Minimal Data Forge public surface for runtime-safe read APIs.
+- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, quality, and migration-test contracts; read_api is the only runtime import surface.
+- Summary: Data Forge public facade for build-time artifact contracts and read APIs.
 
-<details><summary>Supported exports (1)</summary>
+<details><summary>Supported exports (33)</summary>
 
 ```text
+ArtifactRef
+AssetDefinition
+AssetGroup
+AssetKey
+AssetSpec
+CompatibilityMode
+DataForgeError
+DataForgeValidationError
+DifferentialComparison
+GoldenArtifact
+GoldenCase
+MaterializationContext
+PIILevel
+ProducerVersion
+QCCheck
+QCReport
+RetentionClass
+SchemaCompatibilityError
+SchemaRegistry
+SchemaVersion
+SnapshotCommitError
+SnapshotTransaction
+SnapshotTransactionStatus
+__version__
+asset
+capture_golden_file
+compare_file_sha256
+compare_json_files
+evaluate_fail_fast
+merkle_root
+plan_asset_specs
 read_api
+verify_golden_file
 ```
 
 </details>
 
-## `polisyos.academic`
+## `polisyos.berl`
 
 - Classification: `public_experimental`
-- Supported entrypoints: `polisyos.academic`
-- Facade policy: expected `module_doc_only`, observed `module_doc_only`
-- Owner: `team-polisyos`
-- README: `src/polisyos/academic/README.md`
-- Reference doc: `docs/reference/public-surface.md`
-- Notes: Academic ingestion and SKG utilities remain available but are not release-stable library surface.
-- Summary: Academic literature ingestion and SKG search package.
-
-This package does not expose a package-level `__all__` facade. Treat the module root itself as the only documented entrypoint.
-
-## `polisyos.datasets`
-
-- Classification: `public_experimental`
-- Supported entrypoints: `polisyos.datasets`
-- Facade policy: expected `module_doc_only`, observed `module_doc_only`
-- Owner: `team-polisyos`
-- README: `src/polisyos/datasets/README.md`
-- Reference doc: `docs/reference/public-surface.md`
-- Notes: Dataset discovery and ETL helpers are available to engineers but evolve with pipeline phases.
-- Summary: Dataset catalog and batch ETL package for external statistical source discovery.
-
-This package does not expose a package-level `__all__` facade. Treat the module root itself as the only documented entrypoint.
-
-## `polisyos.batch_common`
-
-- Classification: `public_experimental`
-- Supported entrypoints: `polisyos.batch_common`
+- Supported entrypoints: `polisyos.berl`
 - Facade policy: expected `eager_exports`, observed `eager_exports`
-- Owner: `team-polisyos`
-- README: `src/polisyos/batch_common/README.md`
+- Owner: `team-scientist`
+- README: `src/polisyos/berl/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Shared offline-pipeline helpers used by Lex, Scholar, and dataset batches.
-- Summary: Expose stable batch-pipeline helpers for manifests, QC, and thermal pacing.
+- Notes: Active Bounded Explanation Reliability Layer facade for Scientist validation and explanation reliability evidence. API is experimental.
+- Summary: Bounded Explanation Reliability Layer public API.
+
+<details><summary>Supported exports (11)</summary>
+
+```text
+EmpiricalBoundResult
+ExplanationBundle
+ExplanationOrchestrator
+ExplanationRequest
+ExplanationValidationResult
+ValidationThresholds
+empirical_bernstein_upper_bound
+estimate_local_infidelity
+hoeffding_upper_bound
+summarize_explanation_response
+validate_explanation_bundle
+```
+
+</details>
+
+## `polisyos.calibration`
+
+- Classification: `public_experimental`
+- Supported entrypoints: `polisyos.calibration`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-scientist`
+- README: `src/polisyos/calibration/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Canonical shared calibration diagnostics, recalibration, and validation-report API. Foundry and DDM calibration contexts remain package-specific.
+- Summary: Calibration diagnostics public entrypoints.
+
+<details><summary>Supported exports (10)</summary>
+
+```text
+CalibrationPoint
+CalibrationResult
+apply_calibrator
+compare_calibrators
+compute_calibration_curve
+evaluate_binary
+evaluate_continuous
+evaluate_multiclass
+fit_calibrator
+to_validation_report
+```
+
+</details>
+
+## `polisyos.ddm`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.ddm`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-scientist`
+- README: `src/polisyos/ddm/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Canonical unversioned drift/degradation monitor surface. It is registered to prevent accidental deep-import promotion, not as a stable public API.
+- Summary: Drift-and-Degradation Monitor for Phase 5 Problem 15.7.
 
 <details><summary>Supported exports (17)</summary>
 
 ```text
-QCCheck
-QCReport
-Phase0QualityCheck
-Phase0QualityReport
-Phase0QualityThresholds
-ThermalProfile
-cooldown
-evaluate_phase0_quality
-evaluate_fail_fast
-pause_between_batches
-sha256_file
-sha256_jsonl
-snapshot_component_dir
-write_publish_manifest
-write_qc_report
-write_raw_manifest
-write_stage_manifest
+AffectedFeature
+AffectedSlice
+CalibrationAudit
+DDMWindowResult
+DataQualitySignal
+DriftAndDegradationMonitor
+IncidentPayload
+MetricDirection
+ModelRegistryReadinessRecord
+MonitoringWindow
+PerformanceDegradationEvent
+ReadinessState
+ReadinessStateEvent
+RegistryGateDecision
+RootCauseBundle
+ShiftDetectedEvent
+ShiftRiskEvent
 ```
 
 </details>
 
-## `polisyos.batch_snapshot`
+## `polisyos.ddm_15_7`
+
+- Classification: `compatibility`
+- Supported entrypoints: `polisyos.ddm_15_7`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-scientist`
+- README: `src/polisyos/ddm_15_7/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01.
+- Summary: Compatibility facade for :mod:`polisyos.ddm`.
+
+<details><summary>Supported exports (17)</summary>
+
+```text
+AffectedFeature
+AffectedSlice
+CalibrationAudit
+DDMWindowResult
+DataQualitySignal
+DriftAndDegradationMonitor
+IncidentPayload
+MetricDirection
+ModelRegistryReadinessRecord
+MonitoringWindow
+PerformanceDegradationEvent
+ReadinessState
+ReadinessStateEvent
+RegistryGateDecision
+RootCauseBundle
+ShiftDetectedEvent
+ShiftRiskEvent
+```
+
+</details>
+
+## `polisyos.foundry.agent_sim.world`
 
 - Classification: `public_experimental`
-- Supported entrypoints: `polisyos.batch_snapshot`
-- Facade policy: expected `module_doc_only`, observed `module_doc_only`
-- Owner: `team-polisyos`
-- README: `src/polisyos/batch_snapshot/README.md`
+- Supported entrypoints: `polisyos.foundry.agent_sim.world`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-foundry`
+- README: `src/polisyos/foundry/agent_sim/world/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Snapshot finalization helpers for offline pipeline publishing.
-- Summary: Finalize unified snapshot manifests.
+- Notes: Truth-centric synthetic world generation and evaluation surface under the Foundry agent simulation owner.
+- Summary: Synthetic-world family with truth-centric generation and evaluation.
 
-This package does not expose a package-level `__all__` facade. Treat the module root itself as the only documented entrypoint.
+<details><summary>Supported exports (23)</summary>
+
+```text
+BenchmarkSuiteBinding
+EvaluationRun
+EvaluationSpec
+InterventionSpec
+InterventionStyle
+MeasurementErrorKind
+MeasurementErrorSpec
+MissingnessMechanism
+MissingnessSpec
+SamplingDesignKind
+SamplingDesignSpec
+SyntheticWorld
+SyntheticWorldDGP
+SyntheticWorldSample
+TruthComputationMode
+TruthManifest
+TruthQuery
+TruthSpec
+WorldArtifact
+WorldFamily
+WorldSpec
+phase0_seed_benchmark_binding
+phase0_seed_world_specs
+```
+
+</details>
+
+## `polisyos.synthetic_world`
+
+- Classification: `compatibility`
+- Supported entrypoints: `polisyos.synthetic_world`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-foundry`
+- README: `src/polisyos/synthetic_world/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-10-01.
+- Summary: Compatibility facade for :mod:`polisyos.foundry.agent_sim.world`.
+
+<details><summary>Supported exports (23)</summary>
+
+```text
+BenchmarkSuiteBinding
+EvaluationRun
+EvaluationSpec
+InterventionSpec
+InterventionStyle
+MeasurementErrorKind
+MeasurementErrorSpec
+MissingnessMechanism
+MissingnessSpec
+SamplingDesignKind
+SamplingDesignSpec
+SyntheticWorld
+SyntheticWorldDGP
+SyntheticWorldSample
+TruthComputationMode
+TruthManifest
+TruthQuery
+TruthSpec
+WorldArtifact
+WorldFamily
+WorldSpec
+phase0_seed_benchmark_binding
+phase0_seed_world_specs
+```
+
+</details>

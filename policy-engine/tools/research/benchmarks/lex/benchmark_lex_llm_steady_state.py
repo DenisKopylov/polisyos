@@ -17,20 +17,20 @@ from itertools import count
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import ensure_repo_import_roots, repo_root_from
+from tools.lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
 ensure_repo_import_roots(__file__)
 
-from polisyos.lex.batch.spo_client import GonkaClientPool
-from polisyos.lex.batch.spo_prompts import (
+from polisyos.data_forge.read_api.legal import (  # noqa: E402
     SPO_LIGHT_BATCH_SYSTEM_PROMPT,
     SPO_LIGHT_SYSTEM_PROMPT,
+    GonkaClientPool,
+    _group_items_by_request_budget,
     build_spo_light_batch_user_prompt,
     build_spo_light_user_prompt,
 )
-from polisyos.lex.batch.spo_utils import _group_items_by_request_budget
 
 
 @dataclass(slots=True)
@@ -214,7 +214,7 @@ def _worker_start_delay_seconds(
         return 0.0
     slot = ramp_seconds * (float(worker_id) / float(max(1, worker_count - 1)))
     if jitter_seconds > 0.0:
-        slot += random.uniform(0.0, jitter_seconds)
+        slot += random.uniform(0.0, jitter_seconds)  # noqa: S311
     return max(0.0, slot)
 
 
@@ -455,7 +455,7 @@ async def _run_probe(args: argparse.Namespace) -> dict[str, Any]:
                         "request_started_at_epoch_ms": int(started_request_at.timestamp() * 1000),
                     },
                 )
-            except Exception:
+            except Exception:  # noqa: S112
                 continue
 
     cancelled_workers = 0

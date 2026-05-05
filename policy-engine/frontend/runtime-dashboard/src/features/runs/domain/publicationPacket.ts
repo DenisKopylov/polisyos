@@ -1,9 +1,9 @@
 import type {
   DecisionCardViewModel,
   DecisionMetric,
-} from "@/lib/domain/decision";
-import type { RunEvidenceContext } from "@/lib/domain/evidence";
-import type { GovernanceIssueView } from "@/lib/domain/governance";
+} from "@/shared/lib/domain/decision";
+import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
 export type ToulminNodeKind =
   | "backing"

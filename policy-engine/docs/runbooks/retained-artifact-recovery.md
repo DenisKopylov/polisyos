@@ -72,13 +72,13 @@ Freshness: 2026-04-17.
 
 | Family                       | Lookup key                                                                       | Validation                                                                                           |
 | ---------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Connector recorded fixtures  | fixture path under `tests/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests                                              |
-| Connector contract snapshots | contract id and schema id/version                                                | `tools/connectors/check_contracts.py --check` and `tools/ci/check_fabric_schema_registry.py --check` |
-| Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                      | `tests/fabric/data_plane/test_record_replay.py`                                                      |
-| Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                    | `tests/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                         |
-| CDC schema-change events     | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id               | `tests/fabric/data_plane/test_streaming_runtime.py`                                                  |
-| Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                          | `tests/fabric/test_quality_indicators.py`                                                            |
-| Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                     | `tests/fabric/test_lineage.py` and OpenLineage export validation                                     |
+| Connector recorded fixtures  | fixture path under `tests/unit/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests                                              |
+| Connector contract snapshots | contract id and schema id/version                                                | `polisyos-tools connectors check-contracts --check` and `tools/ci/check_fabric_schema_registry.py --check` |
+| Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                      | `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
+| Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                    | `tests/unit/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                         |
+| CDC schema-change events     | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id               | `tests/unit/fabric/data_plane/test_streaming_runtime.py`                                                  |
+| Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                          | `tests/unit/fabric/test_quality_indicators.py`                                                            |
+| Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                     | `tests/unit/fabric/test_lineage.py` and OpenLineage export validation                                     |
 
 ### Useful commands
 
@@ -93,32 +93,32 @@ Inspect legacy archive payload and report:
 
 ```bash
 cd policy-engine
-uv run python tools/runtime/archive_legacy_runs.py --runs-root runs --archive-dir .tmp/legacy_runs_archive
+uv run python tools/ops/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
 ```
 
 Rebuild snapshot manifest for validation:
 
 ```bash
 cd policy-engine
-uv run python -m polisyos.batch_snapshot.cli finalize --snapshot-root /path/to/snapshot
+uv run python -m polisyos.data_forge.kernel.snapshot.cli finalize --snapshot-root /path/to/snapshot
 ```
 
 Replay/checkpoint recovery regression coverage:
 
 ```bash
 cd policy-engine
-uv run pytest tests/fabric/data_plane/test_record_replay.py
-uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_checkpoint_gc.py
+uv run pytest tests/unit/fabric/data_plane/test_record_replay.py
+uv run pytest tests/unit/scientist/engine/test_checkpoint.py tests/unit/scientist/engine/test_checkpoint_gc.py
 ```
 
 Fabric schema and retained-artifact checks:
 
 ```bash
 cd policy-engine
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
-uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane/test_streaming_runtime.py -q
-uv run pytest tests/fabric/test_quality_indicators.py tests/fabric/test_lineage.py -q
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
+uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/unit/fabric/test_quality_indicators.py tests/unit/fabric/test_lineage.py -q
 ```
 
 ## Rollback / Mitigation

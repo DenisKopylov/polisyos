@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export type AtlasBrandMarkSize = 16 | 24 | 32 | 48;
 export type AtlasBrandVariant = "lockup" | "mark";

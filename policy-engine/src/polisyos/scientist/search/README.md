@@ -34,14 +34,14 @@ logic used by policy-design and promotion workflows.
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.search import CompositeObjective, StoppingPresets; from polisyos.scientist.search.controller import SearchConfig, SearchController; print(CompositeObjective.__name__, SearchConfig.__name__, SearchController.__name__)"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist/search -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/search -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/search/test_controller_api.py tests/scientist/search/test_search_loop.py tests/scientist/search/test_benchmark_registry.py -q
+uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_benchmark_registry.py -q
 ```
 
 ## Reference Docs
@@ -50,7 +50,7 @@ uv run pytest tests/scientist/search/test_controller_api.py tests/scientist/sear
 - Agent/search reasoning reference: [`../../../../docs/reference/scientist/agent-search-reasoning.md`](../../../../docs/reference/scientist/agent-search-reasoning.md)
 - Frontier rollout contract: [`../../../../docs/reference/scientist/frontier-runtime.md`](../../../../docs/reference/scientist/frontier-runtime.md)
 - Reliability gate context: [`../../../../docs/reference/scientist/reliability-scorecard.md`](../../../../docs/reference/scientist/reliability-scorecard.md)
-- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../governance/README.md`](../governance/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../governance/README.md`](../governance/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

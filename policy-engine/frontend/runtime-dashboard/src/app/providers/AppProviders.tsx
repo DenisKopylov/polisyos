@@ -16,7 +16,7 @@ import { DensityProvider } from "../../app/providers/DensityProvider";
 import { ThemeProvider } from "../../app/providers/ThemeProvider";
 import { usePreferencesStore } from "../../app/state/usePreferencesStore";
 import { ToastProvider } from "../../app/providers/ToastProvider";
-import { LocaleProvider } from "../../i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { NetworkStatusProvider } from "@/shared/network";
 import {
   ContrastEnforcer,

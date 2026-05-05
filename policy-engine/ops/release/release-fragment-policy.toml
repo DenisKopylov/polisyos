@@ -1,0 +1,26 @@
+[release_fragments]
+version = 1
+owner = "team-release"
+mode = "fail_closed"
+root = "release-fragments"
+unreleased_root = "release-fragments/unreleased"
+template = "release-fragments/template.toml"
+accepted_extensions = [".toml"]
+required_fields = [
+  "id",
+  "title",
+  "type",
+  "owner",
+  "summary",
+  "evidence",
+]
+allowed_types = [
+  "feature",
+  "fix",
+  "security",
+  "docs",
+  "ops",
+  "migration",
+  "deprecation",
+]
+baseline_command = "manual review: validate release fragments against this policy before release candidate cut"

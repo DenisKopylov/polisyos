@@ -9,8 +9,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_1"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-1"
@@ -27,31 +27,29 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     CLAIMS_PACKAGE / "validators.py",
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/claims/test_models.py"),
-    Path("tests/scientist/claims/test_readiness.py"),
-    Path("tests/scientist/claims/test_ledger.py"),
-    Path("tests/scientist/claims/test_projections.py"),
+    Path("tests/unit/scientist/claims/test_models.py"),
+    Path("tests/unit/scientist/claims/test_readiness.py"),
+    Path("tests/unit/scientist/claims/test_ledger.py"),
+    Path("tests/unit/scientist/claims/test_projections.py"),
     Path("tests/tools/test_scientist_best_in_class_phase1_1.py"),
 )
 REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/test_decision_packet_node_v3.py"): (
+    Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
         "claim_spine_validation_failed",
         "fail_on_naked_claims",
         "legacy_missing",
     ),
-    Path("tests/scientist/nodes/builtins/governance/test_run_governance_claims.py"): (
+    Path("tests/unit/scientist/nodes/builtins/governance/test_run_governance_claims.py"): (
         "claim_spine.naked_decision_claims",
         "missing_claims_ref_for_decision_bearing_state",
     ),
-    Path("tests/scientist/claims/test_readiness.py"): (
+    Path("tests/unit/scientist/claims/test_readiness.py"): (
         "test_legal_claim_without_evidence_requires_review",
     ),
-    Path("tests/scientist/claims/test_models.py"): (
+    Path("tests/unit/scientist/claims/test_models.py"): (
         "test_claim_with_unresolved_counterevidence_cannot_be_publishable",
     ),
-    Path("tests/scientist/claims/test_projections.py"): (
-        "legacy_claim_ledger_status",
-    ),
+    Path("tests/unit/scientist/claims/test_projections.py"): ("legacy_claim_ledger_status",),
 }
 INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"),
@@ -139,8 +137,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     import_ok, import_notes = _import_and_validate_claim_fixture(repo_root)
@@ -169,7 +166,9 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         text = _read_text(absolute)
         if "claims_ref" not in text and "claim_projection" not in text:
             missing_integration_tokens.append(str(path))
-    notes.extend(f"missing_claim_projection_integration:{path}" for path in missing_integration_tokens)
+    notes.extend(
+        f"missing_claim_projection_integration:{path}" for path in missing_integration_tokens
+    )
 
     claims_readiness_text = _read_text(repo_root / (CLAIMS_PACKAGE / "readiness.py"))
     readiness_redefined = "class DecisionReadiness" in claims_readiness_text
@@ -201,8 +200,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         "required_package_files": [str(path) for path in REQUIRED_PACKAGE_FILES],
         "required_test_files": [str(path) for path in REQUIRED_TEST_FILES],
         "required_negative_test_tokens": {
-            str(path): list(tokens)
-            for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
+            str(path): list(tokens) for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
         },
         "integration_files": [str(path) for path in INTEGRATION_FILES],
         "notes": notes,

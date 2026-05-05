@@ -30,11 +30,11 @@ python3 -m tools.cli architecture scaffold runtime-route \
 Verification:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 uv run pytest -q \
-  tests/runtime/http/test_runtime_api_contract_hardening.py \
-  tests/runtime/http/test_architecture_boundaries.py \
-  tests/runtime/http/test_api_maturity.py
+  tests/unit/runtime/http/test_runtime_api_contract_hardening.py \
+  tests/unit/runtime/http/test_architecture_boundaries.py \
+  tests/unit/runtime/http/test_api_maturity.py
 ```
 
 ## 1. Decide whether the route is public or route-only
@@ -85,7 +85,7 @@ Do not:
 - instantiate concrete CAS/store implementations in route handlers;
 - hide large business logic blocks inside FastAPI handlers.
 
-`tests/runtime/http/test_architecture_boundaries.py` is the practical guardrail
+`tests/unit/runtime/http/test_architecture_boundaries.py` is the practical guardrail
 for these mistakes.
 
 ## 4. Wire the route into the app
@@ -113,12 +113,12 @@ That flow is documented in
 Minimum route-level checks:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-uv run pytest -q tests/runtime/http/test_architecture_boundaries.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+uv run pytest -q tests/unit/runtime/http/test_architecture_boundaries.py
 ```
 
 If the route changes visible API behavior, also add or update focused tests under
-`tests/runtime/http/`.
+`tests/unit/runtime/http/`.
 
 ## Rollback
 

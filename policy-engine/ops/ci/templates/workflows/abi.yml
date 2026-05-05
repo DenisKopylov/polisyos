@@ -1,0 +1,103 @@
+name: ABI Schema Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/polisyos/ir/**'
+      - 'src/polisyos/fabric/world/**'
+      - 'src/polisyos/core/canon/**'
+      - 'src/polisyos/core/artifacts/**'
+      - 'schemas/**'
+      - 'tools/quality/diagnostics/gen_schema.py'
+      - 'tools/quality/diagnostics/abi_diff.py'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: abi-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  abi-check:
+    name: ABI Schema Compatibility Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev,test,causal-discovery]"
+
+      - name: Generate current snapshots
+        run: |
+          python3 tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
+
+      - name: Extract baseline snapshots from base branch
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          mkdir -p /tmp/baseline_schemas
+          git archive --format=tar "$BASE_SHA" schemas/snapshots 2>/dev/null | tar -xf - -C /tmp/baseline_schemas || true
+          if [ -d /tmp/baseline_schemas/schemas/snapshots ]; then
+            mv /tmp/baseline_schemas/schemas/snapshots/* /tmp/baseline_schemas/
+            rm -rf /tmp/baseline_schemas/schemas
+          fi
+          mkdir -p /tmp/baseline_schemas/ir /tmp/baseline_schemas/fabric
+
+      - name: Run ABI semantic diff
+        id: abi_diff
+        run: |
+          set +e
+          python3 tools/quality/diagnostics/abi_diff.py \
+            --baseline /tmp/baseline_schemas \
+            --current /tmp/current_schemas \
+            --output /tmp/abi_report.json \
+            --format github \
+            --github-comment /tmp/abi_comment.md
+          diff_status=$?
+          echo "diff_status=$diff_status" >> "$GITHUB_OUTPUT"
+          verdict=$(python3 -c "import json; print(json.load(open('/tmp/abi_report.json'))['verdict'])")
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload ABI artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abi-schema-report
+          path: |
+            /tmp/abi_report.json
+            /tmp/abi_comment.md
+          retention-days: 14
+
+      - name: Post sticky PR comment
+        if: always() && github.event.pull_request.head.repo.fork == false
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: abi-schema-diff
+          path: /tmp/abi_comment.md
+
+      - name: Verify committed snapshots are up-to-date
+        run: |
+          python3 tools/quality/diagnostics/gen_schema.py --check
+
+      - name: Fail on blocking ABI verdict
+        if: steps.abi_diff.outputs.verdict == 'FAIL'
+        run: |
+          echo "::error::ABI gate failed. Breaking changes detected without required schema_version major bump."
+          echo "Inspect /tmp/abi_report.json and PR comment for details."
+          exit 1

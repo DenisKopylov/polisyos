@@ -1,0 +1,792 @@
+[
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 32,
+        "path": "src/polisyos/berl/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 117,
+        "path": "src/polisyos/berl/perturbations.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 449,
+        "path": "src/polisyos/berl/service.py"
+      }
+    ],
+    "non_facade_root_py_count": 2,
+    "package": "berl",
+    "root_py_count": 3
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 31,
+        "path": "src/polisyos/calibration/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 85,
+        "path": "src/polisyos/calibration/_sklearn_compat.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 199,
+        "path": "src/polisyos/calibration/adapters.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 354,
+        "path": "src/polisyos/calibration/continuous.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 79,
+        "path": "src/polisyos/calibration/curve.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 725,
+        "path": "src/polisyos/calibration/diagnostics.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 277,
+        "path": "src/polisyos/calibration/multiclass.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 732,
+        "path": "src/polisyos/calibration/recalibration.py"
+      }
+    ],
+    "non_facade_root_py_count": 7,
+    "package": "calibration",
+    "root_py_count": 8
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 43,
+        "path": "src/polisyos/common/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 139,
+        "path": "src/polisyos/common/async_tools.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 411,
+        "path": "src/polisyos/common/config.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 33,
+        "path": "src/polisyos/common/env_parsing.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 38,
+        "path": "src/polisyos/common/jax_env.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 237,
+        "path": "src/polisyos/common/logger.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 282,
+        "path": "src/polisyos/common/serialization.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 67,
+        "path": "src/polisyos/common/timestamps.py"
+      }
+    ],
+    "non_facade_root_py_count": 7,
+    "package": "common",
+    "root_py_count": 8
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 75,
+        "path": "src/polisyos/core/__init__.py"
+      }
+    ],
+    "non_facade_root_py_count": 0,
+    "package": "core",
+    "root_py_count": 1
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 115,
+        "path": "src/polisyos/data_forge/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 7,
+        "path": "src/polisyos/data_forge/_version.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 27,
+        "path": "src/polisyos/data_forge/errors.py"
+      }
+    ],
+    "non_facade_root_py_count": 2,
+    "package": "data_forge",
+    "root_py_count": 3
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 42,
+        "path": "src/polisyos/ddm/__init__.py"
+      }
+    ],
+    "non_facade_root_py_count": 0,
+    "package": "ddm",
+    "root_py_count": 1
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 47,
+        "path": "src/polisyos/ddm_15_7/__init__.py"
+      }
+    ],
+    "non_facade_root_py_count": 0,
+    "package": "ddm_15_7",
+    "root_py_count": 1
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 139,
+        "path": "src/polisyos/fabric/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 282,
+        "path": "src/polisyos/fabric/_connector_bridge.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 101,
+        "path": "src/polisyos/fabric/_numeric_parsing.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 107,
+        "path": "src/polisyos/fabric/compatibility.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 58,
+        "path": "src/polisyos/fabric/config.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 36,
+        "path": "src/polisyos/fabric/connectors_ingestion.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 694,
+        "path": "src/polisyos/fabric/decision_data.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 187,
+        "path": "src/polisyos/fabric/evidence.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 171,
+        "path": "src/polisyos/fabric/fact_writer.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 57,
+        "path": "src/polisyos/fabric/finite.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 263,
+        "path": "src/polisyos/fabric/fitness_report.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1081,
+        "path": "src/polisyos/fabric/ingestion.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 76,
+        "path": "src/polisyos/fabric/ingestion_providers.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 68,
+        "path": "src/polisyos/fabric/manifest.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 729,
+        "path": "src/polisyos/fabric/observability.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 279,
+        "path": "src/polisyos/fabric/processing_guarantees.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 143,
+        "path": "src/polisyos/fabric/product_integration.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 657,
+        "path": "src/polisyos/fabric/quality.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 48,
+        "path": "src/polisyos/fabric/registry.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 230,
+        "path": "src/polisyos/fabric/safety.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 15,
+        "path": "src/polisyos/fabric/segment_manifest.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 40,
+        "path": "src/polisyos/fabric/tabular.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 118,
+        "path": "src/polisyos/fabric/temporal.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 65,
+        "path": "src/polisyos/fabric/trust.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 49,
+        "path": "src/polisyos/fabric/trust_adapter.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 869,
+        "path": "src/polisyos/fabric/world_query.py"
+      }
+    ],
+    "non_facade_root_py_count": 25,
+    "package": "fabric",
+    "root_py_count": 26
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 86,
+        "path": "src/polisyos/foundry/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 116,
+        "path": "src/polisyos/foundry/_execution_posture.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1102,
+        "path": "src/polisyos/foundry/_executor_graph.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 252,
+        "path": "src/polisyos/foundry/_executor_models.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 395,
+        "path": "src/polisyos/foundry/_executor_ops.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 196,
+        "path": "src/polisyos/foundry/_executor_patching.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 289,
+        "path": "src/polisyos/foundry/_executor_snapshots.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 232,
+        "path": "src/polisyos/foundry/_numeric.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 70,
+        "path": "src/polisyos/foundry/agent_metrics.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 451,
+        "path": "src/polisyos/foundry/agents.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 274,
+        "path": "src/polisyos/foundry/conflict_checker.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 476,
+        "path": "src/polisyos/foundry/constraints_engine.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 366,
+        "path": "src/polisyos/foundry/cost_model.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 88,
+        "path": "src/polisyos/foundry/executor.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 97,
+        "path": "src/polisyos/foundry/layout.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 30,
+        "path": "src/polisyos/foundry/loss.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 107,
+        "path": "src/polisyos/foundry/mechanism_design.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 449,
+        "path": "src/polisyos/foundry/merge_engine.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 93,
+        "path": "src/polisyos/foundry/patch_vm.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 44,
+        "path": "src/polisyos/foundry/profiles.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 118,
+        "path": "src/polisyos/foundry/queue.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 508,
+        "path": "src/polisyos/foundry/quickstart.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 335,
+        "path": "src/polisyos/foundry/registry.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 482,
+        "path": "src/polisyos/foundry/release_acceptance.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 94,
+        "path": "src/polisyos/foundry/social_weights.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 165,
+        "path": "src/polisyos/foundry/specs.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 22,
+        "path": "src/polisyos/foundry/trace.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 126,
+        "path": "src/polisyos/foundry/utils.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 659,
+        "path": "src/polisyos/foundry/welfare_bounds.py"
+      }
+    ],
+    "non_facade_root_py_count": 28,
+    "package": "foundry",
+    "root_py_count": 29
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 984,
+        "path": "src/polisyos/ir/__init__.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 34,
+        "path": "src/polisyos/ir/_lazy_facade.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 371,
+        "path": "src/polisyos/ir/_validation.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 276,
+        "path": "src/polisyos/ir/canon.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 107,
+        "path": "src/polisyos/ir/citations.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 994,
+        "path": "src/polisyos/ir/connectors.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 153,
+        "path": "src/polisyos/ir/fact_log.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 119,
+        "path": "src/polisyos/ir/loaders.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 50,
+        "path": "src/polisyos/ir/migration_report.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 289,
+        "path": "src/polisyos/ir/model_spec.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 127,
+        "path": "src/polisyos/ir/norm_pack.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 317,
+        "path": "src/polisyos/ir/portfolio.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 79,
+        "path": "src/polisyos/ir/predicate.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1050,
+        "path": "src/polisyos/ir/public_surface.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 121,
+        "path": "src/polisyos/ir/queries.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1008,
+        "path": "src/polisyos/ir/refs.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 986,
+        "path": "src/polisyos/ir/registry_fragments.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 575,
+        "path": "src/polisyos/ir/schema_catalog.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 83,
+        "path": "src/polisyos/ir/types.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 26,
+        "path": "src/polisyos/ir/units.py"
+      }
+    ],
+    "non_facade_root_py_count": 19,
+    "package": "ir",
+    "root_py_count": 20
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 193,
+        "path": "src/polisyos/lex/__init__.py"
+      },
+      {
+        "facade_allowed": true,
+        "lines": 238,
+        "path": "src/polisyos/lex/api.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 66,
+        "path": "src/polisyos/lex/artifacts.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 63,
+        "path": "src/polisyos/lex/common.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 85,
+        "path": "src/polisyos/lex/errors.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 40,
+        "path": "src/polisyos/lex/factlog.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 450,
+        "path": "src/polisyos/lex/intervention_artifacts.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1259,
+        "path": "src/polisyos/lex/interventions.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 68,
+        "path": "src/polisyos/lex/provenance.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 323,
+        "path": "src/polisyos/lex/types.py"
+      }
+    ],
+    "non_facade_root_py_count": 8,
+    "package": "lex",
+    "root_py_count": 10
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 73,
+        "path": "src/polisyos/runtime/__init__.py"
+      },
+      {
+        "facade_allowed": true,
+        "lines": 582,
+        "path": "src/polisyos/runtime/api.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 56,
+        "path": "src/polisyos/runtime/manifest.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 890,
+        "path": "src/polisyos/runtime/replay.py"
+      }
+    ],
+    "non_facade_root_py_count": 2,
+    "package": "runtime",
+    "root_py_count": 4
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 71,
+        "path": "src/polisyos/scholar/__init__.py"
+      },
+      {
+        "facade_allowed": true,
+        "lines": 249,
+        "path": "src/polisyos/scholar/api.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 85,
+        "path": "src/polisyos/scholar/errors.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 291,
+        "path": "src/polisyos/scholar/freshness.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 226,
+        "path": "src/polisyos/scholar/freshness_store.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 163,
+        "path": "src/polisyos/scholar/policies.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 63,
+        "path": "src/polisyos/scholar/provenance.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 149,
+        "path": "src/polisyos/scholar/types.py"
+      }
+    ],
+    "non_facade_root_py_count": 6,
+    "package": "scholar",
+    "root_py_count": 8
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 49,
+        "path": "src/polisyos/scientist/__init__.py"
+      },
+      {
+        "facade_allowed": true,
+        "lines": 279,
+        "path": "src/polisyos/scientist/api.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1168,
+        "path": "src/polisyos/scientist/decision_validity.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 170,
+        "path": "src/polisyos/scientist/error_semantics.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 155,
+        "path": "src/polisyos/scientist/evidence_sources.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 837,
+        "path": "src/polisyos/scientist/feedback.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 185,
+        "path": "src/polisyos/scientist/feedback_utils.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 310,
+        "path": "src/polisyos/scientist/frontier_runtime.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 1762,
+        "path": "src/polisyos/scientist/latent_separation.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 607,
+        "path": "src/polisyos/scientist/llm_cycle.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 759,
+        "path": "src/polisyos/scientist/publisher.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 251,
+        "path": "src/polisyos/scientist/reliability_scorecard.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 958,
+        "path": "src/polisyos/scientist/remediation_status.py"
+      },
+      {
+        "facade_allowed": false,
+        "lines": 430,
+        "path": "src/polisyos/scientist/replay_backend.py"
+      }
+    ],
+    "non_facade_root_py_count": 12,
+    "package": "scientist",
+    "root_py_count": 14
+  },
+  {
+    "modules": [
+      {
+        "facade_allowed": true,
+        "lines": 59,
+        "path": "src/polisyos/synthetic_world/__init__.py"
+      }
+    ],
+    "non_facade_root_py_count": 0,
+    "package": "synthetic_world",
+    "root_py_count": 1
+  }
+]

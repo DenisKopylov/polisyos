@@ -7,7 +7,7 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `src/polisyos/core/artifacts/backends/config.py`, `src/polisyos/runtime/http/{app.py,execution_policy.py,resilience.py,response_policies.py,mutation_policy.py,routes/runs.py}`
 Validation:
 
-- `uv run pytest -q tests/common/test_config_bootstrap.py tests/runtime/http/test_api_maturity.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py`
+- `uv run pytest -q tests/unit/common/test_config_bootstrap.py tests/unit/runtime/http/test_api_maturity.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
 
 This page documents dependency extras, execution/security profiles, and the
 `POLISYOS_*` environment variables consumed by WS-7E platform layers.

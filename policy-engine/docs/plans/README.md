@@ -39,3 +39,7 @@ stability: draft
    `docs/runbooks/`, and decisions in `docs/adr/`.
 4. Machine-checkable contracts belong in `architecture/*.toml` and
    `schemas/**`; a plan may link them but must not duplicate their contents.
+5. Repository-wide topology or governance plans need a closeout report before
+   they move out of `active/`; for Repository SOTA this is
+   `accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md` plus the
+   `workspace repository-sota-closeout` gate.

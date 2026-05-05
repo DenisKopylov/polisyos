@@ -1,0 +1,10 @@
+[docs_freshness_exceptions]
+version = 1
+owner = "team-docs"
+mode = "fail_closed_baseline"
+command = "uv run polisyos-tools validation check-docs-accuracy --repo-root ."
+reason = "Phase 5 makes docs freshness fail-closed while retaining a time-bounded baseline for pre-existing published-doc navigation and metadata debt."
+expires = "2026-06-30"
+expected_violation_count = 51
+baseline_sha256 = "19a09610f8829b109a044adec560b4b129c1f80e0711d63e9d4962b89f1f7849"
+baseline_note = "Public-polish baseline captured on 2026-05-03 after moving Repository SOTA evidence to accepted/archive lifecycle homes, publishing repository-topology reference docs, and removing excluded-plan links from public docs."

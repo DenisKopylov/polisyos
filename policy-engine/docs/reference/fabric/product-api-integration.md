@@ -88,12 +88,12 @@ root Fabric facade remains governed by the existing public-surface policy.
 
 ```bash
 uv run python tools/quality/validation/fabric_product_integration.py --check
-uv run pytest tests/runtime/http/test_fabric_integration_routes.py -q
+uv run pytest tests/unit/runtime/http/test_fabric_integration_routes.py -q
 uv run pytest tests/tools/test_fabric_product_integration.py -q
-uv run pytest tests/fabric/test_product_integration.py tests/scholar/test_fabric_provenance.py tests/lex/test_fabric_provenance.py -q
-uv run pytest tests/foundry/calibration/test_fabric_quality.py tests/foundry/uncertainty/test_fabric_quality.py -q
-cd frontend/runtime-dashboard && npm run test:contracts
-cd frontend/runtime-dashboard && npx vitest run src/shared/ui/quantity/fabric-decision-data.test.tsx src/api/hooks/useRunFabricDecisionData.test.tsx
+uv run pytest tests/unit/fabric/test_product_integration.py tests/unit/scholar/test_fabric_provenance.py tests/unit/lex/test_fabric_provenance.py -q
+uv run pytest tests/unit/foundry/calibration/test_fabric_quality.py tests/unit/foundry/uncertainty/test_fabric_quality.py -q
+corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts
+corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/shared/ui/quantity/fabric-decision-data.test.tsx src/api/hooks/useRunFabricDecisionData.test.tsx
 ```
 
 ::: polisyos.fabric.product_integration

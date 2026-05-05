@@ -10,7 +10,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -137,9 +137,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     endpoint_rows = []
     naked_decision_values = []
     for endpoint in ENDPOINTS:
-        operation_present = endpoint["operation_id"] in (
-            run_routes_text + lineage_routes_text
-        )
+        operation_present = endpoint["operation_id"] in (run_routes_text + lineage_routes_text)
         wrapper_present = endpoint["expected_wrapper"] in (
             run_routes_text + lineage_routes_text + decision_data_text
         )
@@ -181,7 +179,8 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     ]
     batch_lookup = {
         "lineage_route_uses_batch_service": "_build_runtime_lineage_batch" in lineage_routes_text,
-        "lineage_service_deduplicates_refs": "if lineage_id not in resolved" in lineage_service_text,
+        "lineage_service_deduplicates_refs": "if lineage_id not in resolved"
+        in lineage_service_text,
         "quality_batch_adapter": "build_quality_refs_batch" in lineage_service_text,
         "trust_batch_adapter": "build_trust_refs_batch" in lineage_service_text,
         "benchmark_surface": "benchmark_compact_lineage_batch" in lineage_service_text,
@@ -221,9 +220,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
             "transitional_waiver_count": 0,
             "typed_gap_state_count": len(typed_gap_rows),
             "field_count": len(field_rows),
-            "unknown_field_count": sum(
-                row["classification"] == "unknown" for row in field_rows
-            ),
+            "unknown_field_count": sum(row["classification"] == "unknown" for row in field_rows),
         },
         "required_contracts": required_contracts,
         "endpoints": endpoint_rows,

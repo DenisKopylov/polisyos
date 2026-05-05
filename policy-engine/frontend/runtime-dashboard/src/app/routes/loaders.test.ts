@@ -12,6 +12,16 @@ vi.mock("@/api/queryClient", () => ({
 }));
 
 describe("route loaders", () => {
+  const defaultTemporalScope = {
+    temporal: {
+      branch: null,
+      scenarioId: null,
+      snapshotId: null,
+      txAt: null,
+      validAt: null,
+    },
+  };
+
   function buildLoaderArgs(
     request: Request,
     params: Record<string, string> = {},
@@ -21,6 +31,7 @@ describe("route loaders", () => {
       params,
       request,
       unstable_pattern: "",
+      unstable_url: new URL(request.url),
     };
   }
 
@@ -151,11 +162,11 @@ describe("route loaders", () => {
     });
     expect(ensureQueryData.mock.calls.map((call) => call[0]?.queryKey)).toEqual(
       [
-        ["runtime", "run", "run-42"],
+        ["runtime", "run", "run-42", defaultTemporalScope],
         ["runtime", "run", "run-42", "agents"],
         ["runtime", "run", "run-42", "debug", "governance"],
         ["runtime", "run", "run-42", "evidence-context"],
-        ["runtime", "run", "run-42", "timeline"],
+        ["runtime", "run", "run-42", "timeline", defaultTemporalScope],
       ],
     );
   });

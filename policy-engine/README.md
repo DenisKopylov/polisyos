@@ -6,8 +6,8 @@
 
 AI-driven Policy Simulation System using JAX and Unified Data Fabric
 
-> Canonical product root: эта директория. Workspace root выше по дереву является
-> только gateway и repo control plane.
+> Canonical product root: эта директория. Phase 2A collapses product tooling,
+> local state, caches, and topology scopes onto this root.
 
 Owner: `@docs-owners`  
 Source of truth: `docs/reference/contributor-start-here.md`, `docs/reference/public-surface.md`, `docs/reference/generated-artifacts.md`, and the command registry behind `polisyos-tools`  
@@ -68,6 +68,8 @@ python3 -m tools.cli workspace doctor
 uv run polisyos --version
 ```
 
+The equivalent public CLI entry point is `uv run polisyos-tools workspace bootstrap`.
+
 Contributor baseline зафиксирован как Python `3.14.x`, Node `22.x`, `uv 0.9.21` как
 канонический Python environment manager. Для fast local gate используйте
 `python3 -m tools.cli workspace verify`. Для более тяжёлой локальной проверки,
@@ -126,7 +128,7 @@ contract vocabulary, `src/polisyos/core/` owns shared platform primitives,
 `src/polisyos/fabric/` owns data access, `src/polisyos/foundry/` owns compile
 and execute, `src/polisyos/scientist/` owns workflow/governance orchestration,
 and `src/polisyos/runtime/` owns delivery. Boundary expectations are enforced
-through `import_policy.toml`, the public-surface inventory, and the architecture
+through `architecture/imports/policy.toml`, the public-surface inventory, and the architecture
 guardrail commands listed below.
 
 ## Development Setup

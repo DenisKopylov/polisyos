@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from tools._lib.compat import expose_module, run_module_entrypoint
+from tools.lib.compat import expose_module, run_module_entrypoint
 
 _TARGET = "tools.research.benchmarks.lex.benchmark_lex_llm_sweep"
 

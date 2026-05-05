@@ -1,0 +1,33 @@
+{
+  "line_count": 275,
+  "path": "pyproject.toml",
+  "tool_section_count": 3,
+  "tool_section_details": [
+    {
+      "header": "[tool.hatch.build.targets.wheel]",
+      "line_count": 3,
+      "line_end": 255,
+      "line_start": 253,
+      "name": "hatch.build.targets.wheel"
+    },
+    {
+      "header": "[tool.hatch.build]",
+      "line_count": 3,
+      "line_end": 258,
+      "line_start": 256,
+      "name": "hatch.build"
+    },
+    {
+      "header": "[tool.hatch.build.targets.sdist]",
+      "line_count": 17,
+      "line_end": 275,
+      "line_start": 259,
+      "name": "hatch.build.targets.sdist"
+    }
+  ],
+  "tool_sections": [
+    "hatch.build",
+    "hatch.build.targets.sdist",
+    "hatch.build.targets.wheel"
+  ]
+}

@@ -181,6 +181,10 @@ class IdentifiabilityDiagnosticConfig(BaseModel):
         return quantiles
 
 
+_DEFAULT_IDENTIFIABILITY_DIAGNOSTIC_CONFIG = IdentifiabilityDiagnosticConfig()
+_DEFAULT_IDENTIFIABILITY_QUANTILES = _DEFAULT_IDENTIFIABILITY_DIAGNOSTIC_CONFIG.quantiles
+
+
 class IdentifiabilityDiagnosticResult(BaseModel):
     """Persistable aggregate-moment identifiability sidecar payload."""
 
@@ -217,7 +221,7 @@ def identifiability_diagnostic(
     simulation_result_ref: SimulationResultRef,
     observed_moment_bundle: Mapping[str, float] | ArtifactRef,
     parameter_center: Mapping[str, Any] | ArtifactRef | None = None,
-    config: IdentifiabilityDiagnosticConfig = IdentifiabilityDiagnosticConfig(),
+    config: IdentifiabilityDiagnosticConfig = _DEFAULT_IDENTIFIABILITY_DIAGNOSTIC_CONFIG,
     summary_evaluator: SummaryEvaluator | None = None,
     moment_names: Sequence[str] | None = None,
     parameter_bounds: Mapping[str, tuple[float, float]] | None = None,
@@ -231,7 +235,9 @@ def identifiability_diagnostic(
 
     sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
     simulation_result = _load_model(store, sim_ref, SimulationResult)
-    observed_ref = observed_moment_bundle if isinstance(observed_moment_bundle, ArtifactRef) else None
+    observed_ref = (
+        observed_moment_bundle if isinstance(observed_moment_bundle, ArtifactRef) else None
+    )
     parameter_ref = parameter_center if isinstance(parameter_center, ArtifactRef) else None
 
     observed = _resolve_float_mapping(store, observed_moment_bundle, label="observed_moment_bundle")
@@ -326,7 +332,7 @@ def identifiability_diagnostic(
 def aggregate_moment_summary(
     values: Sequence[float],
     *,
-    quantiles: Sequence[float] = IdentifiabilityDiagnosticConfig().quantiles,
+    quantiles: Sequence[float] = _DEFAULT_IDENTIFIABILITY_QUANTILES,
     prefix: str = "",
 ) -> dict[str, float]:
     """Build the default mean/variance/quantile summary vector from raw outcomes."""
@@ -621,8 +627,7 @@ def _finite_difference_jacobian(
         minus_seeds = seeds
         if not config.use_common_random_numbers:
             minus_seeds = tuple(
-                base_seed + 100_000 * (index + 1) + offset
-                for offset in range(len(seeds))
+                base_seed + 100_000 * (index + 1) + offset for offset in range(len(seeds))
             )
         plus = _evaluate_samples(
             summary_evaluator,
@@ -904,11 +909,7 @@ def _summary_vector(summary: Mapping[str, float], moment_names: tuple[str, ...])
         if name not in summary:
             raise KeyError(f"summary_evaluator did not return moment {name!r}")
         value = summary[name]
-        if (
-            isinstance(value, bool)
-            or not isinstance(value, Real)
-            or not isfinite(float(value))
-        ):
+        if isinstance(value, bool) or not isinstance(value, Real) or not isfinite(float(value)):
             raise ValueError(f"summary moment {name!r} must be a finite numeric value")
         row.append(float(value))
     return row

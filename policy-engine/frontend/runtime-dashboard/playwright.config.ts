@@ -5,8 +5,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 const dashboardRoot = path.dirname(fileURLToPath(import.meta.url));
 const policyEngineRoot = path.resolve(dashboardRoot, "../..");
+const dashboardBuildRoot = path.resolve(
+  policyEngineRoot,
+  "_build/frontend/runtime-dashboard",
+);
 const fixtureMetadataPath = path.resolve(
-  dashboardRoot,
+  dashboardBuildRoot,
   ".tmp/fixture-runtime.json",
 );
 const includeQuarantine = process.env.PLAYWRIGHT_INCLUDE_QUARANTINE === "1";
@@ -21,8 +25,18 @@ export default defineConfig({
   timeout: 60_000,
   workers: 1,
   grepInvert: includeQuarantine ? undefined : /@quarantine/,
+  outputDir: path.resolve(dashboardBuildRoot, "test-results"),
   reporter: process.env.CI
-    ? [["github"], ["html", { open: "never" }]]
+    ? [
+        ["github"],
+        [
+          "html",
+          {
+            open: "never",
+            outputFolder: path.resolve(dashboardBuildRoot, "playwright-report"),
+          },
+        ],
+      ]
     : [["list"]],
   retries: Number.isNaN(configuredRetries) ? 0 : configuredRetries,
   use: {
@@ -56,7 +70,7 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: "npm run dev -- --host 127.0.0.1",
+      command: "corepack pnpm run dev -- --host 127.0.0.1",
       url: "http://127.0.0.1:5173",
       cwd: dashboardRoot,
       reuseExistingServer: !process.env.CI,

@@ -770,7 +770,7 @@ Optional (recommended):
 
 ### 9.1 New contract tests to add
 
-Add under `policy-engine/tests/contract/` (preferred) or `policy-engine/tests/ir/`.
+Add under `policy-engine/tests/contract/` (preferred) or `policy-engine/tests/unit/ir/`.
 
 #### 9.1.1 Citations
 
@@ -862,7 +862,7 @@ This section is the engineering breakdown for implementing E1.3.
 If adding snapshots, document how to regenerate using:
 
 ```bash
-python policy-engine/tools/diagnostics/gen_schema.py --model polisyos.ir.norm_pack:NormPack --output norm_pack_schema.json
+python policy-engine/tools/quality/diagnostics/gen_schema.py --model polisyos.ir.norm_pack:NormPack --output norm_pack_schema.json
 ```
 
 ## 11) Definition of Done (E1.3)

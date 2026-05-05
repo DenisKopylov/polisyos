@@ -213,13 +213,13 @@ Required implementation:
 Architecture and freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p4_metrics \
   --summary-path .tmp/p4_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p4_metrics/summary.json \
   --mode blocking \
@@ -234,22 +234,22 @@ Targeted tests:
 
 ```bash
 python3 -m pytest \
-  tests/ir/test_uncertainty.py \
-  tests/ir/test_hte_backtest.py \
-  tests/ir/test_registry_fragments.py \
+  tests/unit/ir/test_uncertainty.py \
+  tests/unit/ir/test_hte_backtest.py \
+  tests/unit/ir/test_registry_fragments.py \
   tests/contract/test_trinity_linker_contract.py \
-  tests/scientist/test_propagate_uncertainty_node.py \
-  tests/scientist/test_decision_packet_node_v3.py \
-  tests/foundry/analysis/test_distributional.py
+  tests/unit/scientist/test_propagate_uncertainty_node.py \
+  tests/unit/scientist/test_decision_packet_node_v3.py \
+  tests/unit/foundry/analysis/test_distributional.py
 ```
 
 Recommended new tests for P4:
 
 ```bash
 python3 -m pytest \
-  tests/ir/test_canon_hash_parity.py \
-  tests/ir/test_no_core_imports.py \
-  tests/core/contracts/test_ir_ref_facades.py
+  tests/unit/ir/test_canon_hash_parity.py \
+  tests/unit/ir/test_no_core_imports.py \
+  tests/unit/core/contracts/test_ir_ref_facades.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -368,20 +368,20 @@ Freeze comparison:
 Targeted tests:
 
 - `27 passed`:
-  - `tests/ir/test_uncertainty.py`
-  - `tests/ir/test_hte_backtest.py`
-  - `tests/ir/test_registry_fragments.py`
+  - `tests/unit/ir/test_uncertainty.py`
+  - `tests/unit/ir/test_hte_backtest.py`
+  - `tests/unit/ir/test_registry_fragments.py`
   - `tests/contract/test_trinity_linker_contract.py`
-  - `tests/foundry/analysis/test_distributional.py`
-  - `tests/scientist/test_decision_packet_node_v3.py`
+  - `tests/unit/foundry/analysis/test_distributional.py`
+  - `tests/unit/scientist/test_decision_packet_node_v3.py`
 
 New P4 tests:
 
 - `6 passed`:
-  - `tests/ir/test_canon_hash_parity.py`
-  - `tests/ir/test_no_core_imports.py`
-  - `tests/core/contracts/test_ir_ref_facades.py`
+  - `tests/unit/ir/test_canon_hash_parity.py`
+  - `tests/unit/ir/test_no_core_imports.py`
+  - `tests/unit/core/contracts/test_ir_ref_facades.py`
 
 Environment note:
 
-- `tests/scientist/test_propagate_uncertainty_node.py` could not be collected in this environment due missing optional dependency `jax`.
+- `tests/unit/scientist/test_propagate_uncertainty_node.py` could not be collected in this environment due missing optional dependency `jax`.

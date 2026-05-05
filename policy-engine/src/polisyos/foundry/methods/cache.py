@@ -20,7 +20,7 @@ Fast path
     from polisyos.foundry.methods.cache import RegistryPersistenceLayer
     from pathlib import Path
 
-    cache = RegistryPersistenceLayer(Path.home() / ".cache/polisyos/registry.db")
+    cache = RegistryPersistenceLayer(Path("_cache/foundry/registry.db"))
     with registry_scope() as reg:
         if cache.is_cache_valid():
             cache.restore_into(reg)          # fast — no module imports

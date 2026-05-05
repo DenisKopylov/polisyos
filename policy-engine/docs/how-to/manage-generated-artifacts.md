@@ -39,9 +39,9 @@ Fabric-specific source-of-truth surfaces:
 | Artifact                                                     | Source of truth                                                                   | Check                                                                                                              |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models                               | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
-| `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` |
-| `schemas/snapshots/connectors/contracts.json`                | `tools/connectors/check_contracts.py` and `ALL_SOURCE_CONTRACTS`                  | `uv run python tools/connectors/check_contracts.py --check`                                                        |
-| `tests/fabric/connectors/sources/fixtures/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
+| `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
+| `schemas/snapshots/connectors/contracts.json`                | `polisyos-tools connectors check-contracts` and `ALL_SOURCE_CONTRACTS`                  | `uv run polisyos-tools connectors check-contracts --check`                                                        |
+| `tests/unit/fabric/connectors/sources/fixtures/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
 
 ## Базовый цикл
 
@@ -57,8 +57,8 @@ uv run polisyos-tools architecture guardrails check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
 uv run polisyos-tools docs --output docs/reference/tools.md
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 cd frontend/runtime-dashboard && npm run generate:api
 ```
 
@@ -70,7 +70,7 @@ its command tables. Change the registry metadata first, then regenerate.
 - `commit_policy = committed`: source и generated outputs должны ехать в одном PR.
 - `commit_policy = mixed`: коммитьте только review-worthy baselines/evidence artifacts; локальные и transient outputs должны оставаться ignored.
 - `drift_gate = manual_review`: автоматический freshness gate не обязателен, но reviewer должен видеть источник, команду и причину обновления.
-- Для bundle stats это означает: `frontend/runtime-dashboard/dist/bundle-stats.json`
+- Для bundle stats это означает: `_build/frontend/runtime-dashboard/dist/bundle-stats.json`
   обычно остаётся локальным output и попадает в PR только если вы намеренно
   продвигаете bundle baseline.
 
@@ -94,8 +94,8 @@ When connector payload shape changes, update the contract source first, then run
 the gates. Do not hand-edit the snapshots.
 
 ```bash
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 uv run pytest tests/tools/test_fabric_schema_governance.py -q
 ```
 
@@ -107,17 +107,17 @@ migration note, ADR refs when applicable, and `approved_major_bump=True`.
 
 Quality and lineage examples should point at current executable artifacts:
 
-- `tests/fabric/test_quality_indicators.py` for `QualityIndicators`,
+- `tests/unit/fabric/test_quality_indicators.py` for `QualityIndicators`,
   `DataFitnessReport`, finite quality bounds, and DuckDB quality identifier
   safety.
 
-- `tests/fabric/test_lineage.py` for `FabricLineageTracker`,
+- `tests/unit/fabric/test_lineage.py` for `FabricLineageTracker`,
   OpenLineage JSON, visualization graph export, and downstream impact analysis.
 
-- `tests/fabric/data_plane/test_quarantine.py` for CAS-backed
+- `tests/unit/fabric/data_plane/test_quarantine.py` for CAS-backed
   `QuarantineRecord` report/reprocess artifacts.
 
-- `tests/fabric/data_plane/test_streaming_runtime.py` for
+- `tests/unit/fabric/data_plane/test_streaming_runtime.py` for
   `fabric.cdc_schema_change` artifacts emitted by streaming/CDC processing.
 
 ## Откат

@@ -337,7 +337,7 @@ polisyos-foundry compat [--baseline BASELINE]
 Default baseline:
 
 ```text
-tests/foundry/fixtures/signature_baseline.json
+tests/unit/foundry/fixtures/signature_baseline.json
 ```
 
 Returns:

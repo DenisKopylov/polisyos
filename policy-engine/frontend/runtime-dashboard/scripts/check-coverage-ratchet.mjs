@@ -5,8 +5,12 @@ import { fileURLToPath } from "node:url";
 const dashboardRoot = path.dirname(
   fileURLToPath(new URL("../package.json", import.meta.url)),
 );
-const summaryPath = path.resolve(
+const buildRoot = path.resolve(
   dashboardRoot,
+  "../../_build/frontend/runtime-dashboard",
+);
+const summaryPath = path.resolve(
+  buildRoot,
   "coverage/coverage-summary.json",
 );
 const baselinePath = path.resolve(dashboardRoot, "coverage-baseline.json");

@@ -14,13 +14,13 @@ if __name__ != "__main__":
     _impl = import_module(_TARGET)
     _parent = sys.modules.get(__package__)
     if _parent is not None:
-        setattr(_parent, "run_parallel", _impl)
+        _parent.run_parallel = _impl
     sys.modules[__name__] = _impl
     globals().update(vars(_impl))
 
 
 if __name__ == "__main__":
-    from tools._lib.compat import run_module_entrypoint, warn_legacy_entrypoint
+    from tools.lib.compat import run_module_entrypoint, warn_legacy_entrypoint
 
     warn_legacy_entrypoint("benchmarks/run_parallel.py", "polisyos-tools benchmarks run-parallel")
     raise SystemExit(run_module_entrypoint(_TARGET))

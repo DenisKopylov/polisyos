@@ -8,7 +8,7 @@ replay metadata, and the Phase 5/6 frontier method surfaces.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/methods/**`, `src/polisyos/foundry/methods/catalog/**`, and generated `MethodCatalogSnapshot` inputs from `src/polisyos/foundry/methods/catalog_snapshot.py`
 
 ## When to Use This Surface
@@ -134,16 +134,16 @@ catalog/capabilities surfaces above.
 ## Evidence Links
 
 - Selection advisor:
-  `tests/foundry/methods/test_selection_advisor.py`
+  `tests/unit/foundry/methods/test_selection_advisor.py`
 
 - Catalog snapshot:
-  `tests/foundry/test_catalog_snapshot.py`
+  `tests/unit/foundry/methods/test_catalog_snapshot.py`
 
 - Backend determinism:
-  `tests/foundry/methods/backends/test_backend_determinism.py`
+  `tests/unit/foundry/methods/backends/test_backend_determinism.py`
 
 - Cross-backend consistency:
-  `tests/foundry/methods/test_cross_backend_consistency.py`
+  `tests/unit/foundry/methods/test_cross_backend_consistency.py`
 
 - Causal estimator protocol:
   [`docs/adr/0018-causal-estimator-protocol.md`](../../adr/0018-causal-estimator-protocol.md)

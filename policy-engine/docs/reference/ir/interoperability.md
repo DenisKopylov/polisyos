@@ -15,7 +15,7 @@ Source plan phase: D1-L4 Phase 4 reflection, schema catalog, transport, streamin
   `get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()`,
   `inspect_ir_schema()`, and `enumerate_ir_exports()`.
 
-- `tools/diagnostics/gen_schema.py` now regenerates both ABI snapshots and the
+- `tools/quality/diagnostics/gen_schema.py` now regenerates both ABI snapshots and the
   generated reference pages backed by the same catalog.
 
 - `docs/reference/ir/schema-catalog.md` is the full generated inventory of IR
@@ -77,7 +77,7 @@ Source plan phase: D1-L4 Phase 4 reflection, schema catalog, transport, streamin
 
 | Surface                                     | Source of truth                                                                            | Evidence                                                                                                            |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| Reflection catalog and generated references | `src/polisyos/ir/schema_catalog.py`, `tools/diagnostics/generate_ir_reference_catalog.py`  | `tests/ir/test_schema_catalog.py`, [IR Schema Catalog](schema-catalog.md)                                           |
+| Reflection catalog and generated references | `src/polisyos/ir/schema_catalog.py`, `tools/quality/diagnostics/generate_ir_reference_catalog.py`  | `tests/unit/ir/test_schema_catalog.py`, [IR Schema Catalog](schema-catalog.md)                                           |
 | JSON-first transport and streaming pilot    | `src/polisyos/ir/artifacts/transport.py`                                                   | `docs/contracts/E2_11_IR_TRANSPORT_STREAMING_V1_0.md`, `docs/adr/0109-ir-transport-and-interoperability-bridges.md` |
 | PROV-O mapping                              | `src/polisyos/ir/world/prov_o.py`                                                          | generated anchors in [IR Schema Catalog](schema-catalog.md#polisyos-ir-world-prov-o-provodocument)                  |
-| Observation and causal bridges              | `src/polisyos/ir/observation/bridges.py`, `src/polisyos/ir/analytics/ecosystem_bridges.py` | `tests/ir/test_interoperability_bridges.py`                                                                         |
+| Observation and causal bridges              | `src/polisyos/ir/observation/bridges.py`, `src/polisyos/ir/analytics/ecosystem_bridges.py` | `tests/unit/ir/test_interoperability_bridges.py`                                                                         |

@@ -1,13 +1,17 @@
 # Repository Hygiene Contract
 
+Owner: `@platform-owners`
 Source of truth: `.editorconfig`, `.markdownlint-cli2.jsonc`, `.yamllint`,
-`.taplo.toml`, `pyproject.toml` (`[tool.basedpyright]`),
+`.taplo.toml`, `basedpyright.toml`,
 `.pre-commit-config.yaml`, and
-`tools/devx/workspace/{docs_style.py,format_check.py,lint_fast.py,lint_full.py,runtime_surface.py,benchmark_surfaces.py,verify.py}`.
+`tools/devx/workspace/{docs_style.py,format_check.py,lint_fast.py,lint_full.py,runtime_surface.py,benchmark_surfaces.py,verify.py,repository_sota_closeout.py}`.
 
 This page defines the repository-wide lint/format contract that Phase 0 of the
 repository cleanup plan establishes. It exists so future directory waves can
 opt into a known toolchain instead of inventing local conventions.
+
+The final placement map for repository roots, tools, tests, docs, ops, data,
+and local runtime state lives in [Repository Topology](repository-topology.md).
 
 ## Authored Scope
 
@@ -21,14 +25,13 @@ Full authored scope for lint/format waves:
 - `schemas/**`
 - `ops/**`
 - `architecture/**`
-- `scripts/**`
 - `benchmarks/**`
 - `release/**`
 - `release-fragments/**`
 - `.github/**`
 - top-level authored files such as `README.md`, `CONTRIBUTING.md`,
-  `CHANGELOG.md`, `pyproject.toml`, `mkdocs.yml`, `import_policy.toml`,
-  `import_exceptions.toml`
+  `CHANGELOG.md`, `pyproject.toml`, `mkdocs.yml`, `architecture/imports/policy.toml`,
+  `architecture/imports/exceptions.toml`
 
 Generator-owned or check-only surfaces:
 
@@ -39,14 +42,12 @@ Generator-owned or check-only surfaces:
 
 Excluded from bulk sweeps:
 
-- `.venv*`, `.uv-cache`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`,
-  `.hypothesis`, `__pycache__`
+- `_build/**`, `_cache/**`, `.venv*`, `__pycache__`
 
 - `docs/archive/**`
-- `data/raw/**`
-- `runs/**`, `logs/**`, `tmp/**`, `.tmp/**`
-- `benchmark-results/**`
-- `coverage/**`, `dist/**`, `site/**`, `storybook-static/**`
+- ignored local data under `data/policy-engine-local/**`
+- retired legacy output roots such as `runs/**`, `logs/**`, `tmp/**`,
+  `.tmp/**`, and `benchmark-results/**`
 - binary/media artifacts and `.log` bundles
 
 ## File-Type Contract
@@ -66,7 +67,8 @@ Excluded from bulk sweeps:
   waves so benchmark support cleanups stay limited to Python/shell/YAML.
 
 - TS helper scripts
-  Canonical tools: frontend Node toolchain, `npm run a11y:*`.
+  Canonical tools: frontend Node toolchain,
+  `corepack pnpm --filter @polisyos/runtime-dashboard run a11y:*`.
   Current policy: `tools/design/*.ts` stays under the frontend accessibility
   contract and is validated through
   `frontend/runtime-dashboard/package.json` rather than the Python unified CLI.
@@ -77,15 +79,15 @@ Excluded from bulk sweeps:
   Canonical tools: `yamllint`, `actionlint`, `helm lint`.
   Current policy: `yamllint` covers authored plain YAML; Helm `templates/**`
   and chart test manifests are excluded from generic YAML syntax hooks and
-  validated via `helm lint`; `.github/workflows/**` also runs through
-  `actionlint`.
+  validated via `helm lint`; repository-root `.github/workflows/**` also runs
+  through `actionlint`. Product workflow templates live under
+  `ops/ci/templates/workflows/**` and are linted as authored YAML/templates.
 
 - Shell
   Canonical tools: `shfmt`, `shellcheck`.
   Current policy: `shfmt -i 2 -ci -sr`; ShellCheck runs via a pinned
-  `uvx --from shellcheck-py` hook on tracked shell surfaces under `scripts/`,
-  `tools/`, `ops/scripts/`, `gcp/`, `cloud_deploy/`, `benchmarks/`, and
-  frontend shell helpers.
+  `uvx --from shellcheck-py` hook on tracked shell surfaces under `tools/`,
+  `ops/`, `benchmarks/`, and frontend shell helpers.
 
 - TOML
   Canonical tools: `taplo fmt --check`.
@@ -96,7 +98,7 @@ Excluded from bulk sweeps:
   Canonical tools: `opa fmt --fail`, `opa check --strict`,
   `opa test --fail-on-empty`.
   Current policy: formatting and strict compilation cover both runtime and
-  Helm-packaged policy trees; tests currently live under `ops/opa/policies`.
+  Helm-packaged policy trees; tests currently live under `ops/policy/policies`.
 
 ## Basedpyright Policy
 
@@ -111,22 +113,21 @@ Current root include surface:
 - `src/polisyos/core`
 - `src/polisyos/fabric`
 - `src/polisyos/data_forge`
-- `src/polisyos/academic`
-- `src/polisyos/datasets`
-- `src/polisyos/ukraine_data`
-- `src/polisyos/batch_common`
-- `src/polisyos/batch_snapshot`
 - `src/polisyos/scientist`
 - `src/polisyos/runtime`
 
+Data Forge Phase 8 removed the former `src/polisyos/academic`,
+`src/polisyos/datasets`, `src/polisyos/ukraine_data`,
+`src/polisyos/batch_common`, and `src/polisyos/batch_snapshot` include roots.
+
 Current baseline file:
 
-- `.basedpyright/baseline.json`
+- `architecture/baselines/basedpyright/baseline.json`
 
 Expansion rule:
 
 1. make a directory green with `ruff`, tests, and any owning package guards;
-2. add that directory to `[tool.basedpyright].include` or to the serial
+2. add that directory to `basedpyright.toml` or to the serial
    base-layer wrapper;
 3. if the directory still carries historical debt, encode it in the baseline
    file so only new diagnostics fail the run;
@@ -135,7 +136,8 @@ Expansion rule:
 This keeps the root signal fail-closed on green surfaces while allowing
 ratcheted layers to burn down historical debt without hiding new regressions.
 New directories enter the root include only after a green gate or an explicit
-ratchet entry in this status board and `.basedpyright/baseline.json`.
+ratchet entry in this status board and
+`architecture/baselines/basedpyright/baseline.json`.
 
 ## Directory Status Board
 
@@ -144,12 +146,12 @@ ratchet entry in this status board and `.basedpyright/baseline.json`.
 | green | `docs/**`, top-level authored Markdown, package READMEs | `workspace docs-style` | `docs/archive/**` remains excluded from authored markdown waves. |
 | green | Python formatting across authored scope | `workspace format-check` / `ruff format --check` | Formatting includes product, tests, tools, benchmarks, schemas, scripts, examples, and root helpers. |
 | green | `src/polisyos/common`, `src/polisyos/ir`, `src/polisyos/core` | `workspace python-base-mypy`, `workspace python-base-basedpyright` | Base layers stay serial and ratcheted by explicit mypy/basedpyright ledgers. |
-| green | `src/polisyos/runtime`, `tests/runtime` | `workspace runtime-surface` | Runtime API/client drift is part of the owning surface. |
-| green | frontend workspaces | `npm run lint`, `format:check`, `typecheck`, `check:architecture` via workspace gates | Covers dashboard, runtime API client, and reference shell. |
-| ratcheted | `src/polisyos/calibration`, `src/polisyos/synthetic_world` | `workspace lint-fast` with explicit Ruff per-file ignores | Historical annotation/import-line debt is ledgered in `pyproject.toml`. |
-| ratcheted | `tools/_lib`, `tools/devx/**`, `tools/ops/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
+| green | `src/polisyos/runtime`, `tests/unit/runtime` | `workspace runtime-surface` | Runtime API/client drift is part of the owning surface. |
+| green | frontend workspaces | `corepack pnpm -C policy-engine lint`, `corepack pnpm -C policy-engine typecheck`, and workspace-local architecture gates | Covers dashboard, runtime API client, reference shell, and CLI. |
+| ratcheted | `src/polisyos/calibration`, `src/polisyos/foundry/agent_sim/world` | `workspace lint-fast` with explicit Ruff per-file ignores | Historical annotation/import-line debt is ledgered in `pyproject.toml`. |
+| ratcheted | `tools/lib`, `tools/devx/**`, `tools/ops/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
 | ratcheted | `tests/**` support and smoke suites | `workspace lint-fast` with test-specific Ruff policy | Tests keep looser security/assert/type-import policy while source surfaces tighten first. |
-| phase8-limited | `benchmarks/**`, `tools/benchmarks/**`, `tools/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract and stays outside strict `lint-fast` Ruff. |
+| phase8-limited | `benchmarks/**`, `tools/research/benchmarks/**`, `tools/research/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract and stays outside strict `lint-fast` Ruff. |
 | pending | Full removal of Ruff ratchet entries | Directory-by-directory owner work | New debt must be added only as a named ratchet entry with owner context. |
 
 ## Mypy Policy
@@ -190,7 +192,7 @@ Rule of use:
 - `uv run polisyos-tools workspace python-base-basedpyright`
   Serial Phase 3 `basedpyright` pass for `src/polisyos/common`,
   `src/polisyos/ir`, and `src/polisyos/core`, with IR debt ratcheted through
-  `.basedpyright/baseline.json`.
+  `architecture/baselines/basedpyright/baseline.json`.
 
 - `uv run polisyos-tools workspace lint-full`
   Full authored lint contract: `lint-fast`, `format-check`, Phase 3 base-layer
@@ -201,11 +203,18 @@ Rule of use:
   Phase 8 benchmark/research hygiene gate for authored Python, shell, and YAML
   only; excludes markdown, JSON, log bundles, and release-summary churn.
 
+- `uv run polisyos-tools workspace repository-sota-closeout`
+  Phase 5 fail-closed repository policy gate for topology, imports, public
+  surface, generated drift, docs freshness, public polish, shims, complexity
+  exceptions, security, dependencies, SBOM, release policy, and
+  command-registry drift.
+
 ## Pre-commit Policy
 
-`pre-commit` only carries fast, file-scoped hooks. In the current monorepo
-layout, the wrapper commands normalize `policy-engine/` paths to the Git root
-before invoking hooks, so the same config works from local scripts and CI:
+`pre-commit` carries fast file-scoped hooks plus the contract-only Repository
+SOTA closeout gate. In the current monorepo layout, the wrapper commands
+normalize `policy-engine/` paths to the Git root before invoking hooks, so the
+same config works from local scripts and CI:
 
 - trailing whitespace and EOF hygiene
 - `ruff` + `ruff-format` on changed Python files
@@ -214,6 +223,8 @@ before invoking hooks, so the same config works from local scripts and CI:
 - `shfmt` + `shellcheck` on changed shell scripts
 - `taplo-format --check` on changed TOML
 - `actionlint` on changed workflow files
+- `repository-sota-closeout --contract-only` on every run, so exception
+  registries cannot drift into unowned or expired state
 
 Heavy passes stay outside `pre-commit`:
 
@@ -221,4 +232,5 @@ Heavy passes stay outside `pre-commit`:
 - `helm lint`
 - `opa check --strict` and `opa test`
 - curated `mypy` / `basedpyright`
-- `verify`, `ci-parity`, and acceptance workflows
+- `verify`, `ci-parity`, full `repository-sota-closeout`, and acceptance
+  workflows

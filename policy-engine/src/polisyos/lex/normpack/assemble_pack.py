@@ -22,6 +22,7 @@ from polisyos.core.components import (
     ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
 )
 from polisyos.core.components.bootstrap import build_components_index
+from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.fabric.claims import resolve_conflicts
 from polisyos.fabric.claims.extractor_registry import discover_and_bootstrap_extractors
 from polisyos.fabric.claims.persist import (
@@ -56,7 +57,6 @@ from polisyos.ir.world.ids import (
 )
 from polisyos.ir.world.trust import TrustAssessment
 from polisyos.lex.common import collapse_ws, parse_iso_date
-from polisyos.lex.corpus.index import load_provision_index
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applicability_key, build_norm_applicability
 from polisyos.lex.normpack.extract_norm_claims import ProvisionSelection, extract_norm_claims
@@ -219,7 +219,7 @@ def _select_provisions(
                 doc_version_id=meta.doc_version_id,
             )
 
-        index = load_provision_index(cas, provision_index_ref)
+        index = legal_read_api.load_provision_index(cas, provision_index_ref)
         if index.doc_version_id != meta.doc_version_id or index.doc_source_id != meta.doc_source_id:
             raise LexValidationError(
                 "provision index doc identity mismatch",

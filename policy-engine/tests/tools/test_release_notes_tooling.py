@@ -3,9 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
-from tools.release.build_release_notes import validate_required_curated_sections
-from tools.release.check_release_version import resolve_release_fragments_dir
+from tools.ops.release.build_release_notes import validate_required_curated_sections
+from tools.ops.release.check_release_version import resolve_release_fragments_dir
 
 
 def test_validate_required_curated_sections_accepts_complete_snapshot() -> None:

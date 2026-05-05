@@ -10,7 +10,7 @@ set -euo pipefail
 usage() {
   cat << 'EOF'
 Usage:
-  bash tools/cloud/run_datasets_validation.sh [--run-id RUN_ID] [--dry-run]
+  bash tools/ops/cloud/run_datasets_validation.sh [--run-id RUN_ID] [--dry-run]
 
 Options:
   --run-id RUN_ID  Override the run identifier used for preflight/core roots
@@ -88,7 +88,7 @@ PREFLIGHT_ROOT="${DATA_ROOT}/output/datasets_preflight_${RUN_ID}"
 CORE_ROOT="${DATA_ROOT}/output/datasets_core_${RUN_ID}"
 
 PREFLIGHT_CMD=(
-  python3 -m polisyos.datasets.batch.cli run
+  python3 -m polisyos.data_forge.domains.catalog.cli run
   --snapshot-root "$PREFLIGHT_ROOT"
   --run-profile preflight_core
   --stages "harvest,normalize,merge_dedup,graph_load,graph_index,core_sources_ingest,embed,benchmark,qc"
@@ -98,7 +98,7 @@ PREFLIGHT_CMD=(
 )
 
 CORE_CMD=(
-  python3 -m polisyos.datasets.batch.cli run
+  python3 -m polisyos.data_forge.domains.catalog.cli run
   --snapshot-root "$CORE_ROOT"
   --run-profile prod_core_blocking
   --resume-mode smart

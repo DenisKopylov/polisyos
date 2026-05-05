@@ -9,7 +9,7 @@ set -euo pipefail
 usage() {
   cat << 'EOF'
 Usage:
-  bash tools/cloud/check_progress.sh <ip1> [ip2 ...]
+  bash tools/ops/cloud/check_progress.sh <ip1> [ip2 ...]
 EOF
 }
 

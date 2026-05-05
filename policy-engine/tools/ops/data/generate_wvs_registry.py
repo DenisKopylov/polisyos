@@ -5,7 +5,7 @@ Reads the WVS Time Series Excel metadata file to get variable names, titles,
 and wave availability, then samples the CSV to infer response types.
 
 Usage:
-    python scripts/generate_wvs_registry.py [--raw-dir data/raw/wvs]
+    python polisyos-tools data generate-wvs-registry [--raw-dir data/raw/wvs]
 """
 
 from __future__ import annotations

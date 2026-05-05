@@ -9,8 +9,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_4"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-4"
@@ -25,10 +25,10 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/frontier_runtime.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/agent/test_runtime_capabilities.py"),
-    Path("tests/scientist/agent/test_tool_contracts.py"),
-    Path("tests/scientist/agent/test_supervisor_eval.py"),
-    Path("tests/scientist/agent/test_promotion.py"),
+    Path("tests/unit/scientist/agent/test_runtime_capabilities.py"),
+    Path("tests/unit/scientist/agent/test_tool_contracts.py"),
+    Path("tests/unit/scientist/agent/test_supervisor_eval.py"),
+    Path("tests/unit/scientist/agent/test_promotion.py"),
     Path("tests/tools/test_scientist_best_in_class_phase1_4.py"),
 )
 CAPABILITY_IDS: tuple[str, ...] = (
@@ -55,13 +55,13 @@ REFERENCE_TOKENS: tuple[str, ...] = (
     "SupervisorPromotionEvaluation",
 )
 NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/agent/test_promotion.py"): (
+    Path("tests/unit/scientist/agent/test_promotion.py"): (
         "missing_benchmark_pack_ref",
         "tool_schema_not_ready",
         "missing_supervisor_handoff_eval_ref",
         "missing_citation_faithfulness_eval_ref",
     ),
-    Path("tests/scientist/agent/test_tool_contracts.py"): (
+    Path("tests/unit/scientist/agent/test_tool_contracts.py"): (
         "schema_allows_additional_properties",
         "runtime_missing_response_cap",
     ),
@@ -91,7 +91,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
         from polisyos.scientist.agent.tools.schema import ToolDefinition
-        from polisyos.scientist.frontier_runtime import FrontierCapabilityStatus
+        from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase1_4_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -177,8 +177,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     integration_tokens = {
@@ -200,8 +199,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_phase1_4_integration_token:{token}"
-        for token in missing_integration_tokens
+        f"missing_phase1_4_integration_token:{token}" for token in missing_integration_tokens
     )
 
     active_plan_tokens = ("1.4", "Agent and tool runtime promotion gates", "closed")

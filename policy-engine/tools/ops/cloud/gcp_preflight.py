@@ -90,9 +90,9 @@ def main() -> int:
     }
 
     for module_name in (
-        "polisyos.lex.batch.cli",
-        "polisyos.lex.batch.pipeline",
-        "polisyos.lex.batch.xml_parser",
+        "polisyos.data_forge.domains.legal.batch.cli",
+        "polisyos.data_forge.domains.legal.batch.pipeline",
+        "polisyos.data_forge.domains.legal.batch.xml_parser",
     ):
         try:
             __import__(module_name)

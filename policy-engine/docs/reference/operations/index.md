@@ -20,6 +20,7 @@ Source of truth: the child pages under `docs/reference/operations/**`, linked ru
 | [Handoff and Platform Review](handoff-and-platform-review.md)            | Handoff template, retirement checklist, quarterly review ritual, scorecard                                                           |
 | [Platform Acceptance Audit](platform-acceptance-audit.md)                | Phase 7 closeout checklist, automated audit command, contributor-path rehearsals, and manual evidence expectations                   |
 | [Core Runtime Closeout](core-runtime-closeout.md)                        | Executable closure ledger for the Wave 0 core/runtime workstreams and reopen gaps                                                    |
+| [Repository Topology](../repository-topology.md)                         | Final product-root, ops, tools, tests, docs lifecycle, data, and local-state placement map                                             |
 | [Scientist Reliability Scorecard](../scientist/reliability-scorecard.md) | Scientist-specific release gate: required workflow scenarios, benchmarks, and operational signals                                    |
 
 Fabric-specific incident execution is routed through
@@ -30,7 +31,8 @@ Historical implementation planning for async CAS rollout lives in `docs/archive/
 
 ## Operating Assumptions
 
-- `policy-engine/` остаётся canonical product root.
+- `policy-engine/` is the collapsed product/workspace root; the outer Git root
+  is limited to repo-control-plane files.
 - Alert ownership routed by logical owner groups from
   [Ownership](../ownership.md), even if current GitHub reviewer is still one
   human account.

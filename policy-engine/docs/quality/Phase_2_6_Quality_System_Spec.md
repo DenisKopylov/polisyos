@@ -131,7 +131,7 @@ Hard fails cap score to Bronze.
 
 ## Testing
 
-See tests/fabric/connectors/test_quality_system.py for core coverage.
+See tests/unit/fabric/connectors/test_quality_system.py for core coverage.
 
 ## Future Enhancements
 

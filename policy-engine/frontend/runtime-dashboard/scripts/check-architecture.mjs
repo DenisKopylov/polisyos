@@ -72,20 +72,32 @@ function classifyModule(filePath) {
     };
   }
 
+  if (relative.startsWith("src/app/state/")) {
+    return { kind: "app-state", relative };
+  }
+  if (relative.startsWith("src/app/providers/")) {
+    return { kind: "app-provider", relative };
+  }
   if (relative.startsWith("src/app/")) {
     return { kind: "app", relative };
   }
   if (relative.startsWith("src/api/")) {
     return { kind: "api", relative };
   }
-  if (relative.startsWith("src/shared/")) {
-    return { kind: "shared", relative };
+  if (relative.startsWith("src/shared/lib/")) {
+    return { kind: "shared-lib", relative };
+  }
+  if (relative.startsWith("src/shared/i18n/")) {
+    return { kind: "shared-i18n", relative };
   }
   if (relative.startsWith("src/lib/")) {
-    return { kind: "lib", relative };
+    return { kind: "legacy-lib", relative };
   }
   if (relative.startsWith("src/i18n/")) {
-    return { kind: "i18n", relative };
+    return { kind: "legacy-i18n", relative };
+  }
+  if (relative.startsWith("src/shared/")) {
+    return { kind: "shared", relative };
   }
   if (relative.startsWith("src/pages/")) {
     return { kind: "legacy-pages", relative };
@@ -156,20 +168,37 @@ function collectImportRecords(filePath, sourceText) {
 function validateImport(fromFile, toFile) {
   const from = classifyModule(fromFile);
   const to = classifyModule(toFile);
+  const fromAppLayer =
+    from.kind === "app" ||
+    from.kind === "app-provider" ||
+    from.kind === "app-state";
+  const toAppLayer =
+    to.kind === "app" ||
+    to.kind === "app-provider" ||
+    to.kind === "app-state";
 
   if (to.kind === "legacy-pages" || to.kind === "legacy-components") {
     return "Legacy src/pages and src/components modules cannot be imported.";
   }
 
-  if (from.kind === "shared" && (to.kind === "app" || to.kind === "feature")) {
+  if (from.kind === "app-state" && to.kind === "app-provider") {
+    return "app/state stores cannot depend on app/providers; providers may read stores.";
+  }
+
+  if (
+    (from.kind === "shared" ||
+      from.kind === "shared-lib" ||
+      from.kind === "shared-i18n") &&
+    (toAppLayer || to.kind === "feature")
+  ) {
     return "shared layer cannot depend on app or features.";
   }
 
   if (
-    from.kind === "lib" &&
-    (to.kind === "app" || to.kind === "feature" || to.kind === "shared")
+    from.kind === "shared-lib" &&
+    (toAppLayer || to.kind === "feature" || to.kind === "shared")
   ) {
-    return "lib layer cannot depend on app, features, or shared UI.";
+    return "shared/lib layer cannot depend on app, features, or shared UI.";
   }
 
   if (
@@ -182,7 +211,7 @@ function validateImport(fromFile, toFile) {
   }
 
   if (
-    from.kind === "app" &&
+    fromAppLayer &&
     to.kind === "feature" &&
     !isFeaturePublicEntry(toFile)
   ) {
@@ -197,6 +226,10 @@ function validateFileLocation(filePath) {
 
   if (module.kind === "legacy-pages" || module.kind === "legacy-components") {
     return "Legacy src/pages and src/components modules must not exist on disk.";
+  }
+
+  if (module.kind === "legacy-lib" || module.kind === "legacy-i18n") {
+    return "Legacy src/lib and src/i18n modules must live under src/shared.";
   }
 
   return null;

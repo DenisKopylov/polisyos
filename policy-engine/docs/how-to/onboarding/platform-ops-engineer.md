@@ -38,7 +38,7 @@ python3 -m tools.cli workspace ci-parity --skip-browser
 
 ```bash
 cd ops
-docker compose -f docker-compose.observability.yml up
+docker compose -f ops/docker/observability.compose.yml up
 ```
 
 ## Start Here By Task

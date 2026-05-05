@@ -4,7 +4,13 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-03
+
+Generic calibration diagnostics, recalibration helpers, and validation-report
+adapters live in the shared `polisyos.calibration` package. This package owns
+Foundry-specific parameter calibration, measurement-aware losses,
+identifiability diagnostics, Hessian/UQ helpers, robust-set selection, and
+Foundry calibration artifacts.
 
 ## Purpose
 
@@ -85,21 +91,21 @@ PY
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/calibration/test_measurement.py \
-  tests/foundry/calibration/test_bijectors.py \
-  tests/foundry/calibration/test_hessian.py \
-  tests/foundry/calibration/test_pure_executor.py -q
+uv run pytest tests/unit/foundry/calibration/test_measurement.py \
+  tests/unit/foundry/calibration/test_bijectors.py \
+  tests/unit/foundry/calibration/test_hessian.py \
+  tests/unit/foundry/calibration/test_pure_executor.py -q
 
-uv run pytest tests/foundry/calibration/test_identifiability.py \
-  tests/foundry/calibration/test_multi_start.py \
-  tests/foundry/calibration/test_calibrator.py -q
+uv run pytest tests/unit/foundry/calibration/test_identifiability.py \
+  tests/unit/foundry/calibration/test_multi_start.py \
+  tests/unit/foundry/calibration/test_calibrator.py -q
 ```
 
 ## Reference Docs
 
 - [docs/reference/foundry/calibration.md](../../../../docs/reference/foundry/calibration.md)
 - [../uncertainty/README.md](../uncertainty/README.md)
-- [docs/FOUNDRY_NUMERIC_GUARDRAILS.md](../../../../docs/FOUNDRY_NUMERIC_GUARDRAILS.md)
+- [docs/reference/foundry/numeric-guardrails.md](../../../../docs/reference/foundry/numeric-guardrails.md)
 - [docs/adr/0012-uncertainty-envelope-ir-contract.md](../../../../docs/adr/0012-uncertainty-envelope-ir-contract.md)
 - [docs/adr/0013-uncertainty-propagation-pipeline.md](../../../../docs/adr/0013-uncertainty-propagation-pipeline.md)
 - [docs/adr/0074-numpyro-bayesian-scm.md](../../../../docs/adr/0074-numpyro-bayesian-scm.md)

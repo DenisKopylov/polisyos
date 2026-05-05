@@ -4,7 +4,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/fabric/connectors/contracts/**`, `src/polisyos/fabric/connectors/sources/_contracts/**`, `tools/quality/validation/fabric_schema_governance.py`, `schemas/snapshots/{fabric,connectors}/**`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
@@ -26,8 +26,8 @@ connector-contract snapshots:
 
 | Artifact                                                    | Role                                                                   | Check command                                                                                                      | Refresh command                                                               |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `schemas/snapshots/connectors/contracts.json`               | Baseline connector contract snapshot built from `ALL_SOURCE_CONTRACTS` | `uv run python tools/connectors/check_contracts.py --check`                                                        | `uv run python tools/connectors/check_contracts.py --update`                  |
-| `schemas/snapshots/fabric/connector_contract_registry.json` | Fabric governance snapshot with impact and migration evidence          | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` | `uv run python tools/quality/validation/fabric_schema_governance.py --update` |
+| `schemas/snapshots/connectors/contracts.json`               | Baseline connector contract snapshot built from `ALL_SOURCE_CONTRACTS` | `uv run polisyos-tools connectors check-contracts --check`                                                        | `uv run polisyos-tools connectors check-contracts --update`                  |
+| `schemas/snapshots/fabric/connector_contract_registry.json` | Fabric governance snapshot with impact and migration evidence          | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` | `uv run python tools/quality/validation/fabric_schema_governance.py --update` |
 
 ## Change Classification
 
@@ -40,7 +40,7 @@ categories:
 | Breaking changes                    | `FIELD_REMOVED`, `FIELD_MADE_REQUIRED`, `TYPE_NARROWED`, `PRIMARY_KEY_CHANGED`, `UNIT_CHANGED`, `SEMANTIC_TYPE_CHANGED`, time/geo dimension changes | `major`       |
 | Metadata-only updates               | `DESCRIPTION_UPDATED`, `SOURCE_UPDATED`, `TAGS_UPDATED`                                                                                             | `patch`       |
 
-`tests/fabric/connectors/test_schema_system.py` is the executable reference for
+`tests/unit/fabric/connectors/test_schema_system.py` is the executable reference for
 type widening/narrowing, semantic typing, schema version semantics, dataframe
 validation, and coercion behavior.
 
@@ -57,7 +57,7 @@ the same policy:
 
 The enforcement examples are in
 `tests/tools/test_fabric_schema_governance.py` and
-`tests/fabric/connectors/test_contract_system.py`:
+`tests/unit/fabric/connectors/test_contract_system.py`:
 
 - breaking changes fail without governance metadata;
 - compatible additions emit migration SQL;
@@ -77,9 +77,9 @@ The enforcement examples are in
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/connectors/test_schema_system.py -q
-uv run pytest tests/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/unit/fabric/connectors/test_schema_system.py -q
+uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
 uv run pytest tests/tools/test_fabric_schema_governance.py -q
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```

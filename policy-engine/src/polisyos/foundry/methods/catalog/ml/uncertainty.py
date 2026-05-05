@@ -232,7 +232,9 @@ def _group_payload(
             columns.append(column)
         labels = np.asarray(
             [
-                "|".join(f"{key}={columns[col_idx][row_idx]}" for col_idx, key in enumerate(group_keys))
+                "|".join(
+                    f"{key}={columns[col_idx][row_idx]}" for col_idx, key in enumerate(group_keys)
+                )
                 for row_idx in range(n_obs)
             ],
             dtype=object,
@@ -253,9 +255,7 @@ def _wilson_coverage(covered: int, n_obs: int, z: float = 1.96) -> CoverageEstim
     denom = 1.0 + (z * z) / n_obs
     center = (coverage + (z * z) / (2.0 * n_obs)) / denom
     half = (
-        z
-        * np.sqrt((coverage * (1.0 - coverage) / n_obs) + (z * z) / (4.0 * n_obs * n_obs))
-        / denom
+        z * np.sqrt((coverage * (1.0 - coverage) / n_obs) + (z * z) / (4.0 * n_obs * n_obs)) / denom
     )
     return CoverageEstimate(
         n=int(n_obs),
@@ -700,7 +700,9 @@ def _softmax_matrix(logits: Any) -> np.ndarray:
 def _normalize_probability_matrix(values: Any) -> np.ndarray:
     probs = np.asarray(_numpy_like(values), dtype=float)
     if probs.ndim != 2 or probs.shape[0] == 0 or probs.shape[1] < 2:
-        raise ValueError("class_probabilities must be a non-empty 2D matrix with at least 2 classes")
+        raise ValueError(
+            "class_probabilities must be a non-empty 2D matrix with at least 2 classes"
+        )
     if not np.all(np.isfinite(probs)) or np.any(probs < 0.0):
         raise ValueError("class_probabilities must be finite and non-negative")
     row_sum = np.sum(probs, axis=1, keepdims=True)
@@ -723,7 +725,8 @@ def _classification_prediction_payload(
         return _prediction_payload(state)
     probabilities = (
         _softmax_matrix(lookup_params["logits"])
-        if lookup_params.get("class_probabilities") is None and lookup_params.get("logits") is not None
+        if lookup_params.get("class_probabilities") is None
+        and lookup_params.get("logits") is not None
         else _normalize_probability_matrix(lookup_params["class_probabilities"])
     )
     metadata = dict(lookup_params.get("metadata") or {})
@@ -740,7 +743,9 @@ def _classification_prediction_payload(
     metadata.setdefault("class_probabilities", probabilities)
     target = lookup_params.get("target")
     return PredictionResult(
-        method_name=str(lookup_params.get("base_method", lookup_params.get("method_name", "classifier"))),
+        method_name=str(
+            lookup_params.get("base_method", lookup_params.get("method_name", "classifier"))
+        ),
         predictions=np.argmax(probabilities, axis=1),
         target=None if target is None else np.asarray(target),
         metadata=metadata,
@@ -775,7 +780,9 @@ def _label_indices(
         try:
             idx = np.asarray([mapping[str(value)] for value in raw], dtype=int)
         except KeyError as exc:
-            raise ValueError(f"target label {exc.args[0]!r} is not present in class_labels") from exc
+            raise ValueError(
+                f"target label {exc.args[0]!r} is not present in class_labels"
+            ) from exc
     else:
         idx = raw.astype(int)
     if np.any(idx < 0) or np.any(idx >= n_classes):
@@ -882,9 +889,14 @@ def _prediction_sets_from_scores(
     return sets
 
 
-def _prediction_set_coverage(prediction_sets: Sequence[Sequence[int]], labels: np.ndarray) -> np.ndarray:
+def _prediction_set_coverage(
+    prediction_sets: Sequence[Sequence[int]], labels: np.ndarray
+) -> np.ndarray:
     return np.asarray(
-        [int(label) in {int(value) for value in prediction_sets[idx]} for idx, label in enumerate(labels)],
+        [
+            int(label) in {int(value) for value in prediction_sets[idx]}
+            for idx, label in enumerate(labels)
+        ],
         dtype=bool,
     )
 
@@ -1148,7 +1160,9 @@ def _graph_smoothed_scores(
             k_neighbors=max(1, int(lookup_params.get("similarity_neighbors", 8))),
         )
         graph_kernel = 0.5 * graph_kernel + 0.5 * feature_kernel
-        graph_kernel = graph_kernel / np.maximum(np.sum(graph_kernel, axis=1, keepdims=True), 1.0e-12)
+        graph_kernel = graph_kernel / np.maximum(
+            np.sum(graph_kernel, axis=1, keepdims=True), 1.0e-12
+        )
     smoothed = (1.0 - smoothing) * score_matrix + smoothing * (graph_kernel @ score_matrix)
     return smoothed, method
 
@@ -1265,7 +1279,9 @@ def _graph_coverage_diagnostic(
         community = lookup_params.get("community_labels")
     if community is None:
         community = _connected_components(adjacency)
-    community_groups = np.asarray([f"community={value}" for value in np.asarray(community).reshape(-1)])
+    community_groups = np.asarray(
+        [f"community={value}" for value in np.asarray(community).reshape(-1)]
+    )
     if community_groups.shape[0] != n_nodes:
         raise ValueError("community labels must align with graph nodes")
     temporal = lookup_params.get("temporal_bin")
@@ -1438,7 +1454,9 @@ class ConformalPredictionEstimator:
         return _prediction_payload(fallback_state)
 
     @staticmethod
-    def pure_step(state: PredictionResult, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PredictionResult | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         prediction_result = (
             state if isinstance(state, PredictionResult) else PredictionResult.model_validate(state)
         )
@@ -1656,7 +1674,9 @@ class MondrianCQRConformalizer:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         prediction_result = _prediction_payload(state)
         state_params = (
             {key: value for key, value in state.items() if key != "prediction_result"}
@@ -1876,7 +1896,9 @@ class NormalizedResidualMondrianConformalizer:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         prediction_result = _prediction_payload(state)
         state_params = (
             {key: value for key, value in state.items() if key != "prediction_result"}
@@ -2102,7 +2124,9 @@ class MondrianAPSRAPSConformalizer:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         lookup_params = _lookup_params_from_state(state, params)
         prediction_result = _classification_prediction_payload(state, lookup_params)
         alpha = _alpha_from_params(lookup_params, default=0.05)
@@ -2371,12 +2395,16 @@ class GraphAwareConformalizer:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | PredictionResult, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         lookup_params = _lookup_params_from_state(state, params)
         prediction_result = _classification_prediction_payload(state, lookup_params)
         alpha = _alpha_from_params(lookup_params, default=0.05)
         probabilities = _probability_matrix_from_sources(lookup_params, prediction_result)
-        probabilities, correction_applied = _corrected_graph_probabilities(probabilities, lookup_params)
+        probabilities, correction_applied = _corrected_graph_probabilities(
+            probabilities, lookup_params
+        )
         adjacency = _adjacency_matrix_from_sources(lookup_params, prediction_result)
         if adjacency.shape[0] != probabilities.shape[0]:
             raise ValueError("adjacency_matrix rows must align with class_probabilities")
@@ -2422,13 +2450,17 @@ class GraphAwareConformalizer:
             policy_thresholds[key] = quantile_engine.quantile(calibration_scores[mask], None)[0]
         row_thresholds = np.asarray(
             [
-                policy_thresholds.get(_threshold_key(str(policy_labels[row]), None), global_threshold)
+                policy_thresholds.get(
+                    _threshold_key(str(policy_labels[row]), None), global_threshold
+                )
                 for row in range(n_obs)
             ],
             dtype=float,
         )
         threshold_matrix = np.repeat(row_thresholds[:, None], n_classes, axis=1)
-        prediction_sets = _prediction_sets_from_scores(score_matrix, probabilities, threshold_matrix)
+        prediction_sets = _prediction_sets_from_scores(
+            score_matrix, probabilities, threshold_matrix
+        )
         set_sizes = np.asarray([len(values) for values in prediction_sets], dtype=int)
         covered = _prediction_set_coverage(prediction_sets, labels)
         coverage = float(np.mean(covered))
@@ -2612,19 +2644,23 @@ def update_conditional_coverage_diagnostic_with_outcomes(
         result.alpha,
         min_evaluation_per_group,
     )
-    ert = _ert_diagnostic(
-        features,
-        covered,
-        result.alpha,
-        ert_n_splits,
-        ert_under_threshold,
-        feature_names=feature_names,
-    ) if features is not None else ERTDiagnostic(
-        evaluated=False,
-        n_splits=0,
-        feature_set=list(feature_names or []),
-        classifier_family="not_available",
-        status="not_enough_labels",
+    ert = (
+        _ert_diagnostic(
+            features,
+            covered,
+            result.alpha,
+            ert_n_splits,
+            ert_under_threshold,
+            feature_names=feature_names,
+        )
+        if features is not None
+        else ERTDiagnostic(
+            evaluated=False,
+            n_splits=0,
+            feature_set=list(feature_names or []),
+            classifier_family="not_available",
+            status="not_enough_labels",
+        )
     )
     failure_modes = set(diagnostic.failure_modes)
     status = diagnostic.status
@@ -2778,11 +2814,11 @@ def evaluate_conformal_acceptance_gate(
 
 __all__ = [
     "ConformalPredictionEstimator",
-    "evaluate_conformal_acceptance_gate",
     "GraphAwareConformalizer",
     "MondrianAPSRAPSConformalizer",
     "MondrianCQRConformalizer",
     "NormalizedResidualMondrianConformalizer",
     "WeightedConformalQuantile",
+    "evaluate_conformal_acceptance_gate",
     "update_conditional_coverage_diagnostic_with_outcomes",
 ]

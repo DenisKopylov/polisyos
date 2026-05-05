@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Agent search and reasoning](agent-se
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/agent/runtime_capabilities.py`, `src/polisyos/scientist/agent/promotion.py`, `src/polisyos/scientist/agent/tool_contracts.py`, `src/polisyos/scientist/agent/supervisor_eval.py`, `src/polisyos/scientist/frontier_runtime.py`, `tests/scientist/agent/test_promotion.py`, `tests/scientist/agent/test_runtime_capabilities.py`, `tests/scientist/agent/test_tool_contracts.py`, `tests/scientist/agent/test_supervisor_eval.py`, and `tools/ci/check_scientist_best_in_class_phase1_4.py`
+Source of truth: `src/polisyos/scientist/agent/runtime_capabilities.py`, `src/polisyos/scientist/agent/promotion.py`, `src/polisyos/scientist/agent/tool_contracts.py`, `src/polisyos/scientist/agent/supervisor_eval.py`, `src/polisyos/scientist/frontier_runtime.py`, `tests/unit/scientist/agent/test_promotion.py`, `tests/unit/scientist/agent/test_runtime_capabilities.py`, `tests/unit/scientist/agent/test_tool_contracts.py`, `tests/unit/scientist/agent/test_supervisor_eval.py`, and `tools/ci/check_scientist_best_in_class_phase1_4.py`
 
 Phase 1.4 makes agentic runtime promotion a single read-only surface. It does
 not turn on tree search, LATS, learned routing, learned VOI, supervisor swarms,
@@ -96,6 +96,6 @@ frontier-compatible summary status without importing the agent package.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/agent/test_runtime_capabilities.py tests/scientist/agent/test_tool_contracts.py tests/scientist/agent/test_supervisor_eval.py tests/scientist/agent/test_promotion.py -q
+uv run pytest tests/unit/scientist/agent/test_runtime_capabilities.py tests/unit/scientist/agent/test_tool_contracts.py tests/unit/scientist/agent/test_supervisor_eval.py tests/unit/scientist/agent/test_promotion.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase1_4.py --require-passing
 ```

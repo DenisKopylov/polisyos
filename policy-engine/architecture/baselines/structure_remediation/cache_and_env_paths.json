@@ -1,0 +1,32 @@
+[
+  {
+    "ignored": false,
+    "name": ".mypy_cache",
+    "path": "policy-engine/.mypy_cache",
+    "scope": "product_root"
+  },
+  {
+    "ignored": false,
+    "name": ".hypothesis",
+    "path": "policy-engine/.hypothesis",
+    "scope": "product_root"
+  },
+  {
+    "ignored": true,
+    "name": "_cache",
+    "path": "policy-engine/_cache",
+    "scope": "product_root"
+  },
+  {
+    "ignored": true,
+    "name": ".venv",
+    "path": "policy-engine/.venv",
+    "scope": "product_root"
+  },
+  {
+    "ignored": true,
+    "name": ".polisyos",
+    "path": "policy-engine/.polisyos",
+    "scope": "product_root"
+  }
+]

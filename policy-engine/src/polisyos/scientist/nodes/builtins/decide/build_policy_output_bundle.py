@@ -17,10 +17,10 @@ from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )

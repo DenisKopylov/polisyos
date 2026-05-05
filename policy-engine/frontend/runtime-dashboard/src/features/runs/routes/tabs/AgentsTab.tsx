@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { useSuspenseRunAgents } from "@/api/hooks/useRunAgents";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { PanelSkeleton } from "@/shared/ui";
 
 const AgentPipelinePanel = lazy(

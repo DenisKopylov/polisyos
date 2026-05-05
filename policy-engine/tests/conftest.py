@@ -94,8 +94,8 @@ def _infer_primary_marker(item: pytest.Item) -> str:
         return "performance"
     if (
         _path_startswith(item, "tests/integration")
-        or _path_startswith(item, "tests/runtime/http")
-        or _path_startswith(item, "tests/fabric/connectors/reference")
+        or _path_startswith(item, "tests/unit/runtime/http")
+        or _path_startswith(item, "tests/unit/fabric/connectors/reference")
         or item.get_closest_marker("integration")
     ):
         return "integration"
@@ -122,6 +122,23 @@ def pytest_configure(config: pytest.Config) -> None:
     quarantine_entries, expired_entries = _load_quarantine_entries()
     config._polisyos_quarantine_entries = quarantine_entries  # type: ignore[attr-defined]
     config._polisyos_expired_quarantines = expired_entries  # type: ignore[attr-defined]
+    _configure_hypothesis_cache()
+
+
+def _configure_hypothesis_cache() -> None:
+    try:
+        from hypothesis import settings
+        from hypothesis.database import DirectoryBasedExampleDatabase
+    except ModuleNotFoundError:
+        return
+
+    hypothesis_cache = PROJECT_ROOT / "_cache" / "hypothesis"
+    hypothesis_cache.mkdir(parents=True, exist_ok=True)
+    settings.register_profile(
+        "polisyos",
+        database=DirectoryBasedExampleDatabase(str(hypothesis_cache)),
+    )
+    settings.load_profile("polisyos")
 
 
 def pytest_report_header(config: pytest.Config) -> list[str]:
@@ -160,7 +177,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         item.add_marker(getattr(pytest.mark, primary_marker))
 
         nodeid_lower = item.nodeid.lower()
-        if "smoke" in nodeid_lower or _path_startswith(item, "tests/demos"):
+        if "smoke" in nodeid_lower or _path_startswith(item, "tests/e2e/demos"):
             item.add_marker(pytest.mark.smoke)
         if (
             primary_marker in {"integration", "performance"}

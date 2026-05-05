@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -136,7 +136,9 @@ def _checksum(payload: Any) -> str:
 
 
 def _sample_value(field: Any) -> Any:
-    data_type = str(getattr(getattr(field, "data_type", ""), "value", getattr(field, "data_type", ""))).lower()
+    data_type = str(
+        getattr(getattr(field, "data_type", ""), "value", getattr(field, "data_type", ""))
+    ).lower()
     if "bool" in data_type:
         return True
     if "int" in data_type or "uint" in data_type:
@@ -157,10 +159,7 @@ def build_source_replay_fixture(contract: SourceContract) -> dict[str, Any]:
 
     fields = tuple(contract.schema.fields)
     normalized_sample_rows = [
-        {
-            field.name: _sample_value(field)
-            for field in fields
-        }
+        {field.name: _sample_value(field) for field in fields}
         if fields
         else {"source_contract_id": contract.id}
     ]
@@ -343,9 +342,7 @@ def source_scorecard_snapshot_json() -> str:
         build_source_contracts(),
         generated_at=GENERATED_AT_DT,
     )
-    return dump_json(
-        source_scorecards_snapshot_payload(scorecards, generated_at=generated_at)
-    )
+    return dump_json(source_scorecards_snapshot_payload(scorecards, generated_at=generated_at))
 
 
 def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str:
@@ -435,8 +432,8 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
             "",
             "## Source Contract Catalog",
             "",
-        "| Contract | Connector | Profile | Guarantee | Dedupe window | Replay retention | Quality | Replay | Field policies | Classification | Owner | Reviewer |",
-        "| -------- | --------- | ------- | --------- | ------------- | ---------------- | ------- | ------ | -------------- | -------------- | ----- | -------- |",
+            "| Contract | Connector | Profile | Guarantee | Dedupe window | Replay retention | Quality | Replay | Field policies | Classification | Owner | Reviewer |",
+            "| -------- | --------- | ------- | --------- | ------------- | ---------------- | ------- | ------ | -------------- | -------------- | ----- | -------- |",
         ]
     )
     for contract in contracts:
@@ -470,7 +467,7 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
             "",
             "## Validation Anchors",
             "",
-            "- `tests/fabric/connectors/test_source_contract_v2.py` validates the model,",
+            "- `tests/unit/fabric/connectors/test_source_contract_v2.py` validates the model,",
             "  scaffold, conformance harness, scorecards, and generated snapshots.",
             "- `tests/tools/test_fabric_source_contracts.py` validates CI report/check",
             "  behavior and source-platform docs generation.",
@@ -498,13 +495,19 @@ def check_artifacts(
     expected_docs = render_source_platform_markdown()
     if not snapshot_path.exists() or snapshot_path.read_text(encoding="utf-8") != expected_snapshot:
         errors.append(f"source contract snapshot out of date: {snapshot_path}")
-    if not scorecard_path.exists() or scorecard_path.read_text(encoding="utf-8") != expected_scorecards:
+    if (
+        not scorecard_path.exists()
+        or scorecard_path.read_text(encoding="utf-8") != expected_scorecards
+    ):
         errors.append(f"source scorecard snapshot out of date: {scorecard_path}")
     if not docs_path.exists() or docs_path.read_text(encoding="utf-8") != expected_docs:
         errors.append(f"source platform docs out of date: {docs_path}")
     for filename, expected_fixture in expected_source_replay_fixtures().items():
         fixture_path = fixture_dir / filename
-        if not fixture_path.exists() or fixture_path.read_text(encoding="utf-8") != expected_fixture:
+        if (
+            not fixture_path.exists()
+            or fixture_path.read_text(encoding="utf-8") != expected_fixture
+        ):
             errors.append(f"source replay fixture out of date: {fixture_path}")
     return errors
 
@@ -530,14 +533,19 @@ def validate_report(report: dict[str, Any], *, fail_closed: bool = False) -> lis
         if contract.status == "active" and not contract.replay.fixture_ref:
             errors.append(f"missing replay fixture: {contract.id}")
         if contract.status == "active" and contract.replay.non_replayable_reason:
-            errors.append(f"non-replayable reason is forbidden for production source: {contract.id}")
+            errors.append(
+                f"non-replayable reason is forbidden for production source: {contract.id}"
+            )
         if not contract.security.field_policies:
             errors.append(f"missing field access policies: {contract.id}")
         if not contract.processing.idempotency.key_fields:
             errors.append(f"missing dedupe key policy: {contract.id}")
         if contract.processing.idempotency.dedupe_window_seconds <= 0:
             errors.append(f"missing dedupe window: {contract.id}")
-        if contract.processing.idempotency.replay_retention_days < contract.retention.min_retention_days:
+        if (
+            contract.processing.idempotency.replay_retention_days
+            < contract.retention.min_retention_days
+        ):
             errors.append(f"replay retention below source retention: {contract.id}")
     if fail_closed and int(summary.get("conformance_error_count", 0)) > 0:
         errors.append("conformance errors present in fail-closed mode")

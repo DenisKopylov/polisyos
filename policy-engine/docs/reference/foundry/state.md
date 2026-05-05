@@ -8,8 +8,8 @@ slot layout, execute-time state snapshots, and agent-simulation runtime state.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/foundry/layout.py`, `src/polisyos/foundry/_executor_snapshots.py`, `src/polisyos/foundry/executor.py`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/foundry/methods/layout.py`, `src/polisyos/foundry/execute/_snapshots.py`, `src/polisyos/foundry/execute/executor.py`
 
 This page documents `polisyos.foundry.contracts.state.GlobalState`, the
 compile/execute and release-acceptance state contract. The standalone
@@ -32,10 +32,10 @@ directly.
 - Read `polisyos.foundry.contracts.state` for what compiled programs can read
   or patch at runtime.
 
-- Read `polisyos.foundry.layout` for `slot_id -> state_path` materialization and
+- Read `polisyos.foundry.methods.layout` for `slot_id -> state_path` materialization and
   family manifests.
 
-- Read `polisyos.foundry.executor` for state snapshot, state delta, and
+- Read `polisyos.foundry.execute.executor` for state snapshot, state delta, and
   merge/apply helpers.
 
 - Treat `GlobalState` as the replay boundary: compile and execute flows pass
@@ -68,24 +68,24 @@ directly.
 ## Evidence Links
 
 - Global state:
-  `tests/foundry/test_global_state.py`
+  `tests/unit/foundry/contracts/test_global_state.py`
 
 - Contract state compatibility:
-  `tests/foundry/contracts/test_state_contracts.py`
+  `tests/unit/foundry/contracts/test_state_contracts.py`
 
 - Slot layout:
-  `tests/foundry/test_layout.py`
+  `tests/unit/foundry/contracts/test_layout.py`
 
 - Snapshot behavior:
-  `tests/foundry/test_executor_snapshots.py`
+  `tests/unit/foundry/runtime/test_executor_snapshots.py`
 
 - Merge determinism:
-  `tests/foundry/test_merge_determinism.py`
+  `tests/unit/foundry/analysis/test_merge_determinism.py`
 
 ## Reference
 
-::: polisyos.foundry.layout
+::: polisyos.foundry.methods.layout
 
 ::: polisyos.foundry.contracts.state
 
-::: polisyos.foundry.executor
+::: polisyos.foundry.execute.executor

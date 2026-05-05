@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.data_forge.read_api.ukraine import REAL_BACKTEST_BUNDLE_CONTRACT_FQN
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -1132,7 +1133,7 @@ def build_required_backtest_bundles(
         bundles[kind] = BacktestPlanBundle(
             contract_target=ContractCompatibilityTarget(
                 contract_id=f"{kind.value}_bundle",
-                contract_fqn="polisyos.ukraine_data.real_backtest_bundle",
+                contract_fqn=REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
             ),
             required_fields=["observed_value"],
             holdout_windows=[f"{holdout_window['start']}::{holdout_window['end']}"],

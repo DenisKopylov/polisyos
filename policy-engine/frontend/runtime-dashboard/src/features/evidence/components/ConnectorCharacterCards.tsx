@@ -1,12 +1,12 @@
 import type { ConnectorCharacterCard } from "../domain/productionSlice";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   formatDate,
   formatDuration,
   formatNumber,
   formatPercent,
-} from "@/lib/utils";
+} from "@/shared/lib/utils";
 import { Badge, Card, EmptyState } from "@/shared/ui";
 
 function burnKind(burn: number) {

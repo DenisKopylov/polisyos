@@ -38,7 +38,7 @@ extended benchmark stacks, and scientist/runtime performance paths.
 
 ### Depends On
 
-- Benchmark tooling under `tools/benchmarks` / `tools/research/benchmarks`
+- Benchmark tooling under `tools/research/benchmarks` / `tools/research/benchmarks`
 - Runtime and scientist hot-path code
 - `pytest-benchmark` / performance-oriented optional dependencies
 

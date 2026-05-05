@@ -29,7 +29,7 @@ subpackage READMEs below explain the implementation boundaries in more detail.
   [catalog/README.md](./catalog/README.md) for metric discovery, fetch planning,
   and semantic catalog behavior.
 
-- Use [tests/fabric/README.md](../../../tests/fabric/README.md) to find the
+- Use [tests/unit/fabric/README.md](../../../tests/unit/fabric/README.md) to find the
   focused validation suite for the area you are changing.
 
 ## Public Entrypoints
@@ -51,7 +51,8 @@ retrieval README rather than being part of the root facade contract.
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.common`, `polisyos.core`, `polisyos.ir`,
-  `polisyos.datasets`, and the Fabric subpackages documented here.
+  `polisyos.data_forge.read_api.catalog`, and the Fabric subpackages
+  documented here.
 
 - Depended on by: `polisyos.runtime.http.services.control`,
   `polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`, and any code that
@@ -75,13 +76,13 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/test_docs_pipeline.py tests/fabric/test_claims_pipeline.py tests/fabric/test_retrieval_service_catalog.py tests/fabric/test_world_store.py -q`
+- `uv run pytest tests/unit/fabric/test_docs_pipeline.py tests/unit/fabric/test_claims_pipeline.py tests/unit/fabric/test_retrieval_service_catalog.py tests/unit/fabric/test_world_store.py -q`
   Cross-package Fabric smoke suite. Smoke-tested on 2026-04-17.
 
-- `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json`
+- `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json`
   Connector contract compatibility gate. Smoke-tested on 2026-04-17.
 
-- `uv run pytest tests/fabric -q`
+- `uv run pytest tests/unit/fabric -q`
   Full Fabric suite. Conceptual in this README refresh; not run in this pass.
 
 ## Reference Docs
@@ -93,4 +94,4 @@ Run from the repository root (`policy-engine/`).
 - [Connector CONTRIBUTING guide](../../../docs/connectors/CONTRIBUTING.md)
 - [Add data source](../../../docs/how-to/add-data-source.md)
 - [Manage generated artifacts](../../../docs/how-to/manage-generated-artifacts.md)
-- [Fabric tests map](../../../tests/fabric/README.md)
+- [Fabric tests map](../../../tests/unit/fabric/README.md)

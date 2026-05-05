@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
-const distDir = path.resolve(dashboardRoot, "dist");
+const distDir = path.resolve(
+  dashboardRoot,
+  "../../_build/frontend/runtime-dashboard/dist",
+);
 const manifestPath = path.join(distDir, ".vite", "manifest.json");
 const outputPath = process.argv[2] || path.join(distDir, "bundle-stats.json");
 

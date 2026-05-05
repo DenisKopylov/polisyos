@@ -30,7 +30,7 @@ from polisyos.scientist.agent.prompts import get_source_verifier_prompt
 from polisyos.scientist.agent.protocols import DraftResult
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.evidence_sources import (
+from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     normalize_evidence_sources_config,
     update_source_status,

@@ -52,7 +52,7 @@ Conceptual in this README refresh; run this targeted suite before landing
 Trinity contract changes.
 
 ```bash
-uv run pytest tests/ir/test_trinity_loaders.py tests/contract/test_trinity_contracts.py tests/contract/test_trinity_linker_contract.py tests/contract/test_trinity_migration.py -q
+uv run pytest tests/unit/ir/test_trinity_loaders.py tests/contract/test_trinity_contracts.py tests/contract/test_trinity_linker_contract.py tests/contract/test_trinity_migration.py -q
 ```
 
 ## Reference docs

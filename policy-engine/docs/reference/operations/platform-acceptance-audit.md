@@ -23,7 +23,7 @@ The automated pass checks these surfaces together:
 | Acceptance slice                       | Repo-tracked evidence                                                                                                       |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Toolchain consistency                  | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix                                |
-| Repo root coherence                    | root `README.md`, `policy-engine/README.md`, ADR-0096                                                                       |
+| Repo root coherence                    | `policy-engine/README.md`, ADR-RSR-0130 workspace-boundary collapse                                                         |
 | Ownership / merge governance           | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs                                    |
 | Required checks / release path         | current workflow inventory, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml`              |
 | Runtime contract gates                 | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger |
@@ -32,9 +32,9 @@ The automated pass checks these surfaces together:
 
 Runtime-specific acceptance evidence should include:
 
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
-- `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py tests/runtime/http/test_runtime_api_authz.py`
-- `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py`
+- `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
 - `uv run polisyos-tools workspace core-runtime-closeout --summary docs/archive/reports/core-runtime-closeout.md --json-output docs/archive/reports/core-runtime-closeout.json`
 
 If you want the manual rehearsals to become blocking too, pass a filled evidence
@@ -102,13 +102,13 @@ manual evidence TOML:
 Recommended local release rehearsal:
 
 ```bash
-python3 tools/release/check_release_version.py --tag v0.1.0
-python3 tools/release/build_release_notes.py \
+python3 tools/ops/release/check_release_version.py --tag v0.1.0
+python3 tools/ops/release/build_release_notes.py \
   --version 0.1.0 \
-  --fragments-dir release-fragments/releases/0.1.0 \
+  --fragments-dir _build/release-fragments/0.1.0 \
   --output /tmp/polisyos-release-notes.md \
   --require-curated-sections compatibility migration api limitations
-uv run --extra runtime --extra ml python tools/release/run_release_canary.py \
+uv run --extra runtime --extra ml python tools/ops/release/run_release_canary.py \
   --summary /tmp/polisyos-release-canary.md
 ```
 

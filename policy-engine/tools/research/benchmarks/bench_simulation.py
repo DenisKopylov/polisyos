@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import sys
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 

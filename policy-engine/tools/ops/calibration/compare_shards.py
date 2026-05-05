@@ -13,8 +13,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.fs import atomic_write_json
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.fs import atomic_write_json
+from tools.lib.imports import ensure_repo_import_roots
 
 ensure_repo_import_roots(__file__, include_src_root=False)
 

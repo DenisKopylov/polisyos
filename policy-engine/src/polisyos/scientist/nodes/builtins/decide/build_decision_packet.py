@@ -118,14 +118,13 @@ from polisyos.scientist.claims.validators import (
     validate_naked_decision_claims,
 )
 from polisyos.scientist.continuous_governance.reports import load_validity_report
-from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.evidence.safe_fetch import neutralize_instruction_markers
-from polisyos.scientist.feedback import (
+from polisyos.scientist.feedback.core import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
 )
@@ -231,6 +230,7 @@ from polisyos.scientist.research_dag.projections import (
 )
 from polisyos.scientist.research_dag.replay import legacy_research_dag_status
 from polisyos.scientist.search.voi_scheduler import load_voi_run_report
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
@@ -443,9 +443,7 @@ class BuildDecisionPacketNode:
                 ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF
             ),
             "reissue_packet_ref": request.artifacts_section.get(ARTIFACT_REISSUE_PACKET_REF),
-            "withdrawal_record_ref": request.artifacts_section.get(
-                ARTIFACT_WITHDRAWAL_RECORD_REF
-            ),
+            "withdrawal_record_ref": request.artifacts_section.get(ARTIFACT_WITHDRAWAL_RECORD_REF),
             "continuous_governance": None,
             "human_review": None,
             "human_review_validation": None,
@@ -902,9 +900,7 @@ class BuildDecisionPacketNode:
                 ),
             )
             validation_report = publication.validation_report
-            validation_ref = ValidationReportRef.model_validate(
-                dict(publication.validation_ref)
-            )
+            validation_ref = ValidationReportRef.model_validate(dict(publication.validation_ref))
             judge_verdict_ref = publication.judge_verdict_ref
             try:
                 enforce_phase5_publication(publication)
@@ -1126,9 +1122,7 @@ def _attach_human_review_projection(
         if review_packet_ref is not None:
             artifacts[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = str(review_packet_ref.artifact_id)
         if review_decision_ref is not None:
-            artifacts[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = str(
-                review_decision_ref.artifact_id
-            )
+            artifacts[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = str(review_decision_ref.artifact_id)
     return validation
 
 
@@ -1181,9 +1175,7 @@ def _attach_claim_ledger_to_packet(
     if isinstance(artifacts, dict):
         artifacts[ARTIFACT_CLAIMS_REF] = str(claims_ref.artifact_id)
         if claim_ledger_v2_ref is not None:
-            artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(
-                claim_ledger_v2_ref.artifact_id
-            )
+            artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(claim_ledger_v2_ref.artifact_id)
     return _ClaimLedgerAttachment(
         claims_ref=claims_ref,
         claim_ledger_v2_ref=claim_ledger_v2_ref,
@@ -1344,15 +1336,11 @@ def _build_artifacts_section(
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
         ARTIFACT_CLAIMS_REF: _ref_from_dict(artifacts_index, ARTIFACT_CLAIMS_REF),
         ARTIFACT_RESEARCH_DAG_REF: _ref_from_dict(artifacts_index, ARTIFACT_RESEARCH_DAG_REF),
-        ARTIFACT_VOI_RUN_REPORT_REF: _ref_from_dict(
-            artifacts_index, ARTIFACT_VOI_RUN_REPORT_REF
-        ),
+        ARTIFACT_VOI_RUN_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_VOI_RUN_REPORT_REF),
         ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF
         ),
-        ARTIFACT_REISSUE_PACKET_REF: _ref_from_dict(
-            artifacts_index, ARTIFACT_REISSUE_PACKET_REF
-        ),
+        ARTIFACT_REISSUE_PACKET_REF: _ref_from_dict(artifacts_index, ARTIFACT_REISSUE_PACKET_REF),
         ARTIFACT_WITHDRAWAL_RECORD_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_WITHDRAWAL_RECORD_REF
         ),
@@ -1477,9 +1465,9 @@ def _build_web_evidence_section(
                 "url": str(snippet.url),
                 "start_char": snippet.start_char,
                 "end_char": snippet.end_char,
-                "text": neutralize_instruction_markers(
-                    snippet.text.replace("\n", " ").strip()
-                )[:600],
+                "text": neutralize_instruction_markers(snippet.text.replace("\n", " ").strip())[
+                    :600
+                ],
                 "untrusted_evidence_text": True,
             }
             for snippet in bundle.snippets[:50]
@@ -1565,9 +1553,7 @@ def _build_continuous_governance_section(
             "status": "legacy_missing",
             "continuous_governance_report_ref": None,
             "reissue_packet_ref": str(reissue_ref.artifact_id) if reissue_ref else None,
-            "withdrawal_record_ref": (
-                str(withdrawal_ref.artifact_id) if withdrawal_ref else None
-            ),
+            "withdrawal_record_ref": (str(withdrawal_ref.artifact_id) if withdrawal_ref else None),
             "event_count": 0,
             "recommendation_count": 0,
         }
@@ -1586,9 +1572,7 @@ def _build_continuous_governance_section(
             "status": "parse_failed",
             "continuous_governance_report_ref": str(report_ref.artifact_id),
             "reissue_packet_ref": str(reissue_ref.artifact_id) if reissue_ref else None,
-            "withdrawal_record_ref": (
-                str(withdrawal_ref.artifact_id) if withdrawal_ref else None
-            ),
+            "withdrawal_record_ref": (str(withdrawal_ref.artifact_id) if withdrawal_ref else None),
             "event_count": 0,
             "recommendation_count": 0,
         }
@@ -1601,11 +1585,7 @@ def _build_continuous_governance_section(
         "event_count": len(report.monitor_events),
         "recommendation_count": len(report.recommendations),
         "affected_claim_ids": sorted(
-            {
-                claim_id
-                for event in report.monitor_events
-                for claim_id in event.affected_claim_ids
-            }
+            {claim_id for event in report.monitor_events for claim_id in event.affected_claim_ids}
         ),
         "recommended_actions": [
             recommendation.recommended_action for recommendation in report.recommendations

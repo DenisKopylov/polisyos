@@ -2,7 +2,7 @@
 
 Related reference: [Scientist workflows](../reference/scientist/workflows.md), [governance passes](../reference/scientist/governance-passes.md), [governance accountability](../reference/scientist/governance-accountability.md), [causal validity](../reference/scientist/causal-validity.md).
 Related ADRs: [ADR-0007](../adr/0007-human-gate-protocol.md), [ADR-0011](../adr/0011-scientist-checkpoint-resume.md), [ADR-0087](../adr/0087-llm-prior-calibration-ceiling.md), [ADR-0110](../adr/0110-ir-frontier-governance-and-causal-contracts.md).
-Evidence: `tests/scientist/governance/test_pass_registry.py`, `tests/scientist/governance/test_validation_pipeline.py`, `tests/scientist/governance/test_accountability.py`, `tests/scientist/nodes/test_build_policy_output_bundle.py`, [runtime graceful shutdown or stuck worker](../runbooks/runtime-graceful-shutdown-and-stuck-worker.md).
+Evidence: `tests/unit/scientist/governance/test_pass_registry.py`, `tests/unit/scientist/governance/test_validation_pipeline.py`, `tests/unit/scientist/governance/test_accountability.py`, `tests/unit/scientist/nodes/test_build_policy_output_bundle.py`, [runtime graceful shutdown or stuck worker](../runbooks/runtime-graceful-shutdown-and-stuck-worker.md).
 
 Governance is the layer that decides whether a workflow output is promotable,
 blocked, or requires human review. It is not an afterthought on top of a result;

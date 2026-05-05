@@ -3304,7 +3304,7 @@ data sensitivity.
 
 ## 24. Research Track 23 — Canonical Benchmark Infrastructure and Synthetic Worlds {#24-research-track-23}
 
-**Status in catalog**: each family has ad-hoc tests under `tests/foundry/`.
+**Status in catalog**: each family has ad-hoc tests under `tests/unit/foundry/`.
 No canonical benchmark corpus, no hidden holdout for the six-judge promotion
 stack, no synthetic-world generator with known ground truth that could
 evaluate any method in the catalog.

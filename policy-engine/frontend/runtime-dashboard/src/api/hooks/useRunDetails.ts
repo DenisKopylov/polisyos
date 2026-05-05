@@ -5,7 +5,7 @@ import {
   RUN_ACTIVE_STALE_MS,
   RUN_BOOTSTRAP_REFETCH_MS,
   RUN_TERMINAL_STALE_MS,
-} from "../../lib/constants";
+} from "@/shared/lib/constants";
 import {
   useMaybeTemporalCursor,
   type TemporalScope,

@@ -49,7 +49,7 @@ Run commands from `policy-engine/`.
 uv run pytest tests/integration -q
 
 # conceptual: taxonomy lane without runtime/http
-uv run pytest -m integration --ignore=tests/runtime/http
+uv run pytest -m integration --ignore=tests/unit/runtime/http
 
 # conceptual: targeted scenario
 uv run pytest tests/integration/test_human_gate_audit.py -q

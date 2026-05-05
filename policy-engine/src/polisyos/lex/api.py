@@ -1,10 +1,8 @@
-"""Orchestrate the Lex legal pipeline through stable stage-level entry points.
+"""Stable runtime Lex APIs for NormPack assembly, legal evaluation, and interventions.
 
-Use this module when an external caller needs the canonical stage order for legal processing:
-``ingest_legal_doc_bytes`` persists raw text and document metadata, ``build_legal_structure``
-creates provision fragments, ``build_version_index`` and ``resolve_active_version`` select the
-temporal document revision, ``assemble_norm_pack`` materializes a snapshot of applicable norms,
-and ``evaluate_legality`` / ``propose_changes`` bridge the snapshot into governance workflows.
+Offline legal preprocessing lives in ``polisyos.data_forge.domains.legal``. This module keeps
+runtime callers on Lex-facing workflows and uses the Data Forge read API only for read-only
+artifact lookup.
 """
 
 from __future__ import annotations
@@ -18,14 +16,7 @@ from polisyos.core.contracts.lex import (
     LegalEvaluationRequest,
     LegalReportRef,
 )
-from polisyos.lex.corpus.ingest import ingest_legal_doc_bytes as _ingest_legal_doc_bytes
-from polisyos.lex.corpus.structure import build_legal_structure as _build_legal_structure
-from polisyos.lex.corpus.versioning import (
-    build_version_index as _build_version_index,
-)
-from polisyos.lex.corpus.versioning import (
-    resolve_active_version as _resolve_active_version,
-)
+from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.legal_evaluation.change_proposals import (
     propose_changes_impl as _propose_changes_impl,
 )
@@ -41,13 +32,6 @@ from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_
 from polisyos.lex.types import (
     ActiveVersionResult,
     ActiveVersionStrategy,
-    LegalDocSource,
-    LexIngestOptions,
-    LexIngestResult,
-    LexStructureOptions,
-    LexStructureResult,
-    LexVersionIndexOptions,
-    LexVersionIndexResult,
     NormPackBuildRequest,
     NormPackBuildResult,
 )
@@ -57,122 +41,6 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.fabric.io.db import SimulationDB
-
-
-def ingest_legal_doc_bytes(
-    *,
-    cas: FileSystemCAS,
-    fact_log_root: Path,
-    source: LegalDocSource,
-    raw_bytes: bytes,
-    mime: str,
-    options: LexIngestOptions | None = None,
-    segment_name: str | None = None,
-) -> LexIngestResult:
-    """Persist and optionally normalize raw legal document bytes.
-
-    Args:
-        cas: Artifact store used for raw and derived document payloads.
-        fact_log_root: Root directory for world-event and segment persistence.
-        source: Canonical metadata describing the document source.
-        raw_bytes: Raw document body.
-        mime: MIME type for the uploaded payload.
-        options: Optional stage toggles for normalization, structure, and chunking.
-        segment_name: Optional fact-log segment override.
-
-    Returns:
-        References to the raw document artifact and any derived Lex artifacts.
-    """
-
-    return _ingest_legal_doc_bytes(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        source=source,
-        raw_bytes=raw_bytes,
-        mime=mime,
-        options=options,
-        segment_name=segment_name,
-    )
-
-
-def build_legal_structure(
-    *,
-    cas: FileSystemCAS,
-    fact_log_root: Path,
-    doc_meta_artifact_id: str,
-    options: LexStructureOptions | None = None,
-    segment_name: str | None = None,
-) -> LexStructureResult:
-    """Structure a normalized legal document into provision fragments.
-
-    Call this after ``ingest_legal_doc_bytes(..., run_normalize=True)`` when a legal source is
-    ready to expose article/part/point anchors for SPO extraction, citations, and NormPack
-    assembly.
-
-    Args:
-        cas: Artifact store containing the current ``DocMeta`` and normalized text artifact.
-        fact_log_root: World fact-log root where fragment facts and provenance events are written.
-        doc_meta_artifact_id: Artifact id of the document metadata object to enrich.
-        options: Optional jurisdiction/ruleset and extraction toggles.
-        segment_name: Optional world segment name prefix.
-
-    Returns:
-        Provision index, fragment identifiers, updated ``DocMeta`` artifact id, and emitted world
-        event/segment references.
-
-    Raises:
-        LexNotReadyError: If the document has not been normalized yet.
-        LexStructureError: If fragment construction or persistence fails.
-        LexValidationError: If document metadata or extracted structure is inconsistent.
-    """
-
-    return _build_legal_structure(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        doc_meta_artifact_id=doc_meta_artifact_id,
-        options=options,
-        segment_name=segment_name,
-    )
-
-
-def build_version_index(
-    *,
-    cas: FileSystemCAS,
-    fact_log_root: Path,
-    doc_source_id: str,
-    options: LexVersionIndexOptions | None = None,
-    segment_name: str | None = None,
-) -> LexVersionIndexResult:
-    """Build the temporal version index for one legal document family.
-
-    The index reads all document revisions already attached to ``doc_source_id``, validates
-    publication/effective-date metadata, detects overlapping effective ranges, and writes the
-    pointer used later by ``resolve_active_version``.
-
-    Args:
-        cas: Artifact store holding document metadata artifacts.
-        fact_log_root: Fact-log root used to discover existing ``DOC_HAS_VERSION`` relations and
-            persist the new pointer/event facts.
-        doc_source_id: Stable legal source identifier shared by all revisions.
-        options: Optional selection policy and provenance settings.
-        segment_name: Optional world segment name prefix.
-
-    Returns:
-        Persisted version-index references and any quality warnings collected while normalizing
-        temporal metadata.
-
-    Raises:
-        LexVersioningError: If no revisions exist or index construction fails.
-        LexValidationError: If source metadata violates expected date/identity contracts.
-    """
-
-    return _build_version_index(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        doc_source_id=doc_source_id,
-        options=options,
-        segment_name=segment_name,
-    )
 
 
 def resolve_active_version(
@@ -204,7 +72,7 @@ def resolve_active_version(
         LexVersioningError: If the version-index artifact cannot be loaded or validated.
     """
 
-    return _resolve_active_version(
+    return legal_read_api.resolve_active_version(
         cas=cas,
         doc_source_id=doc_source_id,
         as_of_iso=as_of_iso,
@@ -358,23 +226,13 @@ __all__ = [
     "ActiveVersionResult",
     "ActiveVersionStrategy",
     "ChangeProposalRef",
-    "LegalDocSource",
     "LegalEvaluationRequest",
     "LegalReportRef",
-    "LexIngestOptions",
-    "LexIngestResult",
-    "LexStructureOptions",
-    "LexStructureResult",
-    "LexVersionIndexOptions",
-    "LexVersionIndexResult",
     "NormPackBuildRequest",
     "NormPackBuildResult",
     "assemble_norm_pack",
-    "build_legal_structure",
-    "build_version_index",
     "evaluate_legality",
     "evaluate_transport_constraints",
-    "ingest_legal_doc_bytes",
     "propose_changes",
     "resolve_active_version",
 ]

@@ -37,7 +37,7 @@ python3 -m tools.cli workspace doctor --list-surfaces
 uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
 uv run polisyos-tools architecture guardrails check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 Use only the commands that match the surface you touched. The point of the
@@ -159,7 +159,7 @@ Use the narrowest proof that covers the changed surface:
 - public facade change: `uv run polisyos-tools architecture guardrails check`;
 - IR/schema change: `uv run --extra ml polisyos-tools diagnostics gen-schema --check`;
 - runtime contract change:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`;
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`;
 
 - docs-sensitive change:
   `uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main`.

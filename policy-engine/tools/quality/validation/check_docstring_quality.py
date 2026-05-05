@@ -21,7 +21,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 DOCS_REFERENCE_PATTERN = re.compile(r"^:{3,}\s+([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\b")
 PLACEHOLDER_SUMMARY_PATTERNS = (

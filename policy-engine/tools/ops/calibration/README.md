@@ -1,4 +1,4 @@
-# tools/calibration
+# tools/ops/calibration
 
 Calibration analysis helpers for comparing shard hypotheses and run telemetry.
 

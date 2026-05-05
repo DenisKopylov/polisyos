@@ -4,7 +4,7 @@ PolicyOS release notes are drafted from structured TOML fragments under
 `release-fragments/unreleased/` while changes are still landing.
 
 Before a release tag is cut, release prep must freeze the selected entries into
-an immutable snapshot under `release-fragments/releases/<version>/`. The
+an immutable snapshot under `_build/release-fragments/<version>/`. The
 release workflow reads only from that versioned snapshot so future tags cannot
 reuse stale unreleased notes.
 
@@ -32,7 +32,7 @@ Release snapshots must cover `compatibility`, `migration`, `api`, and
 Release prep helper:
 
 ```bash
-python3 policy-engine/tools/release/stage_release_snapshot.py \
+python3 policy-engine/tools/ops/release/stage_release_snapshot.py \
   --version 0.1.0 \
   --move
 ```

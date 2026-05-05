@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.runtime import CursorPage, RunDetails, RunSummary, SourceKind
-from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 from .adapters.core_run import CoreRunAdapterResult, load_core_run
 

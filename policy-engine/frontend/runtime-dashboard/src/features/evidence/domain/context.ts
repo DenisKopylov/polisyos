@@ -1,4 +1,4 @@
-import type { EvidenceArtifactRef, EvidenceFocus } from "@/lib/domain/evidence";
+import type { EvidenceArtifactRef, EvidenceFocus } from "@/shared/lib/domain/evidence";
 
 export const EVIDENCE_FOCUSES: EvidenceFocus[] = [
   "overview",

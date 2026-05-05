@@ -9,9 +9,9 @@ import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import repo_root_from
-from tools._lib.runner import run_command
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import repo_root_from
+from tools.lib.runner import run_command
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"

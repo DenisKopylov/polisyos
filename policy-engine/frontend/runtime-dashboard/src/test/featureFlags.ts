@@ -2,7 +2,7 @@ import {
   DEFAULT_FEATURE_FLAGS,
   type FeatureFlagOverrides,
   type FeatureFlags,
-} from "@/lib/featureFlags";
+} from "@/shared/lib/featureFlags";
 
 export function buildFeatureFlags(
   overrides?: FeatureFlagOverrides,

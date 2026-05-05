@@ -40,9 +40,9 @@ import {
   type CommandPaletteSurfaceEntry,
   type SurfaceId,
 } from "@/app/surfaces/surfaceRegistry";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/lib/capabilities";
-import { useGlobalShortcut } from "@/lib/hooks";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { isCapabilityEnabled } from "@/shared/lib/capabilities";
+import { useGlobalShortcut } from "@/shared/lib/hooks";
 import { WORKSPACES, type WorkspaceKey } from "@/app/workspaces";
 
 const SURFACE_ICONS: Partial<Record<SurfaceId, LucideIcon>> = {

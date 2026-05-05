@@ -10,7 +10,7 @@
 
 ### 0.1 Архитектурные границы (import gate — source of truth)
 
-Источник правды: ADR `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md` + `policy-engine/import_policy.toml` + `policy-engine/tools/lint/lint_imports.py`.
+Источник правды: ADR `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md` + `policy-engine/architecture/imports/policy.toml` + `policy-engine/tools/quality/lint/lint_imports.py`.
 
 **Критично для E1.4:**
 
@@ -105,7 +105,7 @@ core/contracts/
 
 ### 2.4 Import gate уже существует и проходит
 
-Скрипт `policy-engine/tools/lint/lint_imports.py` по `import_policy.toml` (v1):
+Скрипт `policy-engine/tools/quality/lint/lint_imports.py` по `architecture/imports/policy.toml` (v1):
 
 - **violations: none** (core/ir/foundry не импортируют scientist)
 - cycles присутствуют на уровне пакетов (`polisyos.fabric`↔`polisyos.fabric.udf`, `polisyos.scientist`↔subpackages). Циклы **не** цель E1.4, но должны быть учтены при расширении contracts/components (не добавлять новые).
@@ -231,7 +231,7 @@ class RuleBackend(Protocol):
 
 - `core/contracts/lex.py` существует и экспортируется в `core/contracts/__init__.py`.
 - `core/contracts/legal.py` либо переименован, либо стал реэкспортом (без зависимости на scientist).
-- `tools/lint/lint_imports.py` не показывает нарушений.
+- `tools/quality/lint/lint_imports.py` не показывает нарушений.
 
 ---
 
@@ -611,7 +611,7 @@ Dev scan (опционально для E1.4):
 
 ### 9.1 Dependency check
 
-- `python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml` → **Violations: none**
+- `python3 tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml` → **Violations: none**
 - В частности: `polisyos.core.*` не импортирует `polisyos.scientist.*` (ни напрямую, ни транзитивно через contracts).
 
 ### 9.2 Contracts ports
@@ -754,14 +754,14 @@ Import cycles, которые уже есть, не должны ухудшат�
 
 Из `policy-engine/`:
 
-- import gate: `python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml`
-- (опционально) fail on cycles (не требование E1.4): `python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml --fail-on-cycles`
+- import gate: `python3 tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml`
+- (опционально) fail on cycles (не требование E1.4): `python3 tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml --fail-on-cycles`
 
 ## D1-L4 Validation Links
 
 | Link type           | Current anchor                                                                                                                                                    |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 canon/CAS hardening and Phase 1 schema compatibility                                                                                                |
-| Contract tests      | `tests/ir/test_canon_hardening.py`, `tests/contract/test_golden_record_ids.py`, `tests/core/artifacts/test_ir_adapter.py`, `tests/contract/test_ir_migrations.py` |
+| Contract tests      | `tests/unit/ir/test_canon_hardening.py`, `tests/contract/test_golden_record_ids.py`, `tests/unit/core/artifacts/test_ir_adapter.py`, `tests/contract/test_ir_migrations.py` |
 | Schema snapshots    | `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`              |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                            |

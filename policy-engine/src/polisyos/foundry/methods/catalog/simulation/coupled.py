@@ -372,6 +372,10 @@ class CoupledSMMEstimator:
         description="Summary-based SMM/indirect-inference adapter for coupled DES+ABM outputs.",
         tags=frozenset({"simulation", "inference", "smm", "structural", "coupled"}),
         when_to_use="Behavioral and operational channels are jointly calibrated from moments.",
+        citations=(
+            "McFadden, D. (1989). A method of simulated moments for estimation of discrete response models without numerical integration. Econometrica.",
+            "Gourieroux, C., Monfort, A., and Renault, E. (1993). Indirect inference. Journal of Applied Econometrics.",
+        ),
         output_interpretation="Best grid point, fitted moments, loss, and the evaluated surface.",
     )
 
@@ -538,6 +542,10 @@ class CoupledPairedMonteCarloEstimator:
         description="Paired Monte Carlo policy-effect estimates for coupled DES+ABM outputs.",
         tags=frozenset({"simulation", "monte-carlo", "policy-effect", "structural", "coupled"}),
         when_to_use="Compare policy scenarios while holding simulator random streams fixed.",
+        citations=(
+            "Glasserman, P. (2004). Monte Carlo Methods in Financial Engineering. Springer.",
+            "Asmussen, S. and Glynn, P. W. (2007). Stochastic Simulation: Algorithms and Analysis. Springer.",
+        ),
         output_interpretation="Mean paired differences and standard errors for requested metrics.",
     )
 

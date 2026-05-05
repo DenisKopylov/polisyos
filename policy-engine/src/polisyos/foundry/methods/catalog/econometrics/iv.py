@@ -109,6 +109,13 @@ def _safe_float(value: Any) -> float | None:
     return result
 
 
+def _required_finite_float(value: Any, field_name: str) -> float:
+    result = _safe_float(value)
+    if result is None:
+        raise ValueError(f"{field_name} is nan or non-finite")
+    return result
+
+
 def _extract_confidence_intervals(
     conf_int_obj: Any,
     *,
@@ -166,8 +173,13 @@ def _build_result(
     params = fit_result.params
     param_names = [str(name) for name in getattr(params, "index", range(len(params)))]
 
-    params_dict = {name: float(params[name]) for name in param_names}
-    std_errors = {name: float(fit_result.std_errors[name]) for name in param_names}
+    params_dict = {
+        name: _required_finite_float(params[name], f"params.{name}") for name in param_names
+    }
+    std_errors = {
+        name: _required_finite_float(fit_result.std_errors[name], f"std_errors.{name}")
+        for name in param_names
+    }
 
     t_stats = {}
     p_values = {}
@@ -391,7 +403,9 @@ class InstrumentalVariablesEstimator:
     )
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
 
         method = str(params.get("method", "2sls")).lower()
@@ -458,7 +472,9 @@ class TwoStageLeastSquaresEstimator:
     )
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
         result = _run_2sls(data, params)
         return {
@@ -518,7 +534,9 @@ class GMMEstimator:
     )
 
     @staticmethod
-    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
         result = _run_gmm(data, params)
         return {

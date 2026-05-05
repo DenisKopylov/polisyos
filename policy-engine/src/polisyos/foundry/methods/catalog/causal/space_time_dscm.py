@@ -418,7 +418,12 @@ def _space_time_output_slots() -> frozenset[SlotSpec]:
             SlotSpec("spde_estimator", SlotType.SCALAR, Unit("result", "json")),
             SlotSpec("identification_certificate", SlotType.SCALAR, Unit("certificate", "json")),
             SlotSpec("positivity_report", SlotType.SCALAR, Unit("diagnostic", "json")),
-            SlotSpec("effect_surface", SlotType.MATRIX, Unit("effect", "value")),
+            SlotSpec(
+                "effect_surface",
+                SlotType.MATRIX,
+                Unit("effect", "value"),
+                shape=("n_times", "n_space"),
+            ),
             SlotSpec("spillover_impulse_response", SlotType.SCALAR, Unit("effect", "json")),
             SlotSpec("green_kernel_summary", SlotType.SCALAR, Unit("kernel", "json")),
             SlotSpec("convergence_diagnostics", SlotType.SCALAR, Unit("diagnostic", "json")),

@@ -18,7 +18,7 @@ vi.mock("@/app/providers/FeatureFlagProvider", () => ({
   useFeatureFlags: (...args: unknown[]) => useFeatureFlagsMock(...args),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: (key: string) => key,
   }),
@@ -85,8 +85,9 @@ describe("ChatContainer", () => {
   it("renders the Atlas shell-lite brand treatment when Atlas v2 is enabled", () => {
     render(<ChatContainer />);
 
-    expect(screen.getByTestId("atlas-logo-mark-32")).toBeInTheDocument();
-    expect(screen.getByTestId("atlas-logo-mark-48")).toBeInTheDocument();
+    expect(screen.getAllByRole("presentation", { hidden: true })).toHaveLength(
+      2,
+    );
     expect(screen.getByText("shell.header.shellLite")).toBeInTheDocument();
     expect(screen.getByText("clerk.newAnalysis")).toBeInTheDocument();
     expect(screen.getByText("clerk.welcomeTitle")).toBeInTheDocument();

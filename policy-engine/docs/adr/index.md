@@ -1,13 +1,10 @@
 # ADR Index
 
-> Index of 131 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
+> Index of ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
 
 ## Status Summary
 
-- Accepted: 44
-- Proposed: 86
-- Deprecated: 0
-- Superseded: 1
+- Counts are maintained by the docs inventory generator.
 
 ## Domain Index
 
@@ -46,6 +43,23 @@
 | [0126](0126-docs-lifecycle-diataxis-plans-archive.md)                       | proposed | Docs Lifecycle via Diataxis and Plan Buckets | Defines active/accepted/archive plan lifecycle.                            | 0096             |
 | [0127](0127-repo-hygiene-gates.md)                                          | proposed | Repository Hygiene Gates                     | Defines topology, shims, generated, secret, SBOM, and commit gates.        | 0004, 0115       |
 | [0128](0128-hermetic-reproducibility.md)                                    | proposed | Hermetic Reproducibility                     | Pins lockfiles, models, tokenizers, Docker digests, and producer metadata. | 0118, 0123       |
+| [RSR-0129](repository-structure-0129-empty-placeholder-package-policy.md)    | proposed | Empty Placeholder Package Policy             | Bans empty namespace placeholders that shadow populated canonical packages. | 0127             |
+| [RSR-0130](repository-structure-0130-workspace-boundary.md)                  | accepted | Workspace Boundary                           | Chooses product-root collapse and removes the second local workspace.       | 0096, 0111       |
+| [RSR-0131](repository-structure-0131-build-cache-umbrella.md)                | proposed | Build Output and Cache Umbrella              | Converges generated outputs and caches under `_build/` and `_cache/`.      | 0127             |
+| [RSR-0132](repository-structure-0132-architecture-governance-source.md)      | proposed | Architecture as Single Governance Source     | Moves import policy, exceptions, baselines, and freeze policy under architecture. | 0004, 0115       |
+| [RSR-0133](repository-structure-0133-package-layout-budget.md)               | proposed | Top-Level Package Size Budget                | Defines root facade and loose-file budgets for top-level packages.         | 0127             |
+| [RSR-0134](repository-structure-0134-cross-package-name-registry.md)         | proposed | Cross-Package Shared Name Registry           | Records allowed shared directory names and disambiguation rules.           | 0115             |
+| [RSR-0135](repository-structure-0135-versioning-out-of-package-names.md)     | accepted | Versioning Out of Package Names              | Moves `ddm_15_7` to the unversioned `ddm` Python package with a sunset shim. | 0118             |
+| [RSR-0136](repository-structure-0136-foundry-methods-flat-vs-catalog.md)     | proposed | Foundry Methods Flat vs Catalog              | Chooses canonical Foundry method import topology.                          | RSR-0129         |
+| [RSR-0137](repository-structure-0137-production-data-fixtures.md)            | proposed | Production Data and Fixtures Classification  | Separates committed fixtures, generated data, local runtime state, and external data. | 0123             |
+| [RSR-0138](repository-structure-0138-synthetic-world-agent-sim.md)           | accepted | Synthetic World and Agent Sim Merge Direction | Moves `synthetic_world` under `foundry.agent_sim.world` with a sunset shim. | RSR-0134         |
+| [RSR-0139](repository-structure-0139-calibration-canonical-home.md)          | accepted | Canonical Home for Calibration               | Keeps `polisyos.calibration` as the shared diagnostics API and scopes Foundry calibration separately. | RSR-0134         |
+| [RSR-0140](repository-structure-0140-pickle-checkpoint-compatibility.md)     | accepted | Pickle and Checkpoint Compatibility Safety Net | Freezes checkpoint fixture loading before decomposition moves.             | RSR-0143         |
+| [RSR-0141](repository-structure-0141-dynamic-import-registry.md)             | accepted | Dynamic Import Registry                       | Registers dynamic import patterns and whitelisted resolvable targets.     | RSR-0143         |
+| [RSR-0142](repository-structure-0142-libcst-module-move-codemod.md)          | accepted | LibCST Module Move Codemod                    | Defines the reusable codemod for Phase 5/6 source moves and shims.        | RSR-0144         |
+| [RSR-0143](repository-structure-0143-decomposition-blueprint-contract.md)    | accepted | Decomposition Blueprint Contract              | Makes the Phase 3A blueprint mandatory before Scientist/Foundry moves.    | RSR-0140, RSR-0141 |
+| [RSR-0144](repository-structure-0144-jax-pydantic-registration-reexport-shims.md) | accepted | JAX/Pydantic Registrations and Re-export Shim Shape | Forbids star-import re-export shims and records registration risks. | RSR-0142         |
+| [RSR-0145](repository-structure-0145-import-cycle-baseline.md)               | accepted | Import Cycle Baseline                         | Freezes pre-decomposition lazy import SCCs and blocks new cycles.         | RSR-0143         |
 
 ## Architecture
 
@@ -59,7 +73,7 @@
 | [0033](0033-json-serializable-mechanism-families-only.md)       | proposed | JSON-Serializable Mechanism Families Only                                         | Phase 10 GCM (Graphical Causal Model) fitting assigns functional mechanisms to each node in a structural causal model.                       | —                |
 | [0035](0035-two-step-screening-haiku-sonnet.md)                 | proposed | Two-Step Article Screening (Haiku / Sonnet)                                       | Phase 0 academic batch pipeline ingests articles from OpenAlex for causal claim extraction into the Structured Knowledge Graph.              | —                |
 | [0044](0044-literature-first-single-reconciliation-strategy.md) | proposed | Literature-First as the Single Reconciliation Strategy                            | When reconciling a data-driven causal graph (e.g., from PC/FCI discovery) with the literature-derived SKG graph, multiple strategies are...  | —                |
-| [0053](0053-architecture-freeze-contracts.md)                   | proposed | Architecture Freeze at Assembly Points                                            | The policy engine architecture defines assembly point contracts: IR schemas, import gates (enforced by `import_policy.toml`), and foundry... | —                |
+| [0053](0053-architecture-freeze-contracts.md)                   | proposed | Architecture Freeze at Assembly Points                                            | The policy engine architecture defines assembly point contracts: IR schemas, import gates (enforced by `architecture/imports/policy.toml`), and foundry... | —                |
 | [0054](0054-skg-on-academic-module.md)                          | proposed | SKG Built on the Academic Module                                                  | The Scientific Knowledge Graph (SKG) aggregates causal evidence from academic literature.                                                    | 0043             |
 | [0055](0055-dataset-graph-on-datasets-module.md)                | proposed | Dataset Graph Built on the Datasets Module                                        | The Dataset Graph tracks variable availability, measurement quality, and temporal coverage across ingested datasets for each context (cou... | 0047, 0050, 0054 |
 | [0058](0058-compatibility-policy-additive-changes-only.md)      | proposed | Only additive schema changes (1.0 to 1.1), dual-read migration                    | The IR layer serialises causal models, governance reports, and decision packets into versioned JSON schemas.                                 | —                |

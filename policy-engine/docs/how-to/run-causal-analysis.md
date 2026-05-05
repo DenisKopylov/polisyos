@@ -23,9 +23,9 @@ you need decision governance and policy report assembly.
 cd policy-engine
 uv sync --frozen --extra causal --extra test
 uv run pytest \
-  tests/foundry/methods/catalog/causal/test_discovery_pipeline.py \
-  tests/foundry/methods/catalog/causal/test_causal_engine.py \
-  tests/foundry/methods/catalog/causal/test_bounds_engine.py -q
+  tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py \
+  tests/unit/foundry/methods/catalog/causal/test_causal_engine.py \
+  tests/unit/foundry/methods/catalog/causal/test_bounds_engine.py -q
 ```
 
 ## Install Surface
@@ -351,17 +351,17 @@ Run focused tests for the surfaces above:
 
 ```bash
 uv run pytest \
-  tests/foundry/methods/catalog/causal/test_discovery_pipeline.py \
-  tests/foundry/methods/catalog/causal/test_causal_engine.py \
-  tests/foundry/methods/catalog/causal/test_bounds_engine.py \
-  tests/foundry/methods/catalog/network/test_ergm.py \
-  tests/foundry/methods/catalog/network/test_sbm.py \
-  tests/foundry/methods/catalog/network/test_diffusion_null.py \
-  tests/foundry/methods/catalog/network/test_block_causal_bridge.py \
-  tests/foundry/methods/catalog/causal/test_sensitivity_metrics.py \
-  tests/foundry/methods/catalog/causal/test_dtr.py \
-  tests/foundry/methods/catalog/causal/test_strategic.py \
-  tests/ir/analytics/test_network_generative.py -q
+  tests/unit/foundry/methods/catalog/causal/test_discovery_pipeline.py \
+  tests/unit/foundry/methods/catalog/causal/test_causal_engine.py \
+  tests/unit/foundry/methods/catalog/causal/test_bounds_engine.py \
+  tests/unit/foundry/methods/catalog/network/test_ergm.py \
+  tests/unit/foundry/methods/catalog/network/test_sbm.py \
+  tests/unit/foundry/methods/catalog/network/test_diffusion_null.py \
+  tests/unit/foundry/methods/catalog/network/test_block_causal_bridge.py \
+  tests/unit/foundry/methods/catalog/causal/test_sensitivity_metrics.py \
+  tests/unit/foundry/methods/catalog/causal/test_dtr.py \
+  tests/unit/foundry/methods/catalog/causal/test_strategic.py \
+  tests/unit/ir/analytics/test_network_generative.py -q
 ```
 
 For the full architecture rationale, read

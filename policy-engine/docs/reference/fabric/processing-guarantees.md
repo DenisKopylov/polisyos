@@ -1,6 +1,6 @@
 # Fabric Processing Guarantees
 
-Related plan: [FABRIC_BEST_IN_CLASS_PLAN.md](../../plans/active/FABRIC_BEST_IN_CLASS_PLAN.md).
+Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Related ADR: [0133 Fabric Streaming and Scale Semantics](../../adr/0133-fabric-streaming-scale-semantics.md).
 
 Phase 8 makes Fabric explicit about what each runtime path can promise. The
@@ -81,5 +81,5 @@ Validation:
 
 ```bash
 uv run python tools/quality/validation/fabric_processing_guarantees.py --check
-uv run pytest tests/fabric/data_plane/test_processing_guarantees.py tests/fabric/data_plane/test_benchmarks.py -q
+uv run pytest tests/unit/fabric/data_plane/test_processing_guarantees.py tests/unit/fabric/data_plane/test_benchmarks.py -q
 ```

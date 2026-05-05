@@ -16,20 +16,8 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-)
-from benchmarks.reporting import (  # noqa: E402
-    build_preflight,
-    build_report_payload,
-    print_preflight,
-)
-from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
-    ComposeSCMFragments,  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (  # noqa: E402
+    ComposeSCMFragments,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.query_preservation import (  # noqa: E402
@@ -49,6 +37,19 @@ from polisyos.scientist.backtesting.composition_bridge import (  # noqa: E402
     normalize_interface_mapping,
     replay_fragment_composition_case,
 )
+
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 _FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "composition_cases.json"
@@ -176,6 +177,11 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
                 "witness_fragment_ids": list(trace.witness_fragment_ids),
                 "source_witness_kind": trace.source_witness_kind,
                 "assumption_boundary": trace.assumption_boundary,
+                "theorem_family": trace.theorem_family,
+                "identification_status": trace.identification_status,
+                "identification_method": trace.identification_method,
+                "latent_projection_ref": None,
+                "negative_certificate_ref": None,
             }
             for fingerprint, trace in sorted(traces.items())
         }
@@ -278,11 +284,13 @@ def _checker(spec: CompositionBenchmarkSpec):
     def check(result: dict[str, Any]) -> bool:
         if result["composition_status"] != spec.expected_composition_status:
             raise AssertionError(
-                f"expected composition status {spec.expected_composition_status}, got {result['composition_status']}"
+                "expected composition status "
+                f"{spec.expected_composition_status}, got {result['composition_status']}"
             )
         if bool(result["needs_expert_review"]) != spec.expected_needs_expert_review:
             raise AssertionError(
-                f"expected needs_expert_review={spec.expected_needs_expert_review}, got {result['needs_expert_review']}"
+                "expected needs_expert_review="
+                f"{spec.expected_needs_expert_review}, got {result['needs_expert_review']}"
             )
         query_statuses = dict(result.get("query_statuses", {}))
         if spec.expected_query_status is not None:
@@ -291,7 +299,8 @@ def _checker(spec: CompositionBenchmarkSpec):
             observed_status = next(iter(query_statuses.values()))
             if observed_status != spec.expected_query_status:
                 raise AssertionError(
-                    f"expected query preservation {spec.expected_query_status}, got {observed_status}"
+                    "expected query preservation "
+                    f"{spec.expected_query_status}, got {observed_status}"
                 )
         failure_types = {
             str(card.get("failure_type"))

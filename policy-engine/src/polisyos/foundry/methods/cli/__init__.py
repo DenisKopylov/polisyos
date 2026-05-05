@@ -19,7 +19,7 @@ Usage::
     polisyos-foundry validate --all
     polisyos-foundry catalog --namespace causal
     polisyos-foundry release-acceptance --manifest-path bundle/release_manifest.json --runtime-bundle-dir bundle/runtime --method-contract-bundle-dir bundle/contracts --store-root .foundry-release-cas --json
-    polisyos-foundry compat --baseline tests/foundry/fixtures/signature_baseline.json
+    polisyos-foundry compat --baseline tests/unit/foundry/fixtures/signature_baseline.json
 """
 
 from __future__ import annotations
@@ -429,7 +429,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_compat = sub.add_parser("compat", help="Check for breaking signature changes")
     p_compat.add_argument(
         "--baseline",
-        default="tests/foundry/fixtures/signature_baseline.json",
+        default="tests/unit/foundry/fixtures/signature_baseline.json",
         help="Path to signature baseline JSON",
     )
 

@@ -17,7 +17,7 @@ from polisyos.ir.analytics.cross_graph import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
+    from polisyos.data_forge.read_api.academic import ScholarKnowledgeGraph
 
 
 class BenchmarkCausalEdge(BaseModel):

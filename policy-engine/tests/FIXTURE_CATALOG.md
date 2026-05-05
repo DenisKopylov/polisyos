@@ -9,13 +9,13 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 | Family | Purpose | Canonical path(s) | Notes |
 |---|---|---|---|
 | Session/runtime fixtures | repo-wide test environment, artifact helpers, observability shims | `tests/conftest.py`, `tests/fixtures/artifacts.py`, `tests/fixtures/observability.py` | loaded automatically for pytest |
-| Runtime HTTP environment | fixture-backed FastAPI app and metadata used by backend + dashboard tests | `tests/fixtures/runtime_http.py`, `tests/runtime/http/conftest.py`, `frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py` | canonical local integration demo dataset |
+| Runtime HTTP environment | fixture-backed FastAPI app and metadata used by backend + dashboard tests | `tests/fixtures/runtime_http.py`, `tests/unit/runtime/http/conftest.py`, `frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py` | canonical local integration demo dataset |
 | Deterministic synthetic builders | generated data when static JSON is too brittle | `tests/fixtures/c7_synthetic_data.py`, `tests/fixtures/causal_scm_fixtures.py`, `tests/fixtures/search_strategies.py` | prefer seeded builders over sprawling static blobs |
 | Contract golden records | stable IDs, canonical bytes, ABI-critical fixtures | `tests/contract/golden_records.json`, `tests/contract/conftest.py` | refresh only with explicit contract decision |
-| Foundry goldens | cross-method regression expectations | `tests/foundry/golden/*.yaml` | human-reviewed YAML goldens |
+| Foundry goldens | cross-method regression expectations | `tests/unit/foundry/golden/*.yaml` | human-reviewed YAML goldens |
 | Schema snapshots | generated contract snapshots checked in to gate ABI drift | `schemas/snapshots/**` | refresh via schema generation tooling, never manual edits |
 | Frontend contract fixtures | recorded runtime payloads parsed by frontend schemas | `frontend/runtime-dashboard/src/test/contracts/fixtures/*.json` | refresh via `npm run contracts:record` |
-| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/fabric/connectors/sources/fixtures/**`, `polisyos-tools data record-fixtures` | committed only for narrow, reviewable source slices |
+| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/unit/fabric/connectors/sources/fixtures/**`, `polisyos-tools data record-fixtures` | committed only for narrow, reviewable source slices |
 | Seed/minimal data bundles | tiny domain examples for lex, transportability, phase0 and benchmark cases | `tests/fixtures/lex/**`, `tests/fixtures/phase0/**`, `tests/fixtures/transportability/**`, `benchmarks/*/fixtures/public_cases.json` | small enough to reason about in code review |
 
 ## 2. Policy: Generated Fixtures
@@ -33,7 +33,7 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 - Goldens represent reviewed compatibility baselines, not convenience fixtures.
 - Canonical golden surfaces in this repo:
   - `tests/contract/golden_records.json`
-  - `tests/foundry/golden/*.yaml`
+  - `tests/unit/foundry/golden/*.yaml`
   - `schemas/snapshots/**`
 - Golden refresh requires:
   - an intentional change reason;
@@ -49,8 +49,8 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 
 ```bash
 cd policy-engine
-uv run python tools/diagnostics/gen_schema.py --models ir --check --output-dir schemas/snapshots
-uv run python tools/diagnostics/gen_schema.py --models fabric --check --output-dir schemas/snapshots
+uv run python tools/quality/diagnostics/gen_schema.py --models ir --check --output-dir schemas/snapshots
+uv run python tools/quality/diagnostics/gen_schema.py --models fabric --check --output-dir schemas/snapshots
 ```
 
 - Refresh intentionally by running the same tooling without `--check`, then review the diff.
@@ -91,8 +91,8 @@ npm run contracts:record
 - `data/**`
 - `production_data/**`
 - `.polisyos/**`
-- `tmp/**`
-- `runs/**`
+- `_build/**`
+- `_cache/**`
 
 These paths are already reinforced by root and repo-local `.gitignore` rules.
 

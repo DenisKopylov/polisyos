@@ -13,7 +13,7 @@ Phase 4 ownership document for `policy-engine/tests` and `frontend/runtime-dashb
 | `unit` | isolated logic, no multi-service seam | everything not classified below | `pytest -m unit` |
 | `contract` | compatibility, schema, ABI and boundary stability | `tests/contract/**` | `pytest -m contract` |
 | `property` | Hypothesis/property-based invariants | explicit `@pytest.mark.property` or `test_*property*.py` / `test_*properties.py` | `pytest -m property` |
-| `integration` | cross-subsystem, runtime-boundary or reference-source tests | `tests/integration/**`, `tests/runtime/http/**`, `tests/fabric/connectors/reference/**` | `pytest -m integration` |
+| `integration` | cross-subsystem, runtime-boundary or reference-source tests | `tests/integration/**`, `tests/unit/runtime/http/**`, `tests/unit/fabric/connectors/reference/**` | `pytest -m integration` |
 | `performance` | benchmark and cost-regression tests | `tests/performance/**`, tests with `@pytest.mark.benchmark` | `pytest -m performance` |
 
 ### Frontend taxonomy
@@ -77,7 +77,7 @@ Registered markers live in [`pyproject.toml`](/Users/deniskopylov/polisyos/polic
 
 ```bash
 cd policy-engine
-pytest -m "not integration and not performance and not quarantine" --ignore=tests/runtime/http
+pytest -m "not integration and not performance and not quarantine" --ignore=tests/unit/runtime/http
 ```
 
 ### Dedicated Python surfaces
@@ -86,9 +86,9 @@ pytest -m "not integration and not performance and not quarantine" --ignore=test
 cd policy-engine
 pytest -m contract
 pytest -m property
-pytest -m integration --ignore=tests/runtime/http
+pytest -m integration --ignore=tests/unit/runtime/http
 pytest -m performance
-pytest tests/runtime/http -m "not quarantine"
+pytest tests/unit/runtime/http -m "not quarantine"
 ```
 
 ### Frontend surfaces
@@ -102,12 +102,12 @@ npm run test:visual
 
 ### Local integration smoke stack
 
-Use [`tools/testing/local_integration_stack.py`](/Users/deniskopylov/polisyos/policy-engine/tools/testing/local_integration_stack.py):
+Use [`tools/quality/testing/local_integration_stack.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/local_integration_stack.py):
 
 ```bash
 cd policy-engine
-uv run python tools/testing/local_integration_stack.py up
-uv run python tools/testing/local_integration_stack.py smoke
+uv run python tools/quality/testing/local_integration_stack.py up
+uv run python tools/quality/testing/local_integration_stack.py smoke
 ```
 
 The smoke profile validates:
@@ -131,10 +131,10 @@ When the suite outgrows a single lane, shard by test class first and by runner-n
 
 ### Practical shard boundaries
 
-- Python shard A: `tests/core`, `tests/ir`, `tests/contract`
-- Python shard B: `tests/fabric`, `tests/runtime` except `tests/runtime/http`
-- Python shard C: `tests/foundry`, `tests/scientist`
-- Python shard D: `tests/academic`, `tests/datasets`, `tests/lex`, `tests/demos`
+- Python shard A: `tests/unit/core`, `tests/unit/ir`, `tests/contract`
+- Python shard B: `tests/unit/fabric`, `tests/unit/runtime` except `tests/unit/runtime/http`
+- Python shard C: `tests/unit/foundry`, `tests/unit/scientist`
+- Python shard D: `tests/unit/data_forge`, `tests/unit/lex`, `tests/e2e/demos`
 - Frontend component shards: `vitest --shard=1/2`, `vitest --shard=2/2`
 - Frontend journey shards: `playwright test --shard=1/2`, `playwright test --shard=2/2`
 
@@ -143,5 +143,5 @@ Historical duration data should come from the economics report tool instead of i
 ## 7. Enforcement and Reporting
 
 - Active PR CI emits JUnit XML for the Python `runtime-http`, `integration`, and `performance` lanes.
-- [`tools/testing/report_test_economics.py`](/Users/deniskopylov/polisyos/policy-engine/tools/testing/report_test_economics.py) renders the top slowest suites/tests plus active quarantine inventory into the GitHub Actions step summary.
-- [`tools/testing/check_playwright_quarantines.py`](/Users/deniskopylov/polisyos/policy-engine/tools/testing/check_playwright_quarantines.py) fails CI if a Playwright `@flaky` or `@quarantine` title has no matching registry entry, if selectors are duplicated, or if a registry entry points at a non-tagged test.
+- [`tools/quality/testing/report_test_economics.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/report_test_economics.py) renders the top slowest suites/tests plus active quarantine inventory into the GitHub Actions step summary.
+- [`tools/quality/testing/check_playwright_quarantines.py`](/Users/deniskopylov/polisyos/policy-engine/tools/quality/testing/check_playwright_quarantines.py) fails CI if a Playwright `@flaky` or `@quarantine` title has no matching registry entry, if selectors are duplicated, or if a registry entry points at a non-tagged test.

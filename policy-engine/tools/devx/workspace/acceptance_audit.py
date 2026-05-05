@@ -9,7 +9,7 @@ import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 PRODUCT_ROOT, _SRC_ROOT = ensure_repo_import_roots(
     __file__, include_repo_root=True, include_src_root=False
@@ -60,7 +60,7 @@ class AuditReport:
 MANUAL_CHECKS: dict[str, tuple[str, str]] = {
     "clean_machine_bootstrap": (
         "Clean-machine bootstrap rehearsal",
-        "Re-clone the repo on a clean machine and run ./scripts/bootstrap -> ./scripts/doctor -> ./scripts/verify.",
+        "Re-clone the repo on a clean machine and run polisyos-tools workspace bootstrap -> polisyos-tools workspace doctor -> polisyos-tools workspace verify.",
     ),
     "backend_walkthrough": (
         "Backend contributor walkthrough",
@@ -189,22 +189,19 @@ def _toolchain_consistency() -> AuditCheck:
 
 
 def _repo_root_coherence() -> AuditCheck:
-    root_readme = WORKSPACE_ROOT / "README.md"
     product_readme = PRODUCT_ROOT / "README.md"
-    adr = PRODUCT_ROOT / "docs" / "adr" / "0096-canonical-product-root-and-workspace-boundary.md"
+    adr = PRODUCT_ROOT / "docs" / "adr" / "repository-structure-0130-workspace-boundary.md"
     issues: list[str] = []
-    if not _contains(root_readme, "workspace gateway", "policy-engine/"):
-        issues.append(
-            "Repository root README no longer points contributors at policy-engine/ as the canonical product root."
-        )
-    if not _contains(product_readme, "Canonical product root", "./scripts/bootstrap"):
+    if not _contains(
+        product_readme, "Canonical product root", "polisyos-tools workspace bootstrap"
+    ):
         issues.append(
             "policy-engine/README.md no longer advertises the canonical contributor entry path."
         )
-    if not _path_exists(adr):
-        issues.append("ADR-0096 is missing.")
+    if not _contains(adr, "Variant A", "collapse to the product root"):
+        issues.append("ADR-RSR-0130 no longer records the accepted Phase 2A collapse decision.")
     detail = (
-        "Root and product READMEs still agree on the workspace gateway vs canonical product-root split."
+        "Product README and ADR-RSR-0130 agree on the collapsed product-root workspace boundary."
         if not issues
         else " ".join(issues)
     )
@@ -214,7 +211,7 @@ def _repo_root_coherence() -> AuditCheck:
         kind="automated",
         ok=not issues,
         detail=detail,
-        evidence=(root_readme, product_readme, adr),
+        evidence=(product_readme, adr),
     )
 
 
@@ -530,7 +527,7 @@ def _generated_artifacts() -> AuditCheck:
 def _external_security_signals() -> AuditCheck:
     nightly = WORKSPACE_ROOT / ".github" / "workflows" / "frontend-nightly.yml"
     release_workflow = WORKSPACE_ROOT / ".github" / "workflows" / "release.yml"
-    security_md = WORKSPACE_ROOT / "SECURITY.md"
+    security_md = PRODUCT_ROOT / "SECURITY.md"
     issues: list[str] = []
     if not _contains(nightly, "scorecard"):
         issues.append("Nightly workflow no longer carries Scorecard coverage.")

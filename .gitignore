@@ -1,24 +1,108 @@
-
-# local datasets
-/data/
+# Product-local data and fixtures
 policy-engine/data/**
 !policy-engine/data/**/
 !policy-engine/data/**/*.md
-/relevant_topics_domain_files/
+!policy-engine/data/academic_gold/claim_gold.jsonl
+!policy-engine/data/academic_gold/claim_gold_split.json
+!policy-engine/data/dataset_catalog/*.yaml
 
-# local OS/editor/runtime artifacts
-.DS_Store
-.benchmarks/
-.cursor/plans/
+# Ephemeral artifacts
+policy-engine/_build/
+policy-engine/_cache/
+policy-engine/.polisyos/
+policy-engine/.polisyos-tools/
+policy-engine/.venv/
+policy-engine/.venv-*/
+policy-engine/.venv_*/
+policy-engine/.arch-freeze/
+policy-engine/.tmp_*/
+policy-engine/production_data/
+.polisyos/
 .venv/
 .venv-*/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-__pycache__/
-*.py[cod]
+.venv_*/
+.tmp_*/
 
-# local data/table artifacts
+# Legacy caches and local analysis state
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.ipynb_checkpoints/
+.benchmarks/
+.basedpyright/
+.cache/
+.uv-cache/
+
+# Legacy generated outputs
+/out/
+/output/
+/dist/
+/site/
+/logs/
+/.tmp/
+/benchmark-results/
+/release/sbom/
+/release-fragments/releases/
+policy-engine/benchmarks/_reports/
+policy-engine/tools/benchmarks/_reports/
+policy-engine/release/sbom/
+policy-engine/release-fragments/releases/
+
+# Scratch and local logs
+policy-engine/runs/
+/tmp/
+*.log
+*.tmp
+
+# Root-level validation scratch outputs
+/compileall.txt
+/import_gate.txt
+/ruff_stats.txt
+/stale_sources_missing_paths.txt
+/summary.json
+/test_collect.txt
+
+# Python residue
+**/__pycache__/
+*.pyc
+*.py[cod]
+*.egg-info/
+
+# Local environment and editor state
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.*.example
+.claude/settings*.json
+.claude/worktrees/
+**/.claude/launch.json
+.cursor/plans/
+.playwright-cli/
+
+# Local secret manifests
+policy-engine/ops/cloud/gcp/gonka_secret_manifest*.json
+!policy-engine/ops/cloud/gcp/gonka_secret_manifest*.example.json
+
+# Local frontend dependencies
+policy-engine/frontend/runtime-api-client/node_modules/
+policy-engine/frontend/runtime-dashboard/node_modules/
+policy-engine/frontend/runtime-dashboard/dist/
+policy-engine/frontend/runtime-dashboard/coverage/
+policy-engine/frontend/runtime-dashboard/playwright-report/
+policy-engine/frontend/runtime-dashboard/storybook-static/
+policy-engine/frontend/runtime-dashboard/test-results/
+policy-engine/frontend/runtime-dashboard/.tmp/
+policy-engine/frontend/runtime-dashboard/.eslintcache
+policy-engine/frontend/runtime-dashboard/.env
+policy-engine/frontend/runtime-dashboard/.env.local
+policy-engine/frontend/runtime-dashboard/.env.*.local
+!policy-engine/frontend/runtime-dashboard/.env.example
+policy-engine/frontend/runtime-reference-shell/node_modules/
+policy-engine/packages/*/node_modules/
+
+# Local data/table artifacts
 *.csv
 *.tsv
 *.parquet
@@ -29,46 +113,17 @@ __pycache__/
 *.xlsx
 *.xls
 *.ods
+*.duckdb
+*.kuzu
+*.sqlite
+*.sqlite3
+*.db
+*.pkl
+!policy-engine/data/academic_gold/claim_gold.jsonl
+!policy-engine/src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/*.csv
+!policy-engine/tests/unit/data_forge/fixtures/non_lex_split/**/*.duckdb
+!policy-engine/tests/fixtures/checkpoint_compat/**/*.pkl
 
-# spec document
-scm-implementation-spec-v3.md
-
-# local PolisyOS runtime state and artifacts
-.polisyos/
-
-# local browser automation artifacts
-.playwright-cli/
-
-# property-based testing artifacts
-.hypothesis/
-
-# exported design renders
-output/playwright/
-/output/
-
-# local run/test scratch artifacts
-/.tmp/
-/tmp/
-/runs/
-/logs/
-/out/
-/dist/
-/site/
-/benchmark-results/
-
-# local audit bundles and accidental shell redirection artifacts
-/*.polisyos-audit.tar.gz
+# Local audit bundles and accidental shell redirection artifacts
+*.polisyos-audit.tar.gz
 /=*
-
-# local Claude desktop state
-.claude/settings*.json
-.claude/worktrees/
-**/.claude/launch.json
-
-# root-level validation scratch outputs
-/compileall.txt
-/import_gate.txt
-/ruff_stats.txt
-/stale_sources_missing_paths.txt
-/summary.json
-/test_collect.txt

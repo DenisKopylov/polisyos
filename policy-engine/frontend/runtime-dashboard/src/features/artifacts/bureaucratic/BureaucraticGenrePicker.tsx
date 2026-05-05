@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 
 import {
   BUREAUCRATIC_GENRES,

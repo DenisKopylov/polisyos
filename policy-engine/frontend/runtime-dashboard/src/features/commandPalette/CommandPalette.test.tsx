@@ -102,17 +102,17 @@ vi.mock("@/app/providers/DensityProvider", () => ({
   }),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: (key: string) => key,
   }),
 }));
 
-vi.mock("@/lib/hooks", () => ({
+vi.mock("@/shared/lib/hooks", () => ({
   useGlobalShortcut: (...args: unknown[]) => useGlobalShortcutMock(...args),
 }));
 
-vi.mock("@/lib/capabilities", () => ({
+vi.mock("@/shared/lib/capabilities", () => ({
   isCapabilityEnabled: (...args: unknown[]) => isCapabilityEnabledMock(...args),
 }));
 
@@ -190,7 +190,7 @@ describe("CommandPalette", () => {
     );
 
     expect(navigateMock).toHaveBeenCalledWith(
-      "/evidence?surface=freshness-braid",
+      "/evidence?runId=run-1&surface=freshness-braid",
     );
   });
 

@@ -15,7 +15,7 @@ from polisyos.scientist.agent.reflexion_evaluator import (
     RubricReflexionEvaluator,
     build_reflexion_summary_text,
 )
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 from .registry import ToolCallResult, ToolRegistry
 

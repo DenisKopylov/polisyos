@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 # --- Make `polisyos` importable ---
 POLICY_ENGINE_ROOT = repo_root_from(__file__)
@@ -26,17 +26,16 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from polisyos.foundry.base import Mechanism
-from polisyos.foundry.domain.state import GlobalState
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.foundry.agents import AgentPolicy
+from polisyos.foundry._registry import create_mechanism_from_spec
+from polisyos.foundry.agent_sim.agents import AgentPolicy
+from polisyos.foundry.base import Mechanism
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.registry import create_mechanism_from_spec
+from polisyos.foundry.domain.state import GlobalState
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec

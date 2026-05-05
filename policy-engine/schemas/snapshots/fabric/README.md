@@ -5,13 +5,13 @@
 ## Роль в системе
 
 - Защищает совместимость graph-слоя через те же ABI-gate механизмы, что и `snapshots/ir`.
-- Служит baseline для `tools/diagnostics/gen_schema.py --check` в CI.
+- Служит baseline для `tools/quality/diagnostics/gen_schema.py --check` в CI.
 
 ## Источники данных
 
 - Реестр моделей: `schemas/abi_models.py` (`module="fabric"`).
 - Источник enum-классов: `src/polisyos/ir/world/abi.py`.
-- Генератор: `tools/diagnostics/gen_schema.py`.
+- Генератор: `tools/quality/diagnostics/gen_schema.py`.
 
 ## Содержимое
 
@@ -28,8 +28,8 @@
 ## Команды (из `policy-engine/`)
 
 ```bash
-python3 tools/diagnostics/gen_schema.py --models fabric --check
-python3 tools/diagnostics/gen_schema.py --models fabric
+python3 tools/quality/diagnostics/gen_schema.py --models fabric --check
+python3 tools/quality/diagnostics/gen_schema.py --models fabric
 ```
 
 ## Инварианты

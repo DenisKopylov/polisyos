@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Frontier runtime](frontier-runtime.m
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/search/benchmark_registry.py`, `src/polisyos/scientist/evals/**`, `tests/scientist/evals/**`, `tests/scientist/search/test_benchmark_registry.py`, `tests/scientist/search/test_phase_d4_runtime_integration.py`, `tests/scientist/test_frontier_runtime.py`, and `tools/ci/check_scientist_benchmark_authority.py`
+Source of truth: `src/polisyos/scientist/search/benchmark_registry.py`, `src/polisyos/scientist/evals/**`, `tests/unit/scientist/evals/**`, `tests/unit/scientist/search/test_benchmark_registry.py`, `tests/unit/scientist/search/test_phase_d4_runtime_integration.py`, `tests/unit/scientist/search/test_frontier_runtime.py`, and `tools/ci/check_scientist_benchmark_authority.py`
 
 Phase 1.5 keeps `BenchmarkRegistry` as the persistence authority for benchmark
 refs. The new `BenchmarkAuthority` is a policy facade over that registry: it
@@ -109,8 +109,8 @@ Stale evidence blocks default enablement.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/evals -q
-uv run pytest tests/scientist/search/test_benchmark_registry.py tests/scientist/test_frontier_runtime.py -q
-uv run pytest tests/scientist/search/test_phase_d4_runtime_integration.py -q
+uv run pytest tests/unit/scientist/evals -q
+uv run pytest tests/unit/scientist/search/test_benchmark_registry.py tests/unit/scientist/search/test_frontier_runtime.py -q
+uv run pytest tests/unit/scientist/search/test_phase_d4_runtime_integration.py -q
 uv run python tools/ci/check_scientist_benchmark_authority.py --require-passing
 ```

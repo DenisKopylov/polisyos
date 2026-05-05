@@ -113,9 +113,9 @@ Access governance is centered in `fabric.security`:
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/test_observability_governance_quality_phase4.py -q
-uv run pytest tests/fabric/test_fabric_observability.py tests/fabric/test_lineage.py tests/fabric/test_access_control.py -q
-uv run pytest tests/fabric/connectors/test_quality_statistics.py tests/scientist/governance/test_quality_gate_pass.py -q
+uv run pytest tests/unit/fabric/test_observability_governance_quality_phase4.py -q
+uv run pytest tests/unit/fabric/test_fabric_observability.py tests/unit/fabric/test_lineage.py tests/unit/fabric/test_access_control.py -q
+uv run pytest tests/unit/fabric/connectors/test_quality_statistics.py tests/unit/scientist/governance/test_quality_gate_pass.py -q
 ```
 
 ## API Reference

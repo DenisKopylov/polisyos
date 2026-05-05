@@ -59,8 +59,8 @@ Conceptual in this README refresh; run these targeted checks before landing IR
 changes.
 
 ```bash
-uv run pytest tests/ir/test_public_surface.py tests/ir/test_schema_catalog.py tests/ir/test_trinity_loaders.py tests/ir/test_interoperability_bridges.py -q
-uv run python tools/diagnostics/generate_ir_reference_catalog.py --check
+uv run pytest tests/unit/ir/test_public_surface.py tests/unit/ir/test_schema_catalog.py tests/unit/ir/test_trinity_loaders.py tests/unit/ir/test_interoperability_bridges.py -q
+uv run python tools/quality/diagnostics/generate_ir_reference_catalog.py --check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 

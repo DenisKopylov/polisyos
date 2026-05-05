@@ -1,6 +1,6 @@
 import { Button } from "@/shared/ui";
 import { AtlasBrand } from "@/shared/brand/AtlasBrand";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 export function HeroSection() {
   const { t } = useI18n();

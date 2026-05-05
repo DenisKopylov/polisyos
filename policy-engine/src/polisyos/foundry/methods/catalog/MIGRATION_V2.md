@@ -37,3 +37,9 @@ Foundry V2 завершает breaking cleanup старого method surface.
 - registration;
 - capability matrix;
 - migration/authoring guidance.
+
+Phase 1A удаляет пустые package-placeholders
+`methods/{bayesian,causal,dependence,econometrics,microsim,ml,network,optimization,spatial}/`.
+Flat domain API теперь реализован однофайловыми façade-модулями
+`methods/<domain>.py`; они не являются packages, поэтому deep legacy imports
+ниже `methods.<domain>` остаются неимпортируемыми.

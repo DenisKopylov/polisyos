@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 import { Check, Copy, Globe, Lock, Link2 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   Button,
   Dialog,

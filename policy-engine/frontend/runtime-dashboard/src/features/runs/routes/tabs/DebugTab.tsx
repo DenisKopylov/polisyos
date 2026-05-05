@@ -12,8 +12,8 @@ import { AuditTimeline } from "@/features/runs/components/AuditTimeline";
 import { buildAuditTrail } from "@/features/runs/domain/compare";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { FeatureErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {

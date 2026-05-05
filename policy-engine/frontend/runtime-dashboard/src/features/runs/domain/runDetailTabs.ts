@@ -4,7 +4,7 @@ import {
   type RunDetailSurfaceKey,
   type SurfacePermissionKey,
 } from "@/app/surfaces/surfaceRegistry";
-import { isCapabilityEnabled } from "@/lib/capabilities";
+import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 
 export type RunDetailTabPermission = Extract<
   SurfacePermissionKey,

@@ -8,7 +8,7 @@ import json
 from collections import OrderedDict
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 VALIDATION_CONTOURS = ("legacy", "production", "academic")
 VISIBILITY_LANES = ("public", "hidden_release", "prod_shadow")
@@ -1036,6 +1036,8 @@ def suites_for_claim_profile(
 
 
 __all__ = [
+    "VALIDATION_CONTOURS",
+    "VISIBILITY_LANES",
     "SuiteSpec",
     "alias_targets",
     "all_suite_specs",
@@ -1045,8 +1047,6 @@ __all__ = [
     "spec_by_suite_id",
     "suites_for_claim_profile",
     "suites_for_profile",
-    "VALIDATION_CONTOURS",
-    "VISIBILITY_LANES",
 ]
 
 

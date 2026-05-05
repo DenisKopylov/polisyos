@@ -18,7 +18,7 @@ from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.policy import SharedPolicy
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
 from polisyos.foundry.contracts.fidelity import FidelityLevel
-from polisyos.foundry.social_weights import (
+from polisyos.foundry.welfare.social_weights import (
     prepare_social_weight_schedule,
     social_weighted_resource,
 )

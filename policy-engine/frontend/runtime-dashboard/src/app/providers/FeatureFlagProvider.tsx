@@ -20,7 +20,7 @@ import {
   readInjectedFeatureFlags,
   resolveFeatureFlags,
   writeCachedFeatureFlagManifest,
-} from "@/lib/featureFlags";
+} from "@/shared/lib/featureFlags";
 
 type FeatureFlagSource = "cache" | "env" | "window" | "remote" | "props";
 type FeatureFlagStatus = "ready" | "loading" | "error";

@@ -427,7 +427,7 @@ class BoundsEngineMethod:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
         if not isinstance(state, Mapping):
             from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
 

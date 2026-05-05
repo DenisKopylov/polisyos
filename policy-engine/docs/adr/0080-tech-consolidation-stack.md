@@ -30,7 +30,7 @@ consolidation policy is needed.
    promoted to Tier 2 if a Phase explicitly requires them.
 4. NetworkX is retained as a transitive dependency (DoWhy requires it) but is not
    used directly in hot paths; all new graph code targets rustworkx.
-5. The `import_policy.toml` linter enforces tier boundaries: Tier 3 imports are
+5. The `architecture/imports/policy.toml` linter enforces tier boundaries: Tier 3 imports are
    compile-time errors; Tier 2 imports must be lazy and guarded.
 
 ## Consequences
@@ -38,7 +38,7 @@ consolidation policy is needed.
 ### Positive
 
 - Clear dependency budget reduces install size and CI build time.
-- Tier enforcement via `import_policy.toml` prevents accidental dependency creep.
+- Tier enforcement via `architecture/imports/policy.toml` prevents accidental dependency creep.
 - New contributors have a well-defined decision tree for library selection.
 
 ### Negative

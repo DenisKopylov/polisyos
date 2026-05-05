@@ -2,7 +2,7 @@ import { forwardRef, type SVGAttributes } from "react";
 import type { LucideIcon, LucideProps } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 export const iconVariants = cva("shrink-0", {
   variants: {

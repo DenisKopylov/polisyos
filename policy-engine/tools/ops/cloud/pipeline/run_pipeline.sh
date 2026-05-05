@@ -8,8 +8,8 @@ set -euo pipefail
 usage() {
   cat << 'EOF'
 Usage:
-  bash tools/cloud/run_pipeline.sh --dry-run
-  bash tools/cloud/run_pipeline.sh --yes [--run-id RUN_ID] [--snapshot-root PATH] [--resume]
+  bash tools/ops/cloud/run_pipeline.sh --dry-run
+  bash tools/ops/cloud/run_pipeline.sh --yes [--run-id RUN_ID] [--snapshot-root PATH] [--resume]
 
 Options:
   --dry-run           Preview snapshot root, command, and resume mode without running the pipeline
@@ -169,7 +169,7 @@ if [[ -d "$SNAPSHOT_ROOT" && "$RESUME" -eq 0 ]]; then
 fi
 
 CMD=(
-  python3 -m polisyos.academic.batch.cli run
+  python3 -m polisyos.data_forge.domains.academic.cli run
   --snapshot-root "$SNAPSHOT_ROOT"
   --run-id "$RUN_ID"
   --topics-dir "$TOPICS_DIR"

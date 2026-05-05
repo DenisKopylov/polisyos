@@ -1,0 +1,88 @@
+[policy]
+version = "2"
+internal_prefix = "polisyos"
+src_root = "../../src"
+
+[roots]
+# data_forge is the planned build-time layer. calibration is the shared
+# diagnostics/recalibration root, while synthetic world generation is owned by
+# foundry.agent_sim.world with a temporary synthetic_world compatibility facade.
+known = [
+  "common",
+  "ir",
+  "core",
+  "fabric",
+  "foundry",
+  "calibration",
+  "ddm",
+  "synthetic_world",
+  "data_forge",
+  "scientist",
+  "runtime",
+  "scholar",
+  "lex",
+  "berl",
+  "ddm_15_7",
+  "academic",
+  "batch_common",
+  "batch_snapshot",
+  "datasets",
+  "ukraine_data",
+]
+
+[internal.allow]
+common = ["common"]
+ir = ["ir", "data_forge", "common"]
+core = ["core", "ir", "common"]
+fabric = ["fabric", "data_forge", "core", "ir", "common"]
+foundry = [
+  "foundry",
+  "calibration",
+  "data_forge",
+  "core",
+  "ir",
+  "common",
+]
+calibration = ["calibration", "core", "ir", "common"]
+ddm = ["ddm", "core", "ir", "common"]
+synthetic_world = ["synthetic_world", "foundry", "core", "ir", "common"]
+data_forge = ["data_forge", "fabric", "core", "ir", "common"]
+scientist = [
+  "scientist",
+  "calibration",
+  "berl",
+  "lex",
+  "scholar",
+  "foundry",
+  "fabric",
+  "data_forge",
+  "runtime",
+  "core",
+  "ir",
+  "common",
+]
+runtime = ["runtime", "scientist", "lex", "data_forge", "foundry", "fabric", "core", "ir", "common"]
+scholar = ["scholar", "fabric", "ir", "core", "common"]
+lex = ["lex", "data_forge", "batch_common", "fabric", "ir", "core", "common"]
+berl = ["berl", "core", "ir", "common"]
+ddm_15_7 = ["ddm_15_7", "ddm", "core", "ir", "common"]
+academic = ["academic", "batch_common", "ir", "core", "common"]
+batch_common = ["batch_common", "data_forge", "ir", "core", "common"]
+batch_snapshot = ["batch_snapshot", "data_forge", "batch_common", "ir", "core", "common"]
+datasets = ["datasets", "batch_common", "fabric", "ir", "core", "common"]
+ukraine_data = [
+  "ukraine_data",
+  "data_forge",
+  "scientist",
+  "lex",
+  "foundry",
+  "fabric",
+  "batch_common",
+  "ir",
+  "core",
+  "common",
+]
+
+[external.allow.ir]
+# Top-level external modules allowed in IR (stdlib is always allowed).
+modules = ["pydantic", "typing_extensions", "yaml", "numpy", "rustworkx", "networkx", "kuzu"]

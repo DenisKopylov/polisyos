@@ -16,7 +16,7 @@ import {
   type Density,
 } from "@/app/state/usePreferencesStore";
 import type { InterfaceMode } from "@/app/providers/InterfaceModeProvider";
-import type { FeatureFlagKey, FeatureFlags } from "@/lib/featureFlags";
+import type { FeatureFlagKey, FeatureFlags } from "@/shared/lib/featureFlags";
 
 export type WorkspaceKey =
   | "commandCenter"

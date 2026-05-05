@@ -4,8 +4,8 @@ import CalibrationReport from "@/features/artifacts/components/simulation/Calibr
 import DistributionalPanel from "@/features/artifacts/components/simulation/DistributionalPanel";
 import MetricsPanel from "@/features/artifacts/components/simulation/MetricsPanel";
 import UncertaintyOverlay from "@/features/artifacts/components/simulation/UncertaintyOverlay";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { normalizeSimulationPayload } from "@/lib/domain/simulation";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { normalizeSimulationPayload } from "@/shared/lib/domain/simulation";
 import { UncertaintyBand } from "@/shared/charts";
 
 type SimulationResultsViewerProps = {

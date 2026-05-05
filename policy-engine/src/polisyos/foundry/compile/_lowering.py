@@ -14,7 +14,7 @@ from polisyos.core.contracts.foundry import (
     LoweredIRRef,
     LoweredMechanism,
 )
-from polisyos.foundry.registry import has_runtime_mechanism_support, resolve_runtime_fidelity
+from polisyos.foundry._registry import has_runtime_mechanism_support, resolve_runtime_fidelity
 from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBinding, ParameterSpec
 from polisyos.ir.governance.policy_spec import PolicySpec as PolicySpecModel
 from polisyos.ir.governance.problem_frame import ProblemFrame as ProblemFrameModel

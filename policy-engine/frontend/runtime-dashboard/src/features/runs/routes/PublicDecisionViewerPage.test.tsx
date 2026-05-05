@@ -5,7 +5,7 @@ import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicat
 
 import PublicDecisionViewerPage from "./PublicDecisionViewerPage";
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: (key: string, params?: Record<string, string>) =>
       params?.reason ? `${key}:${params.reason}` : key,

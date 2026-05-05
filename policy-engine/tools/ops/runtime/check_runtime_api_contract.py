@@ -9,7 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 
 def _parse_args() -> argparse.Namespace:
@@ -62,7 +62,7 @@ def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines:
         if committed != generated:
             violations.append(
                 f"OpenAPI drift detected for {openapi_path.as_posix()}."
-                " Regenerate with tools/runtime/export_runtime_openapi.py."
+                " Regenerate with tools/ops/runtime/export_runtime_openapi.py."
             )
             diff = list(
                 difflib.unified_diff(
@@ -84,7 +84,7 @@ def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines:
 
 
 def _check_runtime_client_drift(*, repo_root: Path) -> list[str]:
-    generator = repo_root / "tools" / "runtime" / "generate_runtime_client.py"
+    generator = repo_root / "tools" / "ops" / "runtime" / "generate_runtime_client.py"
     committed_ts = repo_root / "frontend" / "runtime-api-client" / "runtimeApiClient.ts"
     committed_js = repo_root / "frontend" / "runtime-api-client" / "runtimeApiClient.js"
     openapi = repo_root / "schemas" / "runtime_api_v1.openapi.json"

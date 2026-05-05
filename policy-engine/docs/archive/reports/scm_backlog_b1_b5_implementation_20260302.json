@@ -1,0 +1,68 @@
+{
+  "generated_utc": "2026-03-02T20:29:02Z",
+  "workspace": "/Users/deniskopylov/polisyos/policy-engine",
+  "program_mode": "single_merged_program",
+  "activation_mode": "causal_full_first",
+  "overall_status": "READY_FOR_BACKLOG_MERGE",
+  "delivery": {
+    "B1_DAGMA": "PASS",
+    "B2_Y0_SYMBOLIC": "PASS",
+    "B3_ORJSON_FAST_JSON": "PASS",
+    "B4_JAX_CI_BACKEND": "PASS",
+    "B5_TRANSPORT_CACHE": "PASS"
+  },
+  "validation_gate": [
+    {
+      "command": "PYTHONPATH=src:. uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml",
+      "status": "PASS"
+    },
+    {
+      "command": "PYTHONPATH=src:. uv run python tools/lint/lint_foundry.py --repo-root .",
+      "status": "PASS"
+    },
+    {
+      "command": "PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --models ir --check --output-dir schemas/snapshots",
+      "status": "PASS"
+    },
+    {
+      "command": "PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --models fabric --check --output-dir schemas/snapshots",
+      "status": "PASS"
+    },
+    {
+      "command": "PYTHONPATH=src:. uv run python -m pytest -q tests/foundry/methods/catalog/causal tests/scientist/governance/test_transportability_required_pass.py tests/scientist/test_run_transportability_node.py tests/scientist/test_causal_full_workflow_guard.py",
+      "status": "PASS"
+    }
+  ],
+  "contract_changes": {
+    "transportability_result": {
+      "added_fields": [
+        "identification_engine",
+        "identification_trace",
+        "unsupported_reason"
+      ],
+      "legacy_formula_alias": "upgraded_to_transport_formula_on_validate"
+    },
+    "discovery_report_metadata": {
+      "ci_backend_fields": [
+        "ci_backend_requested",
+        "ci_backend_used",
+        "ci_backend_fallback_reason"
+      ],
+      "scale_backend_fields": [
+        "scale_backend_requested",
+        "scale_backend_used",
+        "scale_backend_fallback_reason"
+      ]
+    }
+  },
+  "schema_snapshots_checked": [
+    "schemas/snapshots/ir/transportability_result.schema.json",
+    "schemas/snapshots/ir/causal_effect_report.schema.json",
+    "schemas/snapshots/ir/_manifest.json"
+  ],
+  "kill_switches": {
+    "transport": "params.transport_solver_mode=simplified",
+    "ci_backend": "params.discovery_ci_backend=numpy",
+    "scale_backend": "params.discovery_scale_backend=classic"
+  }
+}

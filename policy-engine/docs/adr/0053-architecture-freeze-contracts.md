@@ -11,7 +11,7 @@ Proposed
 ## Context
 
 The policy engine architecture defines assembly point contracts: IR schemas, import gates
-(enforced by `import_policy.toml`), and foundry purity invariants. If these contracts change
+(enforced by `architecture/imports/policy.toml`), and foundry purity invariants. If these contracts change
 during feature implementation, downstream modules built against the old contracts silently
 break or produce incorrect results. A freeze discipline is needed to ensure stability during
 implementation phases.

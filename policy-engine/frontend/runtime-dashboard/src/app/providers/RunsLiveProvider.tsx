@@ -29,7 +29,7 @@ import {
   RUNS_LIVE_HEARTBEAT_MS,
   RUNS_LIVE_INVALIDATE_DEDUPE_MS,
   RUNS_LIVE_RETRY_MS,
-} from "@/lib/constants";
+} from "@/shared/lib/constants";
 import {
   initialRunsLiveState,
   parseRunsLiveEvent,

@@ -17,7 +17,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.llm_cycle import persist_preflight_report, preflight_execution_plan
+from polisyos.scientist.llm.cycle import persist_preflight_report, preflight_execution_plan
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXECUTION_PLAN_REF,

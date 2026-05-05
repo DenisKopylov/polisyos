@@ -7,8 +7,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
 
 from .rules import RuleContext, RuleFix, RuleViolation, iter_rules
 
@@ -63,6 +63,7 @@ ZONE_MAP: dict[str, str] = {
     "methods/cli/": "infra",
     "agents.py": "infra",
     "quickstart.py": "infra",
+    "_quickstart.py": "infra",
     "methods/base.py": "infra",
     "methods/discovery.py": "infra",
     "methods/_artifacts_fingerprint.py": "infra",
@@ -75,8 +76,10 @@ ZONE_MAP: dict[str, str] = {
     "methods/backends/checkpointing.py": "infra",
     "methods/backends/ray_runner.py": "infra",
     "_executor_snapshots.py": "infra",
+    "execute/_snapshots.py": "infra",
     "methods/selection_history.py": "infra",
     "release_acceptance.py": "infra",
+    "validation/release_acceptance.py": "infra",
     "methods/catalog/causal/ci_backends.py": "mixed",
     "methods/catalog/causal/": "no_jax",
     "methods/catalog/causal/transport/": "no_jax",

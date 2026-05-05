@@ -55,9 +55,9 @@ vi.mock("@/features/composer/state/composerDraftRepository", () => ({
   saveComposerDraft: (...args: unknown[]) => saveComposerDraftMock(...args),
 }));
 
-vi.mock("@/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
-    "@/i18n/LocaleProvider",
+vi.mock("@/shared/i18n/LocaleProvider", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
+    "@/shared/i18n/LocaleProvider",
   );
   return {
     ...actual,
@@ -267,7 +267,7 @@ describe("LaunchRunPage", () => {
     );
     await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
     await user.type(
-      screen.getByPlaceholderText("openai/gpt-5.4"),
+      screen.getByPlaceholderText("pages.composer.modelPlaceholder"),
       "custom/model",
     );
     await user.click(
@@ -428,7 +428,7 @@ describe("LaunchRunPage", () => {
       }),
     );
     await user.type(
-      screen.getByPlaceholderText("sha256:..."),
+      screen.getByPlaceholderText("pages.composer.placeholders.sha256"),
       "sha256:workflow",
     );
 

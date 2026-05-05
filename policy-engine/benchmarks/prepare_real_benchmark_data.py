@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools._lib.compat import run_module_entrypoint, warn_legacy_entrypoint
+from tools.lib.compat import run_module_entrypoint, warn_legacy_entrypoint
 
 _TARGET = "tools.research.benchmarks.prepare_real_benchmark_data"
 

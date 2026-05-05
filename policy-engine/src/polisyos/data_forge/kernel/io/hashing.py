@@ -20,4 +20,9 @@ def sha256_file(path: str | Path, *, chunk_size: int = 1024 * 1024) -> str:
     return digest.hexdigest()
 
 
-__all__ = ["sha256_bytes", "sha256_file"]
+def sha256_jsonl(path: str | Path) -> str:
+    """Return the line-order-sensitive SHA-256 digest for a JSONL file."""
+    return sha256_file(path)
+
+
+__all__ = ["sha256_bytes", "sha256_file", "sha256_jsonl"]

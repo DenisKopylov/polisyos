@@ -16,10 +16,10 @@ from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.connectors import QualityTier
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
 from polisyos.scientist.nodes.builtins import errors as node_errors

@@ -23,7 +23,7 @@
 cd policy-engine
 uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
 uv run polisyos-tools workspace ci-parity --skip-browser
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 ## 1. Migration Classes

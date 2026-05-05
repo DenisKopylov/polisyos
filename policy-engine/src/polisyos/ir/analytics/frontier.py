@@ -32,7 +32,7 @@ ValidationSeverity = Literal["info", "error"]
 ValidationStatus = Literal["complete", "incomplete"]
 
 _DEFAULT_PLAN_DOC_PATH = "docs/archive/plans/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
-_DEFAULT_CLOSURE_TEST = "tests/ir/analytics/test_phase_closure_contracts.py"
+_DEFAULT_CLOSURE_TEST = "tests/unit/ir/analytics/test_phase_closure_contracts.py"
 _PHASE_ID_BY_NUMBER = {
     "1": "phase_1_first_production_unlocks_and_certificate_foundations",
     "2": "phase_2_query_expansion_and_first_production_facing_upgrades",
@@ -390,8 +390,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "families or unresolved-latent sentinels."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_query_preservation.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_query_preservation.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -413,8 +413,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "bound families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
-                    "tests/ir/analytics/test_phase_a_contracts.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/ir/analytics/test_phase_a_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -451,8 +451,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "reduction slice."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
-                    "tests/ir/analytics/test_phase_c_contracts.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/ir/analytics/test_phase_c_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -475,8 +475,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "coupling sidecar so joint-law claims cannot be promoted accidentally."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
-                    "tests/scientist/test_decision_packet_distributional_econometrics.py",
+                    "tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_distributional_econometrics.py",
                 ),
             ),
             _stage_declaration_data(
@@ -498,8 +498,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "AlgebraicConstraintReport severity semantics and finite-sample test routes."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_constraint_discovery.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -521,8 +521,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported PCI-Core slice."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_proximal_identify.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_proximal_identify.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -560,8 +560,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "point identification outside the accepted fallback ladder."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_proximal_bridge_plausibility.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/ir/analytics/test_proximal_bridge_plausibility.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -585,8 +585,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "currently emitted joint verdicts."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_missing_data.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_missing_data.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -607,8 +607,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "persistence/audit surface."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_intervention_type_system.py",
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/ir/analytics/test_intervention_type_system.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -630,8 +630,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "declared proof classes."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_dp_robustness_contract.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/ir/analytics/test_dp_robustness_contract.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -655,8 +655,8 @@ PHASE1_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "conditions recorded in the certificate."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase1_closure_contracts.py",
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
                 ),
             ),
         ],
@@ -693,8 +693,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "fragment boundaries with typed replay traces."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase_b_contracts.py",
-                    "tests/foundry/methods/catalog/causal/test_query_preservation.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_query_preservation.py",
                 ),
             ),
             _stage_declaration_data(
@@ -715,8 +715,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "preserving soundness and certificate replay."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase_b_contracts.py",
-                    "tests/ir/analytics/test_phase_a_contracts.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/ir/analytics/test_phase_a_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -751,8 +751,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "without a separate theorem-backed contract."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
-                    "tests/foundry/methods/catalog/causal/test_density_ratio_distributional_ot.py",
+                    "tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_density_ratio_distributional_ot.py",
                 ),
             ),
             _stage_declaration_data(
@@ -787,8 +787,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "outside the persisted distributional bounds contracts."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_distributional_bounds.py",
-                    "tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py",
+                    "tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py",
                 ),
             ),
             _stage_declaration_data(
@@ -809,8 +809,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "environments and persists runtime certificates for governance."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_strategic.py",
-                    "tests/scientist/governance/test_strategic_response_pass.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_strategic.py",
+                    "tests/unit/scientist/governance/test_strategic_response_pass.py",
                 ),
             ),
             _stage_declaration_data(
@@ -831,8 +831,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "aggregation classes."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_continuous_abstraction.py",
-                    "tests/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/ir/analytics/test_continuous_abstraction.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -853,8 +853,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "misspecified benchmark families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_constraint_discovery.py",
-                    "tests/scientist/discovery/test_utility_judge.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+                    "tests/unit/scientist/discovery/test_utility_judge.py",
                 ),
             ),
             _stage_declaration_data(
@@ -875,8 +875,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported distributional-shift families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
-                    "tests/scientist/search/test_policy_blueprint_runtime_guards.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
                 ),
             ),
             _stage_declaration_data(
@@ -898,8 +898,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "mismatch, and measurement error for downstream promotion logic."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
-                    "tests/scientist/search/test_policy_blueprint_runtime_guards.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
                 ),
             ),
             _stage_declaration_data(
@@ -933,8 +933,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "fallen back to pairwise or cluster approximations."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_interference.py",
-                    "tests/foundry/methods/catalog/causal/test_interference_identification.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_interference.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_interference_identification.py",
                 ),
             ),
             _stage_declaration_data(
@@ -955,8 +955,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "selective missingness families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_missing_data.py",
-                    "tests/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_missing_data.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -990,8 +990,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "single-target or explicitly supported policy scope."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_stochastic_policies.py",
-                    "tests/ir/analytics/test_intervention_type_system.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py",
+                    "tests/unit/ir/analytics/test_intervention_type_system.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1012,9 +1012,9 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "re-implementing the already shipped DP-CI layer."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/calibration/test_dp_ci.py",
-                    "tests/foundry/methods/catalog/causal/test_independence_tests.py",
-                    "tests/scientist/search/test_judge_thresholds.py",
+                    "tests/unit/foundry/calibration/test_dp_ci.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_independence_tests.py",
+                    "tests/unit/scientist/search/test_judge_thresholds.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1035,8 +1035,8 @@ PHASE2_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "downstream discovery and governance routing."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
-                    "tests/scientist/search/test_policy_blueprint_runtime_guards.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
                 ),
             ),
         ],
@@ -1086,8 +1086,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "dynamic-semantics slice."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase_c_contracts.py",
-                    "tests/foundry/methods/catalog/causal/test_query_preservation.py",
+                    "tests/unit/ir/analytics/test_phase_c_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_query_preservation.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1108,8 +1108,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "continuous-time causal slice."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_rough_path_semantics.py",
-                    "tests/scientist/backtesting/test_temporal.py",
+                    "tests/unit/ir/analytics/test_rough_path_semantics.py",
+                    "tests/unit/scientist/backtesting/test_temporal.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1143,8 +1143,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported model-class scope."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/backtesting/test_temporal.py",
-                    "tests/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
+                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1178,8 +1178,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "translations."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/backtesting/test_temporal.py",
-                    "tests/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
+                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1200,8 +1200,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported continuous-time family."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_local_independence_contract.py",
-                    "tests/scientist/backtesting/test_temporal.py",
+                    "tests/unit/ir/analytics/test_local_independence_contract.py",
+                    "tests/unit/scientist/backtesting/test_temporal.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1222,8 +1222,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported strategic-runtime families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_strategic.py",
-                    "tests/scientist/governance/test_strategic_response_pass.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_strategic.py",
+                    "tests/unit/scientist/governance/test_strategic_response_pass.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1244,8 +1244,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "strategic components for the supported strategic bundle."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_strategic.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_strategic.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1266,8 +1266,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "inference within the supported strategic family."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_strategic.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_strategic.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1288,8 +1288,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "continuous and non-finite abstraction families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_continuous_abstraction.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/ir/analytics/test_continuous_abstraction.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1310,8 +1310,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "classes and discovery blockers."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_constraint_discovery.py",
-                    "tests/ir/analytics/test_phase_f_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+                    "tests/unit/ir/analytics/test_phase_f_contracts.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1332,8 +1332,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "to pairwise scope when needed."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_interference_identification.py",
-                    "tests/foundry/methods/catalog/causal/test_causal_engine_phase10.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_interference_identification.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_causal_engine_phase10.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1354,8 +1354,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "the supported interference fallback lane."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_interference_identification.py",
-                    "tests/foundry/methods/catalog/causal/test_causal_engine_phase10.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_interference_identification.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_causal_engine_phase10.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1376,8 +1376,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported proximal slice."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_proximal_mediation.py",
-                    "tests/ir/analytics/test_proximal_bridge_plausibility.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_proximal_mediation.py",
+                    "tests/unit/ir/analytics/test_proximal_bridge_plausibility.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1398,8 +1398,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "recoverability families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_recovery_strategy_selector.py",
-                    "tests/foundry/methods/catalog/causal/test_missing_data.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_recovery_strategy_selector.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_missing_data.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1421,8 +1421,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "the supported scaled intervention families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_path_specific_identify.py",
-                    "tests/foundry/methods/catalog/causal/test_stochastic_policies.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_path_specific_identify.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1444,8 +1444,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "the supported privacy-aware proof families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_privacy_transportability_contract.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/ir/analytics/test_privacy_transportability_contract.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1466,8 +1466,8 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "regime-shift pipeline."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
-                    "tests/scientist/test_causal_full_workflow_guard.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/scientist/workflows/test_causal_full_workflow_guard.py",
                 ),
             ),
         ],
@@ -1504,8 +1504,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "artifact families that survive earlier gates."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase_b_contracts.py",
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1539,8 +1539,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "outside `exact_observed_dag_adjustment_v1`."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_phase_b_contracts.py",
-                    "tests/foundry/methods/catalog/causal/test_query_preservation.py",
+                    "tests/unit/ir/analytics/test_phase_b_contracts.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_query_preservation.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1561,8 +1561,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "machine-readable promotion verdicts and governance caps."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/scientist/search/test_policy_blueprint_runtime_guards.py",
-                    "tests/scientist/search/test_phase_d4_runtime_integration.py",
+                    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+                    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1583,8 +1583,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported recourse policy families."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_path_specific_identify.py",
-                    "tests/scientist/test_decision_packet_node_v3.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_path_specific_identify.py",
+                    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1605,8 +1605,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "contracts and downstream visibility in scientist sinks."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/ir/analytics/test_kernel_causal_contract.py",
-                    "tests/foundry/methods/catalog/causal/test_kernel_runtime.py",
+                    "tests/unit/ir/analytics/test_kernel_causal_contract.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_kernel_runtime.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1627,8 +1627,8 @@ PHASE4_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "effects and surfaces its scope in scientist decision artifacts."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/foundry/methods/catalog/causal/test_operator_valued_methods.py",
-                    "tests/foundry/methods/catalog/causal/test_operator_estimand_compiler.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_operator_valued_methods.py",
+                    "tests/unit/foundry/methods/catalog/causal/test_operator_estimand_compiler.py",
                 ),
             ),
         ],

@@ -8,19 +8,20 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 import pytest
-
-from polisyos.academic.batch.article_extractor import run_article_extract
-from polisyos.academic.batch.config import AcademicBatchConfig
-from polisyos.academic.batch.fulltext_resolver import FullTextFetchResult
-from polisyos.academic.batch.graph_builder import run_graph_load
-from polisyos.academic.batch.resolve_extract import ProviderResponse
-from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
-from polisyos.academic.knowledge.runtime_canonical_registry import runtime_canonical_names
-from polisyos.batch_common.phase0_quality_validation import evaluate_phase0_quality
-from polisyos.datasets.batch.config import DatasetBatchConfig
-from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest
-from polisyos.datasets.knowledge.registry import DatasetRegistry
-from polisyos.datasets.knowledge.variable_alignment import load_seed_alignments
+from polisyos.data_forge.domains.academic.batch.article_extractor import run_article_extract
+from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+from polisyos.data_forge.domains.academic.batch.fulltext_resolver import FullTextFetchResult
+from polisyos.data_forge.domains.academic.batch.graph_builder import run_graph_load
+from polisyos.data_forge.domains.academic.batch.resolve_extract import ProviderResponse
+from polisyos.data_forge.domains.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry import (
+    runtime_canonical_names,
+)
+from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import run_core_sources_ingest
+from polisyos.data_forge.domains.catalog.knowledge.registry import DatasetRegistry
+from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import load_seed_alignments
+from polisyos.data_forge.kernel.quality import evaluate_phase0_quality
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.lex.api import evaluate_transport_constraints
@@ -230,7 +231,8 @@ def _dataset_resolution_quality(
 @pytest.mark.integration
 def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicGonkaClient
+        "polisyos.data_forge.domains.academic.batch.resolve_extract.GonkaMultiKeyPool",
+        _DeterministicGonkaClient,
     )
 
     async def _fake_fetch_full_text_result(work, **kwargs):  # type: ignore[no-untyped-def]
@@ -242,7 +244,7 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
         )
 
     monkeypatch.setattr(
-        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        "polisyos.data_forge.domains.academic.batch.resolve_extract.fetch_full_text_result_for_work",
         _fake_fetch_full_text_result,
     )
 

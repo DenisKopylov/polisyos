@@ -31,13 +31,13 @@ def scientist_blueprint_compliance_audit() -> list[ComplianceAuditEntry]:
             invariant_id="uncertainty.max_when_unassessed",
             description="Absence of assessment is serialized as maximum uncertainty, never low uncertainty.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/search/funnel/test_level0_static.py::test_unassessed_uncertainty_envelope",
+            enforcement_target="tests/unit/scientist/search/funnel/test_level0_static.py::test_unassessed_uncertainty_envelope",
         ),
         ComplianceAuditEntry(
             invariant_id="cheap_rejection.failure_card_required",
             description="Cheap-stage rejection emits a TypedFailureCard with remediation context.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/search/test_phase_b_policy_runtime.py",
+            enforcement_target="tests/unit/scientist/search/test_phase_b_policy_runtime.py",
         ),
         ComplianceAuditEntry(
             invariant_id="promotion.hidden_holdout_required",
@@ -85,25 +85,25 @@ def scientist_blueprint_compliance_audit() -> list[ComplianceAuditEntry]:
             invariant_id="transfer.no_cross_domain_surrogate_mixing",
             description="Predictive VOI training never mixes cross-domain observations by default.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/search/test_voi_scheduler.py::test_predictive_voi_does_not_mix_cross_domain_observations_by_default",
+            enforcement_target="tests/unit/scientist/search/test_voi_scheduler.py::test_predictive_voi_does_not_mix_cross_domain_observations_by_default",
         ),
         ComplianceAuditEntry(
             invariant_id="registry.legacy_policy_shortcuts_not_registered",
             description="Legacy policy shortcut nodes are absent from the production builtin registry.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/test_builtin_registry_cutover.py",
+            enforcement_target="tests/unit/scientist/nodes/test_builtin_registry_cutover.py",
         ),
         ComplianceAuditEntry(
             invariant_id="discovery.required_edges_need_provenance",
             description="Required discovery edges without provenance are rejected.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+            enforcement_target="tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
         ),
         ComplianceAuditEntry(
             invariant_id="public_surface.no_legacy_shortcuts",
             description="Scientist package roots do not advertise legacy shortcut nodes or legacy search adapters.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/test_public_surface_cutover.py",
+            enforcement_target="tests/unit/scientist/facade/test_public_surface_cutover.py",
         ),
         ComplianceAuditEntry(
             invariant_id="artifacts.minimality_tag_required",
@@ -115,13 +115,13 @@ def scientist_blueprint_compliance_audit() -> list[ComplianceAuditEntry]:
             invariant_id="degraded.synthetic_runtime_caps_readiness",
             description="Synthetic or degraded policy-runtime evidence caps readiness and blocks promotion.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/search/test_phase_b_policy_runtime.py::test_synthetic_runtime_caps_readiness_and_blocks_promotion",
+            enforcement_target="tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_synthetic_runtime_caps_readiness_and_blocks_promotion",
         ),
         ComplianceAuditEntry(
             invariant_id="discovery.strict_seed_reproducibility_measured",
             description="Strict discovery outputs record measured seed reproducibility when replay scores are provided.",
             enforcement_kind="test",
-            enforcement_target="tests/scientist/discovery/test_output.py::test_discovery_artifact_builder_marks_measured_seed_reproducibility_when_replay_scores_present",
+            enforcement_target="tests/unit/scientist/discovery/test_output.py::test_discovery_artifact_builder_marks_measured_seed_reproducibility_when_replay_scores_present",
         ),
     ]
 

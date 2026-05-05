@@ -7,8 +7,8 @@ set -euo pipefail
 usage() {
   cat << 'EOF'
 Usage:
-  bash tools/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --dry-run
-  bash tools/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --yes
+  bash tools/ops/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --dry-run
+  bash tools/ops/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --yes
 
 Options:
   --snapshot-root PATH  Existing snapshot root to resume

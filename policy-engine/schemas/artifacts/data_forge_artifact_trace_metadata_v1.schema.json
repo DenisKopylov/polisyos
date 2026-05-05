@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/artifacts/data_forge_artifact_trace_metadata_v1.schema.json",
+  "title": "Data Forge Artifact Trace Metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trace_id",
+    "span_id",
+    "otel.trace_flags",
+    "otel.trace_valid",
+    "otel.trace_sampled"
+  ],
+  "properties": {
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "otel.trace_flags": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{2}$"
+    },
+    "otel.trace_valid": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "otel.trace_sampled": {
+      "type": "string",
+      "enum": ["true", "false"]
+    }
+  }
+}

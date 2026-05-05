@@ -4,6 +4,9 @@
 
 Proposed
 
+Status note (2026-05-02): superseded for code ownership by Data Forge; use
+`polisyos.data_forge.domains.academic.knowledge.variable_canonizer`.
+
 ## Date
 
 2026-02-28

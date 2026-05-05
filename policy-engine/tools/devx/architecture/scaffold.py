@@ -8,7 +8,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"

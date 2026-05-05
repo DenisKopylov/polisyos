@@ -1,4 +1,4 @@
-# tools/diagnostics
+# tools/quality/diagnostics
 
 Диагностический слой для контрактов, качества и verification-отчетов. Папка объединяет как CI-gates, так и ручные инженерные проверки.
 
@@ -39,13 +39,13 @@
 ## Типовой запуск
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check --changed-only --cache-dir .polisyos-tools/cache --baseline-label ci --skip-if-unchanged
-PYTHONPATH=src:. uv run python tools/diagnostics/abi_diff.py --baseline /tmp/baseline --current /tmp/current --format markdown
-PYTHONPATH=src:. uv run python tools/diagnostics/check_state_reads.py
-PYTHONPATH=src:. uv run python tools/diagnostics/check_scientist_node_version_bump.py --base-ref origin/main
-PYTHONPATH=src:. uv run python tools/diagnostics/verify_scm_v3.py --profile quick --output-dir docs/reports
-PYTHONPATH=src:. uv run python tools/diagnostics/verify_scm_v3_fullspec.py --output-dir docs/reports
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check --changed-only --cache-dir _cache/polisyos-tools/cache --baseline-label ci --skip-if-unchanged
+PYTHONPATH=src:. uv run python tools/quality/diagnostics/abi_diff.py --baseline /tmp/baseline --current /tmp/current --format markdown
+PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_state_reads.py
+PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_scientist_node_version_bump.py --base-ref origin/main
+PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3.py --profile quick --output-dir docs/reports
+PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.py --output-dir docs/reports
 ```
 
 ## Известные ограничения

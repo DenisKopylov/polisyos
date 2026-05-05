@@ -91,8 +91,8 @@ from polisyos.runtime.http.execution_policy import (
     build_capability_manifest_payload,
 )
 from polisyos.runtime.http.resilience import guard_runtime_cas, guard_runtime_control_store
-from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.llm.factory import create_traced_gateway_client
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 from .control_plane_store import ControlJobRecord, ControlPlaneStore
 from .control_worker import ControlWorker
@@ -1053,7 +1053,7 @@ class ControlPlaneService:
         progress_summary: dict[str, int] = dict(progress.get("progress_summary") or {})
         if output_dir is not None and str(output_dir):
             try:
-                from polisyos.lex.batch.progress import ProgressTracker
+                from polisyos.data_forge.read_api.legal import ProgressTracker
 
                 progress_path = output_dir / "progress.jsonl"
                 if progress_path.exists():
@@ -1458,7 +1458,7 @@ class ControlPlaneService:
             from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
             from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
             from polisyos.scientist.engine.iteration_state_machine import transition
-            from polisyos.scientist.llm_cycle import (
+            from polisyos.scientist.llm.cycle import (
                 build_default_execution_plan,
                 build_reproducibility_manifest,
                 evaluate_iteration,
@@ -3896,8 +3896,7 @@ class ControlPlaneService:
     ) -> None:
         import asyncio
 
-        from polisyos.lex.batch.config import BatchConfig
-        from polisyos.lex.batch.pipeline import run_batch_pipeline
+        from polisyos.data_forge.read_api.legal import BatchConfig, run_batch_pipeline
 
         output_dir = Path(str(payload["output_dir"]))
         progress = {
@@ -4065,19 +4064,13 @@ class ControlPlaneService:
             )
 
         try:
-            from polisyos.lex.knowledge.store import LegalKnowledgeStore
+            from polisyos.data_forge.read_api.legal import search_legal_knowledge_graph
 
-            store = LegalKnowledgeStore(
-                db_path=db_path,
-                index_dir=Path(request.output_dir),
+            raw_results = search_legal_knowledge_graph(
+                output_dir=request.output_dir,
+                query=request.query,
+                top_k=request.top_k,
             )
-            try:
-                raw_results = store.text_search_facts(
-                    request.query,
-                    top_k=request.top_k,
-                )
-            finally:
-                store.close()
 
             items = [
                 LexSearchResultItem(

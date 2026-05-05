@@ -4,15 +4,15 @@ from __future__ import annotations
 import subprocess
 import sys
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 
 def main() -> int:
     repo_root = repo_root_from(__file__)
-    target = repo_root / "tools" / "diagnostics" / "gen_schema.py"
+    target = repo_root / "tools" / "quality" / "diagnostics" / "gen_schema.py"
     print(
-        "[DEPRECATED] tools/diagnostics/generate_ir_schema.py is deprecated. "
-        "Use tools/diagnostics/gen_schema.py instead.",
+        "[DEPRECATED] tools/quality/diagnostics/generate_ir_schema.py is deprecated. "
+        "Use tools/quality/diagnostics/gen_schema.py instead.",
         file=sys.stderr,
     )
     cmd = [sys.executable, str(target), *sys.argv[1:]]

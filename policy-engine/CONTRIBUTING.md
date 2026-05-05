@@ -7,10 +7,10 @@ Python environment manager. `.python-version`, `pyproject.toml`, CI, and contrib
 expected to stay aligned to that single baseline.
 
 ```bash
-./scripts/bootstrap
-./scripts/doctor
-./scripts/verify
-./scripts/ci-parity --skip-browser
+polisyos-tools workspace bootstrap
+polisyos-tools workspace doctor
+polisyos-tools workspace verify
+polisyos-tools workspace ci-parity --skip-browser
 ```
 
 If you need the manual path instead of the repo-local scripts:
@@ -46,7 +46,7 @@ System notes:
 - GPU and accelerator dependencies stay opt-in; if you change them, document the expected local and
   CI environment in the PR.
 
-- `./scripts/doctor --list-surfaces` prints optional env surfaces that the workstation doctor knows
+- `polisyos-tools workspace doctor --list-surfaces` prints optional env surfaces that the workstation doctor knows
   how to validate.
 
 ## Code Style
@@ -92,7 +92,7 @@ Markers and decorators in active use:
 ## Architecture Governance
 
 - Freeze policy: `docs/explanation/freeze-policy.md`
-- Import gate source of truth: `import_policy.toml`
+- Import gate source of truth: `architecture/imports/policy.toml`
 - Public surface source of truth: `architecture/public_surface.toml`
 - Public surface inventory: `architecture/public_surface_inventory.json` and `docs/reference/public-surface.md`
 - Generated artifact lifecycle source of truth: `architecture/generated_artifacts.toml`
@@ -103,14 +103,14 @@ Markers and decorators in active use:
 - Standard PR enforcement: `.github/workflows/ci.yml`
 - Nightly platform assurance: `.github/workflows/frontend-nightly.yml`
 - Release policy workflow: `.github/workflows/release.yml`
-- Temporary exceptions registry: `import_exceptions.toml` with human-readable sync in
-  `import_exceptions_registry.md`
+- Temporary exceptions registry: `architecture/imports/exceptions.toml` with human-readable sync in
+  `architecture/imports/exceptions.md`
 
 - Deep-import creep baseline: `architecture/deep_import_baseline.json`
 - Architecture guardrail temporary exceptions: `architecture/guardrail_exceptions.toml` with human-readable sync in
   `architecture/guardrail_exceptions_registry.md`
 
-- Golden-path scaffolds: `tools/architecture/scaffold.py`
+- Golden-path scaffolds: `polisyos-tools architecture scaffold`
 
 Core import expectations:
 
@@ -190,7 +190,7 @@ CI responsibilities:
 - Operator-visible, compatibility-sensitive, or rollout-sensitive changes should add or update a
   fragment under `release-fragments/unreleased/`.
 
-- Release prep must freeze those entries into `release-fragments/releases/<version>/` before the
+- Release prep must freeze those entries into `_build/release-fragments/<version>/` before the
   tag is cut.
 
 ## Links

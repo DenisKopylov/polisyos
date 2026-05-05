@@ -45,15 +45,15 @@ export default {
       },
     },
     {
-      name: "lib-no-ui-layers",
+      name: "shared-lib-no-ui-layers",
       comment:
-        "lib must stay framework-agnostic and cannot depend on UI layers.",
+        "shared/lib must stay framework-agnostic and cannot depend on UI layers.",
       severity: "error",
       from: {
-        path: "^src/lib/",
+        path: "^src/shared/lib/",
       },
       to: {
-        path: "^src/(app|features|shared)/",
+        path: "^src/(app|features)/|^src/shared/ui/",
       },
     },
     {

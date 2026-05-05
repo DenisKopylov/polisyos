@@ -108,43 +108,43 @@ run_validator() {
 }
 
 run_suite closure_contracts \
-  tests/ir/analytics/test_phase1_closure_contracts.py \
-  tests/ir/analytics/test_phase_closure_contracts.py \
-  tests/ir/analytics/test_phase_a_contracts.py \
-  tests/ir/analytics/test_phase_b_contracts.py \
-  tests/ir/analytics/test_phase_c_contracts.py \
-  tests/ir/analytics/test_phase_d_contracts.py \
-  tests/ir/analytics/test_phase_f_contracts.py
+  tests/unit/ir/analytics/test_phase1_closure_contracts.py \
+  tests/unit/ir/analytics/test_phase_closure_contracts.py \
+  tests/unit/ir/analytics/test_phase_a_contracts.py \
+  tests/unit/ir/analytics/test_phase_b_contracts.py \
+  tests/unit/ir/analytics/test_phase_c_contracts.py \
+  tests/unit/ir/analytics/test_phase_d_contracts.py \
+  tests/unit/ir/analytics/test_phase_f_contracts.py
 
 run_suite distributional_proof \
-  tests/scientist/test_decision_packet_distributional_econometrics.py \
-  tests/foundry/methods/catalog/causal/test_distributional_bounds.py \
-  tests/foundry/methods/catalog/causal/test_density_ratio_distributional_ot.py
+  tests/unit/scientist/nodes/test_decision_packet_distributional_econometrics.py \
+  tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py \
+  tests/unit/foundry/methods/catalog/causal/test_density_ratio_distributional_ot.py
 
 run_suite narrow_scope_governance \
-  tests/foundry/methods/catalog/causal/test_query_preservation.py \
-  tests/ir/analytics/test_proximal_bridge_plausibility.py \
-  tests/foundry/methods/catalog/causal/test_interference_identification.py \
-  tests/foundry/methods/catalog/causal/test_stochastic_policies.py
+  tests/unit/foundry/methods/catalog/causal/test_query_preservation.py \
+  tests/unit/ir/analytics/test_proximal_bridge_plausibility.py \
+  tests/unit/foundry/methods/catalog/causal/test_interference_identification.py \
+  tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py
 
 run_suite integration_e2e \
-  tests/scientist/nodes/builtins/causal/test_run_causal_readiness.py \
-  tests/scientist/test_causal_evaluation_node.py \
-  tests/scientist/test_decision_packet_node_v3.py \
-  tests/scientist/test_decision_packet_distributional_econometrics.py \
-  tests/scientist/test_causal_full_workflow_guard.py \
-  tests/scientist/workflows/test_workflow_specs.py
+  tests/unit/scientist/nodes/builtins/causal/test_run_causal_readiness.py \
+  tests/unit/scientist/causal/test_causal_evaluation_node.py \
+  tests/unit/scientist/nodes/test_decision_packet_node_v3.py \
+  tests/unit/scientist/nodes/test_decision_packet_distributional_econometrics.py \
+  tests/unit/scientist/workflows/test_causal_full_workflow_guard.py \
+  tests/unit/scientist/workflows/test_workflow_specs.py
 
 run_suite dp_ci_and_thresholds \
-  tests/foundry/calibration/test_dp_ci.py \
-  tests/foundry/methods/catalog/causal/test_independence_tests.py \
-  tests/scientist/search/test_judge_thresholds.py
+  tests/unit/foundry/calibration/test_dp_ci.py \
+  tests/unit/foundry/methods/catalog/causal/test_independence_tests.py \
+  tests/unit/scientist/search/test_judge_thresholds.py
 
 run_suite kernel_and_operator \
-  tests/foundry/methods/catalog/causal/test_kernel_runtime.py \
-  tests/ir/analytics/test_kernel_causal_contract.py \
-  tests/foundry/methods/catalog/causal/test_operator_valued_methods.py \
-  tests/foundry/methods/catalog/causal/test_operator_estimand_compiler.py
+  tests/unit/foundry/methods/catalog/causal/test_kernel_runtime.py \
+  tests/unit/ir/analytics/test_kernel_causal_contract.py \
+  tests/unit/foundry/methods/catalog/causal/test_operator_valued_methods.py \
+  tests/unit/foundry/methods/catalog/causal/test_operator_estimand_compiler.py
 
 run_validator
 

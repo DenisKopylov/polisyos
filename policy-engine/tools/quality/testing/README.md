@@ -1,6 +1,6 @@
 # Testing Tools
 
-`tools/testing` содержит Phase 4 tooling для локального smoke path и экономики тестов.
+`tools/quality/testing` содержит Phase 4 tooling для локального smoke path и экономики тестов.
 
 ## Команды
 
@@ -9,8 +9,8 @@
 ### Local integration stack
 
 ```bash
-uv run python tools/testing/local_integration_stack.py up
-uv run python tools/testing/local_integration_stack.py smoke
+uv run python tools/quality/testing/local_integration_stack.py up
+uv run python tools/quality/testing/local_integration_stack.py smoke
 ```
 
 Что делает:
@@ -23,12 +23,12 @@ uv run python tools/testing/local_integration_stack.py smoke
 ### Test economics report
 
 ```bash
-uv run python tools/testing/report_test_economics.py \
-  --report quality=.tmp/test-reports/quality-and-unit.xml \
-  --report runtime-http=.tmp/test-reports/runtime-http.xml \
-  --report integration=.tmp/test-reports/integration.xml \
+uv run python tools/quality/testing/report_test_economics.py \
+  --report quality=_build/.tmp/test-reports/quality-and-unit.xml \
+  --report runtime-http=_build/.tmp/test-reports/runtime-http.xml \
+  --report integration=_build/.tmp/test-reports/integration.xml \
   --allow-missing \
-  --output .tmp/test-reports/test-economics-summary.md
+  --output _build/.tmp/test-reports/test-economics-summary.md
 ```
 
 Что рендерит:
@@ -40,7 +40,7 @@ uv run python tools/testing/report_test_economics.py \
 ### Playwright quarantine guardrail
 
 ```bash
-uv run python tools/testing/check_playwright_quarantines.py
+uv run python tools/quality/testing/check_playwright_quarantines.py
 ```
 
 Что валидирует:
@@ -52,15 +52,15 @@ uv run python tools/testing/check_playwright_quarantines.py
 ### Mutation testing
 
 ```bash
-uv run python tools/testing/mutation.py --suite foundry --target backends
-uv run python tools/testing/mutation.py --suite scientist --target governance
-uv run python tools/testing/mutation.py --suite scientist --target all
-uv run python tools/testing/mutation.py --suite foundry --target results
+uv run python tools/quality/testing/mutation.py --suite foundry --target backends
+uv run python tools/quality/testing/mutation.py --suite scientist --target governance
+uv run python tools/quality/testing/mutation.py --suite scientist --target all
+uv run python tools/quality/testing/mutation.py --suite foundry --target results
 ```
 
 Что делает:
 
-- заменяет legacy `scripts/mutation_test*.sh` как canonical surface;
+- предоставляет canonical mutation-testing surface через `polisyos-tools`;
 - запускает `mutmut` по reviewed Foundry/Scientist target maps;
 - считает kill rate и валидирует threshold в одном месте.
 

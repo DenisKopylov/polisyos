@@ -48,4 +48,4 @@ can be attached to EvidenceBundle notes or stored in CAS.
 ## Files
 
 - `src/polisyos/fabric/connectors/quality/`
-- `tests/fabric/connectors/test_quality_system.py`
+- `tests/unit/fabric/connectors/test_quality_system.py`

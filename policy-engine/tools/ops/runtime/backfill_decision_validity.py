@@ -6,7 +6,7 @@ from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.http.services.adapters.core_run import load_core_run
-from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 
 def _iter_run_dirs(root: Path):

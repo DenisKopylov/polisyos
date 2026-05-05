@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { Button } from "./Button";
 

@@ -27,7 +27,7 @@ import {
   RUNS_SAMPLE_LIMIT,
   RUNS_SAMPLE_STALE_MS,
   RUN_TERMINAL_STALE_MS,
-} from "@/lib/constants";
+} from "@/shared/lib/constants";
 import { createQueryHookWrapper } from "@/test/queryHook";
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 

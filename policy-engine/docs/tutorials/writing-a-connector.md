@@ -274,9 +274,9 @@ def test_my_source_fetch_with_mock_http(monkeypatch) -> None:
 Минимальный локальный набор перед PR:
 
 ```bash
-pytest tests/fabric/connectors/sources -x --tb=short
+pytest tests/unit/fabric/connectors/sources -x --tb=short
 uv run --extra docs python -m mkdocs build --strict
-uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt
+uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
 Если менялся публичный connector contract, дополнительно проверьте reference docs и schema-related pages.

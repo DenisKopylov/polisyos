@@ -26,7 +26,7 @@ Keep the fortified split-root model:
 4. Product source, docs, release logic, tooling, schemas, and tests live under
    `policy-engine/`.
 5. Local datasets and scratch state live under ignored roots such as root
-   `data/`, `.polisyos/`, and `.tmp/`.
+   `data/`, `.polisyos/`, `_build/`, and `_cache/`.
 
 ## Consequences
 

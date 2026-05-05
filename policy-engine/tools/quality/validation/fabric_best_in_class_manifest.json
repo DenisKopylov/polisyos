@@ -10,9 +10,9 @@
       "source_contract_v2_count": 20,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_access_control.py",
-        "tests/fabric/test_duckdb_storage_access_control.py",
-        "tests/fabric/test_world_query_column_masking.py"
+        "tests/unit/fabric/test_access_control.py",
+        "tests/unit/fabric/test_duckdb_storage_access_control.py",
+        "tests/unit/fabric/test_world_query_column_masking.py"
       ]
     },
     "decision_data_envelope": {
@@ -21,9 +21,9 @@
       "naked_decision_values": 0,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_decision_data_envelope.py",
-        "tests/runtime/http/test_lineage_routes.py",
-        "tests/runtime/http/test_temporal_routes.py",
+        "tests/unit/fabric/test_decision_data_envelope.py",
+        "tests/unit/runtime/http/test_lineage_routes.py",
+        "tests/unit/runtime/http/test_temporal_routes.py",
         "tests/tools/test_fabric_decision_data_coverage.py"
       ],
       "trust_envelope_schema": true,
@@ -45,8 +45,8 @@
       "stale_invalidation": true,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ]
     },
@@ -56,9 +56,9 @@
       "prov_export": true,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_lineage.py",
-        "tests/fabric/test_fabric_observability.py",
-        "tests/fabric/test_provenance.py"
+        "tests/unit/fabric/test_lineage.py",
+        "tests/unit/fabric/test_fabric_observability.py",
+        "tests/unit/fabric/test_provenance.py"
       ]
     },
     "observability_governance": {
@@ -67,7 +67,7 @@
       "slo_contract": true,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_observability_governance_quality_phase4.py"
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py"
       ]
     },
     "processing_guarantees": {
@@ -79,10 +79,10 @@
       "status": "implemented",
       "streaming_runtime": true,
       "tests": [
-        "tests/fabric/data_plane/test_processing_guarantees.py",
-        "tests/fabric/data_plane/test_streaming_runtime.py",
-        "tests/fabric/data_plane/test_benchmarks.py",
-        "tests/fabric/data_plane/test_orchestrator.py",
+        "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "tests/unit/fabric/data_plane/test_orchestrator.py",
         "tests/tools/test_fabric_processing_guarantees.py"
       ]
     },
@@ -101,15 +101,15 @@
       "scientist_trust_gate": true,
       "status": "implemented",
       "tests": [
-        "tests/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
         "tests/tools/test_fabric_product_integration.py",
-        "tests/fabric/test_product_integration.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scientist/search/test_phase_b_policy_runtime.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py"
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py"
       ],
       "validator": "tools/quality/validation/fabric_product_integration.py"
     },
@@ -147,9 +147,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_connector_bridge.py",
-        "tests/fabric/test_world_query_multibackend.py",
-        "tests/runtime/http/test_e2e_ingestion.py"
+        "tests/unit/fabric/test_connector_bridge.py",
+        "tests/unit/fabric/test_world_query_multibackend.py",
+        "tests/unit/runtime/http/test_e2e_ingestion.py"
       ]
     },
     "quality_contracts": {
@@ -160,10 +160,10 @@
       "source_contract_v2_count": 20,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_quality_indicators.py",
-        "tests/fabric/connectors/test_quality_system.py",
-        "tests/fabric/connectors/test_quality_statistics.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/test_quality_indicators.py",
+        "tests/unit/fabric/connectors/test_quality_system.py",
+        "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ]
     },
@@ -177,10 +177,10 @@
       "source_contract_v2_count": 20,
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_record_replay.py",
-        "tests/fabric/data_plane/test_quarantine.py",
-        "tests/fabric/test_ingestion_quarantine.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/data_plane/test_record_replay.py",
+        "tests/unit/fabric/data_plane/test_quarantine.py",
+        "tests/unit/fabric/test_ingestion_quarantine.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ]
     },
@@ -197,9 +197,9 @@
       "source_contract_v2_contracts": 20,
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ]
@@ -216,7 +216,7 @@
       "source_scorecard_count": 20,
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ]
     },
@@ -264,7 +264,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/profiles/test_source_profiles.py"
+        "tests/unit/fabric/connectors/profiles/test_source_profiles.py"
       ]
     },
     "temporal_support": {
@@ -272,87 +272,87 @@
       "snapshot_store": true,
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_world_time_travel.py",
-        "tests/fabric/test_world_materialization.py",
-        "tests/fabric/test_world_branch_governance.py",
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_time_travel.py",
+        "tests/unit/fabric/test_world_materialization.py",
+        "tests/unit/fabric/test_world_branch_governance.py",
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ],
       "world_query": true
     },
     "tests_by_plane": {
       "evidence": [
-        "tests/fabric/data_plane/test_record_replay.py",
-        "tests/fabric/data_plane/test_quarantine.py",
-        "tests/fabric/data_plane/test_streaming_runtime.py",
-        "tests/fabric/data_plane/test_processing_guarantees.py",
-        "tests/fabric/data_plane/test_benchmarks.py",
-        "tests/fabric/data_plane/test_orchestrator.py",
-        "tests/fabric/test_ingestion_quarantine.py",
-        "tests/fabric/test_provenance.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/data_plane/test_record_replay.py",
+        "tests/unit/fabric/data_plane/test_quarantine.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "tests/unit/fabric/test_ingestion_quarantine.py",
+        "tests/unit/fabric/test_provenance.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py",
         "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "semantics": [
-        "tests/fabric/test_quality_indicators.py",
-        "tests/fabric/connectors/test_quality_system.py",
-        "tests/fabric/connectors/test_quality_statistics.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_quality_indicators.py",
+        "tests/unit/fabric/connectors/test_quality_system.py",
+        "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "source": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/connectors/test_registry.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/connectors/profiles/test_source_profiles.py",
-        "tests/fabric/data_plane/test_processing_guarantees.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+        "tests/unit/fabric/data_plane/test_processing_guarantees.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py",
         "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "trust": [
-        "tests/fabric/test_lineage.py",
-        "tests/fabric/test_decision_data_envelope.py",
-        "tests/fabric/test_fabric_observability.py",
-        "tests/fabric/test_observability_governance_quality_phase4.py",
-        "tests/fabric/test_provenance.py",
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
-        "tests/fabric/test_access_control.py",
-        "tests/fabric/test_duckdb_storage_access_control.py",
-        "tests/fabric/test_world_query_column_masking.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/runtime/http/test_lineage_api.py",
-        "tests/runtime/http/test_lineage_routes.py",
+        "tests/unit/fabric/test_lineage.py",
+        "tests/unit/fabric/test_decision_data_envelope.py",
+        "tests/unit/fabric/test_fabric_observability.py",
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py",
+        "tests/unit/fabric/test_provenance.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_access_control.py",
+        "tests/unit/fabric/test_duckdb_storage_access_control.py",
+        "tests/unit/fabric/test_world_query_column_masking.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/runtime/http/test_lineage_api.py",
+        "tests/unit/runtime/http/test_lineage_routes.py",
         "tests/tools/test_fabric_source_contracts.py",
         "tests/tools/test_fabric_decision_data_coverage.py",
         "tests/tools/test_fabric_discovery_intelligence.py",
         "tests/tools/test_fabric_product_integration.py",
-        "tests/fabric/test_product_integration.py",
-        "tests/runtime/http/test_fabric_integration_routes.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py"
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py"
       ],
       "world": [
-        "tests/fabric/test_world_time_travel.py",
-        "tests/fabric/test_world_materialization.py",
-        "tests/fabric/test_world_branch_governance.py",
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/fabric/test_entity_resolution.py",
-        "tests/fabric/test_world_query_multibackend.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_time_travel.py",
+        "tests/unit/fabric/test_world_materialization.py",
+        "tests/unit/fabric/test_world_branch_governance.py",
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_world_query_multibackend.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ]
     }
   },
@@ -440,7 +440,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_provenance.py"
+        "tests/unit/fabric/test_provenance.py"
       ],
       "title": "CAS-backed evidence bundle persistence"
     },
@@ -464,7 +464,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_orchestrator.py"
+        "tests/unit/fabric/data_plane/test_orchestrator.py"
       ],
       "title": "Distributed execution trust gate"
     },
@@ -489,7 +489,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_benchmarks.py"
+        "tests/unit/fabric/data_plane/test_benchmarks.py"
       ],
       "title": "Scale benchmark reports for ingestion, streaming, materialization, and query"
     },
@@ -519,10 +519,10 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/data_plane/test_quarantine.py",
-        "tests/fabric/data_plane/test_record_replay.py",
-        "tests/fabric/test_ingestion_quarantine.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/data_plane/test_quarantine.py",
+        "tests/unit/fabric/data_plane/test_record_replay.py",
+        "tests/unit/fabric/test_ingestion_quarantine.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Production source replay fixture matrix"
@@ -548,9 +548,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_quarantine.py",
-        "tests/fabric/data_plane/test_record_replay.py",
-        "tests/fabric/test_ingestion_quarantine.py"
+        "tests/unit/fabric/data_plane/test_quarantine.py",
+        "tests/unit/fabric/data_plane/test_record_replay.py",
+        "tests/unit/fabric/test_ingestion_quarantine.py"
       ],
       "title": "Quarantine/DLQ replay surface"
     },
@@ -574,9 +574,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_quarantine.py",
-        "tests/fabric/data_plane/test_record_replay.py",
-        "tests/fabric/test_ingestion_quarantine.py"
+        "tests/unit/fabric/data_plane/test_quarantine.py",
+        "tests/unit/fabric/data_plane/test_record_replay.py",
+        "tests/unit/fabric/test_ingestion_quarantine.py"
       ],
       "title": "Record/replay persistence surface"
     },
@@ -603,10 +603,10 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_benchmarks.py",
-        "tests/fabric/data_plane/test_orchestrator.py",
-        "tests/fabric/data_plane/test_processing_guarantees.py",
-        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
         "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "title": "Streaming, CDC, backpressure, and out-of-order semantics"
@@ -645,9 +645,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_quality_statistics.py",
-        "tests/fabric/connectors/test_quality_system.py",
-        "tests/fabric/test_quality_indicators.py"
+        "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "tests/unit/fabric/connectors/test_quality_system.py",
+        "tests/unit/fabric/test_quality_indicators.py"
       ],
       "title": "Connector-level quality validators"
     },
@@ -673,7 +673,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_observability_governance_quality_phase4.py"
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py"
       ],
       "title": "Fabric quality evidence propagation"
     },
@@ -701,8 +701,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "title": "Explainable NL-to-dataset resolution and eval pack"
@@ -716,9 +716,9 @@
         "fitness_report_module": true,
         "quality_module": true,
         "quality_tests": [
-          "tests/fabric/test_quality_indicators.py",
-          "tests/fabric/connectors/test_quality_system.py",
-          "tests/fabric/connectors/test_quality_statistics.py"
+          "tests/unit/fabric/test_quality_indicators.py",
+          "tests/unit/fabric/connectors/test_quality_system.py",
+          "tests/unit/fabric/connectors/test_quality_statistics.py"
         ]
       },
       "id": "semantics.quality_indicators",
@@ -733,9 +733,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_quality_statistics.py",
-        "tests/fabric/connectors/test_quality_system.py",
-        "tests/fabric/test_quality_indicators.py"
+        "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "tests/unit/fabric/connectors/test_quality_system.py",
+        "tests/unit/fabric/test_quality_indicators.py"
       ],
       "title": "Metric-level quality indicators"
     },
@@ -760,9 +760,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -792,8 +792,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "title": "SourceContract-backed semantic dataset catalog"
@@ -826,13 +826,13 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_quality_statistics.py",
-        "tests/fabric/connectors/test_quality_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/test_quality_indicators.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_quality_statistics.py",
+        "tests/unit/fabric/connectors/test_quality_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/test_quality_indicators.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py",
         "tests/tools/test_fabric_source_contracts.py"
@@ -869,7 +869,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Generated source scorecards"
@@ -896,8 +896,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "title": "Stale semantic-vector invalidation"
@@ -961,7 +961,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/profiles/test_source_profiles.py"
+        "tests/unit/fabric/connectors/profiles/test_source_profiles.py"
       ],
       "title": "Built-in source profile catalog"
     },
@@ -987,8 +987,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Connector conformance harness v2"
@@ -1026,8 +1026,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/connectors/test_registry.py"
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py"
       ],
       "title": "Production connector entry points"
     },
@@ -1073,8 +1073,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/connectors/test_registry.py"
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py"
       ],
       "title": "Concrete connector public exports"
     },
@@ -1099,7 +1099,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Connector SDK authoring helpers"
@@ -1186,9 +1186,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/connectors/test_registry.py"
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py"
       ],
       "title": "Connector source module tree"
     },
@@ -1216,7 +1216,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_registry.py"
+        "tests/unit/fabric/connectors/test_registry.py"
       ],
       "title": "Governed production visibility for connector families"
     },
@@ -1272,10 +1272,10 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/data_plane/test_benchmarks.py",
-        "tests/fabric/data_plane/test_orchestrator.py",
-        "tests/fabric/data_plane/test_processing_guarantees.py",
-        "tests/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/data_plane/test_benchmarks.py",
+        "tests/unit/fabric/data_plane/test_orchestrator.py",
+        "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
         "tests/tools/test_fabric_processing_guarantees.py"
       ],
       "title": "Processing guarantee, dedupe, and replay-retention contracts"
@@ -1331,7 +1331,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "SourceContract v2 production source platform"
@@ -1365,9 +1365,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1401,9 +1401,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1436,9 +1436,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1473,9 +1473,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1510,9 +1510,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1547,9 +1547,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1584,9 +1584,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_contract_system.py",
-        "tests/fabric/connectors/test_schema_system.py",
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_contract_system.py",
+        "tests/unit/fabric/connectors/test_schema_system.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_schema_governance.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
@@ -1601,9 +1601,9 @@
       "evidence": {
         "access_control_module": true,
         "access_tests": [
-          "tests/fabric/test_access_control.py",
-          "tests/fabric/test_duckdb_storage_access_control.py",
-          "tests/fabric/test_world_query_column_masking.py"
+          "tests/unit/fabric/test_access_control.py",
+          "tests/unit/fabric/test_duckdb_storage_access_control.py",
+          "tests/unit/fabric/test_world_query_column_masking.py"
         ],
         "column_mask_module": true,
         "field_access_policy_contract_count": 20,
@@ -1627,9 +1627,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_access_control.py",
-        "tests/fabric/test_duckdb_storage_access_control.py",
-        "tests/fabric/test_world_query_column_masking.py"
+        "tests/unit/fabric/test_access_control.py",
+        "tests/unit/fabric/test_duckdb_storage_access_control.py",
+        "tests/unit/fabric/test_world_query_column_masking.py"
       ],
       "title": "Field-level access classification and masking inventory"
     },
@@ -1657,8 +1657,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_protocol_compliance.py",
-        "tests/fabric/test_observability_governance_quality_phase4.py"
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py"
       ],
       "title": "Production connector governance metadata"
     },
@@ -1685,8 +1685,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "title": "Entity override provenance and merge governance"
@@ -1715,14 +1715,14 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_product_integration.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/runtime/http/test_fabric_integration_routes.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
         "tests/tools/test_fabric_product_integration.py"
       ],
       "title": "Fabric compatibility bridge governance"
@@ -1761,9 +1761,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_decision_data_envelope.py",
-        "tests/runtime/http/test_lineage_routes.py",
-        "tests/runtime/http/test_temporal_routes.py",
+        "tests/unit/fabric/test_decision_data_envelope.py",
+        "tests/unit/runtime/http/test_lineage_routes.py",
+        "tests/unit/runtime/http/test_temporal_routes.py",
         "tests/tools/test_fabric_decision_data_coverage.py"
       ],
       "title": "Fabric decision envelope"
@@ -1810,9 +1810,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_decision_data_envelope.py",
-        "tests/runtime/http/test_lineage_routes.py",
-        "tests/runtime/http/test_temporal_routes.py",
+        "tests/unit/fabric/test_decision_data_envelope.py",
+        "tests/unit/runtime/http/test_lineage_routes.py",
+        "tests/unit/runtime/http/test_temporal_routes.py",
         "tests/tools/test_fabric_decision_data_coverage.py"
       ],
       "title": "Reason codes for decision-bearing unknown states"
@@ -1842,8 +1842,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_fabric_observability.py",
-        "tests/fabric/test_observability_governance_quality_phase4.py"
+        "tests/unit/fabric/test_fabric_observability.py",
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py"
       ],
       "title": "Fabric SLI/SLO and error-budget gate"
     },
@@ -1913,8 +1913,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_fabric_observability.py",
-        "tests/fabric/test_lineage.py"
+        "tests/unit/fabric/test_fabric_observability.py",
+        "tests/unit/fabric/test_lineage.py"
       ],
       "title": "Lineage graph nodes, edges, trace, and impact APIs"
     },
@@ -1937,7 +1937,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_lineage.py"
+        "tests/unit/fabric/test_lineage.py"
       ],
       "title": "OpenLineage export"
     },
@@ -1968,14 +1968,14 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_product_integration.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/runtime/http/test_fabric_integration_routes.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
         "tests/tools/test_fabric_product_integration.py"
       ],
       "title": "Scholar, Lex, and Foundry Fabric evidence adapters"
@@ -2000,7 +2000,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_provenance.py"
+        "tests/unit/fabric/test_provenance.py"
       ],
       "title": "W3C PROV export"
     },
@@ -2053,9 +2053,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_connector_bridge.py",
-        "tests/fabric/test_world_query_multibackend.py",
-        "tests/runtime/http/test_e2e_ingestion.py"
+        "tests/unit/fabric/test_connector_bridge.py",
+        "tests/unit/fabric/test_world_query_multibackend.py",
+        "tests/unit/runtime/http/test_e2e_ingestion.py"
       ],
       "title": "Stable public facade exports"
     },
@@ -2091,14 +2091,14 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_product_integration.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/runtime/http/test_fabric_integration_routes.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
         "tests/tools/test_fabric_product_integration.py"
       ],
       "title": "Runtime Fabric product API endpoints"
@@ -2125,7 +2125,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/runtime/http/test_lineage_api.py"
+        "tests/unit/runtime/http/test_lineage_api.py"
       ],
       "title": "Runtime lineage API adapter"
     },
@@ -2150,14 +2150,14 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_product_integration.py",
-        "tests/foundry/calibration/test_fabric_quality.py",
-        "tests/foundry/uncertainty/test_fabric_quality.py",
-        "tests/lex/test_fabric_provenance.py",
-        "tests/runtime/http/test_fabric_integration_routes.py",
-        "tests/scholar/test_fabric_provenance.py",
-        "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-        "tests/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/fabric/test_product_integration.py",
+        "tests/unit/foundry/calibration/test_fabric_quality.py",
+        "tests/unit/foundry/uncertainty/test_fabric_quality.py",
+        "tests/unit/lex/test_fabric_provenance.py",
+        "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "tests/unit/scholar/test_fabric_provenance.py",
+        "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
         "tests/tools/test_fabric_product_integration.py"
       ],
       "title": "Scientist readiness cap from Fabric trust metadata"
@@ -2186,8 +2186,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
-        "tests/fabric/test_observability_governance_quality_phase4.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/test_observability_governance_quality_phase4.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "SourceContract access, retention, owner, reviewer, and SLO metadata"
@@ -2213,7 +2213,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
         "tests/tools/test_fabric_source_contracts.py"
       ],
       "title": "Source deprecation and sunset policy"
@@ -2227,12 +2227,12 @@
         "as_of_tx_time": true,
         "as_of_valid_time": true,
         "temporal_tests": [
-          "tests/fabric/test_world_time_travel.py",
-          "tests/fabric/test_world_materialization.py",
-          "tests/fabric/test_world_branch_governance.py",
-          "tests/fabric/test_world_temporal_capabilities.py",
-          "tests/runtime/http/test_temporal_api.py",
-          "tests/runtime/http/test_temporal_routes.py"
+          "tests/unit/fabric/test_world_time_travel.py",
+          "tests/unit/fabric/test_world_materialization.py",
+          "tests/unit/fabric/test_world_branch_governance.py",
+          "tests/unit/fabric/test_world_temporal_capabilities.py",
+          "tests/unit/runtime/http/test_temporal_api.py",
+          "tests/unit/runtime/http/test_temporal_routes.py"
         ]
       },
       "id": "world.bitemporal_world_query",
@@ -2246,12 +2246,12 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_world_branch_governance.py",
-        "tests/fabric/test_world_materialization.py",
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/fabric/test_world_time_travel.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_branch_governance.py",
+        "tests/unit/fabric/test_world_materialization.py",
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/fabric/test_world_time_travel.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ],
       "title": "Bitemporal world-query support"
     },
@@ -2278,7 +2278,7 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_world_branch_governance.py"
+        "tests/unit/fabric/test_world_branch_governance.py"
       ],
       "title": "Append-only correction and revocation metadata"
     },
@@ -2307,8 +2307,8 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_discovery_intelligence.py",
-        "tests/fabric/test_entity_resolution.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_entity_resolution.py",
         "tests/tools/test_fabric_discovery_intelligence.py"
       ],
       "title": "Discovery graph reasoning helpers"
@@ -2336,12 +2336,12 @@
       ],
       "status": "not_applicable",
       "tests": [
-        "tests/fabric/test_world_branch_governance.py",
-        "tests/fabric/test_world_materialization.py",
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/fabric/test_world_time_travel.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_branch_governance.py",
+        "tests/unit/fabric/test_world_materialization.py",
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/fabric/test_world_time_travel.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ],
       "title": "External table-format adapters excluded from Wave 2 production"
     },
@@ -2367,7 +2367,7 @@
       ],
       "status": "partial",
       "tests": [
-        "tests/fabric/test_world_temporal_capabilities.py"
+        "tests/unit/fabric/test_world_temporal_capabilities.py"
       ],
       "title": "Kuzu temporal graph parity marker"
     },
@@ -2402,12 +2402,12 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_world_branch_governance.py",
-        "tests/fabric/test_world_materialization.py",
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/fabric/test_world_time_travel.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_branch_governance.py",
+        "tests/unit/fabric/test_world_materialization.py",
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/fabric/test_world_time_travel.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ],
       "title": "Snapshot, branch, merge, governance, and retention surface"
     },
@@ -2459,9 +2459,9 @@
       ],
       "status": "implemented",
       "tests": [
-        "tests/fabric/test_world_temporal_capabilities.py",
-        "tests/runtime/http/test_temporal_api.py",
-        "tests/runtime/http/test_temporal_routes.py"
+        "tests/unit/fabric/test_world_temporal_capabilities.py",
+        "tests/unit/runtime/http/test_temporal_api.py",
+        "tests/unit/runtime/http/test_temporal_routes.py"
       ],
       "title": "Runtime temporal API adapter"
     }

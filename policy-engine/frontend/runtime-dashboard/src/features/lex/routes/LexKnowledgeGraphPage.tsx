@@ -16,9 +16,9 @@ import {
   parseLexSearchParams,
   type LexSearchParams,
 } from "@/features/lex/domain/searchParams";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { DEFAULT_LEX_OUTPUT_DIR } from "@/lib/constants";
-import { cn, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
+import { cn, formatNumber } from "@/shared/lib/utils";
 import {
   ApiErrorAlert,
   Button,

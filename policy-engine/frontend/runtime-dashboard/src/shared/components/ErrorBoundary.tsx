@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactNode } from "react";
 import { Component } from "react";
 import { useLocation, useMatches } from "react-router-dom";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useTelemetry } from "@/shared/telemetry/TelemetryProvider";
 import { useLogger } from "@/shared/telemetry/logger";
 import { Button } from "@/shared/ui/Button";

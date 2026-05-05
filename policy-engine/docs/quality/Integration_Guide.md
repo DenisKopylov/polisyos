@@ -57,7 +57,7 @@ evidence_payload = report.to_evidence()
 Run the new tests:
 
 ```text
-pytest tests/fabric/connectors/test_quality_system.py -q
+pytest tests/unit/fabric/connectors/test_quality_system.py -q
 ```
 
 Note: governance integration tests are skipped when optional dependencies

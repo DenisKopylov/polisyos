@@ -90,7 +90,7 @@ vi.mock("@/app/providers/RuntimeApiProvider", () => ({
     useRuntimeApiIncidentMock(...args),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   SUPPORTED_LOCALES: ["en", "uk"],
   useI18n: () => ({
     label: (

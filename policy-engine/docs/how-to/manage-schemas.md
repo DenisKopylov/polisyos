@@ -21,15 +21,15 @@ Freshness: 2026-04-17.
 ## Команды
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 cd frontend/runtime-dashboard && npm run generate:api
 ```
 
 В репозитории сейчас есть два важных schema surface:
 
-- ABI snapshots в `schemas/snapshots/**`, которые собираются через `tools/diagnostics/gen_schema.py`;
-- runtime OpenAPI snapshot `schemas/runtime_api_v1.openapi.json`, который экспортируется через `tools/runtime/export_runtime_openapi.py`.
+- ABI snapshots в `schemas/snapshots/**`, которые собираются через `tools/quality/diagnostics/gen_schema.py`;
+- runtime OpenAPI snapshot `schemas/runtime_api_v1.openapi.json`, который экспортируется через `tools/ops/runtime/export_runtime_openapi.py`.
 
 ## 1. Когда менять snapshots
 
@@ -47,7 +47,7 @@ cd frontend/runtime-dashboard && npm run generate:api
 Базовая локальная проверка:
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
 ```
 
 Если snapshot не совпадает с кодом, скрипт завершится ошибкой и покажет out-of-date файлы.
@@ -55,7 +55,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --chec
 Для точечной проверки подмножества моделей:
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check --models claim p0 ir
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check --models claim p0 ir
 ```
 
 ## 3. Перегенерируйте ABI snapshots
@@ -63,7 +63,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --chec
 Когда изменение осознанное:
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
 ```
 
 Что обновляется:
@@ -80,14 +80,14 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 Runtime contract живёт отдельно:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
 ```
 
 Если вы меняли HTTP routes или DTO, после экспорта обычно нужно ещё обновить generated client:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
 
 ## 5. Как думать про drift
@@ -150,10 +150,10 @@ IR registry использует четыре режима:
 ## 8. Минимальный рабочий набор перед merge
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 uv run --extra docs python -m mkdocs build --strict
-uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt
+uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt
 ```
 
 ## Откат
@@ -174,5 +174,5 @@ uv run --extra docs python tools/validation/check_docstring_quality.py --repo-ro
 
 - Для каталога текущих snapshots смотрите [Schemas reference](../reference/schemas.md)
 - Для полного generated inventory всех IR types и fields смотрите [IR Schema Catalog](../reference/ir/schema-catalog.md)
-- Для runtime contract tooling откройте `tools/runtime/README.md`
-- Для ABI tooling откройте `tools/diagnostics/README.md`
+- Для runtime contract tooling откройте `tools/ops/runtime/README.md`
+- Для ABI tooling откройте `tools/quality/diagnostics/README.md`

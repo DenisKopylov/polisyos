@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 
-import { parseDecisionCardPayload } from "@/lib/domain/decision";
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import {
   asArray,
   asBoolean,
@@ -9,14 +9,14 @@ import {
   asRecord,
   asString,
   toDisplayLabel,
-} from "@/lib/parsing";
+} from "@/shared/lib/parsing";
 import {
   formatDate,
   formatDuration,
   formatNumber,
   formatPercent,
   cn,
-} from "@/lib/utils";
+} from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { ProvenanceStrip } from "@/shared/ui";
 import {

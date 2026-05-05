@@ -23,7 +23,8 @@ The repository itself currently versions these merge-governance surfaces:
 - owner routing in [Ownership](ownership.md);
 - published gate inventory in [Quality Gates](quality-gates.md);
 - local and CI validation commands referenced from those pages;
-- the actual workflow files present under `.github/workflows/`.
+- the actual workflow files present under repository-root `.github/workflows/`;
+- reusable product workflow templates under `policy-engine/ops/ci/templates/workflows/`.
 
 Those files are the factual control plane that reviewers can audit from a
 checkout without relying on out-of-band GitHub settings.
@@ -57,6 +58,7 @@ Changes to shared control-plane paths should request `@platform-owners`
 attention explicitly even without CODEOWNERS automation. That includes:
 
 - `.github/workflows/**`
+- `policy-engine/ops/ci/templates/workflows/**`
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/labels.yml`
 - `mkdocs.yml`
@@ -68,12 +70,16 @@ attention explicitly even without CODEOWNERS automation. That includes:
 The current repo-tracked workflow inventory is the one listed in
 [Quality Gates](quality-gates.md). In particular:
 
-- `.github/workflows/abi.yml`, `.github/workflows/arch.yml`, and
-  `.github/workflows/docs.yml` are present and factual;
+- repository-root `.github/workflows/abi.yml`, `.github/workflows/ci.yml`,
+  `.github/workflows/core-runtime-release-gate.yml`, `.github/workflows/docs-pages.yml`,
+  `.github/workflows/fabric-remediation.yml`, `.github/workflows/frontend-nightly.yml`,
+  `.github/workflows/frontend-quality.yml`, and `.github/workflows/release.yml` are
+  active and factual;
 
-- subsystem evidence workflows such as `perf.yml`, `replay.yml`,
-  `signatures.yml`, and `foundry-release-gate.yml` are factual but may or may
-  not be selected as required GitHub checks in the UI.
+- product-local templates such as `arch.yml`, `perf.yml`, `replay.yml`,
+  `signatures.yml`, and `foundry-release-gate.yml` live under
+  `policy-engine/ops/ci/templates/workflows/` and are not active GitHub
+  workflows unless copied or promoted intentionally.
 
 ## Recommended Manual Branch-Protection Posture
 

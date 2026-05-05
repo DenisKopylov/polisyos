@@ -8,7 +8,7 @@ import {
   buildNaturalLanguageLaunchRequest,
   type NaturalLanguageLaunchFormValues,
 } from "@/features/composer";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { buildClerkFormDefaults } from "../domain/clerkDefaults";
 import { useChatStore } from "../state/useChatStore";
 

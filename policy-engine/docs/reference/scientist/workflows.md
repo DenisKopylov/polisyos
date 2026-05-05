@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/scientist/workflows/**`, and `tests/scientist/test_workflow_selection.py`
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/unit/scientist/workflows/**`, and `tests/unit/scientist/workflows/test_workflow_selection.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/scientist/workflows/**`, and `tests/scientist/test_workflow_selection.py`.
+> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/unit/scientist/workflows/**`, and `tests/unit/scientist/workflows/test_workflow_selection.py`.
 
 Workflow execution has two layers:
 
@@ -78,8 +78,8 @@ Current builtin specs are:
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/workflows/test_workflow_specs.py tests/scientist/workflows/test_builder_pinning.py -q
-uv run pytest tests/scientist/test_workflow_selection.py tests/scientist/integration/test_workflow_reliability_scenarios.py -q
+uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_builder_pinning.py -q
+uv run pytest tests/unit/scientist/workflows/test_workflow_selection.py tests/integration/scientist/test_workflow_reliability_scenarios.py -q
 uv run pytest tests/performance/test_scientist_runtime_paths.py --benchmark-only --benchmark-warmup=on --benchmark-min-rounds=5 -q
 ```
 

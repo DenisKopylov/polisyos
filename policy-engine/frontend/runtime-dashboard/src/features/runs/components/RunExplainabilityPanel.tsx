@@ -44,7 +44,7 @@ import {
   type ReasoningStep,
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 
 type RunExplainabilityPanelProps = {

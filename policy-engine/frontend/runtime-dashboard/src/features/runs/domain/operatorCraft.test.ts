@@ -1,5 +1,5 @@
-import type { DecisionCardViewModel } from "@/lib/domain/decision";
-import type { RunEvidenceContext } from "@/lib/domain/evidence";
+import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
+import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 
 import { buildSignedPublicDecisionPacket } from "./publicationPacket";
 import {

@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.continuous_governance import DecisionValidityStatus
@@ -20,11 +18,12 @@ from polisyos.scientist.memory import (
     MemoryContaminationPolicy,
     assert_reusable_memory_clean,
 )
-from polisyos.scientist.publisher import (
+from polisyos.scientist.orchestrator.publisher import (
     DecisionGradeExport,
     OutputAudience,
 )
 from polisyos.scientist.search.voi_models import VOIDecisionRecord, VOIDecisionType
+from pydantic import ValidationError
 from tools.ci import check_scientist_best_in_class_wave2 as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -179,8 +178,6 @@ def test_reissue_packet_without_new_claim_ledger_linkage_fails() -> None:
             original_claim_ledger_ref=_ref("old-ledger", kind="scientist.claim_ledger_v2"),
             new_decision_packet_ref=_ref("new-packet", kind="scientist.decision_packet"),
             status=DecisionValidityStatus.REISSUED,
-            monitor_event_refs=[
-                _ref("monitor-event", kind="scientist.governance_monitor_event")
-            ],
+            monitor_event_refs=[_ref("monitor-event", kind="scientist.governance_monitor_event")],
             reason="Missing new claim ledger link.",
         )

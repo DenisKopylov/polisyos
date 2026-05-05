@@ -31,12 +31,12 @@ evidence, а не из устных объяснений.
 cd policy-engine
 python3 -m tools.cli workspace doctor --surface runtime-signing --surface runtime-oidc
 uv run pytest -q \
-  tests/core/phase0/test_cli_signing.py \
-  tests/core/phase0/test_store_signing.py \
-  tests/core/security/test_sbom.py \
-  tests/core/security/test_tenant_context.py \
-  tests/runtime/http/test_runtime_api_authz.py \
-  tests/runtime/http/test_access_invariants_properties.py
+  tests/unit/core/phase0/test_cli_signing.py \
+  tests/unit/core/phase0/test_store_signing.py \
+  tests/unit/core/security/test_sbom.py \
+  tests/unit/core/security/test_tenant_context.py \
+  tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_access_invariants_properties.py
 ```
 
 ## Start Here By Task

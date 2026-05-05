@@ -95,4 +95,4 @@
 - Цель: завершить API/data-plane cutover и удалить отложенные compatibility paths из P5-P9: runtime legacy lifecycle/manifest + legacy run adapters, foundry state-source fallback, foundry/domain facades, legacy plugin bootstrap groups (`polisyos.connectors`, `polisyos.methods`), а также закрыть legacy dashboard path.
 - Фаза: `P10` (выполнено).
 - Owner: `team-runtime, team-foundry, team-scientist, team-core, team-fabric, team-platform-ui`.
-- Статус: `Done` (`2026-02-10`), legacy runtime/foundry/bootstrap paths удалены, contracts/docs/lints обновлены, добавлены P10 regression tests и tooling (`tools/runtime/*`, `tools/lint/lint_legacy_cutover.py`).
+- Статус: `Done` (`2026-02-10`), legacy runtime/foundry/bootstrap paths удалены, contracts/docs/lints обновлены, добавлены P10 regression tests и tooling (`tools/ops/runtime/*`, `tools/quality/lint/lint_legacy_cutover.py`).

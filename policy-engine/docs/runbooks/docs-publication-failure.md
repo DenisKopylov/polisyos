@@ -8,13 +8,14 @@ the repository documentation program plan.
 
 Owner: `@docs-owners`
 Last tested: `2026-04-17` against the strict MkDocs build, docs-accuracy check, and published QA ledger.
-Evidence path: `docs/reference/documentation-inventory.md`; `docs/reference/quality-gates.md`; `.github/workflows/docs.yml`
+Evidence path: `docs/reference/documentation-inventory.md`; `docs/reference/quality-gates.md`; `.github/workflows/abi.yml`; `.github/workflows/docs-pages.yml`
 Rollback path: revert or minimally fix the docs/nav/config change that broke publish, restore a strict green build, and only then republish.
 
 ## Symptom
 
 - `uv run --extra docs python -m mkdocs build --strict` падает локально или в CI;
-- workflow `Documentation` (`.github/workflows/docs.yml`) не проходит;
+- docs quality or publication workflow (`.github/workflows/abi.yml` or
+  `.github/workflows/docs-pages.yml`) не проходит;
 - docs accuracy / broken-link / nav issue ломает publish path;
 - опубликованный docs site stale относительно `main`, хотя code CI green.
 

@@ -1,0 +1,34 @@
+{
+  "kind": "publish",
+  "pipeline": "datasets",
+  "published_at": "2026-04-24T00:00:02+00:00",
+  "artifacts": [
+    {
+      "path": "graph/dataset_catalog.duckdb",
+      "sha256": "f2de23b2c7e811722fb165c07837b013682b2641840e247f0b73eae13e1e8460"
+    },
+    {
+      "path": "qc_report.json",
+      "sha256": "fde4f3ca9fce7ab57601081e95d0deff96cf63978e69987534a896db531a5982"
+    },
+    {
+      "path": "benchmark_report.json",
+      "sha256": "cbeb54ea725d24a369cfd2b1031a504679ec7927b08cf8db5f687804daf78bc8"
+    },
+    {
+      "path": "manifests/publish.json",
+      "sha256": "95eb100722eab4eadc969f6322be450a5398ceac7ee9d17c6fb52154ecdbed3f"
+    },
+    {
+      "path": "publish/consumer_readiness.json",
+      "sha256": "b4a2feef436a28a005d016290b5aba7873c5f585f7ea436c358e87fac0fb6afa"
+    }
+  ],
+  "qc_report": "qc_report.json",
+  "extra": {
+    "component_dir": "tests/unit/data_forge/fixtures/non_lex_split/catalog",
+    "consumer_readiness_manifest": "publish/consumer_readiness.json",
+    "consumer_ready": true,
+    "full_publish_ready": true
+  }
+}

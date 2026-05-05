@@ -46,7 +46,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
-          path: policy-engine/site
+          path: policy-engine/_build/site
 
   deploy:
     name: Docs Pages / Deploy

@@ -183,11 +183,11 @@ def parse_rows(payload: bytes, *, source_name: str) -> list[Row]:
 
 ### Allowlist / pragma
 
-Автоматический gate: `tools/validation/check_docstring_quality.py`.
+Автоматический gate: `tools/quality/validation/check_docstring_quality.py`.
 
 Для редких тривиальных wrappers допустимы точечные исключения:
 
-- добавить fully qualified symbol в `tools/validation/docstring_quality_allowlist.txt`;
+- добавить fully qualified symbol в `tools/quality/validation/docstring_quality_allowlist.txt`;
 - или поставить inline pragma рядом с определением:
 
 ```python
@@ -221,8 +221,8 @@ Documentation должна совпадать с текущей реальнос
 CI docs-quality gate запускает:
 
 - `uv run --extra docs python -m mkdocs build --strict`
-- `python3 tools/validation/check_docs_accuracy.py --repo-root .`
-- `uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt`
+- `python3 tools/quality/validation/check_docs_accuracy.py --repo-root .`
+- `uv run --extra docs python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt`
 
 Semantic coverage gate применяется к top-level public surface (module/class/function exports and
 reference-visible symbols). Method-level gaps остаются в отчёте как отдельный second-pass backlog
@@ -284,7 +284,7 @@ One paragraph: что делает модуль, какую проблему р�
 
 ### Правила
 
-- Заголовок **всегда** включает полный путь модуля: `` `polisyos.lex.batch` ``
+- Заголовок **всегда** включает полный путь модуля: `` `polisyos.data_forge.domains.legal.batch` ``
 - Раздел "Роль в системе" — обязателен, показывает зависимости
 - Не дублировать содержимое reference docs — ссылаться на них
 - Длина: 50-150 строк (не больше)

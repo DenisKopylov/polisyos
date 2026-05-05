@@ -1,21 +1,21 @@
 [manual.clean_machine_bootstrap]
 status = true
-notes = "Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: ./scripts/bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine."
+notes = "Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: polisyos-tools workspace bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine."
 evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 
 [manual.backend_walkthrough]
 status = true
-notes = "Backend walkthrough passed from clean checkout ccde518 on Hetzner: ./scripts/verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist."
+notes = "Backend walkthrough passed from clean checkout ccde518 on Hetzner: polisyos-tools workspace verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist."
 evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 
 [manual.frontend_walkthrough]
 status = true
-notes = "Frontend walkthrough passed from clean checkout ccde518 as part of ./scripts/verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests)."
+notes = "Frontend walkthrough passed from clean checkout ccde518 as part of polisyos-tools workspace verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests)."
 evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 
 [manual.platform_walkthrough]
 status = true
-notes = "Platform walkthrough passed from clean checkout ccde518: full ./scripts/verify --skip-doctor --pytest-workers 16 was green, and ops/docker-compose.observability.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down."
+notes = "Platform walkthrough passed from clean checkout ccde518: full polisyos-tools workspace verify --skip-doctor --pytest-workers 16 was green, and ops/docker/observability.compose.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down."
 evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 
 [manual.release_dry_run]

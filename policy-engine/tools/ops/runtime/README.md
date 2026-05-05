@@ -1,4 +1,4 @@
-# tools/runtime
+# tools/ops/runtime
 
 Утилиты для контрактов Runtime API и операционных задач по legacy runs.
 
@@ -27,10 +27,10 @@
 ## Типовой запуск
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
-PYTHONPATH=src:. uv run python tools/runtime/inventory_legacy_runs.py --runs-root runs --output .tmp/legacy_runs_inventory.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
+PYTHONPATH=src:. uv run python tools/ops/runtime/inventory_legacy_runs.py --runs-root runs --output _build/.tmp/legacy_runs_inventory.json
 ```
 
 ## Примечания

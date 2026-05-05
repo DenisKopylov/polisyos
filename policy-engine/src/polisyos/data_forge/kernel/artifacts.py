@@ -52,7 +52,8 @@ class ArtifactRef(DataForgeModel):
     config_hash: str = Field(pattern=SHA256_PATTERN)
     owner: str = Field(min_length=1)
     license: str = Field(min_length=1)
-    pii_level: PIILevel = PIILevel.NONE
+    regeneration_command: str = Field(min_length=1)
+    pii_level: PIILevel
     retention_class: RetentionClass
     freshness_sla_seconds: int = Field(ge=0)
     schema_id: str = Field(min_length=1)

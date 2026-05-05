@@ -1,0 +1,116 @@
+[frontend_workspaces]
+version = 1
+owner = "team-frontend"
+backup_owner = "team-runtime"
+node_baseline = ">=22 <23"
+workspace_manager = "pnpm"
+workspace_manifest = "pnpm-workspace.yaml"
+root_package_json = "package.json"
+root_lockfile = "pnpm-lock.yaml"
+source_of_truth = "pnpm-workspace.yaml, package.json, frontend/** package manifests, packages/* package manifests plus schemas/runtime_api_v1.openapi.json"
+generated_output_ignore_policy = "local generated outputs stay ignored unless registered as committed baselines in architecture/generated_artifacts.toml"
+
+[[workspace]]
+id = "runtime-api-client"
+path = "frontend/runtime-api-client"
+owner = "team-runtime"
+package_json = "frontend/runtime-api-client/package.json"
+lockfile = "pnpm-lock.yaml"
+source_of_truth = "schemas/runtime_api_v1.openapi.json"
+public_entrypoints = [
+  "runtimeApiClient.ts",
+  "runtimeApiClient.js",
+]
+schema_inputs = ["schemas/runtime_api_v1.openapi.json"]
+generated_outputs = [
+  "runtimeApiClient.ts",
+  "runtimeApiClient.js",
+]
+ignored_outputs = [
+  "node_modules/",
+  "../../_build/frontend/runtime-api-client/coverage/",
+  "../../_build/frontend/runtime-api-client/dist/",
+  "../../_build/frontend/runtime-api-client/.tmp/",
+  "../../_cache/frontend/runtime-api-client/eslint/.eslintcache",
+]
+build_commands = ["pnpm --filter @polisyos/runtime-api-client run build"]
+test_commands = ["pnpm --filter @polisyos/runtime-api-client test", "pnpm --filter @polisyos/runtime-api-client run contracts:verify"]
+drift_commands = ["pnpm --filter @polisyos/runtime-api-client run generate", "pnpm --filter @polisyos/runtime-api-client run contracts:verify", "pnpm --filter @polisyos/runtime-api-client run check:architecture"]
+
+[[workspace]]
+id = "runtime-dashboard"
+path = "frontend/runtime-dashboard"
+owner = "team-frontend"
+package_json = "frontend/runtime-dashboard/package.json"
+lockfile = "pnpm-lock.yaml"
+source_of_truth = "schemas/runtime_api_v1.openapi.json and src/polisyos/runtime/http/**"
+public_entrypoints = [
+  "src/main.tsx",
+  "src/app/routes/routes.tsx",
+  "src/api/types.ts",
+]
+schema_inputs = ["schemas/runtime_api_v1.openapi.json"]
+generated_outputs = ["src/api/types.ts"]
+ignored_outputs = [
+  "node_modules/",
+  "../../_build/frontend/runtime-dashboard/coverage/",
+  "../../_build/frontend/runtime-dashboard/dist/",
+  "../../_build/frontend/runtime-dashboard/output/",
+  "../../_build/frontend/runtime-dashboard/playwright-report/",
+  "../../_build/frontend/runtime-dashboard/storybook-static/",
+  "../../_build/frontend/runtime-dashboard/test-results/",
+  "../../_build/frontend/runtime-dashboard/.tmp/",
+  "../../_cache/frontend/runtime-dashboard/eslint/.eslintcache",
+]
+build_commands = ["pnpm --filter @polisyos/runtime-dashboard run build", "pnpm --filter @polisyos/runtime-dashboard run typecheck"]
+test_commands = ["pnpm --filter @polisyos/runtime-dashboard run test:components", "pnpm --filter @polisyos/runtime-dashboard run test:contracts"]
+drift_commands = [
+  "pnpm --filter @polisyos/runtime-dashboard run generate:api",
+  "pnpm --filter @polisyos/runtime-dashboard run contracts:verify",
+  "pnpm --filter @polisyos/runtime-dashboard run check:architecture",
+  "pnpm --filter @polisyos/runtime-dashboard run check:bundle",
+]
+
+[[workspace]]
+id = "runtime-reference-shell"
+path = "frontend/runtime-reference-shell"
+owner = "team-runtime"
+package_json = "frontend/runtime-reference-shell/package.json"
+lockfile = "pnpm-lock.yaml"
+source_of_truth = "frontend/runtime-api-client/runtimeApiClient.js"
+public_entrypoints = [
+  "index.html",
+  "app.js",
+]
+schema_inputs = ["frontend/runtime-api-client/runtimeApiClient.js"]
+generated_outputs = []
+ignored_outputs = [
+  "node_modules/",
+  "../../_build/frontend/runtime-reference-shell/coverage/",
+  "../../_build/frontend/runtime-reference-shell/dist/",
+  "../../_build/frontend/runtime-reference-shell/.tmp/",
+  "../../_cache/frontend/runtime-reference-shell/eslint/.eslintcache",
+]
+build_commands = ["pnpm --filter @polisyos/runtime-reference-shell run build"]
+test_commands = ["pnpm --filter @polisyos/runtime-reference-shell test"]
+drift_commands = ["pnpm --filter @polisyos/runtime-reference-shell run check:architecture"]
+
+[[workspace]]
+id = "cli"
+path = "packages/cli"
+owner = "team-frontend"
+package_json = "packages/cli/package.json"
+lockfile = "pnpm-lock.yaml"
+source_of_truth = "packages/cli/src/**"
+public_entrypoints = [
+  "src/styleguide/index.ts",
+]
+schema_inputs = []
+generated_outputs = []
+ignored_outputs = [
+  "node_modules/",
+  "../../_cache/frontend/cli/eslint/.eslintcache",
+]
+build_commands = ["pnpm --filter @polisyos/cli run build"]
+test_commands = ["pnpm --filter @polisyos/cli test"]
+drift_commands = ["pnpm --filter @polisyos/cli run lint"]

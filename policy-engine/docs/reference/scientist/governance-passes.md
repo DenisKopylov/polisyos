@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/scientist/governance/**`
+Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/unit/scientist/governance/**`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/scientist/governance/**`.
+> Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/unit/scientist/governance/**`.
 
 All registry-loaded governance validators implement
 `validate(ctx: PassContext) -> list[ComplianceIssue]`. The default registry is
@@ -113,9 +113,9 @@ requires a separate implementation-conformance report.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/governance/test_pass_registry.py tests/scientist/governance/test_validation_pipeline.py tests/scientist/governance/test_validation_pipeline_observability.py -q
-uv run pytest tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py -q
-uv run pytest tests/scientist/governance/test_incentive_compatibility_pass.py tests/scientist/test_ic_verification.py -q
+uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/scientist/governance/test_validation_pipeline.py tests/unit/scientist/governance/test_validation_pipeline_observability.py -q
+uv run pytest tests/unit/scientist/governance/test_accountability.py tests/unit/scientist/governance/test_calibration_validation.py -q
+uv run pytest tests/unit/scientist/governance/test_incentive_compatibility_pass.py tests/unit/scientist/governance/test_ic_verification.py -q
 ```
 
 ## Registry API

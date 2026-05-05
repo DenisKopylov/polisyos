@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { normalizeAgentPipeline } from "@/lib/domain/agents";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { normalizeAgentPipeline } from "@/shared/lib/domain/agents";
 import {
   formatBytes,
   formatCurrency,
   formatDate,
   formatDuration,
   formatNumber,
-} from "@/lib/utils";
+} from "@/shared/lib/utils";
 import { Badge, EmptyState } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 

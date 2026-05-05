@@ -344,8 +344,6 @@ class QuadraticProgramEstimator:
     def pure_step(
         state: Mapping[str, Any], params: Mapping[str, Any]
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        import cvxpy as cp
-
         payload = _mapping_payload(state)
         c = _vector(payload["objective_vector"], name="objective_vector")
         q = _matrix(payload["quadratic_matrix"], name="quadratic_matrix")
@@ -358,10 +356,25 @@ class QuadraticProgramEstimator:
         ):
             raise ValueError("objective/constraint/quadratic dimensions are inconsistent")
         lb, ub = _extract_bounds(payload, c.shape[0])
-
-        x = cp.Variable(c.shape[0])
         q_psd = 0.5 * (q + q.T) + 1e-8 * np.eye(q.shape[0], dtype=float)
         objective_name = str(params.get("objective", "maximize")).lower()
+        solver_name = str(params.get("solver", "OSQP")).upper()
+
+        try:
+            import cvxpy as cp
+        except ModuleNotFoundError:
+            return QuadraticProgramEstimator._solve_with_scipy(
+                c=c,
+                q_psd=q_psd,
+                a=a,
+                b=b,
+                lb=lb,
+                ub=ub,
+                objective_name=objective_name,
+                solver_name=solver_name,
+            )
+
+        x = cp.Variable(c.shape[0])
         expr = cp.sum(cp.multiply(c, x)) - 0.5 * cp.quad_form(x, q_psd)
         objective = cp.Maximize(expr) if objective_name == "maximize" else cp.Minimize(-expr)
         constraints = [a @ x <= b, x >= lb]
@@ -371,7 +384,6 @@ class QuadraticProgramEstimator:
         problem = cp.Problem(objective, constraints)
 
         started = time.perf_counter()
-        solver_name = str(params.get("solver", "OSQP")).upper()
         solver = _pick_solver(cp, solver_name, "OSQP", "CLARABEL", "SCS")
         problem.solve(solver=solver, verbose=False)
         elapsed = time.perf_counter() - started
@@ -407,6 +419,103 @@ class QuadraticProgramEstimator:
             "iterations": result.solver_iterations,
             "objective_value": result.objective_value,
             "solver": solver_name,
+        }
+        return _serialize_result(result), solver_info
+
+    @staticmethod
+    def _solve_with_scipy(
+        *,
+        c: np.ndarray,
+        q_psd: np.ndarray,
+        a: np.ndarray,
+        b: np.ndarray,
+        lb: np.ndarray,
+        ub: np.ndarray,
+        objective_name: str,
+        solver_name: str,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        try:
+            from scipy.optimize import Bounds, LinearConstraint, minimize
+        except ModuleNotFoundError:
+            result = OptimizationResult(
+                status=SolverStatus.ERROR,
+                objective_value=None,
+                variables={f"x_{idx}": 0.0 for idx in range(c.shape[0])},
+                constraints_satisfied={},
+                solver_iterations=0,
+                solver_gap=None,
+                solver_time_seconds=0.0,
+                metadata={
+                    "solver": solver_name,
+                    "objective": objective_name,
+                    "error": "Neither cvxpy nor scipy is available",
+                },
+            )
+            return _serialize_result(result), {
+                "status": result.status.value,
+                "gap": None,
+                "iterations": 0,
+                "objective_value": None,
+                "solver": solver_name,
+                "error": "Neither cvxpy nor scipy is available",
+            }
+
+        finite_ub = np.isfinite(ub)
+        x0 = np.maximum(lb, 0.0)
+        if finite_ub.any():
+            midpoint = np.where(finite_ub, 0.5 * (lb + ub), x0)
+            x0 = np.where(finite_ub, np.clip(midpoint, lb, ub), x0)
+
+        def utility(x_value: np.ndarray) -> float:
+            return float(c @ x_value - 0.5 * x_value @ q_psd @ x_value)
+
+        def minimized_objective(x_value: np.ndarray) -> float:
+            return -utility(np.asarray(x_value, dtype=float))
+
+        started = time.perf_counter()
+        scipy_result = minimize(
+            minimized_objective,
+            x0,
+            method="SLSQP",
+            bounds=Bounds(lb, ub),
+            constraints=(LinearConstraint(a, -np.inf, b),),
+            options={"maxiter": 1000, "ftol": 1e-9},
+        )
+        elapsed = time.perf_counter() - started
+
+        status = SolverStatus.OPTIMAL if scipy_result.success else SolverStatus.ERROR
+        solution = np.asarray(scipy_result.x if scipy_result.x is not None else x0, dtype=float)
+        lhs = a @ solution
+        constraints_ok = {
+            f"constraint_{idx}": bool(lhs[idx] <= b[idx] + 1e-6) for idx in range(a.shape[0])
+        }
+        constraints_ok["lower_bounds"] = bool(np.all(solution >= lb - 1e-6))
+        constraints_ok["upper_bounds"] = bool(np.all(solution[finite_ub] <= ub[finite_ub] + 1e-6))
+        value = utility(solution)
+        objective_value = value if objective_name == "maximize" else -value
+
+        result = OptimizationResult(
+            status=status,
+            objective_value=float(objective_value),
+            variables={f"x_{idx}": float(solution[idx]) for idx in range(solution.shape[0])},
+            constraints_satisfied=constraints_ok,
+            solver_iterations=int(getattr(scipy_result, "nit", 0) or 0),
+            solver_gap=None,
+            solver_time_seconds=elapsed,
+            metadata={
+                "solver": solver_name,
+                "objective": objective_name,
+                "backend": "scipy.optimize.minimize",
+                "message": str(getattr(scipy_result, "message", "")),
+            },
+        )
+        solver_info = {
+            "status": status.value,
+            "gap": None,
+            "iterations": result.solver_iterations,
+            "objective_value": result.objective_value,
+            "solver": solver_name,
+            "backend": "scipy.optimize.minimize",
         }
         return _serialize_result(result), solver_info
 

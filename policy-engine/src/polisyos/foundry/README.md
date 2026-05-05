@@ -82,12 +82,12 @@ PY
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/test_quickstart.py \
-  tests/foundry/test_compile_determinism.py \
-  tests/foundry/test_execute_input_bindings.py -q
+uv run pytest tests/unit/foundry/facade/test_quickstart.py \
+  tests/unit/foundry/compile/test_compile_determinism.py \
+  tests/unit/foundry/runtime/test_execute_input_bindings.py -q
 
-uv run pytest tests/foundry/test_executor_fail_semantics.py \
-  tests/foundry/test_nan_guard.py -q
+uv run pytest tests/unit/foundry/runtime/test_executor_fail_semantics.py \
+  tests/unit/foundry/runtime/test_nan_guard_public.py -q
 ```
 
 ## Reference Docs
@@ -96,5 +96,5 @@ uv run pytest tests/foundry/test_executor_fail_semantics.py \
 - [docs/reference/foundry/compile-execute.md](../../../docs/reference/foundry/compile-execute.md)
 - [docs/reference/foundry/state.md](../../../docs/reference/foundry/state.md)
 - [docs/reference/foundry/observability-reproducibility.md](../../../docs/reference/foundry/observability-reproducibility.md)
-- [docs/FOUNDRY_REMEDIATION_PLAN.md](../../../docs/FOUNDRY_REMEDIATION_PLAN.md)
-- [tests/foundry/README.md](../../../tests/foundry/README.md)
+- [docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md](../../../docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md)
+- [tests/unit/foundry/README.md](../../../tests/unit/foundry/README.md)

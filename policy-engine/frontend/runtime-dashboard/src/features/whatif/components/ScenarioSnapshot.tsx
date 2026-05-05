@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate } from "@/shared/lib/utils";
 import { Button, Card } from "@/shared/ui/primitives";
 
 import type { Scenario } from "../types";

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/artifacts/data_forge_artifact_ref_v1.schema.json",
+  "title": "Data Forge ArtifactRef v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "uri",
+    "sha256",
+    "producer",
+    "producer_version",
+    "trace_id",
+    "span_id",
+    "config_hash",
+    "owner",
+    "license",
+    "regeneration_command",
+    "pii_level",
+    "retention_class",
+    "freshness_sla_seconds",
+    "schema_id",
+    "schema_version"
+  ],
+  "properties": {
+    "uri": {
+      "type": "string",
+      "pattern": "^polisyos://[a-z0-9_.-]+/[a-z0-9_./-]+@[a-z0-9_.:-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer_version": {
+      "$ref": "#/$defs/producer_version"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "config_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "regeneration_command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pii_level": {
+      "type": "string",
+      "enum": ["none", "low", "medium", "high"]
+    },
+    "retention_class": {
+      "type": "string",
+      "enum": ["hot", "warm", "cold", "ephemeral"]
+    },
+    "freshness_sla_seconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "schema_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
+    }
+  },
+  "$defs": {
+    "producer_version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code_version"],
+      "properties": {
+        "code_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_version": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "default": null
+        },
+        "lockfile_hash": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "default": null
+        }
+      }
+    }
+  }
+}

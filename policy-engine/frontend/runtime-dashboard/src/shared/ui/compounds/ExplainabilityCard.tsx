@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { Badge, Button, Card } from "@/shared/ui/primitives";
 import type { BadgeKind } from "@/shared/ui/Badge";
 import { ConfidenceGauge } from "@/shared/charts";

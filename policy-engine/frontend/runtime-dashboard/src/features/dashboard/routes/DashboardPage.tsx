@@ -29,10 +29,10 @@ import {
   isRunSuccess,
   useSuspenseRunsSample,
 } from "@/features/runs";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/lib/capabilities";
-import { DEFAULT_LEX_OUTPUT_DIR } from "@/lib/constants";
-import { formatDuration, formatNumber, formatPercent } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { isCapabilityEnabled } from "@/shared/lib/capabilities";
+import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
+import { formatDuration, formatNumber, formatPercent } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   type BadgeKind,

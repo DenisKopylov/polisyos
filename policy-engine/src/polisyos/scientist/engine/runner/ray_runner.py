@@ -29,6 +29,7 @@ try:
 except ImportError:
     _HAS_RAY = False
 
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.runner.distributed_tier import (
     merge_and_checkpoint_tier,
     seed_runner_cache,
@@ -40,7 +41,6 @@ from polisyos.scientist.engine.runner.serialization import (
     serialize_state,
 )
 from polisyos.scientist.engine.state_merge import MergeConflictPolicy
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 _logger = logging.getLogger(__name__)
 _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)

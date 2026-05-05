@@ -4,8 +4,8 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/world/store/snapshots.py`, `src/polisyos/fabric/world/materialize/duckdb.py`, `src/polisyos/fabric/world_query.py`, `tests/fabric/test_world_time_travel.py`, `tests/fabric/test_world_materialization.py`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/fabric/world/store/snapshots.py`, `src/polisyos/fabric/world/materialize/duckdb.py`, `src/polisyos/fabric/world_query.py`, `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric time travel combines bitemporal query predicates with retained world
@@ -26,7 +26,7 @@ Current guardrail: as-of queries for projection tables require retained
 snapshot context. The request is rejected if callers ask for projection-table
 time travel without `snapshot_root`, `snapshot_id`, or `branch`.
 
-`tests/fabric/test_world_time_travel.py` confirms bitemporal reads over
+`tests/unit/fabric/test_world_time_travel.py` confirms bitemporal reads over
 `world_nodes` without rebuilding projections: the same node returns no label,
 then a late-arriving label, then a corrected label as transaction time moves
 forward while valid time stays fixed.
@@ -47,12 +47,10 @@ forward while valid time stays fixed.
 | `delete_world_branch()`            | Mark a branch deleted while retaining governance evidence                            |
 | `export_world_branch_governance()` | Export branch governance evidence for review/audit                                  |
 
-Branch metadata follows
-[`schemas/fabric/world_branch.schema.json`](../../../schemas/fabric/world_branch.schema.json).
-Scenario branches additionally follow
-[`schemas/fabric/scenario_branch.schema.json`](../../../schemas/fabric/scenario_branch.schema.json)
-and carry `observed_state=simulated`; they do not satisfy observed-world
-queries unless a caller explicitly selects the scenario branch/scope.
+Branch metadata follows `schemas/fabric/world_branch.schema.json`. Scenario
+branches additionally follow `schemas/fabric/scenario_branch.schema.json` and
+carry `observed_state=simulated`; they do not satisfy observed-world queries
+unless a caller explicitly selects the scenario branch/scope.
 
 ## Mutation Semantics
 
@@ -107,8 +105,8 @@ query or snapshot creation against those adapters still fails closed.
 | `target_wins`      | Target branch keeps the winning value and records one resolved conflict                  |
 
 Merge conflicts are typed as `WorldBranchMergeConflictError`, exportable for
-review, and summarized in branch governance evidence. `tests/fabric/test_world_time_travel.py`
-and `tests/fabric/test_world_branch_governance.py` cover all three policies,
+review, and summarized in branch governance evidence. `tests/unit/fabric/test_world_time_travel.py`
+and `tests/unit/fabric/test_world_branch_governance.py` cover all three policies,
 plus the fact that branch snapshot queries do not contaminate the live base
 database.
 
@@ -134,7 +132,7 @@ partial by capability responses.
 Time travel depends on the current world materialization surface being
 transactional and idempotent:
 
-- `tests/fabric/test_world_materialization.py` covers deterministic segment
+- `tests/unit/fabric/test_world_materialization.py` covers deterministic segment
   application, idempotent re-apply, projection planning, and stale-on-error
   preservation.
 
@@ -144,8 +142,8 @@ transactional and idempotent:
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/test_world_materialization.py -q
-uv run pytest tests/fabric/test_world_time_travel.py -q
-uv run pytest tests/fabric/test_world_branch_governance.py -q
-uv run pytest tests/fabric/test_world_temporal_capabilities.py -q
+uv run pytest tests/unit/fabric/test_world_materialization.py -q
+uv run pytest tests/unit/fabric/test_world_time_travel.py -q
+uv run pytest tests/unit/fabric/test_world_branch_governance.py -q
+uv run pytest tests/unit/fabric/test_world_temporal_capabilities.py -q
 ```

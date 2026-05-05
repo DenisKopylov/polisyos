@@ -14,8 +14,8 @@ import type {
   ConfidenceLadderItem,
   SignedPublicDecisionPacket,
 } from "@/features/runs/domain/publicationPacket";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn, formatDate, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Badge, Button } from "@/shared/ui";
 
 function nodeKind(node: ArgumentMapNode) {

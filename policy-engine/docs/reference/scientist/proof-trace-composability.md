@@ -1,10 +1,10 @@
 # Proof Trace Composability
 
-Related references: [Scientist Causal Validity](causal-validity.md), [Run causal analysis](../../how-to/run-causal-analysis.md), [Causal engine research agenda](../../archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md).
+Related references: [Scientist Causal Validity](causal-validity.md), [Run causal analysis](../../how-to/run-causal-analysis.md). Historical agenda evidence path: `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md`.
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/ir/analytics/proof_composability.py`, `src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py`, `src/polisyos/ir/analytics/causal.py`, `src/polisyos/ir/analytics/evidence_bundle.py`, `tests/ir/analytics/test_proof_composability_contract.py`, and `tests/foundry/methods/catalog/causal/test_proof_trace_composability.py`
+Source of truth: `src/polisyos/ir/analytics/proof_composability.py`, `src/polisyos/foundry/methods/catalog/causal/proof_trace_composability.py`, `src/polisyos/ir/analytics/causal.py`, `src/polisyos/ir/analytics/evidence_bundle.py`, `tests/unit/ir/analytics/test_proof_composability_contract.py`, and `tests/unit/foundry/methods/catalog/causal/test_proof_trace_composability.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
@@ -80,5 +80,5 @@ Use `proof_composability_cache_key(...)` for this normalized key.
 ## Validation
 
 ```bash
-uv run pytest tests/ir/analytics/test_evidence_bundle.py tests/ir/analytics/test_proof_composability_contract.py tests/foundry/methods/catalog/causal/test_proof_trace_composability.py -q
+uv run pytest tests/unit/ir/analytics/test_evidence_bundle.py tests/unit/ir/analytics/test_proof_composability_contract.py tests/unit/foundry/methods/catalog/causal/test_proof_trace_composability.py -q
 ```

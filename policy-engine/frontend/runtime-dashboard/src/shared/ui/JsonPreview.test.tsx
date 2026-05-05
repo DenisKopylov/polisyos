@@ -4,7 +4,7 @@ const { tMock } = vi.hoisted(() => ({
   tMock: vi.fn((key: string) => key),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     t: tMock,
   }),

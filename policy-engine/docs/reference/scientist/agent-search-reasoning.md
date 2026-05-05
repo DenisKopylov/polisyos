@@ -4,11 +4,11 @@ Related references: [Workflows](workflows.md), [Reliability scorecard](reliabili
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/scientist/agent/test_reasoning.py`, `tests/scientist/agent/test_eval_harness.py`, and `tests/scientist/search/strategies/test_advanced_policy.py`
+Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/scientist/agent/test_reasoning.py`, `tests/scientist/agent/test_eval_harness.py`, and `tests/scientist/search/strategies/test_advanced_policy.py`.
+> Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`.
 
 This page documents the optional L6 reasoning/search rollout surface. These
 capabilities do not become part of the default Scientist runtime just because
@@ -117,6 +117,6 @@ verification is requested.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/agent/test_reasoning.py tests/scientist/agent/test_eval_harness.py -q
-uv run pytest tests/scientist/agent/test_supervisor.py tests/scientist/search/strategies/test_advanced_policy.py tests/scientist/search/strategies/test_controller_batch.py -q
+uv run pytest tests/unit/scientist/agent/test_reasoning.py tests/unit/scientist/agent/test_eval_harness.py -q
+uv run pytest tests/unit/scientist/agent/test_supervisor.py tests/unit/scientist/search/strategies/test_advanced_policy.py tests/unit/scientist/search/strategies/test_controller_batch.py -q
 ```

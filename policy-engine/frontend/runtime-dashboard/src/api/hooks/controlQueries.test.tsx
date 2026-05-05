@@ -28,8 +28,8 @@ import {
   useSourceProfiles,
 } from "@/api/hooks/useSourceProfiles";
 import { queryKeys } from "@/api/queryKeys";
-import { HEALTH_REFETCH_MS, RUNS_SAMPLE_STALE_MS } from "@/lib/constants";
-import { FALLBACK_CAPABILITY_MANIFEST } from "@/lib/capabilities";
+import { HEALTH_REFETCH_MS, RUNS_SAMPLE_STALE_MS } from "@/shared/lib/constants";
+import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { createQueryHookWrapper } from "@/test/queryHook";
 import {
   mockRuntimeGetFailure,

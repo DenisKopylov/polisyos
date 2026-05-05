@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { Glyph, type GlyphSize } from "@/shared/brand/Glyph";
 import { GLYPH_ANCHORS } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";

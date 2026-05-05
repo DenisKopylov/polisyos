@@ -11,7 +11,7 @@ from polisyos.ir.analytics.decision_layer import load_optimization_ambiguity_cer
 from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.evidence_sources import (
+from polisyos.scientist.evidence.sources import (
     EvidenceSourcesConfig,
     normalize_evidence_sources_config,
 )

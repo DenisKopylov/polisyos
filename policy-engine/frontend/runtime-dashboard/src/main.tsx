@@ -18,7 +18,7 @@ import { registerSW } from "virtual:pwa-register";
 
 import App from "./app/App";
 import { AppProviders } from "./app/providers/AppProviders";
-import "./i18n/typography/plexCyrillicFix.css";
+import "@/shared/i18n/typography/plexCyrillicFix.css";
 import "./styles.css";
 
 if (typeof window !== "undefined" && !window.__RUNTIME_DASHBOARD_TEST__) {

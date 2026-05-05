@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { useCounterfactualMetrics } from "@/api/hooks/useCounterfactualMetrics";
 import { useRunScenarios } from "@/api/hooks/useScenarioCapabilities";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import {
   CounterfactualMetricChart,
   CounterfactualModeSwitch,

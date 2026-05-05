@@ -11,26 +11,37 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as futures
-import csv
 import dataclasses
 import hashlib
 import json
 import math
 import os
-import random
-import shutil
 import subprocess
 import sys
 import time
 import traceback
-from collections import Counter, defaultdict
+from collections import defaultdict
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 import duckdb
 import numpy as np
 import pandas as pd
+
+DATASETS_BUNDLE_NAME = "datasets_full_phase3full_20260327_183054"
+
+
+def datasets_bundle_root(production_data: Path) -> Path:
+    bundled = production_data / DATASETS_BUNDLE_NAME
+    if (bundled / "dataset_catalog.duckdb").exists():
+        return bundled
+    return production_data
+
+
+def dataset_catalog_db(production_data: Path) -> Path:
+    return datasets_bundle_root(production_data) / "dataset_catalog.duckdb"
 
 
 PROGRAMS: dict[str, dict[str, Any]] = {
@@ -58,7 +69,12 @@ PROGRAMS: dict[str, dict[str, Any]] = {
         ],
         "intervention": {
             "type": "microgrant",
-            "policy_levers": ["grant_amount", "eligibility", "job_creation_obligation", "priority_groups"],
+            "policy_levers": [
+                "grant_amount",
+                "eligibility",
+                "job_creation_obligation",
+                "priority_groups",
+            ],
             "target_population": "micro and small entrepreneurs, unemployed people, veterans and displaced persons",
         },
     },
@@ -86,7 +102,13 @@ PROGRAMS: dict[str, dict[str, Any]] = {
         ],
         "intervention": {
             "type": "interest_subsidy_credit",
-            "policy_levers": ["subsidy_rate", "loan_cap", "eligibility_threshold", "budget_cap", "risk_share"],
+            "policy_levers": [
+                "subsidy_rate",
+                "loan_cap",
+                "eligibility_threshold",
+                "budget_cap",
+                "risk_share",
+            ],
             "target_population": "SMEs needing working capital or investment loans",
         },
     },
@@ -113,7 +135,12 @@ PROGRAMS: dict[str, dict[str, Any]] = {
         ],
         "intervention": {
             "type": "tax_regulatory_relief",
-            "policy_levers": ["tax_rate", "filing_frequency", "eligibility_group", "wartime_exemption"],
+            "policy_levers": [
+                "tax_rate",
+                "filing_frequency",
+                "eligibility_group",
+                "wartime_exemption",
+            ],
             "target_population": "FOP and SMEs under simplified taxation or wartime relief",
         },
     },
@@ -155,7 +182,10 @@ def json_default(value: Any) -> Any:
 
 def write_json(path: Path, payload: Any) -> None:
     ensure_dir(path.parent)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=json_default) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, default=json_default) + "\n",
+        encoding="utf-8",
+    )
 
 
 def write_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> int:
@@ -202,8 +232,12 @@ def output_inventory(root: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def run_command(args: list[str], *, cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, cwd=cwd, check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+def run_command(
+    args: list[str], *, cwd: Path | None = None, check: bool = True
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        args, cwd=cwd, check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
 
 
 @dataclasses.dataclass
@@ -318,8 +352,12 @@ class ExperimentSuite:
             "reports_dir": str(self.ctx.reports_dir),
         }
         self.update_index()
-        write_markdown(self.ctx.reports_dir / "thesis_results_summary.md", build_thesis_summary(self.index))
-        write_markdown(self.ctx.reports_dir / "appendix_b_artifact_table.md", build_appendix_table(self.index))
+        write_markdown(
+            self.ctx.reports_dir / "thesis_results_summary.md", build_thesis_summary(self.index)
+        )
+        write_markdown(
+            self.ctx.reports_dir / "appendix_b_artifact_table.md", build_appendix_table(self.index)
+        )
         write_json(self.ctx.reports_dir / "final_manifest.json", self.index)
         if self.ctx.gcs_output_prefix:
             self.sync_path(self.ctx.output_dir, "runs")
@@ -340,7 +378,9 @@ def like_clauses(columns: list[str], terms: list[str]) -> tuple[str, list[str]]:
     return " OR ".join(clauses), params
 
 
-def fetch_lex_pack(ctx: SuiteContext, program_key: str, limit_per_source: int = 450) -> list[dict[str, Any]]:
+def fetch_lex_pack(
+    ctx: SuiteContext, program_key: str, limit_per_source: int = 450
+) -> list[dict[str, Any]]:
     program = PROGRAMS[program_key]
     terms = program["keywords"]
     rows: list[dict[str, Any]] = []
@@ -372,7 +412,9 @@ def fetch_lex_pack(ctx: SuiteContext, program_key: str, limit_per_source: int = 
         """
         rows.extend(con.execute(provision_sql, params).fetchdf().to_dict("records"))
 
-        where, params = like_clauses(["doc_name", "fact_text", "subject_uk", "object_uk", "source_quote_uk"], terms)
+        where, params = like_clauses(
+            ["doc_name", "fact_text", "subject_uk", "object_uk", "source_quote_uk"], terms
+        )
         fact_sql = f"""
             select
               'fact' as source_kind,
@@ -414,8 +456,10 @@ def fetch_lex_pack(ctx: SuiteContext, program_key: str, limit_per_source: int = 
     return deduped
 
 
-def dataset_variable_matches(ctx: SuiteContext, required_variables: list[str], limit: int = 12) -> dict[str, Any]:
-    db = ctx.production_data / "dataset_catalog.duckdb"
+def dataset_variable_matches(
+    ctx: SuiteContext, required_variables: list[str], limit: int = 12
+) -> dict[str, Any]:
+    db = dataset_catalog_db(ctx.production_data)
     con = connect_readonly(db)
     manifest: dict[str, Any] = {}
     try:
@@ -599,10 +643,11 @@ def load_h1_bundle(ctx: SuiteContext, program: str) -> dict[str, Any]:
 
 
 def ua_observation_summary(ctx: SuiteContext) -> dict[str, Any]:
-    con = connect_readonly(ctx.production_data / "dataset_catalog.duckdb")
+    con = connect_readonly(dataset_catalog_db(ctx.production_data))
     try:
-        rows = con.execute(
-            """
+        rows = (
+            con.execute(
+                """
             select canonical_var, count(*) as n, avg(value) as mean, stddev_samp(value) as sd,
                    min(year) as min_year, max(year) as max_year
             from ds_observations
@@ -611,7 +656,10 @@ def ua_observation_summary(ctx: SuiteContext) -> dict[str, Any]:
             order by n desc
             limit 200
             """
-        ).fetchdf().to_dict("records")
+            )
+            .fetchdf()
+            .to_dict("records")
+        )
     finally:
         con.close()
     return {str(row["canonical_var"]): row for row in rows}
@@ -633,7 +681,9 @@ def synthetic_msme_panel(seed: int, n: int, obs_summary: dict[str, Any]) -> pd.D
             "Vinnytsia",
         ]
     )
-    region = rng.choice(regions, size=n, p=np.array([0.12, 0.1, 0.11, 0.1, 0.09, 0.08, 0.1, 0.08, 0.08, 0.14]))
+    region = rng.choice(
+        regions, size=n, p=np.array([0.12, 0.1, 0.11, 0.1, 0.09, 0.08, 0.1, 0.08, 0.08, 0.14])
+    )
     conflict_map = {
         "Donetsk": 0.95,
         "Kherson": 0.85,
@@ -647,12 +697,18 @@ def synthetic_msme_panel(seed: int, n: int, obs_summary: dict[str, Any]) -> pd.D
         "Vinnytsia": 0.18,
     }
     conflict = np.array([conflict_map[r] for r in region])
-    sector = rng.choice(["trade", "services", "manufacturing", "agriculture", "it"], size=n, p=[0.3, 0.28, 0.18, 0.16, 0.08])
+    sector = rng.choice(
+        ["trade", "services", "manufacturing", "agriculture", "it"],
+        size=n,
+        p=[0.3, 0.28, 0.18, 0.16, 0.08],
+    )
     women_owned = rng.binomial(1, 0.43, size=n)
     veteran = rng.binomial(1, np.clip(0.04 + 0.08 * conflict, 0, 0.18), size=n)
     displaced = rng.binomial(1, np.clip(0.08 + 0.25 * conflict, 0, 0.45), size=n)
     employees_base = rng.poisson(np.clip(3.0 + rng.normal(0, 1, size=n), 0.1, 10)).astype(float)
-    digital_score = np.clip(rng.beta(2.5, 2.2, size=n) - 0.18 * conflict + 0.08 * (sector == "it"), 0, 1)
+    digital_score = np.clip(
+        rng.beta(2.5, 2.2, size=n) - 0.18 * conflict + 0.08 * (sector == "it"), 0, 1
+    )
     collateral = np.clip(rng.lognormal(mean=1.2, sigma=0.6, size=n) * (1 - 0.35 * conflict), 0, 20)
     demand_shock = rng.normal(0.02 - 0.22 * conflict + 0.05 * (sector == "it"), 0.12, size=n)
     propensity_logit = (
@@ -666,7 +722,9 @@ def synthetic_msme_panel(seed: int, n: int, obs_summary: dict[str, Any]) -> pd.D
     )
     propensity = 1 / (1 + np.exp(-propensity_logit))
     treatment = rng.binomial(1, propensity)
-    heterogeneous_effect = 0.055 + 0.028 * digital_score + 0.018 * women_owned + 0.025 * veteran - 0.035 * conflict
+    heterogeneous_effect = (
+        0.055 + 0.028 * digital_score + 0.018 * women_owned + 0.025 * veteran - 0.035 * conflict
+    )
     noise = rng.normal(0, 0.09, size=n)
     revenue_growth = (
         -0.02
@@ -685,7 +743,18 @@ def synthetic_msme_panel(seed: int, n: int, obs_summary: dict[str, Any]) -> pd.D
         + treatment * (heterogeneous_effect * 0.65)
         + rng.normal(0, 0.06, size=n)
     )
-    survival_prob = 1 / (1 + np.exp(-(-0.15 + 2.2 * revenue_growth + 0.35 * digital_score - 0.7 * conflict + 0.25 * treatment)))
+    survival_prob = 1 / (
+        1
+        + np.exp(
+            -(
+                -0.15
+                + 2.2 * revenue_growth
+                + 0.35 * digital_score
+                - 0.7 * conflict
+                + 0.25 * treatment
+            )
+        )
+    )
     survival = rng.binomial(1, survival_prob)
     return pd.DataFrame(
         {
@@ -712,8 +781,21 @@ def ols_adjustment(df: pd.DataFrame, outcome: str) -> dict[str, Any]:
     from sklearn.linear_model import LinearRegression
     from sklearn.preprocessing import OneHotEncoder
 
-    numeric = df[["treatment", "conflict_exposure", "women_owned", "veteran", "displaced", "employees_base", "digital_score", "collateral_index"]].to_numpy()
-    cats = OneHotEncoder(sparse_output=False, handle_unknown="ignore").fit_transform(df[["region", "sector"]])
+    numeric = df[
+        [
+            "treatment",
+            "conflict_exposure",
+            "women_owned",
+            "veteran",
+            "displaced",
+            "employees_base",
+            "digital_score",
+            "collateral_index",
+        ]
+    ].to_numpy()
+    cats = OneHotEncoder(sparse_output=False, handle_unknown="ignore").fit_transform(
+        df[["region", "sector"]]
+    )
     x = np.hstack([numeric, cats])
     y = df[outcome].to_numpy()
     model = LinearRegression(n_jobs=None)
@@ -751,16 +833,32 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         "basis": "Synthetic applicant/firms panel calibrated structurally by production_data availability and thesis program frame.",
         "real_microdata_available": False,
     }
-    write_json(out_dir / "causal_task.json", {"program": "vlasna_sprava", "panel_manifest": panel_manifest})
+    write_json(
+        out_dir / "causal_task.json", {"program": "vlasna_sprava", "panel_manifest": panel_manifest}
+    )
 
-    feature_cols = ["conflict_exposure", "women_owned", "veteran", "displaced", "employees_base", "digital_score", "collateral_index", "treatment", "revenue_growth", "employment_growth", "survival"]
+    feature_cols = [
+        "conflict_exposure",
+        "women_owned",
+        "veteran",
+        "displaced",
+        "employees_base",
+        "digital_score",
+        "collateral_index",
+        "treatment",
+        "revenue_growth",
+        "employment_growth",
+        "survival",
+    ]
     corr = panel[feature_cols].corr(numeric_only=True)
     edges = []
     for i, a in enumerate(feature_cols):
         for b in feature_cols[i + 1 :]:
             c = float(corr.loc[a, b])
             if abs(c) >= 0.08:
-                edges.append({"source": a, "target": b, "weight": c, "method": "correlation_screen"})
+                edges.append(
+                    {"source": a, "target": b, "weight": c, "method": "correlation_screen"}
+                )
     discovery = {
         "methods": ["correlation_screen", "domain_prior_from_H1"],
         "candidate_edges": sorted(edges, key=lambda r: abs(r["weight"]), reverse=True)[:80],
@@ -784,7 +882,17 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
             "status": "identified_in_synthetic_proxy_panel",
             "real_world_status": "blocked_missing_applicant_microdata",
             "estimand": "ATE and HTE of microgrant receipt on firm revenue/employment growth and survival",
-            "adjustment_set": ["conflict_exposure", "women_owned", "veteran", "displaced", "employees_base", "digital_score", "collateral_index", "region", "sector"],
+            "adjustment_set": [
+                "conflict_exposure",
+                "women_owned",
+                "veteran",
+                "displaced",
+                "employees_base",
+                "digital_score",
+                "collateral_index",
+                "region",
+                "sector",
+            ],
         },
     )
 
@@ -794,7 +902,12 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         control = panel.loc[panel.treatment == 0, outcome]
         naive = float(treated.mean() - control.mean())
         estimates.append({"outcome": outcome, "method": "naive_difference", "estimate": naive})
-        estimates.append({"method": "ols_adjustment", **ols_adjustment(panel.sample(120_000, random_state=42), outcome)})
+        estimates.append(
+            {
+                "method": "ols_adjustment",
+                **ols_adjustment(panel.sample(120_000, random_state=42), outcome),
+            }
+        )
 
     # T-learner on a bounded sample keeps runtime useful without overfitting the deadline.
     from sklearn.ensemble import RandomForestRegressor
@@ -805,15 +918,29 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     cats = enc.fit_transform(sample[["region", "sector"]])
     x_base = np.hstack(
         [
-            sample[["conflict_exposure", "women_owned", "veteran", "displaced", "employees_base", "digital_score", "collateral_index"]].to_numpy(),
+            sample[
+                [
+                    "conflict_exposure",
+                    "women_owned",
+                    "veteran",
+                    "displaced",
+                    "employees_base",
+                    "digital_score",
+                    "collateral_index",
+                ]
+            ].to_numpy(),
             cats,
         ]
     )
     t = sample["treatment"].to_numpy() == 1
     for outcome in ["revenue_growth", "employment_growth"]:
         y = sample[outcome].to_numpy()
-        m1 = RandomForestRegressor(n_estimators=96, max_depth=10, min_samples_leaf=80, n_jobs=ctx.threads, random_state=11)
-        m0 = RandomForestRegressor(n_estimators=96, max_depth=10, min_samples_leaf=80, n_jobs=ctx.threads, random_state=12)
+        m1 = RandomForestRegressor(
+            n_estimators=96, max_depth=10, min_samples_leaf=80, n_jobs=ctx.threads, random_state=11
+        )
+        m0 = RandomForestRegressor(
+            n_estimators=96, max_depth=10, min_samples_leaf=80, n_jobs=ctx.threads, random_state=12
+        )
         m1.fit(x_base[t], y[t])
         m0.fit(x_base[~t], y[~t])
         cate = m1.predict(x_base) - m0.predict(x_base)
@@ -829,8 +956,15 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         )
     write_json(out_dir / "estimator_results.json", {"results": estimates})
 
-    arrays = {col: panel[col].to_numpy() for col in ["treatment", "revenue_growth", "employment_growth", "survival"]}
-    tasks = [(20260430 + i, outcome, arrays) for i in range(180) for outcome in ["revenue_growth", "employment_growth", "survival"]]
+    arrays = {
+        col: panel[col].to_numpy()
+        for col in ["treatment", "revenue_growth", "employment_growth", "survival"]
+    }
+    tasks = [
+        (20260430 + i, outcome, arrays)
+        for i in range(180)
+        for outcome in ["revenue_growth", "employment_growth", "survival"]
+    ]
     with futures.ProcessPoolExecutor(max_workers=ctx.threads) as pool:
         boot = list(pool.map(bootstrap_diff, tasks, chunksize=8))
     curve: dict[str, list[float]] = defaultdict(list)
@@ -858,7 +992,9 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     write_json(out_dir / "qte_profile.json", qte)
 
     hte = (
-        panel.groupby(["sector", "veteran"], observed=True)[["revenue_growth", "employment_growth", "treatment"]]
+        panel.groupby(["sector", "veteran"], observed=True)[
+            ["revenue_growth", "employment_growth", "treatment"]
+        ]
         .mean()
         .reset_index()
         .to_dict("records")
@@ -881,7 +1017,11 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         {
             "unobserved_confounding": "not ruled out for real policy evaluation",
             "proxy_robustness": "positive sign survives synthetic bootstrap for revenue/employment in generated panel",
-            "negative_control_needed": ["pre-program revenue trend", "pre-program tax compliance", "sector shock exposure"],
+            "negative_control_needed": [
+                "pre-program revenue trend",
+                "pre-program tax compliance",
+                "sector shock exposure",
+            ],
         },
     )
     write_json(
@@ -919,11 +1059,15 @@ def experiment_h2(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
             {"block": "governance", "status": "completed_with_limitations"},
         ],
         "limitations": ["Real applicant-level treatment/outcome microdata is absent."],
-        "thesis_claims_supported": ["PolicyOS can execute and govern a full causal-stack workflow with explicit data limitations."],
+        "thesis_claims_supported": [
+            "PolicyOS can execute and govern a full causal-stack workflow with explicit data limitations."
+        ],
     }
 
 
-def read_jsonl_sample(path: Path, predicate: Callable[[dict[str, Any]], bool] | None = None, limit: int = 500) -> list[dict[str, Any]]:
+def read_jsonl_sample(
+    path: Path, predicate: Callable[[dict[str, Any]], bool] | None = None, limit: int = 500
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
@@ -943,7 +1087,16 @@ def read_jsonl_sample(path: Path, predicate: Callable[[dict[str, Any]], bool] | 
 def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     academic = ctx.production_data / "policyos_academic_runtime_slim_20260411T112032Z" / "academic"
     transport_path = academic / "transport_scores.jsonl"
-    terms = ["sme", "small business", "startup", "start up", "loan", "grant", "entrepreneur", "credit"]
+    terms = [
+        "sme",
+        "small business",
+        "startup",
+        "start up",
+        "loan",
+        "grant",
+        "entrepreneur",
+        "credit",
+    ]
 
     def pred(row: dict[str, Any]) -> bool:
         text = json.dumps(row, ensure_ascii=False).lower()
@@ -957,7 +1110,13 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     h1_vars = read_json_file(ctx.output_dir / H_NAMES["H1"] / "variable_manifest.json") or {}
     ua_context = {
         "lex_context": {
-            "programs": {k: {"label": v["label"], "source_count": len(load_h1_bundle(ctx, k).get("legal_sources", []))} for k, v in PROGRAMS.items()},
+            "programs": {
+                k: {
+                    "label": v["label"],
+                    "source_count": len(load_h1_bundle(ctx, k).get("legal_sources", [])),
+                }
+                for k, v in PROGRAMS.items()
+            },
             "wartime_caveat": "Legal context includes wartime support and conflict exposure but amendment enrichment is deferred.",
         },
         "dataset_coverage": {k: v.get("coverage_status") for k, v in h1_vars.items()},
@@ -972,7 +1131,9 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
                 "uk_variable": ua_var,
                 "uk_evidence_status": coverage,
                 "candidate_uk_transfer_variable": ua_var,
-                "context_sensitivity": "high" if ua_var in {"conflict_exposure", "default_risk"} else "medium",
+                "context_sensitivity": "high"
+                if ua_var in {"conflict_exposure", "default_risk"}
+                else "medium",
             }
         )
     write_json(out_dir / "variable_alignment_uk_ua.json", {"alignments": alignments})
@@ -987,7 +1148,13 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     }
     write_json(out_dir / "support_factors_checklist.json", support)
     s_graph = {
-        "nodes": ["UK_program_evidence", "UA_wartime_context", "UA_legal_constraints", "SME_outcomes", "Selection_nodes"],
+        "nodes": [
+            "UK_program_evidence",
+            "UA_wartime_context",
+            "UA_legal_constraints",
+            "SME_outcomes",
+            "Selection_nodes",
+        ],
         "edges": [
             ["UK_program_evidence", "SME_outcomes"],
             ["UA_wartime_context", "Selection_nodes"],
@@ -999,7 +1166,12 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     formula = {
         "status": "partial_transport_formula",
         "formula_summary": "Use UK SME program evidence as a downweighted prior; condition on target population, credit-market access, conflict exposure and legal eligibility.",
-        "required_selection_adjustments": ["wartime_context", "credit_market_institutions", "conflict_exposure", "eligibility_rules"],
+        "required_selection_adjustments": [
+            "wartime_context",
+            "credit_market_institutions",
+            "conflict_exposure",
+            "eligibility_rules",
+        ],
     }
     write_json(out_dir / "transport_formula.json", formula)
     write_json(
@@ -1007,10 +1179,17 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         {
             "status": "partially_invariant",
             "invariant_components": ["basic credit/grant mechanism", "firm liquidity channel"],
-            "non_invariant_components": ["wartime destruction risk", "displacement", "martial-law legal context"],
+            "non_invariant_components": [
+                "wartime destruction risk",
+                "displacement",
+                "martial-law legal context",
+            ],
         },
     )
-    write_json(out_dir / "transport_bounds.json", {"effect_prior_weight": 0.35, "recommended_bounds_multiplier": 1.8})
+    write_json(
+        out_dir / "transport_bounds.json",
+        {"effect_prior_weight": 0.35, "recommended_bounds_multiplier": 1.8},
+    )
     verdict = {
         "verdict": "partially_admissible",
         "reason": "UK evidence can inform priors and mechanism checks, but not direct Ukrainian wartime effect estimates.",
@@ -1033,8 +1212,12 @@ def experiment_h3(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     return {
         "status": "completed_with_limitations",
         "method_statuses": [{"block": "transportability", "status": "partially_admissible"}],
-        "limitations": ["Transport is prior/mechanism support, not direct treatment-effect import."],
-        "thesis_claims_supported": ["PolicyOS can expose transport assumptions and block overconfident transfer."],
+        "limitations": [
+            "Transport is prior/mechanism support, not direct treatment-effect import."
+        ],
+        "thesis_claims_supported": [
+            "PolicyOS can expose transport assumptions and block overconfident transfer."
+        ],
     }
 
 
@@ -1054,18 +1237,33 @@ def scenario_worker(args: tuple[int, dict[str, Any], int]) -> dict[str, Any]:
     else:
         eligible = (risk < 0.86) & (employees <= 120)
     score = liquidity_need * (1 + scenario["conflict_weight"] * conflict) * eligible
-    selected_fraction = min(0.85, scenario["budget_cap"] / max(1.0, scenario["loan_cap"] * max(1, eligible.sum())))
+    selected_fraction = min(
+        0.85, scenario["budget_cap"] / max(1.0, scenario["loan_cap"] * max(1, eligible.sum()))
+    )
     threshold = np.quantile(score[eligible], 1 - selected_fraction) if eligible.any() else math.inf
     treated = eligible & (score >= threshold)
     subsidy = scenario["subsidy_rate"]
     loan_scale = scenario["loan_cap"] / 1_000_000
-    employment_gain = treated * (0.035 + 0.012 * loan_scale + 0.42 * subsidy + 0.015 * digital - 0.025 * conflict)
-    revenue_gain = treated * (0.055 + 0.018 * loan_scale + 0.65 * subsidy + 0.028 * digital - 0.04 * conflict)
+    employment_gain = treated * (
+        0.035 + 0.012 * loan_scale + 0.42 * subsidy + 0.015 * digital - 0.025 * conflict
+    )
+    revenue_gain = treated * (
+        0.055 + 0.018 * loan_scale + 0.65 * subsidy + 0.028 * digital - 0.04 * conflict
+    )
     fiscal_cost = treated.sum() * scenario["loan_cap"] * subsidy * 0.18
-    default_loss = treated.sum() * scenario["loan_cap"] * float(np.mean(risk[treated]) if treated.any() else 0) * 0.025
+    default_loss = (
+        treated.sum()
+        * scenario["loan_cap"]
+        * float(np.mean(risk[treated]) if treated.any() else 0)
+        * 0.025
+    )
     welfare_utilitarian = float(revenue_gain.mean() * 1000 - (fiscal_cost + default_loss) / 1e9)
-    welfare_rawlsian = float(np.quantile(revenue_gain[treated], 0.10) * 1000 if treated.any() else 0)
-    coverage_conflict_high = float(np.mean(treated[conflict > 0.65]) if np.any(conflict > 0.65) else 0)
+    welfare_rawlsian = float(
+        np.quantile(revenue_gain[treated], 0.10) * 1000 if treated.any() else 0
+    )
+    coverage_conflict_high = float(
+        np.mean(treated[conflict > 0.65]) if np.any(conflict > 0.65) else 0
+    )
     return {
         **scenario,
         "treated_share": float(treated.mean()),
@@ -1099,7 +1297,9 @@ def experiment_h4(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
                                 "eligibility": eligibility,
                             }
                         )
-    write_json(out_dir / "scenario_grid.json", {"scenario_count": len(scenarios), "scenarios": scenarios})
+    write_json(
+        out_dir / "scenario_grid.json", {"scenario_count": len(scenarios), "scenarios": scenarios}
+    )
 
     tasks = [(20260430 + i, s, 80_000) for i, s in enumerate(scenarios)]
     with futures.ProcessPoolExecutor(max_workers=ctx.threads) as pool:
@@ -1121,7 +1321,9 @@ def experiment_h4(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     write_json(
         out_dir / "distributional_profile.json",
         {
-            "best_conflict_sensitive": df.sort_values(["coverage_conflict_high", "welfare_utilitarian"], ascending=False)
+            "best_conflict_sensitive": df.sort_values(
+                ["coverage_conflict_high", "welfare_utilitarian"], ascending=False
+            )
             .head(15)
             .to_dict("records")
         },
@@ -1130,7 +1332,10 @@ def experiment_h4(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         out_dir / "spatial_incidence.json",
         {
             "proxy_dimension": "conflict exposure",
-            "high_conflict_coverage_range": [float(df.coverage_conflict_high.min()), float(df.coverage_conflict_high.max())],
+            "high_conflict_coverage_range": [
+                float(df.coverage_conflict_high.min()),
+                float(df.coverage_conflict_high.max()),
+            ],
         },
     )
     pareto = []
@@ -1153,13 +1358,28 @@ def experiment_h4(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
                 break
         if not dominated:
             pareto.append(row)
-    write_json(out_dir / "pareto_frontier.json", {"frontier_size": len(pareto), "frontier": sorted(pareto, key=lambda r: r["welfare_utilitarian"], reverse=True)})
+    write_json(
+        out_dir / "pareto_frontier.json",
+        {
+            "frontier_size": len(pareto),
+            "frontier": sorted(pareto, key=lambda r: r["welfare_utilitarian"], reverse=True),
+        },
+    )
     rank = (
         df.assign(
             robust_score=lambda x: (
-                0.45 * (x.welfare_utilitarian - x.welfare_utilitarian.min()) / (x.welfare_utilitarian.max() - x.welfare_utilitarian.min() + 1e-9)
-                + 0.3 * (x.coverage_conflict_high - x.coverage_conflict_high.min()) / (x.coverage_conflict_high.max() - x.coverage_conflict_high.min() + 1e-9)
-                + 0.25 * (1 - (x.fiscal_cost - x.fiscal_cost.min()) / (x.fiscal_cost.max() - x.fiscal_cost.min() + 1e-9))
+                0.45
+                * (x.welfare_utilitarian - x.welfare_utilitarian.min())
+                / (x.welfare_utilitarian.max() - x.welfare_utilitarian.min() + 1e-9)
+                + 0.3
+                * (x.coverage_conflict_high - x.coverage_conflict_high.min())
+                / (x.coverage_conflict_high.max() - x.coverage_conflict_high.min() + 1e-9)
+                + 0.25
+                * (
+                    1
+                    - (x.fiscal_cost - x.fiscal_cost.min())
+                    / (x.fiscal_cost.max() - x.fiscal_cost.min() + 1e-9)
+                )
             )
         )
         .sort_values("robust_score", ascending=False)
@@ -1194,9 +1414,15 @@ def experiment_h4(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     )
     return {
         "status": "completed_with_limitations",
-        "method_statuses": [{"block": "scenario_simulation", "status": "completed", "scenarios": len(scenarios)}],
-        "limitations": ["Mechanism simulation uses synthetic firm heterogeneity and proxy conflict exposure."],
-        "thesis_claims_supported": ["PolicyOS can compile legal constraints into welfare-oriented scenario comparison."],
+        "method_statuses": [
+            {"block": "scenario_simulation", "status": "completed", "scenarios": len(scenarios)}
+        ],
+        "limitations": [
+            "Mechanism simulation uses synthetic firm heterogeneity and proxy conflict exposure."
+        ],
+        "thesis_claims_supported": [
+            "PolicyOS can compile legal constraints into welfare-oriented scenario comparison."
+        ],
     }
 
 
@@ -1217,7 +1443,10 @@ def experiment_h5(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     manifest = {
         "kind": "synthetic_proxy_applicant_panel",
         "rows": len(panel),
-        "protected_attribute_limitations": ["sex/gender is synthetic proxy", "veteran status is synthetic proxy"],
+        "protected_attribute_limitations": [
+            "sex/gender is synthetic proxy",
+            "veteran status is synthetic proxy",
+        ],
     }
     write_json(out_dir / "applicant_panel_manifest.json", manifest)
 
@@ -1234,7 +1463,10 @@ def experiment_h5(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
             "high_conflict": float(panel.loc[high_conflict, "approved"].mean()),
             "lower_conflict": float(panel.loc[~high_conflict, "approved"].mean()),
         },
-        "disparate_impact_ratio": float((panel.loc[high_conflict, "approved"].mean() + 1e-9) / (panel.loc[~high_conflict, "approved"].mean() + 1e-9)),
+        "disparate_impact_ratio": float(
+            (panel.loc[high_conflict, "approved"].mean() + 1e-9)
+            / (panel.loc[~high_conflict, "approved"].mean() + 1e-9)
+        ),
     }
     write_json(out_dir / "fairness_audit_report.json", audit)
     write_json(
@@ -1242,7 +1474,9 @@ def experiment_h5(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         {
             key: {
                 "ratio": value["disparate_impact_ratio"],
-                "interpretation": "review_needed" if value["disparate_impact_ratio"] < 0.8 else "within_proxy_threshold",
+                "interpretation": "review_needed"
+                if value["disparate_impact_ratio"] < 0.8
+                else "within_proxy_threshold",
             }
             for key, value in audit.items()
             if "disparate_impact_ratio" in value
@@ -1258,13 +1492,23 @@ def experiment_h5(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     write_json(out_dir / "conflict_sensitivity_regions.json", {"regions": conflict_regions})
     recourse = []
     rejected = panel[panel.approved == 0].sample(8000, random_state=3)
-    for bucket, sub in rejected.groupby(pd.cut(rejected.digital_score, bins=[0, 0.33, 0.66, 1.0]), observed=True):
+    for bucket, sub in rejected.groupby(
+        pd.cut(rejected.digital_score, bins=[0, 0.33, 0.66, 1.0]), observed=True
+    ):
         recourse.append(
             {
                 "digital_score_bucket": str(bucket),
-                "cases": int(len(sub)),
-                "common_barriers": ["low digital readiness", "high conflict exposure", "weak collateral proxy"],
-                "recourse_options": ["guided application support", "grant track instead of credit", "human review for conflict-affected applicants"],
+                "cases": len(sub),
+                "common_barriers": [
+                    "low digital readiness",
+                    "high conflict exposure",
+                    "weak collateral proxy",
+                ],
+                "recourse_options": [
+                    "guided application support",
+                    "grant track instead of credit",
+                    "human review for conflict-affected applicants",
+                ],
             }
         )
     write_json(out_dir / "recourse_atlas.json", {"recourse_groups": recourse})
@@ -1307,7 +1551,9 @@ def experiment_h5(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
         "status": "completed_with_limitations",
         "method_statuses": [{"block": "fairness_recourse", "status": "completed_proxy"}],
         "limitations": ["Protected attributes and applicant outcomes are synthetic proxies."],
-        "thesis_claims_supported": ["PolicyOS can produce governed fairness/recourse artifacts and prevent silent automation of risky cases."],
+        "thesis_claims_supported": [
+            "PolicyOS can produce governed fairness/recourse artifacts and prevent silent automation of risky cases."
+        ],
     }
 
 
@@ -1360,7 +1606,11 @@ def experiment_h6(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     verdict_diff = {
         "old_verdict": "completed_with_limitations",
         "new_verdict": "requires_budget_and_fairness_recheck",
-        "changed_risks": ["higher budget exposure", "potentially improved conflict-sensitive coverage", "new fraud/verification burden"],
+        "changed_risks": [
+            "higher budget exposure",
+            "potentially improved conflict-sensitive coverage",
+            "new fraud/verification burden",
+        ],
     }
     write_json(out_dir / "governance_verdict_diff.json", verdict_diff)
     write_markdown(
@@ -1392,7 +1642,10 @@ def experiment_h6(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
             {"stage": "new_intervention", **artifact_ref(out_dir / "new_intervention_pack.json")},
             {"stage": "program_graph_diff", **artifact_ref(out_dir / "program_graph_diff.json")},
             {"stage": "execution_ref", **artifact_ref(out_dir / "execution_ref.json")},
-            {"stage": "governance_verdict_diff", **artifact_ref(out_dir / "governance_verdict_diff.json")},
+            {
+                "stage": "governance_verdict_diff",
+                **artifact_ref(out_dir / "governance_verdict_diff.json"),
+            },
             {"stage": "decision_packet_diff", **artifact_ref(out_dir / "decision_packet_diff.md")},
         ]
     }
@@ -1412,8 +1665,12 @@ def experiment_h6(ctx: SuiteContext, out_dir: Path) -> dict[str, Any]:
     return {
         "status": "completed",
         "method_statuses": [{"block": "adaptivity_audit_chain", "status": "completed"}],
-        "limitations": ["Norm change is synthetic; it validates audit mechanics rather than a real legislative amendment."],
-        "thesis_claims_supported": ["PolicyOS can maintain a replayable chain across policy adaptation."],
+        "limitations": [
+            "Norm change is synthetic; it validates audit mechanics rather than a real legislative amendment."
+        ],
+        "thesis_claims_supported": [
+            "PolicyOS can maintain a replayable chain across policy adaptation."
+        ],
     }
 
 
@@ -1469,13 +1726,28 @@ def preflight(ctx: SuiteContext, *, write_report: bool = True) -> dict[str, Any]
         checks.append({"name": name, "ok": bool(ok), "details": details})
 
     add("workdir_exists", ctx.workdir.exists(), str(ctx.workdir))
-    add("lex_db_exists", ctx.lex_db.exists(), {"path": str(ctx.lex_db), "bytes": ctx.lex_db.stat().st_size if ctx.lex_db.exists() else 0})
-    add("claims_jsonl_exists", ctx.claims_jsonl.exists(), {"path": str(ctx.claims_jsonl), "bytes": ctx.claims_jsonl.stat().st_size if ctx.claims_jsonl.exists() else 0})
+    add(
+        "lex_db_exists",
+        ctx.lex_db.exists(),
+        {"path": str(ctx.lex_db), "bytes": ctx.lex_db.stat().st_size if ctx.lex_db.exists() else 0},
+    )
+    add(
+        "claims_jsonl_exists",
+        ctx.claims_jsonl.exists(),
+        {
+            "path": str(ctx.claims_jsonl),
+            "bytes": ctx.claims_jsonl.stat().st_size if ctx.claims_jsonl.exists() else 0,
+        },
+    )
     add("production_data_exists", ctx.production_data.exists(), str(ctx.production_data))
-    add("dataset_catalog_exists", (ctx.production_data / "dataset_catalog.duckdb").exists(), str(ctx.production_data / "dataset_catalog.duckdb"))
+    ds_db = dataset_catalog_db(ctx.production_data)
+    add("dataset_catalog_exists", ds_db.exists(), str(ds_db))
     add(
         "academic_transport_scores_exists",
-        (ctx.production_data / "policyos_academic_runtime_slim_20260411T112032Z/academic/transport_scores.jsonl").exists(),
+        (
+            ctx.production_data
+            / "policyos_academic_runtime_slim_20260411T112032Z/academic/transport_scores.jsonl"
+        ).exists(),
         None,
     )
     add(
@@ -1486,7 +1758,17 @@ def preflight(ctx: SuiteContext, *, write_report: bool = True) -> dict[str, Any]
     add("threads_positive", ctx.threads >= 1, ctx.threads)
 
     imports = {}
-    for mod in ["duckdb", "numpy", "pandas", "sklearn", "jax", "scipy", "statsmodels", "cvxpy", "polisyos"]:
+    for mod in [
+        "duckdb",
+        "numpy",
+        "pandas",
+        "sklearn",
+        "jax",
+        "scipy",
+        "statsmodels",
+        "cvxpy",
+        "polisyos",
+    ]:
         try:
             __import__(mod)
             imports[mod] = "ok"
@@ -1506,12 +1788,18 @@ def preflight(ctx: SuiteContext, *, write_report: bool = True) -> dict[str, Any]
             add("lex_core_counts", False, f"{type(exc).__name__}: {exc}")
 
     dataset_counts: dict[str, Any] = {}
-    ds_db = ctx.production_data / "dataset_catalog.duckdb"
     if ds_db.exists():
         try:
             con = connect_readonly(ds_db)
-            for table in ["ds_datasets", "ds_observations", "ds_metric_bindings", "ds_variable_alignments"]:
-                dataset_counts[table] = int(con.execute(f"select count(*) from {table}").fetchone()[0])
+            for table in [
+                "ds_datasets",
+                "ds_observations",
+                "ds_metric_bindings",
+                "ds_variable_alignments",
+            ]:
+                dataset_counts[table] = int(
+                    con.execute(f"select count(*) from {table}").fetchone()[0]
+                )
             con.close()
             add("dataset_core_counts", all(v > 0 for v in dataset_counts.values()), dataset_counts)
         except Exception as exc:
@@ -1522,7 +1810,16 @@ def preflight(ctx: SuiteContext, *, write_report: bool = True) -> dict[str, Any]
             probe = ctx.reports_dir / "gcs_write_probe.txt"
             ensure_dir(ctx.reports_dir)
             probe.write_text(f"probe {utc_now()}\n", encoding="utf-8")
-            run_command(["gcloud", "storage", "cp", str(probe), ctx.gcs_output_prefix.rstrip("/") + "/reports/gcs_write_probe.txt"], check=True)
+            run_command(
+                [
+                    "gcloud",
+                    "storage",
+                    "cp",
+                    str(probe),
+                    ctx.gcs_output_prefix.rstrip("/") + "/reports/gcs_write_probe.txt",
+                ],
+                check=True,
+            )
             add("gcs_write_access", True, ctx.gcs_output_prefix)
         except Exception as exc:
             add("gcs_write_access", False, f"{type(exc).__name__}: {exc}")
@@ -1535,8 +1832,12 @@ def preflight(ctx: SuiteContext, *, write_report: bool = True) -> dict[str, Any]
         "scenario_readiness": {
             "H1": "ready" if ctx.lex_db.exists() and ds_db.exists() else "blocked",
             "H2": "ready_synthetic_proxy" if ds_db.exists() else "blocked",
-            "H3": "ready_partial_transport" if (ctx.production_data / "policyos_academic_runtime_slim_20260411T112032Z").exists() else "blocked",
-            "H4": "ready_mechanism_simulation" if (ctx.production_data / "ukraine_agent_simulation_baseline_20260410").exists() else "ready_synthetic_only",
+            "H3": "ready_partial_transport"
+            if (ctx.production_data / "policyos_academic_runtime_slim_20260411T112032Z").exists()
+            else "blocked",
+            "H4": "ready_mechanism_simulation"
+            if (ctx.production_data / "ukraine_agent_simulation_baseline_20260410").exists()
+            else "ready_synthetic_only",
             "H5": "ready_synthetic_proxy" if ctx.lex_db.exists() else "blocked",
             "H6": "ready_after_H1_H2_H4" if ctx.lex_db.exists() else "blocked",
         },
@@ -1571,7 +1872,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--threads", type=int, default=max(1, os.cpu_count() or 1))
     parser.add_argument("--deadline-mode", action="store_true")
     parser.add_argument("--warn-only-gates", action="store_true")
-    parser.add_argument("--experiments", type=parse_experiments, default=parse_experiments("H1,H2,H3,H4,H5,H6"))
+    parser.add_argument(
+        "--experiments", type=parse_experiments, default=parse_experiments("H1,H2,H3,H4,H5,H6")
+    )
     parser.add_argument("--gcs-output-prefix", default=None)
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--no-sync-each", action="store_true")
@@ -1602,7 +1905,9 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps(pre, ensure_ascii=False, indent=2), flush=True)
     if ctx.gcs_output_prefix:
         try:
-            ExperimentSuite(ctx).sync_path(ctx.reports_dir / "preflight_report.json", "reports/preflight_report.json")
+            ExperimentSuite(ctx).sync_path(
+                ctx.reports_dir / "preflight_report.json", "reports/preflight_report.json"
+            )
         except Exception as exc:
             print(f"[preflight] failed to sync report: {exc}", file=sys.stderr, flush=True)
 

@@ -12,7 +12,7 @@
   - `p4_ir_core_decoupling_spec.md`
   - `arch_cycles_register.csv`
   - `src/polisyos/foundry/README.md`
-  - `tools/lint/lint_imports.py`
+  - `tools/quality/lint/lint_imports.py`
 
 ## 1. Context and Problem Statement
 
@@ -188,13 +188,13 @@ Mandatory rewiring:
 
 Required new tests:
 
-1. `tests/foundry/test_no_foundry_domain_imports.py`
+1. `tests/unit/foundry/test_no_foundry_domain_imports.py`
 
    - AST scan: forbid `polisyos.foundry.domain.*` imports in `src/polisyos/foundry/**` excluding `src/polisyos/foundry/domain/**`.
-2. `tests/foundry/test_domain_compat_facades.py`
+2. `tests/unit/foundry/test_domain_compat_facades.py`
 
    - verify legacy imports resolve and point to canonical implementations.
-3. `tests/foundry/test_contract_state_compat.py`
+3. `tests/unit/foundry/test_contract_state_compat.py`
 
    - verify `GlobalState.empty()` parity and key dataclass behavior across old and new import paths.
 
@@ -250,13 +250,13 @@ Required docs sync:
 Architecture and freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p5_metrics \
   --summary-path .tmp/p5_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p5_metrics/summary.json \
   --mode blocking \
@@ -271,21 +271,21 @@ Targeted regression tests:
 
 ```bash
 python3 -m pytest \
-  tests/foundry/test_global_state.py \
-  tests/foundry/test_fiscal.py \
-  tests/foundry/test_patch_executor.py \
-  tests/foundry/test_execute_facade_smoke.py \
-  tests/foundry/test_calibrator_mvp.py \
-  tests/scientist/test_compiler.py
+  tests/unit/foundry/test_global_state.py \
+  tests/unit/foundry/test_fiscal.py \
+  tests/unit/foundry/test_patch_executor.py \
+  tests/unit/foundry/test_execute_facade_smoke.py \
+  tests/unit/foundry/test_calibrator_mvp.py \
+  tests/unit/scientist/test_compiler.py
 ```
 
 Recommended new P5 tests:
 
 ```bash
 python3 -m pytest \
-  tests/foundry/test_no_foundry_domain_imports.py \
-  tests/foundry/test_domain_compat_facades.py \
-  tests/foundry/test_contract_state_compat.py
+  tests/unit/foundry/test_no_foundry_domain_imports.py \
+  tests/unit/foundry/test_domain_compat_facades.py \
+  tests/unit/foundry/test_contract_state_compat.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -372,9 +372,9 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
 
 1. Added boundary/compatibility tests:
 
-   - `tests/foundry/test_no_foundry_domain_imports.py`
-   - `tests/foundry/test_domain_compat_facades.py`
-   - `tests/foundry/test_contract_state_compat.py`
+   - `tests/unit/foundry/test_no_foundry_domain_imports.py`
+   - `tests/unit/foundry/test_domain_compat_facades.py`
+   - `tests/unit/foundry/test_contract_state_compat.py`
 2. Updated docs:
 
    - `src/polisyos/foundry/README.md`
@@ -407,6 +407,6 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
    - `[OK] Architecture freeze checks passed.`
 4. New P5 tests:
 
-   - `tests/foundry/test_no_foundry_domain_imports.py`: passed
-   - `tests/foundry/test_domain_compat_facades.py`: skipped in current env (`jax` missing)
-   - `tests/foundry/test_contract_state_compat.py`: skipped in current env (`jax` missing)
+   - `tests/unit/foundry/test_no_foundry_domain_imports.py`: passed
+   - `tests/unit/foundry/test_domain_compat_facades.py`: skipped in current env (`jax` missing)
+   - `tests/unit/foundry/test_contract_state_compat.py`: skipped in current env (`jax` missing)

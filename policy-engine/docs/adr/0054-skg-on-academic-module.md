@@ -4,6 +4,10 @@
 
 Proposed
 
+Status note (2026-05-02): superseded for code ownership by Data Forge; use
+`polisyos.data_forge.domains.academic.knowledge` and
+`polisyos.data_forge.read_api.academic`.
+
 ## Date
 
 2026-02-28
@@ -26,7 +30,7 @@ closely related concerns.
    `canonical_seed.py` (initial variable/edge seeding).
 3. The `academic.batch` pipeline writes to SKG via `skg_store`; the `academic.knowledge`
    layer reads from SKG via `skg_query`.
-4. Import gates in `import_policy.toml` ensure that SKG internals (store, versioning) are not
+4. Import gates in `architecture/imports/policy.toml` ensure that SKG internals (store, versioning) are not
    directly accessed by modules outside `academic/`; other modules use the `skg_query` public
    API.
 5. This decision may be revisited if SKG grows large enough to warrant extraction, but the

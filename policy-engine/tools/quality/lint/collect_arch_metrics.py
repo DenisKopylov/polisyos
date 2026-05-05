@@ -155,11 +155,11 @@ def main() -> int:
     lint_imports = _run(
         [
             "python3",
-            "tools/lint/lint_imports.py",
+            "tools/quality/lint/lint_imports.py",
             "--policy",
-            "import_policy.toml",
+            "architecture/imports/policy.toml",
             "--exceptions",
-            "import_exceptions.toml",
+            "architecture/imports/exceptions.toml",
             "--top",
             "80",
             "--fail-on-cycles",
@@ -171,7 +171,7 @@ def main() -> int:
     lint_connectors = _run(
         [
             "python3",
-            "tools/lint/lint_connectors.py",
+            "tools/quality/lint/lint_connectors.py",
             "--src-root",
             "src/polisyos/fabric/connectors",
         ],
@@ -179,7 +179,7 @@ def main() -> int:
         name="lint_connectors",
     )
     check_scholar_imports = _run(
-        ["python3", "tools/lint/check_scholar_imports.py"],
+        ["python3", "tools/quality/lint/check_scholar_imports.py"],
         cwd=repo_root,
         name="check_scholar_imports",
     )

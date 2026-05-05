@@ -13,8 +13,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase2_1"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase2-1"
@@ -33,10 +33,10 @@ REQUIRED_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/claims/diff.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_1.py"),
-    Path("tests/scientist/claims/test_lifecycle.py"),
-    Path("tests/scientist/claims/test_audit.py"),
-    Path("tests/scientist/claims/test_diff.py"),
-    Path("tests/scientist/claims/test_export.py"),
+    Path("tests/unit/scientist/claims/test_lifecycle.py"),
+    Path("tests/unit/scientist/claims/test_audit.py"),
+    Path("tests/unit/scientist/claims/test_diff.py"),
+    Path("tests/unit/scientist/claims/test_export.py"),
     Path("tests/tools/test_scientist_best_in_class_phase2_1.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
@@ -76,7 +76,7 @@ INTEGRATION_TOKENS: dict[Path, tuple[str, ...]] = {
         "claim_ledger_summary",
         "blocked_claim_summary",
     ),
-    Path("tests/scientist/test_decision_packet_node_v3.py"): (
+    Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
         'payload["claim_ledger_summary"]',
         'payload["blocked_claim_summary"]',
         'payload["claim_ledger_v2_ref"]',
@@ -96,9 +96,11 @@ def _run_phase2_0_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]
     try:
         module = importlib.import_module("tools.ci.check_scientist_best_in_class_phase2_0")
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-        return False, {"passes_all": False}, [
-            f"phase2_0_gate_import_failed:{exc.__class__.__name__}:{exc}"
-        ]
+        return (
+            False,
+            {"passes_all": False},
+            [f"phase2_0_gate_import_failed:{exc.__class__.__name__}:{exc}"],
+        )
     with TemporaryDirectory() as tmp:
         output_path = Path(tmp) / "phase2_0.json"
         try:
@@ -115,9 +117,11 @@ def _run_phase2_0_gate(repo_root: Path) -> tuple[bool, dict[str, Any], list[str]
             )
             payload = json.loads(output_path.read_text(encoding="utf-8"))
         except Exception as exc:  # pragma: no cover - surfaced in gate payload.
-            return False, {"passes_all": False}, [
-                f"phase2_0_gate_run_failed:{exc.__class__.__name__}:{exc}"
-            ]
+            return (
+                False,
+                {"passes_all": False},
+                [f"phase2_0_gate_run_failed:{exc.__class__.__name__}:{exc}"],
+            )
     notes: list[str] = []
     if exit_code != 0 or payload.get("passes_all") is not True:
         notes.append("phase2_0_gate_failed")
@@ -307,8 +311,7 @@ def _build_payload(repo_root: Path) -> dict[str, Any]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_phase2_1_integration_token:{token}"
-        for token in missing_integration_tokens
+        f"missing_phase2_1_integration_token:{token}" for token in missing_integration_tokens
     )
 
     category_results = {

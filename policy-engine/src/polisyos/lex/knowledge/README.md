@@ -1,13 +1,13 @@
 # Knowledge (`polisyos.lex.knowledge`)
 
 `polisyos.lex.knowledge` дает read-only surface над legal knowledge graph,
-построенным в `lex.batch`: typed entity/fact/provision models, DuckDB-backed
-search store и high-level retrieval API для downstream legal, policy и search
-flows.
+построенным Data Forge legal batch: typed entity/fact/provision models,
+DuckDB-backed search store и high-level retrieval API для downstream legal,
+policy и search flows.
 
 ## Роль в системе
 
-- **Зависит от:** batch-generated DuckDB/HNSW artifacts, `polisyos.lex.batch`
+- **Зависит от:** Data Forge generated DuckDB/HNSW artifacts
 - **Используется в:** `polisyos.lex`, `polisyos.lex.legal_evaluation`, downstream search and retrieval tooling
 - Пакет изолирует query logic от batch-пайплайна и от прямой работы с DuckDB/HNSW файлами.
 
@@ -26,13 +26,12 @@ flows.
 | `LegalKnowledgeGraph`                                          | High-level read-only API over the legal knowledge graph |
 | `LegalEntity`, `LegalFact`, `LegalProvision`                   | Canonical graph record types                            |
 | `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval                    |
-| `SPOCandidate`, `SPOExtractionResult`                          | Typed SPO-layer payloads reused by search and audits    |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
+- Last updated: 2026-05-02
 - Files: 4 Python files
-- Exports: 9 lazy exports in `__init__.py`
-- Notable delta: store/search/types now cover expanded fact/entity search surface and richer traversal helpers
+- Exports: 7 lazy exports in `__init__.py`
+- Notable delta: extraction payloads moved to `polisyos.data_forge.domains.legal.contracts`; Lex keeps runtime graph/search result models.

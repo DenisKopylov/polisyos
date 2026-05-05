@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSearchHref,
   parseSearchParamsWithSchema,
-} from "@/lib/searchParams";
+} from "@/shared/lib/searchParams";
 
 export const COMPOSER_MODES = ["workflow", "nl"] as const;
 export type ComposerMode = (typeof COMPOSER_MODES)[number];

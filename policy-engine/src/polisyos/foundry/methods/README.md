@@ -77,13 +77,13 @@ snapshot ID and runnable count.
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/methods/test_registry.py \
-  tests/foundry/methods/test_discovery.py \
-  tests/foundry/methods/test_cli.py -q
+uv run pytest tests/unit/foundry/methods/test_registry.py \
+  tests/unit/foundry/methods/test_discovery.py \
+  tests/unit/foundry/methods/test_cli.py -q
 
-uv run pytest tests/foundry/methods/test_selection_advisor.py \
-  tests/foundry/methods/test_cross_backend_consistency.py \
-  tests/foundry/methods/backends/test_backend_determinism.py -q
+uv run pytest tests/unit/foundry/methods/test_selection_advisor.py \
+  tests/unit/foundry/methods/test_cross_backend_consistency.py \
+  tests/unit/foundry/methods/backends/test_backend_determinism.py -q
 ```
 
 ## Reference Docs
@@ -92,4 +92,4 @@ uv run pytest tests/foundry/methods/test_selection_advisor.py \
 - [docs/reference/foundry/methods-catalog.md](../../../../docs/reference/foundry/methods-catalog.md)
 - [docs/reference/foundry/frontier-methods.md](../../../../docs/reference/foundry/frontier-methods.md)
 - [docs/reference/foundry/observability-reproducibility.md](../../../../docs/reference/foundry/observability-reproducibility.md)
-- [docs/FOUNDRY_REMEDIATION_PLAN.md](../../../../docs/FOUNDRY_REMEDIATION_PLAN.md)
+- [docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md](../../../../docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md)

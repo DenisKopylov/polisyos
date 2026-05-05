@@ -1,0 +1,86 @@
+{
+  "generated_at_utc": "2026-03-03T16:36:00.714278+00:00",
+  "profile": "quick",
+  "spec_path": "/Users/deniskopylov/polisyos/scm-implementation-spec-v3.md",
+  "workspace_root": "/Users/deniskopylov/polisyos/policy-engine",
+  "checks": [
+    {
+      "label": "gate_lint_imports",
+      "phase": "phase--1",
+      "command": "uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/gate_lint_imports.log",
+      "duration_sec": 2.428
+    },
+    {
+      "label": "gate_lint_foundry",
+      "phase": "phase--1",
+      "command": "uv run python tools/lint/lint_foundry.py --repo-root .",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/gate_lint_foundry.log",
+      "duration_sec": 0.571
+    },
+    {
+      "label": "gate_schema_ir",
+      "phase": "phase--1",
+      "command": "uv run python tools/diagnostics/gen_schema.py --models ir --check --output-dir schemas/snapshots",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/gate_schema_ir.log",
+      "duration_sec": 0.676
+    },
+    {
+      "label": "gate_schema_fabric",
+      "phase": "phase--1",
+      "command": "uv run python tools/diagnostics/gen_schema.py --models fabric --check --output-dir schemas/snapshots",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/gate_schema_fabric.log",
+      "duration_sec": 0.295
+    },
+    {
+      "label": "phase0_quality_integration",
+      "phase": "phase-0",
+      "command": "uv run python -m pytest -q tests/integration/test_phase0_quality_validation.py -m integration",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/phase0_quality_integration.log",
+      "duration_sec": 3.617
+    },
+    {
+      "label": "phase9_reconciliation",
+      "phase": "phase-9",
+      "command": "uv run python -m pytest -q tests/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/phase9_reconciliation.log",
+      "duration_sec": 27.696
+    },
+    {
+      "label": "phase12_transportability",
+      "phase": "phase-12",
+      "command": "uv run python -m pytest -q tests/foundry/methods/catalog/causal/test_transport_check.py tests/scientist/test_run_transportability_node.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/phase12_transportability.log",
+      "duration_sec": 3.073
+    },
+    {
+      "label": "phase15_parameters",
+      "phase": "phase-15",
+      "command": "uv run python -m pytest -q tests/scientist/test_resolve_parameters_node.py tests/foundry/methods/catalog/causal/test_parameter_transfer.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "docs/reports/_logs_verify_20260303_163519/phase15_parameters.log",
+      "duration_sec": 2.664
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 8,
+    "fail": 0,
+    "timeout": 0
+  }
+}

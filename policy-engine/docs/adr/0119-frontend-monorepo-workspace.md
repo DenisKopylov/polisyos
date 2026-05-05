@@ -39,3 +39,10 @@ remain ignored/local or CI artifacts.
 - Frontend dependencies and generated clients become explicit.
 - The dashboard can consume shared packages instead of local drift.
 - The workspace migration can happen after backend schemas stabilize.
+
+## Phase 0 Implementation Note
+
+Repository SOTA Phase 0 registered the current product-root `packages/` tree as
+committed frontend/devx source on 2026-05-02. That placement is a transitional
+contract for existing files, not a replacement for the target `frontend/`
+workspace layout above.

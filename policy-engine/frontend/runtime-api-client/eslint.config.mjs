@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "package-lock.json"],
+    ignores: ["node_modules/**"],
     linterOptions: {
       reportUnusedDisableDirectives: "error",
     },

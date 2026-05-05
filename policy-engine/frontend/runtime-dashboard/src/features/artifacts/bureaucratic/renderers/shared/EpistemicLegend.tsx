@@ -1,4 +1,4 @@
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 
 import { epistemicLabel } from "../../ast/epistemic-map";
 import type { BureaucraticEpistemicSummary } from "../../ast/bureaucratic-document-ast";

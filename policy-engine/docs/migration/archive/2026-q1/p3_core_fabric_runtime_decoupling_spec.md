@@ -207,13 +207,13 @@ Required docs sync:
 Architecture and freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p3_metrics \
   --summary-path .tmp/p3_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p3_metrics/summary.json \
   --mode blocking \
@@ -228,18 +228,18 @@ Targeted tests:
 
 ```bash
 python3 -m pytest \
-  tests/core/phase0/test_audit_export_verify.py \
-  tests/fabric/test_provenance.py \
+  tests/unit/core/phase0/test_audit_export_verify.py \
+  tests/unit/fabric/test_provenance.py \
   tests/contract/test_golden_record_ids.py \
-  tests/runtime/test_runtime_manifest_paths.py
+  tests/unit/runtime/test_runtime_manifest_paths.py
 ```
 
 Recommended new targeted tests for P3:
 
 ```bash
 python3 -m pytest \
-  tests/core/phase0/test_audit_manifest_compat.py \
-  tests/core/phase0/test_provenance_contract_shims.py
+  tests/unit/core/phase0/test_audit_manifest_compat.py \
+  tests/unit/core/phase0/test_provenance_contract_shims.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -351,9 +351,9 @@ Freeze comparison:
 Targeted tests:
 
 - `37 passed`:
-  - `tests/core/phase0/test_audit_export_verify.py`
-  - `tests/fabric/test_provenance.py`
+  - `tests/unit/core/phase0/test_audit_export_verify.py`
+  - `tests/unit/fabric/test_provenance.py`
   - `tests/contract/test_golden_record_ids.py`
-  - `tests/runtime/test_runtime_manifest_paths.py`
-  - `tests/core/phase0/test_audit_manifest_compat.py`
-  - `tests/core/phase0/test_provenance_contract_shims.py`
+  - `tests/unit/runtime/test_runtime_manifest_paths.py`
+  - `tests/unit/core/phase0/test_audit_manifest_compat.py`
+  - `tests/unit/core/phase0/test_provenance_contract_shims.py`

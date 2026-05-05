@@ -18,7 +18,7 @@ source adapters.
 
 - Connector implementation/tests:
   `src/polisyos/fabric/connectors/sources/` и
-  `tests/fabric/connectors/sources/`.
+  `tests/unit/fabric/connectors/sources/`.
 
 ## Public Entrypoints
 
@@ -27,7 +27,6 @@ source adapters.
 | `uv run polisyos-tools connectors check-contracts --check`                   | Проверить, что committed snapshot и текущие contracts совпадают и version bumps корректны. |     |                  |                                                              |
 | `uv run polisyos-tools connectors check-contracts --update`                  | Перезаписать snapshot после осознанного schema change.                                     |     |                  |                                                              |
 | `uv run polisyos-tools connectors scaffold create --name <Name> --type <REST | CSV                                                                                        | SQL | SDMX> --dry-run` | Сгенерировать connector skeleton и тестовый harness preview. |
-| `python tools/connectors/<tool>.py ...`                                      | Compatibility wrappers для старых path-based workflows.                                    |     |                  |                                                              |
 
 ## Depends On / Depended On By
 
@@ -54,8 +53,8 @@ source adapters.
 
 | Command                                                                                                                                              | What it verifies                                                            | Status         |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/fabric/connectors/test_registry.py tests/fabric/connectors/test_contract_system.py tests/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`   |
-| `uv run polisyos-tools validation fabric-schema-governance --check --evidence-out .tmp/fabric-schema-governance.json`                                | Governance-level compatibility evidence поверх connector contract changes.  | `smoke-tested` |
+| `uv run pytest -q tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_contract_system.py tests/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`   |
+| `uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json`                                | Governance-level compatibility evidence поверх connector contract changes.  | `smoke-tested` |
 
 ## Reference Docs
 
@@ -70,5 +69,5 @@ source adapters.
 
 - `check_contracts.py` — canonical drift gate для `schemas/snapshots/connectors/contracts.json`.
 - `scaffold.py` генерирует и source file, и базовый test harness skeleton.
-- Top-level `tools/connectors/*` paths сохранены только как compatibility layer.
+- Legacy path-based connector wrappers retired in Phase 1D; use `polisyos-tools connectors ...`.
 - Last updated: 2026-04-17

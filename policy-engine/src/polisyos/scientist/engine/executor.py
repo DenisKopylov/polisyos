@@ -16,6 +16,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, CanonViolation
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.errors import (
     CycleDetectedError,
     DuplicateAliasError,
@@ -35,7 +36,6 @@ from polisyos.scientist.engine.telemetry import (
     start_node_span,
 )
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CLAIMS_REF,
     ARTIFACT_RESEARCH_DAG_REF,
@@ -857,9 +857,8 @@ class WorkflowExecutor:
 
         report_ref = self._persist_report(report)
         research_dag_ref: ArtifactRef | None = None
-        if (
-            workflow.workflow_id in SELECTED_RESEARCH_DAG_WORKFLOWS
-            and is_research_dag_enabled(state.params)
+        if workflow.workflow_id in SELECTED_RESEARCH_DAG_WORKFLOWS and is_research_dag_enabled(
+            state.params
         ):
             try:
                 research_dag = project_workflow_execution_to_research_dag(

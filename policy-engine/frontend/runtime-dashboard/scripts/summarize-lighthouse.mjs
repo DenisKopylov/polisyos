@@ -4,8 +4,14 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
-const reportDir = path.join(dashboardRoot, "lighthouse-report");
-const summaryPath = path.join(dashboardRoot, "lighthouse-summary.md");
+const buildRoot = path.resolve(
+  dashboardRoot,
+  "../../_build/frontend/runtime-dashboard",
+);
+const reportDir = path.join(buildRoot, "lighthouse-report");
+const summaryPath = path.join(buildRoot, "lighthouse-summary.md");
+
+fs.mkdirSync(buildRoot, { recursive: true });
 
 function walk(directory) {
   if (!fs.existsSync(directory)) {

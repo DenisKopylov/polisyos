@@ -7,8 +7,8 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
-from tools._lib.runner import ToolSpec, ToolStatus
+from tools.lib.imports import repo_root_from
+from tools.lib.runner import ToolSpec, ToolStatus
 
 TOOLS_ROOT = Path(__file__).resolve().parent
 
@@ -39,6 +39,7 @@ _CATEGORY_SUMMARIES: dict[str, str] = {
     "validation": "Repo validation, docs accuracy and ratchet checks",
     "testing": "Mutation and local integration testing helpers",
     "ci": "CI policy and freshness checks",
+    "deploy": "Deployment orchestration and operational handoff helpers",
     "cloud": "Cloud deploy, shard, pipeline and preflight helpers",
     "release": "Release gating, notes and canary orchestration",
     "migrations": "Artifact and storage migration tooling",
@@ -46,27 +47,44 @@ _CATEGORY_SUMMARIES: dict[str, str] = {
     "data": "Data prep, review bundles and fixture capture",
     "ukraine_data": "Ukraine public-data ingestion and Lex corpus prep",
     "calibration": "Shard comparison and calibration helpers",
+    "ops-experiments": "Operational experiment suites and campaign runners",
     "benchmarks": "Benchmark executable/orchestration surface",
     "demos": "Research/demo runnable surfaces retained for manual use",
+    "research-experiments": "Research experiment helpers and topic organization tools",
 }
 
 _ZONE_CATEGORIES: dict[str, tuple[str, ...]] = {
     "devx": ("workspace", "architecture", "connectors", "foundry"),
     "quality": ("lint", "diagnostics", "validation", "testing", "ci"),
-    "ops": ("cloud", "release", "migrations", "runtime", "data", "ukraine_data", "calibration"),
-    "research": ("benchmarks", "demos"),
+    "ops": (
+        "calibration",
+        "cloud",
+        "data",
+        "deploy",
+        "ops-experiments",
+        "migrations",
+        "release",
+        "runtime",
+        "ukraine_data",
+    ),
+    "research": ("benchmarks", "demos", "research-experiments"),
+}
+
+_CATEGORY_IMPLEMENTATION_DIRS: dict[tuple[str, str], str] = {
+    ("ops", "ops-experiments"): "experiments",
+    ("research", "research-experiments"): "experiments",
 }
 
 SOURCE_PHASE_MAP: tuple[tuple[str, str, str], ...] = (
     (
         "Phase 0",
         "SQL/shell injection, shell safety, destructive operation guardrails",
-        "`tools._lib.runner`, `tools._lib.sql`, `tools._lib.fs`",
+        "`tools.lib.runner`, `tools.lib.sql`, `tools.lib.fs`",
     ),
     (
         "Phase 1",
         "atomicity, rollback, resource/I/O validation, degraded mode, legacy quarantine",
-        "`tools._lib.fs`, `tools._lib.http`, `tools._lib.preflight`, lifecycle status metadata",
+        "`tools.lib.fs`, `tools.lib.http`, `tools.lib.preflight`, lifecycle status metadata",
     ),
     (
         "Phase 2",
@@ -77,28 +95,29 @@ SOURCE_PHASE_MAP: tuple[tuple[str, str, str], ...] = (
     (
         "Phase 3",
         "critical tool test program, structured CI output, timing telemetry",
-        "`tests/tools/**`, `tools._lib.output`, `tools._lib.timing`, workspace gates",
+        "`tests/tools/**`, `tools.lib.output`, `tools.lib.timing`, workspace gates",
     ),
     (
         "Phase 4",
-        "cloud/scripts/benchmarks consolidation and deprecated cleanup",
-        "`tools/ops/**`, `tools/research/**`, compatibility wrappers and deprecation metadata",
+        "cloud, benchmarks, scripts, and duplicate namespace consolidation",
+        "`tools/ops/**`, `tools/research/**`, final topology and retired wrapper evidence",
     ),
     (
         "Phase 5",
         "incremental execution, cache, autofix/rule registry, hot-path maintainability",
-        "`tools._lib.cache`, `tools/quality/lint/**`, targeted `--fix` and changed-file modes",
+        "`tools.lib.cache`, `tools/quality/lint/**`, targeted `--fix` and changed-file modes",
     ),
 )
 
 
 def _manifest_entry(zone: str, category: str) -> CategoryManifestEntry:
-    implementation_package = f"tools.{zone}.{category}"
+    implementation_dir = _CATEGORY_IMPLEMENTATION_DIRS.get((zone, category), category)
+    implementation_package = f"tools.{zone}.{implementation_dir}"
     return CategoryManifestEntry(
         zone=zone,
         category=category,
         implementation_package=implementation_package,
-        implementation_root=TOOLS_ROOT / zone / category,
+        implementation_root=TOOLS_ROOT / zone / implementation_dir,
         compatibility_package=f"tools.{category}",
         summary=_CATEGORY_SUMMARIES[category],
     )
@@ -171,36 +190,6 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
     },
     ("foundry", "generate-stubs"): {
         "required_imports": ("mypy.stubgen",),
-        "aliases": (
-            "./scripts/generate_stubs.py",
-            "python scripts/generate_stubs.py",
-            "python3 scripts/generate_stubs.py",
-        ),
-    },
-    ("foundry", "update-signature-baseline"): {
-        "aliases": (
-            "./scripts/update_signature_baseline.py",
-            "python scripts/update_signature_baseline.py",
-            "python3 scripts/update_signature_baseline.py",
-        ),
-    },
-    ("data", "build-academic-gold-candidates"): {
-        "aliases": ("./scripts/build_academic_gold_candidates.py",),
-    },
-    ("data", "build-expert-review-bundle"): {
-        "aliases": ("./scripts/build_expert_review_bundle.py",),
-    },
-    ("data", "generate-wvs-registry"): {
-        "aliases": ("./scripts/generate_wvs_registry.py",),
-    },
-    ("data", "record-fixtures"): {
-        "aliases": ("./scripts/record_fixtures.py",),
-    },
-    ("benchmarks", "benchmark-lex-llm-steady-state"): {
-        "aliases": ("./scripts/benchmark_lex_llm_steady_state.py",),
-    },
-    ("benchmarks", "benchmark-lex-llm-sweep"): {
-        "aliases": ("./scripts/benchmark_lex_llm_sweep.py",),
     },
     ("migrations", "migrate"): {
         "required_extras": ("pyyaml",),
@@ -220,14 +209,11 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
     },
     ("workspace", "bootstrap"): {
         "dependencies": ("workspace.doctor",),
-        "aliases": ("./scripts/bootstrap",),
     },
     ("workspace", "docs-style"): {
         "dependencies": (),
     },
-    ("workspace", "ci-parity"): {
-        "aliases": ("./scripts/ci-parity",),
-    },
+    ("workspace", "ci-parity"): {},
     ("workspace", "format-check"): {
         "dependencies": (),
     },
@@ -242,67 +228,45 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
             "workspace.python-base-basedpyright",
         ),
     },
-    ("workspace", "core-runtime-closeout"): {
-        "aliases": ("./scripts/core-runtime-closeout",),
-    },
-    ("workspace", "acceptance-audit"): {
-        "aliases": ("./scripts/acceptance-audit",),
-    },
-    ("workspace", "remote-acceptance"): {
-        "aliases": ("./scripts/remote-acceptance",),
-    },
-    ("workspace", "doctor"): {
-        "aliases": ("./scripts/doctor",),
-    },
+    ("workspace", "core-runtime-closeout"): {},
+    ("workspace", "acceptance-audit"): {},
+    ("workspace", "remote-acceptance"): {},
+    ("workspace", "doctor"): {},
     ("workspace", "verify"): {
         "dependencies": ("workspace.doctor",),
-        "aliases": ("./scripts/verify",),
     },
     ("release", "stage-release-snapshot"): {
         "dependencies": ("release.check-release-version", "runtime.export-runtime-openapi"),
     },
 }
 
-LEGACY_ENTRYPOINTS: dict[str, str] = {
-    "scripts/acceptance-audit": "polisyos-tools workspace acceptance-audit",
-    "scripts/bootstrap": "polisyos-tools workspace bootstrap",
-    "scripts/build_academic_gold_candidates.py": (
-        "polisyos-tools data build-academic-gold-candidates"
-    ),
-    "scripts/build_expert_review_bundle.py": "polisyos-tools data build-expert-review-bundle",
-    "scripts/ci-parity": "polisyos-tools workspace ci-parity",
-    "scripts/core-runtime-closeout": "polisyos-tools workspace core-runtime-closeout",
-    "scripts/doctor": "polisyos-tools workspace doctor",
-    "scripts/generate_stubs.py": "polisyos-tools foundry generate-stubs",
-    "scripts/generate_wvs_registry.py": "polisyos-tools data generate-wvs-registry",
-    "scripts/record_fixtures.py": "polisyos-tools data record-fixtures",
-    "scripts/remote-acceptance": "polisyos-tools workspace remote-acceptance",
-    "scripts/update_signature_baseline.py": "polisyos-tools foundry update-signature-baseline",
-    "scripts/verify": "polisyos-tools workspace verify",
-    "scripts/benchmark_lex_llm_steady_state.py": (
-        "polisyos-tools benchmarks benchmark-lex-llm-steady-state"
-    ),
-    "scripts/benchmark_lex_llm_sweep.py": "polisyos-tools benchmarks benchmark-lex-llm-sweep",
-    "scripts/mutation_test.sh": "polisyos-tools testing mutation --suite foundry --target <target>",
-    "scripts/mutation_test_scientist.sh": (
-        "polisyos-tools testing mutation --suite scientist --target <target>"
-    ),
-    "benchmarks/run_all_benchmarks.sh": "polisyos-tools benchmarks run-all",
-    "benchmarks/run_local_sota_profile.sh": "polisyos-tools benchmarks run-local-sota-profile",
-    "benchmarks/build_release_summary.py": "polisyos-tools benchmarks build-release-summary",
-    "benchmarks/prepare_real_benchmark_data.py": (
-        "polisyos-tools benchmarks prepare-real-benchmark-data"
-    ),
-    "benchmarks/run_parallel.py": "polisyos-tools benchmarks run-parallel",
-}
+LEGACY_ENTRYPOINTS: dict[str, str] = {}
 
 
 def _command_name(path: Path) -> str:
     return path.stem.replace("_", "-")
 
 
-def _module_name(entry: CategoryManifestEntry, path: Path) -> str:
-    return f"{entry.implementation_package}.{path.stem}"
+def _iter_category_modules(entry: CategoryManifestEntry) -> tuple[tuple[Path, str], ...]:
+    modules: list[tuple[Path, str]] = [
+        (path, entry.implementation_package)
+        for path in sorted(entry.implementation_root.glob("*.py"))
+        if path.name not in _SKIP_FILES and not path.name.startswith(".")
+    ]
+    if entry.category == "ci":
+        canonical_names = {path.name for path, _module_package in modules}
+        modules.extend(
+            (path, "tools.ci")
+            for path in sorted((TOOLS_ROOT / "ci").glob("*.py"))
+            if path.name not in _SKIP_FILES
+            and not path.name.startswith(".")
+            and path.name not in canonical_names
+        )
+    return tuple(modules)
+
+
+def _module_name(module_package: str, path: Path) -> str:
+    return f"{module_package}.{path.stem}"
 
 
 def _extract_module_metadata(path: Path) -> tuple[str, str | None]:
@@ -314,6 +278,17 @@ def _extract_module_metadata(path: Path) -> tuple[str, str | None]:
             callable_name = node.name
             if node.name == "main":
                 break
+        if isinstance(node, ast.ImportFrom):
+            imported_callables = {
+                alias.asname or alias.name
+                for alias in node.names
+                if alias.name in {"main", "check"}
+            }
+            if "main" in imported_callables:
+                callable_name = "main"
+                break
+            if "check" in imported_callables:
+                callable_name = "check"
     return (summary[0] if summary else "", callable_name)
 
 
@@ -322,9 +297,7 @@ def _discover_specs() -> tuple[ToolSpec, ...]:
     for zone in ZONE_ORDER:
         for category in _ZONE_CATEGORIES[zone]:
             entry = CATEGORY_MANIFEST[category]
-            for path in sorted(entry.implementation_root.glob("*.py")):
-                if path.name in _SKIP_FILES or path.name.startswith("."):
-                    continue
+            for path, module_package in _iter_category_modules(entry):
                 summary, callable_name = _extract_module_metadata(path)
                 if callable_name is None:
                     continue
@@ -333,7 +306,7 @@ def _discover_specs() -> tuple[ToolSpec, ...]:
                     name=command,
                     zone=entry.zone,
                     category=entry.category,
-                    module=_module_name(entry, path),
+                    module=_module_name(module_package, path),
                     callable_name=callable_name,
                     summary=summary or f"{entry.category}/{path.stem}",
                 )
@@ -451,14 +424,14 @@ def render_reference_docs() -> str:
             "| Output cluster | Exact files | Source of truth | Validation |",
             "| -------------- | ----------- | --------------- | ---------- |",
             "| Generated command reference | `docs/reference/tools.md` | `tools.registry` command metadata, dependency graph edges, lifecycle status metadata | `uv run polisyos-tools docs --output docs/reference/tools.md` |",
-            "| Tooling READMEs | `tools/README.md`, `tools/validation/README.md`, `tools/devx/workspace/README.md`, `tools/devx/architecture/README.md` | canonical CLI behavior, workspace gates, validation helpers, architecture guardrails | `uv run polisyos-tools workspace ci-parity --skip-browser` |",
+            "| Tooling READMEs | `tools/README.md`, `tools/quality/validation/README.md`, `tools/devx/workspace/README.md`, `tools/devx/architecture/README.md` | canonical CLI behavior, workspace gates, validation helpers, architecture guardrails | `uv run polisyos-tools workspace ci-parity --skip-browser` |",
             "| Shared D1-L5 how-to/reference pages | `docs/how-to/operate-ci-cd-platform.md`, `docs/how-to/manage-generated-artifacts.md`, `docs/how-to/release-policy.md`, `docs/reference/quality-gates.md`, `docs/reference/dependency-platform.md`, `docs/reference/merge-governance.md`, `docs/reference/ratchet-policy.md` | repo workflows, generated-artifact guardrails, release tooling, ratchet policy docs | `uv run polisyos-tools architecture guardrails check` |",
             "",
             "## Backlog",
             "",
             "| Gap | Priority | Tracking note |",
             "| --- | -------- | ------------- |",
-            "| No missing required D1-L5 output pages | - | All required D1-L5 files listed in `docs/DOCUMENTATION_SOTA_PLAN.md` are present. |",
+            "| No missing required D1-L5 output pages | - | All required D1-L5 files listed in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md` are present. |",
             "| Additional per-category README expansion outside the D1 scope | P3 | Further category-local docs can land in D2 without blocking the D1 closure criteria. |",
             "",
             "## Zones",
@@ -494,14 +467,17 @@ def render_reference_docs() -> str:
         lines.append("")
     lines.extend(
         [
-            "## Compatibility Wrappers",
+            "## Retired Compatibility Wrappers",
             "",
-            "| Legacy Path | Canonical Command |",
-            "| ----------- | ----------------- |",
+            "Legacy path-based wrappers are retained only for the Phase 1D migration window.",
+            "All wrappers emit a deprecation warning and sunset on 2026-09-01.",
+            "",
+            "| Legacy path | Replacement |",
+            "| ----------- | ----------- |",
         ]
     )
     for legacy_path, replacement in sorted(LEGACY_ENTRYPOINTS.items()):
-        lines.append(f"| `{legacy_path}` | `{replacement}` |")
+        lines.append(f"| `{legacy_path}` | {replacement} |")
     lifecycle_specs = tuple(spec for spec in TOOL_SPECS if spec.status != ToolStatus.ACTIVE)
     lines.extend(
         [
@@ -528,12 +504,11 @@ def render_reference_docs() -> str:
             "## Policy",
             "",
             "- `tools/` is the only canonical executable surface.",
-            "- `scripts/` and root `benchmarks/*` executables are compatibility "
-            "wrappers for one deprecation window.",
+            "- The former product-root script tree is retired; use `polisyos-tools` commands directly.",
             "- New tools must be added to the zone/category manifest before "
             "creating any new top-level `tools/<category>` package.",
-            "- `tools/benchmarks` is the executable surface; root `benchmarks/` "
-            "is benchmark-domain support code.",
+            "- Benchmark commands live under `tools/research/benchmarks`; root "
+            "`benchmarks/` is benchmark-domain support code.",
             "",
             "## Dependency Graph",
             "",

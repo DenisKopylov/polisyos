@@ -19,7 +19,7 @@ import {
 import { buildPromotionReviewId } from "@/app/realtime/reviewIds";
 import { useReviewCollaborationSurface } from "@/app/realtime/useReviewCollaborationSurface";
 import { useQueuedPromotionDecision } from "@/features/evidence/hooks/useQueuedPromotionDecision";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import type {
   EvidenceArtifactRef,
   EvidenceFocus,
@@ -27,14 +27,14 @@ import type {
   RunEvidenceNeed,
   RunEvidencePlan,
   RunEvidencePromotion,
-} from "@/lib/domain/evidence";
+} from "@/shared/lib/domain/evidence";
 import {
   formatBytes,
   formatDate,
   formatNumber,
   formatPercent,
-} from "@/lib/utils";
-import { useDebouncedValue } from "@/lib/hooks";
+} from "@/shared/lib/utils";
+import { useDebouncedValue } from "@/shared/lib/hooks";
 import { useAlertDialog } from "@/app/providers/AlertDialogProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import {

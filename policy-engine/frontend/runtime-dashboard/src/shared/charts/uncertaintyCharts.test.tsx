@@ -1,12 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { FanChart } from "@/shared/charts/FanChart";
 import { QuantileDotplot } from "@/shared/charts/QuantileDotplot";
 import { UncertaintyBand } from "@/shared/charts/UncertaintyBand";
+import { renderWithProviders } from "@/test/render";
 
 describe("uncertainty charts", () => {
   it("renders scalar uncertainty bands through the shared wrapper", () => {
-    render(
+    renderWithProviders(
       <UncertaintyBand
         estimate={0.23}
         bands={[{ lower: 0.09, upper: 0.37, level: 0.95 }]}
@@ -22,7 +23,7 @@ describe("uncertainty charts", () => {
   });
 
   it("renders a fan chart with an as-of marker", () => {
-    render(
+    renderWithProviders(
       <FanChart
         label="Employment rate forecast"
         asOfIndex={1}
@@ -39,7 +40,7 @@ describe("uncertainty charts", () => {
   });
 
   it("renders dotplot labels from sampled outcomes", () => {
-    render(
+    renderWithProviders(
       <QuantileDotplot
         label="VAT multiplier distribution"
         samples={[0.09, 0.11, 0.14, 0.18, 0.22, 0.23, 0.24, 0.25, 0.29, 0.37]}

@@ -29,7 +29,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult
+from polisyos.foundry.methods.catalog.ml.protocols import PredictionResult, TabularData
 from polisyos.foundry.methods.catalog.ml.regression import (
     _build_prediction_result,
     _tabular_payload,
@@ -866,9 +866,7 @@ def _linear_sampler_prior_sensitivity_report(
         readiness_tier_requested=str(params.get("prior_sensitivity_readiness_tier", "tier_1")),
         metadata={"prior_predictive_seed": seed, "estimand_count": len(sensitivity_records)},
         warnings=tuple(
-            dict.fromkeys(
-                warning for record in sensitivity_records for warning in record.warnings
-            )
+            dict.fromkeys(warning for record in sensitivity_records for warning in record.warnings)
         ),
     )
 
@@ -2057,7 +2055,9 @@ class BayesianHierarchicalRegressionEstimator:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         payload = _mapping_payload(state)
         x = np.asarray(payload["features"], dtype=float)
         y = np.asarray(payload["target"], dtype=float)
@@ -2344,7 +2344,9 @@ class BayesianHMCRegressionEstimator:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         payload = _mapping_payload(state)
         x = np.asarray(payload["features"], dtype=float)
         y = np.asarray(payload["target"], dtype=float)
@@ -2513,7 +2515,9 @@ class BayesianHMCRegressionEstimator:
             policy_functions=payload.get("policy_functions")
             if isinstance(payload.get("policy_functions"), Mapping)
             else None,
-            lp_energy=payload.get("lp_energy") if isinstance(payload.get("lp_energy"), Mapping) else None,
+            lp_energy=payload.get("lp_energy")
+            if isinstance(payload.get("lp_energy"), Mapping)
+            else None,
             utility_by_action=payload.get("utility_by_action")
             if isinstance(payload.get("utility_by_action"), Mapping)
             else None,
@@ -2641,7 +2645,9 @@ class BayesianNUTSRegressionEstimator:
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         payload = _mapping_payload(state)
         x = np.asarray(payload["features"], dtype=float)
         y = np.asarray(payload["target"], dtype=float)
@@ -2813,7 +2819,9 @@ class BayesianNUTSRegressionEstimator:
             policy_functions=payload.get("policy_functions")
             if isinstance(payload.get("policy_functions"), Mapping)
             else None,
-            lp_energy=payload.get("lp_energy") if isinstance(payload.get("lp_energy"), Mapping) else None,
+            lp_energy=payload.get("lp_energy")
+            if isinstance(payload.get("lp_energy"), Mapping)
+            else None,
             utility_by_action=payload.get("utility_by_action")
             if isinstance(payload.get("utility_by_action"), Mapping)
             else None,

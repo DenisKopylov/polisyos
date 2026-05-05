@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.release.check_release_artifact_sizes import evaluate_artifacts
+from tools.ops.release.check_release_artifact_sizes import evaluate_artifacts
 
 
 def test_release_artifact_policy_flags_oversized_bundle(tmp_path: Path) -> None:

@@ -2,7 +2,7 @@
 
 `tests/tools` covers the executable tooling surface around `polisyos-tools`,
 workspace automation, acceptance audits, architecture ratchets, and release
-tooling. The slice currently contains `23` `test_*.py` files.
+tooling. The slice currently contains `54` `test_*.py` files.
 
 ## Purpose
 
@@ -25,7 +25,9 @@ tooling. The slice currently contains `23` `test_*.py` files.
 
 - Architecture and quality ratchets:
   `test_architecture_phase3.py`, `test_lint_imports_phase3.py`,
-  `test_phase4_consolidation.py`, `test_phase7_ratchet.py`
+  `test_phase4_consolidation.py`,
+  `test_repository_sota_phase3_topology_cleanup.py`,
+  `test_phase7_ratchet.py`
 
 - Release/acceptance gates:
   `test_acceptance_audit.py`, `test_release_artifact_policy.py`,
@@ -60,7 +62,7 @@ uv run pytest tests/tools/test_unified_cli.py -q
 
 ## Test And Verification Commands
 
-The collect-only command below was smoke-checked on `2026-04-17`.
+The collect-only command below was smoke-checked on `2026-05-02`.
 
 ```bash
 cd policy-engine
@@ -75,4 +77,4 @@ uv run pytest --collect-only tests/tools -q
 
 ## Last Updated
 
-2026-04-17
+2026-05-02

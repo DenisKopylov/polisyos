@@ -11,7 +11,7 @@ import {
   RUN_ACTIVE_REFETCH_MS,
   RUNS_LIVE_HEARTBEAT_MS,
   RUNS_LIVE_RETRY_MS,
-} from "@/lib/constants";
+} from "@/shared/lib/constants";
 import { createTestQueryClient } from "@/test/queryClient";
 
 const { trackMock } = vi.hoisted(() => ({

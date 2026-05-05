@@ -7,12 +7,12 @@ Related reference: [IR Schema Catalog](ir/schema-catalog.md).
 Canonical regeneration command (snapshots + reference docs):
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
 ```
 
 ## Snapshot Summary
 
-- IR snapshot: `99` schemas, generated `2026-04-25T18:40:45+00:00`.
+- IR snapshot: `99` schemas, generated `2026-05-03T08:03:46+00:00`.
 - Fabric world ABI snapshot: `2` schemas, generated `2026-03-28T13:16:21+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 

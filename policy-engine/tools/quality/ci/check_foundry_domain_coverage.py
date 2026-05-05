@@ -33,12 +33,12 @@ FOUNDRY_DOMAIN_TARGETS: tuple[DomainTarget, ...] = (
         name="executor_internals",
         minimum_percent=90.0,
         patterns=(
-            "**/src/polisyos/foundry/_executor_graph.py",
-            "**/src/polisyos/foundry/_executor_models.py",
-            "**/src/polisyos/foundry/_executor_ops.py",
-            "**/src/polisyos/foundry/_executor_patching.py",
-            "**/src/polisyos/foundry/_executor_snapshots.py",
-            "**/src/polisyos/foundry/_execution_posture.py",
+            "**/src/polisyos/foundry/execute/_graph.py",
+            "**/src/polisyos/foundry/execute/_models.py",
+            "**/src/polisyos/foundry/execute/_ops.py",
+            "**/src/polisyos/foundry/execute/_patching.py",
+            "**/src/polisyos/foundry/execute/_posture.py",
+            "**/src/polisyos/foundry/execute/_snapshots.py",
         ),
     ),
     DomainTarget(
@@ -68,22 +68,22 @@ FOUNDRY_DOMAIN_TARGETS: tuple[DomainTarget, ...] = (
     DomainTarget(
         name="trace_module",
         minimum_percent=1.0,
-        patterns=("**/src/polisyos/foundry/trace.py",),
+        patterns=("**/src/polisyos/foundry/runtime/trace.py",),
     ),
     DomainTarget(
         name="queue_module",
         minimum_percent=1.0,
-        patterns=("**/src/polisyos/foundry/queue.py",),
+        patterns=("**/src/polisyos/foundry/execute/queue.py",),
     ),
     DomainTarget(
         name="specs_module",
         minimum_percent=1.0,
-        patterns=("**/src/polisyos/foundry/specs.py",),
+        patterns=("**/src/polisyos/foundry/contracts/specs.py",),
     ),
     DomainTarget(
         name="profiles_module",
         minimum_percent=1.0,
-        patterns=("**/src/polisyos/foundry/profiles.py",),
+        patterns=("**/src/polisyos/foundry/runtime/profiles.py",),
     ),
 )
 

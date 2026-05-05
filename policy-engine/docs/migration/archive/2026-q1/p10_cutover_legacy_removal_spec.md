@@ -63,7 +63,7 @@ Observed baseline (`2026-02-10`, local code scan):
 
    - Foundry compat facade files (`foundry.base/types/domain`): `7`
    - legacy entry-point bridge/group references (`polisyos.connectors`, `polisyos.methods`, legacy group flags): `26`
-4. Architecture freeze snapshot (`tools/lint/collect_arch_metrics.py`):
+4. Architecture freeze snapshot (`tools/quality/lint/collect_arch_metrics.py`):
 
    - `package_cycles_count = 0`
    - `import_violations_count = 0`
@@ -216,7 +216,7 @@ P10 MUST provide a deterministic pre-removal path for existing `runs/<id>/manife
 
 1. Add migration inventory CLI (recommended):
 
-   - `tools/runtime/inventory_legacy_runs.py`
+   - `tools/ops/runtime/inventory_legacy_runs.py`
 2. Inventory output MUST include:
 
    - `run_id`
@@ -226,7 +226,7 @@ P10 MUST provide a deterministic pre-removal path for existing `runs/<id>/manife
    - parse/shape validity
 3. Optional archive CLI (recommended):
 
-   - `tools/runtime/archive_legacy_runs.py`
+   - `tools/ops/runtime/archive_legacy_runs.py`
 4. Archive policy:
 
    - create immutable archive artifact/report before deleting or ignoring legacy run roots.
@@ -287,7 +287,7 @@ Required updates:
 
 Required new lint tool (recommended):
 
-- `tools/lint/lint_legacy_cutover.py`
+- `tools/quality/lint/lint_legacy_cutover.py`
 
 Minimum checks:
 
@@ -353,13 +353,13 @@ Minimum checks:
 Architecture/freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p10_metrics \
   --summary-path .tmp/p10_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p10_metrics/summary.json \
   --mode blocking \
@@ -373,36 +373,36 @@ python3 tools/lint/compare_baseline.py \
 Lint gates:
 
 ```bash
-python3 tools/lint/lint_imports.py
-python3 tools/lint/lint_foundry.py
-python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
-python3 tools/lint/lint_foundry_data_plane.py
-python3 tools/lint/lint_legacy_cutover.py
+python3 tools/quality/lint/lint_imports.py
+python3 tools/quality/lint/lint_foundry.py
+python3 tools/quality/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
+python3 tools/quality/lint/lint_foundry_data_plane.py
+python3 tools/quality/lint/lint_legacy_cutover.py
 ```
 
 Targeted tests (minimum):
 
 ```bash
 python3 -m pytest \
-  tests/runtime/http/test_runs_api.py \
-  tests/runtime/http/test_runtime_api_authz.py \
-  tests/runtime/http/test_timeline_api.py \
-  tests/runtime/http/test_debug_api.py \
-  tests/runtime/http/test_artifact_inspector_api.py \
-  tests/foundry/test_execute_input_bindings.py \
-  tests/scientist/test_engine_default_workflow_p8.py \
-  tests/runtime/test_replay_input_bindings_completeness.py
+  tests/unit/runtime/http/test_runs_api.py \
+  tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_timeline_api.py \
+  tests/unit/runtime/http/test_debug_api.py \
+  tests/unit/runtime/http/test_artifact_inspector_api.py \
+  tests/unit/foundry/test_execute_input_bindings.py \
+  tests/unit/scientist/test_engine_default_workflow_p8.py \
+  tests/unit/runtime/test_replay_input_bindings_completeness.py
 ```
 
 Required new P10 tests (recommended):
 
 ```bash
 python3 -m pytest \
-  tests/runtime/http/test_core_only_runs_api.py \
-  tests/runtime/http/test_runtime_api_no_legacy_sources.py \
-  tests/foundry/test_execute_requires_input_bindings_ref.py \
-  tests/foundry/test_no_compat_facade_imports.py \
-  tests/core/components/test_no_legacy_entrypoint_groups.py \
+  tests/unit/runtime/http/test_core_only_runs_api.py \
+  tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py \
+  tests/unit/foundry/test_execute_requires_input_bindings_ref.py \
+  tests/unit/foundry/test_no_compat_facade_imports.py \
+  tests/unit/core/components/test_no_legacy_entrypoint_groups.py \
   tests/lint/test_legacy_cutover_lint.py
 ```
 
@@ -513,14 +513,14 @@ P10 implementation completed with the following evidence:
      - `frontend/runtime-reference-shell/styles.css`
 7. Migration/archive tooling added:
 
-   - `tools/runtime/inventory_legacy_runs.py`
-   - `tools/runtime/archive_legacy_runs.py`
+   - `tools/ops/runtime/inventory_legacy_runs.py`
+   - `tools/ops/runtime/archive_legacy_runs.py`
 8. Regression-prevention gate + tests added:
 
-   - `tools/lint/lint_legacy_cutover.py`
+   - `tools/quality/lint/lint_legacy_cutover.py`
    - `tests/lint/test_legacy_cutover_lint.py`
-   - `tests/runtime/http/test_core_only_runs_api.py`
-   - `tests/runtime/http/test_runtime_api_no_legacy_sources.py`
-   - `tests/foundry/test_execute_requires_input_bindings_ref.py`
-   - `tests/foundry/test_no_compat_facade_imports.py`
-   - `tests/core/components/test_no_legacy_entrypoint_groups.py`
+   - `tests/unit/runtime/http/test_core_only_runs_api.py`
+   - `tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py`
+   - `tests/unit/foundry/test_execute_requires_input_bindings_ref.py`
+   - `tests/unit/foundry/test_no_compat_facade_imports.py`
+   - `tests/unit/core/components/test_no_legacy_entrypoint_groups.py`

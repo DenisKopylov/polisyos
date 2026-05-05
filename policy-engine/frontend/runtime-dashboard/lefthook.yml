@@ -3,10 +3,10 @@ pre-commit:
   commands:
     prettier:
       glob: "*.{css,js,json,md,mjs,ts,tsx,yaml,yml}"
-      run: npx prettier --write --ignore-unknown {staged_files}
+      run: corepack pnpm exec prettier --write --ignore-unknown {staged_files}
     eslint:
       glob: "*.{js,mjs,ts,tsx}"
-      run: npx eslint --fix {staged_files}
+      run: corepack pnpm exec eslint --fix {staged_files}
     check-contrast:
       run: node --experimental-strip-types ../../tools/design/check-contrast.ts
     check-reduced-motion:
@@ -15,6 +15,6 @@ pre-commit:
 pre-push:
   commands:
     typecheck:
-      run: npm run typecheck
+      run: corepack pnpm run typecheck
     test:
-      run: npm run test
+      run: corepack pnpm run test

@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { fromApiTemporalScope } from "@/app/providers/temporal-scope";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   AsyncSection,
   Button,

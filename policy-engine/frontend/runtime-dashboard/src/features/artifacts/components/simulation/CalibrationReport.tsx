@@ -10,8 +10,8 @@ import {
   YAxis,
 } from "recharts";
 
-import type { CalibrationModel } from "@/lib/domain/simulation";
-import { useI18n } from "@/i18n/LocaleProvider";
+import type { CalibrationModel } from "@/shared/lib/domain/simulation";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Select, chartTheme } from "@/shared/ui";
 
 type CalibrationReportProps = {

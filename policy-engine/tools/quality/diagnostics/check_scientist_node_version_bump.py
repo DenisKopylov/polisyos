@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 if str(REPO_ROOT) not in sys.path:

@@ -8,7 +8,7 @@ for _candidate in Path(__file__).resolve().parents:
         sys.path.insert(0, str(_candidate))
         break
 
-from tools._lib.compat import expose_module
+from tools.lib.compat import expose_module
 
 _TARGET = "tools.quality.ci"
 

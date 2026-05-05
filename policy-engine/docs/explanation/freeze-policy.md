@@ -2,7 +2,7 @@
 
 Related reference: [Quality gates](../reference/quality-gates.md), [ratchet policy](../reference/ratchet-policy.md), [documentation inventory](../reference/documentation-inventory.md).
 Related ADRs: [ADR-0004](../adr/0004-architecture-boundaries-import-gate.md), [ADR-0053](../adr/0053-architecture-freeze-contracts.md), [ADR-0061](../adr/0061-import-gate-ci-contract.md), [ADR-0096](../adr/0096-canonical-product-root-and-workspace-boundary.md).
-Evidence: `import_policy.toml`, `uv run polisyos-tools architecture guardrails check`, `uv run --extra docs python -m mkdocs build --strict`, `uv run polisyos-tools validation check-docs-accuracy --repo-root .`.
+Evidence: `architecture/imports/policy.toml`, `uv run polisyos-tools architecture guardrails check`, `uv run --extra docs python -m mkdocs build --strict`, `uv run polisyos-tools validation check-docs-accuracy --repo-root .`.
 
 Freeze policy is how PolicyOS keeps architectural promises enforceable after the
 refactor: import boundaries, generated-contract freshness, docs accuracy, and
@@ -12,7 +12,7 @@ release-time ratchets are all part of the same control loop.
 
 ```mermaid
 flowchart LR
-    ADR["ADRs and contracts"] --> Policy["import_policy.toml and repo rules"]
+    ADR["ADRs and contracts"] --> Policy["architecture/imports/policy.toml and repo rules"]
     Policy --> Guard["Architecture guardrails and import gates"]
     Guard --> Snapshots["Schema, OpenAPI, generated docs, artifact inventories"]
     Snapshots --> Ratchet["CI ratchets and merge governance"]

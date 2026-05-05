@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/scientist/nodes/**`, and `tests/scientist/test_causal_evaluation_node.py`
+Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/scientist/nodes/**`, and `tests/scientist/test_causal_evaluation_node.py`.
+> Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`.
 
 `polisyos.scientist.nodes` exposes a single stable root export:
 `builtin_nodes()`. Every concrete builtin node lives under
@@ -73,9 +73,9 @@ workflow/reference impact with the tests below.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/nodes -q
-uv run pytest tests/scientist/nodes/builtins -q
-uv run pytest tests/scientist/test_causal_evaluation_node.py tests/scientist/test_decision_packet_node_v3.py -q
+uv run pytest tests/unit/scientist/nodes -q
+uv run pytest tests/unit/scientist/nodes/builtins -q
+uv run pytest tests/unit/scientist/causal/test_causal_evaluation_node.py tests/unit/scientist/nodes/test_decision_packet_node_v3.py -q
 ```
 
 ## API Reference

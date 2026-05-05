@@ -155,7 +155,7 @@ function classifyLine(filePath, line) {
   ) {
     return "decision";
   }
-  return "telemetry";
+  return undefined;
 }
 
 module.exports = {

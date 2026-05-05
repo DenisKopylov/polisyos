@@ -30,8 +30,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.core.errors import ErrorCategory
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.errors import EngineError
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.budget import BudgetState

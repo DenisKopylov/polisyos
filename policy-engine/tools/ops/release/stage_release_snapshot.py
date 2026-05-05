@@ -15,7 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Stage a versioned release-fragment snapshot")
     parser.add_argument("--version", required=True, help="Release version without the leading v")
     parser.add_argument("--source-dir", default="policy-engine/release-fragments/unreleased")
-    parser.add_argument("--release-root", default="policy-engine/release-fragments/releases")
+    parser.add_argument("--release-root", default="policy-engine/_build/release-fragments")
     parser.add_argument(
         "--move",
         action="store_true",

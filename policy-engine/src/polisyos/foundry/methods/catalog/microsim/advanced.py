@@ -1466,7 +1466,9 @@ class TaxBenefitCalculatorEstimator:
         return SurveyMicroData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: SurveyMicroData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
         )
@@ -2090,7 +2092,9 @@ class ImputationModelEstimator:
         return SurveyMicroData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: SurveyMicroData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
         )
@@ -2217,7 +2221,9 @@ class DynamicMicrosimEstimator:
         return SurveyMicroData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: SurveyMicroData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
         )
@@ -2348,7 +2354,9 @@ class DynamicMicrosimEstimator:
                     }
                 }
             )
-        elif bool(params.get("dynamic_validation_required", False)) and not resolved_report_from_ref:
+        elif (
+            bool(params.get("dynamic_validation_required", False)) and not resolved_report_from_ref
+        ):
             report = DynamicMicrosimValidationReport(
                 validation_status="red",
                 source_status="not_run",

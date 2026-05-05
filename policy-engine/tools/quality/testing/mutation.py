@@ -10,11 +10,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.runner import run_command
+from tools.lib.runner import run_command
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,22 +27,22 @@ class MutationTarget:
 FOUNDRY_TARGETS: dict[str, MutationTarget] = {
     "backends": MutationTarget(
         paths="src/polisyos/foundry/methods/backends/",
-        tests="tests/foundry/methods/backends/",
+        tests="tests/unit/foundry/methods/backends/",
         threshold_pct=70.0,
     ),
     "base": MutationTarget(
         paths="src/polisyos/foundry/methods/base.py",
-        tests="tests/foundry/methods/",
+        tests="tests/unit/foundry/methods/",
         threshold_pct=70.0,
     ),
     "resolution": MutationTarget(
         paths="src/polisyos/foundry/methods/resolution.py",
-        tests="tests/foundry/methods/test_semver_resolution.py",
+        tests="tests/unit/foundry/methods/test_semver_resolution.py",
         threshold_pct=70.0,
     ),
     "full": MutationTarget(
         paths="src/polisyos/foundry/methods/",
-        tests="tests/foundry/",
+        tests="tests/unit/foundry/",
         threshold_pct=70.0,
     ),
 }
@@ -50,57 +50,57 @@ FOUNDRY_TARGETS: dict[str, MutationTarget] = {
 SCIENTIST_TARGETS: dict[str, MutationTarget] = {
     "governance": MutationTarget(
         paths="src/polisyos/scientist/governance/passes/",
-        tests="tests/scientist/governance/",
+        tests="tests/unit/scientist/governance/",
         threshold_pct=80.0,
     ),
     "condition": MutationTarget(
         paths=("src/polisyos/scientist/engine/condition.py"),
         tests=(
-            "tests/scientist/engine/test_condition.py "
-            "tests/scientist/engine/test_condition_compound.py "
-            "tests/scientist/engine/test_property_condition.py"
+            "tests/unit/scientist/engine/test_condition.py "
+            "tests/unit/scientist/engine/test_condition_compound.py "
+            "tests/unit/scientist/engine/test_property_condition.py"
         ),
         threshold_pct=80.0,
     ),
     "budget": MutationTarget(
         paths="src/polisyos/scientist/engine/budget.py",
         tests=(
-            "tests/scientist/engine/test_budget.py "
-            "tests/scientist/engine/test_budget_middleware.py "
-            "tests/scientist/engine/test_property_budget.py"
+            "tests/unit/scientist/engine/test_budget.py "
+            "tests/unit/scientist/engine/test_budget_middleware.py "
+            "tests/unit/scientist/engine/test_property_budget.py"
         ),
         threshold_pct=80.0,
     ),
     "retry": MutationTarget(
         paths="src/polisyos/scientist/engine/retry.py",
-        tests="tests/scientist/engine/test_retry.py",
+        tests="tests/unit/scientist/engine/test_retry.py",
         threshold_pct=80.0,
     ),
     "checkpoint": MutationTarget(
         paths="src/polisyos/scientist/engine/checkpoint.py",
         tests=(
-            "tests/scientist/engine/test_checkpoint.py "
-            "tests/scientist/engine/test_property_checkpoint.py "
-            "tests/scientist/engine/test_checkpoint_gc.py"
+            "tests/unit/scientist/engine/test_checkpoint.py "
+            "tests/unit/scientist/engine/test_property_checkpoint.py "
+            "tests/unit/scientist/engine/test_checkpoint_gc.py"
         ),
         threshold_pct=80.0,
     ),
     "idempotency": MutationTarget(
         paths="src/polisyos/scientist/engine/idempotency.py",
-        tests="tests/scientist/engine/test_property_idempotency.py",
+        tests="tests/unit/scientist/engine/test_property_idempotency.py",
         threshold_pct=80.0,
     ),
     "convergence": MutationTarget(
         paths="src/polisyos/scientist/engine/convergence.py",
         tests=(
-            "tests/scientist/engine/test_convergence.py "
-            "tests/scientist/engine/test_convergence_semantic.py"
+            "tests/unit/scientist/engine/test_convergence.py "
+            "tests/unit/scientist/engine/test_convergence_semantic.py"
         ),
         threshold_pct=80.0,
     ),
     "api": MutationTarget(
         paths="src/polisyos/scientist/api.py",
-        tests="tests/scientist/test_api.py",
+        tests="tests/unit/scientist/facade/test_api.py",
         threshold_pct=80.0,
     ),
 }

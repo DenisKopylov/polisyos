@@ -18,7 +18,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
@@ -94,9 +94,7 @@ def _contract_records(path: Path) -> dict[str, dict[str, Any]]:
     if not isinstance(contracts, dict):
         return {}
     return {
-        str(contract_id): meta
-        for contract_id, meta in contracts.items()
-        if isinstance(meta, dict)
+        str(contract_id): meta for contract_id, meta in contracts.items() if isinstance(meta, dict)
     }
 
 
@@ -104,11 +102,7 @@ def _snapshot_records(path: Path, key: str) -> dict[str, dict[str, Any]]:
     records = _load_json(path).get(key, {})
     if not isinstance(records, dict):
         return {}
-    return {
-        str(record_id): meta
-        for record_id, meta in records.items()
-        if isinstance(meta, dict)
-    }
+    return {str(record_id): meta for record_id, meta in records.items() if isinstance(meta, dict)}
 
 
 def _source_contract_field_ids(contract: Mapping[str, Any]) -> set[str]:
@@ -194,9 +188,7 @@ def _string_list_assignment(path: Path, name: str) -> list[str]:
         is_named_assign = isinstance(node, ast.Assign) and any(
             _matches(target) for target in node.targets
         )
-        is_named_annotated_assign = isinstance(node, ast.AnnAssign) and _matches(
-            node.target
-        )
+        is_named_annotated_assign = isinstance(node, ast.AnnAssign) and _matches(node.target)
         if is_named_assign or is_named_annotated_assign:
             value = node.value
         if isinstance(value, (ast.List, ast.Tuple)):
@@ -260,9 +252,7 @@ def _python_files(repo_root: Path, directory: str) -> list[str]:
     if not root.exists():
         return []
     return [
-        _rel(path, repo_root)
-        for path in sorted(root.glob("*.py"))
-        if path.name != "__init__.py"
+        _rel(path, repo_root) for path in sorted(root.glob("*.py")) if path.name != "__init__.py"
     ]
 
 
@@ -280,8 +270,7 @@ def _has_token(path: Path, token: str) -> bool:
 def _client_operation_token(operation_id: str) -> str:
     parts = operation_id.split("_")
     return "".join(
-        part if index == 0 else part[:1].upper() + part[1:]
-        for index, part in enumerate(parts)
+        part if index == 0 else part[:1].upper() + part[1:] for index, part in enumerate(parts)
     )
 
 
@@ -369,10 +358,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "connectors"
         / "contracts"
         / "source_contract.py",
-        "source_contract_schema": repo_root
-        / "schemas"
-        / "fabric"
-        / "source_contract.schema.json",
+        "source_contract_schema": repo_root / "schemas" / "fabric" / "source_contract.schema.json",
         "processing_guarantees": repo_root
         / "src"
         / "polisyos"
@@ -392,12 +378,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "reference"
         / "fabric"
         / "processing-guarantees.md",
-        "catalog_discovery": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "catalog"
-        / "discovery.py",
+        "catalog_discovery": repo_root / "src" / "polisyos" / "fabric" / "catalog" / "discovery.py",
         "entity_resolution_models": repo_root
         / "src"
         / "polisyos"
@@ -415,10 +396,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_discovery_intelligence.py",
-        "discovery_eval_fixture": repo_root
-        / "tests"
-        / "fixtures"
-        / "fabric_discovery_eval.json",
+        "discovery_eval_fixture": repo_root / "tests" / "fixtures" / "fabric_discovery_eval.json",
         "discovery_intelligence_doc": repo_root
         / "docs"
         / "reference"
@@ -448,12 +426,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_wave2_strict_closure.py",
-        "connector_sdk": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "connectors"
-        / "sdk",
+        "connector_sdk": repo_root / "src" / "polisyos" / "fabric" / "connectors" / "sdk",
         "conformance_v2": repo_root
         / "src"
         / "polisyos"
@@ -461,17 +434,9 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "connectors"
         / "testing"
         / "conformance.py",
-        "scorecard": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "connectors"
-        / "scorecard.py",
+        "scorecard": repo_root / "src" / "polisyos" / "fabric" / "connectors" / "scorecard.py",
         "decision_data": repo_root / "src" / "polisyos" / "fabric" / "decision_data.py",
-        "trust_envelope_schema": repo_root
-        / "schemas"
-        / "fabric"
-        / "trust_envelope.schema.json",
+        "trust_envelope_schema": repo_root / "schemas" / "fabric" / "trust_envelope.schema.json",
         "decision_data_coverage": repo_root
         / "tools"
         / "quality"
@@ -482,11 +447,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_decision_data_coverage.json",
-        "product_integration": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "product_integration.py",
+        "product_integration": repo_root / "src" / "polisyos" / "fabric" / "product_integration.py",
         "compatibility": repo_root / "src" / "polisyos" / "fabric" / "compatibility.py",
         "product_integration_validator": repo_root
         / "tools"
@@ -499,10 +460,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "product-api-integration.md",
         "runtime_openapi": repo_root / "schemas" / "runtime_api_v1.openapi.json",
-        "runtime_client_ts": repo_root
-        / "frontend"
-        / "runtime-api-client"
-        / "runtimeApiClient.ts",
+        "runtime_client_ts": repo_root / "frontend" / "runtime-api-client" / "runtimeApiClient.ts",
         "dashboard_fixture_registry": repo_root
         / "frontend"
         / "runtime-dashboard"
@@ -538,11 +496,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "test"
         / "contracts"
         / "fixtures",
-        "source_platform_doc": repo_root
-        / "docs"
-        / "reference"
-        / "fabric"
-        / "source-platform.md",
+        "source_platform_doc": repo_root / "docs" / "reference" / "fabric" / "source-platform.md",
         "source_init": repo_root
         / "src"
         / "polisyos"
@@ -578,12 +532,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "connectors"
         / "governance_metadata.py",
-        "connector_quality": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "connectors"
-        / "quality",
+        "connector_quality": repo_root / "src" / "polisyos" / "fabric" / "connectors" / "quality",
         "quality_evidence": repo_root
         / "src"
         / "polisyos"
@@ -605,40 +554,24 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric_schema_governance.py",
         "streaming": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "streaming.py",
         "benchmarks": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "benchmarks.py",
-        "orchestrator": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "orchestrator.py",
+        "orchestrator": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "data_plane"
+        / "orchestrator.py",
         "replay_store": repo_root
         / "src"
         / "polisyos"
         / "fabric"
         / "data_plane"
         / "replay_store.py",
-        "quarantine": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "data_plane"
-        / "quarantine.py",
+        "quarantine": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "quarantine.py",
         "evidence": repo_root / "src" / "polisyos" / "fabric" / "evidence.py",
-        "lineage": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "provenance"
-        / "lineage.py",
-        "provo": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "provenance"
-        / "export_provo.py",
+        "lineage": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "lineage.py",
+        "provo": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "export_provo.py",
         "world_query": repo_root / "src" / "polisyos" / "fabric" / "world_query.py",
-        "snapshots": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "world"
-        / "store"
-        / "snapshots.py",
+        "snapshots": repo_root / "src" / "polisyos" / "fabric" / "world" / "store" / "snapshots.py",
         "world_segments": repo_root
         / "src"
         / "polisyos"
@@ -646,13 +579,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "world"
         / "store"
         / "segments.py",
-        "world_emit": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "world"
-        / "store"
-        / "emit.py",
+        "world_emit": repo_root / "src" / "polisyos" / "fabric" / "world" / "store" / "emit.py",
         "world_kuzu": repo_root
         / "src"
         / "polisyos"
@@ -684,13 +611,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "http"
         / "services"
         / "temporal.py",
-        "runs_route": repo_root
-        / "src"
-        / "polisyos"
-        / "runtime"
-        / "http"
-        / "routes"
-        / "runs.py",
+        "runs_route": repo_root / "src" / "polisyos" / "runtime" / "http" / "routes" / "runs.py",
         "lineage_route": repo_root
         / "src"
         / "polisyos"
@@ -732,11 +653,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "scientist"
         / "search"
         / "readiness.py",
-        "scholar_provenance": repo_root
-        / "src"
-        / "polisyos"
-        / "scholar"
-        / "provenance.py",
+        "scholar_provenance": repo_root / "src" / "polisyos" / "scholar" / "provenance.py",
         "lex_provenance": repo_root / "src" / "polisyos" / "lex" / "provenance.py",
         "foundry_calibration_fabric": repo_root
         / "src"
@@ -756,12 +673,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "security"
         / "access_control.py",
-        "column_mask": repo_root
-        / "src"
-        / "polisyos"
-        / "fabric"
-        / "security"
-        / "column_mask.py",
+        "column_mask": repo_root / "src" / "polisyos" / "fabric" / "security" / "column_mask.py",
         "pii_stage": repo_root / "src" / "polisyos" / "fabric" / "pii" / "stage.py",
         "fabric_facade": repo_root / "src" / "polisyos" / "fabric" / "__init__.py",
         "ir_connectors": repo_root / "src" / "polisyos" / "ir" / "connectors.py",
@@ -771,76 +683,76 @@ def _paths(repo_root: Path) -> dict[str, Path]:
 def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
     raw = {
         "source": [
-            "tests/fabric/connectors/test_contract_system.py",
-            "tests/fabric/connectors/test_protocol_compliance.py",
-            "tests/fabric/connectors/test_registry.py",
-            "tests/fabric/connectors/test_source_contract_v2.py",
-            "tests/fabric/connectors/profiles/test_source_profiles.py",
-            "tests/fabric/data_plane/test_processing_guarantees.py",
+            "tests/unit/fabric/connectors/test_contract_system.py",
+            "tests/unit/fabric/connectors/test_protocol_compliance.py",
+            "tests/unit/fabric/connectors/test_registry.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+            "tests/unit/fabric/data_plane/test_processing_guarantees.py",
             "tests/tools/test_fabric_schema_governance.py",
             "tests/tools/test_fabric_source_contracts.py",
             "tests/tools/test_fabric_processing_guarantees.py",
         ],
         "evidence": [
-            "tests/fabric/data_plane/test_record_replay.py",
-            "tests/fabric/data_plane/test_quarantine.py",
-            "tests/fabric/data_plane/test_streaming_runtime.py",
-            "tests/fabric/data_plane/test_processing_guarantees.py",
-            "tests/fabric/data_plane/test_benchmarks.py",
-            "tests/fabric/data_plane/test_orchestrator.py",
-            "tests/fabric/test_ingestion_quarantine.py",
-            "tests/fabric/test_provenance.py",
-            "tests/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/fabric/data_plane/test_record_replay.py",
+            "tests/unit/fabric/data_plane/test_quarantine.py",
+            "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+            "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+            "tests/unit/fabric/data_plane/test_benchmarks.py",
+            "tests/unit/fabric/data_plane/test_orchestrator.py",
+            "tests/unit/fabric/test_ingestion_quarantine.py",
+            "tests/unit/fabric/test_provenance.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/tools/test_fabric_source_contracts.py",
             "tests/tools/test_fabric_processing_guarantees.py",
         ],
         "semantics": [
-            "tests/fabric/test_quality_indicators.py",
-            "tests/fabric/connectors/test_quality_system.py",
-            "tests/fabric/connectors/test_quality_statistics.py",
-            "tests/fabric/connectors/test_schema_system.py",
-            "tests/fabric/connectors/test_source_contract_v2.py",
-            "tests/fabric/test_discovery_intelligence.py",
-            "tests/fabric/test_entity_resolution.py",
+            "tests/unit/fabric/test_quality_indicators.py",
+            "tests/unit/fabric/connectors/test_quality_system.py",
+            "tests/unit/fabric/connectors/test_quality_statistics.py",
+            "tests/unit/fabric/connectors/test_schema_system.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/fabric/test_discovery_intelligence.py",
+            "tests/unit/fabric/test_entity_resolution.py",
             "tests/tools/test_fabric_schema_governance.py",
             "tests/tools/test_fabric_source_contracts.py",
             "tests/tools/test_fabric_discovery_intelligence.py",
         ],
         "world": [
-            "tests/fabric/test_world_time_travel.py",
-            "tests/fabric/test_world_materialization.py",
-            "tests/fabric/test_world_branch_governance.py",
-            "tests/fabric/test_world_temporal_capabilities.py",
-            "tests/fabric/test_entity_resolution.py",
-            "tests/fabric/test_world_query_multibackend.py",
-            "tests/runtime/http/test_temporal_api.py",
-            "tests/runtime/http/test_temporal_routes.py",
+            "tests/unit/fabric/test_world_time_travel.py",
+            "tests/unit/fabric/test_world_materialization.py",
+            "tests/unit/fabric/test_world_branch_governance.py",
+            "tests/unit/fabric/test_world_temporal_capabilities.py",
+            "tests/unit/fabric/test_entity_resolution.py",
+            "tests/unit/fabric/test_world_query_multibackend.py",
+            "tests/unit/runtime/http/test_temporal_api.py",
+            "tests/unit/runtime/http/test_temporal_routes.py",
         ],
         "trust": [
-            "tests/fabric/test_lineage.py",
-            "tests/fabric/test_decision_data_envelope.py",
-            "tests/fabric/test_fabric_observability.py",
-            "tests/fabric/test_observability_governance_quality_phase4.py",
-            "tests/fabric/test_provenance.py",
-            "tests/fabric/test_discovery_intelligence.py",
-            "tests/fabric/test_entity_resolution.py",
-            "tests/fabric/test_access_control.py",
-            "tests/fabric/test_duckdb_storage_access_control.py",
-            "tests/fabric/test_world_query_column_masking.py",
-            "tests/fabric/connectors/test_source_contract_v2.py",
-            "tests/runtime/http/test_lineage_api.py",
-            "tests/runtime/http/test_lineage_routes.py",
+            "tests/unit/fabric/test_lineage.py",
+            "tests/unit/fabric/test_decision_data_envelope.py",
+            "tests/unit/fabric/test_fabric_observability.py",
+            "tests/unit/fabric/test_observability_governance_quality_phase4.py",
+            "tests/unit/fabric/test_provenance.py",
+            "tests/unit/fabric/test_discovery_intelligence.py",
+            "tests/unit/fabric/test_entity_resolution.py",
+            "tests/unit/fabric/test_access_control.py",
+            "tests/unit/fabric/test_duckdb_storage_access_control.py",
+            "tests/unit/fabric/test_world_query_column_masking.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/runtime/http/test_lineage_api.py",
+            "tests/unit/runtime/http/test_lineage_routes.py",
             "tests/tools/test_fabric_source_contracts.py",
             "tests/tools/test_fabric_decision_data_coverage.py",
             "tests/tools/test_fabric_discovery_intelligence.py",
             "tests/tools/test_fabric_product_integration.py",
-            "tests/fabric/test_product_integration.py",
-            "tests/runtime/http/test_fabric_integration_routes.py",
-            "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-            "tests/scholar/test_fabric_provenance.py",
-            "tests/lex/test_fabric_provenance.py",
-            "tests/foundry/calibration/test_fabric_quality.py",
-            "tests/foundry/uncertainty/test_fabric_quality.py",
+            "tests/unit/fabric/test_product_integration.py",
+            "tests/unit/runtime/http/test_fabric_integration_routes.py",
+            "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+            "tests/unit/scholar/test_fabric_provenance.py",
+            "tests/unit/lex/test_fabric_provenance.py",
+            "tests/unit/foundry/calibration/test_fabric_quality.py",
+            "tests/unit/foundry/uncertainty/test_fabric_quality.py",
         ],
     }
     return {plane: _existing_paths(repo_root, paths) for plane, paths in raw.items()}
@@ -881,8 +793,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
     source_v2_field_policy_contract_count = sum(
         1
         for contract in source_contract_v2_payloads
-        if isinstance(contract, Mapping)
-        and bool(_source_contract_field_policy_ids(contract))
+        if isinstance(contract, Mapping) and bool(_source_contract_field_policy_ids(contract))
     )
     source_v2_field_policy_count = sum(
         len(_source_contract_field_policy_ids(contract))
@@ -901,10 +812,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         if isinstance(contract, Mapping)
         and isinstance(contract.get("quality"), Mapping)
         and "bounded_reads"
-        in {
-            str(check).casefold()
-            for check in contract["quality"].get("required_checks", [])
-        }
+        in {str(check).casefold() for check in contract["quality"].get("required_checks", [])}
     )
     source_v2_processing_count = sum(
         1
@@ -919,8 +827,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         if isinstance(contract, Mapping)
         and isinstance(contract.get("processing"), Mapping)
         and isinstance(contract["processing"].get("idempotency"), Mapping)
-        and int(contract["processing"]["idempotency"].get("dedupe_window_seconds") or 0)
-        > 0
+        and int(contract["processing"]["idempotency"].get("dedupe_window_seconds") or 0) > 0
     )
     source_v2_replay_retention_count = sum(
         1
@@ -928,39 +835,32 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         if isinstance(contract, Mapping)
         and isinstance(contract.get("processing"), Mapping)
         and isinstance(contract["processing"].get("idempotency"), Mapping)
-        and int(contract["processing"]["idempotency"].get("replay_retention_days") or 0)
-        > 0
+        and int(contract["processing"]["idempotency"].get("replay_retention_days") or 0) > 0
     )
     source_v2_owner_reviewer_count = sum(
         1
         for contract in source_contract_v2_payloads
-        if isinstance(contract, Mapping)
-        and contract.get("owner")
-        and contract.get("reviewer")
+        if isinstance(contract, Mapping) and contract.get("owner") and contract.get("reviewer")
     )
     entrypoints = _fabric_connector_entrypoints(paths["pyproject"])
     source_exports = _string_list_assignment(paths["source_init"], "__all__")
-    source_tree_files = _python_files_recursive(
-        repo_root, "src/polisyos/fabric/connectors/sources"
-    )
+    source_tree_files = _python_files_recursive(repo_root, "src/polisyos/fabric/connectors/sources")
     concrete_connectors = sorted(
         export
         for export in source_exports
         if export not in {"HTTPConnectorBase", "HTTPResilienceProfile"}
     )
     profile_ids = _source_profile_ids(paths["builtin_profiles"])
-    quality_modules = _python_files(
-        repo_root, "src/polisyos/fabric/connectors/quality"
-    )
+    quality_modules = _python_files(repo_root, "src/polisyos/fabric/connectors/quality")
     public_exports = _string_list_assignment(paths["fabric_facade"], "__all__")
     tests_by_plane = _tests_by_plane(repo_root)
 
     source_contract_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/connectors/test_contract_system.py",
-            "tests/fabric/connectors/test_schema_system.py",
-            "tests/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/fabric/connectors/test_contract_system.py",
+            "tests/unit/fabric/connectors/test_schema_system.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/tools/test_fabric_schema_governance.py",
             "tests/tools/test_fabric_source_contracts.py",
         ],
@@ -968,106 +868,106 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
     source_platform_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/connectors/test_source_contract_v2.py",
+            "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/tools/test_fabric_source_contracts.py",
         ],
     )
     processing_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/data_plane/test_processing_guarantees.py",
-            "tests/fabric/data_plane/test_streaming_runtime.py",
-            "tests/fabric/data_plane/test_benchmarks.py",
-            "tests/fabric/data_plane/test_orchestrator.py",
+            "tests/unit/fabric/data_plane/test_processing_guarantees.py",
+            "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+            "tests/unit/fabric/data_plane/test_benchmarks.py",
+            "tests/unit/fabric/data_plane/test_orchestrator.py",
             "tests/tools/test_fabric_processing_guarantees.py",
         ],
     )
     discovery_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_discovery_intelligence.py",
-            "tests/fabric/test_entity_resolution.py",
+            "tests/unit/fabric/test_discovery_intelligence.py",
+            "tests/unit/fabric/test_entity_resolution.py",
             "tests/tools/test_fabric_discovery_intelligence.py",
         ],
     )
     profile_tests = _existing_paths(
-        repo_root, ["tests/fabric/connectors/profiles/test_source_profiles.py"]
+        repo_root, ["tests/unit/fabric/connectors/profiles/test_source_profiles.py"]
     )
     quality_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_quality_indicators.py",
-            "tests/fabric/connectors/test_quality_system.py",
-            "tests/fabric/connectors/test_quality_statistics.py",
+            "tests/unit/fabric/test_quality_indicators.py",
+            "tests/unit/fabric/connectors/test_quality_system.py",
+            "tests/unit/fabric/connectors/test_quality_statistics.py",
         ],
     )
     phase4_tests = _existing_paths(
         repo_root,
-        ["tests/fabric/test_observability_governance_quality_phase4.py"],
+        ["tests/unit/fabric/test_observability_governance_quality_phase4.py"],
     )
     lineage_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_lineage.py",
-            "tests/fabric/test_fabric_observability.py",
+            "tests/unit/fabric/test_lineage.py",
+            "tests/unit/fabric/test_fabric_observability.py",
         ],
     )
     temporal_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_world_time_travel.py",
-            "tests/fabric/test_world_materialization.py",
-            "tests/fabric/test_world_branch_governance.py",
-            "tests/fabric/test_world_temporal_capabilities.py",
-            "tests/runtime/http/test_temporal_api.py",
-            "tests/runtime/http/test_temporal_routes.py",
+            "tests/unit/fabric/test_world_time_travel.py",
+            "tests/unit/fabric/test_world_materialization.py",
+            "tests/unit/fabric/test_world_branch_governance.py",
+            "tests/unit/fabric/test_world_temporal_capabilities.py",
+            "tests/unit/runtime/http/test_temporal_api.py",
+            "tests/unit/runtime/http/test_temporal_routes.py",
         ],
     )
     replay_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/data_plane/test_record_replay.py",
-            "tests/fabric/data_plane/test_quarantine.py",
-            "tests/fabric/test_ingestion_quarantine.py",
+            "tests/unit/fabric/data_plane/test_record_replay.py",
+            "tests/unit/fabric/data_plane/test_quarantine.py",
+            "tests/unit/fabric/test_ingestion_quarantine.py",
         ],
     )
     access_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_access_control.py",
-            "tests/fabric/test_duckdb_storage_access_control.py",
-            "tests/fabric/test_world_query_column_masking.py",
+            "tests/unit/fabric/test_access_control.py",
+            "tests/unit/fabric/test_duckdb_storage_access_control.py",
+            "tests/unit/fabric/test_world_query_column_masking.py",
         ],
     )
     facade_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_connector_bridge.py",
-            "tests/fabric/test_world_query_multibackend.py",
-            "tests/runtime/http/test_e2e_ingestion.py",
+            "tests/unit/fabric/test_connector_bridge.py",
+            "tests/unit/fabric/test_world_query_multibackend.py",
+            "tests/unit/runtime/http/test_e2e_ingestion.py",
         ],
     )
     decision_data_tests = _existing_paths(
         repo_root,
         [
-            "tests/fabric/test_decision_data_envelope.py",
-            "tests/runtime/http/test_lineage_routes.py",
-            "tests/runtime/http/test_temporal_routes.py",
+            "tests/unit/fabric/test_decision_data_envelope.py",
+            "tests/unit/runtime/http/test_lineage_routes.py",
+            "tests/unit/runtime/http/test_temporal_routes.py",
             "tests/tools/test_fabric_decision_data_coverage.py",
         ],
     )
     product_integration_tests = _existing_paths(
         repo_root,
         [
-            "tests/runtime/http/test_fabric_integration_routes.py",
+            "tests/unit/runtime/http/test_fabric_integration_routes.py",
             "tests/tools/test_fabric_product_integration.py",
-            "tests/fabric/test_product_integration.py",
-            "tests/scientist/governance/test_fabric_trust_gate_pass.py",
-            "tests/scientist/search/test_phase_b_policy_runtime.py",
-            "tests/scholar/test_fabric_provenance.py",
-            "tests/lex/test_fabric_provenance.py",
-            "tests/foundry/calibration/test_fabric_quality.py",
-            "tests/foundry/uncertainty/test_fabric_quality.py",
+            "tests/unit/fabric/test_product_integration.py",
+            "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
+            "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+            "tests/unit/scholar/test_fabric_provenance.py",
+            "tests/unit/lex/test_fabric_provenance.py",
+            "tests/unit/foundry/calibration/test_fabric_quality.py",
+            "tests/unit/foundry/uncertainty/test_fabric_quality.py",
         ],
     )
     product_fixture_names = [
@@ -1097,19 +997,29 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
     runtime_product_status = _status_if(
         paths["fabric_route"].exists()
         and paths["fabric_service"].exists()
-        and all(_has_token(paths["fabric_route"], operation) for operation in product_runtime_operation_ids)
-        and all(_has_token(paths["runtime_openapi"], operation) for operation in product_runtime_operation_ids)
+        and all(
+            _has_token(paths["fabric_route"], operation)
+            for operation in product_runtime_operation_ids
+        )
+        and all(
+            _has_token(paths["runtime_openapi"], operation)
+            for operation in product_runtime_operation_ids
+        )
         and all(
             _has_token(paths["runtime_client_ts"], _client_operation_token(operation))
             for operation in product_runtime_operation_ids
         )
-        and "tests/runtime/http/test_fabric_integration_routes.py" in product_integration_tests
+        and "tests/unit/runtime/http/test_fabric_integration_routes.py" in product_integration_tests
     )
     frontend_product_status = _status_if(
         product_fixture_count == len(product_fixture_names)
-        and all(_has_token(paths["dashboard_fixture_registry"], name) for name in product_fixture_names)
+        and all(
+            _has_token(paths["dashboard_fixture_registry"], name) for name in product_fixture_names
+        )
         and _has_token(paths["dashboard_validators"], "fabricImpactAnalysisSchema")
-        and _has_token(paths["dashboard_fabric_decision_adapter"], "fabricDecisionDataToQuantityValue")
+        and _has_token(
+            paths["dashboard_fabric_decision_adapter"], "fabricDecisionDataToQuantityValue"
+        )
         and _has_token(paths["dashboard_fabric_decision_adapter"], "fabric_trust_envelope")
         and _has_token(paths["dashboard_fabric_decision_hook"], "useRunFabricDecisionData")
     )
@@ -1117,7 +1027,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         paths["scientist_fabric_trust_gate"].exists()
         and _has_token(paths["scientist_fabric_trust_gate"], "FabricTrustGatePass")
         and _has_token(paths["scientist_readiness"], "fabric_readiness_cap")
-        and "tests/scientist/governance/test_fabric_trust_gate_pass.py" in product_integration_tests
+        and "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py"
+        in product_integration_tests
     )
     product_adapter_status = _status_if(
         paths["product_integration"].exists()
@@ -1281,9 +1192,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "Scaffold helpers derive source, profile, contract, replay, quality, "
                 "and docs ids before a connector becomes production-visible."
             ),
-            source_files=_python_files_recursive(
-                repo_root, "src/polisyos/fabric/connectors/sdk"
-            ),
+            source_files=_python_files_recursive(repo_root, "src/polisyos/fabric/connectors/sdk"),
             tests=source_platform_tests,
             docs=["docs/reference/fabric/source-platform.md"],
             evidence={
@@ -1303,7 +1212,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             ),
             source_files=[_rel(paths["conformance_v2"], repo_root)],
             tests=source_platform_tests
-            + _existing_paths(repo_root, ["tests/fabric/connectors/test_protocol_compliance.py"]),
+            + _existing_paths(
+                repo_root, ["tests/unit/fabric/connectors/test_protocol_compliance.py"]
+            ),
             docs=["docs/reference/fabric/source-platform.md"],
             evidence={
                 "validator": "validate_source_conformance_v2",
@@ -1323,8 +1234,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "tests/fabric/connectors/test_registry.py",
-                    "tests/fabric/connectors/test_protocol_compliance.py",
+                    "tests/unit/fabric/connectors/test_registry.py",
+                    "tests/unit/fabric/connectors/test_protocol_compliance.py",
                 ],
             ),
             docs=["docs/reference/fabric/connectors.md"],
@@ -1345,8 +1256,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "tests/fabric/connectors/test_protocol_compliance.py",
-                    "tests/fabric/connectors/test_registry.py",
+                    "tests/unit/fabric/connectors/test_protocol_compliance.py",
+                    "tests/unit/fabric/connectors/test_registry.py",
                 ],
             ),
             docs=["docs/reference/fabric/connectors.md"],
@@ -1367,9 +1278,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "tests/fabric/connectors/test_protocol_compliance.py",
-                    "tests/fabric/connectors/test_registry.py",
-                    "tests/fabric/connectors/test_contract_system.py",
+                    "tests/unit/fabric/connectors/test_protocol_compliance.py",
+                    "tests/unit/fabric/connectors/test_registry.py",
+                    "tests/unit/fabric/connectors/test_contract_system.py",
                 ],
             ),
             docs=[
@@ -1402,8 +1313,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "tests/fabric/connectors/test_connector_family_expansion.py",
-                    "tests/fabric/connectors/test_registry.py",
+                    "tests/unit/fabric/connectors/test_connector_family_expansion.py",
+                    "tests/unit/fabric/connectors/test_registry.py",
                 ],
             ),
             docs=["docs/reference/fabric/connectors.md"],
@@ -1411,9 +1322,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "entrypoint_count": len(entrypoints),
                 "concrete_connector_count": len(concrete_connectors),
                 "governed_component_count": len(source_contract_v2_ids),
-                "internal_support_only_count": max(
-                    0, len(concrete_connectors) - len(entrypoints)
-                ),
+                "internal_support_only_count": max(0, len(concrete_connectors) - len(entrypoints)),
                 "production_visibility_source": (
                     "__polisyos_components__ plus SourceContract v2 snapshot"
                 ),
@@ -1467,7 +1376,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             docs=["docs/reference/fabric/data-plane.md"],
             evidence={
                 "replay_store": paths["replay_store"].exists(),
-                "record_replay_tests": "tests/fabric/data_plane/test_record_replay.py"
+                "record_replay_tests": "tests/unit/fabric/data_plane/test_record_replay.py"
                 in replay_tests,
             },
         ),
@@ -1486,7 +1395,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             ],
             evidence={
                 "quarantine_module": paths["quarantine"].exists(),
-                "quarantine_tests": "tests/fabric/data_plane/test_quarantine.py"
+                "quarantine_tests": "tests/unit/fabric/data_plane/test_quarantine.py"
                 in replay_tests,
             },
         ),
@@ -1556,15 +1465,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "processing_artifact_metadata": _has_token(
                     paths["streaming"], "processing_contract_snapshot"
                 ),
-                "out_of_order_policy": _has_token(
-                    paths["streaming"], "_apply_out_of_order_policy"
-                ),
-                "cdc_compatibility": _has_token(
-                    paths["streaming"], "classify_cdc_schema_change"
-                ),
-                "backpressure_contract": _has_token(
-                    paths["streaming"], "backpressure.strategy"
-                ),
+                "out_of_order_policy": _has_token(paths["streaming"], "_apply_out_of_order_policy"),
+                "cdc_compatibility": _has_token(paths["streaming"], "classify_cdc_schema_change"),
+                "backpressure_contract": _has_token(paths["streaming"], "backpressure.strategy"),
             },
         ),
         _surface(
@@ -1574,7 +1477,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 paths["orchestrator"].exists()
                 and _has_token(paths["orchestrator"], "DistributedExecutionTrustContract")
                 and _has_token(paths["orchestrator"], "_validate_distributed_execution_trust")
-                and "tests/fabric/data_plane/test_orchestrator.py" in processing_tests
+                and "tests/unit/fabric/data_plane/test_orchestrator.py" in processing_tests
             ),
             priority="P1",
             title="Distributed execution trust gate",
@@ -1583,7 +1486,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "quality, access, and replay/non-replayable evidence are present."
             ),
             source_files=[_rel(paths["orchestrator"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/data_plane/test_orchestrator.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/data_plane/test_orchestrator.py"]),
             docs=["docs/reference/fabric/processing-guarantees.md"],
             evidence={
                 "trust_contract": _has_token(
@@ -1602,7 +1505,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 and _has_token(paths["benchmarks"], "latency_quantiles_ms")
                 and _has_token(paths["benchmarks"], "correctness_counters")
                 and _has_token(paths["benchmarks"], "benchmark_query_execution")
-                and "tests/fabric/data_plane/test_benchmarks.py" in processing_tests
+                and "tests/unit/fabric/data_plane/test_benchmarks.py" in processing_tests
             ),
             priority="P2",
             title="Scale benchmark reports for ingestion, streaming, materialization, and query",
@@ -1611,16 +1514,12 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "correctness counters for Fabric scale paths."
             ),
             source_files=[_rel(paths["benchmarks"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/data_plane/test_benchmarks.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/data_plane/test_benchmarks.py"]),
             docs=["docs/reference/fabric/processing-guarantees.md"],
             evidence={
                 "latency_quantiles": _has_token(paths["benchmarks"], "latency_quantiles_ms"),
-                "correctness_counters": _has_token(
-                    paths["benchmarks"], "correctness_counters"
-                ),
-                "query_benchmark": _has_token(
-                    paths["benchmarks"], "benchmark_query_execution"
-                ),
+                "correctness_counters": _has_token(paths["benchmarks"], "correctness_counters"),
+                "query_benchmark": _has_token(paths["benchmarks"], "benchmark_query_execution"),
             },
         ),
         _surface(
@@ -1628,17 +1527,17 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             plane="evidence",
             status="implemented"
             if paths["evidence"].exists()
-            and "tests/fabric/test_provenance.py" in tests_by_plane["evidence"]
+            and "tests/unit/fabric/test_provenance.py" in tests_by_plane["evidence"]
             else "partial",
             priority="P2",
             title="CAS-backed evidence bundle persistence",
             description="Evidence bundle helpers that persist provenance payloads into governed artifact storage.",
             source_files=[_rel(paths["evidence"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/test_provenance.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/test_provenance.py"]),
             docs=["docs/reference/fabric/lineage.md"],
             evidence={
                 "evidence_module": paths["evidence"].exists(),
-                "provenance_bundle_tests": "tests/fabric/test_provenance.py"
+                "provenance_bundle_tests": "tests/unit/fabric/test_provenance.py"
                 in tests_by_plane["evidence"],
             },
         ),
@@ -1649,7 +1548,10 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             priority="P1",
             title="Metric-level quality indicators",
             description="Quality indicator scoring, finite-value guards, and metric fitness reports.",
-            source_files=[_rel(paths["quality"], repo_root), _rel(paths["fitness_report"], repo_root)],
+            source_files=[
+                _rel(paths["quality"], repo_root),
+                _rel(paths["fitness_report"], repo_root),
+            ],
             tests=quality_tests,
             docs=["docs/reference/fabric/quality.md"],
             evidence={
@@ -1706,9 +1608,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "profile_count": len(profile_ids),
                 "quality_validator_module_count": len(quality_modules),
             },
-            follow_up=(
-                "Phase 6: propagate source quality states into decision-data envelopes."
-            ),
+            follow_up=("Phase 6: propagate source quality states into decision-data envelopes."),
         ),
         _surface(
             surface_id="semantics.source_scorecards",
@@ -1976,8 +1876,11 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "World fact emission can attach typed correction, revocation, branch, "
                 "and scenario mutation metadata without overwriting prior facts."
             ),
-            source_files=[_rel(paths["world_segments"], repo_root), _rel(paths["world_emit"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/test_world_branch_governance.py"]),
+            source_files=[
+                _rel(paths["world_segments"], repo_root),
+                _rel(paths["world_emit"], repo_root),
+            ],
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/test_world_branch_governance.py"]),
             docs=["docs/reference/fabric/time-travel.md"],
             evidence={
                 "mutation_enum": _has_token(paths["world_segments"], "WorldMutationKind"),
@@ -1996,7 +1899,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             status=_status_if(
                 paths["temporal_route"].exists()
                 and paths["temporal_service"].exists()
-                and "tests/runtime/http/test_temporal_routes.py" in temporal_tests
+                and "tests/unit/runtime/http/test_temporal_routes.py" in temporal_tests
                 and _has_token(paths["temporal_service"], "slow_query_evidence")
             ),
             priority="P1",
@@ -2009,9 +1912,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "tests/runtime/http/test_temporal_api.py",
-                    "tests/runtime/http/test_temporal_routes.py",
-                    "tests/fabric/test_world_temporal_capabilities.py",
+                    "tests/unit/runtime/http/test_temporal_api.py",
+                    "tests/unit/runtime/http/test_temporal_routes.py",
+                    "tests/unit/fabric/test_world_temporal_capabilities.py",
                 ],
             ),
             docs=["docs/reference/fabric/time-travel.md", "docs/reference/api/index.md"],
@@ -2019,9 +1922,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "route": paths["temporal_route"].exists(),
                 "service": paths["temporal_service"].exists(),
                 "supported_tables": _has_token(paths["temporal_service"], "supported_tables"),
-                "slow_query_evidence": _has_token(
-                    paths["temporal_service"], "slow_query_evidence"
-                ),
+                "slow_query_evidence": _has_token(paths["temporal_service"], "slow_query_evidence"),
                 "branch_support": _has_token(paths["temporal_service"], "branch_support"),
             },
         ),
@@ -2031,7 +1932,10 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             status="partial"
             if paths["world_kuzu"].exists()
             and _has_token(paths["world_kuzu"], "WorldKuzuTemporalCapability")
-            and _has_token(paths["world_kuzu"], 'graph_temporal_scope: Literal["full", "partial", "unsupported"]')
+            and _has_token(
+                paths["world_kuzu"],
+                'graph_temporal_scope: Literal["full", "partial", "unsupported"]',
+            )
             else "missing",
             priority="P2",
             title="Kuzu temporal graph parity marker",
@@ -2040,10 +1944,14 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "traversal is explicitly labelled partial and linked to R3."
             ),
             source_files=[_rel(paths["world_kuzu"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/test_world_temporal_capabilities.py"]),
+            tests=_existing_paths(
+                repo_root, ["tests/unit/fabric/test_world_temporal_capabilities.py"]
+            ),
             docs=["docs/reference/fabric/time-travel.md"],
             evidence={
-                "temporal_capability": _has_token(paths["world_kuzu"], "WorldKuzuTemporalCapability"),
+                "temporal_capability": _has_token(
+                    paths["world_kuzu"], "WorldKuzuTemporalCapability"
+                ),
                 "partial_scope": _has_token(paths["world_kuzu"], "graph_temporal_scope"),
                 "research_track": _has_token(paths["world_kuzu"], "R3"),
             },
@@ -2098,14 +2006,17 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "strict closure proves they are not production-visible and local runtime "
                 "create/query paths fail closed."
             ),
-            source_files=[_rel(paths["snapshots"], repo_root), _rel(paths["world_query"], repo_root)],
+            source_files=[
+                _rel(paths["snapshots"], repo_root),
+                _rel(paths["world_query"], repo_root),
+            ],
             tests=temporal_tests,
             docs=["docs/reference/fabric/time-travel.md"],
             evidence={
                 "adapter_registry_present": _has_token(
                     paths["snapshots"], "list_world_snapshot_adapters"
                 ),
-                "runtime_rejection_test": "tests/fabric/test_world_time_travel.py"
+                "runtime_rejection_test": "tests/unit/fabric/test_world_time_travel.py"
                 in temporal_tests,
                 "production_visible": False,
                 "strict_wave2_scope": "not_applicable",
@@ -2147,7 +2058,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 _rel(paths["core_metrics_base"], repo_root),
                 _rel(paths["core_metrics_parts"], repo_root),
             ],
-            tests=phase4_tests + _existing_paths(repo_root, ["tests/fabric/test_fabric_observability.py"]),
+            tests=phase4_tests
+            + _existing_paths(repo_root, ["tests/unit/fabric/test_fabric_observability.py"]),
             docs=["docs/reference/fabric/observability-governance.md"],
             evidence={
                 "sli_enum": _has_token(paths["observability"], "class FabricSLIName"),
@@ -2181,9 +2093,10 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 _rel(paths["connector_governance_metadata"], repo_root),
                 _rel(paths["ir_connectors"], repo_root),
             ],
-            tests=phase4_tests + _existing_paths(
+            tests=phase4_tests
+            + _existing_paths(
                 repo_root,
-                ["tests/fabric/connectors/test_protocol_compliance.py"],
+                ["tests/unit/fabric/connectors/test_protocol_compliance.py"],
             ),
             docs=[
                 "docs/reference/fabric/connectors.md",
@@ -2281,18 +2194,16 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             status=_status_if(
                 paths["lineage"].exists()
                 and _has_token(paths["lineage"], "export_openlineage_json")
-                and "tests/fabric/test_lineage.py" in lineage_tests
+                and "tests/unit/fabric/test_lineage.py" in lineage_tests
             ),
             priority="P2",
             title="OpenLineage export",
             description="OpenLineage-shaped export for Fabric provenance graphs.",
             source_files=[_rel(paths["lineage"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/test_lineage.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/test_lineage.py"]),
             docs=["docs/reference/fabric/lineage.md"],
             evidence={
-                "export_openlineage_json": _has_token(
-                    paths["lineage"], "export_openlineage_json"
-                )
+                "export_openlineage_json": _has_token(paths["lineage"], "export_openlineage_json")
             },
         ),
         _surface(
@@ -2300,13 +2211,13 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             plane="trust",
             status=_status_if(
                 paths["provo"].exists()
-                and "tests/fabric/test_provenance.py" in tests_by_plane["trust"]
+                and "tests/unit/fabric/test_provenance.py" in tests_by_plane["trust"]
             ),
             priority="P2",
             title="W3C PROV export",
             description="PROV-O JSON-LD and PROV-JSON export surface for governed provenance.",
             source_files=[_rel(paths["provo"], repo_root)],
-            tests=_existing_paths(repo_root, ["tests/fabric/test_provenance.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/fabric/test_provenance.py"]),
             docs=["docs/reference/fabric/lineage.md"],
             evidence={
                 "prov_o_export": _has_token(paths["provo"], "PROV-O"),
@@ -2319,7 +2230,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             status=_status_if(
                 paths["lineage_route"].exists()
                 and paths["lineage_service"].exists()
-                and "tests/runtime/http/test_lineage_api.py" in tests_by_plane["trust"]
+                and "tests/unit/runtime/http/test_lineage_api.py" in tests_by_plane["trust"]
             ),
             priority="P1",
             title="Runtime lineage API adapter",
@@ -2328,7 +2239,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 _rel(paths["lineage_route"], repo_root),
                 _rel(paths["lineage_service"], repo_root),
             ],
-            tests=_existing_paths(repo_root, ["tests/runtime/http/test_lineage_api.py"]),
+            tests=_existing_paths(repo_root, ["tests/unit/runtime/http/test_lineage_api.py"]),
             docs=["docs/reference/fabric/lineage.md", "docs/reference/api/index.md"],
             evidence={
                 "route": paths["lineage_route"].exists(),
@@ -2462,9 +2373,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             docs=["docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md"],
             evidence={
                 "typed_gap_states": decision_data_report.get("typed_gap_states", []),
-                "naked_decision_values": decision_data_report.get(
-                    "naked_decision_values", []
-                ),
+                "naked_decision_values": decision_data_report.get("naked_decision_values", []),
             },
             follow_up=(
                 None
@@ -2660,8 +2569,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 priority="P1",
                 title=f"Source contract: {contract_id}",
                 description=(
-                    "Addressable committed connector contract from the Fabric governance "
-                    "snapshot."
+                    "Addressable committed connector contract from the Fabric governance snapshot."
                 ),
                 source_files=_existing_paths(
                     repo_root, _source_contract_files(contract_id, connector_id)
@@ -2767,7 +2675,8 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "lineage_module": paths["lineage"].exists(),
             "openlineage_export": _has_token(paths["lineage"], "export_openlineage_json"),
             "prov_export": paths["provo"].exists(),
-            "tests": lineage_tests + _existing_paths(repo_root, ["tests/fabric/test_provenance.py"]),
+            "tests": lineage_tests
+            + _existing_paths(repo_root, ["tests/unit/fabric/test_provenance.py"]),
         },
         "temporal_support": {
             "status": "implemented"
@@ -2812,9 +2721,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "decision_data_module": paths["decision_data"].exists(),
             "trust_envelope_schema": paths["trust_envelope_schema"].exists(),
             "coverage_report": paths["decision_data_coverage_report"].exists(),
-            "naked_decision_values": decision_data_report.get(
-                "summary", {}
-            ).get("naked_decision_value_count"),
+            "naked_decision_values": decision_data_report.get("summary", {}).get(
+                "naked_decision_value_count"
+            ),
             "typed_gap_states": [
                 row.get("state")
                 for row in decision_data_report.get("typed_gap_states", [])
@@ -3063,11 +2972,7 @@ def _plane_title(plane: str) -> str:
 
 
 def render_markdown(manifest: Mapping[str, Any]) -> str:
-    surfaces = [
-        surface
-        for surface in manifest.get("surfaces", [])
-        if isinstance(surface, Mapping)
-    ]
+    surfaces = [surface for surface in manifest.get("surfaces", []) if isinstance(surface, Mapping)]
     summary = manifest.get("summary", {})
     coverage = manifest.get("coverage", {})
     status_counts = summary.get("status_counts", {}) if isinstance(summary, Mapping) else {}
@@ -3132,8 +3037,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
             if not isinstance(item, Mapping):
                 continue
             lines.append(
-                f"| `{key}` | `{item.get('status', 'missing')}` | "
-                f"{_evidence_summary(item)} |"
+                f"| `{key}` | `{item.get('status', 'missing')}` | {_evidence_summary(item)} |"
             )
 
         tests_by_plane = coverage.get("tests_by_plane", {})
@@ -3153,9 +3057,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
                 lines.append(f"| {_plane_title(plane)} | {_md_code_list(values, limit=8)} |")
 
     for plane in PLANES:
-        plane_surfaces = [
-            surface for surface in surfaces if surface.get("plane") == plane
-        ]
+        plane_surfaces = [surface for surface in surfaces if surface.get("plane") == plane]
         lines.extend(
             [
                 "",
@@ -3188,8 +3090,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
     gap_surfaces = [
         surface
         for surface in surfaces
-        if surface.get("status")
-        in {"partial", "missing", "accepted_risk", "blocked_by_research"}
+        if surface.get("status") in {"partial", "missing", "accepted_risk", "blocked_by_research"}
     ]
     gap_surfaces.sort(
         key=lambda surface: (

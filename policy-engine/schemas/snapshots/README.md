@@ -27,7 +27,7 @@ snapshots/
 
 ## Формат артефактов
 
-- `ir` и `fabric`: набор `*.schema.json` + `_manifest.json`, генерируются `tools/diagnostics/gen_schema.py`.
+- `ir` и `fabric`: набор `*.schema.json` + `_manifest.json`, генерируются `tools/quality/diagnostics/gen_schema.py`.
 - В `_manifest.json` на модель хранятся `priority`, `compat_mode`, `schema_version`, `version_field`, `sha256_full`, `sha256_semantic`.
 - `connectors/contracts.json`: формат `version=1`, payload `contracts` keyed by `contract_id`.
 
@@ -41,14 +41,14 @@ snapshots/
 
 ```bash
 # Проверка baseline
-python3 tools/diagnostics/gen_schema.py --check
-python3 tools/connectors/check_contracts.py --check
+python3 tools/quality/diagnostics/gen_schema.py --check
+uv run polisyos-tools connectors check-contracts --check
 ```
 
 ```bash
 # Обновление baseline
-python3 tools/diagnostics/gen_schema.py
-python3 tools/connectors/check_contracts.py --update
+python3 tools/quality/diagnostics/gen_schema.py
+uv run polisyos-tools connectors check-contracts --update
 ```
 
 ## Инварианты

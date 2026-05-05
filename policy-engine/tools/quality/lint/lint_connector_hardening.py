@@ -15,7 +15,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 DEFAULT_SOURCES_ROOT = (
     repo_root_from(__file__) / "src" / "polisyos" / "fabric" / "connectors" / "sources"

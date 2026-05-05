@@ -33,10 +33,6 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.cross_graph.compiler import (
-    CrossGraphEvidenceCompiler,
-    CrossGraphEvidenceConfig,
-)
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
     build_need_backlog,
@@ -48,7 +44,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.evidence_sources import (
+from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     merge_evidence_sources_payload,
     normalize_evidence_sources_config,
@@ -153,6 +149,8 @@ class CompileCrossGraphEvidenceNode:
         causal_graph = _resolve_causal_graph(ctx, state)
 
         try:
+            from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceConfig
+
             config = CrossGraphEvidenceConfig.model_validate(
                 merge_evidence_sources_payload(config_payload, evidence_sources)
             )
@@ -251,6 +249,8 @@ class CompileCrossGraphEvidenceNode:
                     if literature_prior_ref is not None
                     else None
                 )
+                from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceCompiler
+
                 profile = CrossGraphEvidenceCompiler(config).compile(
                     bundle,
                     target_context=target_context,
@@ -661,7 +661,7 @@ def _maybe_emit_feedback_outputs(
     academic_db_path = str(config.academic_db_path or "").strip()
     if academic_db_path:
         try:
-            from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
+            from polisyos.data_forge.read_api.academic import ScholarKnowledgeGraph
 
             db_path = Path(academic_db_path)
             if db_path.exists():

@@ -1,0 +1,26 @@
+[runtime_contracts]
+version = 1
+owner = "team-runtime"
+mode = "fail_closed"
+source_of_truth = "src/polisyos/runtime/http/** and schemas/runtime_api_v1.openapi.json"
+health_endpoints = [
+  "/healthz",
+  "/readyz",
+]
+contract_inputs = [
+  "schemas/runtime_api_v1.openapi.json",
+  "frontend/runtime-api-client/runtimeApiClient.ts",
+  "frontend/runtime-dashboard/src/api/types.ts",
+]
+telemetry_baselines = [
+  "ops/observability/otel/baseline.yaml",
+  "ops/observability/slo/runtime.yaml",
+]
+rollback_baselines = [
+  "docs/runbooks/runtime-api-outage.md",
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+]
+baseline_checks = [
+  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py",
+  "docker compose -f ops/docker/observability.compose.yml config",
+]

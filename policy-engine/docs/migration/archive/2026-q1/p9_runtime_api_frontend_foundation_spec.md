@@ -37,7 +37,7 @@ Current hard gaps:
 
 Observed baseline (`2026-02-10`, local scan):
 
-1. Architecture snapshot from `tools/lint/collect_arch_metrics.py`:
+1. Architecture snapshot from `tools/quality/lint/collect_arch_metrics.py`:
 
    - `package_cycles_count = 0`
    - `import_violations_count = 0`
@@ -415,13 +415,13 @@ P9 compatibility path:
 Architecture/freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p9_metrics \
   --summary-path .tmp/p9_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p9_metrics/summary.json \
   --mode blocking \
@@ -436,20 +436,20 @@ Runtime API test suite (minimum):
 
 ```bash
 python3 -m pytest \
-  tests/runtime/http/test_runs_api.py \
-  tests/runtime/http/test_timeline_api.py \
-  tests/runtime/http/test_debug_api.py \
-  tests/runtime/http/test_artifact_inspector_api.py \
-  tests/runtime/http/test_runtime_api_authz.py \
-  tests/runtime/http/test_legacy_manifest_adapter.py
+  tests/unit/runtime/http/test_runs_api.py \
+  tests/unit/runtime/http/test_timeline_api.py \
+  tests/unit/runtime/http/test_debug_api.py \
+  tests/unit/runtime/http/test_artifact_inspector_api.py \
+  tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_legacy_manifest_adapter.py
 ```
 
 Existing middleware regression suite (must remain green):
 
 ```bash
 python3 -m pytest \
-  tests/core/security/test_router.py \
-  tests/core/security/test_auth_middlewares.py
+  tests/unit/core/security/test_router.py \
+  tests/unit/core/security/test_auth_middlewares.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -484,7 +484,7 @@ P9 is complete only if all criteria are met:
 
 ## 11. Baseline Snapshot for P9 Planning (`2026-02-10`)
 
-Reference snapshot (fresh local scan, `tools/lint/collect_arch_metrics.py`):
+Reference snapshot (fresh local scan, `tools/quality/lint/collect_arch_metrics.py`):
 
 - `package_cycles_count = 0`
 - `import_violations_count = 0`
@@ -539,8 +539,8 @@ Implemented artifacts:
 
    - OpenAPI export: `schemas/runtime_api_v1.openapi.json`
    - Client generation scripts:
-     - `tools/runtime/export_runtime_openapi.py`
-     - `tools/runtime/generate_runtime_client.py`
+     - `tools/ops/runtime/export_runtime_openapi.py`
+     - `tools/ops/runtime/generate_runtime_client.py`
    - Generated typed client:
      - `frontend/runtime-api-client/runtimeApiClient.ts`
      - `frontend/runtime-api-client/runtimeApiClient.js`
@@ -550,19 +550,19 @@ Implemented artifacts:
      - `frontend/runtime-reference-shell/styles.css`
 5. Test coverage:
 
-   - `tests/runtime/http/test_runs_api.py`
-   - `tests/runtime/http/test_timeline_api.py`
-   - `tests/runtime/http/test_debug_api.py`
-   - `tests/runtime/http/test_artifact_inspector_api.py`
-   - `tests/runtime/http/test_runtime_api_authz.py`
-   - `tests/runtime/http/test_legacy_manifest_adapter.py`
+   - `tests/unit/runtime/http/test_runs_api.py`
+   - `tests/unit/runtime/http/test_timeline_api.py`
+   - `tests/unit/runtime/http/test_debug_api.py`
+   - `tests/unit/runtime/http/test_artifact_inspector_api.py`
+   - `tests/unit/runtime/http/test_runtime_api_authz.py`
+   - `tests/unit/runtime/http/test_legacy_manifest_adapter.py`
 
 Verification status (`2026-02-10`):
 
 - Runtime API suite (required P9 tests): `PASS` (20 tests).
 - Middleware regression suite:
-  - `tests/core/security/test_router.py`: `PASS`
-  - `tests/core/security/test_auth_middlewares.py`: `PASS`
+  - `tests/unit/core/security/test_router.py`: `PASS`
+  - `tests/unit/core/security/test_auth_middlewares.py`: `PASS`
 - Architecture freeze checks:
   - `collect_arch_metrics.py`: completed
   - `compare_baseline.py --mode blocking`: `FAIL` only on `delta_test_collect_errors = +4` (historical debt); additional non-blocking delta observed in `ruff_total_issues` (`+87`) in current workspace state.

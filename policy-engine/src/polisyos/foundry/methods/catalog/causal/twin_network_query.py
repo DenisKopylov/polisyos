@@ -356,7 +356,7 @@ class TwinNetworkQuery:
 
     @staticmethod
     def pure_step(
-        state: TwinNetworkQueryData,
+        state: TwinNetworkQueryData | Mapping[str, Any],
         params: Mapping[str, Any],
     ) -> dict[str, Any]:
         payload = (

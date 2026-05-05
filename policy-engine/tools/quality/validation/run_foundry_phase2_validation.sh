@@ -149,34 +149,34 @@ run_benchmark() {
 }
 
 run_pytest_with_junit phase2_acceptance "$ACCEPTANCE_JUNIT" \
-  tests/foundry/methods/catalog/econometrics/test_iv.py::test_high_dimensional_post_selection_iv_assigns_orthogonal_tier \
-  tests/foundry/methods/catalog/econometrics/test_thresholds.py::test_state_dependent_threshold_runs_with_known_surface \
-  tests/foundry/test_foundry_v2_domains.py::test_foundry_v2_nonstationary_garch_dispatch \
-  tests/foundry/methods/catalog/causal/test_distributional_bounds.py::test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families \
-  tests/foundry/methods/catalog/distributional/test_mobility.py::TestTransitionMatrix::test_attrition_adjusted_ipcw_recovers_balanced_rows_and_persists_bounds \
-  tests/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py::test_ordinal_poverty_config_persists_report_and_summary \
-  tests/foundry/methods/catalog/network/test_peer_effect_decomposition.py::test_peer_effect_decomposition_identified_route \
-  tests/foundry/methods/catalog/network/test_analysis.py::TestStrategicNetworkFormation::test_event_history_route_is_used_when_available \
-  tests/foundry/methods/catalog/network/test_ergm.py::test_ergm_null_model_returns_diagnostics \
-  tests/foundry/methods/catalog/network/test_sbm.py::test_sbm_stratification_bridges_into_network_causal_data \
-  tests/foundry/methods/catalog/network/test_missingness.py::test_network_estimator_threads_missingness_assessment_into_result \
-  tests/foundry/methods/catalog/network/test_embedding_fidelity.py::test_embedding_fidelity_certificate_green_when_separator_is_recoverable \
-  tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_maup_certificate_with_candidate_partitions \
-  tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_status_success \
-  tests/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_hodge_diagnostics_attach_multiscale_profile
+  tests/unit/foundry/methods/catalog/econometrics/test_iv.py::test_high_dimensional_post_selection_iv_assigns_orthogonal_tier \
+  tests/unit/foundry/methods/catalog/econometrics/test_thresholds.py::test_state_dependent_threshold_runs_with_known_surface \
+  tests/unit/foundry/methods/test_foundry_v2_domains.py::test_foundry_v2_nonstationary_garch_dispatch \
+  tests/unit/foundry/methods/catalog/causal/test_distributional_bounds.py::test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families \
+  tests/unit/foundry/methods/catalog/distributional/test_mobility.py::TestTransitionMatrix::test_attrition_adjusted_ipcw_recovers_balanced_rows_and_persists_bounds \
+  tests/unit/scientist/nodes/builtins/simulate/test_run_distributional_analysis.py::test_ordinal_poverty_config_persists_report_and_summary \
+  tests/unit/foundry/methods/catalog/network/test_peer_effect_decomposition.py::test_peer_effect_decomposition_identified_route \
+  tests/unit/foundry/methods/catalog/network/test_analysis.py::TestStrategicNetworkFormation::test_event_history_route_is_used_when_available \
+  tests/unit/foundry/methods/catalog/network/test_ergm.py::test_ergm_null_model_returns_diagnostics \
+  tests/unit/foundry/methods/catalog/network/test_sbm.py::test_sbm_stratification_bridges_into_network_causal_data \
+  tests/unit/foundry/methods/catalog/network/test_missingness.py::test_network_estimator_threads_missingness_assessment_into_result \
+  tests/unit/foundry/methods/catalog/network/test_embedding_fidelity.py::test_embedding_fidelity_certificate_green_when_separator_is_recoverable \
+  tests/unit/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_maup_certificate_with_candidate_partitions \
+  tests/unit/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_status_success \
+  tests/unit/foundry/methods/catalog/causal/test_interference.py::test_spatial_interference_hodge_diagnostics_attach_multiscale_profile
 
 run_pytest_with_junit phase2_judges "$JUDGE_JUNIT" \
-  tests/foundry/validation/test_phase2_judge_stack.py
+  tests/unit/foundry/validation/test_phase2_judge_stack.py
 
 run_suite phase2_closure_runtime_support \
-  tests/foundry/validation/test_phase2_closure.py \
+  tests/unit/foundry/validation/test_phase2_closure.py \
   tests/tools/test_scientist_phase2_gate.py \
-  tests/scientist/search/test_phase_b_policy_runtime.py \
+  tests/unit/scientist/search/test_phase_b_policy_runtime.py \
   -k "phase2_closure or phase2_closure_report or phase2_benchmark_scope"
 
 run_suite phase2_runtime_apis \
-  tests/runtime/http/test_mobility_api.py \
-  tests/runtime/http/test_sae_spatial_route.py
+  tests/unit/runtime/http/test_mobility_api.py \
+  tests/unit/runtime/http/test_sae_spatial_route.py
 
 run_benchmark phase2_econometrics_frontier benchmarks/econometrics/phase2_frontier.py
 run_benchmark phase2_distributional_frontier benchmarks/distributional/phase2_frontier.py

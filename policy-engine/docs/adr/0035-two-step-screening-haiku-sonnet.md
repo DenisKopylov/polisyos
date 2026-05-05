@@ -4,6 +4,10 @@
 
 Proposed
 
+Status note (2026-05-02): superseded for code ownership by Data Forge; use
+`polisyos.data_forge.domains.academic.batch.article_extractor` and
+`polisyos.data_forge.domains.academic.batch.prompts`.
+
 ## Date
 
 2026-02-28

@@ -2,15 +2,15 @@ import { lazy, Suspense, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import type { ArtifactView } from "@/features/artifacts/domain/searchParams";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   asArray,
   asNumber,
   asRecord,
   asString,
   toDisplayLabel,
-} from "@/lib/parsing";
-import { formatNumber } from "@/lib/utils";
+} from "@/shared/lib/parsing";
+import { formatNumber } from "@/shared/lib/utils";
 import { Badge, JsonPreview } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 

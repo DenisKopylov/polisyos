@@ -29,7 +29,7 @@ and the linked tests below.
 | Additional margins  | `survey.demography.*` soft-constraint inputs      | Heuristic soft-margin fitting for auxiliary cross-tabs such as health or SES after exact demographic balancing                    |
 | Orchestration       | `simulation.demography.static_aging@1.0.0`        | Builds sparse candidate flows from origin-state priors, scales donor pools, materializes aged sample, and emits integerized draws |
 | Data access         | `polisyos.data_forge.read_api.ukraine`            | Runtime-safe loading of reconciled targets, transition priors, donor pools, and Foundry-ready state composition                   |
-| Compatibility shim  | `polisyos.ukraine_data.demography`                | Temporary bridge until the wider Data Forge migration is complete                                                                 |
+| Historical shim     | `polisyos.ukraine_data.demography`                | Removed in Phase 8; use `polisyos.data_forge.read_api.ukraine` for read APIs                                                       |
 
 ## Deterministic Contract
 
@@ -96,16 +96,16 @@ result = method.pure_step(state, {"mode": "deterministic"})
 ## Validation Anchors
 
 - exact accounting, entrants/exits, soft margins:
-  `tests/foundry/methods/catalog/survey/test_demographic_consistency.py`
+  `tests/unit/foundry/methods/catalog/survey/test_demographic_consistency.py`
 
 - deterministic/integerized aged sample materialization:
-  `tests/foundry/methods/catalog/simulation/test_demography.py`
+  `tests/unit/foundry/methods/catalog/simulation/test_demography.py`
 
 - read surface and compatibility shim:
-  `tests/ukraine_data/test_demography_artifacts.py`
+  `tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py`
 
 - sparse-flow performance gate:
-  `tests/foundry/benchmarks/test_demographic_consistency_perf.py`
+  `tests/unit/foundry/benchmarks/test_demographic_consistency_perf.py`
 
 ## Current Boundaries
 

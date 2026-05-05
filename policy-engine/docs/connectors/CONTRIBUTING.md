@@ -27,7 +27,7 @@ Related reference: [Fabric Connectors](../reference/fabric/connectors.md).
 ```bash
 uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run
 uv run polisyos-tools connectors check-contracts --check
-uv run polisyos-tools validation fabric-schema-governance --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```
 
 ## Source-Plan Contract
@@ -102,8 +102,8 @@ protocol methods such as `list_datasets()`, `get_dataset_schema()`,
 Run the connector lint checks:
 
 ```bash
-python tools/lint/lint_connectors.py
-python tools/lint/lint_connector_hardening.py
+python tools/quality/lint/lint_connectors.py
+python tools/quality/lint/lint_connector_hardening.py
 ```
 
 ## Register The Connector
@@ -140,8 +140,8 @@ Stable payload shapes should have a contract under
 Run the schema gates when a connector contract changes:
 
 ```bash
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ```
 
@@ -154,20 +154,20 @@ major version bump.
 At minimum:
 
 ```bash
-uv run pytest tests/fabric/connectors/test_registry.py -q
-uv run pytest tests/fabric/connectors/test_protocol_compliance.py -q
-uv run pytest tests/fabric/connectors/test_contract_system.py -q
-uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
+uv run pytest tests/unit/fabric/connectors/test_registry.py -q
+uv run pytest tests/unit/fabric/connectors/test_protocol_compliance.py -q
+uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
+uv run pytest tests/unit/fabric/connectors/sources/test_connector_family_expansion.py -q
 ```
 
-Add source-specific tests under `tests/fabric/connectors/sources/`. Live
+Add source-specific tests under `tests/unit/fabric/connectors/sources/`. Live
 upstream tests must be marked as integration and should have recorded fixtures
 or replay coverage so CI does not depend on external availability.
 
 For streaming or poison-row behavior, also cover:
 
 ```bash
-uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/unit/fabric/data_plane/test_quarantine.py tests/unit/fabric/data_plane/test_streaming_runtime.py -q
 ```
 
 ## Rollback

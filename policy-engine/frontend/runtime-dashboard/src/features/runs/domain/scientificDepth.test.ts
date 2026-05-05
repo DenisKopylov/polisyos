@@ -1,6 +1,6 @@
-import type { RunEvidenceContext } from "@/lib/domain/evidence";
-import type { GovernanceIssueView } from "@/lib/domain/governance";
-import type { DecisionCardViewModel } from "@/lib/domain/decision";
+import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 
 import {
   buildCohortTimeTravelerView,

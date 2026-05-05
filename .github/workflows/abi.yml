@@ -97,28 +97,31 @@ jobs:
           profile: minimal
 
       - name: Enforce import policy
-        run: uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+        run: uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
 
       - name: Enforce Foundry purity
-        run: uv run python tools/lint/lint_foundry.py --repo-root .
+        run: uv run python tools/quality/lint/lint_foundry.py --repo-root .
 
       - name: Check Scientist state reads
-        run: uv run python tools/diagnostics/check_state_reads.py
+        run: uv run python tools/quality/diagnostics/check_state_reads.py
 
       - name: Check Scientist node version bumps
-        run: uv run python tools/diagnostics/check_scientist_node_version_bump.py
+        run: uv run python tools/quality/diagnostics/check_scientist_node_version_bump.py
 
       - name: Check scholar imports
-        run: uv run python tools/lint/check_scholar_imports.py
+        run: uv run python tools/quality/lint/check_scholar_imports.py
 
       - name: Check connector contracts
-        run: uv run python tools/connectors/check_contracts.py --check
+        run: uv run polisyos-tools connectors check-contracts --check
 
       - name: Check schema snapshots
-        run: uv run --extra ml python tools/diagnostics/gen_schema.py --check
+        run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+
+      - name: Check Repository SOTA contract closeout
+        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only
 
       - name: Run fast unit suite
-        run: uv run pytest -m "not integration and not benchmark" --ignore=tests/runtime/http
+        run: uv run pytest -m "not integration and not benchmark" --ignore=tests/unit/runtime/http
 
   docs-quality:
     name: Fast PR / Docs quality
@@ -140,20 +143,24 @@ jobs:
 
       - name: Run path-aware docs drift gate
         if: github.event_name == 'pull_request'
-        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.pull_request.base.sha }}
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref "${BASE_REF}"
 
       - name: Run path-aware docs drift gate for push
         if: github.event_name == 'push'
-        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref ${{ github.event.before }}
+        env:
+          BASE_REF: ${{ github.event.before }}
+        run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref "${BASE_REF}"
 
-      - name: Check docs accuracy against repo reality
-        run: uv run python tools/validation/check_docs_accuracy.py --repo-root .
+      - name: Check Repository SOTA docs freshness baseline
+        run: uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks
 
       - name: Build docs in strict mode
         run: uv run python -m mkdocs build --strict
 
       - name: Check public-surface docstring quality
-        run: uv run python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85
+        run: uv run python tools/quality/validation/check_docstring_quality.py --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85
 
   abi-check:
     name: Fast PR / ABI drift
@@ -177,7 +184,7 @@ jobs:
           set -euo pipefail
           git diff --name-only "${BASE_SHA}" "${GITHUB_SHA}" > /tmp/changed-files.txt
           if rg -q \
-            '^(policy-engine/src/polisyos/ir/|policy-engine/src/polisyos/fabric/world/|policy-engine/src/polisyos/core/canon/|policy-engine/src/polisyos/core/artifacts/|policy-engine/schemas/|policy-engine/tools/diagnostics/gen_schema.py|policy-engine/tools/diagnostics/abi_diff.py|\\.github/workflows/abi.yml)' \
+            '^(policy-engine/src/polisyos/ir/|policy-engine/src/polisyos/fabric/world/|policy-engine/src/polisyos/core/canon/|policy-engine/src/polisyos/core/artifacts/|policy-engine/schemas/|policy-engine/tools/quality/diagnostics/gen_schema.py|policy-engine/tools/quality/diagnostics/abi_diff.py|\\.github/workflows/abi.yml)' \
             /tmp/changed-files.txt; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
@@ -192,7 +199,7 @@ jobs:
 
       - name: Generate current ABI snapshots
         if: steps.abi_scope.outputs.changed == 'true'
-        run: uv run --extra ml python tools/diagnostics/gen_schema.py --output-dir /tmp/current-schemas
+        run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current-schemas
 
       - name: Extract baseline snapshots from base branch
         if: steps.abi_scope.outputs.changed == 'true'
@@ -213,7 +220,7 @@ jobs:
         id: abi_diff
         run: |
           set +e
-          uv run python tools/diagnostics/abi_diff.py \
+          uv run python tools/quality/diagnostics/abi_diff.py \
             --baseline /tmp/baseline-schemas \
             --current /tmp/current-schemas \
             --output /tmp/abi-report.json \

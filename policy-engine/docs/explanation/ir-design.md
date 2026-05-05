@@ -3,7 +3,7 @@
 Related reference: [IR index](../reference/ir/index.md), [IR schema catalog](../reference/ir/schema-catalog.md), [IR interoperability](../reference/ir/interoperability.md).
 Related contracts: [E1.3 norms/citations/linker](../contracts/E1_3_IR_NORMS_CITATIONS_LINKER.md), [E2.11 transport and streaming](../contracts/E2_11_IR_TRANSPORT_STREAMING_V1_0.md), [TRINITY](../contracts/TRINITY.md).
 Related ADRs: [ADR-0104](../adr/0104-ir-canonical-cas-policy.md), [ADR-0105](../adr/0105-trinity-linking-validation-policy.md), [ADR-0106](../adr/0106-ir-shared-validation-and-id-policy.md), [ADR-0107](../adr/0107-ir-analytics-normalization-and-schema-compatibility.md), [ADR-0108](../adr/0108-ir-schema-catalog-and-reflection.md), [ADR-0109](../adr/0109-ir-transport-and-interoperability-bridges.md).
-Evidence: `tests/ir/test_schema_catalog.py`, `tests/contract/test_ir_migrations.py`, `tests/ir/test_interoperability_bridges.py`, `tools/diagnostics/generate_ir_reference_catalog.py --check`.
+Evidence: `tests/unit/ir/test_schema_catalog.py`, `tests/contract/test_ir_migrations.py`, `tests/unit/ir/test_interoperability_bridges.py`, `tools/quality/diagnostics/generate_ir_reference_catalog.py --check`.
 
 IR exists so the rest of the platform can exchange durable meaning without
 sharing implementation details. It is the compatibility and reflection layer,

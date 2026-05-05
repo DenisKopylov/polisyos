@@ -1,0 +1,146 @@
+name: Design Wave 1 Evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/design-wave1-evidence.yml"
+      - "docs/brand/**"
+      - "docs/compliance/**"
+      - "docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md"
+      - "frontend/runtime-dashboard/**"
+      - "schemas/runtime_api_v1.openapi.json"
+      - "src/polisyos/runtime/http/**"
+      - "tools/design/**"
+      - "tools/ops/runtime/**"
+  push:
+    branches: ["main", "master"]
+    paths:
+      - ".github/workflows/design-wave1-evidence.yml"
+      - "docs/brand/**"
+      - "docs/compliance/**"
+      - "docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md"
+      - "frontend/runtime-dashboard/**"
+      - "schemas/runtime_api_v1.openapi.json"
+      - "src/polisyos/runtime/http/**"
+      - "tools/design/**"
+      - "tools/ops/runtime/**"
+
+jobs:
+  evidence:
+    name: Publish Wave 1 evidence bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/runtime-dashboard/package-lock.json
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Sync Python dependencies
+        run: uv sync --frozen --extra docs --extra lint --extra test --extra runtime --extra ml
+
+      - name: Install frontend dependencies
+        working-directory: frontend/runtime-dashboard
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend/runtime-dashboard
+        run: npm run lint
+
+      - name: Typecheck frontend
+        working-directory: frontend/runtime-dashboard
+        run: npm run typecheck
+
+      - name: Verify glyph vocabulary
+        working-directory: frontend/runtime-dashboard
+        run: npm run test:glyph-vocabulary
+
+      - name: Run accessibility suite
+        working-directory: frontend/runtime-dashboard
+        run: npm run test:a11y
+
+      - name: Run Storybook tests
+        working-directory: frontend/runtime-dashboard
+        run: npm run test:storybook
+
+      - name: Build Storybook archive
+        working-directory: frontend/runtime-dashboard
+        run: npm run build-storybook
+
+      - name: Verify Runtime API contract drift
+        run: uv run --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+
+      - name: Verify generated frontend API types
+        working-directory: frontend/runtime-dashboard
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/types.ts
+
+      - name: Write evidence manifest
+        run: |
+          cat > wave1-evidence.json <<EOF
+          {
+            "git_sha": "${GITHUB_SHA}",
+            "github_run_id": "${GITHUB_RUN_ID}",
+            "github_run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "storybook_artifact_name": "wave1-storybook-static",
+            "playwright_report_artifact_name": "wave1-playwright-report",
+            "visual_report_artifact_name": "wave1-visual-report",
+            "a11y_suite_status": "passed",
+            "openapi_sync_status": "passed",
+            "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
+      - name: Upload evidence manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave1-evidence-manifest
+          path: wave1-evidence.json
+          if-no-files-found: error
+
+      - name: Upload Storybook static archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave1-storybook-static
+          path: _build/frontend/runtime-dashboard/storybook-static
+          if-no-files-found: error
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave1-playwright-report
+          path: _build/frontend/runtime-dashboard/playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload visual report
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave1-visual-report
+          path: |
+            _build/frontend/runtime-dashboard/test-results
+            _build/frontend/runtime-dashboard/playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload contrast artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave1-contrast-artifact
+          path: docs/compliance/A11Y_CONTRAST.md
+          if-no-files-found: error

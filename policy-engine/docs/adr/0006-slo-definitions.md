@@ -28,7 +28,7 @@
 - simulation NaN rate
 - connector error rate
 
-Добавлен Grafana dashboard: `ops/grafana/dashboards/slo-overview.json`.
+Добавлен Grafana dashboard: `ops/observability/grafana/dashboards/slo-overview.json`.
 
 ## Targets
 

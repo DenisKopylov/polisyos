@@ -2,7 +2,10 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
+const buildRoot = path.resolve(__dirname, "../../_build/frontend/runtime-dashboard");
+
 export default defineConfig({
+  cacheDir: path.resolve(__dirname, "../../_cache/frontend/runtime-dashboard/vitest"),
   plugins: [react()],
   resolve: {
     alias: {
@@ -19,10 +22,12 @@ export default defineConfig({
       "e2e/**",
       "node_modules/**",
       "dist/**",
+      "../../_build/**",
       "src/test/a11y/**/*.spec.ts",
     ],
     coverage: {
       provider: "v8",
+      reportsDirectory: path.resolve(buildRoot, "coverage"),
       reporter: ["text", "html", "json-summary", "lcov"],
       include: [
         "src/api/hooks/**/*.{ts,tsx}",

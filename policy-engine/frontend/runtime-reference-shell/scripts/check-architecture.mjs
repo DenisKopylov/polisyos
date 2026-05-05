@@ -7,7 +7,6 @@ const allowedFiles = new Set([
   "app.js",
   "eslint.config.mjs",
   "index.html",
-  "package-lock.json",
   "package.json",
   "scripts/check-architecture.mjs",
   "styles.css",

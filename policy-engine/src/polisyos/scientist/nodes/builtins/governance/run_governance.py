@@ -49,10 +49,10 @@ from polisyos.scientist.claims.validators import (
     validate_state_claim_projection,
 )
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
 )
@@ -358,9 +358,7 @@ class RunGovernanceNode:
             claims_ref = persist_claim_ledger(ctx.store, claim_ledger)
             new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
             report = report.model_copy(
-                update={
-                    "links": report.links.model_copy(update={"claims_ref": claims_ref})
-                }
+                update={"links": report.links.model_copy(update={"claims_ref": claims_ref})}
             )
         report_ref_payload = ctx.store.put_json(
             report,

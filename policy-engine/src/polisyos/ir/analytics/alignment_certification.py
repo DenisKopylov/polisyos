@@ -15,9 +15,9 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.datasets.knowledge.proxy_resolver import compose_confidence_chain
-from polisyos.datasets.knowledge.variable_alignment import (
+from polisyos.data_forge.read_api.catalog import (
     VariableAlignment,
+    compose_confidence_chain,
     default_seed_alignments_path,
     load_seed_alignments,
     score_variable_pair,

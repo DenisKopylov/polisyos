@@ -22,14 +22,13 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
-    from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
-    from polisyos.academic.knowledge.types import (
+    from polisyos.data_forge.read_api.academic import (
         CausalClaimResult,
         ParameterPrior,
+        ScholarKnowledgeGraph,
         WorkSearchResult,
     )
-    from polisyos.datasets.knowledge.search import DatasetCatalogGraph
-    from polisyos.datasets.knowledge.types import DatasetSearchResult
+    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph, DatasetSearchResult
     from polisyos.lex.knowledge.search import LegalKnowledgeGraph
     from polisyos.lex.knowledge.types import (
         LegalDocVersionResult,
@@ -639,9 +638,7 @@ class KnowledgeToolkit:
         ]
 
         for event in bundle.fetch_safety_events[:8]:
-            lines.append(
-                f"- Safety warning [{event.severity}/{event.event_type}]: {event.message}"
-            )
+            lines.append(f"- Safety warning [{event.severity}/{event.event_type}]: {event.message}")
 
         for support in bundle.claim_supports[:max_claims]:
             lines.append(f"- Claim: {support.claim_text}")

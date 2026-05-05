@@ -49,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
     command = [
         sys.executable,
-        "tools/workspace/doctor.py",
+        "tools/devx/workspace/doctor.py",
     ]
     for surface in surfaces:
         command.extend(["--surface", surface])
@@ -61,7 +61,12 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
     commands = [
         CommandSpec(
             label="verify backend fast gate",
-            argv=(sys.executable, "tools/workspace/verify.py", "--backend-only", "--skip-doctor"),
+            argv=(
+                sys.executable,
+                "tools/devx/workspace/verify.py",
+                "--backend-only",
+                "--skip-doctor",
+            ),
             cwd=PRODUCT_ROOT,
         ),
     ]
@@ -70,7 +75,7 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
         commands.append(
             CommandSpec(
                 label="pytest runtime/http",
-                argv=(*uv, "run", "pytest", "tests/runtime/http"),
+                argv=(*uv, "run", "pytest", "tests/unit/runtime/http"),
                 cwd=PRODUCT_ROOT,
             )
         )
@@ -86,7 +91,7 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
                         "--extra",
                         "docs",
                         "python",
-                        "tools/validation/check_docs_accuracy.py",
+                        "tools/quality/validation/check_docs_accuracy.py",
                         "--repo-root",
                         ".",
                     ),
@@ -115,11 +120,11 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
                         "--extra",
                         "docs",
                         "python",
-                        "tools/validation/check_docstring_quality.py",
+                        "tools/quality/validation/check_docstring_quality.py",
                         "--repo-root",
                         ".",
                         "--allowlist",
-                        "tools/validation/docstring_quality_allowlist.txt",
+                        "tools/quality/validation/docstring_quality_allowlist.txt",
                         "--coverage-scope",
                         "public-surface",
                         "--minimum-coverage",

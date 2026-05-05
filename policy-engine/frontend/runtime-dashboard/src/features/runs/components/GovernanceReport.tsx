@@ -1,11 +1,11 @@
 import type { GovernanceDebugPayload } from "@/api/validators";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatNumber } from "@/shared/lib/utils";
 import {
   normalizeGovernanceIssues,
   summarizeGovernanceIssues,
   type GovernanceIssueSeverity,
-} from "@/lib/domain/governance";
+} from "@/shared/lib/domain/governance";
 import { Badge, JsonPreview } from "@/shared/ui";
 
 function severityKind(severity: GovernanceIssueSeverity) {

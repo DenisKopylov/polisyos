@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

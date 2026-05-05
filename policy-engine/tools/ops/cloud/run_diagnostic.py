@@ -7,11 +7,11 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.runner import run_command
+from tools.lib.runner import run_command
 
 
 def main(argv: Sequence[str] | None = None) -> int:

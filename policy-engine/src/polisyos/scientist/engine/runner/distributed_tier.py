@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.executor import _should_cache
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
 from polisyos.scientist.engine.protocol import NodeOutcome
@@ -18,7 +19,6 @@ from polisyos.scientist.engine.runner.serialization import (
     serialize_state,
 )
 from polisyos.scientist.engine.runner.state_merge import merge_tier_states
-from polisyos.scientist.error_semantics import emit_degraded_path
 
 if False:  # pragma: no cover
     pass

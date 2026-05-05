@@ -1,7 +1,7 @@
 import createClient from "openapi-fetch";
 
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
-import { API_BASE_URL } from "../lib/constants";
+import { API_BASE_URL } from "@/shared/lib/constants";
 import { emitRuntimeApiEvent } from "./runtimeApiEvents";
 import type { paths } from "./types";
 

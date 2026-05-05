@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.academic.knowledge.skg_query import SKGQuery
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.analytics.cross_graph import (
     EvidenceSourceKind,
     EvidenceSourceState,
@@ -18,7 +18,7 @@ from polisyos.scientist.discovery.priors import (
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
 )
-from polisyos.scientist.evidence_sources import (
+from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     update_source_status,
 )

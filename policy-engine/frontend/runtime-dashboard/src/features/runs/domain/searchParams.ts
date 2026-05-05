@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSearchHref,
   parseSearchParamsWithSchema,
-} from "@/lib/searchParams";
+} from "@/shared/lib/searchParams";
 
 import type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
 

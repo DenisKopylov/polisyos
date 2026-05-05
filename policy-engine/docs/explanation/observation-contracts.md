@@ -2,7 +2,7 @@
 
 Related reference: [IR observation](../reference/ir/observation.md), [Fabric quality](../reference/fabric/quality.md), [Scientist causal validity](../reference/scientist/causal-validity.md).
 Related ADRs: [ADR-0107](../adr/0107-ir-analytics-normalization-and-schema-compatibility.md), [ADR-0110](../adr/0110-ir-frontier-governance-and-causal-contracts.md).
-Evidence: `tests/ir/observation/test_contracts.py`, `tests/ir/observation/test_measurement.py`, `tests/ir/observation/test_causal_readiness.py`.
+Evidence: `tests/unit/ir/observation/test_contracts.py`, `tests/unit/ir/observation/test_measurement.py`, `tests/unit/ir/observation/test_causal_readiness.py`.
 
 Observation contracts sit between raw evidence and causal or simulation methods.
 They answer a stricter question than "did we load data?": what is this

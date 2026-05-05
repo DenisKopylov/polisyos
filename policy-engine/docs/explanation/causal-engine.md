@@ -3,7 +3,7 @@
 Related reference: [Foundry compile and execute](../reference/foundry/compile-execute.md), [Foundry calibration](../reference/foundry/calibration.md), [Scientist workflows](../reference/scientist/workflows.md), [Scientist causal](../reference/scientist/causal.md), [Scientist causal validity](../reference/scientist/causal-validity.md).
 Related contracts: [E1.5 Foundry pure compute split compilers](../contracts/E1_5_FOUNDRY_PURE_COMPUTE_SPLIT_COMPILERS.md), [E1.6 Scientist engine protocol](../contracts/E1_6_SCIENTIST_ENGINE_SKELETON_NODE_PROTOCOL.md).
 Related ADRs: [ADR-0018](../adr/0018-causal-estimator-protocol.md), [ADR-0027](../adr/0027-dowhy-primary-graph-identify-estimate.md), [ADR-0038](../adr/0038-law-t-transportability-required.md).
-Evidence: `tests/foundry/test_quickstart.py`, `tests/foundry/test_compile_determinism.py`, `tests/foundry/test_execute_input_bindings.py`, `tests/scientist/nodes/builtins/causal/test_run_causal_ensemble.py`, [benchmark regression triage](../runbooks/benchmark-regression-triage.md).
+Evidence: `tests/unit/foundry/facade/test_quickstart.py`, `tests/unit/foundry/compile/test_compile_determinism.py`, `tests/unit/foundry/runtime/test_execute_input_bindings.py`, `tests/unit/scientist/nodes/builtins/causal/test_run_causal_ensemble.py`, [benchmark regression triage](../runbooks/benchmark-regression-triage.md).
 
 The causal engine is a two-layer system:
 

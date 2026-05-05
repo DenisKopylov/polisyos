@@ -9,7 +9,7 @@ import sys
 from collections.abc import Sequence
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -21,6 +21,7 @@ if str(SRC_ROOT) not in sys.path:
 from polisyos.fabric.processing_guarantees import (  # noqa: E402
     ProcessingGuarantee,
 )
+
 from tools.quality.validation import fabric_source_contracts  # noqa: E402
 
 REPORT_SCHEMA_VERSION = "fabric.processing_guarantees_report.v1"

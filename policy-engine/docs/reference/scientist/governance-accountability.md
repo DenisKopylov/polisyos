@@ -3,7 +3,7 @@
 Related reference: [Calibration Governance](calibration-governance.md), [Governance Passes](governance-passes.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/governance/{accountability.py,calibration_validation.py}`, `src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py`, and `tests/scientist/governance/{test_accountability.py,test_calibration_validation.py}`
+Source of truth: `src/polisyos/scientist/governance/{accountability.py,calibration_validation.py}`, `src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py`, and `tests/unit/scientist/governance/{test_accountability.py,test_calibration_validation.py}`
 
 `polisyos.scientist.governance.accountability` is the WS-3B audit surface that
 turns calibration, fairness, threshold policy, and escalation logic into one
@@ -89,8 +89,8 @@ statistically unsupported calibration claims.
 
 Primary regression coverage lives in:
 
-- `tests/scientist/governance/test_accountability.py`
-- `tests/scientist/governance/test_calibration_validation.py`
-- `tests/scientist/test_decision_packet_node_v3.py`
-- `tests/scientist/nodes/test_build_policy_output_bundle.py`
-- `tests/ukraine_data/test_builders.py`
+- `tests/unit/scientist/governance/test_accountability.py`
+- `tests/unit/scientist/governance/test_calibration_validation.py`
+- `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`
+- `tests/unit/scientist/nodes/test_build_policy_output_bundle.py`
+- `tests/unit/data_forge/domains/ukraine/test_builders.py`

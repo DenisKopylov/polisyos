@@ -1,0 +1,31 @@
+[commit_policy]
+version = 1
+owner = "team-release"
+mode = "fail_closed"
+branch_prefixes = [
+  "codex/",
+  "feature/",
+  "fix/",
+  "release/",
+  "hotfix/",
+]
+required_pr_sections = [
+  "Summary",
+  "Tests",
+]
+recommended_commit_scopes = [
+  "architecture",
+  "data-forge",
+  "docs",
+  "frontend",
+  "ops",
+  "runtime",
+  "tests",
+  "tools",
+]
+blocked_commit_markers = [
+  "WIP",
+  "fix later",
+  "temporary",
+]
+evidence_policy = "Structural moves, generated artifacts, security baselines, and release changes must cite the relevant plan note, closeout report, or fail-closed gate output."

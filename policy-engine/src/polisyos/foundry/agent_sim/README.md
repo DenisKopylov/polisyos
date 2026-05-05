@@ -4,7 +4,11 @@
 dynamics, population turnover, graph spillovers, distribution-aware metrics,
 and training-heavy policy simulation workflows.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-03
+
+Truth-centric synthetic world generation now lives in
+`polisyos.foundry.agent_sim.world`. The former `polisyos.synthetic_world` root
+is a wrapper-only compatibility facade until 2026-10-01.
 
 ## Purpose
 
@@ -30,6 +34,10 @@ training helpers, and contract-aware wiring adapters.
 - [wiring/contracts.py](wiring/contracts.py) and
   [wiring/executors.py](wiring/executors.py) for contract-aware runtime
   adapters.
+
+- [world/](world/) for Phase 0 seed worlds, truth APIs, DGP templates,
+  observation operators, target builders, and synthetic-world evaluation
+  hooks.
 
 ## Public Entrypoints
 
@@ -73,13 +81,13 @@ PY
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/agent_sim/test_executor.py \
-  tests/foundry/agent_sim/test_graph_mechanisms.py \
-  tests/foundry/agent_sim/test_wiring.py -q
+uv run pytest tests/unit/foundry/agent_sim/test_executor.py \
+  tests/unit/foundry/agent_sim/test_graph_mechanisms.py \
+  tests/unit/foundry/agent_sim/test_wiring.py -q
 
-uv run pytest tests/foundry/agent_sim/test_jit_compatibility.py \
-  tests/foundry/agent_sim/test_actor_critic_numerics.py \
-  tests/foundry/agent_sim/test_training.py -q
+uv run pytest tests/unit/foundry/agent_sim/test_jit_compatibility.py \
+  tests/unit/foundry/agent_sim/test_actor_critic_numerics.py \
+  tests/unit/foundry/agent_sim/test_training.py -q
 ```
 
 ## Reference Docs

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Benchmark authority](benchmark-autho
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/evals/challenge_factory.py`, `src/polisyos/scientist/evals/sentinels.py`, `src/polisyos/scientist/evals/red_team.py`, `src/polisyos/scientist/evals/rotation.py`, `src/polisyos/scientist/evals/challenge_packs.py`, `src/polisyos/scientist/evals/authority.py`, `tests/scientist/evals/test_challenge_factory.py`, `tests/scientist/evals/test_sentinels.py`, `tests/scientist/evals/test_red_team.py`, `tests/scientist/evals/test_rotation.py`, and `tools/ci/check_scientist_best_in_class_phase2_5.py`.
+Source of truth: `src/polisyos/scientist/evals/challenge_factory.py`, `src/polisyos/scientist/evals/sentinels.py`, `src/polisyos/scientist/evals/red_team.py`, `src/polisyos/scientist/evals/rotation.py`, `src/polisyos/scientist/evals/challenge_packs.py`, `src/polisyos/scientist/evals/authority.py`, `tests/unit/scientist/evals/test_challenge_factory.py`, `tests/unit/scientist/evals/test_sentinels.py`, `tests/unit/scientist/evals/test_red_team.py`, `tests/unit/scientist/evals/test_rotation.py`, and `tools/ci/check_scientist_best_in_class_phase2_5.py`.
 
 Phase 2.5 turns observed failures and near misses into controlled challenge
 candidate packs. It is a shadow/read-only factory by default: generation is not
@@ -102,6 +102,6 @@ rotating lineage exists, or if the rotating lineage is expired or retired.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/evals/test_challenge_factory.py tests/scientist/evals/test_sentinels.py tests/scientist/evals/test_red_team.py tests/scientist/evals/test_rotation.py -q
+uv run pytest tests/unit/scientist/evals/test_challenge_factory.py tests/unit/scientist/evals/test_sentinels.py tests/unit/scientist/evals/test_red_team.py tests/unit/scientist/evals/test_rotation.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_5.py --repo-root . --output-format json --require-passing
 ```

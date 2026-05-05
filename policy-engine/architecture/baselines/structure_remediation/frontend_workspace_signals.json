@@ -1,0 +1,39 @@
+{
+  "build_outputs": [],
+  "lockfiles": [
+    {
+      "name": "pnpm-lock.yaml",
+      "path": "policy-engine/pnpm-lock.yaml"
+    },
+    {
+      "name": "pnpm-workspace.yaml",
+      "path": "policy-engine/pnpm-workspace.yaml"
+    }
+  ],
+  "source_duplicate_candidates": [
+    {
+      "both_exist": false,
+      "pair": "lib_vs_shared_lib",
+      "paths": [
+        "frontend/runtime-dashboard/src/lib",
+        "frontend/runtime-dashboard/src/shared/lib"
+      ]
+    },
+    {
+      "both_exist": false,
+      "pair": "i18n_vs_shared_i18n",
+      "paths": [
+        "frontend/runtime-dashboard/src/i18n",
+        "frontend/runtime-dashboard/src/shared/i18n"
+      ]
+    },
+    {
+      "both_exist": true,
+      "pair": "app_state_vs_app_providers",
+      "paths": [
+        "frontend/runtime-dashboard/src/app/state",
+        "frontend/runtime-dashboard/src/app/providers"
+      ]
+    }
+  ]
+}

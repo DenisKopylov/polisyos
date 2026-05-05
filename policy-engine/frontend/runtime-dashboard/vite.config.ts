@@ -12,11 +12,14 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN?.trim();
 const sentryOrg = process.env.SENTRY_ORG?.trim();
 const sentryProject = process.env.SENTRY_PROJECT?.trim();
 const sentryRelease = process.env.VITE_SENTRY_RELEASE?.trim();
+const buildRoot = path.resolve(__dirname, "../../_build/frontend/runtime-dashboard");
+const distDir = path.resolve(buildRoot, "dist");
 const shouldUploadSourcemaps = Boolean(
   sentryAuthToken && sentryOrg && sentryProject && sentryRelease,
 );
 
 export default defineConfig({
+  cacheDir: path.resolve(__dirname, "../../_cache/frontend/runtime-dashboard/vite"),
   plugins: [
     react(),
     tailwindcss(),
@@ -35,7 +38,7 @@ export default defineConfig({
     }),
     analyzeBundle
       ? visualizer({
-          filename: "dist/bundle-analysis.html",
+          filename: path.resolve(distDir, "bundle-analysis.html"),
           gzipSize: true,
           open: false,
         })
@@ -49,7 +52,7 @@ export default defineConfig({
             name: sentryRelease,
           },
           sourcemaps: {
-            assets: "./dist/**",
+            assets: `${distDir}/**`,
           },
         })
       : null,
@@ -60,7 +63,9 @@ export default defineConfig({
     },
   },
   build: {
+    emptyOutDir: true,
     manifest: true,
+    outDir: distDir,
     sourcemap: "hidden",
     rollupOptions: {
       output: {

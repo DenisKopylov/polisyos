@@ -6,9 +6,23 @@ objectives:
     sli: histogram_quantile(0.95, rate(data_forge_stage_duration_seconds_bucket{pipeline="academic"}[5m]))
     threshold: "< 3600"
     window: 28d
+    owner: team-data-forge
     runbook: docs/runbooks/benchmark-regression-triage.md
   - name: llm_cache_hit_rate
     sli: rate(data_forge_llm_cache_hits_total[5m]) / rate(data_forge_llm_requests_total[5m])
     threshold: "> 0.6"
     window: 7d
+    owner: team-data-forge
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: schema_evolution_violation_rate
+    sli: rate(data_forge_schema_evolution_violations_total[1h])
+    threshold: "= 0"
+    window: 7d
+    owner: team-data-forge
+    runbook: docs/runbooks/broken-contract-generation.md
+  - name: domain_drift_violation_rate
+    sli: rate(data_forge_domain_drift_violations_total[1h])
+    threshold: "= 0"
+    window: 7d
+    owner: team-data-forge
     runbook: docs/runbooks/benchmark-regression-triage.md

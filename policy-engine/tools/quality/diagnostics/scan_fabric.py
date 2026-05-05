@@ -16,13 +16,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.fs import atomic_write_json, normalize_filesystem_path
-from tools._lib.sql import validate_sql_identifier
+from tools.lib.fs import atomic_write_json, normalize_filesystem_path
+from tools.lib.sql import validate_sql_identifier
 
 try:
     import duckdb
@@ -255,13 +255,13 @@ def main() -> int:
                 [
                     "Examples:",
                     "    # Scan curated directory",
-                    "    python tools/diagnostics/scan_fabric.py data/curated/",
+                    "    python tools/quality/diagnostics/scan_fabric.py data/curated/",
                     "",
                     "    # Output to specific file",
-                    "    python tools/diagnostics/scan_fabric.py data/curated/ -o contracts.json",
+                    "    python tools/quality/diagnostics/scan_fabric.py data/curated/ -o contracts.json",
                     "",
                     "    # Scan with verbose output",
-                    "    python tools/diagnostics/scan_fabric.py data/curated/ -v",
+                    "    python tools/quality/diagnostics/scan_fabric.py data/curated/ -v",
                 ]
             )
         ),
@@ -317,7 +317,7 @@ def main() -> int:
     output = {
         "schema_version": "1.0",
         "generated_at": datetime.now(UTC).isoformat(),
-        "generated_by": "tools/diagnostics/scan_fabric.py",
+        "generated_by": "tools/quality/diagnostics/scan_fabric.py",
         "contracts": all_contracts,
     }
 

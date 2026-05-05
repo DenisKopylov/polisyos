@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -36,7 +36,7 @@ WHERE_TO_START_PATTERNS = (
     "## Где начать",
 )
 WORKFLOW_BASELINE_REQUIREMENTS: dict[str, tuple[tuple[str, str, str], ...]] = {
-    ".github/workflows/arch.yml": (
+    "ops/ci/templates/workflows/arch.yml": (
         (
             "python_baseline",
             'python-version: "3.14"',
@@ -59,13 +59,13 @@ WORKFLOW_BASELINE_REQUIREMENTS: dict[str, tuple[tuple[str, str, str], ...]] = {
         ),
         (
             "uv_guardrails",
-            "uv run python tools/architecture/guardrails.py check",
+            "uv run polisyos-tools architecture guardrails check",
             "Architecture workflow must run the architecture guardrails inside the synced `uv` environment.",
         ),
     ),
 }
 WORKFLOW_BASELINE_FORBIDDEN: dict[str, tuple[tuple[str, str, str], ...]] = {
-    ".github/workflows/arch.yml": (
+    "ops/ci/templates/workflows/arch.yml": (
         (
             "legacy_pip_install",
             'pip install -e ".[dev,test,causal-discovery]"',
@@ -1122,7 +1122,9 @@ def run_check(args: argparse.Namespace) -> int:
         )
     elif args.deep_import_baseline.read_text(encoding="utf-8") != expected_deep_import_baseline:
         violations.append(
-            "Deep-import baseline drift detected. Re-run `tools/architecture/guardrails.py sync` only when intentionally accepting the new baseline.\n"
+            "Deep-import baseline drift detected. Re-run "
+            "`uv run polisyos-tools architecture guardrails sync` only when intentionally "
+            "accepting the new baseline.\n"
             + _diff(
                 str(args.deep_import_baseline.relative_to(REPO_ROOT)),
                 expected_deep_import_baseline,

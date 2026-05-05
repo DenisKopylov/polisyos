@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     repo_root = repo_root_from(__file__)
@@ -20,7 +20,7 @@ if __package__ in {None, ""}:
 
 import duckdb
 
-from tools._lib.fs import atomic_replace_path, atomic_write_json, normalize_filesystem_path
+from tools.lib.fs import atomic_replace_path, atomic_write_json, normalize_filesystem_path
 
 DEFAULT_ORIG_ROOT = Path("/data/output/policyos_fullprod_1000t_20260324")
 DEFAULT_OUTPUT_ROOT = Path("/data/output/policyos_fullprod_1000t_20260324_canonical_remap")
@@ -299,7 +299,7 @@ def _step_resolve_remaining(con: duckdb.DuckDBPyConnection) -> dict[str, object]
     print("STEP 4: Re-resolve remaining unapproved variables")
     print("=" * 60)
 
-    from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver
+    from polisyos.data_forge.read_api.academic import CanonicalVariableResolver
 
     resolver = CanonicalVariableResolver.from_connection(con)
     print("  Resolver approved names: %d" % len(resolver._approved_set))
@@ -391,8 +391,7 @@ def _step_run_edge_synthesize(paths: RunPaths) -> dict[str, object]:
     print("STEP 5: Re-run edge_synthesize")
     print("=" * 60)
 
-    from polisyos.academic.batch.config import AcademicBatchConfig
-    from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
+    from polisyos.data_forge.read_api.academic import AcademicBatchConfig, run_edge_synthesize
 
     config = AcademicBatchConfig(
         snapshot_root=paths.output_root,

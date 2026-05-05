@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Copy, ExternalLink, X } from "lucide-react";
 
 import { useMaybeTrustView } from "@/app/providers/useTrustView";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { DisputeBadge } from "./DisputeBadge";
 import { HashChip } from "./HashChip";

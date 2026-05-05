@@ -1,4 +1,4 @@
-# tools/release
+# tools/ops/release
 
 Release-gate helpers for version checks, release notes, artifact sizing, canary
 execution, vulnerability report evaluation, and snapshot staging.

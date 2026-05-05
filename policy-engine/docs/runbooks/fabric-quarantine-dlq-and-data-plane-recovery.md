@@ -13,7 +13,7 @@ Related runbooks: [Cache Rebuild Storm](cache-rebuild-storm.md),
 
 Owner: `@fabric-owners`
 Last tested: `2026-04-17` against current quarantine, streaming, record/replay, and lineage regression coverage.
-Evidence path: `docs/reference/fabric/data-plane.md`; `tests/fabric/data_plane/test_quarantine.py`; `tests/fabric/data_plane/test_streaming_runtime.py`; `tests/fabric/data_plane/test_record_replay.py`
+Evidence path: `docs/reference/fabric/data-plane.md`; `tests/unit/fabric/data_plane/test_quarantine.py`; `tests/unit/fabric/data_plane/test_streaming_runtime.py`; `tests/unit/fabric/data_plane/test_record_replay.py`
 Rollback path: stop destructive reprocessing, preserve quarantine/checkpoint artifacts, roll back the connector/profile/schema change if it caused the incident, and replay only from retained CAS-backed inputs.
 
 Freshness: 2026-04-17.
@@ -68,10 +68,10 @@ Record these details before reprocessing or cleanup:
 
 ```bash
 cd policy-engine
-uv run pytest tests/fabric/data_plane/test_quarantine.py -q
-uv run pytest tests/fabric/data_plane/test_streaming_runtime.py -q
-uv run pytest tests/fabric/data_plane/test_record_replay.py -q
-uv run pytest tests/fabric/test_lineage.py tests/fabric/test_quality_indicators.py -q
+uv run pytest tests/unit/fabric/data_plane/test_quarantine.py -q
+uv run pytest tests/unit/fabric/data_plane/test_streaming_runtime.py -q
+uv run pytest tests/unit/fabric/data_plane/test_record_replay.py -q
+uv run pytest tests/unit/fabric/test_lineage.py tests/unit/fabric/test_quality_indicators.py -q
 ```
 
 1. If the incident followed a schema or contract change, run the schema
@@ -79,8 +79,8 @@ uv run pytest tests/fabric/test_lineage.py tests/fabric/test_quality_indicators.
 
 ```bash
 cd policy-engine
-uv run python tools/connectors/check_contracts.py --check
-uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json
+uv run polisyos-tools connectors check-contracts --check
+uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```
 
 ## Quarantine / DLQ Triage

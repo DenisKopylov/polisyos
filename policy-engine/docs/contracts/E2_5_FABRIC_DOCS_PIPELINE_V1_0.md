@@ -4,7 +4,7 @@
 **Scope**:
 
 - new package: `policy-engine/src/polisyos/fabric/docs/*`
-- new tests: `policy-engine/tests/fabric/test_docs_pipeline_phase12.py`
+- new tests: `policy-engine/tests/unit/fabric/test_docs_pipeline_phase12.py`
 - (no IR contract changes required for MVP): re-use `policy-engine/src/polisyos/ir/world/*` + `policy-engine/src/polisyos/ir/citations.py`
 
 This phase implements the **data-plane** “Documents pipeline” on top of the already-existing:
@@ -716,7 +716,7 @@ PDF support should not block Phase 12 completion.
 
 ## 13) Tests (mandatory deliverables)
 
-Create `policy-engine/tests/fabric/test_docs_pipeline_phase12.py`.
+Create `policy-engine/tests/unit/fabric/test_docs_pipeline_phase12.py`.
 
 ### 13.1 Unit: determinism & invariants
 
@@ -774,6 +774,6 @@ Run normalize/structure/chunk twice with identical options:
 | Link type           | Current anchor                                                                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 citation/world ID determinism and Phase 4 observation/interoperability bridge                                                  |
-| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_docs_pipeline.py`, `tests/fabric/test_world_materialization.py`              |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/unit/fabric/test_docs_pipeline.py`, `tests/unit/fabric/test_world_materialization.py`              |
 | Schema snapshots    | `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                       |

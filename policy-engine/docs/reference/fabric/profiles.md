@@ -4,8 +4,8 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/connectors/profiles/**`, `tests/fabric/connectors/profiles/test_source_profiles.py`, `tests/fabric/test_retrieval_service_catalog.py`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/fabric/connectors/profiles/**`, `tests/unit/fabric/connectors/profiles/test_source_profiles.py`, `tests/unit/fabric/test_retrieval_service_catalog.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 `SourceProfile` describes a source endpoint in planner-friendly terms, while
@@ -76,10 +76,10 @@ convention.
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/connectors/profiles/test_source_profiles.py -q
-uv run pytest tests/fabric/connectors/bindings/test_binding_profiles.py -q
-uv run pytest tests/fabric/connectors/sources/test_connector_family_expansion.py -q
-uv run pytest tests/fabric/test_retrieval_service_catalog.py -q
+uv run pytest tests/unit/fabric/connectors/profiles/test_source_profiles.py -q
+uv run pytest tests/unit/fabric/connectors/bindings/test_binding_profiles.py -q
+uv run pytest tests/unit/fabric/connectors/sources/test_connector_family_expansion.py -q
+uv run pytest tests/unit/fabric/test_retrieval_service_catalog.py -q
 ```
 
 When a profile changes schema behavior or generated connector metadata, also run

@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSearchHref,
   parseSearchParamsWithSchema,
-} from "@/lib/searchParams";
+} from "@/shared/lib/searchParams";
 
 export const ARTIFACT_TABS = ["content", "schema", "lineage"] as const;
 export type ArtifactTab = (typeof ARTIFACT_TABS)[number];

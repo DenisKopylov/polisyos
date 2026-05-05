@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 
 import { SearchableList } from "@/shared/ui/patterns/SearchableList";
+import { renderWithProviders } from "@/test/render";
 
 const items = [
   { id: "alpha", label: "Alpha policy" },
@@ -31,7 +32,7 @@ function SearchableListHarness() {
 describe("SearchableList", () => {
   it("renders and filters matching items", async () => {
     const user = userEvent.setup();
-    render(<SearchableListHarness />);
+    renderWithProviders(<SearchableListHarness />);
 
     expect(screen.getByPlaceholderText("Search records")).toBeInTheDocument();
     expect(screen.getByText("Alpha policy")).toBeInTheDocument();
@@ -47,7 +48,7 @@ describe("SearchableList", () => {
 
   it("shows the empty state when no items match the query", async () => {
     const user = userEvent.setup();
-    render(<SearchableListHarness />);
+    renderWithProviders(<SearchableListHarness />);
 
     await user.type(screen.getByPlaceholderText("Search records"), "zzz");
 

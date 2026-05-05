@@ -11,8 +11,8 @@ import {
   YAxis,
 } from "recharts";
 
-import type { DistributionalModel } from "@/lib/domain/simulation";
-import { useI18n } from "@/i18n/LocaleProvider";
+import type { DistributionalModel } from "@/shared/lib/domain/simulation";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Select, chartTheme } from "@/shared/ui";
 
 type DistributionalPanelProps = {

@@ -1,0 +1,22 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ../observability/prometheus/slo_alerts.yml:/etc/prometheus/slo_alerts.yml:ro
+      - ../observability/prometheus/recording_rules.yml:/etc/prometheus/recording_rules.yml:ro
+      - ../observability/prometheus/slo_recording_rules.yml:/etc/prometheus/slo_recording_rules.yml:ro
+      - ../observability/prometheus/rules:/etc/prometheus/rules:ro
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observability/grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on:
+      - prometheus

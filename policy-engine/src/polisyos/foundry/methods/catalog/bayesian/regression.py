@@ -139,7 +139,9 @@ def _linear_prior_sensitivity_report(
         credible_interval_level=credible_mass,
         baseline_prior_scale=prior_scale,
         estimand_ids=tuple(
-            key for key in credible_intervals if key.startswith("coefficients_") or key == "intercept"
+            key
+            for key in credible_intervals
+            if key.startswith("coefficients_") or key == "intercept"
         ),
         ess_threshold=float(params["prior_sensitivity_ess_threshold"])
         if "prior_sensitivity_ess_threshold" in params
@@ -221,7 +223,9 @@ class BayesianLinearRegressionEstimator:
         return TabularData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: TabularData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: TabularData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, TabularData) else TabularData.model_validate(state)
         x = np.asarray(data.features, dtype=float)
         y = np.asarray(data.target, dtype=float)

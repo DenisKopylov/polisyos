@@ -23,7 +23,7 @@ from polisyos.scientist.agent.tool_contracts import (
     ToolContractSummary,
     tool_contract_default_blockers,
 )
-from polisyos.scientist.frontier_runtime import FrontierCapabilityStatus
+from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.eval_harness import AgentPolicyComparisonReport
@@ -122,7 +122,9 @@ class AgentCapabilityPromotionReport(BaseModel):
             raise ValueError("agent capability promotion report mismatch: " + "; ".join(details))
         expected_domains = {item.value for item in AgentPromotionCoverageDomain}
         observed_domains = [item.domain.value for item in self.coverage]
-        duplicate_domains = sorted({item for item in observed_domains if observed_domains.count(item) > 1})
+        duplicate_domains = sorted(
+            {item for item in observed_domains if observed_domains.count(item) > 1}
+        )
         missing_domains = sorted(expected_domains.difference(observed_domains))
         extra_domains = sorted(set(observed_domains).difference(expected_domains))
         if duplicate_domains or missing_domains or extra_domains:
@@ -672,9 +674,11 @@ def _reflexion_coverage_evidence(
         "default_enable_eligible": bool(agent_policy_report.default_enable_eligible),
         "blockers": list(agent_policy_report.blockers),
     }
-    blockers = [] if agent_policy_report.default_enable_eligible else [
-        "reflexion_baseline_comparison_not_default_eligible"
-    ]
+    blockers = (
+        []
+        if agent_policy_report.default_enable_eligible
+        else ["reflexion_baseline_comparison_not_default_eligible"]
+    )
     return blockers, [], metrics, ["AgentPolicyComparisonReport"]
 
 
@@ -748,9 +752,13 @@ def _frontier_status(
         AgentCapabilityId.LATS_MCTS,
     }:
         return FrontierCapabilityStatus.AVAILABLE_OFFLINE
-    if family.capability_id in {
-        AgentCapabilityId.DEEP_RESEARCH_SUBGRAPH,
-        AgentCapabilityId.SAME_MODEL_FANOUT,
-    } and evidence_refs:
+    if (
+        family.capability_id
+        in {
+            AgentCapabilityId.DEEP_RESEARCH_SUBGRAPH,
+            AgentCapabilityId.SAME_MODEL_FANOUT,
+        }
+        and evidence_refs
+    ):
         return FrontierCapabilityStatus.AVAILABLE_OFFLINE
     return FrontierCapabilityStatus.OFFLINE_GATED

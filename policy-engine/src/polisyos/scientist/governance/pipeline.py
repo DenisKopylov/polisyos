@@ -19,7 +19,7 @@ from polisyos.core.governance.passes.base import (
 )
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.pipeline import LinearPipeline
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 from .telemetry import PassSpan, ValidationTrace
 

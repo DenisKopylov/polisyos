@@ -35,14 +35,14 @@ promotion.
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.governance import ValidationProfile, preflight_checks, CalibrationValidationRunner; print(ValidationProfile.__name__, callable(preflight_checks), CalibrationValidationRunner.__name__)"`
-- Conceptual full-slice test run: `uv run pytest tests/scientist/governance -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/governance -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/scientist/governance/test_pass_registry.py tests/scientist/governance/test_validation_pipeline.py tests/scientist/governance/test_accountability.py -q
+uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/scientist/governance/test_validation_pipeline.py tests/unit/scientist/governance/test_accountability.py -q
 ```
 
 ## Reference Docs
@@ -51,7 +51,7 @@ uv run pytest tests/scientist/governance/test_pass_registry.py tests/scientist/g
 - Calibration governance reference: [`../../../../docs/reference/scientist/calibration-governance.md`](../../../../docs/reference/scientist/calibration-governance.md)
 - Accountability artifact reference: [`../../../../docs/reference/scientist/governance-accountability.md`](../../../../docs/reference/scientist/governance-accountability.md)
 - Contributor how-to: [`../../../../docs/how-to/write-governance-pass.md`](../../../../docs/how-to/write-governance-pass.md)
-- Cross-package navigation: [`../README.md`](../README.md), [`../search/README.md`](../search/README.md), and [`../../../../tests/scientist/README.md`](../../../../tests/scientist/README.md)
+- Cross-package navigation: [`../README.md`](../README.md), [`../search/README.md`](../search/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
 ## Last Updated
 

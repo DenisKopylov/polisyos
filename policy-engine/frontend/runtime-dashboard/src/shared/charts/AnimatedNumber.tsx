@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { animate, useReducedMotion } from "motion/react";
 
-import { cn, formatNumber } from "@/lib/utils";
+import { cn, formatNumber } from "@/shared/lib/utils";
 
 type AnimatedNumberProps = {
   value: number;

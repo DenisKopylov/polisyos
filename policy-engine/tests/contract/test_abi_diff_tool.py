@@ -64,6 +64,7 @@ def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
     report_path = tmp_path / "report.json"
     repo_root = Path(__file__).resolve().parents[2]
     script_candidates = (
+        repo_root / "tools" / "quality" / "diagnostics" / "abi_diff.py",
         repo_root / "tools" / "diagnostics" / "abi_diff.py",
         repo_root / "tools" / "abi_diff.py",
     )

@@ -11,7 +11,7 @@ The slice currently contains `1` `test_*.py` file.
 
 ## Where To Start
 
-- [`../../tools/lint/README.md`](../../tools/lint/README.md)
+- [`../../tools/quality/lint/README.md`](../../tools/quality/lint/README.md)
 - `test_legacy_cutover_lint.py`
 
 ## Public Entrypoints
@@ -22,8 +22,8 @@ The slice currently contains `1` `test_*.py` file.
 
 ### Depends On
 
-- [`../../tools/lint/README.md`](../../tools/lint/README.md)
-- `tools/lint/lint_legacy_cutover.py`
+- [`../../tools/quality/lint/README.md`](../../tools/quality/lint/README.md)
+- `tools/quality/lint/lint_legacy_cutover.py`
 
 ### Depended On By
 
@@ -51,7 +51,7 @@ uv run pytest --collect-only tests/lint -q
 
 ## Reference Docs
 
-- [`../../tools/lint/README.md`](../../tools/lint/README.md)
+- [`../../tools/quality/lint/README.md`](../../tools/quality/lint/README.md)
 - [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
 
 ## Last Updated

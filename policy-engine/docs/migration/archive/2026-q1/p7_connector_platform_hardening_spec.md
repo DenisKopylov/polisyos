@@ -14,7 +14,7 @@
   - `src/polisyos/fabric/connectors/sources/eurostat.py`
   - `src/polisyos/fabric/connectors/sources/ukons.py`
   - `src/polisyos/fabric/ingestion.py`
-  - `tests/fabric/connectors/sources/test_production_connectors.py`
+  - `tests/unit/fabric/connectors/sources/test_production_connectors.py`
 
 ## 1. Context and Problem Statement
 
@@ -243,7 +243,7 @@ Required changes:
 
 Required additions:
 
-1. New lint tool (name TBD, recommended `tools/lint/lint_connector_hardening.py`) to enforce:
+1. New lint tool (name TBD, recommended `tools/quality/lint/lint_connector_hardening.py`) to enforce:
 
    - production sources subclass `HTTPConnectorBase` (for HTTP connectors),
    - forbidden duplicated helper definitions are absent.
@@ -295,13 +295,13 @@ Required additions:
 Architecture and freeze checks:
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p7_metrics \
   --summary-path .tmp/p7_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p7_metrics/summary.json \
   --mode blocking \
@@ -315,28 +315,28 @@ python3 tools/lint/compare_baseline.py \
 Connector hardening checks:
 
 ```bash
-python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
-python3 tools/lint/lint_connector_hardening.py
+python3 tools/quality/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict
+python3 tools/quality/lint/lint_connector_hardening.py
 ```
 
 Targeted tests (minimum):
 
 ```bash
 python3 -m pytest \
-  tests/fabric/connectors/sources/test_production_connectors.py \
-  tests/fabric/connectors/test_protocol_compliance.py \
-  tests/fabric/connectors/test_resilience.py \
-  tests/fabric/connectors/test_quality_system.py
+  tests/unit/fabric/connectors/sources/test_production_connectors.py \
+  tests/unit/fabric/connectors/test_protocol_compliance.py \
+  tests/unit/fabric/connectors/test_resilience.py \
+  tests/unit/fabric/connectors/test_quality_system.py
 ```
 
 Required new P7 tests:
 
 ```bash
 python3 -m pytest \
-  tests/fabric/connectors/sources/test_http_connector_base.py \
-  tests/fabric/connectors/sources/test_http_version_policy.py \
-  tests/fabric/connectors/sources/test_no_duplicate_http_helpers.py \
-  tests/fabric/connectors/test_ingestion_fetch_activity_contract.py
+  tests/unit/fabric/connectors/sources/test_http_connector_base.py \
+  tests/unit/fabric/connectors/sources/test_http_version_policy.py \
+  tests/unit/fabric/connectors/sources/test_no_duplicate_http_helpers.py \
+  tests/unit/fabric/connectors/test_ingestion_fetch_activity_contract.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -438,41 +438,41 @@ Connector hardening baseline:
 
 1. Added dedicated lint tool:
 
-   - `tools/lint/lint_connector_hardening.py`
+   - `tools/quality/lint/lint_connector_hardening.py`
 2. CI integration added:
 
-   - `.github/workflows/arch-freeze.yml` now runs `python3 tools/lint/lint_connector_hardening.py`.
+   - `.github/workflows/arch-freeze.yml` now runs `python3 tools/quality/lint/lint_connector_hardening.py`.
 3. Existing Law A/B connector lint remains active:
 
-   - `tools/lint/lint_connectors.py`.
+   - `tools/quality/lint/lint_connectors.py`.
 
 ### 12.5 Tests added/updated
 
 Added:
 
-1. `tests/fabric/connectors/sources/test_http_connector_base.py`
-2. `tests/fabric/connectors/sources/test_http_version_policy.py`
-3. `tests/fabric/connectors/sources/test_no_duplicate_http_helpers.py`
-4. `tests/fabric/connectors/test_ingestion_fetch_activity_contract.py`
+1. `tests/unit/fabric/connectors/sources/test_http_connector_base.py`
+2. `tests/unit/fabric/connectors/sources/test_http_version_policy.py`
+3. `tests/unit/fabric/connectors/sources/test_no_duplicate_http_helpers.py`
+4. `tests/unit/fabric/connectors/test_ingestion_fetch_activity_contract.py`
 
 Updated:
 
-1. `tests/fabric/connectors/sources/test_production_connectors.py` (envelope assertions: `fetch_duration_ms`, `quality_flags` behavior).
+1. `tests/unit/fabric/connectors/sources/test_production_connectors.py` (envelope assertions: `fetch_duration_ms`, `quality_flags` behavior).
 
 ### 12.6 Verification results
 
 1. Connector lint gates:
 
-   - `python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict` -> `all clean`
-   - `python3 tools/lint/lint_connector_hardening.py` -> `all checks passed`
+   - `python3 tools/quality/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict` -> `all clean`
+   - `python3 tools/quality/lint/lint_connector_hardening.py` -> `all checks passed`
 2. Targeted regression + P7 tests:
 
    - `uv run --group test python -m pytest ...` (production connectors + new P7 tests + protocol/resilience/quality suites)
    - Result: `85 passed`.
 3. Architecture freeze:
 
-   - `python3 tools/lint/collect_arch_metrics.py ...`
-   - `python3 tools/lint/compare_baseline.py --mode blocking ...`
+   - `python3 tools/quality/lint/collect_arch_metrics.py ...`
+   - `python3 tools/quality/lint/compare_baseline.py --mode blocking ...`
    - Result: `[OK] Architecture freeze checks passed.`
    - Snapshot: `package_cycles_count=0`, `import_violations_count=0`, `test_collect_errors_count=42`.
 

@@ -1,7 +1,7 @@
 import { useId, useMemo } from "react";
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { describeConfidenceInterval } from "./accessibility";
 import {

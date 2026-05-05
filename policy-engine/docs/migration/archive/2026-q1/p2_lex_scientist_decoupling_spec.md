@@ -201,13 +201,13 @@ Mandatory import rewiring:
 Architecture and freeze checks (repository root):
 
 ```bash
-python3 tools/lint/collect_arch_metrics.py \
+python3 tools/quality/lint/collect_arch_metrics.py \
   --repo-root . \
   --output-dir .tmp/p2_metrics \
   --summary-path .tmp/p2_metrics/summary.json \
   --print-summary
 
-python3 tools/lint/compare_baseline.py \
+python3 tools/quality/lint/compare_baseline.py \
   --baseline summary.json \
   --current .tmp/p2_metrics/summary.json \
   --mode blocking \
@@ -222,10 +222,10 @@ Targeted tests:
 
 ```bash
 python3 -m pytest \
-  tests/lex/simulator/test_engine.py \
-  tests/scientist/governance/test_legal_pass.py \
-  tests/scientist/governance/test_validation_pipeline.py \
-  tests/core/test_backend_dispatcher.py
+  tests/unit/lex/simulator/test_engine.py \
+  tests/unit/scientist/governance/test_legal_pass.py \
+  tests/unit/scientist/governance/test_validation_pipeline.py \
+  tests/unit/core/test_backend_dispatcher.py
 ```
 
 ## 8. Acceptance Criteria and DoD
@@ -289,10 +289,10 @@ Blocking freeze comparison:
 Targeted tests:
 
 - `45 passed`:
-  - `tests/lex/simulator/test_engine.py`
-  - `tests/scientist/governance/test_legal_pass.py`
-  - `tests/scientist/governance/test_validation_pipeline.py`
-  - `tests/scientist/governance/test_shared_shims.py`
-  - `tests/core/test_backend_dispatcher.py`
-  - `tests/fabric/test_quality_indicators.py`
-  - `tests/fabric/connectors/test_quality_system.py::TestQualityGateIntegration::test_quality_gate_blocks_bronze_in_strict`
+  - `tests/unit/lex/simulator/test_engine.py`
+  - `tests/unit/scientist/governance/test_legal_pass.py`
+  - `tests/unit/scientist/governance/test_validation_pipeline.py`
+  - `tests/unit/scientist/governance/test_shared_shims.py`
+  - `tests/unit/core/test_backend_dispatcher.py`
+  - `tests/unit/fabric/test_quality_indicators.py`
+  - `tests/unit/fabric/connectors/test_quality_system.py::TestQualityGateIntegration::test_quality_gate_blocks_bronze_in_strict`

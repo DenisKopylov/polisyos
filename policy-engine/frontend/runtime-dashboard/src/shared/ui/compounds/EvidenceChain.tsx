@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Button, Card, EmptyState } from "@/shared/ui/primitives";
 
 export type EvidenceChainItem = {

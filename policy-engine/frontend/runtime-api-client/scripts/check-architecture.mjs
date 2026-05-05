@@ -6,7 +6,6 @@ const allowedFiles = new Set([
   ".prettierignore",
   "README.md",
   "eslint.config.mjs",
-  "package-lock.json",
   "package.json",
   "runtimeApiClient.js",
   "runtimeApiClient.test.mjs",

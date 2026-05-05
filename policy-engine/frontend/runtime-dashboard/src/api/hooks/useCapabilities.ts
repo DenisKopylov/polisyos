@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import { FALLBACK_CAPABILITY_MANIFEST } from "../../lib/capabilities";
+import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";

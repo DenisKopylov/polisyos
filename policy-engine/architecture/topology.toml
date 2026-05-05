@@ -1,26 +1,61 @@
 [topology]
 version = 2
-status = "draft"
+status = "final"
 owner = "team-polisyos"
-description = "Allowed repository and product-root topology. Guardrails should read this file instead of hardcoding path policy."
+description = "Allowed single-root product topology after Phase 2A workspace-boundary collapse. Guardrails should read this file instead of hardcoding path policy."
 
 # ---------------------------------------------------------------------------
-# Repository-root topology (workspace gateway).
+# Repository topology (policy-engine is the only product/workspace root).
 # ---------------------------------------------------------------------------
 
 [[path]]
 scope = "repo_root"
-path = ".github"
-category = "repo_control_plane"
+path = "architecture"
+category = "source"
 commit_policy = "committed"
-owner = "team-platform"
+owner = "team-architecture"
 
 [[path]]
 scope = "repo_root"
-path = "policy-engine"
-category = "product_root"
+path = "schemas"
+category = "generated_committed"
+commit_policy = "registered_generated_artifacts"
+owner = "team-architecture"
+
+[[path]]
+scope = "repo_root"
+path = "src"
+category = "source"
 commit_policy = "committed"
 owner = "team-polisyos"
+
+[[path]]
+scope = "repo_root"
+path = "tests"
+category = "test_fixture"
+commit_policy = "committed"
+owner = "team-quality"
+
+[[path]]
+scope = "repo_root"
+path = "tools"
+category = "source"
+commit_policy = "committed"
+owner = "team-devx"
+
+[[path]]
+scope = "repo_root"
+path = "ops"
+category = "source"
+commit_policy = "committed"
+owner = "team-ops"
+
+[[path]]
+scope = "repo_root"
+path = "docs"
+category = "docs"
+commit_policy = "committed_with_lifecycle"
+owner = "team-docs"
 
 [[path]]
 scope = "repo_root"
@@ -31,476 +66,109 @@ owner = "team-design"
 
 [[path]]
 scope = "repo_root"
-path = "data"
-category = "local_data"
-commit_policy = "ignored_except_markdown"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".polisyos"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".claude"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".cursor"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".playwright-cli"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".benchmarks"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".hypothesis"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".mypy_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".pytest_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".ruff_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".tmp"
-category = "scratch"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = "tmp"
-category = "scratch"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = ".venv"
-category = "legacy_local_env"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = "output"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = "runs"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "repo_root"
-path = "relevant_topics_domain_files"
-category = "local_data"
-commit_policy = "ignored"
-owner = "local"
-
-# ---------------------------------------------------------------------------
-# Product-root canonical topology.
-# ---------------------------------------------------------------------------
-
-[[path]]
-scope = "product_root"
-path = "architecture"
-category = "source"
-commit_policy = "committed"
-owner = "team-architecture"
-
-[[path]]
-scope = "product_root"
-path = "schemas"
-category = "generated_committed"
-commit_policy = "registered_generated_artifacts"
-owner = "team-architecture"
-
-[[path]]
-scope = "product_root"
-path = "src"
-category = "source"
-commit_policy = "committed"
-owner = "team-polisyos"
-
-[[path]]
-scope = "product_root"
-path = "tests"
-category = "test_fixture"
-commit_policy = "committed"
-owner = "team-quality"
-
-[[path]]
-scope = "product_root"
-path = "tools"
-category = "source"
-commit_policy = "committed"
-owner = "team-devx"
-
-[[path]]
-scope = "product_root"
-path = "ops"
-category = "source"
-commit_policy = "committed"
-owner = "team-ops"
-
-[[path]]
-scope = "product_root"
-path = "docs"
-category = "docs"
-commit_policy = "committed_with_lifecycle"
-owner = "team-docs"
-
-[[path]]
-scope = "product_root"
 path = "frontend"
 category = "source"
 commit_policy = "committed_except_generated_outputs"
 owner = "team-frontend"
 
 [[path]]
-scope = "product_root"
+scope = "repo_root"
 path = "data"
 category = "test_fixture"
 commit_policy = "committed_small_fixtures_only"
 owner = "team-data-forge"
 
 [[path]]
-scope = "product_root"
-path = "production_data"
-category = "local_data"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
+scope = "repo_root"
 path = ".polisyos"
 category = "runtime_state"
 commit_policy = "ignored"
 owner = "local"
 
 [[path]]
-scope = "product_root"
-path = ".github"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
-owner = "team-platform"
-migration_target = "../.github"
-sunset_phase = "Phase 5"
-
-[[path]]
-scope = "product_root"
+scope = "repo_root"
 path = ".devcontainer"
 category = "source"
 commit_policy = "committed"
 owner = "team-devx"
 
 [[path]]
-scope = "product_root"
+scope = "repo_root"
+path = ".cursor"
+category = "source"
+commit_policy = "committed"
+owner = "team-design"
+
+[[path]]
+scope = "repo_root"
 path = ".vscode"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "scripts"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
+category = "source"
+commit_policy = "committed_or_ignored_by_subpath"
 owner = "team-devx"
-migration_target = "tools"
-sunset_phase = "Phase 5"
+
+[[path]]
+scope = "repo_root"
+path = "packages"
+category = "source"
+commit_policy = "committed_except_generated_outputs"
+owner = "team-frontend"
 
 # ---------------------------------------------------------------------------
-# Legacy and transitional paths (must leave before their sunset).
+# Additional committed root surfaces governed by the final topology.
 # ---------------------------------------------------------------------------
 
 [[path]]
-scope = "product_root"
+scope = "repo_root"
 path = "benchmarks"
 category = "source"
 commit_policy = "committed"
 owner = "team-quality"
 
 [[path]]
-scope = "product_root"
+scope = "repo_root"
 path = "examples"
 category = "source"
 commit_policy = "committed"
 owner = "team-devx"
 
 [[path]]
-scope = "product_root"
-path = "packs"
-category = "source"
-commit_policy = "committed"
-owner = "team-domain-packs"
-
-[[path]]
-scope = "product_root"
+scope = "repo_root"
 path = "release-fragments"
 category = "release_workspace"
 commit_policy = "committed_with_lifecycle"
 owner = "team-release"
-sunset_phase = "Phase 3"
 
 [[path]]
-scope = "product_root"
+scope = "repo_root"
 path = "release"
 category = "release_workspace"
 commit_policy = "committed_with_lifecycle"
 owner = "team-release"
-sunset_phase = "Phase 3"
-
-[[path]]
-scope = "product_root"
-path = "baseline"
-category = "baseline_artifacts"
-commit_policy = "committed_generated_baselines"
-owner = "team-quality"
-
-[[path]]
-scope = "product_root"
-path = "cloud_deploy"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
-owner = "team-ops"
-migration_target = "ops/cloud"
-sunset_phase = "Phase 5"
-
-[[path]]
-scope = "product_root"
-path = "deploy"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
-owner = "team-ops"
-migration_target = "ops/deploy"
-sunset_phase = "Phase 5"
-
-[[path]]
-scope = "product_root"
-path = "docker"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
-owner = "team-ops"
-migration_target = "ops/docker"
-sunset_phase = "Phase 5"
-
-[[path]]
-scope = "product_root"
-path = "gcp"
-category = "legacy_wrapper"
-commit_policy = "committed_wrapper_only"
-owner = "team-ops"
-migration_target = "ops/cloud/gcp"
-sunset_phase = "Phase 5"
 
 # ---------------------------------------------------------------------------
-# Generated and local output directories (must never be committed).
+# Generated, cache, and local output umbrellas (must never be committed).
 # ---------------------------------------------------------------------------
 
 [[path]]
-scope = "product_root"
-path = "output"
+scope = "repo_root"
+path = "_build"
 category = "build_output"
 commit_policy = "ignored"
 owner = "local"
 
 [[path]]
-scope = "product_root"
-path = "runs"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "logs"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "dist"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "site"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "out"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "benchmark-results"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".tmp"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".benchmarks"
-category = "build_output"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".cache"
+scope = "repo_root"
+path = "_cache"
 category = "cache"
 commit_policy = "ignored"
 owner = "local"
 
 [[path]]
-scope = "product_root"
-path = ".hypothesis"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".mypy_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".pytest_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".ruff_cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".uv-cache"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
+scope = "repo_root"
 path = ".venv"
 category = "legacy_local_env"
 commit_policy = "ignored"
 owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "tmp"
-category = "scratch"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = "__pycache__"
-category = "cache"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".polisyos-tools"
-category = "runtime_state"
-commit_policy = "ignored"
-owner = "local"
-
-[[path]]
-scope = "product_root"
-path = ".venv_codex"
-category = "legacy_local_env"
-commit_policy = "ignored"
-owner = "local"
-sunset_phase = "Phase -1.5"
-target_path = ".venv"
-
-[[path]]
-scope = "product_root"
-path = ".tmp_c7_smoke"
-category = "scratch"
-commit_policy = "ignored"
-owner = "local"
-sunset_phase = "Phase -1.5"
-target_path = ".polisyos/runs"
-
-[[path]]
-scope = "product_root"
-path = ".tmp_c7_venv"
-category = "legacy_local_env"
-commit_policy = "ignored"
-owner = "local"
-sunset_phase = "Phase -1.5"
-target_path = ".venv"
 
 # ---------------------------------------------------------------------------
 # Loose-file allow-lists and deny-lists.
@@ -508,69 +176,39 @@ target_path = ".venv"
 
 [loose_files.repo_root]
 allow = [
-  ".gitignore",
-  ".gitattributes",
-  ".editorconfig",
-  "README.md",
-  "CODE_OF_CONDUCT.md",
-  "SECURITY.md",
-  "SUPPORT.md",
-  "lefthook.yml",
-  "renovate.json",
-]
-deny = [
-  "uv.lock",
-  "pyproject.toml",
-  "package.json",
-  "package-lock.json",
-  "pnpm-lock.yaml",
-  "bun.lockb",
-  "poetry.lock",
-  "requirements.txt",
-  "Pipfile",
-  "Pipfile.lock",
-  "mkdocs.yml",
-  ".python-version",
-  ".nvmrc",
-  "Dockerfile",
-  "docker-compose.yml",
-  "docker-compose.yaml",
-  ".DS_Store",
-  "compileall.txt",
-  "import_gate.txt",
-  "ruff_stats.txt",
-  "stale_sources_missing_paths.txt",
-  "summary.json",
-  "test_collect.txt",
-  "filter_topics.py",
-  "organize_relevant_topics.py",
-  "scm-implementation-spec-v3.md",
-  "topics.csv",
-]
-
-[loose_files.product_root]
-allow = [
   ".env.example",
   ".env",
   ".gitignore",
   ".gitattributes",
   ".editorconfig",
+  ".markdownlint-cli2.jsonc",
   ".nvmrc",
   ".pre-commit-config.yaml",
   ".python-version",
+  ".taplo.toml",
+  ".yamllint",
+  "CHANGELOG-DESIGN.md",
   "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
   "README.md",
+  "SECURITY.md",
+  "SUPPORT.md",
   "Dockerfile.reproducible",
-  "freeze_policy.md",
-  "import_policy.toml",
-  "import_exceptions.toml",
-  "import_exceptions_registry.md",
   "install.sh",
   "migrate.py",
   "jax_bootstrap.py",
   "mkdocs.yml",
+  "basedpyright.toml",
+  "mutmut.cfg",
+  "mypy.ini",
+  "package.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
   "pyproject.toml",
+  "pytest.ini",
+  "ruff.toml",
+  "uv.toml",
   "uv.lock",
 ]
 deny = [
@@ -582,7 +220,6 @@ deny = [
   "poetry.lock",
   "Dockerfile",
   "docker-compose.yml",
-  "package.json",
   "package-lock.json",
   "env_example.txt",
   "all_1000_policy_topics.csv",

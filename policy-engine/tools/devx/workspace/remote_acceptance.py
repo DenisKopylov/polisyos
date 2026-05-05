@@ -15,7 +15,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import ensure_repo_import_roots, repo_root_from
+from tools.lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
@@ -46,26 +46,21 @@ RSYNC_EXCLUDES = (
     ".git/",
     ".venv*/",
     "__pycache__/",
-    ".pytest_cache/",
-    ".ruff_cache/",
-    ".mypy_cache/",
-    ".cache/",
-    ".hypothesis/",
+    "_build/",
+    "_cache/",
     ".polisyos/",
-    ".uv-cache/",
-    ".tmp*/",
     "node_modules/",
-    "logs/",
-    "/policy-engine/runs/",
-    "site/",
+    "/policy-engine/data/policy-engine-local/",
+    "/policy-engine/data/bronze/",
+    "/policy-engine/data/silver/",
+    "/policy-engine/data/gold/",
+    "/policy-engine/data/manifests/",
+    "/policy-engine/data/quarantine/",
     "data/raw/",
-    "benchmark-results/",
-    "production_data/",
-    "dist/",
     "build/",
     "*.egg-info/",
 )
-SYNC_ROOT_ENTRIES = ("README.md", "SECURITY.md", "renovate.json", ".github", "policy-engine")
+SYNC_ROOT_ENTRIES = ("renovate.json", ".github", "policy-engine")
 
 
 @dataclass(frozen=True, slots=True)
@@ -505,22 +500,21 @@ def sync_workspace(config: RemoteAcceptanceConfig, *, delete: bool, dry_run: boo
         set -euo pipefail
         mkdir -p {shlex.quote(config.worktree)} {shlex.quote(config.artifacts_root)}
         find {shlex.quote(config.worktree)} -mindepth 1 -maxdepth 1 \\
-          ! -name README.md \\
-          ! -name SECURITY.md \\
           ! -name renovate.json \\
           ! -name .github \\
           ! -name policy-engine \\
           -exec rm -rf {{}} +
         for target in \\
-          {config.worktree}/policy-engine/.hypothesis \\
           {config.worktree}/policy-engine/.polisyos \\
-          {config.worktree}/policy-engine/.uv-cache \\
-          {config.worktree}/policy-engine/.tmp* \\
-          {config.worktree}/policy-engine/site \\
+          {config.worktree}/policy-engine/_build \\
+          {config.worktree}/policy-engine/_cache \\
+          {config.worktree}/policy-engine/data/policy-engine-local \\
+          {config.worktree}/policy-engine/data/bronze \\
+          {config.worktree}/policy-engine/data/silver \\
+          {config.worktree}/policy-engine/data/gold \\
+          {config.worktree}/policy-engine/data/manifests \\
+          {config.worktree}/policy-engine/data/quarantine \\
           {config.worktree}/policy-engine/data/raw \\
-          {config.worktree}/policy-engine/runs \\
-          {config.worktree}/policy-engine/logs \\
-          {config.worktree}/policy-engine/benchmark-results \\
           {config.worktree}/policy-engine/production_data; do
           rm -rf "$target"
         done

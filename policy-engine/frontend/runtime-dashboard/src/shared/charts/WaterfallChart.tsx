@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { waterfallColors, chartTheme, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { WaterfallStep } from "./types";

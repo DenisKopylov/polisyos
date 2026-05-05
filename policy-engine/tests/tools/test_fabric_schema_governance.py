@@ -11,7 +11,7 @@ from polisyos.fabric.connectors.contracts import (
     SchemaVersion,
 )
 from polisyos.fabric.connectors.sources._contracts import build_builtin_contract_registry
-from tools.validation.fabric_schema_governance import (
+from tools.quality.validation.fabric_schema_governance import (
     build_evidence_payload,
     build_snapshot_payload,
     validate_against_baseline,

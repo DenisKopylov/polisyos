@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card, ScrollArea } from "@/shared/ui/primitives";
 import { fadeInUp, staggerContainer } from "@/shared/ui/motion";
 

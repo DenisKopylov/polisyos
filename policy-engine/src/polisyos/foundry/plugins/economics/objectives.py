@@ -8,7 +8,7 @@ from typing import Any
 import jax.numpy as jnp
 
 from polisyos.foundry.plugins.economics.state import EconomicState
-from polisyos.foundry.social_weights import (
+from polisyos.foundry.welfare.social_weights import (
     prepare_social_weight_schedule,
     social_weighted_resource,
 )

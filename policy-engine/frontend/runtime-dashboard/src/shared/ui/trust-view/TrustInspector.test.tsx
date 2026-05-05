@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
 import { useTrustView } from "@/app/providers/useTrustView";
-import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { TrustInspector } from "./TrustInspector";
 

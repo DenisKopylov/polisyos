@@ -137,29 +137,29 @@ run_validator() {
 }
 
 run_suite truthfulness_catalog \
-  tests/foundry/test_catalog_snapshot.py \
+  tests/unit/foundry/methods/test_catalog_snapshot.py \
   -k "truthfulness or hmc_and_nuts"
 
 run_suite truthfulness_advisor \
-  tests/foundry/methods/test_selection_advisor.py \
+  tests/unit/foundry/methods/test_selection_advisor.py \
   -k truthfulness
 
 run_suite statistical_budgets \
-  tests/foundry/methods/backends/test_backends.py \
+  tests/unit/foundry/methods/backends/test_backends.py \
   -k "statistical or degrades_when_runtime_drift_exceeds_cpu_budget"
 
 run_suite equivalence_dispatch \
-  tests/foundry/methods/test_dispatch_runtime_selection.py \
+  tests/unit/foundry/methods/test_dispatch_runtime_selection.py \
   -k equivalence
 
 run_suite forecasting_uncertainty \
-  tests/foundry/methods/catalog/forecasting/test_uncertainty_bundle.py
+  tests/unit/foundry/methods/catalog/forecasting/test_uncertainty_bundle.py
 
 run_suite validated_dispatch \
-  tests/foundry/methods/backends/test_validated_dispatch.py
+  tests/unit/foundry/methods/backends/test_validated_dispatch.py
 
 run_suite synthetic_world_registry \
-  tests/synthetic_world/test_seed_worlds.py
+  tests/unit/synthetic_world/test_seed_worlds.py
 
 run_benchmark
 run_validator

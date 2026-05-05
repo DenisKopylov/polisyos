@@ -16,7 +16,7 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
 )
 from polisyos.ir.refs import StrategicResponseBundleRef
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 
 class StrategicResponsePass(ValidatorPass):

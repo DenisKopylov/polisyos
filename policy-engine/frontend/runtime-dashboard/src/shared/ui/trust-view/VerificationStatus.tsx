@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, CircleHelp, Clock3 } from "lucide-react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 
 import { trustGlyph, type TrustGlyphTone } from "./trust-glyphs";
 

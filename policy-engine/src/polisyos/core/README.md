@@ -68,16 +68,16 @@ Run commands from the repository root `policy-engine/`.
 
 Run commands from the repository root `policy-engine/`.
 
-- Smoke-tested: `uv run pytest -q tests/test_public_api_facades.py`
+- Smoke-tested: `uv run pytest -q tests/architecture/test_public_api_facades.py`
 - Smoke-tested:
-  `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py`
+  `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py`
 
 - Smoke-tested:
-  `uv run pytest -q tests/core/artifacts/test_async_store.py tests/core/artifacts/test_storage_protocol_boundaries.py`
+  `uv run pytest -q tests/unit/core/artifacts/test_async_store.py tests/unit/core/artifacts/test_storage_protocol_boundaries.py`
 
-- Conceptual release gate: `uv run python tools/workspace/core_runtime_mypy.py`
+- Conceptual release gate: `uv run python tools/devx/workspace/core_runtime_mypy.py`
 - Conceptual release gate:
-  `uv run python tools/workspace/core_runtime_basedpyright.py`
+  `uv run python tools/devx/workspace/core_runtime_basedpyright.py`
 
 ## Reference docs
 

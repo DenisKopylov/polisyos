@@ -9,7 +9,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry._numeric import (
+from polisyos.foundry.runtime.numeric import (
     clip_probability,
     safe_exp_from_log_std,
     stable_normal_entropy,

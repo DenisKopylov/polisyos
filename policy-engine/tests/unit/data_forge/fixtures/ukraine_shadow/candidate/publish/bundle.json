@@ -1,0 +1,41 @@
+{
+  "kind": "ukraine_publish_bundle",
+  "pipeline": "ukraine",
+  "published_at": "2026-04-24T00:00:02+00:00",
+  "artifacts": [
+    {
+      "path": "sources/source_index.json",
+      "sha256": "2ac8d7bf1c24364782410652f5fb42e855874b03b30c3e70ea4d856b7bfec04a"
+    },
+    {
+      "path": "normalized/demography_inputs.parquet",
+      "sha256": "3542cdc6da7de5f4254fc0c6600b07b167573cdd8c266a7a08f841f212654a20"
+    },
+    {
+      "path": "demography/targets.json",
+      "sha256": "930b3d03e44379d77d49d08a436153129f0d234ef3957c7ba3a25d1d3d8c9455"
+    },
+    {
+      "path": "demography/transition_priors.json",
+      "sha256": "7d1289b4846f3fcf5c6fc64b900fa236003213ff4b2f7dbc2666014bd7125928"
+    },
+    {
+      "path": "demography/donor_pool.json",
+      "sha256": "8cce329e0314e40a6fce8f849ee79880236e0379543056073cfd5b41ed49711c"
+    },
+    {
+      "path": "sharding/pre_shard_summary.json",
+      "sha256": "da8268c56364718f0ba2e01ac07b7ca2e7d6756ed90c00ca3b64033dbc62b59b"
+    },
+    {
+      "path": "publish/ukraine_readiness.json",
+      "sha256": "5c3b271845010aaf0e392f86a86803a20b6092022b24db81aa3a3578b31ac482"
+    }
+  ],
+  "extra": {
+    "readiness_report": "publish/ukraine_readiness.json",
+    "readiness": {
+      "consumer_ready": false
+    }
+  }
+}

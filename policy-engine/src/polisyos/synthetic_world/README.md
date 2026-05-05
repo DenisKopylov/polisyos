@@ -1,16 +1,16 @@
 # polisyos.synthetic_world
 
-Truth-centric synthetic-world family for Bayesian, ML, forecasting, econometrics,
-survey, distributional, and causal methods.
+- Last updated: 2026-05-03
 
-Package layout:
+Compatibility facade for `polisyos.foundry.agent_sim.world`.
 
-- `core/`: typed contracts (`WorldSpec`, `TruthSpec`, `EvaluationSpec`) and truth selection helpers
-- `templates/`: canonical DGP families
-- `operators/`: interventions, measurement error, missingness, sampling design
-- `targets/`: ground-truth builders by method family
-- `evaluators/`: metrics, hook diagnostics, and lightweight plot specs
-- `configs/examples/`: example YAML specs for Phase 0 seed worlds
+Repository Structure Remediation Phase 4A moved the implementation under the
+Foundry agent simulation owner. This directory intentionally contains only the
+root wrapper and this README until the 2026-10-01 shim sunset.
+
+Use `polisyos.foundry.agent_sim.world` for new imports. Deep
+`polisyos.synthetic_world.*` imports are not supported as public compatibility
+surface.
 
 Public entrypoint:
 

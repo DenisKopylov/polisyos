@@ -9,7 +9,7 @@ performance/reproducibility, and Phase 6 agent-simulation frontier work.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/agent_sim/**`, `src/polisyos/foundry/agent_sim/wiring/**`, and the linked agent-sim tests/ADR
 
 `polisyos.foundry.agent_sim` exports its own
@@ -60,19 +60,19 @@ which is the compile/execute state contract documented on [State](state.md).
 ## Evidence Links
 
 - JIT compatibility:
-  `tests/foundry/agent_sim/test_jit_compatibility.py`
+  `tests/unit/foundry/agent_sim/test_jit_compatibility.py`
 
 - Actor-critic numeric guardrails:
-  `tests/foundry/agent_sim/test_actor_critic_numerics.py`
+  `tests/unit/foundry/agent_sim/test_actor_critic_numerics.py`
 
 - Graph mechanisms:
-  `tests/foundry/agent_sim/test_graph_mechanisms.py`
+  `tests/unit/foundry/agent_sim/test_graph_mechanisms.py`
 
 - Population and lifecycle:
-  `tests/foundry/agent_sim/test_population.py`
+  `tests/unit/foundry/agent_sim/test_population.py`
 
 - Wiring contracts:
-  `tests/foundry/agent_sim/test_wiring.py`
+  `tests/unit/foundry/agent_sim/test_wiring.py`
 
 - ABM bridge tolerance ADR:
   [`docs/adr/0082-abm-bridge-adaptive-tolerance.md`](../../adr/0082-abm-bridge-adaptive-tolerance.md)

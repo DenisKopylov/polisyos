@@ -32,30 +32,33 @@ uv run polisyos-tools docs --output docs/reference/tools.md
 
 ## 1. Workflow Inventory
 
-Package-level GitHub Actions workflows are not part of the active platform
-today. The maintained automation surface is the root inventory under
-`.github/workflows/`.
+The maintained GitHub-executed automation surface is the repository-root
+inventory under `.github/workflows/`; reusable product templates live under
+`policy-engine/ops/ci/templates/workflows/`.
 
-| Workflow file                                | Status | Tier                   | Trigger                              | Purpose                                                                                                      |
-| -------------------------------------------- | ------ | ---------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `.github/workflows/abi.yml`                  | active | PR gate                | pull request on ABI-visible paths    | ABI snapshot generation, semantic diff, and committed-snapshot freshness                                     |
-| `.github/workflows/arch.yml`                 | active | PR/push gate           | pull request, push                   | architecture import gate, runtime contract drift, schema drift, guardrails, and dashboard API type freshness |
-| `.github/workflows/docs.yml`                 | active | docs gate              | pull request                         | strict MkDocs build and external link checks                                                                 |
-| `.github/workflows/perf.yml`                 | active | evidence / regression  | pull request, push to `main`, manual | performance regression checks and Scientist reliability evidence                                             |
-| `.github/workflows/replay.yml`               | active | smoke                  | pull request, push                   | replay and artifact smoke coverage                                                                           |
-| `.github/workflows/signatures.yml`           | active | security               | pull request, push                   | signing regressions and private-key hygiene                                                                  |
-| `.github/workflows/causal-phases.yml`        | active | subsystem validation   | pull request, push, manual           | governed causal-phase validation bundle                                                                      |
-| `.github/workflows/foundry-release-gate.yml` | active | subsystem release gate | pull request, push, schedule, manual | Foundry correctness, coverage, capabilities, and benchmark evidence                                          |
-| `.github/workflows/arch-freeze.yml`          | active | baseline collection    | pull request, push, manual           | architecture metrics snapshot and freeze comparison                                                          |
-| `.github/workflows/build-and-push.yml`       | active | manual build pipeline  | manual dispatch                      | container build, SBOM generation, vulnerability scan, and SBOM signing bundle                                |
+| Workflow file                                          | Status | Tier                   | Trigger                              | Purpose                                                                                                      |
+| ------------------------------------------------------ | ------ | ---------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `.github/workflows/abi.yml`                            | active | PR gate                | pull request on ABI-visible paths    | ABI snapshot generation, semantic diff, docs quality, public-surface docstring quality, and fast tests       |
+| `.github/workflows/ci.yml`                             | active | PR gate                | pull request and push                | Runtime HTTP, frontend contracts/smoke, integration, and test-economics surfaces                             |
+| `.github/workflows/core-runtime-long-soak.yml`         | active | scheduled/manual soak  | schedule, manual                     | Core-runtime long-soak evidence                                                                              |
+| `.github/workflows/core-runtime-release-gate.yml`      | active | release-grade gate     | runtime/docs paths, push, manual     | Core-runtime contracts, docs, mutation subset, benchmarks, and release-review evidence                       |
+| `.github/workflows/docs-pages.yml`                     | active | docs publication       | manual and successful docs gate      | Strict docs build before Pages publication                                                                   |
+| `.github/workflows/fabric-remediation.yml`             | active | subsystem remediation  | Fabric remediation paths, manual     | Fabric connector/data-plane/schema-governance remediation gates                                              |
+| `.github/workflows/frontend-nightly.yml`               | active | nightly frontend       | schedule, manual, frontend paths     | Broader frontend quality and nightly coverage                                                                |
+| `.github/workflows/frontend-quality.yml`               | active | archival notice        | manual                               | Documents the archived frontend-quality workflow state                                                       |
+| `.github/workflows/release.yml`                        | active | release orchestration  | release tags, manual                 | Release packaging, dashboard artifact, SBOM, and canary evidence                                             |
+| `ops/ci/templates/workflows/{arch,perf,replay,...}.yml` | template | reusable product specs | not GitHub-executed from this path   | Retained product workflow specs and generated-artifact references                                            |
 
-Historical workflow names that are absent from this checkout should not be used
-as current automation anchors. The table above is the factual inventory.
+Historical workflow names that are absent from the repository-root workflow
+inventory should not be used as current automation anchors. Template workflows
+are factual repo artifacts, but they are not active GitHub Actions until they
+are intentionally promoted to the root `.github/workflows/` surface.
 
 Operational rule:
 
-- If a CI/CD control matters, it should either exist in the workflow inventory
-  above or be documented as a canonical local command.
+- If a CI/CD control matters, it should either exist in the active root
+  workflow inventory above, be documented as a reusable template, or be
+  documented as a canonical local command.
 
 - If a workflow file is absent, docs should not describe it as current policy.
 
@@ -109,10 +112,14 @@ inventory and docs.
 
 The current repo-tracked release/build/security surfaces are:
 
-- `build-and-push.yml` for manual image build, SBOM generation, vulnerability
-  scan, and SBOM signing;
+- `.github/workflows/release.yml` for release packaging, dashboard artifact,
+  SBOM, and canary evidence;
 
-- `signatures.yml` for artifact-signing regressions and private-key hygiene;
+- `ops/ci/templates/workflows/build-and-push.yml` for the reusable manual image
+  build/SBOM/signing template;
+
+- `ops/ci/templates/workflows/signatures.yml` for the reusable
+  artifact-signing regression template;
 - `docs/reference/operations/core-runtime-closeout.md` plus
   `polisyos-tools workspace core-runtime-closeout` /
   `core-runtime-long-soak` for core-runtime closeout evidence;
@@ -121,21 +128,22 @@ The current repo-tracked release/build/security surfaces are:
   `polisyos-tools workspace acceptance-audit` for cross-surface platform
   acceptance.
 
-Release/build evidence is currently split across `build-and-push.yml`,
-`signatures.yml`, and the closeout commands/docs rather than one monolithic
-release workflow.
+Release/build evidence is currently split across root release workflows,
+template workflow specs, and the closeout commands/docs rather than one
+monolithic release workflow.
 
 ## 5. Docs and Benchmark Surfaces
 
-- `docs.yml` is the current published-doc quality gate: the path-aware docs
-  drift gate plus link checking.
+- `.github/workflows/abi.yml` runs the current docs quality gate for PRs and
+  pushes; `.github/workflows/docs-pages.yml` handles docs publication.
 
-- `perf.yml` is the current performance-evidence workflow: benchmark regression
-  comparison, overhead checks, and Scientist reliability artifacts.
+- `ops/ci/templates/workflows/perf.yml` is the reusable performance-evidence
+  template: benchmark regression comparison, overhead checks, and Scientist
+  reliability artifacts.
 
 - Local benchmark truth still comes from `polisyos-tools benchmarks ...` and the
-  published benchmark/how-to/reference docs, not from a removed
-  `frontend-nightly.yml`.
+  published benchmark/how-to/reference docs, not from workflow-template names
+  alone.
 
 ## 6. Workflow Security Posture
 

@@ -32,3 +32,13 @@
 # expires = "2026-05-15"
 # subject_glob = ".github/workflows/arch.yml"
 # detail_glob = "python_baseline"
+
+[guardrail_exceptions]
+version = 1
+status = "active"
+owner = "team-architecture"
+description = """
+Registry for temporary architecture guardrail exceptions. There are no active
+exceptions in the Phase 0 baseline; new exceptions must be added as
+[[exception]] entries and mirrored in guardrail_exceptions_registry.md.
+"""

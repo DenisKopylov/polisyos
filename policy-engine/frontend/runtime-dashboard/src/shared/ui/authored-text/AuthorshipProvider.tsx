@@ -9,7 +9,7 @@ import {
   type PropsWithChildren,
 } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 import { AuthorBadge } from "./AuthorBadge";
 import {

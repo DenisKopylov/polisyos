@@ -67,7 +67,7 @@ vi.mock("@/features/evidence/components/DataIntelligencePanel", () => ({
   ),
 }));
 
-vi.mock("@/lib/domain/evidence", () => ({
+vi.mock("@/shared/lib/domain/evidence", () => ({
   findRunEvidenceNeed: (
     context: { dataNeeds?: Array<{ needId: string }> } | null,
     needId: string | null,
@@ -92,9 +92,9 @@ vi.mock("@/shared/telemetry/performance", () => ({
   measureUiLatency: (...args: unknown[]) => measureUiLatencyMock(...args),
 }));
 
-vi.mock("@/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
-    "@/i18n/LocaleProvider",
+vi.mock("@/shared/i18n/LocaleProvider", async () => {
+  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
+    "@/shared/i18n/LocaleProvider",
   );
   return {
     ...actual,

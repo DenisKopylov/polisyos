@@ -3,7 +3,10 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 const projectRoot = process.cwd();
-const distDir = path.join(projectRoot, "dist");
+const distDir = path.resolve(
+  projectRoot,
+  "../../_build/frontend/runtime-dashboard/dist",
+);
 const manifestPath = path.join(distDir, ".vite", "manifest.json");
 
 const budgets = {

@@ -902,7 +902,7 @@ flowchart LR
 | `polisyos.scientist.agent.workers` | Tool-wrapped worker adapters for Drafter, Formalizer, Critic, Search, Citation, Verifier |
 | `polisyos.scientist.agent.loop.transcript` | Canonical assistant/tool transcript builder with compaction and tool-result clearing |
 | `polisyos.scientist.agent.loop.stop` | Stop conditions based on quality, evidence coverage, budget, and max rounds |
-| `polisyos.scientist.agent.tools.validation` | JSON Schema/Pydantic validation, structured error envelopes, output truncation policies |
+| `polisyos.scientist.agent.tools.quality.validation` | JSON Schema/Pydantic validation, structured error envelopes, output truncation policies |
 | `polisyos.scholar.search` | Search-provider interfaces, research briefs, query-graph planning, result normalization, safe fetch/open/find_in_page, rerank, snippet compression, citation spans, source-quality scoring |
 | `polisyos.scholar.search.cache` | URL/SERP cache with canonicalization, ETag/Last-Modified refresh, freshness TTL policy, and CAS-backed content refs |
 | `polisyos.scholar.search.security` | SSRF checks, content-type allowlists, prompt-injection-safe extraction, unsafe URL classification, sandboxed page readers |

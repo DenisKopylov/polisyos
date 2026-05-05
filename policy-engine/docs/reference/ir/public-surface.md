@@ -10,14 +10,14 @@ not eagerly load whole dependency trees.
 
 Freshness: 2026-04-26
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/public_surface.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/ir/test_public_surface.py`
+Source of truth: `src/polisyos/ir/public_surface.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/unit/ir/test_public_surface.py`
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
 
 ## Facade Inventory
 
 | Facade | Symbol count | Import policy |
 | --- | --- | --- |
-| `polisyos.ir.analytics` | 245 | curated lazy facade |
+| `polisyos.ir.analytics` | 249 | curated lazy facade |
 | `polisyos.ir.kernel` | 52 | full lazy facade |
 | `polisyos.ir.world` | 54 | full lazy facade |
 
@@ -69,6 +69,6 @@ submodules, for example `polisyos.ir.analytics.causal_graph`,
 - The analytics facade also includes the Phase 5 dependent-copula sensitivity
   bundle/result contracts used for correlated-input sensitivity analysis.
 
-- Validation hooks: `tests/ir/test_public_surface.py` for IR package facades and
-  the public-surface renderer in `tools/architecture/guardrails.py` for the
+- Validation hooks: `tests/unit/ir/test_public_surface.py` for IR package facades and
+  the public-surface renderer in `polisyos-tools architecture guardrails` for the
   generated repository inventory.

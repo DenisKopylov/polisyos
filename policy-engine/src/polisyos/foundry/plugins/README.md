@@ -69,7 +69,7 @@ PY
 ## Test / Verification Commands
 
 ```bash
-uv run pytest tests/foundry/plugins/test_plugin_system.py -q
+uv run pytest tests/unit/foundry/plugins/test_plugin_system.py -q
 ```
 
 ## Reference Docs

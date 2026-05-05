@@ -10,6 +10,8 @@ export default [
     ignores: [
       "**/coverage/**",
       "**/dist/**",
+      "**/_build/**",
+      "**/_cache/**",
       "**/node_modules/**",
       "**/storybook-static/**",
       "**/test-results/**",

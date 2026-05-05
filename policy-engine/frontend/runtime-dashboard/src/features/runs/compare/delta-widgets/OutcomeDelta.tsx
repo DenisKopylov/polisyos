@@ -1,4 +1,4 @@
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Quantity } from "@/shared/ui/quantity";
 
 import { formatSignedNumber, significanceTone } from "../compare-math";

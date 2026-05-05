@@ -1,7 +1,7 @@
 import type { ScenarioListPayload } from "@/api/validators";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 
 import { CounterfactualBadge } from "./CounterfactualBadge";
 

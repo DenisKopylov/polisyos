@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tools._lib.compat import expose_module
+from tools.lib.compat import expose_module
 
 _TARGET = "benchmarks.metrics"
 

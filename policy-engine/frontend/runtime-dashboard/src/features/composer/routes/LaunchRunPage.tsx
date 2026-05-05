@@ -4,13 +4,13 @@ import { useSearchParams } from "react-router-dom";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useLlmProfiles } from "@/api/hooks/useLlmProfiles";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   getCapability,
   isCapabilityEnabled,
   readNumericConstraint,
-} from "@/lib/capabilities";
-import { cn, formatNumber } from "@/lib/utils";
+} from "@/shared/lib/capabilities";
+import { cn, formatNumber } from "@/shared/lib/utils";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";

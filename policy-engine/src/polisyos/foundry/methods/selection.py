@@ -22,7 +22,6 @@ from polisyos.core.observability.truthfulness import (
     reconcile_truthfulness_tiers,
     truthfulness_depth,
 )
-from polisyos.foundry.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.catalog_snapshot import build_method_capability_matrix
 from polisyos.foundry.methods.consensus import (
@@ -31,6 +30,7 @@ from polisyos.foundry.methods.consensus import (
     SupportsConsensusTarget,
     run_cross_method_consensus,
 )
+from polisyos.foundry.methods.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.linker import check_linkable
 from polisyos.foundry.methods.plan_optimizer import MethodCostModel
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -406,10 +406,14 @@ def advise_methods(
     cost_policy: AdvisorCostPolicy | None = None,
     budget: CostBudget | BudgetSpec | Mapping[str, Any] | None = None,
     risk_delta: float | None = None,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None = None,
     return_certificate: bool | None = None,
     method_cost_model: MethodCostModel | None = None,
-    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]] | None = None,
+    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]]
+    | None = None,
 ) -> MethodAdvisorResult:
     """Answer “which methods apply to my problem?” with ranked code-facing artifacts."""
     if (
@@ -424,9 +428,7 @@ def advise_methods(
             cost_budget=budget if budget is not None else query.cost_budget,
             risk_delta=risk_delta if risk_delta is not None else query.risk_delta,
             return_certificate=(
-                return_certificate
-                if return_certificate is not None
-                else query.return_certificate
+                return_certificate if return_certificate is not None else query.return_certificate
             ),
         )
     if query.cost_policy != "ignore" and query.cost_policy not in {
@@ -482,10 +484,9 @@ def advise_methods(
         else run_cross_method_consensus(query, consensus_input)
     )
     if query.require_cross_method_consensus and cross_method_consensus is not None:
-        insufficient = (
-            len(consensus_input) < max(2, int(query.minimum_consensus_methods))
-            or cross_method_consensus.status in {"not_enough_methods", "not_comparable", "not_run"}
-        )
+        insufficient = len(consensus_input) < max(
+            2, int(query.minimum_consensus_methods)
+        ) or cross_method_consensus.status in {"not_enough_methods", "not_comparable", "not_run"}
         if insufficient or not cross_method_consensus.recommendation_allowed:
             cross_method_consensus = replace(
                 cross_method_consensus,
@@ -504,8 +505,7 @@ def advise_methods(
             )
     recommended = (
         ()
-        if cross_method_consensus is not None
-        and not cross_method_consensus.recommendation_allowed
+        if cross_method_consensus is not None and not cross_method_consensus.recommendation_allowed
         else candidate_recommended
     )
     score_trace = tuple(
@@ -587,10 +587,14 @@ def advise_methods_for_analyst(
     runtime_predictor: RuntimePredictor | None = None,
     budget: CostBudget | BudgetSpec | Mapping[str, Any] | None = None,
     risk_delta: float | None = None,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None = None,
     return_certificate: bool | None = None,
     method_cost_model: MethodCostModel | None = None,
-    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]] | None = None,
+    consensus_results: Sequence[SupportsConsensusTarget | ConsensusTarget | Mapping[str, Any]]
+    | None = None,
 ) -> MethodAdvisorResult:
     """Strict Phase-5 advisor surface for analyst-facing recommendations."""
 
@@ -791,7 +795,10 @@ def _apply_advisor_cost_policy(
     *,
     query: MethodAdvisorQuery,
     method_cost_model: MethodCostModel | None,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None,
 ) -> tuple[
     list[tuple[MethodCatalogEntry, float]],
     AdvisorOptimizationResult,
@@ -1061,7 +1068,10 @@ def pareto_advise_methods(
     *,
     history: SelectionHistoryStore | None = None,
     runtime_predictor: RuntimePredictor | None = None,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None = None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None = None,
     method_cost_model: MethodCostModel | None = None,
 ) -> AdvisorOptimizationResult:
     """Return only the cost-aware Pareto optimization result for a finite candidate set."""
@@ -1467,8 +1477,7 @@ def _pareto_front(
     frontier: list[CandidateScore] = []
     for candidate in candidates:
         if any(
-            other is not candidate
-            and _dominates(other, candidate, dominance_mode=dominance_mode)
+            other is not candidate and _dominates(other, candidate, dominance_mode=dominance_mode)
             for other in candidates
         ):
             continue
@@ -1517,7 +1526,10 @@ def _robustly_dominates(left: CandidateScore, right: CandidateScore) -> bool:
 def _select_frontier_candidate(
     frontier: Sequence[CandidateScore],
     *,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None,
 ) -> CandidateScore:
     if not frontier:
         raise ValueError("Cannot select from an empty Pareto frontier.")
@@ -1547,7 +1559,10 @@ def _select_frontier_candidate(
 
 def _evaluate_value_policy(
     candidate: CandidateScore,
-    value_policy: AdvisorValuePolicy | Callable[[CandidateScore], float] | Mapping[str, float] | None,
+    value_policy: AdvisorValuePolicy
+    | Callable[[CandidateScore], float]
+    | Mapping[str, float]
+    | None,
 ) -> float | None:
     if value_policy is None:
         return None
@@ -2392,11 +2407,7 @@ def _query_fingerprint(query: MethodAdvisorQuery) -> str:
         "coverage_floor": query.coverage_floor,
         "confidence_level": query.confidence_level,
     }
-    if (
-        query.cost_policy != "ignore"
-        or query.cost_budget is not None
-        or query.return_certificate
-    ):
+    if query.cost_policy != "ignore" or query.cost_budget is not None or query.return_certificate:
         payload["cost"] = {
             "cost_policy": query.cost_policy,
             "cost_budget": _jsonable(query.cost_budget),
@@ -3074,9 +3085,9 @@ def compute_voi(
 
 __all__ = [
     "COST_PER_MS",
+    "ActiveSetSummary",
     "AdvisorOptimizationResult",
     "AdvisorValuePolicy",
-    "ActiveSetSummary",
     "BudgetCertificate",
     "CalibratedRegretCertificate",
     "CandidateScore",

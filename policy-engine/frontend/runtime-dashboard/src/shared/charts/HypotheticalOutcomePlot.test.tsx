@@ -1,8 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { screen } from "@testing-library/react";
+import { renderWithProviders } from "@/test/render";
 
 const reducedMotionMock = vi.hoisted(() => vi.fn());
 
 vi.mock("motion/react", () => ({
+  MotionConfig: ({ children }: { children: ReactNode }) => children,
   useReducedMotion: () => reducedMotionMock(),
 }));
 
@@ -33,14 +36,16 @@ describe("HypotheticalOutcomePlot", () => {
   });
 
   it("renders animated sample realizations by default", () => {
-    render(<HypotheticalOutcomePlot label="Outcome plot" samples={samples} />);
+    renderWithProviders(
+      <HypotheticalOutcomePlot label="Outcome plot" samples={samples} />,
+    );
     expect(screen.getByText("Outcome plot")).toBeInTheDocument();
     expect(screen.getByText("2.0 fps")).toBeInTheDocument();
   });
 
   it("falls back automatically when reduced motion is preferred", () => {
     reducedMotionMock.mockReturnValue(true);
-    render(
+    renderWithProviders(
       <HypotheticalOutcomePlot
         label="Outcome plot"
         samples={samples}

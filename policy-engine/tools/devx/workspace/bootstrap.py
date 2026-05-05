@@ -119,7 +119,7 @@ def _ensure_node_baseline(*, skip_frontend: bool) -> None:
 
 
 def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
-    command = [sys.executable, "tools/workspace/doctor.py"]
+    command = [sys.executable, "tools/devx/workspace/doctor.py"]
     for surface in surfaces:
         command.extend(["--surface", surface])
     return tuple(command)

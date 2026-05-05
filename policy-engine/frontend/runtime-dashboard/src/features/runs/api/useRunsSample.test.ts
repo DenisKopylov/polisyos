@@ -12,7 +12,7 @@ vi.mock("@/api/hooks/useRuns", () => ({
   useSuspenseRuns: (...args: unknown[]) => useSuspenseRunsMock(...args),
 }));
 
-import { RUNS_SAMPLE_LIMIT } from "@/lib/constants";
+import { RUNS_SAMPLE_LIMIT } from "@/shared/lib/constants";
 import {
   runsSampleQueryOptions,
   useRunsSample,

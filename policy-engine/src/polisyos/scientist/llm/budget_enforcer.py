@@ -12,8 +12,8 @@ from polisyos.common.logger import get_logger
 from polisyos.core.llm.response import extract_llm_response_data
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 from polisyos.scientist.engine.budget import BudgetExhaustedError, BudgetState
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.operational_monitoring import get_operational_monitor
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.llm.cost_anomaly import CostAnomalyDetector
 
 logger = get_logger(__name__)

@@ -3,7 +3,7 @@
 Related reference: [Agent Search And Reasoning](agent-search-reasoning.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/scientist/{test_frontier_runtime.py,search/test_benchmark_registry.py}`
+Source of truth: `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/unit/scientist/{test_frontier_runtime.py,search/test_benchmark_registry.py}`
 
 > Phase 4 runtime contract for frontier capabilities. The default path stays
 > conservative: frontier methods remain feature-flagged until offline validation
@@ -78,5 +78,5 @@ implemented. They must remain behind a feature flag until:
 - Runtime report builder: `polisyos.scientist.frontier_runtime`
 - Frontier benchmark registry: `polisyos.scientist.search.benchmark_registry`
 - Runtime promotion gate: `polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime`
-- Tests: `tests/scientist/test_frontier_runtime.py`
+- Tests: `tests/unit/scientist/search/test_frontier_runtime.py`
 - Related acceptance surfaces: [phase4-acceptance.md](phase4-acceptance.md), [remediation-status.md](remediation-status.md)

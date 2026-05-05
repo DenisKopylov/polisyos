@@ -10,9 +10,10 @@ import {
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(currentDir, "../..");
+const policyEngineRoot = path.resolve(dashboardRoot, "../..");
 const fixtureMetadataPath = path.resolve(
-  dashboardRoot,
-  ".tmp/fixture-runtime.json",
+  policyEngineRoot,
+  "_build/frontend/runtime-dashboard/.tmp/fixture-runtime.json",
 );
 
 const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";

@@ -8,7 +8,7 @@ Related how-to: [Run Benchmarks](../how-to/run-benchmarks.md). Related reference
 
 Owner: `@foundry-owners`
 Last tested: `2026-04-17` against current benchmark and release-gate evidence surfaces.
-Evidence path: `docs/reference/scientist/reliability-scorecard.md`; `docs/archive/reports/platform-release-canary.md`; `.github/workflows/perf.yml`
+Evidence path: `docs/reference/scientist/reliability-scorecard.md`; `docs/archive/reports/platform-release-canary.md`; `ops/ci/templates/workflows/perf.yml`
 Rollback path: stop promotion, preserve baseline and candidate reports, then roll back or pin the change that introduced the confirmed regression.
 
 ## Symptom

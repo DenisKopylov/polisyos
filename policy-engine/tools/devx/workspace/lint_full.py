@@ -153,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
                 "opa",
                 "test",
                 "--fail-on-empty",
-                "ops/opa/policies",
+                "ops/policy/policies",
             )
         )
 

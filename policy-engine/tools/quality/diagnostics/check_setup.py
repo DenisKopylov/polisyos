@@ -7,7 +7,7 @@ import argparse
 import os
 from collections.abc import Sequence
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__, include_repo_root=False)
 
@@ -20,9 +20,8 @@ import jax  # noqa: E402
 
 # Используем логгер из конфига или создаем локальный
 from loguru import logger  # noqa: E402
-from pydantic import BaseModel  # noqa: E402
-
 from polisyos.common import config  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
 
 
 def main(argv: Sequence[str] | None = None) -> int:

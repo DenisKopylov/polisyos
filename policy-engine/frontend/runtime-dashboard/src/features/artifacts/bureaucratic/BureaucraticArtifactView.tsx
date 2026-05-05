@@ -3,7 +3,7 @@ import { Download, FileCheck2, Printer } from "lucide-react";
 
 import { useBureaucraticRender } from "@/api/hooks/useBureaucraticRender";
 import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@/shared/ui";
 
 import {

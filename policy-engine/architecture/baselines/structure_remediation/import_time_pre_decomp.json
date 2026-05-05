@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-03T16:24:53.936249+00:00",
+  "runs": 10,
+  "polisyos.scientist": {
+    "samples_wall_ms": [
+      158.942,
+      174.028,
+      99.299,
+      88.339,
+      81.91,
+      83.02,
+      83.291,
+      105.084,
+      85.804,
+      89.984
+    ],
+    "median_wall_ms": 89.161,
+    "p95_wall_ms": 174.028,
+    "median_importtime_cumulative_us": 6212
+  },
+  "polisyos.foundry": {
+    "samples_wall_ms": [
+      155.636,
+      93.426,
+      80.252,
+      81.496,
+      81.142,
+      77.008,
+      75.343,
+      78.234,
+      75.974,
+      71.881
+    ],
+    "median_wall_ms": 79.243,
+    "p95_wall_ms": 155.636,
+    "median_importtime_cumulative_us": 7467
+  }
+}

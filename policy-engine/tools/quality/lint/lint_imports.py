@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from tools._lib.cache import (
+from tools.lib.cache import (
     baseline_matches,
     cache_path,
     content_addressable_key,
@@ -27,12 +27,12 @@ from tools._lib.cache import (
     stable_json_hash,
     write_json_cache,
 )
-from tools._lib.fs import atomic_write_text
-from tools._lib.imports import is_type_checking_test
-from tools._lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.imports import is_type_checking_test
+from tools.lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
 
-DEFAULT_POLICY_PATH = Path("import_policy.toml")
-DEFAULT_EXCEPTIONS_PATH = Path("import_exceptions.toml")
+DEFAULT_POLICY_PATH = Path("architecture/imports/policy.toml")
+DEFAULT_EXCEPTIONS_PATH = Path("architecture/imports/exceptions.toml")
 DEFAULT_TOP_GOD_FILES = 10
 CACHE_NAMESPACE = "lint_imports"
 CACHE_VERSION = "2026.04.phase5"
@@ -921,7 +921,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--fix",
         action="store_true",
-        help="Canonically rewrite import_exceptions.toml before linting.",
+        help="Canonically rewrite architecture/imports/exceptions.toml before linting.",
     )
     parser.add_argument(
         "--output-format",

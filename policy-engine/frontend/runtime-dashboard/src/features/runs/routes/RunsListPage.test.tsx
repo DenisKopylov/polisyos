@@ -16,7 +16,7 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
   useTelemetryReadyMark: vi.fn(),
 }));
 
-vi.mock("@/i18n/LocaleProvider", () => ({
+vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
     label: (
       _mapName: string,

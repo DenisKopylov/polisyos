@@ -1,8 +1,10 @@
 # Frontend
 
-Related reference: [REST API](../api/index.md), [Generated Artifacts](../generated-artifacts.md).
+Related reference: [REST API](../api/index.md),
+[Generated Artifacts](../generated-artifacts.md), and
+[Workspace Contract](workspace-contract.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-05-03
 Owner: `@frontend-owners`
 Backup owner: `@runtime-owners`
 Source of truth: `frontend/**`, `schemas/runtime_api_v1.openapi.json`,
@@ -32,17 +34,17 @@ The current frontend path is contract-first:
 ## High-Signal Commands
 
 ```bash
-cd policy-engine/frontend/runtime-dashboard
-npm run generate:api
-npm run contracts:verify
-npm run typecheck
+cd policy-engine
+corepack pnpm --filter @polisyos/runtime-dashboard run generate:api
+corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify
+corepack pnpm --filter @polisyos/runtime-dashboard run typecheck
 ```
 
 Cross-layer runtime check:
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 ## Start Pages
@@ -51,6 +53,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 | ------------------------------------------------------- | ------------------------------------------------------------------------ |
 | Role-based onboarding                                   | [Frontend Engineer](../../how-to/onboarding/frontend-engineer.md)        |
 | Update generated contract chain                         | [REST API](../api/index.md) plus `frontend/runtime-api-client/README.md` |
+| Check workspace ownership and output policy             | [Workspace Contract](workspace-contract.md)                              |
 | Understand runtime deploy/runtime base URL expectations | [Deploy Runtime](../../how-to/deploy-runtime.md)                         |
 | Debug control-plane driven UI states                    | [Use Control Plane](../../how-to/use-control-plane.md)                   |
 
@@ -58,10 +61,10 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 
 | Area                          | Validation                                                                                              |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Runtime/OpenAPI/client drift  | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py` |
-| Dashboard generated API types | `cd frontend/runtime-dashboard && npm run generate:api`                                                 |
-| Dashboard contract fixtures   | `cd frontend/runtime-dashboard && npm run contracts:verify`                                             |
-| TS correctness                | `cd frontend/runtime-dashboard && npm run typecheck`                                                    |
+| Runtime/OpenAPI/client drift  | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py` |
+| Dashboard generated API types | `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api`                                   |
+| Dashboard contract fixtures   | `corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify`                               |
+| TS correctness                | `corepack pnpm --filter @polisyos/runtime-dashboard run typecheck`                                      |
 
 ## Notes
 

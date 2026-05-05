@@ -4,7 +4,7 @@ Related references: [Claims](claims.md), [Wave 2 runtime contracts](wave2-runtim
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/claims/lifecycle.py`, `src/polisyos/scientist/claims/audit.py`, `src/polisyos/scientist/claims/diff.py`, `src/polisyos/scientist/claims/export.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/scientist/claims/test_lifecycle.py`, `tests/scientist/claims/test_audit.py`, `tests/scientist/claims/test_diff.py`, `tests/scientist/claims/test_export.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
+Source of truth: `src/polisyos/scientist/claims/lifecycle.py`, `src/polisyos/scientist/claims/audit.py`, `src/polisyos/scientist/claims/diff.py`, `src/polisyos/scientist/claims/export.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `src/polisyos/scientist/policy_design/output.py`, `tests/unit/scientist/claims/test_lifecycle.py`, `tests/unit/scientist/claims/test_audit.py`, `tests/unit/scientist/claims/test_diff.py`, `tests/unit/scientist/claims/test_export.py`, and `tools/ci/check_scientist_best_in_class_phase2_1.py`.
 
 The Claim Ledger is the Wave 2 object that links research, governance,
 provenance, human review, UI export and audit at claim level. It extends the
@@ -96,7 +96,7 @@ events for selected high-risk publication paths.
 ## Validation
 
 ```bash
-uv run pytest tests/scientist/claims/test_lifecycle.py tests/scientist/claims/test_audit.py tests/scientist/claims/test_diff.py tests/scientist/claims/test_export.py -q
-uv run pytest tests/scientist/test_decision_packet_node_v3.py::test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs -q
+uv run pytest tests/unit/scientist/claims/test_lifecycle.py tests/unit/scientist/claims/test_audit.py tests/unit/scientist/claims/test_diff.py tests/unit/scientist/claims/test_export.py -q
+uv run pytest tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_1.py --repo-root . --output-format json --require-passing
 ```

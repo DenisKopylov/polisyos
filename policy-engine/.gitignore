@@ -1,168 +1,120 @@
-__pycache__/
-*.pyc
-*.egg-info/
-.venv/
-.venv_codex/
-.tmp_c7_venv/
-.tmp_c7_smoke/
-.uv-cache/
-.vscode/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.cache/
-.uv-cache/
-.env
-.env.server_*
-.DS_Store
-.benchmarks/
-# Data folders
+# Local data and fixtures
 data/**
 !data/**/
 !data/**/*.md
 !data/academic_gold/claim_gold.jsonl
 !data/academic_gold/claim_gold_split.json
 !data/dataset_catalog/*.yaml
-# Jupyter
-.ipynb_checkpoints
-# Databases files
-*.duckdb
-*.kuzu
-# --- PolicyOS Generated Artifacts ---
 
-# Hypothesis testing database & constants
-.hypothesis/
-
-# Custom artifacts (sha256, etc)
+# Ephemeral artifacts
+_build/
+_cache/
 .polisyos/
-.polisyos/keys/*.pem
-.polisyos/keys/**/private*.pem
 .polisyos-tools/
+.venv/
+.venv-*/
+.venv_*/
+/.arch-freeze/
+/.tmp_*/
+/production_data/
 
-# Application logs
-logs/
+# Legacy caches and local analysis state
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.ipynb_checkpoints/
+.benchmarks/
+.basedpyright/
+.cache/
+.uv-cache/
 
-# Test runs (keep local, do not commit)
+# Legacy generated outputs
+/out/
+/output/
+/dist/
+/site/
+/logs/
+/.tmp/
+/benchmark-results/
+/benchmarks/_reports/
+/tools/benchmarks/_reports/
+/release/sbom/
+/release-fragments/releases/
+
+# Scratch and local logs
 /runs/
+/tmp/
+*.log
+*.tmp
 
-.polisyos/
+# Root-level validation scratch outputs
+/compileall.txt
+/import_gate.txt
+/ruff_stats.txt
+/stale_sources_missing_paths.txt
+/summary.json
+/test_collect.txt
 
-# Benchmark outputs
-benchmarks/_reports/
-benchmark-results/
-tools/benchmarks/_reports/
-dist/
-out/
-output/
+# Python residue
+**/__pycache__/
+*.pyc
+*.py[cod]
+*.egg-info/
 
-# Temporary directories
-.tmp/
-.tmp_*/
-tmp/
-.arch-freeze/
+# Local environment and editor state
+.env
+.env.*
+!.env.example
+!.env.*.example
+.env.server_*
+.DS_Store
+.vscode/
 
-# Local audit bundles
-*.polisyos-audit.tar.gz
+# Local secret manifests
+/ops/cloud/gcp/gonka_secret_manifest*.json
+!/ops/cloud/gcp/gonka_secret_manifest*.example.json
 
-# Accidental local CSV / pip-redirection artifacts
-all_1000_policy_topics.csv
-env_example.txt
-
-# Frontend build artifacts
+# Local frontend dependencies
+node_modules/
+frontend/runtime-api-client/node_modules/
 frontend/runtime-dashboard/node_modules/
 frontend/runtime-dashboard/dist/
+frontend/runtime-dashboard/coverage/
+frontend/runtime-dashboard/playwright-report/
+frontend/runtime-dashboard/storybook-static/
+frontend/runtime-dashboard/test-results/
+frontend/runtime-dashboard/.tmp/
+frontend/runtime-dashboard/.eslintcache
 frontend/runtime-dashboard/.env
 frontend/runtime-dashboard/.env.local
 frontend/runtime-dashboard/.env.*.local
 !frontend/runtime-dashboard/.env.example
+frontend/runtime-reference-shell/node_modules/
 packages/*/node_modules/
 
-# Local metrics (do not commit)
-test_collect.txt
-compileall.txt
-ruff_stats.txt
-stale_sources_missing_paths.txt
+# Local data/table artifacts
+*.csv
+*.tsv
+*.parquet
+*.jsonl
+*.feather
+*.arrow
+*.orc
+*.xlsx
+*.xls
+*.ods
+*.duckdb
+*.kuzu
+*.sqlite
+*.sqlite3
+*.db
+*.pkl
+!data/academic_gold/claim_gold.jsonl
+!src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/*.csv
+!tests/unit/data_forge/fixtures/non_lex_split/**/*.duckdb
+!tests/fixtures/checkpoint_compat/**/*.pkl
 
-# Accidental shell redirection artifacts like `pip install foo>=1.2`
+# Local audit bundles and accidental shell redirection artifacts
+*.polisyos-audit.tar.gz
 /=*
-
-# Documentation
-docs/*
-!docs/IMPLEMENTATION_GUIDE.md
-!docs/DATA_FORGE_CONSOLIDATION_PLAN.md
-!docs/DOCUMENTATION_SOTA_PLAN.md
-!docs/SCIENTIST_AUDIT_REMEDIATION_PLAN.md
-!docs/UKRAINE_FUNDING_INTELLIGENCE_PLAN.md
-!docs/benchmarks/
-!docs/benchmarks/confidential-computing-overhead.md
-!docs/index.md
-!docs/key-rotation.md
-!docs/migration/
-!docs/migration/phase4_trinity_only.md
-!docs/quality/
-!docs/quality/Integration_Guide.md
-!docs/quality/Phase_2_6_Quality_System_Spec.md
-!docs/quality/README_Quality_System.md
-!docs/style-guide.md
-!docs/adr/
-!docs/adr/**
-!docs/archive/
-!docs/archive/plans/
-!docs/archive/plans/**
-!docs/archive/specs/
-!docs/archive/specs/**
-!docs/plans/
-!docs/plans/**
-docs/archive/reports/**
-!docs/archive/reports/
-!docs/archive/reports/platform-acceptance-manual.md
-!docs/archive/reports/platform-acceptance.json
-!docs/archive/reports/platform-acceptance.manual.toml
-!docs/archive/reports/platform-acceptance.md
-!docs/archive/reports/platform-release-canary.json
-!docs/archive/reports/platform-release-canary.md
-!docs/archive/reports/platform-release-dry-run-notes.json
-!docs/archive/reports/platform-release-dry-run-notes.md
-!docs/archive/reports/core-runtime-closeout.json
-!docs/archive/reports/core-runtime-closeout.md
-!docs/archive/reports/core-runtime-long-soak.json
-!docs/archive/reports/core-runtime-long-soak.md
-!docs/connectors/
-!docs/connectors/**
-!docs/brand/
-docs/brand/*
-!docs/brand/README.md
-!docs/brand/ATLAS_DESIGN_SYSTEM.md
-!docs/brand/ATLAS_V4_ADOPTION.md
-!docs/brand/atlas-v4/
-!docs/brand/atlas-v4/**
-!docs/brand/BUREAUCRATIC_RENDERING.md
-!docs/brand/CLI_STYLEGUIDE.md
-!docs/brand/COMPOSITION_RULES.md
-!docs/brand/EMAIL_TEMPLATES.md
-!docs/brand/MOTION.md
-!docs/brand/PRINT_AND_EXPORT.md
-!docs/brand/PROVENANCE_INTERACTION.md
-!docs/brand/SOCIAL_TEMPLATES.md
-!docs/brand/TRUST_VIEW.md
-!docs/brand/bureaucratic-template-review.json
-!docs/brand/storybook-wave1-snapshot/
-!docs/brand/storybook-wave1-snapshot/**
-!docs/contracts/
-!docs/contracts/**
-!docs/explanation/
-!docs/explanation/**
-!docs/fedramp/
-!docs/fedramp/**
-!docs/how-to/
-!docs/how-to/**
-!docs/reference/
-!docs/reference/**
-!docs/runbooks/
-!docs/runbooks/**
-!docs/tutorials/
-!docs/tutorials/**
-site/
-
-# Production data artifacts (large binary files from dataset pipeline)
-production_data/

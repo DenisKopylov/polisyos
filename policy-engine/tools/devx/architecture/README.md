@@ -55,7 +55,7 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 
 | Command                                                                                                       | What it verifies                                                | Status         |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/tools/test_architecture_phase3.py tests/runtime/http/test_architecture_boundaries.py` | Guardrails, scaffold policy и architecture-boundary invariants. | `conceptual`   |
+| `uv run pytest -q tests/tools/test_architecture_phase3.py tests/unit/runtime/http/test_architecture_boundaries.py` | Guardrails, scaffold policy и architecture-boundary invariants. | `conceptual`   |
 | `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                          | Generated architecture reference pages остаются publishable.    | `smoke-tested` |
 
 ## Reference Docs

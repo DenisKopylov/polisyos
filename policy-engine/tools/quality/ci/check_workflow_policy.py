@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.runner import ToolStatus
+from tools.lib.runner import ToolStatus
 from tools.registry import LEGACY_ENTRYPOINTS, TOOL_SPECS
 
 TOP_LEVEL_JOBS_RE = re.compile(r"(?m)^jobs:\s*$")
@@ -22,7 +22,28 @@ SHA_PIN_RE = re.compile(r"^[0-9a-f]{40}$")
 UNTRUSTED_EXPR_RE = re.compile(r"\$\{\{\s*(github\.event\.(pull_request|issue)|github\.head_ref)")
 LEGACY_CI_PATHS: dict[str, str] = {
     **LEGACY_ENTRYPOINTS,
-    "cloud_deploy/": "use `tools/cloud/deploy/` assets and `polisyos-tools cloud deploy-to-server` instead",
+    "policy-engine/scripts/": "use `polisyos-tools` commands directly",
+    "bash scripts/": "use `polisyos-tools` commands directly",
+    "./scripts/": "use `polisyos-tools` commands directly",
+    "python scripts/": "use `polisyos-tools` commands directly",
+    "uv run python scripts/": "use `polisyos-tools` commands directly",
+    "cloud_deploy/": "use `ops/cloud/deploy/assets/` and `polisyos-tools cloud deploy-to-server`",
+    "policy-engine/deploy/": "use `ops/deploy/`",
+    "policy-engine/docker/": "use `ops/docker/`",
+    "policy-engine/gcp/": "use `ops/cloud/gcp/`",
+    "policy-engine/.github/": "use root `.github/` or `ops/ci/templates/`",
+    "tools/benchmarks/": "use `tools/research/benchmarks/`",
+    "tools/calibration/": "use `tools/ops/calibration/`",
+    "tools/cloud/": "use `tools/ops/cloud/`",
+    "tools/data/": "use `tools/ops/data/`",
+    "tools/diagnostics/": "use `tools/quality/diagnostics/`",
+    "tools/lint/": "use `tools/quality/lint/`",
+    "tools/release/": "use `tools/ops/release/`",
+    "tools/runtime/": "use `tools/ops/runtime/`",
+    "tools/testing/": "use `tools/quality/testing/`",
+    "tools/ukraine_data/": "use `tools/ops/ukraine_data/`",
+    "tools/validation/": "use `tools/quality/validation/`",
+    "tools/workspace/": "use `tools/devx/workspace/`",
 }
 
 

@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import { RUNS_SAMPLE_STALE_MS } from "../../lib/constants";
+import { RUNS_SAMPLE_STALE_MS } from "@/shared/lib/constants";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";

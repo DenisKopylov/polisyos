@@ -136,7 +136,7 @@ uv run polisyos-tools workspace verify --backend-only --skip-doctor
 Если вы меняете runtime contract surface:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 ```
 
 Если вы меняете docs surface:

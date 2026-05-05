@@ -1,11 +1,11 @@
 node_modules/
 dist/
 coverage/
-.eslintcache
-.tmp/
 playwright-report/
 storybook-static/
 test-results/
+.tmp/
+.eslintcache
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts

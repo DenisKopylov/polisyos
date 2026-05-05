@@ -7,11 +7,11 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.runner import run_command
+from tools.lib.runner import run_command
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -19,7 +19,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if any(arg in {"-h", "--help"} for arg in args):
         print(
             "Usage: polisyos-tools cloud deploy-to-server <1|2|3> <server_ip>\n"
-            "Reads shard/env assets from `tools/cloud/deploy/assets/` by default or "
+            "Reads shard/env assets from `ops/cloud/deploy/assets/` by default or "
             "`POLISYOS_CLOUD_ASSETS_DIR` when set."
         )
         return 0

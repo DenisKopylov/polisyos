@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { useDensity } from "@/app/providers/DensityProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
 import {
   useKeyboardShortcuts,
   type ShortcutEntry,
-} from "@/lib/hooks/useKeyboardShortcuts";
+} from "@/shared/lib/hooks/useKeyboardShortcuts";
 import { usePreferencesStore } from "@/app/state/usePreferencesStore";
 
 // ---------------------------------------------------------------------------

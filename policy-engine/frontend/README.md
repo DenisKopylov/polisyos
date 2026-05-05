@@ -57,8 +57,8 @@ The directory contains three surfaces:
 - Depends on:
   [`../schemas/runtime_api_v1.openapi.json`](../schemas/runtime_api_v1.openapi.json),
   [`../src/polisyos/runtime/http/`](../src/polisyos/runtime/http/),
-  [`../tools/runtime/export_runtime_openapi.py`](../tools/runtime/export_runtime_openapi.py),
-  [`../tools/runtime/generate_runtime_client.py`](../tools/runtime/generate_runtime_client.py)
+  [`../tools/ops/runtime/export_runtime_openapi.py`](../tools/ops/runtime/export_runtime_openapi.py),
+  [`../tools/ops/runtime/generate_runtime_client.py`](../tools/ops/runtime/generate_runtime_client.py)
 
 - Depended on by:
   frontend onboarding, runtime operator flows, frontend contract checks, and
@@ -66,27 +66,27 @@ The directory contains three surfaces:
 
 ## Common Commands
 
-- `cd frontend/runtime-dashboard && npm run generate:api`
+- `pnpm --filter @polisyos/runtime-dashboard run generate:api`
   `smoke-tested 2026-04-17`
 
-- `cd frontend/runtime-dashboard && npm run dev`
+- `pnpm --filter @polisyos/runtime-dashboard run dev`
   `conceptual/manual; requires a running Runtime API or VITE_RUNTIME_API_URL`
 
-- `cd frontend/runtime-dashboard && npm run preview`
-  `conceptual/manual; run after npm run build`
+- `pnpm --filter @polisyos/runtime-dashboard run preview`
+  `conceptual/manual; run after pnpm --filter @polisyos/runtime-dashboard run build`
 
 - `cd frontend/runtime-reference-shell && python3 -m http.server 4173`
   `smoke-tested 2026-04-17`
 
 ## Test And Verification
 
-- `cd frontend/runtime-dashboard && npm run typecheck`
+- `pnpm --filter @polisyos/runtime-dashboard run typecheck`
   `smoke-tested 2026-04-17`
 
-- `cd frontend/runtime-dashboard && npm run test:contracts`
+- `pnpm --filter @polisyos/runtime-dashboard run test:contracts`
   `smoke-tested 2026-04-17`
 
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
   `smoke-tested 2026-04-17`
 
 - `curl -I http://127.0.0.1:4173/index.html`

@@ -61,9 +61,9 @@ This document uses:
 2. `import_exceptions.toml` (temporary and expiring exceptions).
 3. `import_exceptions_registry.md` (human-readable registry of active exceptions).
 4. `import_debt_register.csv` (debt ownership and exception mapping).
-5. `tools/lint/lint_imports.py` (AST-based policy enforcement).
-6. `tools/lint/collect_arch_metrics.py` (snapshot generation).
-7. `tools/lint/compare_baseline.py` (freeze/no-regression and exception checks).
+5. `tools/quality/lint/lint_imports.py` (AST-based policy enforcement).
+6. `tools/quality/lint/collect_arch_metrics.py` (snapshot generation).
+7. `tools/quality/lint/compare_baseline.py` (freeze/no-regression and exception checks).
 8. `.github/workflows/arch-freeze.yml` (CI enforcement entrypoint).
 
 All artifacts MUST stay logically consistent.

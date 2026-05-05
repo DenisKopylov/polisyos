@@ -1,7 +1,7 @@
 # Настройка Lex pipeline
 
 Related explanation: [Lex Pipeline](../explanation/lex-pipeline.md). Related reference: [Lex](../reference/lex/index.md).
-Evidence: `tests/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
+Evidence: `tests/unit/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 
 > Эта страница для инженеров и операторов, которым нужно собрать устойчивый Lex ingestion path, а не просто разово вызвать один helper.
 
@@ -21,7 +21,7 @@ Evidence: `tests/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBL
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
 curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \

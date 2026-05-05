@@ -35,7 +35,7 @@ the same change set:
 | Test strategy                    | tests path plus the validation command in PR summary and package README                                          |
 | Compatibility classification     | PR labels, release fragment, and `docs/how-to/release-policy.md` language                                        |
 | Review / merge-governance impact | PR template, `docs/reference/quality-gates.md`, `docs/reference/merge-governance.md`                             |
-| Bootstrap / doctor impact        | `tools/workspace/**`, `polisyos-tools workspace ...`, install/onboarding docs, or explicit “none” note           |
+| Bootstrap / doctor impact        | `tools/devx/workspace/**`, `polisyos-tools workspace ...`, install/onboarding docs, or explicit “none” note           |
 | Tools surface impact             | `tools.registry`, generated `docs/reference/tools.md`, nearest `tools/**/README.md`, or explicit “none” note     |
 | Config / secrets impact          | `docs/reference/configuration-profiles.md`, `.env.example`, deployment notes, or explicit “none” note            |
 | Generated-artifact impact        | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, or explicit “none” note        |
@@ -50,7 +50,7 @@ it implicit.
 For a new package or durable surface, the default authoring path is:
 
 1. Scaffold or update the nearest package README with
-   `python3 tools/architecture/scaffold.py package-readme --module ...`.
+   `uv run polisyos-tools architecture scaffold package-readme --module ...`.
 2. Fill the ownership and change-ratchet sections in that README.
 3. Update the relevant entry point in docs, not only a leaf page.
 4. Add or update the release fragment when the change is operator-visible,

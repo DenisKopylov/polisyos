@@ -1,0 +1,41 @@
+{
+  "kind": "publish",
+  "pipeline": "lex",
+  "published_at": "2026-04-24T00:00:02+00:00",
+  "artifacts": [
+    {
+      "path": "qc_report.json",
+      "sha256": "a23fc9ec89ed7c7196a7a68d6b7211719345ba0401c8c5291d9e30220ba294d0"
+    },
+    {
+      "path": "benchmark_report.json",
+      "sha256": "442ae80337b63852f79dcd837ea4cfd2b2304670bd8b3b9897651e170fdf6917"
+    },
+    {
+      "path": "manifests/run.json",
+      "sha256": "8108f9fe4f8c88be6b1e86a2cf3efac0fdb48e5fdd511228ac2bd9546957008d"
+    },
+    {
+      "path": "claim_exports/normative_claims.jsonl",
+      "sha256": "b0fb09f185d222028dcc317d9d0dd0d604b809e885422986a4a3f23c1df6963f"
+    },
+    {
+      "path": "claim_exports/normative_claims_summary.json",
+      "sha256": "262bfcc3968e0d5f1ca2180cfc34e275db75677e610ec0921b263102af99e9c4"
+    },
+    {
+      "path": "claim_exports/normative_claim_sets_summary.json",
+      "sha256": "00182d3798d0dcbac70409c8352d3da29458b8ef30cc707783dfdfcd2ec4a561"
+    },
+    {
+      "path": "publish/consumer_readiness.json",
+      "sha256": "0596b40df54e65b76f03fbfcdb230dee6e9cd8fff699fda03169194447729c4e"
+    }
+  ],
+  "qc_report": "qc_report.json",
+  "extra": {
+    "component_dir": "tests/unit/data_forge/fixtures/legal_shadow/candidate",
+    "consumer_readiness_manifest": "publish/consumer_readiness.json",
+    "require_embeddings": false
+  }
+}

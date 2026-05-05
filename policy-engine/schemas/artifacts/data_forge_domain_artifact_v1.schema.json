@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/artifacts/data_forge_domain_artifact_v1.schema.json",
+  "title": "Data Forge Domain Artifact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["domain", "asset_key", "artifact_ref", "quality_status"],
+  "properties": {
+    "domain": {
+      "type": "string",
+      "enum": ["academic", "catalog", "legal", "ukraine"]
+    },
+    "asset_key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_./-]*$"
+    },
+    "artifact_ref": {
+      "$ref": "polisyos://schemas/artifacts/data_forge_artifact_ref_v1.schema.json"
+    },
+    "quality_status": {
+      "type": "string",
+      "enum": ["passed", "warning", "failed", "not_evaluated"]
+    },
+    "drift_report_path": {
+      "type": ["string", "null"],
+      "default": null
+    },
+    "differential_report_path": {
+      "type": ["string", "null"],
+      "default": null
+    }
+  }
+}

@@ -1,8 +1,8 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { describeTimeSeries } from "./accessibility";
 import { calculateQuantile, QuantileDotplot } from "./QuantileDotplot";

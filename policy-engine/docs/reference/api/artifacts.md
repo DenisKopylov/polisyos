@@ -7,8 +7,8 @@ Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
 
-- `uv run pytest -q tests/runtime/http/test_artifact_inspector_api.py tests/runtime/http/test_artifact_inspector_service.py tests/runtime/http/test_runtime_api_authz.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+- `uv run pytest -q tests/unit/runtime/http/test_artifact_inspector_api.py tests/unit/runtime/http/test_artifact_inspector_service.py tests/unit/runtime/http/test_runtime_api_authz.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
 
 The artifact surface provides manifest, content, schema, and lineage inspection over CAS-backed runtime artifacts.
 
@@ -51,10 +51,10 @@ Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`,
 
 Validation anchors:
 
-- `tests/runtime/http/test_artifact_inspector_api.py`
-- `tests/runtime/http/test_artifact_inspector_service.py`
-- `tests/runtime/http/test_runtime_api_authz.py`
-- `tests/runtime/http/test_runtime_api_contract_hardening.py`
+- `tests/unit/runtime/http/test_artifact_inspector_api.py`
+- `tests/unit/runtime/http/test_artifact_inspector_service.py`
+- `tests/unit/runtime/http/test_runtime_api_authz.py`
+- `tests/unit/runtime/http/test_runtime_api_contract_hardening.py`
 
 ## `POST /api/v1/artifacts/batch`
 

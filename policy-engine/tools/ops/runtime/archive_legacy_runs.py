@@ -10,7 +10,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
+from tools.lib.fs import atomic_write_text
 
 from .inventory_legacy_runs import collect_inventory
 
@@ -28,7 +28,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--archive-dir",
         type=Path,
-        default=Path(".tmp/legacy_runs_archive"),
+        default=Path("_build/.tmp/legacy_runs_archive"),
         help="Directory where archive artifact/report are stored.",
     )
     parser.add_argument(

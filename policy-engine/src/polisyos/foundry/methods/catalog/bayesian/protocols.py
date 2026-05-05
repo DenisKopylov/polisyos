@@ -259,7 +259,9 @@ def validate_simulator_diagnostic_artifact(
         return value
     if isinstance(value, Mapping):
         return SimulatorDiagnosticArtifact.model_validate(dict(value))
-    raise TypeError("simulator diagnostic artifact must be a mapping or SimulatorDiagnosticArtifact")
+    raise TypeError(
+        "simulator diagnostic artifact must be a mapping or SimulatorDiagnosticArtifact"
+    )
 
 
 def canonical_simulator_diagnostic_artifact(
@@ -1155,9 +1157,7 @@ def _infer_sbi_evidence(
     failure_modes = set(_simulator_diagnostic_failure_modes(metadata))
     support_quantile_min = _sbi_support_threshold(metadata, "support_quantile_min", 0.01)
     knn_radius_max = _sbi_support_threshold(metadata, "knn_radius_mahalanobis_max", 4.0)
-    min_effective_local = _sbi_support_threshold(
-        metadata, "min_effective_local_simulations", 16.0
-    )
+    min_effective_local = _sbi_support_threshold(metadata, "min_effective_local_simulations", 16.0)
     coverage_tolerance = _truthfulness_coverage_tolerance(metadata)
     support_failure = bool(failure_modes & {"unreachable_observation", "regime_extrapolation"})
     local_miscalibration = "local_miscalibration" in failure_modes
@@ -1191,9 +1191,7 @@ def _infer_sbi_evidence(
         "posterior_sbc_ok": posterior_sbc_error is not None
         and (coverage_tolerance is not None and posterior_sbc_error <= coverage_tolerance),
         "tarp_coverage_ok": (not regime_required) or tarp_ok,
-        "local_c2st_ok": local_c2st is not None
-        and local_c2st <= 0.6
-        and not local_miscalibration,
+        "local_c2st_ok": local_c2st is not None and local_c2st <= 0.6 and not local_miscalibration,
         "ppc_ok": ppc_mahalanobis is not None
         and ppc_mahalanobis <= 2.5
         and not structural_misspecification,
@@ -1668,10 +1666,13 @@ class PosteriorResult(BaseModel):
         interval = self.credible_intervals.get(candidate)
         if interval is None:
             return None
-        lower, upper = interval
+        lower, upper = sorted((float(interval[0]), float(interval[1])))
+        point_estimate = float(self.posterior_means[candidate])
+        lower = min(lower, point_estimate)
+        upper = max(upper, point_estimate)
         return UncertaintyEnvelope(
-            point_estimate=float(self.posterior_means[candidate]),
-            confidence_interval=(float(lower), float(upper)),
+            point_estimate=point_estimate,
+            confidence_interval=(lower, upper),
             confidence_level=float(self.diagnostics.get("credible_mass", 0.9)),
             distribution_family=DistributionFamily.UNKNOWN,
             source=UncertaintySource.CALIBRATION,
@@ -1830,13 +1831,13 @@ __all__ = [
     "MultimodalityTestMetadata",
     "PolicyRelevanceClassification",
     "PolicyRelevanceStatus",
-    "PosteriorResult",
     "PosteriorModeSummary",
     "PosteriorModeWeight",
-    "PriorSensitivityReport",
-    "SimulatorDiagnosticArtifact",
-    "SamplerAdequacyStatus",
     "PosteriorReadiness",
+    "PosteriorResult",
+    "PriorSensitivityReport",
+    "SamplerAdequacyStatus",
+    "SimulatorDiagnosticArtifact",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "augment_sampler_diagnostics",

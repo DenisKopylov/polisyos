@@ -228,7 +228,7 @@ class StateSnapshotFeasibilityProbe:
 
     def _load_state_for_snapshot(self, data_snapshot_ref: str) -> Any:
         try:
-            from polisyos.foundry.executor import load_state_snapshot
+            from polisyos.foundry.execute.executor import load_state_snapshot
         except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
             load_state_snapshot = None
             _ = exc

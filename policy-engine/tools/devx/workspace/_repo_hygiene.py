@@ -18,13 +18,14 @@ AUTHORED_PYTHON_FORMAT_SCOPE: tuple[str, ...] = (
     "scripts",
     "examples",
     "gcp/upload_gonka_secrets.py",
+    "ops/cloud/gcp/upload_gonka_secrets.py",
     "jax_bootstrap.py",
     "migrate.py",
 )
 PHASE8_LIMITED_PYTHON_SCOPE: tuple[str, ...] = (
     "benchmarks",
-    "tools/benchmarks",
-    "tools/demos",
+    "tools/research/benchmarks",
+    "tools/research/demos",
     "tools/research",
 )
 AUTHORED_PYTHON_LINT_SCOPE: tuple[str, ...] = tuple(
@@ -32,19 +33,19 @@ AUTHORED_PYTHON_LINT_SCOPE: tuple[str, ...] = tuple(
 )
 AUTHORED_PYTHON_SCOPE = AUTHORED_PYTHON_FORMAT_SCOPE
 PYTHON_BASE_LAYERS: tuple[tuple[str, str, str], ...] = (
-    ("common", "src/polisyos/common", "tests/common"),
-    ("ir", "src/polisyos/ir", "tests/ir"),
-    ("core", "src/polisyos/core", "tests/core"),
+    ("common", "src/polisyos/common", "tests/unit/common"),
+    ("ir", "src/polisyos/ir", "tests/unit/ir"),
+    ("core", "src/polisyos/core", "tests/unit/core"),
 )
 BENCHMARK_RESEARCH_SCOPE: tuple[str, ...] = (
     "benchmarks",
-    "tools/benchmarks",
-    "tools/demos",
+    "tools/research/benchmarks",
+    "tools/research/demos",
     "tools/research",
 )
 REGO_SCOPE: tuple[str, ...] = (
-    "ops/opa/policies",
-    "ops/helm/polisyos-cell/policies",
+    "ops/policy/policies",
+    "ops/cloud/helm/polisyos-cell/policies",
 )
 HELM_CHART_DIRS: tuple[str, ...] = tuple(
     sorted(
@@ -59,6 +60,8 @@ _SKIP_SEGMENTS = {
     ".mypy_cache",
     ".ruff_cache",
     ".hypothesis",
+    "_build",
+    "_cache",
     "node_modules",
     "__pycache__",
     "coverage",
@@ -235,7 +238,7 @@ def helm_lint_command(chart_path: str) -> CommandSpec:
 def workspace_command(command: str, *, label: str, args: tuple[str, ...] = ()) -> CommandSpec:
     """Invoke another canonical workspace command through the compatibility shim."""
 
-    module_path = f"tools/workspace/{command.replace('-', '_')}.py"
+    module_path = f"tools/devx/workspace/{command.replace('-', '_')}.py"
     return CommandSpec(
         label=label,
         argv=(sys.executable, module_path, *args),

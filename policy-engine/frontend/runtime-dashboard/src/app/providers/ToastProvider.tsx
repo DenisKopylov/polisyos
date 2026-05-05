@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import { useLiveAnnouncer } from "@/app/providers/LiveAnnouncerProvider";
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@/shared/ui";
 
 export type ToastTone = "error" | "info" | "success" | "warning";

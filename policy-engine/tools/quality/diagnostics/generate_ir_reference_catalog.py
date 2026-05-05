@@ -8,7 +8,17 @@ from collections import Counter
 from collections.abc import Iterable
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from
+try:
+    from tools.lib.imports import repo_root_from
+except ModuleNotFoundError:
+
+    def repo_root_from(path: str | Path) -> Path:
+        current = Path(path).resolve()
+        for candidate in (current, *current.parents):
+            if (candidate / "src" / "polisyos").exists():
+                return candidate
+        raise RuntimeError(f"Could not locate repository root from {path!s}")
+
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -82,7 +92,7 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
         "Canonical regeneration command (snapshots + reference docs):",
         "",
         "```bash",
-        "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
+        "PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py",
         "```",
         "",
         "## Summary",
@@ -141,7 +151,7 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
         "Canonical regeneration command (snapshots + reference docs):",
         "",
         "```bash",
-        "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
+        "PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py",
         "```",
         "",
     ]

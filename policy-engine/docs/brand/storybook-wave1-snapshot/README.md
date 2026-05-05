@@ -6,7 +6,7 @@ This folder freezes the Storybook review surface used for Wave 1 closeout on
 It is intentionally manifest-centric:
 
 - the canonical generated site stays in
-  `frontend/runtime-dashboard/storybook-static/`
+  `_build/frontend/runtime-dashboard/storybook-static/`
 
 - this archive keeps the curated story index, rollout manifest, and onboarding
   script needed for release review and later audits
@@ -15,7 +15,7 @@ It is intentionally manifest-centric:
 
 - Source command: `npm run build-storybook`
 - Source output:
-  `frontend/runtime-dashboard/storybook-static/`
+  `_build/frontend/runtime-dashboard/storybook-static/`
 
 - Archived story index: [`stories.index.json`](./stories.index.json)
 - Story count: `92`
@@ -35,7 +35,8 @@ It is intentionally manifest-centric:
 ## Local Review
 
 1. `cd policy-engine/frontend/runtime-dashboard`
-2. Serve `storybook-static/` with any static file server.
+2. Serve `_build/frontend/runtime-dashboard/storybook-static/` with any static
+   file server.
 3. Open `index.html` for navigation or use `iframe.html?id=<story-id>` for a
    direct anchor-artifact route.
 
@@ -63,6 +64,5 @@ When the snapshot is published for stakeholder review, record:
 - reviewer names
 - whether the deployment used `all_on` exactly or an explicit flag object
 
-Update
-[`DESIGN_WAVE1_RELEASE_NOTES.md`](../../plans/active/DESIGN_WAVE1_RELEASE_NOTES.md)
-after deployment so the Wave 1 gate has a single source of truth.
+Update `docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md` after deployment so
+the Wave 1 gate has a single source of truth.

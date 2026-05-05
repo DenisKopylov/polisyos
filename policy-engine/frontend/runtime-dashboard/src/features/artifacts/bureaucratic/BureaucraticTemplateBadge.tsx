@@ -1,4 +1,4 @@
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge } from "@/shared/ui";
 
 import type { BureaucraticTemplateRef } from "./ast/bureaucratic-document-ast";

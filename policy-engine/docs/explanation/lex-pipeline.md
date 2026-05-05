@@ -3,7 +3,7 @@
 Related reference: [Lex index](../reference/lex/index.md), [Lex NormPack](../reference/lex/normpack.md), [Lex interventions](../reference/lex/interventions.md), [Lex batch pipeline](../reference/lex/batch-pipeline.md).
 Related contracts: [E2.8 Lex corpus MVP](../contracts/E2_8_LEX_CORPUS_MVP_V1_0.md), [E2.9 NormPack assembly](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [E2.10 legal evaluation](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 Related ADRs: [ADR-0019](../adr/0019-lex-norm-impact-analysis.md), [ADR-0057](../adr/0057-legal-bridge-via-lex-api.md).
-Evidence: `tests/lex/**`, [configure Lex pipeline](../how-to/configure-lex-pipeline.md), [run causal analysis](../how-to/run-causal-analysis.md).
+Evidence: `tests/unit/lex/**`, [configure Lex pipeline](../how-to/configure-lex-pipeline.md), [run causal analysis](../how-to/run-causal-analysis.md).
 
 Lex turns legal sources into artifacts that policy workflows can reason about:
 document structure, active versions, NormPack snapshots, intervention bundles,

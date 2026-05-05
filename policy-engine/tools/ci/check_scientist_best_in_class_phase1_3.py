@@ -9,8 +9,8 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_best_in_class_phase1_3"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-3"
@@ -32,28 +32,28 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/scientist/evidence/test_models.py"),
-    Path("tests/scientist/evidence/test_safe_fetch.py"),
-    Path("tests/scientist/evidence/test_source_quality.py"),
-    Path("tests/scientist/evidence/test_snippet_ledger.py"),
-    Path("tests/scientist/evidence/test_claim_support.py"),
-    Path("tests/scientist/evidence/test_cache.py"),
-    Path("tests/scientist/evidence/test_verifier.py"),
-    Path("tests/scientist/evidence/test_scholar_search_tools.py"),
-    Path("tests/scientist/evidence/test_research_dag_projection.py"),
-    Path("tests/scientist/evidence/test_decision_packet_web_evidence.py"),
+    Path("tests/unit/scientist/evidence/test_models.py"),
+    Path("tests/unit/scientist/evidence/test_safe_fetch.py"),
+    Path("tests/unit/scientist/evidence/test_source_quality.py"),
+    Path("tests/unit/scientist/evidence/test_snippet_ledger.py"),
+    Path("tests/unit/scientist/evidence/test_claim_support.py"),
+    Path("tests/unit/scientist/evidence/test_cache.py"),
+    Path("tests/unit/scientist/evidence/test_verifier.py"),
+    Path("tests/unit/scientist/evidence/test_scholar_search_tools.py"),
+    Path("tests/unit/scientist/evidence/test_research_dag_projection.py"),
+    Path("tests/unit/scientist/evidence/test_decision_packet_web_evidence.py"),
     Path("tests/tools/test_scientist_best_in_class_phase1_3.py"),
 )
 REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/scientist/evidence/test_safe_fetch.py"): (
+    Path("tests/unit/scientist/evidence/test_safe_fetch.py"): (
         "169.254.169.254",
         "localhost",
         "blocked_domain",
         "blocked_content_type",
         "prompt_injection_suspected",
     ),
-    Path("tests/scientist/evidence/test_models.py"): ("missing snippet_id",),
-    Path("tests/scientist/evidence/test_scholar_search_tools.py"): (
+    Path("tests/unit/scientist/evidence/test_models.py"): ("missing snippet_id",),
+    Path("tests/unit/scientist/evidence/test_scholar_search_tools.py"): (
         "blocked_private_network",
         "invalid_arguments",
     ),
@@ -80,8 +80,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     sys.path.insert(0, str(repo_root / "src"))
     notes: list[str] = []
     try:
-        from pydantic import ValidationError
-
         from polisyos.scholar.search.models import (
             ClaimSupportLink,
             QueryGraph,
@@ -92,6 +90,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.evidence.safe_fetch import evaluate_fetch_request
         from polisyos.scientist.evidence.source_quality import score_source_quality
+        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase1_3_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -172,8 +171,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_required_negative_test_token:{token}"
-        for token in missing_negative_test_tokens
+        f"missing_required_negative_test_token:{token}" for token in missing_negative_test_tokens
     )
 
     import_ok, import_notes = _import_and_validate(repo_root)
@@ -215,8 +213,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             f"{path}:{token}" for token in tokens if token not in text
         )
     notes.extend(
-        f"missing_phase1_3_integration_token:{token}"
-        for token in missing_integration_tokens
+        f"missing_phase1_3_integration_token:{token}" for token in missing_integration_tokens
     )
 
     active_plan_tokens = ("1.3", "Deep research evidence", "closed")
@@ -242,8 +239,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
         "required_package_files": [str(path) for path in REQUIRED_PACKAGE_FILES],
         "required_test_files": [str(path) for path in REQUIRED_TEST_FILES],
         "required_negative_test_tokens": {
-            str(path): list(tokens)
-            for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
+            str(path): list(tokens) for path, tokens in REQUIRED_NEGATIVE_TEST_TOKENS.items()
         },
         "notes": notes,
     }

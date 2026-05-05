@@ -10,8 +10,8 @@ import xml.etree.ElementTree as ET
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
-from tools._lib.fs import atomic_write_text
-from tools._lib.output import ToolMessage, ToolResult, format_tool_result
+from tools.lib.fs import atomic_write_text
+from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
 ASSESSMENT_ID = "scientist_phase0_gate"
 REQUIRED_PHASE0_CASES: dict[str, tuple[str, ...]] = {

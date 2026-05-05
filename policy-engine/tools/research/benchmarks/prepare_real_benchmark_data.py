@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 ACIC_BASE = "https://raw.githubusercontent.com/IBM/causallib/master/causallib/datasets/data/acic_challenge_2016"
 LBIDD_BASE = "https://raw.githubusercontent.com/IBM-HRL-MLHLS/IBM-Causal-Inference-Benchmarking-Framework/master/data/LBIDD"

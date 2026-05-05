@@ -75,9 +75,9 @@
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/release-policy.md",
         "/Users/deniskopylov/polisyos/policy-engine/release-fragments/README.md",
         "/Users/deniskopylov/polisyos/policy-engine/release-fragments/template.toml",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/release/stage_release_snapshot.py",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/release/build_release_notes.py",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/release/run_release_canary.py"
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/stage_release_snapshot.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/build_release_notes.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/run_release_canary.py"
       ],
       "kind": "automated",
       "status": "pass",
@@ -111,7 +111,7 @@
         "/Users/deniskopylov/polisyos/policy-engine/scripts/verify",
         "/Users/deniskopylov/polisyos/policy-engine/scripts/ci-parity",
         "/Users/deniskopylov/polisyos/policy-engine/scripts/acceptance-audit",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/workspace/README.md",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/README.md",
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/install.md",
         "/Users/deniskopylov/polisyos/policy-engine/docs/reference/contributor-start-here.md",
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/onboarding/index.md"
@@ -215,7 +215,7 @@
     },
     {
       "check_id": "manual.clean_machine_bootstrap",
-      "detail": "Re-clone the repo on a clean machine and run ./scripts/bootstrap -> ./scripts/doctor -> ./scripts/verify. Notes: Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: ./scripts/bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine.",
+      "detail": "Re-clone the repo on a clean machine and run polisyos-tools workspace bootstrap -> polisyos-tools workspace doctor -> polisyos-tools workspace verify. Notes: Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: polisyos-tools workspace bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine.",
       "evidence": [
         "docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
@@ -226,7 +226,7 @@
     },
     {
       "check_id": "manual.backend_walkthrough",
-      "detail": "Follow docs/how-to/onboarding/backend-engineer.md on a representative contributor path. Notes: Backend walkthrough passed from clean checkout ccde518 on Hetzner: ./scripts/verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist.",
+      "detail": "Follow docs/how-to/onboarding/backend-engineer.md on a representative contributor path. Notes: Backend walkthrough passed from clean checkout ccde518 on Hetzner: polisyos-tools workspace verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist.",
       "evidence": [
         "docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
@@ -237,7 +237,7 @@
     },
     {
       "check_id": "manual.frontend_walkthrough",
-      "detail": "Follow docs/how-to/onboarding/frontend-engineer.md on a representative contributor path. Notes: Frontend walkthrough passed from clean checkout ccde518 as part of ./scripts/verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests).",
+      "detail": "Follow docs/how-to/onboarding/frontend-engineer.md on a representative contributor path. Notes: Frontend walkthrough passed from clean checkout ccde518 as part of polisyos-tools workspace verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests).",
       "evidence": [
         "docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
@@ -248,7 +248,7 @@
     },
     {
       "check_id": "manual.platform_walkthrough",
-      "detail": "Follow docs/how-to/onboarding/platform-ops-engineer.md and exercise bootstrap/doctor/verify surfaces. Notes: Platform walkthrough passed from clean checkout ccde518: full ./scripts/verify --skip-doctor --pytest-workers 16 was green, and ops/docker-compose.observability.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down.",
+      "detail": "Follow docs/how-to/onboarding/platform-ops-engineer.md and exercise bootstrap/doctor/verify surfaces. Notes: Platform walkthrough passed from clean checkout ccde518: full polisyos-tools workspace verify --skip-doctor --pytest-workers 16 was green, and ops/docker/observability.compose.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down.",
       "evidence": [
         "docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"

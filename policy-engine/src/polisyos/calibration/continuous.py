@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.calibration.curve import compute_calibration_curve
 from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationCurveBin,
     CalibrationDiagnosticIssue,
@@ -16,7 +17,6 @@ from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationMetrics,
 )
 from polisyos.ir.analytics.query_validation_report import ValidationSeverity
-from polisyos.scientist.backtesting.calibration_curve import compute_calibration_curve
 
 _EPSILON = 1e-12
 _DEFAULT_LEVELS = (0.5, 0.8, 0.9)

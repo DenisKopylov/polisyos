@@ -1,6 +1,6 @@
 import { RouteIconProvider } from "@/app/providers/RouteIconProvider";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { SUPPORTED_LOCALES } from "@/i18n/locale";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { SUPPORTED_LOCALES } from "@/shared/i18n/locale";
 import { HeroSection } from "../components/HeroSection";
 import { CapabilitiesGrid } from "../components/CapabilitiesGrid";
 import { HowItWorksTimeline } from "../components/HowItWorksTimeline";

@@ -4,8 +4,8 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
-Source plan: `docs/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/provenance/lineage.py`, `src/polisyos/fabric/observability.py`, `tests/fabric/test_lineage.py`, `tests/fabric/test_fabric_observability.py`
+Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
+Source of truth: `src/polisyos/fabric/provenance/lineage.py`, `src/polisyos/fabric/observability.py`, `tests/unit/fabric/test_lineage.py`, `tests/unit/fabric/test_fabric_observability.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric lineage is currently a provenance-graph layer built around
@@ -41,7 +41,7 @@ query outputs.
 
 ## Tested End-To-End Example
 
-`tests/fabric/test_lineage.py` is the factual example that the current docs
+`tests/unit/fabric/test_lineage.py` is the factual example that the current docs
 should follow:
 
 | Stage           | Test value                                                             |
@@ -66,15 +66,15 @@ Lineage is also part of the current Fabric observability surface:
 
 | Signal               | Current evidence                                                                                                                       |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Transform-stage span | `tests/fabric/test_fabric_observability.py` checks the `transform_stage` span name and `transform.stage_name` attributes               |
+| Transform-stage span | `tests/unit/fabric/test_fabric_observability.py` checks the `transform_stage` span name and `transform.stage_name` attributes               |
 | Graph size metrics   | The same test checks `fabric_lineage_graph_nodes` and `fabric_lineage_graph_edges` counters after a normalized transform               |
 | Health snapshot      | `build_fabric_health_snapshot()` reports Fabric component health and emits connector/cache alerts separately from lineage graph export |
 
 ## Validation Anchors
 
 ```bash
-uv run pytest tests/fabric/test_lineage.py -q
-uv run pytest tests/fabric/test_fabric_observability.py -q
+uv run pytest tests/unit/fabric/test_lineage.py -q
+uv run pytest tests/unit/fabric/test_fabric_observability.py -q
 ```
 
 ## API Reference

@@ -13,6 +13,11 @@ type Path = Any
 
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.agent_sim.world import (
+    SyntheticWorldDGP,
+    phase0_seed_benchmark_binding,
+    phase0_seed_world_specs,
+)
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
@@ -64,11 +69,6 @@ from polisyos.foundry.methods.selection_history import (
 )
 from polisyos.ir.analytics.forecasting_uncertainty import ForecastingUncertaintyBundle
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
-from polisyos.synthetic_world import (
-    SyntheticWorldDGP,
-    phase0_seed_benchmark_binding,
-    phase0_seed_world_specs,
-)
 
 
 def _repo_relative(path: Path, repo_root: Path) -> str:

@@ -4,7 +4,7 @@
 **Scope**:
 
 - new package: `policy-engine/src/polisyos/fabric/claims/*`
-- new tests: `policy-engine/tests/fabric/test_claims_pipeline_phase13.py`
+- new tests: `policy-engine/tests/unit/fabric/test_claims_pipeline_phase13.py`
 
 ## 0) Goal
 
@@ -79,6 +79,6 @@ After `materialize_world_duckdb_from_fact_log(...)`:
 | Link type           | Current anchor                                                                                                                            |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 citation/CAS determinism and Phase 4 world/interoperability bridge                                                          |
-| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_claims_pipeline.py`, `tests/fabric/test_world_materialization.py`         |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/unit/fabric/test_claims_pipeline.py`, `tests/unit/fabric/test_world_materialization.py`         |
 | Schema snapshots    | `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/conflict_set.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                    |

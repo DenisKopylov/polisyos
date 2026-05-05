@@ -10,7 +10,7 @@
       "status": "implemented",
       "components": [
         "src/polisyos/core/security/identity.py",
-        "ops/helm/spire/",
+        "ops/cloud/helm/spire/",
         "src/polisyos/runtime/http/jwt_auth_middleware.py"
       ],
       "gaps": []
@@ -20,9 +20,9 @@
       "control_name": "Access Enforcement",
       "status": "implemented",
       "components": [
-        "ops/opa/policies/role_access.rego",
-        "ops/opa/policies/data_classification.rego",
-        "ops/opa/policies/tenant_boundary.rego"
+        "ops/policy/policies/role_access.rego",
+        "ops/policy/policies/data_classification.rego",
+        "ops/policy/policies/tenant_boundary.rego"
       ],
       "gaps": []
     },
@@ -32,7 +32,7 @@
       "status": "implemented",
       "components": [
         "src/polisyos/core/security/cell.py",
-        "ops/helm/polisyos-cell/templates/networkpolicy.yaml"
+        "ops/cloud/helm/polisyos-cell/templates/networkpolicy.yaml"
       ],
       "gaps": []
     },
@@ -43,7 +43,7 @@
       "components": [
         "src/polisyos/core/security/audit_sink.py",
         "src/polisyos/core/trace/",
-        "ops/prometheus/alerts.yml"
+        "ops/observability/prometheus/alerts.yml"
       ],
       "gaps": []
     },
@@ -63,8 +63,8 @@
       "control_name": "Penetration Testing",
       "status": "partial",
       "components": [
-        "ops/prometheus/",
-        "ops/grafana/"
+        "ops/observability/prometheus/",
+        "ops/observability/grafana/"
       ],
       "gaps": [
         "3PAO penetration test engagement is not yet completed"
@@ -106,7 +106,7 @@
       "control_name": "Incident Handling",
       "status": "partial",
       "components": [
-        "ops/prometheus/alerts.yml"
+        "ops/observability/prometheus/alerts.yml"
       ],
       "gaps": [
         "Formal incident response playbook and tabletop evidence are pending"
@@ -131,8 +131,8 @@
       "status": "implemented",
       "components": [
         "src/polisyos/core/security/sbom.py",
-        "ops/opa/policies/vulnerability.rego",
-        "policy-engine/.github/workflows/build-and-push.yml"
+        "ops/policy/policies/vulnerability.rego",
+        ".github/workflows/build-and-push.yml"
       ],
       "gaps": []
     },
@@ -141,7 +141,7 @@
       "control_name": "Transmission Confidentiality and Integrity",
       "status": "implemented",
       "components": [
-        "ops/helm/polisyos-cell/templates/server-policy.yaml"
+        "ops/cloud/helm/polisyos-cell/templates/server-policy.yaml"
       ],
       "gaps": []
     },

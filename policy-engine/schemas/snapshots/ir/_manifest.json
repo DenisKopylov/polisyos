@@ -1,6 +1,6 @@
 {
-  "content_hash": "11fd21bdd477c4a0ddcc630403b2bca01f25ecb00f1a53426d6c42b9eb6fe8a1",
-  "generated_at": "2026-04-25T18:40:45+00:00",
+  "content_hash": "61ac0cfe7f454530ad45bda3be6ddec0553a5041ab6d601ea197416a14d37811",
+  "generated_at": "2026-05-03T08:03:46+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -23,8 +23,8 @@
       "priority": "p1",
       "schema_file": "abm_result.schema.json",
       "schema_version": "1.3",
-      "sha256_full": "bc836c44a0d8ff6b2de7789c1bc4d5dad024d96f6363e10f28aac3526981b185",
-      "sha256_semantic": "5e3623508c32335cd1128e5d63b268531ad8b369fa20834da377f047e597015d",
+      "sha256_full": "ea93b5fdee6a1de0013929ca34314b74ebb7ae15dc5c673f310e7cbc6bf793c4",
+      "sha256_semantic": "ef594db94fa3f90f9cf890bb4c9833c44304030cb8ac837c276dc3f1634b3c20",
       "version_field": "schema_version"
     },
     "article_extraction_result": {

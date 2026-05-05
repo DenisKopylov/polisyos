@@ -13,7 +13,7 @@ from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.engine.checkpoint import RunLockError
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
 

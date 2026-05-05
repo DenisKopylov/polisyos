@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { TimeSeriesDataPoint } from "./types";

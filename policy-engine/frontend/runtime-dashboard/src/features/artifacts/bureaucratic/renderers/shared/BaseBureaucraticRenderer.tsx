@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Quantity } from "@/shared/ui/quantity";
 import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import {

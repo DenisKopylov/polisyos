@@ -1,7 +1,7 @@
 # E1.6 (Phase 6) — Scientist: engine skeleton + Node protocol (workflow engine v0 + node registry)
 
-**Repo snapshot date**: 2026-02-03  
-**Scope**: `policy-engine/src/polisyos/scientist/engine/*` (+ minimal builtins), `policy-engine/tests/scientist/*`, `policy-engine/tests/contract/*`  
+**Repo snapshot date**: 2026-02-03
+**Scope**: `policy-engine/src/polisyos/scientist/engine/*` (+ minimal builtins), `policy-engine/tests/unit/scientist/*`, `policy-engine/tests/contract/*`
 **Primary goal**: превратить Scientist из “набора хардкодных шагов” в **минимальный workflow‑движок**, который исполняет DAG узлов по единому протоколу и может оркестрировать Foundry/Fabric/Scholar/Lex через порты.
 
 ---
@@ -126,8 +126,8 @@ policy-engine/src/polisyos/scientist/engine/
 ### 3.2 Тесты
 
 - Unit tests для engine/executor/registry:
-  - `policy-engine/tests/scientist/test_engine_executor_v0.py`
-  - `policy-engine/tests/scientist/test_engine_registry_v0.py`
+  - `policy-engine/tests/unit/scientist/engine/test_engine_executor_v0.py`
+  - `policy-engine/tests/unit/scientist/engine/test_engine_registry_v0.py`
 - Contract test для WorkflowSpec (serde):
   - `policy-engine/tests/contract/test_scientist_workflow_spec_contract.py`
 
@@ -185,7 +185,7 @@ policy-engine/src/polisyos/scientist/engine/
 
 #### Важная оговорка про формат (существующий ABI E1.4)
 
-`ComponentId` в репозитории валидируется как `namespace.name@semver`, где `namespace` и `name` не содержат точек.  
+`ComponentId` в репозитории валидируется как `namespace.name@semver`, где `namespace` и `name` не содержат точек.
 Поэтому пример вида `scientist.node.plan@1.0.0` **невалиден** для текущей реализации `ComponentId`.
 
 **Нормативная конвенция именования узлов на E1.6:**
@@ -247,7 +247,7 @@ class Node(Protocol):
 
 **Инварианты:**
 
-- Node не делает side‑effects “в обход” `ExecutionContext` (например, не пишет в произвольные файлы).  
+- Node не делает side‑effects “в обход” `ExecutionContext` (например, не пишет в произвольные файлы).
   Пишем артефакты в CAS через `ctx.store` и фиксируем их через state/index + trace.
 
 - Node не импортируется из `polisyos.core.*` (только Scientist вверх).
@@ -296,7 +296,7 @@ class NodeOutcome(BaseModel):
 
 - `status="fail"` ⇒ `error` MUST be non‑null.
 - `status="ok"|"skip"` ⇒ `error` SHOULD be null.
-- `artifacts` — это “что produced” для trace/observability.  
+- `artifacts` — это “что produced” для trace/observability.
   Индексация (ключ → ArtifactRef) осуществляется через `state.artifacts_index`/`state.reports_index`.
 
 ---
@@ -363,7 +363,7 @@ class ExperimentState(BaseModel):
 
 ### 5.4 Канонизация и “без float”
 
-По умолчанию `FileSystemCAS.put_json()` использует `CanonSpec(forbid_floats=True)`.  
+По умолчанию `FileSystemCAS.put_json()` использует `CanonSpec(forbid_floats=True)`.
 Нормативно для engine:
 
 - `ExperimentState`, `WorkflowSpec`, `WorkflowReport` должны сериализоваться без float,
@@ -915,6 +915,6 @@ def execute_workflow(ctx, registry, workflow, state):
 | Link type           | Current anchor                                                                                                                                                                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff                                                                                                                                                          |
-| Contract tests      | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/scientist/governance/test_validation_pipeline.py`, `tests/scientist/governance/test_pass_registry.py` |
+| Contract tests      | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/unit/scientist/governance/test_validation_pipeline.py`, `tests/unit/scientist/governance/test_pass_registry.py` |
 | Schema snapshots    | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`                                                                                   |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                 |

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/primitives";
 
 import { useDashboardLayoutStore } from "../state/useDashboardLayoutStore";

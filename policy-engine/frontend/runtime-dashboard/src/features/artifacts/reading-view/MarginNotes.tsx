@@ -1,5 +1,5 @@
-import { useOptionalI18n } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils";
+import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
 import { AuthoredText } from "@/shared/ui/authored-text";
 
 import type { ReadingViewMarginNote } from "./reading-view-tokens";

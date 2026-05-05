@@ -1,5 +1,5 @@
 title = "Core / Common / Runtime closeout ledger"
-plan_path = "docs/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
+plan_path = "docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
 
 [[workstreams]]
 id = "WS-0A"
@@ -12,7 +12,7 @@ code_evidence = [
   "src/polisyos/runtime/http/authz_middleware.py",
   "src/polisyos/runtime/http/app.py",
 ]
-test_evidence = ["tests/runtime/http/test_runtime_api_authz.py"]
+test_evidence = ["tests/unit/runtime/http/test_runtime_api_authz.py"]
 docs_evidence = [
   "docs/adr/0023-cell-based-tenant-isolation.md",
   "docs/reference/security-compliance.md",
@@ -33,15 +33,15 @@ code_evidence = [
   "src/polisyos/runtime/http/app.py",
 ]
 test_evidence = [
-  "tests/runtime/http/test_runtime_api_write_path_hardening.py",
-  "tests/runtime/http/test_control_plane_store.py",
+  "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+  "tests/unit/runtime/http/test_control_plane_store.py",
 ]
 docs_evidence = [
   "docs/adr/0097-runtime-rate-limiting-and-idempotency.md",
   "docs/runbooks/idempotency-incident.md",
   "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
 ]
-ops_evidence = ["ops/prometheus/rules/runtime_operability_alerts.yml"]
+ops_evidence = ["ops/observability/prometheus/rules/runtime_operability_alerts.yml"]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
@@ -58,10 +58,10 @@ code_evidence = [
   "src/polisyos/runtime/http/services/artifact_inspector.py",
 ]
 test_evidence = [
-  "tests/common/test_timestamps.py",
-  "tests/core/security/test_tee.py",
-  "tests/core/security/test_fulcio.py",
-  "tests/runtime/http/test_artifact_inspector_service.py",
+  "tests/unit/common/test_timestamps.py",
+  "tests/unit/core/security/test_tee.py",
+  "tests/unit/core/security/test_fulcio.py",
+  "tests/unit/runtime/http/test_artifact_inspector_service.py",
 ]
 docs_evidence = [
   "docs/reference/security-compliance.md",
@@ -83,11 +83,11 @@ code_evidence = [
   "src/polisyos/runtime/http/services/review_collaboration.py",
 ]
 test_evidence = [
-  "tests/common/test_async_tools.py",
-  "tests/runtime/http/test_review_collaboration_service.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/runtime/http/test_review_collaboration_service.py",
 ]
 docs_evidence = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
-ops_evidence = ["ops/grafana/dashboards/runtime-operability.json"]
+ops_evidence = ["ops/observability/grafana/dashboards/runtime-operability.json"]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
@@ -102,11 +102,11 @@ code_evidence = [
   "src/polisyos/runtime/http/services/control_plane_store.py",
 ]
 test_evidence = [
-  "tests/runtime/http/test_error_semantics.py",
-  "tests/runtime/http/test_runtime_api_authz.py",
+  "tests/unit/runtime/http/test_error_semantics.py",
+  "tests/unit/runtime/http/test_runtime_api_authz.py",
 ]
 docs_evidence = ["docs/runbooks/cas-opa-outage.md", "docs/runbooks/runtime-api-outage.md"]
-ops_evidence = ["ops/prometheus/rules/runtime_operability_alerts.yml"]
+ops_evidence = ["ops/observability/prometheus/rules/runtime_operability_alerts.yml"]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
@@ -214,77 +214,77 @@ code_evidence = [
   "src/polisyos/scientist/replay_backend.py",
   "src/polisyos/scholar/orchestrator/bundle.py",
   "src/polisyos/runtime/http/services/task_runner.py",
-  "tests/runtime/http/test_architecture_boundaries.py",
+  "tests/unit/runtime/http/test_architecture_boundaries.py",
   ".github/workflows/core-runtime-release-gate.yml",
 ]
 test_evidence = [
-  "tests/common/test_async_tools.py",
-  "tests/common/test_logger.py",
-  "tests/core/artifacts/test_ir_adapter.py",
-  "tests/core/components/test_cli_store.py",
-  "tests/core/artifacts/test_async_store.py",
-  "tests/core/artifacts/backends/test_config.py",
-  "tests/core/artifacts/backends/test_gcs_store.py",
-  "tests/core/security/test_audit_chain.py",
-  "tests/core/security/test_authz.py",
-  "tests/core/security/test_identity.py",
-  "tests/core/security/test_sbom.py",
-  "tests/core/security/test_tee_middleware.py",
-  "tests/fabric/connectors/bindings/test_binding_profiles.py",
-  "tests/core/phase0/test_decorators.py",
-  "tests/core/phase0/test_run_context.py",
-  "tests/core/phase0/test_audit_manifest_compat.py",
-  "tests/core/test_llm_core.py",
-  "tests/fabric/data_plane/test_cursor_store.py",
-  "tests/fabric/data_plane/test_quarantine.py",
-  "tests/fabric/data_plane/test_modes.py",
-  "tests/fabric/data_plane/test_orchestrator.py",
-  "tests/fabric/data_plane/test_streaming_runtime.py",
-  "tests/fabric/test_connector_bridge.py",
-  "tests/fabric/test_ingestion_providers.py",
-  "tests/fabric/test_provider_resolvers.py",
-  "tests/fabric/test_retrieval_service_catalog.py",
-  "tests/fabric/test_world_store.py",
-  "tests/scientist/autotune/test_registry_and_runner.py",
-  "tests/fabric/connectors/test_cache_system.py",
-  "tests/fabric/connectors/test_integration.py",
-  "tests/fabric/connectors/test_resilience.py",
-  "tests/scientist/test_knowledge_base.py",
-  "tests/scientist/test_api.py",
-  "tests/scientist/test_fabric_bridge.py",
-  "tests/scientist/compute/test_runner_polyglot.py",
-  "tests/scientist/engine/runner/test_activity_worker.py",
-  "tests/scientist/engine/test_metrics_slo.py",
-  "tests/scientist/engine/test_operational_monitoring.py",
-  "tests/scientist/governance/test_validation_pipeline.py",
-  "tests/scientist/governance/test_validation_pipeline_observability.py",
-  "tests/scientist/test_checkpoint.py",
-  "tests/scientist/test_decision_validity_service.py",
-  "tests/scientist/llm/test_budget_enforcer.py",
-  "tests/scientist/test_llm_cycle_preflight.py",
-  "tests/scientist/test_replay_backend.py",
-  "tests/scientist/workflows/test_builder_pinning.py",
-  "tests/runtime/test_runtime_manifest_paths.py",
-  "tests/core/phase0/test_store_signing.py",
-  "tests/core/artifacts/test_storage_protocol_boundaries.py",
-  "tests/scientist/llm/test_factory.py",
-  "tests/scholar/test_api_web_bootstrap.py",
-  "tests/scholar/test_freshness.py",
-  "tests/runtime/http/test_control_api.py",
-  "tests/runtime/http/test_runtime_api_write_path_hardening.py",
-  "tests/runtime/http/test_architecture_boundaries.py",
-  "tests/runtime/http/test_artifact_inspector_api.py",
-  "tests/runtime/http/test_artifact_inspector_service.py",
-  "tests/runtime/http/test_control_service_di.py",
-  "tests/runtime/http/test_control_plane_store.py",
-  "tests/runtime/http/test_debug_api.py",
-  "tests/runtime/http/test_error_semantics.py",
-  "tests/runtime/http/test_review_collaboration_service.py",
-  "tests/runtime/http/test_runtime_api_contract_hardening.py",
-  "tests/runtime/http/test_runtime_api_observability.py",
-  "tests/runtime/http/test_timeline_api.py",
-  "tests/runtime/http/test_runs_api.py",
-  "tests/runtime/http/test_runtime_api_observability.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/common/test_logger.py",
+  "tests/unit/core/artifacts/test_ir_adapter.py",
+  "tests/unit/core/components/test_cli_store.py",
+  "tests/unit/core/artifacts/test_async_store.py",
+  "tests/unit/core/artifacts/backends/test_config.py",
+  "tests/unit/core/artifacts/backends/test_gcs_store.py",
+  "tests/unit/core/security/test_audit_chain.py",
+  "tests/unit/core/security/test_authz.py",
+  "tests/unit/core/security/test_identity.py",
+  "tests/unit/core/security/test_sbom.py",
+  "tests/unit/core/security/test_tee_middleware.py",
+  "tests/unit/fabric/connectors/bindings/test_binding_profiles.py",
+  "tests/unit/core/phase0/test_decorators.py",
+  "tests/unit/core/phase0/test_run_context.py",
+  "tests/unit/core/phase0/test_audit_manifest_compat.py",
+  "tests/unit/core/test_llm_core.py",
+  "tests/unit/fabric/data_plane/test_cursor_store.py",
+  "tests/unit/fabric/data_plane/test_quarantine.py",
+  "tests/unit/fabric/data_plane/test_modes.py",
+  "tests/unit/fabric/data_plane/test_orchestrator.py",
+  "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+  "tests/unit/fabric/test_connector_bridge.py",
+  "tests/unit/fabric/test_ingestion_providers.py",
+  "tests/unit/fabric/test_provider_resolvers.py",
+  "tests/unit/fabric/test_retrieval_service_catalog.py",
+  "tests/unit/fabric/test_world_store.py",
+  "tests/unit/scientist/autotune/test_registry_and_runner.py",
+  "tests/unit/fabric/connectors/test_cache_system.py",
+  "tests/unit/fabric/connectors/test_integration.py",
+  "tests/unit/fabric/connectors/test_resilience.py",
+  "tests/unit/scientist/agent/test_knowledge_base.py",
+  "tests/unit/scientist/facade/test_api.py",
+  "tests/unit/scientist/adapters/test_fabric_bridge.py",
+  "tests/unit/scientist/compute/test_runner_polyglot.py",
+  "tests/unit/scientist/engine/runner/test_activity_worker.py",
+  "tests/unit/scientist/engine/test_metrics_slo.py",
+  "tests/unit/scientist/engine/test_operational_monitoring.py",
+  "tests/unit/scientist/governance/test_validation_pipeline.py",
+  "tests/unit/scientist/governance/test_validation_pipeline_observability.py",
+  "tests/unit/scientist/engine/test_checkpoint.py",
+  "tests/unit/scientist/validation/test_decision_validity_service.py",
+  "tests/unit/scientist/llm/test_budget_enforcer.py",
+  "tests/unit/scientist/llm/test_llm_cycle_preflight.py",
+  "tests/unit/scientist/replay/test_replay_backend.py",
+  "tests/unit/scientist/workflows/test_builder_pinning.py",
+  "tests/unit/runtime/test_runtime_manifest_paths.py",
+  "tests/unit/core/phase0/test_store_signing.py",
+  "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+  "tests/unit/scientist/llm/test_factory.py",
+  "tests/unit/scholar/test_api_web_bootstrap.py",
+  "tests/unit/scholar/test_freshness.py",
+  "tests/unit/runtime/http/test_control_api.py",
+  "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+  "tests/unit/runtime/http/test_architecture_boundaries.py",
+  "tests/unit/runtime/http/test_artifact_inspector_api.py",
+  "tests/unit/runtime/http/test_artifact_inspector_service.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/unit/runtime/http/test_control_plane_store.py",
+  "tests/unit/runtime/http/test_debug_api.py",
+  "tests/unit/runtime/http/test_error_semantics.py",
+  "tests/unit/runtime/http/test_review_collaboration_service.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "tests/unit/runtime/http/test_runtime_api_observability.py",
+  "tests/unit/runtime/http/test_timeline_api.py",
+  "tests/unit/runtime/http/test_runs_api.py",
+  "tests/unit/runtime/http/test_runtime_api_observability.py",
 ]
 docs_evidence = ["docs/reference/quality-gates.md", "docs/reference/ratchet-policy.md"]
 ops_evidence = []
@@ -301,8 +301,8 @@ code_evidence = [
   "src/polisyos/runtime/http/dependencies.py",
 ]
 test_evidence = [
-  "tests/common/test_serialization_properties.py",
-  "tests/runtime/http/test_access_invariants_properties.py",
+  "tests/unit/common/test_serialization_properties.py",
+  "tests/unit/runtime/http/test_access_invariants_properties.py",
   "tests/performance/test_runtime_hot_paths.py",
 ]
 docs_evidence = ["docs/reference/quality-gates.md"]
@@ -321,17 +321,17 @@ code_evidence = [
   "src/polisyos/core/observability/_metrics_registry_base.py",
 ]
 test_evidence = [
-  "tests/runtime/http/test_runtime_api_observability.py",
-  "tests/runtime/http/test_runtime_security_compliance.py",
+  "tests/unit/runtime/http/test_runtime_api_observability.py",
+  "tests/unit/runtime/http/test_runtime_security_compliance.py",
 ]
 docs_evidence = [
   "docs/reference/operations/slo-error-budget.md",
   "docs/reference/security-compliance.md",
 ]
 ops_evidence = [
-  "ops/prometheus/slo_alerts.yml",
-  "ops/grafana/dashboards/runtime-operability.json",
-  "ops/grafana/dashboards/slo-overview.json",
+  "ops/observability/prometheus/slo_alerts.yml",
+  "ops/observability/grafana/dashboards/runtime-operability.json",
+  "ops/observability/grafana/dashboards/slo-overview.json",
 ]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
@@ -369,19 +369,19 @@ code_evidence = [
   "src/polisyos/runtime/api.py",
 ]
 test_evidence = [
-  "tests/core/artifacts/backends/test_gcs_store.py",
-  "tests/core/artifacts/backends/test_s3_store.py",
-  "tests/core/phase0/test_run_context.py",
-  "tests/core/phase0/test_audit_manifest_compat.py",
-  "tests/core/phase0/test_artifact_store.py",
-  "tests/runtime/test_runtime_manifest_paths.py",
-  "tests/core/phase0/test_store_signing.py",
-  "tests/core/phase0/test_artifact_export_import.py",
-  "tests/core/artifacts/test_storage_protocol_boundaries.py",
-  "tests/common/test_migrations_purity.py",
-  "tests/common/test_fast_json_serialization.py",
-  "tests/runtime/http/test_architecture_boundaries.py",
-  "tests/runtime/http/test_control_plane_store.py",
+  "tests/unit/core/artifacts/backends/test_gcs_store.py",
+  "tests/unit/core/artifacts/backends/test_s3_store.py",
+  "tests/unit/core/phase0/test_run_context.py",
+  "tests/unit/core/phase0/test_audit_manifest_compat.py",
+  "tests/unit/core/phase0/test_artifact_store.py",
+  "tests/unit/runtime/test_runtime_manifest_paths.py",
+  "tests/unit/core/phase0/test_store_signing.py",
+  "tests/unit/core/phase0/test_artifact_export_import.py",
+  "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+  "tests/unit/common/test_migrations_purity.py",
+  "tests/unit/common/test_fast_json_serialization.py",
+  "tests/unit/runtime/http/test_architecture_boundaries.py",
+  "tests/unit/runtime/http/test_control_plane_store.py",
 ]
 docs_evidence = [
   "docs/adr/0098-cas-abstraction-boundary.md",
@@ -424,26 +424,26 @@ code_evidence = [
   "tools/devx/workspace/core_runtime_long_soak.py",
 ]
 test_evidence = [
-  "tests/common/test_async_tools.py",
-  "tests/core/artifacts/test_async_store.py",
-  "tests/fabric/data_plane/test_cursor_store.py",
-  "tests/fabric/data_plane/test_quarantine.py",
-  "tests/fabric/data_plane/test_modes.py",
-  "tests/fabric/data_plane/test_orchestrator.py",
-  "tests/fabric/data_plane/test_streaming_runtime.py",
-  "tests/scientist/engine/test_async_executor.py",
-  "tests/runtime/http/test_timeline_api.py",
-  "tests/runtime/http/test_resilience_guards.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/core/artifacts/test_async_store.py",
+  "tests/unit/fabric/data_plane/test_cursor_store.py",
+  "tests/unit/fabric/data_plane/test_quarantine.py",
+  "tests/unit/fabric/data_plane/test_modes.py",
+  "tests/unit/fabric/data_plane/test_orchestrator.py",
+  "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+  "tests/unit/scientist/engine/test_async_executor.py",
+  "tests/unit/runtime/http/test_timeline_api.py",
+  "tests/unit/runtime/http/test_resilience_guards.py",
   "tests/performance/test_runtime_hot_paths.py",
-  "tests/scientist/test_checkpoint.py",
-  "tests/scientist/test_replay_backend.py",
-  "tests/scientist/engine/test_retry.py",
-  "tests/scientist/engine/test_fan_out_async.py",
-  "tests/scholar/test_api_web_bootstrap.py",
-  "tests/scholar/search/test_fetcher_security_cache.py",
-  "tests/scholar/search/test_providers.py",
-  "tests/scholar/search/test_service_jobs_tools.py",
-  "tests/runtime/http/test_control_service_di.py",
+  "tests/unit/scientist/engine/test_checkpoint.py",
+  "tests/unit/scientist/replay/test_replay_backend.py",
+  "tests/unit/scientist/engine/test_retry.py",
+  "tests/unit/scientist/engine/test_fan_out_async.py",
+  "tests/unit/scholar/test_api_web_bootstrap.py",
+  "tests/unit/scholar/search/test_fetcher_security_cache.py",
+  "tests/unit/scholar/search/test_providers.py",
+  "tests/unit/scholar/search/test_service_jobs_tools.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
   "tests/performance/test_scientist_runtime_paths.py",
   "tests/tools/test_core_runtime_long_soak.py",
 ]
@@ -455,7 +455,7 @@ docs_evidence = [
   "docs/reference/operations/observability-topology.md",
   "docs/runbooks/cache-rebuild-storm.md",
 ]
-ops_evidence = ["ops/grafana/dashboards/runtime-operability.json"]
+ops_evidence = ["ops/observability/grafana/dashboards/runtime-operability.json"]
 ci_evidence = [
   ".github/workflows/core-runtime-release-gate.yml",
   ".github/workflows/core-runtime-long-soak.yml",
@@ -566,78 +566,78 @@ code_evidence = [
   "src/polisyos/core/observability/tracer.py",
 ]
 test_evidence = [
-  "tests/common/test_config_bootstrap.py",
-  "tests/common/test_async_tools.py",
-  "tests/core/artifacts/test_ir_adapter.py",
-  "tests/core/artifacts/test_async_store.py",
-  "tests/core/components/test_cli_store.py",
-  "tests/core/security/test_audit_chain.py",
-  "tests/core/security/test_authz.py",
-  "tests/core/security/test_identity.py",
-  "tests/core/security/test_sbom.py",
-  "tests/core/security/test_tee_middleware.py",
-  "tests/core/phase0/test_decorators.py",
-  "tests/core/test_llm_core.py",
-  "tests/fabric/data_plane/test_cursor_store.py",
-  "tests/fabric/data_plane/test_quarantine.py",
-  "tests/fabric/data_plane/test_modes.py",
-  "tests/fabric/data_plane/test_orchestrator.py",
-  "tests/fabric/data_plane/test_streaming_runtime.py",
-  "tests/fabric/test_connector_bridge.py",
-  "tests/fabric/test_ingestion_providers.py",
-  "tests/fabric/test_provider_resolvers.py",
-  "tests/fabric/test_retrieval_service_catalog.py",
-  "tests/fabric/test_world_store.py",
-  "tests/fabric/test_world_materialization.py",
-  "tests/common/test_logger.py",
-  "tests/scientist/autotune/test_registry_and_runner.py",
-  "tests/fabric/connectors/test_cache_system.py",
-  "tests/fabric/connectors/test_integration.py",
-  "tests/fabric/connectors/test_resilience.py",
-  "tests/scientist/test_error_semantics.py",
-  "tests/scientist/test_fabric_bridge.py",
-  "tests/scientist/test_knowledge_base.py",
-  "tests/scientist/test_api.py",
-  "tests/scientist/compute/test_advanced_methods_c7.py",
-  "tests/scientist/compute/test_runner_polyglot.py",
-  "tests/scientist/test_decision_validity_service.py",
-  "tests/scientist/engine/runner/test_activity_worker.py",
-  "tests/scientist/engine/test_metrics_slo.py",
-  "tests/scientist/engine/test_operational_monitoring.py",
-  "tests/scientist/governance/test_validation_pipeline.py",
-  "tests/scientist/governance/test_validation_pipeline_observability.py",
-  "tests/scientist/llm/test_budget_enforcer.py",
-  "tests/scientist/search/test_portfolio_search.py",
-  "tests/scientist/test_checkpoint.py",
-  "tests/scientist/test_llm_cycle_preflight.py",
-  "tests/scientist/test_informed_critic.py",
-  "tests/scientist/test_replay_backend.py",
-  "tests/scientist/workflows/test_builder_pinning.py",
-  "tests/scientist/governance/test_validation_pipeline.py",
-  "tests/scientist/llm/test_factory.py",
-  "tests/scholar/test_freshness.py",
-  "tests/scholar/search/test_service_jobs_tools.py",
-  "tests/scholar/search/test_fetcher_security_cache.py",
-  "tests/scholar/search/test_providers.py",
-  "tests/runtime/http/test_architecture_boundaries.py",
-  "tests/runtime/http/test_control_service_di.py",
-  "tests/runtime/http/test_runtime_api_observability.py",
-  "tests/core/artifacts/backends/test_gcs_store.py",
-  "tests/core/artifacts/backends/test_s3_store.py",
-  "tests/core/artifacts/backends/test_config.py",
-  "tests/runtime/http/test_api_maturity.py",
-  "tests/fabric/connectors/test_components_bridge.py",
-  "tests/fabric/connectors/test_federation.py",
-  "tests/fabric/connectors/test_quality_system.py",
-  "tests/fabric/connectors/test_registry.py",
-  "tests/fabric/connectors/test_transform_pipeline.py",
-  "tests/fabric/connectors/test_type_system.py",
-  "tests/fabric/test_fabric_observability.py",
-  "tests/fabric/test_quality_indicators.py",
-  "tests/scientist/agent/test_drafter_passes.py",
-  "tests/scientist/nodes/builtins/simulate/test_run_simulation.py",
-  "tests/scientist/test_multipass_drafter.py",
-  "tests/core/phase0/test_tracer.py",
+  "tests/unit/common/test_config_bootstrap.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/core/artifacts/test_ir_adapter.py",
+  "tests/unit/core/artifacts/test_async_store.py",
+  "tests/unit/core/components/test_cli_store.py",
+  "tests/unit/core/security/test_audit_chain.py",
+  "tests/unit/core/security/test_authz.py",
+  "tests/unit/core/security/test_identity.py",
+  "tests/unit/core/security/test_sbom.py",
+  "tests/unit/core/security/test_tee_middleware.py",
+  "tests/unit/core/phase0/test_decorators.py",
+  "tests/unit/core/test_llm_core.py",
+  "tests/unit/fabric/data_plane/test_cursor_store.py",
+  "tests/unit/fabric/data_plane/test_quarantine.py",
+  "tests/unit/fabric/data_plane/test_modes.py",
+  "tests/unit/fabric/data_plane/test_orchestrator.py",
+  "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+  "tests/unit/fabric/test_connector_bridge.py",
+  "tests/unit/fabric/test_ingestion_providers.py",
+  "tests/unit/fabric/test_provider_resolvers.py",
+  "tests/unit/fabric/test_retrieval_service_catalog.py",
+  "tests/unit/fabric/test_world_store.py",
+  "tests/unit/fabric/test_world_materialization.py",
+  "tests/unit/common/test_logger.py",
+  "tests/unit/scientist/autotune/test_registry_and_runner.py",
+  "tests/unit/fabric/connectors/test_cache_system.py",
+  "tests/unit/fabric/connectors/test_integration.py",
+  "tests/unit/fabric/connectors/test_resilience.py",
+  "tests/unit/scientist/engine/test_error_semantics.py",
+  "tests/unit/scientist/adapters/test_fabric_bridge.py",
+  "tests/unit/scientist/agent/test_knowledge_base.py",
+  "tests/unit/scientist/facade/test_api.py",
+  "tests/unit/scientist/compute/test_advanced_methods_c7.py",
+  "tests/unit/scientist/compute/test_runner_polyglot.py",
+  "tests/unit/scientist/validation/test_decision_validity_service.py",
+  "tests/unit/scientist/engine/runner/test_activity_worker.py",
+  "tests/unit/scientist/engine/test_metrics_slo.py",
+  "tests/unit/scientist/engine/test_operational_monitoring.py",
+  "tests/unit/scientist/governance/test_validation_pipeline.py",
+  "tests/unit/scientist/governance/test_validation_pipeline_observability.py",
+  "tests/unit/scientist/llm/test_budget_enforcer.py",
+  "tests/unit/scientist/search/test_portfolio_search.py",
+  "tests/unit/scientist/engine/test_checkpoint.py",
+  "tests/unit/scientist/llm/test_llm_cycle_preflight.py",
+  "tests/unit/scientist/agent/test_informed_critic.py",
+  "tests/unit/scientist/replay/test_replay_backend.py",
+  "tests/unit/scientist/workflows/test_builder_pinning.py",
+  "tests/unit/scientist/governance/test_validation_pipeline.py",
+  "tests/unit/scientist/llm/test_factory.py",
+  "tests/unit/scholar/test_freshness.py",
+  "tests/unit/scholar/search/test_service_jobs_tools.py",
+  "tests/unit/scholar/search/test_fetcher_security_cache.py",
+  "tests/unit/scholar/search/test_providers.py",
+  "tests/unit/runtime/http/test_architecture_boundaries.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/unit/runtime/http/test_runtime_api_observability.py",
+  "tests/unit/core/artifacts/backends/test_gcs_store.py",
+  "tests/unit/core/artifacts/backends/test_s3_store.py",
+  "tests/unit/core/artifacts/backends/test_config.py",
+  "tests/unit/runtime/http/test_api_maturity.py",
+  "tests/unit/fabric/connectors/test_components_bridge.py",
+  "tests/unit/fabric/connectors/test_federation.py",
+  "tests/unit/fabric/connectors/test_quality_system.py",
+  "tests/unit/fabric/connectors/test_registry.py",
+  "tests/unit/fabric/connectors/test_transform_pipeline.py",
+  "tests/unit/fabric/connectors/test_type_system.py",
+  "tests/unit/fabric/test_fabric_observability.py",
+  "tests/unit/fabric/test_quality_indicators.py",
+  "tests/unit/scientist/agent/test_drafter_passes.py",
+  "tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py",
+  "tests/unit/scientist/agent/test_multipass_drafter.py",
+  "tests/unit/core/phase0/test_tracer.py",
 ]
 docs_evidence = [
   "docs/adr/0099-runtime-lifecycle-and-di-container.md",
@@ -658,14 +658,14 @@ code_evidence = [
   "src/polisyos/runtime/http/routes/runs.py",
   "src/polisyos/runtime/http/routes/artifacts.py",
   "schemas/runtime_api_v1.openapi.json",
-  "tools/runtime/generate_runtime_client.py",
+  "tools/ops/runtime/generate_runtime_client.py",
   "frontend/runtime-api-client/runtimeApiClient.ts",
   "frontend/runtime-api-client/runtimeApiClient.js",
 ]
 test_evidence = [
-  "tests/runtime/http/test_runtime_api_contract_hardening.py",
-  "tests/runtime/http/test_api_maturity.py",
-  "tests/runtime/http/test_runtime_api_observability.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "tests/unit/runtime/http/test_api_maturity.py",
+  "tests/unit/runtime/http/test_runtime_api_observability.py",
 ]
 docs_evidence = [
   "docs/adr/0100-runtime-api-versioning-and-deprecation-policy.md",
@@ -684,7 +684,7 @@ title = "ADR, Diagrams and Runbooks"
 status = "implemented"
 summary = "The requested ADR package, architecture diagrams, and operator runbooks exist as repo-tracked platform contract assets."
 blocking_gaps = []
-code_evidence = ["tools/architecture/scaffold.py"]
+code_evidence = ["polisyos-tools architecture scaffold"]
 test_evidence = []
 docs_evidence = [
   "docs/adr/0097-runtime-rate-limiting-and-idempotency.md",
@@ -699,7 +699,7 @@ docs_evidence = [
   "docs/runbooks/cache-rebuild-storm.md",
   "docs/runbooks/idempotency-incident.md",
 ]
-ops_evidence = ["ops/prometheus/README.md", "ops/grafana/README.md"]
+ops_evidence = ["ops/observability/prometheus/README.md", "ops/observability/grafana/README.md"]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
@@ -713,9 +713,9 @@ code_evidence = [
   "src/polisyos/runtime/http/csrf.py",
   "src/polisyos/runtime/http/compliance.py",
 ]
-test_evidence = ["tests/runtime/http/test_runtime_security_compliance.py"]
+test_evidence = ["tests/unit/runtime/http/test_runtime_security_compliance.py"]
 docs_evidence = ["docs/reference/security-compliance.md", "docs/runbooks/key-rotation.md"]
-ops_evidence = ["ops/prometheus/rules/audit_chain_alerts.yml"]
+ops_evidence = ["ops/observability/prometheus/rules/audit_chain_alerts.yml"]
 ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
@@ -724,9 +724,9 @@ title = "CI Ratchets and Release Gates"
 status = "implemented"
 summary = "The root-level core-runtime release gate now enforces typing, ratchets, targeted contracts, mutation/performance slices, and release-review evidence packaging."
 blocking_gaps = []
-code_evidence = ["tools/validation/check_ci_ratchets.py", "tools/architecture/guardrails.py"]
+code_evidence = ["tools/quality/validation/check_ci_ratchets.py", "polisyos-tools architecture guardrails"]
 test_evidence = [
-  "tests/runtime/http/test_architecture_boundaries.py",
+  "tests/unit/runtime/http/test_architecture_boundaries.py",
   "tests/tools/test_acceptance_audit.py",
 ]
 docs_evidence = ["docs/reference/quality-gates.md", "docs/reference/ratchet-policy.md"]

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { GovernanceIssueView } from "@/lib/domain/governance";
+import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import {
   buildDisputeRecords,
   type DisputeRecord,
@@ -8,8 +8,8 @@ import {
   readStoredDisputes,
   writeStoredDisputes,
 } from "@/features/runs/domain/disputes";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { Badge, Button, Card, Input, Label, Select } from "@/shared/ui";
 
 function statusKind(status: DisputeStatus) {

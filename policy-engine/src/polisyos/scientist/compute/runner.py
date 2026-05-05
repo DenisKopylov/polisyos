@@ -25,7 +25,7 @@ from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
-from polisyos.scientist.error_semantics import emit_degraded_path
+from polisyos.scientist.engine.error_semantics import emit_degraded_path
 
 try:  # pragma: no cover - optional dependency for local/dev environments
     import jax as _jax
@@ -163,7 +163,7 @@ class LocalBackend(RunnerBackend):
         registry_content: Any,
         seed: int,
     ) -> ExecutionResult:
-        from polisyos.foundry.executor import (
+        from polisyos.foundry.execute.executor import (
             apply_state_delta_and_snapshot,
             execute_program_graph,
         )
@@ -453,7 +453,7 @@ def _run_legacy_job(
     store = (store_factory or _build_store)(cas_root) if cas_root is not None else None
     if base_state is None and store is not None and spec.state_snapshot_ref is not None:
         try:
-            from polisyos.foundry.executor import load_state_snapshot
+            from polisyos.foundry.execute.executor import load_state_snapshot
 
             filesystem_store = _require_filesystem_store(
                 store,

@@ -1,0 +1,67 @@
+name: Architecture Import Gate
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  import-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install uv
+        run: pip install uv
+      - name: Sync Python dependencies
+        run: uv sync --frozen --extra lint --extra test --extra runtime --extra causal-discovery
+      - name: Install frontend dashboard dependencies
+        working-directory: frontend/runtime-dashboard
+        run: npm ci
+      - name: Run import gate
+        run: uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
+      - name: Run Foundry backend lint policy
+        run: uv run python tools/quality/lint/lint_foundry.py --repo-root .
+      - name: Run mypy strict ratchet
+        run: |
+          uv run mypy --strict --follow-imports=silent \
+            src/polisyos/runtime/http/errors.py \
+            src/polisyos/common/serialization.py \
+            src/polisyos/core/security/authz.py \
+            src/polisyos/core/artifacts/backends/caching_store.py \
+            src/polisyos/runtime/http/services/control_plane_store.py
+      - name: Run Scientist Phase 2 ratchet
+        run: uv run polisyos-tools ci check-scientist-phase2-ratchet
+      - name: Run basedpyright ratchet
+        run: uv run basedpyright --project basedpyright.toml
+      - name: Check Scientist state_reads contract
+        run: uv run python tools/quality/diagnostics/check_state_reads.py
+      - name: Require Scientist node version bumps
+        run: uv run python tools/quality/diagnostics/check_scientist_node_version_bump.py
+      - name: Verify Scholar storage boundary
+        run: uv run python tools/quality/lint/check_scholar_imports.py
+      - name: Verify connector contracts
+        run: uv run polisyos-tools connectors check-contracts --check
+      - name: Verify ABI schema snapshots
+        run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+      - name: Verify architecture guardrails
+        run: uv run polisyos-tools architecture guardrails check
+      - name: Verify Runtime API contract drift
+        run: uv run --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+      - name: Verify frontend API types are current
+        working-directory: frontend/runtime-dashboard
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/types.ts
+      - name: Verify Repository SOTA closeout
+        run: uv run polisyos-tools workspace repository-sota-closeout

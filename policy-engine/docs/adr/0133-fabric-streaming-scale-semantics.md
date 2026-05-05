@@ -59,9 +59,9 @@ around Fabric trust metadata. Future adapters can upgrade to
 ## Validation
 
 - `tools/quality/validation/fabric_processing_guarantees.py --check`
-- `tests/fabric/data_plane/test_processing_guarantees.py`
-- `tests/fabric/data_plane/test_benchmarks.py`
-- `tests/fabric/data_plane/test_orchestrator.py`
+- `tests/unit/fabric/data_plane/test_processing_guarantees.py`
+- `tests/unit/fabric/data_plane/test_benchmarks.py`
+- `tests/unit/fabric/data_plane/test_orchestrator.py`
 
 ## Concrete impact
 

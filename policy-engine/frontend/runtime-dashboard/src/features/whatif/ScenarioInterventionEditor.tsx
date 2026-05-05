@@ -1,5 +1,5 @@
 import type { ScenarioListPayload } from "@/api/validators";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DualInput, DualSlider } from "@/shared/ui/counterfactual";
 
 type ScenarioManifest = NonNullable<ScenarioListPayload["scenarios"]>[number];

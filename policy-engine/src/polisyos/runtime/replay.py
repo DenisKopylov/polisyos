@@ -30,7 +30,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
-from polisyos.foundry._execution_posture import resolve_execution_posture
+from polisyos.foundry.execute import resolve_execution_posture
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore

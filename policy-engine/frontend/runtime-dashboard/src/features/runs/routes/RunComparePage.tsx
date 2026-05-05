@@ -4,7 +4,7 @@ import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PolicyDiffView } from "@/features/runs/compare/PolicyDiffView";
 import { CompareCommandDialog } from "@/features/runs/compare/CompareCommandDialog";
 import { parseRunCompareSearchParams } from "@/features/runs/domain/searchParams";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card, EmptyState } from "@/shared/ui";
 
 export default function RunComparePage() {

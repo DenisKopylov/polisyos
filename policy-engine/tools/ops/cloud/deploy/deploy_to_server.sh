@@ -12,8 +12,8 @@ set -euo pipefail
 N="${1:?Usage: bash deploy_to_server.sh <1|2|3> <server_ip>}"
 IP="${2:?Usage: bash deploy_to_server.sh <1|2|3> <server_ip>}"
 DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(cd "${DIR}/../../.." && pwd)"
-ASSETS_DIR="${POLISYOS_CLOUD_ASSETS_DIR:-${DIR}/assets}"
+PROJECT_ROOT="$(cd "${DIR}/../../../.." && pwd)"
+ASSETS_DIR="${POLISYOS_CLOUD_ASSETS_DIR:-${PROJECT_ROOT}/ops/cloud/deploy/assets}"
 ENV_FILE="${ASSETS_DIR}/.env.server_${N}"
 TOPIC_FILE=""
 
@@ -57,17 +57,12 @@ rsync -azP --timeout=60 \
   --exclude='.venv' \
   --exclude='__pycache__' \
   --exclude='.git' \
+  --exclude='_build' \
+  --exclude='_cache' \
   --exclude='node_modules' \
-  --exclude='storybook-static' \
-  --exclude='test-results' \
-  --exclude='output' \
   --exclude='data' \
-  --exclude='cloud_deploy' \
-  --exclude='tools/cloud/deploy/assets' \
-  --exclude='coverage' \
-  --exclude='.mypy_cache' \
-  --exclude='.pytest_cache' \
-  --exclude='.ruff_cache' \
+  --exclude='tools/ops/cloud/deploy/assets' \
+  --exclude='ops/cloud/deploy/assets' \
   "$PROJECT_ROOT/" "root@${IP}:/opt/polisyos/policy-engine/"
 
 # --- 2. Upload .env ---
@@ -119,7 +114,7 @@ pip install -e ".[dev,test,academic-skg]" -q 2>&1 | tail -3
 
 # Quick validation
 python -c "import aiohttp, duckdb, pydantic, orjson; print('  Core packages: OK')"
-python -c "from polisyos.academic.batch.cli import main; print('  Pipeline CLI: OK')"
+python -c "from polisyos.data_forge.domains.academic.cli import main; print('  Pipeline CLI: OK')"
 
 echo ""
 echo "  Python: $(python --version)"
@@ -135,7 +130,7 @@ echo ""
 echo "To start the pipeline:"
 echo "  ssh root@${IP}"
 echo "  tmux new -s pipeline"
-echo "  bash /opt/polisyos/policy-engine/tools/cloud/run_pipeline.sh"
+echo "  bash /opt/polisyos/policy-engine/tools/ops/cloud/run_pipeline.sh"
 echo ""
 echo "Then detach: Ctrl+B, D"
 echo "Reconnect later: ssh root@${IP} -t 'tmux attach -t pipeline'"

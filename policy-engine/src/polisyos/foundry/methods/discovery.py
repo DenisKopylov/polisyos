@@ -379,8 +379,8 @@ class FileSystemSource:
     DEFAULT_EXCLUDE_PATTERNS: frozenset[str] = frozenset(
         {
             "__pycache__",
-            ".pytest_cache",
-            ".mypy_cache",
+            "_build",
+            "_cache",
             ".git",
             ".venv",
             "venv",

@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from polisyos.data_forge.domains.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry import (
+    runtime_canonical_names,
+)
+from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import load_seed_alignments
+
+
+def _canonical_namespace() -> set[str]:
+    namespace: set[str] = set()
+    for root, children in CANONICAL_VARIABLES.items():
+        namespace.add(root)
+        for child in children:
+            if child == "_root":
+                continue
+            namespace.add(f"{root}.{child}")
+    namespace.update(runtime_canonical_names())
+    return namespace
+
+
+def test_seed_alignment_canonical_vars_are_in_canonical_namespace() -> None:
+    alignments_path = (
+        Path(__file__).resolve().parents[6]
+        / "data"
+        / "dataset_catalog"
+        / "seed_variable_alignments.yaml"
+    )
+    alignments = load_seed_alignments(alignments_path)
+    namespace = _canonical_namespace()
+
+    missing = sorted(
+        {
+            item.canonical_var
+            for item in alignments
+            if item.canonical_var and item.canonical_var not in namespace
+        }
+    )
+    assert missing == []

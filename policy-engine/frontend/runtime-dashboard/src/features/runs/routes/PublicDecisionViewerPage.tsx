@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { RouteIconProvider } from "@/app/providers/RouteIconProvider";
 import { PublicationPacketPanel } from "@/features/runs/components/PublicationPacketPanel";
 import { verifySignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Badge, Button } from "@/shared/ui";
 
 export default function PublicDecisionViewerPage() {

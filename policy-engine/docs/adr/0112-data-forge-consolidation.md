@@ -36,3 +36,10 @@ polisyos/data_forge/
 - Batch code has one shared framework and one set of lifecycle rules.
 - Runtime imports become stricter.
 - Old package paths require migration shims with sunset dates.
+
+## Phase 0 Implementation Note
+
+Repository SOTA Phase 0 validated the Data Forge contract posture on
+2026-05-02: `polisyos.data_forge.read_api` remains the runtime-safe surface, and
+Data Forge artifact/manifest JSON Schemas are registered in
+`architecture/generated_artifacts.toml` as committed contract outputs.

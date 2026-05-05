@@ -21,15 +21,15 @@ Regenerate snapshots and IR reference catalog:
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
 ```
 
 Verification:
 
 ```bash
-uv run python tools/diagnostics/generate_ir_reference_catalog.py --check
+uv run python tools/quality/diagnostics/generate_ir_reference_catalog.py --check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
-uv run pytest -q tests/ir/test_schema_catalog.py tests/ir/test_public_surface.py
+uv run pytest -q tests/unit/ir/test_schema_catalog.py tests/unit/ir/test_public_surface.py
 ```
 
 ## 1. Add the type in the right IR section
@@ -75,7 +75,7 @@ committed ABI snapshot set.
 Run:
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
 ```
 
 This generator is the canonical path for both:
@@ -89,9 +89,9 @@ This generator is the canonical path for both:
 Use:
 
 ```bash
-uv run python tools/diagnostics/generate_ir_reference_catalog.py --check
+uv run python tools/quality/diagnostics/generate_ir_reference_catalog.py --check
 uv run --extra ml polisyos-tools diagnostics gen-schema --check
-uv run pytest -q tests/ir/test_schema_catalog.py tests/ir/test_public_surface.py
+uv run pytest -q tests/unit/ir/test_schema_catalog.py tests/unit/ir/test_public_surface.py
 ```
 
 If the type is exported through a facade, also verify the relevant package

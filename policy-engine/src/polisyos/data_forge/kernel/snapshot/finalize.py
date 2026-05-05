@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import pathlib
+from datetime import UTC, datetime
 
-from polisyos.data_forge.kernel._base import utc_now
 from polisyos.data_forge.kernel.io import sha256_file
 
 DEFAULT_PIPELINES = ("datasets", "academic", "lex")
+logger = logging.getLogger(__name__)
 
 
 def finalize_snapshot(
@@ -43,7 +45,7 @@ def finalize_snapshot(
     payload: dict[str, object] = {
         "kind": "snapshot",
         "snapshot_root": str(root),
-        "generated_at": utc_now().isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "pipelines": pipeline_manifests,
         "artifacts": artifacts,
     }
@@ -88,8 +90,8 @@ def _update_latest_symlink(root: pathlib.Path) -> None:
         if latest.is_symlink() or latest.exists():
             latest.unlink()
         latest.symlink_to(root.name)
-    except OSError:
-        return
+    except OSError as exc:
+        logger.warning("Failed to update latest symlink: %s", exc)
 
 
 __all__ = ["DEFAULT_PIPELINES", "finalize_snapshot"]

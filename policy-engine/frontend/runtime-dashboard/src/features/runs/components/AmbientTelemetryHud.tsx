@@ -11,8 +11,8 @@ import {
   setReviewerThreshold,
 } from "@/features/runs/domain/operatorCraft";
 import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
-import { useI18n } from "@/i18n/LocaleProvider";
-import { formatDate, formatNumber, formatPercent } from "@/lib/utils";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import { Badge, Slider } from "@/shared/ui";
 
 export function AmbientTelemetryHud({

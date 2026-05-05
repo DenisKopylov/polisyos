@@ -9,7 +9,7 @@ import {
   FEATURE_FLAG_CACHE_TTL_MS,
   FEATURE_FLAG_MANIFEST_CACHE_KEY,
   FEATURE_FLAG_MANIFEST_VERSION,
-} from "@/lib/featureFlags";
+} from "@/shared/lib/featureFlags";
 
 const { trackMock } = vi.hoisted(() => ({
   trackMock: vi.fn(),

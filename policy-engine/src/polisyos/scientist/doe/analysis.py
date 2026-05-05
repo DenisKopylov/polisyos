@@ -154,9 +154,10 @@ def _prepare_analysis_inputs(
         )
 
     if plan.run_failure_policy == RunFailurePolicy.DROP_FAILED:
-        if plan.method not in (SensitivityMethod.MORRIS, SensitivityMethod.SOBOL):
+        if plan.method != SensitivityMethod.MORRIS:
             raise ValueError(
-                "DROP_FAILED is only supported for MORRIS and SOBOL; use IMPUTE_BASELINE for FAST."
+                "DROP_FAILED is only supported for MORRIS; use IMPUTE_BASELINE for "
+                "structured SOBOL/FAST designs to preserve SALib sample geometry."
             )
         return samples[valid_mask], outputs[valid_mask], success_count, failed_count
 

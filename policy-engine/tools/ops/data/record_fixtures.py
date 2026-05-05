@@ -4,16 +4,16 @@
 Usage::
 
     # List available source profiles
-    python scripts/record_fixtures.py --list
+    uv run polisyos-tools data record-fixtures --list
 
     # Record a single fixture
-    python scripts/record_fixtures.py --profile worldbank_wdi --dataset "NY.GDP.MKTP.CD"
+    uv run polisyos-tools data record-fixtures --profile worldbank_wdi --dataset "NY.GDP.MKTP.CD"
 
     # Record all Wave-1 sources
-    python scripts/record_fixtures.py --wave 1
+    uv run polisyos-tools data record-fixtures --wave 1
 
     # Record all waves
-    python scripts/record_fixtures.py --wave all
+    uv run polisyos-tools data record-fixtures --wave all
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from tools._lib.imports import ensure_repo_import_roots, repo_root_from
+from tools.lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 

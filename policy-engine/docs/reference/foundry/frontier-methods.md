@@ -7,7 +7,7 @@ operational cost, optional dependencies, or research-gated interpretation.
 
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
-Source plan: `docs/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/DOCUMENTATION_SOTA_PLAN.md`
+Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 Source of truth: `src/polisyos/foundry/methods/catalog/causal/frontier.py`, `src/polisyos/foundry/methods/catalog/ml/frontier.py`, `src/polisyos/foundry/methods/catalog/policy/frontier.py`, `src/polisyos/foundry/methods/catalog/bayesian/frontier.py`, linked tests, and the frontier demo script
 
 ## Phase Coverage
@@ -56,25 +56,25 @@ The lightweight Phase 6 smoke demo exercises one causal, one ML, and one policy
 frontier method:
 
 ```bash
-uv run python tools/demos/run_foundry_ws9_frontier_demo.py
+uv run polisyos-tools demos run-foundry-ws9-frontier-demo
 ```
 
 The script is covered by
-`tests/demos/test_run_foundry_ws9_frontier_demo.py`.
+`tests/e2e/demos/test_run_foundry_ws9_frontier_demo.py`.
 
 ## Evidence Links
 
 - Causal frontier tests:
-  `tests/foundry/methods/catalog/causal/test_frontier_methods.py`
+  `tests/unit/foundry/methods/catalog/causal/test_frontier_methods.py`
 
 - ML frontier tests:
-  `tests/foundry/methods/catalog/ml/test_frontier.py`
+  `tests/unit/foundry/methods/catalog/ml/test_frontier.py`
 
 - Policy frontier tests:
-  `tests/foundry/methods/catalog/policy/test_frontier.py`
+  `tests/unit/foundry/methods/catalog/policy/test_frontier.py`
 
 - Bayesian method tests:
-  `tests/foundry/methods/catalog/bayesian/test_methods.py`
+  `tests/unit/foundry/methods/catalog/bayesian/test_methods.py`
 
 - NumPyro Bayesian SCM ADR:
   [`docs/adr/0074-numpyro-bayesian-scm.md`](../../adr/0074-numpyro-bayesian-scm.md)

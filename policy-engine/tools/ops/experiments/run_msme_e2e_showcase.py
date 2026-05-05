@@ -21,19 +21,18 @@ import json
 import math
 import os
 import random
-import shutil
 import subprocess
 import sys
 import time
 import traceback
 from collections import Counter
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 import duckdb
 import numpy as np
-
 
 PROGRAMS = {
     "vlasna_sprava": "Власна справа",
@@ -133,7 +132,9 @@ def sha256_file(path: Path, block_size: int = 1024 * 1024) -> str:
     return digest.hexdigest()
 
 
-def run_cmd(cmd: list[str], *, cwd: Path | None = None, timeout: int | None = None) -> dict[str, Any]:
+def run_cmd(
+    cmd: list[str], *, cwd: Path | None = None, timeout: int | None = None
+) -> dict[str, Any]:
     started = time.perf_counter()
     proc = subprocess.run(
         cmd,
@@ -157,7 +158,12 @@ def sync_to_gcs(local_path: Path, gcs_uri: str | None) -> dict[str, Any]:
     if not gcs_uri:
         return {"enabled": False}
     if not local_path.exists():
-        return {"enabled": True, "ok": False, "reason": "local_path_missing", "local_path": str(local_path)}
+        return {
+            "enabled": True,
+            "ok": False,
+            "reason": "local_path_missing",
+            "local_path": str(local_path),
+        }
     result = run_cmd(["gcloud", "storage", "rsync", "-r", str(local_path), gcs_uri], timeout=3600)
     result["enabled"] = True
     result["ok"] = result["returncode"] == 0
@@ -189,7 +195,11 @@ def safe_env_file_values(patterns: list[str]) -> dict[str, str]:
     """
     result: dict[str, str] = {}
     for pattern in patterns:
-        for path in sorted(Path("/").glob(pattern.lstrip("/")) if pattern.startswith("/") else Path(".").glob(pattern)):
+        for path in sorted(
+            Path("/").glob(pattern.lstrip("/"))
+            if pattern.startswith("/")
+            else Path(".").glob(pattern)
+        ):
             if not path.is_file():
                 continue
             try:
@@ -200,7 +210,11 @@ def safe_env_file_values(patterns: list[str]) -> dict[str, str]:
                     key, value = stripped.split("=", 1)
                     key = key.strip().replace("export ", "")
                     value = value.strip().strip("'\"")
-                    if key and value and any(token in key.upper() for token in ("GONKA", "OPENAI", "LLM")):
+                    if (
+                        key
+                        and value
+                        and any(token in key.upper() for token in ("GONKA", "OPENAI", "LLM"))
+                    ):
                         result.setdefault(key, value)
             except OSError:
                 continue
@@ -210,13 +224,17 @@ def safe_env_file_values(patterns: list[str]) -> dict[str, str]:
 def discover_llm_config(repo_root: Path, workdir: Path, model: str | None) -> dict[str, Any]:
     candidates: dict[str, str] = {}
     for key, value in os.environ.items():
-        if value and any(token in key.upper() for token in ("GONKA", "OPENAI")) and "KEY" in key.upper():
+        if (
+            value
+            and any(token in key.upper() for token in ("GONKA", "OPENAI"))
+            and "KEY" in key.upper()
+        ):
             candidates.setdefault(key, value)
     if not candidates:
         candidates.update(
             safe_env_file_values(
                 [
-                    str(repo_root / "cloud_deploy/.env.server_*"),
+                    str(repo_root / "ops/cloud/deploy/assets/.env.server_*"),
                     str(repo_root / ".env"),
                     str(workdir / ".env"),
                 ]
@@ -273,7 +291,7 @@ def call_llm_if_available(
             "elapsed_seconds": round(time.perf_counter() - started, 3),
             "content": content,
         }
-    except Exception as exc:  # noqa: BLE001 - stored as experiment diagnostic.
+    except Exception as exc:
         return {
             "used": False,
             "status": "llm_call_failed",
@@ -302,7 +320,9 @@ def legal_evidence_keywords() -> list[str]:
     ]
 
 
-def collect_retrieval_evidence(runs_dir: Path, lex_db: Path, output_dir: Path) -> list[dict[str, Any]]:
+def collect_retrieval_evidence(
+    runs_dir: Path, lex_db: Path, output_dir: Path
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     keywords = legal_evidence_keywords()
     h1_pack = runs_dir / "H1_formalization/legal_source_pack.jsonl"
@@ -343,13 +363,15 @@ def collect_retrieval_evidence(runs_dir: Path, lex_db: Path, output_dir: Path) -
                     rows.append(
                         {
                             "source": "lex_knowledge_graph.lex_doc_domains",
-                            "source_id": sha256_text(json.dumps(payload, ensure_ascii=False, default=str))[:20],
+                            "source_id": sha256_text(
+                                json.dumps(payload, ensure_ascii=False, default=str)
+                            )[:20],
                             "snippet": json.dumps(payload, ensure_ascii=False, default=str)[:1200],
                             "keyword_hits": [],
                         }
                     )
             con.close()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             rows.append(
                 {
                     "source": "lex_knowledge_graph",
@@ -509,19 +531,21 @@ def run_s1_policy_design(ctx: dict[str, Any]) -> dict[str, Any]:
         f"""
 # S1 Policy Intent and Agentic Design Loop
 
-Status: `completed_with_{'llm' if llm_result.get('used') else 'deterministic_fallback'}`
+Status: `completed_with_{"llm" if llm_result.get("used") else "deterministic_fallback"}`
 
 The run converted the natural-language MSME policy question into {len(designs)}
 candidate policy designs and attached {len(evidence_rows)} evidence snippets.
 
-LLM status: `{llm_result['status']}`. If this is a fallback run, it remains
+LLM status: `{llm_result["status"]}`. If this is a fallback run, it remains
 useful for the thesis as an auditable design-loop demonstration, but it should
 not be described as a Gonka/LLM-agent run.
 """,
     )
     result = {
         "experiment_id": "S1_policy_intent_agent_loop",
-        "status": "completed_with_llm" if llm_result.get("used") else "completed_with_deterministic_fallback",
+        "status": "completed_with_llm"
+        if llm_result.get("used")
+        else "completed_with_deterministic_fallback",
         "started_at": started,
         "finished_at": utc_now(),
         "evidence_rows": len(evidence_rows),
@@ -571,7 +595,9 @@ def build_runtime_quantities_from_prior_outputs(ctx: dict[str, Any]) -> list[Any
             label="Expected employment preservation proxy",
             lineage=lineage_base,
             time=temporal,
-            uncertainty=QuantityUncertainty(method="simulation", identifiability="estimated", ci_95=(0.0, 0.02)),
+            uncertainty=QuantityUncertainty(
+                method="simulation", identifiability="estimated", ci_95=(0.0, 0.02)
+            ),
         ),
         QuantityValue(
             point=float(top.get("fiscal_cost", 0.0)),
@@ -592,7 +618,7 @@ def build_runtime_quantities_from_prior_outputs(ctx: dict[str, Any]) -> list[Any
             uncertainty=QuantityUncertainty(method="simulation", identifiability="estimated"),
         ),
         QuantityValue(
-            point=float((frontier.get("frontier_size") or 0)),
+            point=float(frontier.get("frontier_size") or 0),
             unit=UnitRef(code="1", display="count"),
             metric_id="pareto_frontier_size",
             label="Pareto frontier size",
@@ -637,7 +663,11 @@ def run_s2_fabric_trust_flow(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     try:
         from polisyos.core.contracts.runtime import QuantityCoverageSummary, TemporalScope
-        from polisyos.fabric.decision_data import SourceContractRef, coverage_from_decision_data, from_runtime_quantities
+        from polisyos.fabric.decision_data import (
+            SourceContractRef,
+            coverage_from_decision_data,
+            from_runtime_quantities,
+        )
         from polisyos.fabric.product_integration import evidence_paths_from_fabric_decision_data
 
         quantities = build_runtime_quantities_from_prior_outputs(ctx)
@@ -652,7 +682,9 @@ def run_s2_fabric_trust_flow(ctx: dict[str, Any]) -> dict[str, Any]:
             tx_at=datetime.now(UTC).replace(microsecond=0),
             snapshot_id="msme_deadline_20260430",
         )
-        source_contract = SourceContractRef(id="policyos.msme.deadline.showcase", version="2026-05-01")
+        source_contract = SourceContractRef(
+            id="policyos.msme.deadline.showcase", version="2026-05-01"
+        )
         decision_data = from_runtime_quantities(
             quantities,
             source_contract=source_contract,
@@ -660,7 +692,9 @@ def run_s2_fabric_trust_flow(ctx: dict[str, Any]) -> dict[str, Any]:
             owner="@policyos-msme-thesis",
         )
         fabric_coverage = coverage_from_decision_data(decision_data)
-        evidence_paths = evidence_paths_from_fabric_decision_data(decision_data, source_trust_tier="medium")
+        evidence_paths = evidence_paths_from_fabric_decision_data(
+            decision_data, source_trust_tier="medium"
+        )
         foundry_context = [
             {
                 "metric_id": row.value.metric_id,
@@ -671,16 +705,28 @@ def run_s2_fabric_trust_flow(ctx: dict[str, Any]) -> dict[str, Any]:
             }
             for row, path in zip(decision_data, evidence_paths, strict=False)
         ]
-        write_json(output_dir / "runtime_quantities.json", [q.model_dump(mode="json") for q in quantities])
-        write_json(output_dir / "fabric_decision_data.json", [row.model_dump(mode="json") for row in decision_data])
+        write_json(
+            output_dir / "runtime_quantities.json", [q.model_dump(mode="json") for q in quantities]
+        )
+        write_json(
+            output_dir / "fabric_decision_data.json",
+            [row.model_dump(mode="json") for row in decision_data],
+        )
         write_json(output_dir / "fabric_coverage.json", fabric_coverage.model_dump(mode="json"))
-        write_json(output_dir / "fabric_evidence_paths.json", [path.model_dump(mode="json") for path in evidence_paths])
+        write_json(
+            output_dir / "fabric_evidence_paths.json",
+            [path.model_dump(mode="json") for path in evidence_paths],
+        )
         write_json(output_dir / "fabric_to_foundry_context.json", foundry_context)
         status = "completed"
         error = None
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         status = "failed_with_diagnostics"
-        error = {"type": type(exc).__name__, "message": str(exc), "traceback": traceback.format_exc()[-6000:]}
+        error = {
+            "type": type(exc).__name__,
+            "message": str(exc),
+            "traceback": traceback.format_exc()[-6000:],
+        }
         write_json(output_dir / "fabric_error.json", error)
         quantities = []
         decision_data = []
@@ -725,7 +771,7 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     results: dict[str, Any] = {}
     try:
-        from polisyos.foundry.quickstart import (
+        from polisyos.foundry._quickstart import (
             run_feedback_compile_execute,
             run_feedback_multiplicity_demo,
             run_trivial_compile_execute,
@@ -745,7 +791,7 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
                     "elapsed_seconds": round(time.perf_counter() - stage_started, 3),
                     "result": dataclasses.asdict(value),
                 }
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 results[name] = {
                     "status": "failed",
                     "elapsed_seconds": round(time.perf_counter() - stage_started, 3),
@@ -754,8 +800,10 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
                     "traceback": traceback.format_exc()[-6000:],
                 }
         completed = sum(1 for row in results.values() if row["status"] == "completed")
-        status = "completed" if completed == len(results) else "completed_with_partial_foundry_failures"
-    except Exception as exc:  # noqa: BLE001
+        status = (
+            "completed" if completed == len(results) else "completed_with_partial_foundry_failures"
+        )
+    except Exception as exc:
         status = "failed_to_import_foundry_quickstart"
         results["import_error"] = {
             "error_type": type(exc).__name__,
@@ -766,9 +814,14 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
     if cas_root.exists():
         for path in cas_root.rglob("*"):
             if path.is_file():
-                cas_files.append({"path": str(path.relative_to(cas_root)), "bytes": path.stat().st_size})
+                cas_files.append(
+                    {"path": str(path.relative_to(cas_root)), "bytes": path.stat().st_size}
+                )
     write_json(output_dir / "foundry_quickstart_results.json", results)
-    write_json(output_dir / "foundry_cas_manifest.json", {"cas_root": str(cas_root), "file_count": len(cas_files), "files": cas_files[:2000]})
+    write_json(
+        output_dir / "foundry_cas_manifest.json",
+        {"cas_root": str(cas_root), "file_count": len(cas_files), "files": cas_files[:2000]},
+    )
     artifact_refs = {
         name: payload.get("result", {})
         for name, payload in results.items()
@@ -782,7 +835,7 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
 
 Status: `{status}`
 
-Completed quickstart calls: {sum(1 for row in results.values() if isinstance(row, Mapping) and row.get('status') == 'completed')} / {len(results)}
+Completed quickstart calls: {sum(1 for row in results.values() if isinstance(row, Mapping) and row.get("status") == "completed")} / {len(results)}
 
 CAS files observed: {len(cas_files)}
 
@@ -817,7 +870,9 @@ def generate_policy_candidates(count: int, seed: int) -> list[dict[str, Any]]:
         admin_relief = round(rng.uniform(0.0, 0.7), 3)
         tax_relief = rng.choice([0.0, 0.02, 0.04, 0.06, 0.08])
         human_review_share = rng.choice([0.02, 0.05, 0.08, 0.12, 0.18])
-        budget_cap = rng.choice([1_000_000_000, 2_500_000_000, 5_000_000_000, 8_000_000_000, 12_000_000_000])
+        budget_cap = rng.choice(
+            [1_000_000_000, 2_500_000_000, 5_000_000_000, 8_000_000_000, 12_000_000_000]
+        )
         candidates.append(
             {
                 "candidate_id": f"pol_{index:05d}",
@@ -844,7 +899,9 @@ def _evaluate_candidate_chunk(args: tuple[list[dict[str, Any]], int, int]) -> li
     firm_size = rng.gamma(shape=2.0, scale=8.0, size=panel_size).clip(1, 250)
     conflict = rng.beta(2.2, 3.4, size=panel_size)
     liquidity_gap = rng.lognormal(mean=11.0, sigma=0.85, size=panel_size).clip(20_000, 8_000_000)
-    baseline_survival = (0.42 + 0.28 * np.exp(-conflict) + 0.12 * np.log1p(firm_size) / np.log(251)).clip(0.05, 0.95)
+    baseline_survival = (
+        0.42 + 0.28 * np.exp(-conflict) + 0.12 * np.log1p(firm_size) / np.log(251)
+    ).clip(0.05, 0.95)
     veteran = rng.binomial(1, 0.08, size=panel_size)
     idp = rng.binomial(1, 0.16, size=panel_size)
     female_led = rng.binomial(1, 0.34, size=panel_size)
@@ -863,20 +920,21 @@ def _evaluate_candidate_chunk(args: tuple[list[dict[str, Any]], int, int]) -> li
         )
         treated = priority_score >= np.quantile(priority_score, 0.86)
         treated_share = float(treated.mean())
-        survival_lift = (
-            treated
-            * (
-                0.018 * support_ratio
-                + 0.012 * c["interest_subsidy_rate"] / 0.12
-                + 0.010 * c["admin_relief"]
-                + 0.006 * c["tax_relief_rate"] / 0.08
-            )
+        survival_lift = treated * (
+            0.018 * support_ratio
+            + 0.012 * c["interest_subsidy_rate"] / 0.12
+            + 0.010 * c["admin_relief"]
+            + 0.006 * c["tax_relief_rate"] / 0.08
         )
         survival = (baseline_survival + survival_lift).clip(0.0, 0.99)
         employment_preserved = float(np.mean((survival - baseline_survival) * np.sqrt(firm_size)))
         survival_gain = float(np.mean(survival - baseline_survival))
         fiscal_cost = float(
-            treated.sum() * (0.44 * c["grant_cap_uah"] + 0.018 * c["loan_cap_uah"] * c["interest_subsidy_rate"] * 100)
+            treated.sum()
+            * (
+                0.44 * c["grant_cap_uah"]
+                + 0.018 * c["loan_cap_uah"] * c["interest_subsidy_rate"] * 100
+            )
             + panel_size * c["tax_relief_rate"] * 900.0
             + treated.sum() * c["human_review_share"] * 1200.0
         )
@@ -885,11 +943,15 @@ def _evaluate_candidate_chunk(args: tuple[list[dict[str, Any]], int, int]) -> li
         micro_coverage = float(treated[micro].mean()) if micro.any() else 0.0
         female_gap = abs(float(treated[female_led == 1].mean() - treated[female_led == 0].mean()))
         idp_gap = abs(float(treated[idp == 1].mean() - treated[idp == 0].mean()))
-        fairness_penalty = 0.55 * female_gap + 0.45 * max(0.0, 0.20 - float(treated[idp == 1].mean()))
+        fairness_penalty = 0.55 * female_gap + 0.45 * max(
+            0.0, 0.20 - float(treated[idp == 1].mean())
+        )
         budget_pressure = fiscal_cost / max(float(c["budget_cap_uah"]), 1.0)
-        robustness = float(
-            np.percentile(survival_lift[treated], 25) if treated.any() else 0.0
-        ) - 0.04 * budget_pressure - 0.03 * fairness_penalty
+        robustness = (
+            float(np.percentile(survival_lift[treated], 25) if treated.any() else 0.0)
+            - 0.04 * budget_pressure
+            - 0.03 * fairness_penalty
+        )
         welfare_score = (
             220.0 * survival_gain
             + 8.0 * employment_preserved
@@ -955,19 +1017,19 @@ def run_s4_policy_optimization(ctx: dict[str, Any]) -> dict[str, Any]:
     panel_size = ctx["panel_size"]
     chunk_size = max(50, math.ceil(candidate_count / max(1, threads * 3)))
     candidates = generate_policy_candidates(candidate_count, ctx["seed"])
-    write_json(output_dir / "optimization_input_manifest.json", {
-        "candidate_count": candidate_count,
-        "panel_size_per_chunk": panel_size,
-        "threads": threads,
-        "chunk_size": chunk_size,
-        "seed": ctx["seed"],
-        "claim_posture": "proxy_simulation_not_real_causal_effect",
-    })
+    write_json(
+        output_dir / "optimization_input_manifest.json",
+        {
+            "candidate_count": candidate_count,
+            "panel_size_per_chunk": panel_size,
+            "threads": threads,
+            "chunk_size": chunk_size,
+            "seed": ctx["seed"],
+            "claim_posture": "proxy_simulation_not_real_causal_effect",
+        },
+    )
     write_jsonl(output_dir / "candidate_grid.jsonl", candidates)
-    chunks = [
-        candidates[i : i + chunk_size]
-        for i in range(0, len(candidates), chunk_size)
-    ]
+    chunks = [candidates[i : i + chunk_size] for i in range(0, len(candidates), chunk_size)]
     results: list[dict[str, Any]] = []
     with futures.ProcessPoolExecutor(max_workers=threads) as pool:
         jobs = [
@@ -1009,18 +1071,21 @@ def run_s4_policy_optimization(ctx: dict[str, Any]) -> dict[str, Any]:
                 "fairness_penalty": row["fairness_penalty"],
                 "robustness_score": row["robustness_score"],
             },
-            "levers": {k: row[k] for k in [
-                "grant_cap_uah",
-                "loan_cap_uah",
-                "interest_subsidy_rate",
-                "conflict_weight",
-                "veteran_priority",
-                "idp_priority",
-                "admin_relief",
-                "tax_relief_rate",
-                "human_review_share",
-                "budget_cap_uah",
-            ]},
+            "levers": {
+                k: row[k]
+                for k in [
+                    "grant_cap_uah",
+                    "loan_cap_uah",
+                    "interest_subsidy_rate",
+                    "conflict_weight",
+                    "veteran_priority",
+                    "idp_priority",
+                    "admin_relief",
+                    "tax_relief_rate",
+                    "human_review_share",
+                    "budget_cap_uah",
+                ]
+            },
             "interpretation": "proxy/simulation recommendation requiring real applicant and outcome microdata before operational adoption",
         }
         top_recommendations.append(recommendation)
@@ -1038,9 +1103,13 @@ def run_s4_policy_optimization(ctx: dict[str, Any]) -> dict[str, Any]:
             for r in results[:200]
         ).most_common(20),
     }
-    write_json(output_dir / "pareto_frontier.json", {"frontier_size": len(frontier), "frontier": frontier})
+    write_json(
+        output_dir / "pareto_frontier.json", {"frontier_size": len(frontier), "frontier": frontier}
+    )
     write_json(output_dir / "robustness_sensitivity.json", sensitivity)
-    write_json(output_dir / "top_policy_recommendations.json", {"recommendations": top_recommendations})
+    write_json(
+        output_dir / "top_policy_recommendations.json", {"recommendations": top_recommendations}
+    )
     write_markdown(
         output_dir / "s4_policy_optimization_summary.md",
         f"""
@@ -1054,8 +1123,8 @@ Synthetic/proxy panel size per chunk: {panel_size}
 
 Worker processes: {threads}
 
-Top recommendation: `{top_recommendations[0]['candidate_id']}` with welfare
-score `{top_recommendations[0]['headline']['welfare_score']:.4f}`.
+Top recommendation: `{top_recommendations[0]["candidate_id"]}` with welfare
+score `{top_recommendations[0]["headline"]["welfare_score"]:.4f}`.
 
 Interpretation: this is a high-throughput proxy/simulation arena. It is useful
 for selecting promising policy designs for the thesis and for later real-data
@@ -1078,10 +1147,14 @@ validation, but it is not a real treatment-effect estimate.
     return result
 
 
-def run_s5_governance_packet(ctx: dict[str, Any], prior_results: list[dict[str, Any]]) -> dict[str, Any]:
+def run_s5_governance_packet(
+    ctx: dict[str, Any], prior_results: list[dict[str, Any]]
+) -> dict[str, Any]:
     output_dir = ensure_dir(ctx["output_dir"] / "S5_governance_review_packet")
     started = utc_now()
-    s4_top = read_json(ctx["output_dir"] / "S4_policy_optimization_arena/top_policy_recommendations.json", {})
+    s4_top = read_json(
+        ctx["output_dir"] / "S4_policy_optimization_arena/top_policy_recommendations.json", {}
+    )
     top_recs = s4_top.get("recommendations", [])
     prompt = (
         "Review the following PolicyOS MSME policy recommendations for a Ukrainian "
@@ -1100,7 +1173,7 @@ def run_s5_governance_packet(ctx: dict[str, Any], prior_results: list[dict[str, 
         review_status = "completed_with_llm"
     else:
         review_status = "completed_with_deterministic_fallback"
-        review_body = f"""
+        review_body = """
 # Governance Review
 
 The strongest current recommendation is to use a conflict-sensitive mixed
@@ -1165,7 +1238,10 @@ human-review recourse for borderline cases.
 """
     write_markdown(output_dir / "governance_review.md", review_body)
     write_markdown(output_dir / "decision_packet.md", decision_packet)
-    write_json(output_dir / "llm_review_status.json", {k: v for k, v in llm_result.items() if k != "content"})
+    write_json(
+        output_dir / "llm_review_status.json",
+        {k: v for k, v in llm_result.items() if k != "content"},
+    )
     write_markdown(
         output_dir / "s5_governance_review_summary.md",
         f"""
@@ -1175,7 +1251,7 @@ Status: `{review_status}`
 
 Top recommendations reviewed: {len(top_recs)}
 
-LLM status: `{llm_result['status']}`
+LLM status: `{llm_result["status"]}`
 
 The decision packet is thesis-facing and deliberately conservative about causal
 and legal-temporal limitations.
@@ -1227,20 +1303,22 @@ def build_final_reports(ctx: dict[str, Any], results: list[dict[str, Any]]) -> N
                     }
                 )
     write_json(reports_dir / "showcase_artifact_table.json", rows)
-    artifact_md = ["# E2E Showcase Artifact Table", "", "| Experiment | Artifact | Bytes |", "| --- | --- | ---: |"]
+    artifact_md = [
+        "# E2E Showcase Artifact Table",
+        "",
+        "| Experiment | Artifact | Bytes |",
+        "| --- | --- | ---: |",
+    ]
     for row in rows:
         artifact_md.append(f"| {row['experiment']} | `{row['artifact']}` | {row['bytes']} |")
     write_markdown(reports_dir / "showcase_artifact_table.md", "\n".join(artifact_md))
-    status_lines = "\n".join(
-        f"- `{row['experiment_id']}`: `{row['status']}`"
-        for row in results
-    )
+    status_lines = "\n".join(f"- `{row['experiment_id']}`: `{row['status']}`" for row in results)
     write_markdown(
         reports_dir / "showcase_thesis_summary.md",
         f"""
 # PolicyOS MSME E2E Showcase Summary
 
-Run ID: `{ctx['run_id']}`
+Run ID: `{ctx["run_id"]}`
 
 Generated at: {utc_now()}
 
@@ -1294,23 +1372,44 @@ def preflight(ctx: dict[str, Any]) -> dict[str, Any]:
             "is_dir": path.is_dir(),
             "bytes": path.stat().st_size if path.exists() and path.is_file() else None,
         }
-    modules = ["duckdb", "numpy", "polisyos", "polisyos.fabric.decision_data", "polisyos.foundry.quickstart"]
+    modules = [
+        "duckdb",
+        "numpy",
+        "polisyos",
+        "polisyos.fabric.decision_data",
+        "polisyos.foundry.quickstart",
+    ]
     for module in modules:
         try:
             __import__(module)
             report["imports"][module] = {"ok": True}
-        except Exception as exc:  # noqa: BLE001
-            report["imports"][module] = {"ok": False, "error_type": type(exc).__name__, "error": str(exc)}
+        except Exception as exc:
+            report["imports"][module] = {
+                "ok": False,
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+            }
     probe_path = ensure_dir(ctx["output_dir"] / "reports") / "e2e_gcs_write_probe.txt"
     probe_path.write_text(f"probe {utc_now()}\n", encoding="utf-8")
     if ctx["gcs_prefix"]:
-        report["gcs"] = run_cmd(["gcloud", "storage", "cp", str(probe_path), f"{ctx['gcs_prefix'].rstrip('/')}/reports/e2e_gcs_write_probe.txt"], timeout=180)
+        report["gcs"] = run_cmd(
+            [
+                "gcloud",
+                "storage",
+                "cp",
+                str(probe_path),
+                f"{ctx['gcs_prefix'].rstrip('/')}/reports/e2e_gcs_write_probe.txt",
+            ],
+            timeout=180,
+        )
         report["gcs"]["ok"] = report["gcs"]["returncode"] == 0
     else:
         report["gcs"] = {"enabled": False}
-    ok = all(item.get("exists") for item in report["paths"].values()) and all(
-        item.get("ok") for item in report["imports"].values()
-    ) and (not ctx["gcs_prefix"] or report["gcs"].get("ok"))
+    ok = (
+        all(item.get("exists") for item in report["paths"].values())
+        and all(item.get("ok") for item in report["imports"].values())
+        and (not ctx["gcs_prefix"] or report["gcs"].get("ok"))
+    )
     report["ok"] = bool(ok)
     write_json(ctx["output_dir"] / "reports/preflight_report.json", report)
     return report
@@ -1365,7 +1464,7 @@ def run_all(ctx: dict[str, Any]) -> list[dict[str, Any]]:
         started = time.perf_counter()
         try:
             result = stage(ctx)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             stage_name = stage.__name__
             failed_dir = ensure_dir(ctx["output_dir"] / stage_name)
             result = {
@@ -1393,12 +1492,27 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--workdir", default="/mnt/experiments/msme_deadline_20260430")
     parser.add_argument("--repo-root", default="/mnt/experiments/polisyos/policy-engine")
     parser.add_argument("--runs-dir", default="/mnt/experiments/msme_deadline_20260430/runs")
-    parser.add_argument("--lex-db", default="/mnt/experiments/msme_deadline_20260430/input/lex/lex_knowledge_graph.duckdb")
-    parser.add_argument("--normative-claims", default="/mnt/experiments/msme_deadline_20260430/input/lex/normative_claims.jsonl")
-    parser.add_argument("--production-data", default="/mnt/experiments/msme_deadline_20260430/input/production_data")
-    parser.add_argument("--output-dir", default="/mnt/experiments/msme_deadline_20260430/e2e_showcase")
-    parser.add_argument("--gcs-prefix", default="gs://lex-1-494208-data/experiments/msme_deadline_20260430/e2e_showcase")
-    parser.add_argument("--threads", type=int, default=int(os.environ.get("POLISYOS_EXPERIMENT_THREADS", "12")))
+    parser.add_argument(
+        "--lex-db",
+        default="/mnt/experiments/msme_deadline_20260430/input/lex/lex_knowledge_graph.duckdb",
+    )
+    parser.add_argument(
+        "--normative-claims",
+        default="/mnt/experiments/msme_deadline_20260430/input/lex/normative_claims.jsonl",
+    )
+    parser.add_argument(
+        "--production-data", default="/mnt/experiments/msme_deadline_20260430/input/production_data"
+    )
+    parser.add_argument(
+        "--output-dir", default="/mnt/experiments/msme_deadline_20260430/e2e_showcase"
+    )
+    parser.add_argument(
+        "--gcs-prefix",
+        default="gs://lex-1-494208-data/experiments/msme_deadline_20260430/e2e_showcase",
+    )
+    parser.add_argument(
+        "--threads", type=int, default=int(os.environ.get("POLISYOS_EXPERIMENT_THREADS", "12"))
+    )
     parser.add_argument("--candidate-count", type=int, default=7200)
     parser.add_argument("--panel-size", type=int, default=60000)
     parser.add_argument("--seed", type=int, default=20260501)
@@ -1415,10 +1529,19 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, ensure_ascii=False, indent=2, default=json_default))
         return 0 if report.get("ok") else 2
     if not report.get("ok"):
-        print(json.dumps(report, ensure_ascii=False, indent=2, default=json_default), file=sys.stderr)
+        print(
+            json.dumps(report, ensure_ascii=False, indent=2, default=json_default), file=sys.stderr
+        )
         return 2
     results = run_all(ctx)
-    print(json.dumps({"status": "completed", "experiments": results}, ensure_ascii=False, indent=2, default=json_default))
+    print(
+        json.dumps(
+            {"status": "completed", "experiments": results},
+            ensure_ascii=False,
+            indent=2,
+            default=json_default,
+        )
+    )
     return 0
 
 

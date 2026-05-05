@@ -10,7 +10,7 @@ import {
   Legend,
 } from "recharts";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { categoricalPalette, chartTheme, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { RadarDimension, RadarSeries } from "./types";

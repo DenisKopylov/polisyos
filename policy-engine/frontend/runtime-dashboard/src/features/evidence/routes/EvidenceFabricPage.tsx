@@ -21,7 +21,7 @@ import {
   buildConnectorCharacterCards,
   buildFreshnessBraidView,
 } from "@/features/evidence/domain/productionSlice";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   type EvidenceArtifactRef,
   type EvidenceFocus,
@@ -30,8 +30,8 @@ import {
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
   resolveDefaultEvidenceFocus,
-} from "@/lib/domain/evidence";
-import { formatDate, formatNumber, formatPercent } from "@/lib/utils";
+} from "@/shared/lib/domain/evidence";
+import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import {
   markUiMilestone,
   measureUiLatency,

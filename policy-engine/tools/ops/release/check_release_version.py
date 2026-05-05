@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "--package-json", default="policy-engine/frontend/runtime-dashboard/package.json"
     )
     parser.add_argument(
-        "--release-fragments-root", default="policy-engine/release-fragments/releases"
+        "--release-fragments-root", default="policy-engine/_build/release-fragments"
     )
     parser.add_argument("--github-output", help="Optional GitHub output file path")
     return parser.parse_args()

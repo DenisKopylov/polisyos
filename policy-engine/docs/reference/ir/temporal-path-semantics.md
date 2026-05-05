@@ -3,7 +3,7 @@
 Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-catalog.md).
 
 Owner: `@ir-owners`, `@causal-owners`
-Source of truth: `src/polisyos/ir/analytics/dynamic_regime.py`, `src/polisyos/ir/analytics/rough_path_semantics.py`, `tests/ir/analytics/test_phase_c_contracts.py`, `tests/ir/analytics/test_rough_path_semantics.py`
+Source of truth: `src/polisyos/ir/analytics/dynamic_regime.py`, `src/polisyos/ir/analytics/rough_path_semantics.py`, `tests/unit/ir/analytics/test_phase_c_contracts.py`, `tests/unit/ir/analytics/test_rough_path_semantics.py`
 
 > Stage 4.1 contract lift for rough-path and irregular-sampling semantics.
 > PolicyOS now distinguishes solver-family names from the causal path object
@@ -124,6 +124,6 @@ backend execution can expand later without weakening the contract.
 ## Validation
 
 ```bash
-uv run pytest tests/ir/analytics/test_phase_c_contracts.py tests/ir/analytics/test_rough_path_semantics.py -q
-PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/generate_ir_reference_catalog.py
+uv run pytest tests/unit/ir/analytics/test_phase_c_contracts.py tests/unit/ir/analytics/test_rough_path_semantics.py -q
+PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/generate_ir_reference_catalog.py
 ```

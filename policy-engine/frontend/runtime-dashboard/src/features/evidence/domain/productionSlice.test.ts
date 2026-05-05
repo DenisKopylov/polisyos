@@ -5,7 +5,7 @@ import {
 
 import type { ConnectorsListResponse } from "@/api/hooks/useConnectors";
 import type { SourceProfilesListResponse } from "@/api/hooks/useSourceProfiles";
-import type { RunEvidenceContext } from "@/lib/domain/evidence";
+import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 
 const connectors = [
   {

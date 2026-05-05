@@ -1,5 +1,5 @@
-import { useI18n } from "@/i18n/LocaleProvider";
-import type { TrinityIntervention } from "@/lib/domain/trinity";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import type { TrinityIntervention } from "@/shared/lib/domain/trinity";
 
 function formatValue(value: unknown): string {
   if (typeof value === "string") {

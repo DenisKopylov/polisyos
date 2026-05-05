@@ -5,14 +5,14 @@ import { useSuspenseRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { buildEvidenceHref } from "@/features/runs/routes/useRunDetailSummary";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   findRunEvidenceNeed,
   findRunEvidencePlan,
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
-} from "@/lib/domain/evidence";
-import { formatNumber, formatPercent } from "@/lib/utils";
+} from "@/shared/lib/domain/evidence";
+import { formatNumber, formatPercent } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   markUiMilestone,

@@ -1,0 +1,245 @@
+# Import gate exceptions (temporary, with expiry).
+#
+# Rules:
+# - id / owner / reason / expires are mandatory.
+# - expires must be ISO date (YYYY-MM-DD).
+# - expires must not exceed 90 days from the date of the PR check.
+# - every id must be recorded in architecture/imports/exceptions.md.
+#
+# Example:
+# [[exception]]
+# id = "E-2026-02-IR-CORE-001"
+# owner = "team-ir"
+# reason = "Temporary adapter during boundary extraction"
+# expires = "2026-03-31"
+# source_glob = "src/polisyos/ir/**"
+# import_root = "core"
+
+# ---------------------------------------------------------------------------
+# C7 / Observation-plane boundary crossings (added 2026-04-02, expires 90 days)
+# These arose from the C7 integration wave that wired observation, calibration,
+# and intervention layers. Proper boundary extraction is tracked separately.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+id = "E-2026-04-LEX-FOUNDRY-001"
+owner = "team-polisyos"
+reason = "lex/interventions.py imports foundry causal-engine and DTR for intervention compilation pipeline"
+expires = "2026-07-01"
+source_glob = "src/polisyos/lex/interventions.py"
+import_root = "foundry"
+
+[[exception]]
+id = "E-2026-04-LEX-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "lex modules import scientist policy_design/search for intervention-to-policy linking"
+expires = "2026-07-01"
+source_glob = "src/polisyos/lex/interventions.py"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001"
+owner = "team-data-forge"
+reason = "Data Forge legal offline code still reuses Lex runtime contracts/errors/artifact helpers while Lex runtime consumers reach legal artifacts through read_api.legal"
+expires = "2026-07-30"
+source_glob = "src/polisyos/data_forge/domains/legal/**"
+import_root = "lex"
+
+[[exception]]
+id = "E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001"
+owner = "team-data-forge"
+reason = "Phase 4 legal benchmark code keeps its existing scientist quality-scoring dependency after the no-behavior-change move"
+expires = "2026-07-30"
+source_glob = "src/polisyos/data_forge/domains/legal/batch/**"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001"
+owner = "team-data-forge"
+reason = "Phase 5 moved accepted Ukraine production builders into Data Forge without behavior changes; Foundry protocol and release bundle dependencies remain until builder contracts are split downward"
+expires = "2026-07-30"
+source_glob = "src/polisyos/data_forge/domains/ukraine/builders/**"
+import_root = "foundry"
+
+[[exception]]
+id = "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001"
+owner = "team-data-forge"
+reason = "Phase 5 keeps existing Ukraine release intervention compilation behavior while Lex-facing payload contracts are extracted"
+expires = "2026-07-30"
+source_glob = "src/polisyos/data_forge/domains/ukraine/builders/**"
+import_root = "lex"
+
+[[exception]]
+id = "E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001"
+owner = "team-data-forge"
+reason = "Phase 5 keeps existing Ukraine calibration governance behavior while Scientist governance facades are extracted"
+expires = "2026-07-30"
+source_glob = "src/polisyos/data_forge/domains/ukraine/builders/**"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-ACADEMIC-SCIENTIST-001"
+owner = "team-data-forge"
+reason = "Data Forge academic batch preserves existing scientist autotune/cross_graph dependencies for claim adjudication and benchmarking until those contracts are extracted"
+expires = "2026-07-01"
+source_glob = "src/polisyos/data_forge/domains/academic/batch/*"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-IR-OBS-FOUNDRY-001"
+owner = "team-polisyos"
+reason = "ir/observation modules import foundry calibration and method protocols for contract compilation"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/observation/*"
+import_root = "foundry"
+
+[[exception]]
+id = "E-2026-04-IR-OBS-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "ir/observation bundles and contract_compilers import scientist backtesting/search types"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/observation/*"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-IR-ANALYTICS-FOUNDRY-001"
+owner = "team-polisyos"
+reason = "ir/analytics imports foundry id_engine and strategic for identification and causal queries"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/analytics/*"
+import_root = "foundry"
+
+[[exception]]
+id = "E-2026-04-IR-ANALYTICS-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "ir/analytics imports scientist cross_graph and kernel for alignment certification and budgets"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/analytics/*"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-IR-PANDAS-001"
+owner = "team-polisyos"
+reason = "ir data/observation/analytics modules use pandas for dataframe handling in new observation plane"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/*"
+external_module = "pandas"
+
+[[exception]]
+id = "E-2026-04-IR-JAX-001"
+owner = "team-polisyos"
+reason = "ir/observation/compiler.py uses jax for calibration tensor operations"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/observation/compiler.py"
+external_module = "jax"
+
+[[exception]]
+id = "E-2026-04-FOUNDRY-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "foundry calibrator and composition_failure_cards import scientist autotune/search types"
+expires = "2026-07-01"
+source_glob = "src/polisyos/foundry/*"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-FOUNDRY-LEX-001"
+owner = "team-polisyos"
+reason = "foundry agent_sim wiring/contracts.py imports lex interventions for mechanism wiring"
+expires = "2026-07-01"
+source_glob = "src/polisyos/foundry/agent_sim/wiring/contracts.py"
+import_root = "lex"
+
+[[exception]]
+id = "E-2026-04-SCIENTIST-FOUNDRY-PRIVATE-001"
+owner = "team-polisyos"
+reason = "scientist search dtr.py imports foundry causal _common private module for DTR shared utilities"
+expires = "2026-07-01"
+source_glob = "src/polisyos/scientist/search/dtr.py"
+import_module_prefix = "polisyos.foundry.methods.catalog.causal._common"
+
+# ---------------------------------------------------------------------------
+# Documentation SOTA closeout import debt ledger (added 2026-04-17)
+# These exceptions convert previously hidden ci-parity import failures into
+# owner-bound debt while facade extraction and package-boundary cleanup are
+# handled after the documentation closeout.
+# ---------------------------------------------------------------------------
+
+[[exception]]
+id = "E-2026-04-CORE-CLI-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "core CLI scientist subcommands lazily import Scientist provider and agent evaluation entrypoints"
+expires = "2026-07-01"
+source_glob = "src/polisyos/core/components/_cli_scientist.py"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-CORE-CLI-METRIC-VALIDATION-SCIENTIST-001"
+owner = "team-polisyos"
+reason = "core metric-validation CLI imports Scientist metric comparison helpers until CLI glue moves out of Core"
+expires = "2026-07-01"
+source_glob = "src/polisyos/core/components/_cli_metric_validation.py"
+import_root = "scientist"
+
+[[exception]]
+id = "E-2026-04-FABRIC-WORLD-DEEP-001"
+owner = "team-polisyos"
+reason = "Fabric benchmarks and observability still call world materialization/segment helpers before facade extraction"
+expires = "2026-07-01"
+source_glob = "src/polisyos/fabric/**"
+import_module_prefix = "polisyos.fabric.world."
+
+[[exception]]
+id = "E-2026-05-FOUNDRY-FABRIC-QUALITY-001"
+owner = "team-polisyos"
+reason = "Foundry calibration and uncertainty quality bridges import Fabric product-integration helpers until the quality facade is extracted"
+expires = "2026-07-30"
+source_glob = "src/polisyos/foundry/**/fabric_quality.py"
+import_root = "fabric"
+
+[[exception]]
+id = "E-2026-04-IR-SCHEMAS-REFLECTION-001"
+owner = "team-polisyos"
+reason = "IR schema catalog reflects the repo-local ABI registry package used by schema generation"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/schema_catalog.py"
+external_module = "schemas"
+
+[[exception]]
+id = "E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001"
+owner = "team-polisyos"
+reason = "IR analytics dynamic proof bridges still import Core Foundry/truthfulness contracts until those contracts move behind an IR-safe facade"
+expires = "2026-07-30"
+source_glob = "src/polisyos/ir/analytics/phase4_dynamics.py"
+import_root = "core"
+
+[[exception]]
+id = "E-2026-05-IR-ANALYTICS-CORE-SIMULATION-PROOF-001"
+owner = "team-polisyos"
+reason = "IR simulation proof bridge imports Core truthfulness contracts until the proof contract facade is extracted"
+expires = "2026-07-30"
+source_glob = "src/polisyos/ir/analytics/simulation_proof_bridge.py"
+import_root = "core"
+
+[[exception]]
+id = "E-2026-04-IR-PASSES-FOUNDRY-KERNEL-LOWERING-001"
+owner = "team-polisyos"
+reason = "ir kernel-lowering pass lazily imports Foundry lowering helpers until compiler boundary extraction lands"
+expires = "2026-07-01"
+source_glob = "src/polisyos/ir/passes/core.py"
+import_root = "foundry"
+
+[[exception]]
+id = "E-2026-04-RUNTIME-FOUNDRY-PRIVATE-001"
+owner = "team-polisyos"
+reason = "runtime replay resolves Foundry execution posture before that helper is exposed through a public Foundry facade"
+expires = "2026-07-01"
+source_glob = "src/polisyos/runtime/replay.py"
+import_module_prefix = "polisyos.foundry._execution_posture"
+
+[[exception]]
+id = "E-2026-04-SCIENTIST-FABRIC-PRIVATE-001"
+owner = "team-polisyos"
+reason = "Scientist Fabric adapter depends on the connector bridge while a public Fabric execution port is extracted"
+expires = "2026-07-01"
+source_glob = "src/polisyos/scientist/adapters/fabric_bridge.py"
+import_module_prefix = "polisyos.fabric._connector_bridge"

@@ -47,14 +47,14 @@ before downstream Scholar or Lex flows consume them.
   artifact helpers in `polisyos.core.artifacts`.
 
 - Depended on by: `polisyos.scholar.orchestrator.enrich`,
-  `polisyos.scholar.policies`, `polisyos.lex.batch.claim_bridge`, and the
+  `polisyos.scholar.policies`, `polisyos.data_forge.domains.legal.batch.claim_bridge`, and the
   `polisyos.lex.normpack.*` claim-normalization flows.
 
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
 
-- `rg -n "extract_claims_from_doc|normalize_claims|detect_conflicts|resolve_conflicts" src/polisyos/fabric/claims tests/fabric/test_claims_pipeline.py tests/fabric/test_conflicts.py`
+- `rg -n "extract_claims_from_doc|normalize_claims|detect_conflicts|resolve_conflicts" src/polisyos/fabric/claims tests/unit/fabric/test_claims_pipeline.py tests/unit/fabric/test_conflicts.py`
   Jump to the public pipeline and its primary tests. Smoke-tested on
   2026-04-17.
 
@@ -68,11 +68,11 @@ Run from the repository root (`policy-engine/`).
 
 Run from the repository root (`policy-engine/`).
 
-- `uv run pytest tests/fabric/test_claims_pipeline.py tests/fabric/test_conflicts.py -q`
+- `uv run pytest tests/unit/fabric/test_claims_pipeline.py tests/unit/fabric/test_conflicts.py -q`
   Claims pipeline and conflict-resolution smoke suite. Smoke-tested on
   2026-04-17.
 
-- `uv run pytest tests/fabric/test_conflict_uncertainty_adapter.py tests/fabric/test_trust.py -q`
+- `uv run pytest tests/unit/fabric/test_conflict_uncertainty_adapter.py tests/unit/fabric/test_trust.py -q`
   Downstream uncertainty and trust integration. Conceptual in this README
   refresh; not run in this pass.
 
@@ -82,4 +82,4 @@ Run from the repository root (`policy-engine/`).
 - [Fabric reference index](../../../../docs/reference/fabric/index.md)
 - [E2.6 Fabric Claims Pipeline contract](../../../../docs/contracts/E2_6_FABRIC_CLAIMS_PIPELINE_V1_0.md)
 - [IR schema catalog](../../../../docs/reference/ir/schema-catalog.md)
-- [Fabric tests map](../../../../tests/fabric/README.md)
+- [Fabric tests map](../../../../tests/unit/fabric/README.md)

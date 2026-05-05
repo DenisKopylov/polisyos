@@ -13,9 +13,9 @@ import { useReviewCollaborationSurface } from "@/app/realtime/useReviewCollabora
 import { DisputeRegistryPanel } from "@/features/runs/components/DisputeRegistryPanel";
 import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
-import { normalizeGovernanceIssues } from "@/lib/domain/governance";
+import { normalizeGovernanceIssues } from "@/shared/lib/domain/governance";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
-import { useI18n } from "@/i18n/LocaleProvider";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   markUiMilestone,
   measureUiLatency,

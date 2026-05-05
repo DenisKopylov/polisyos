@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry._numeric import (
+from polisyos.foundry.runtime.numeric import (
     NumericDomain,
     clip_probability,
     epsilon_for,

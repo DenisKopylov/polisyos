@@ -10,13 +10,13 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import ensure_repo_import_roots
+from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
 from tools.quality.validation import (
-    fabric_best_in_class_inventory,  # noqa: E402
-    fabric_source_contracts,  # noqa: E402
+    fabric_best_in_class_inventory,
+    fabric_source_contracts,
 )
 
 REPORT_SCHEMA_VERSION = "fabric.wave2_strict_closure_report.v1"
@@ -124,8 +124,7 @@ def validate_report(report: Mapping[str, Any]) -> list[str]:
     non_replayable_count = int(source_platform.get("non_replayable_reason_count") or 0)
     if replay_fixture_count != contract_count:
         errors.append(
-            "strict replay coverage requires replay_fixture_count == "
-            "source_contract_v2_count"
+            "strict replay coverage requires replay_fixture_count == source_contract_v2_count"
         )
     if non_replayable_count != 0:
         errors.append("strict replay coverage requires non_replayable_reason_count == 0")
@@ -150,9 +149,7 @@ def validate_report(report: Mapping[str, Any]) -> list[str]:
 
     future_surface = surfaces.get("world.future_table_snapshot_adapters")
     if not future_surface or future_surface.get("status") != "not_applicable":
-        errors.append(
-            "future table snapshot adapters must be not_applicable for strict Wave 2"
-        )
+        errors.append("future table snapshot adapters must be not_applicable for strict Wave 2")
     else:
         evidence = future_surface.get("evidence", {})
         if isinstance(evidence, Mapping) and evidence.get("production_visible") is not False:

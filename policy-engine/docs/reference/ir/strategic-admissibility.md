@@ -3,7 +3,7 @@
 Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-catalog.md).
 
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/analytics/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `tests/ir/analytics/test_phase_d_contracts.py`, `tests/foundry/methods/catalog/causal/test_strategic.py`
+Source of truth: `src/polisyos/ir/analytics/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `tests/unit/ir/analytics/test_phase_d_contracts.py`, `tests/unit/foundry/methods/catalog/causal/test_strategic.py`
 
 > Stage 6.1 contract lift for strategic causality. PolicyOS no longer treats
 > generic equilibrium names as sufficient strategic metadata; strategic
@@ -158,6 +158,6 @@ computation alone does not prove the frozen-baseline counterfactual
 ## Validation
 
 ```bash
-uv run pytest tests/ir/analytics/test_phase_d_contracts.py tests/foundry/methods/catalog/causal/test_strategic.py -q
+uv run pytest tests/unit/ir/analytics/test_phase_d_contracts.py tests/unit/foundry/methods/catalog/causal/test_strategic.py -q
 uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
 ```

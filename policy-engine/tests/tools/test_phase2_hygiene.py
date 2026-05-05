@@ -7,8 +7,7 @@ import urllib.error
 from pathlib import Path
 
 import pytest
-
-from tools._lib.imports import ensure_repo_import_roots, is_type_checking_test
+from tools.lib.imports import ensure_repo_import_roots, is_type_checking_test
 from tools.ops.migrations import migrate
 from tools.ops.ukraine_data import pre_shard_lex_corpus
 from tools.quality.ci import check_action_freshness
@@ -88,7 +87,7 @@ def test_runtime_archive_tool_runs_as_module() -> None:
     repo_root = Path(__file__).resolve().parents[2]
 
     result = subprocess.run(
-        [sys.executable, "-m", "tools.runtime.archive_legacy_runs", "--help"],
+        [sys.executable, "-m", "tools.ops.runtime.archive_legacy_runs", "--help"],
         cwd=repo_root,
         check=False,
         capture_output=True,

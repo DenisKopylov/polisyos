@@ -10,8 +10,8 @@ name = "Layered architecture"
 type = "layers"
 layers = [
   "polisyos.runtime",
-  "polisyos.scientist",
-  "polisyos.packs | polisyos.scholar | polisyos.foundry | polisyos.lex | polisyos.data_forge | polisyos.fabric",
+  "polisyos.scientist | polisyos.berl | polisyos.calibration | polisyos.ddm | polisyos.synthetic_world",
+  "polisyos.scholar | polisyos.foundry | polisyos.lex | polisyos.data_forge | polisyos.fabric",
   "polisyos.core",
   "polisyos.ir",
   "polisyos.common",
@@ -35,7 +35,10 @@ forbidden_modules = [
   "polisyos.data_forge",
   "polisyos.lex",
   "polisyos.scholar",
-  "polisyos.packs",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
 
 [[importlinter.contracts]]
@@ -51,7 +54,14 @@ forbidden_modules = [
   "polisyos.data_forge",
   "polisyos.lex",
   "polisyos.scholar",
-  "polisyos.packs",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+ignore_imports = [
+  "polisyos.data_forge.read_api",
+  "polisyos.data_forge.read_api.*",
 ]
 
 [[importlinter.contracts]]
@@ -66,7 +76,10 @@ forbidden_modules = [
   "polisyos.data_forge",
   "polisyos.lex",
   "polisyos.scholar",
-  "polisyos.packs",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
 
 # ---------------------------------------------------------------------------
@@ -84,18 +97,30 @@ modules = [
 ]
 
 [[importlinter.contracts]]
-name = "Runtime packages consume Data Forge only through read_api"
+name = "Runtime and Fabric consumers use Data Forge only through read_api"
 type = "forbidden"
 source_modules = [
+  "polisyos.ir",
   "polisyos.runtime",
   "polisyos.fabric",
   "polisyos.foundry",
   "polisyos.lex",
   "polisyos.scientist",
   "polisyos.scholar",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
-forbidden_modules = ["polisyos.data_forge.kernel", "polisyos.data_forge.domains"]
-ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
+forbidden_modules = [
+  "polisyos.data_forge",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+ignore_imports = [
+  "polisyos.data_forge.read_api",
+  "polisyos.data_forge.read_api.*",
+]
 
 # ---------------------------------------------------------------------------
 # Foundry / Lex neutrality.
@@ -113,6 +138,10 @@ forbidden_modules = [
   "polisyos.datasets",
   "polisyos.ukraine_data",
   "polisyos.runtime",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
 
 [[importlinter.contracts]]
@@ -126,7 +155,10 @@ forbidden_modules = [
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]
-ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
+ignore_imports = [
+  "polisyos.data_forge.read_api",
+  "polisyos.data_forge.read_api.*",
+]
 
 # ---------------------------------------------------------------------------
 # Runtime-private: HTTP/services/app factories must not be imported by
@@ -146,7 +178,10 @@ source_modules = [
   "polisyos.scholar",
   "polisyos.scientist",
   "polisyos.data_forge",
-  "polisyos.packs",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
 forbidden_modules = [
   "polisyos.runtime.http",
@@ -168,29 +203,14 @@ forbidden_modules = [
   "polisyos.lex._private",
   "polisyos.scholar._private",
   "polisyos.scientist._private",
+  "polisyos.berl._private",
+  "polisyos.calibration._private",
+  "polisyos.ddm._private",
+  "polisyos.synthetic_world._private",
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]
 ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
-
-# ---------------------------------------------------------------------------
-# Packs must only consume public facades.
-# ---------------------------------------------------------------------------
-
-[[importlinter.contracts]]
-name = "Packs consume only public facades"
-type = "forbidden"
-source_modules = ["polisyos.packs"]
-forbidden_modules = [
-  "polisyos.core._private",
-  "polisyos.ir._private",
-  "polisyos.fabric._private",
-  "polisyos.foundry._private",
-  "polisyos.lex._private",
-  "polisyos.scientist._private",
-  "polisyos.data_forge.kernel",
-  "polisyos.data_forge.domains",
-]
 
 # ---------------------------------------------------------------------------
 # Legacy packages are frozen: nothing imports them except their shims.
@@ -210,7 +230,10 @@ source_modules = [
   "polisyos.scientist",
   "polisyos.runtime",
   "polisyos.data_forge",
-  "polisyos.packs",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
 ]
 forbidden_modules = [
   "polisyos.academic",
@@ -219,4 +242,5 @@ forbidden_modules = [
   "polisyos.batch_common",
   "polisyos.batch_snapshot",
   "polisyos.lex.batch",
+  "polisyos.lex.corpus",
 ]

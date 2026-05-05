@@ -16,7 +16,7 @@ from typing import Any, TextIO
 
 import zstandard as zstd
 
-from tools._lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from
 
 WORKSPACE_ROOT = repo_root_from(__file__)
 DEFAULT_PRE_SHARDED_ROOT = WORKSPACE_ROOT / "data" / "data_lex" / "pre_sharded"

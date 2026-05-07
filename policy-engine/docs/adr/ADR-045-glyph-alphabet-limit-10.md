@@ -67,10 +67,10 @@ Source of truth:
 - [GLYPH_SPECIFICATION](../brand/GLYPH_SPECIFICATION.md) — the canonical
   list and geometry.
 
-- `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts` — the
+- `apps/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts` — the
   code-level mapping from domain term to radical.
 
-- `frontend/runtime-dashboard/public/atlas/glyphs/*.svg` — the ten
+- `apps/runtime-dashboard/public/atlas/glyphs/*.svg` — the ten
   SVG assets, one per radical.
 
 ## Consequences
@@ -96,11 +96,11 @@ Files created or maintained by this ADR:
 - Maintained: `policy-engine/docs/brand/GLYPH_SPECIFICATION.md` (the
   ten radicals).
 
-- Maintained: `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts`.
+- Maintained: `apps/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts`.
 - Maintained: the ten SVG files under
-  `frontend/runtime-dashboard/public/atlas/glyphs/`.
+  `apps/runtime-dashboard/public/atlas/glyphs/`.
 
-- New test: `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.test.ts`
+- New test: `apps/runtime-dashboard/src/shared/brand/glyph-vocabulary.test.ts`
   (parses the specification markdown, enumerates radicals, asserts
   parity with the vocabulary map).
 

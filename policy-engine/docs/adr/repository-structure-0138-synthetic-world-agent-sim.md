@@ -14,10 +14,9 @@ Accepted
 world generation, simulation, evaluators, distributions, mechanisms, and
 execution.
 
-Phase 3B must choose one canonical ownership direction before Phase 4A moves
-files. Foundry already owns the low-level ABM/RL runtime and first-party
-Foundry code imports `polisyos.synthetic_world`, which creates a boundary smell
-that a Foundry-owned target resolves.
+Phase 3B chose one canonical ownership direction before Phase 4A moved files.
+Foundry already owns the low-level ABM/RL runtime, and the Foundry-owned target
+removes the boundary smell from first-party `polisyos.synthetic_world` imports.
 
 ## Decision
 
@@ -40,6 +39,10 @@ simulation and truth-centric synthetic worlds. Static first-party imports from
 `polisyos.synthetic_world.*` move to
 `polisyos.foundry.agent_sim.world.*`. The non-canonical top-level path becomes
 a shim with sunset.
+
+Phase 3.4 keeps only the root facade smoke contract under
+`tests/unit/synthetic_world/`; behavior coverage lives under
+`tests/unit/foundry/agent_sim/world/`.
 
 ## Concrete Impact
 

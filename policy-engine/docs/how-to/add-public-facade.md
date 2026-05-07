@@ -65,7 +65,7 @@ That manifest is the source of truth for:
 
 If you are only adding one new export inside an already listed package root,
 the manifest usually stays unchanged and the work lives in `__init__.py` plus
-tests/architecture/docs.
+tests/repo_quality/architecture/docs.
 
 ## 4. Regenerate and review the public-surface docs
 

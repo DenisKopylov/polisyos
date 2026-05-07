@@ -194,7 +194,7 @@ path, and acceptance evidence before it is merged.
 | `cloud_deploy`, `deploy`, `docker`, `gcp` | Removed after consolidation under `ops/cloud`, `ops/deploy`, `ops/docker`, and `ops/observability`                  |
 | `tools/*` duplicates                      | Removed from active top-level `tools/`; canonical homes live under `tools/{devx,ops,quality,research}`              |
 | `scripts/`                                | Removed after canonical `polisyos-tools` commands existed                                                           |
-| `docs/*.md` plans                         | Move active plans to `docs/plans/active`, accepted plans to `docs/plans/accepted`, history to `docs/archive/plans`  |
+| `docs/*.md` plans                         | Move active plans to `docs/plans/active`, accepted plans to `docs/plans/accepted`, history to `docs/plans/archive`  |
 | `tests/*` old package mirrors             | Move with source topology to `tests/unit` or `tests/unit/data_forge`                                                     |
 | Frontend generated outputs                | Keep ignored; register tracked generated clients/types                                                              |
 

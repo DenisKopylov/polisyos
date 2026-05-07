@@ -7,13 +7,13 @@ Related reference: [IR Schema Catalog](ir/schema-catalog.md).
 Canonical regeneration command (snapshots + reference docs):
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
+uv run --extra ml polisyos-tools diagnostics gen-schema
 ```
 
 ## Snapshot Summary
 
-- IR snapshot: `99` schemas, generated `2026-05-03T08:03:46+00:00`.
-- Fabric world ABI snapshot: `2` schemas, generated `2026-03-28T13:16:21+00:00`.
+- IR snapshot: `99` schemas, generated `2026-05-06T07:43:21+00:00`.
+- Fabric world ABI snapshot: `2` schemas, generated `2026-05-06T07:43:21+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
 ## ABI-backed IR Schemas
@@ -102,7 +102,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.p
 | `observation_family_policy` | `polisyos.ir.observation.governance.ObservationFamilyPolicy` | `observation` | `1.0` | `p1` | `—` | `root_facade` | [ObservationFamilyPolicy](ir/schema-catalog.md#polisyos-ir-observation-governance-observationfamilypolicy) | `schemas/snapshots/ir/observation_family_policy.schema.json` |
 | `observation_family_policy_registry` | `polisyos.ir.observation.governance.ObservationFamilyPolicyRegistry` | `observation` | `1.0` | `p1` | `—` | `root_facade` | [ObservationFamilyPolicyRegistry](ir/schema-catalog.md#polisyos-ir-observation-governance-observationfamilypolicyregistry) | `schemas/snapshots/ir/observation_family_policy_registry.schema.json` |
 | `policy_portfolio` | `polisyos.ir.portfolio.PolicyPortfolio` | `portfolio` | `1.0` | `p0` | `—` | `root_facade` | [PolicyPortfolio](ir/schema-catalog.md#polisyos-ir-portfolio-policyportfolio) | `schemas/snapshots/ir/policy_portfolio.schema.json` |
-| `trinity_bundle` | `polisyos.ir.trinity.TrinityBundle` | `trinity` | `1.0` | `p0` | `full` | `package_facade` | [TrinityBundle](ir/schema-catalog.md#polisyos-ir-trinity-trinitybundle) | `schemas/snapshots/ir/trinity_bundle.schema.json` |
+| `trinity_bundle` | `polisyos.ir.trinity.TrinityBundle` | `trinity` | `1.0` | `p0` | `full` | `snapshot_only` | [TrinityBundle](ir/schema-catalog.md#polisyos-ir-trinity-trinitybundle) | `schemas/snapshots/ir/trinity_bundle.schema.json` |
 | `edge_kind` | `polisyos.ir.world.abi.EdgeKind` | `world` | `—` | `p0` | `—` | `package_facade` | [EdgeKind](ir/schema-catalog.md#polisyos-ir-world-abi-edgekind) | `schemas/snapshots/fabric/edge_kind.schema.json` |
 | `node_kind` | `polisyos.ir.world.abi.NodeKind` | `world` | `—` | `p0` | `—` | `package_facade` | [NodeKind](ir/schema-catalog.md#polisyos-ir-world-abi-nodekind) | `schemas/snapshots/fabric/node_kind.schema.json` |
 | `claim` | `polisyos.ir.world.claim.Claim` | `world` | `1.0` | `p0` | `—` | `package_facade` | [Claim](ir/schema-catalog.md#polisyos-ir-world-claim-claim) | `schemas/snapshots/ir/claim.schema.json` |

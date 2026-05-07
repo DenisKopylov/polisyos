@@ -36,6 +36,10 @@ The maintained GitHub-executed automation surface is the repository-root
 inventory under `.github/workflows/`; reusable product templates live under
 `policy-engine/ops/ci/templates/workflows/`.
 
+The repo-tracked default-branch ruleset requires the status checks named
+`Fast PR / Gate` and `Standard PR / Gate`; keep those names stable when
+renaming workflow files or local command wrappers.
+
 | Workflow file                                          | Status | Tier                   | Trigger                              | Purpose                                                                                                      |
 | ------------------------------------------------------ | ------ | ---------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | `.github/workflows/abi.yml`                            | active | PR gate                | pull request on ABI-visible paths    | ABI snapshot generation, semantic diff, docs quality, public-surface docstring quality, and fast tests       |
@@ -128,6 +132,10 @@ The current repo-tracked release/build/security surfaces are:
   `polisyos-tools workspace acceptance-audit` for cross-surface platform
   acceptance.
 
+- dependency review and the Scheduled action freshness audit, backed by
+  `frontend-nightly.yml`, Renovate, and `tools/ci/check_action_freshness.py`,
+  for dependency freshness governance.
+
 Release/build evidence is currently split across root release workflows,
 template workflow specs, and the closeout commands/docs rather than one
 monolithic release workflow.
@@ -146,6 +154,9 @@ monolithic release workflow.
   alone.
 
 ## 6. Workflow Security Posture
+
+- GitHub-hosted runners are the default trust model for repo-tracked workflows;
+  use OIDC for cloud identity handoff instead of long-lived deploy credentials.
 
 - Prefer read-only default `GITHUB_TOKEN` posture in GitHub settings.
 - Keep top-level workflow permissions minimal and escalate writes only where a

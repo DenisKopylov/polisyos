@@ -29,7 +29,7 @@ Every official-looking export carries:
 ## CSS Contract
 
 The global print entrypoint is
-`frontend/runtime-dashboard/src/styles/print.css`.
+`apps/runtime-dashboard/src/styles/print.css`.
 
 Use these hooks instead of ad hoc selectors:
 

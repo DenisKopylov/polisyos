@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/orchestrator/decision_card.py`, `src/polisyos/scientist/claims/export.py`, `tests/unit/scientist/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/tools/test_scientist_best_in_class_phase2_7.py`.
+Source of truth: `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/orchestration/orchestrator/decision_card.py`, `src/polisyos/scientist/evidence/claims/export.py`, `tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py`.
 
 The Phase 2.7 decision-grade compiler turns governed research artifacts into
 audience-specific outputs without losing provenance. Public summary, reviewer
@@ -18,8 +18,8 @@ Ledger and Research DAG refs.
 | `OutputAudience` | `publisher.py` | Four output tiers: `public`, `reviewer`, `expert`, `machine`. |
 | `OutputOmissionRecord` | `publisher.py` | Required record when a field, blocker or internal detail is intentionally hidden from one audience. |
 | `DecisionGradeExport` | `publisher.py` | Versioned export with `claims_ref`, `research_dag_ref`, payload and omissions. |
-| `ClaimExportAudience.EXPERT` | `claims/export.py` | Expert claim export mode; blockers and superseded claims remain visible. |
-| `TrustProvenanceSummary` | `orchestrator/decision_card.py` | Frontend decision-card hook for claim count, blocked count, Research DAG status and governance status. |
+| `ClaimExportAudience.EXPERT` | `evidence/claims/export.py` | Expert claim export mode; blockers and superseded claims remain visible. |
+| `TrustProvenanceSummary` | `orchestration/orchestrator/decision_card.py` | Frontend decision-card hook for claim count, blocked count, Research DAG status and governance status. |
 
 `DecisionGradeExport` validates that every tier carries `trust_provenance`
 whose `claims_ref` and `research_dag_ref` match the export-level refs.
@@ -98,7 +98,7 @@ the machine export has parity and public redaction tests remain green.
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/orchestrator/test_decision_grade_compiler.py -q
-uv run pytest tests/tools/test_scientist_best_in_class_phase2_7.py -q
+uv run pytest tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_7.py --repo-root . --output-format json --require-passing
 ```

@@ -2,7 +2,7 @@
 
 **Status:** Canonical production design system  
 **Source archive:** `PolicyOS Atlas Design System-4.zip`, received 2026-04-29  
-**Production root:** `policy-engine/frontend/runtime-dashboard/`  
+**Production root:** `policy-engine/apps/runtime-dashboard/`  
 **Reference token file:** `docs/brand/atlas-v4/colors_and_type.css`  
 **Adoption record:** `docs/brand/ATLAS_V4_ADOPTION.md`
 
@@ -36,15 +36,15 @@ dashboard, or a decorative science demo.
 
 Production source of truth:
 
-- `frontend/runtime-dashboard/src/styles.css` - Tailwind v4 theme tokens,
+- `apps/runtime-dashboard/src/styles.css` - Tailwind v4 theme tokens,
   density hooks, typography scale, motion scale, and base app rules.
-- `frontend/runtime-dashboard/src/styles/theme-light.css` - light Atlas theme.
-- `frontend/runtime-dashboard/src/styles/theme-dark.css` - canonical warm dark
+- `apps/runtime-dashboard/src/styles/theme-light.css` - light Atlas theme.
+- `apps/runtime-dashboard/src/styles/theme-dark.css` - canonical warm dark
   Atlas theme.
-- `frontend/runtime-dashboard/src/shared/ui/` - production UI primitives.
-- `frontend/runtime-dashboard/src/shared/brand/` - Atlas wordmark, Janus mark,
+- `apps/runtime-dashboard/src/shared/ui/` - production UI primitives.
+- `apps/runtime-dashboard/src/shared/brand/` - Atlas wordmark, Janus mark,
   EvidenceSigil, and the 10-radical glyph alphabet.
-- `frontend/runtime-dashboard/public/atlas/` - shipped SVG brand assets.
+- `apps/runtime-dashboard/public/atlas/` - shipped SVG brand assets.
 - `docs/brand/GLYPH_SPECIFICATION.md` - glyph vocabulary contract.
 - `docs/adr/ADR-045-glyph-alphabet-limit-10.md` - closed glyph alphabet.
 - `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md` - dark theme
@@ -277,7 +277,7 @@ badges, and cards in one review surface.
 Token drift is checked by:
 
 ```bash
-npm --prefix policy-engine/frontend/runtime-dashboard run design:atlas-v4
+npm --prefix policy-engine/apps/runtime-dashboard run design:atlas-v4
 ```
 
 The check compares the v4 reference token file against production light and
@@ -287,7 +287,7 @@ dark theme tokens. Every accepted difference must be present in
 The broader polish gate includes it through:
 
 ```bash
-npm --prefix policy-engine/frontend/runtime-dashboard run design:polish
+npm --prefix policy-engine/apps/runtime-dashboard run design:polish
 ```
 
 ## 8. Design Laws

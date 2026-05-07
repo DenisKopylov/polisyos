@@ -1,3 +1,12 @@
+---
+title: PolicyOS Scientist Best-in-Class Plan
+status: active
+owner: denis-kopylov
+created: 2026-04-26
+last_verified: 2026-05-05
+stability: draft
+---
+
 # PolicyOS Scientist - Best-in-Class Plan
 
 > Дата: 2026-04-26
@@ -10,12 +19,12 @@
 > - `docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md` - historical audit remediation plan
 > - `docs/reference/scientist/best-in-class-readiness.md` - Phase 1.0 readiness index
 > - `docs/reference/scientist/scientist-capability-inventory.md` - Phase 1.0 inventory and reconciliation map
-> - `docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md` - historical SOTA roadmap
-> - `docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md` - historical agent roadmap
-> - `docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md` - historical autoresearch blueprint
+> - `docs/plans/archive/SCIENTIST_SOTA_ROADMAP.md` - historical SOTA roadmap
+> - `docs/plans/archive/SCIENTIST_AGENT_SOTA_ROADMAP.md` - historical agent roadmap
+> - `docs/plans/archive/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md` - historical autoresearch blueprint
 > - `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md` - sibling frontend/design best-in-class plan
-> - `docs/archive/plans/FOUNDRY_METHODS_RESEARCH_AGENDA.md` - sibling methods research agenda
-> - `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md` - sibling causal research agenda
+> - `docs/plans/archive/FOUNDRY_METHODS_RESEARCH_AGENDA.md` - sibling methods research agenda
+> - `docs/plans/archive/CAUSAL_ENGINE_RESEARCH_AGENDA.md` - sibling causal research agenda
 
 ---
 
@@ -374,7 +383,7 @@ scientist.best_in_class.wave{N}.phase{M}.{slug}
 policy-engine/docs/reference/scientist/best-in-class-readiness.md
 policy-engine/docs/reference/scientist/scientist-capability-inventory.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase1_0.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase1_0.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase1_0.py
 ```
 
 ### Acceptance criteria
@@ -494,7 +503,7 @@ policy-engine/tests/unit/scientist/claims/
 └── test_projections.py
 
 policy-engine/tools/ci/check_scientist_best_in_class_phase1_1.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase1_1.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase1_1.py
 ```
 
 ### Integration targets
@@ -579,7 +588,7 @@ tests/unit/scientist/search/test_phase_b_policy_runtime.py
 | 1.1D | Projection helpers | `claims/projections.py` | Convert existing legal/causal/policy/governance outputs into claims | `test_projections.py` |
 | 1.1E | Naked-claim validator | `claims/validators.py`, governance pass hook | Detect required outputs without claim refs | negative tests |
 | 1.1F | Decision packet integration | decision packet and output bundle builders | `claims_ref` in artifacts index / packet payload | decision packet regressions |
-| 1.1G | CI phase gate | `tools/ci/check_scientist_best_in_class_phase1_1.py` | Machine-readable pass/fail report | `tests/tools/test_scientist_best_in_class_phase1_1.py` |
+| 1.1G | CI phase gate | `tools/ci/check_scientist_best_in_class_phase1_1.py` | Machine-readable pass/fail report | `tests/repo_quality/tools/test_scientist_best_in_class_phase1_1.py` |
 
 #### Migration plan
 
@@ -833,7 +842,7 @@ src/polisyos/scientist/nodes/builtins/decide/
 | 1.2D | Workflow projection | `research_dag/projections.py`, workflow builder | Workflow and node outcomes become DAG nodes | workflow integration test |
 | 1.2E | Tool-loop projection | `agent/tools/tool_loop.py` adapter only | Tool calls summarized as acquisition/read/extract nodes | agent/tool test |
 | 1.2F | Minimal replay/diff | `research_dag/replay.py`, `diff.py` | Compare two DAGs by sources/claims/governance | `test_diff.py` |
-| 1.2G | CI gate | `tools/ci/check_scientist_best_in_class_phase1_2.py` | Required files/tests/architecture/docs check | tools test |
+| 1.2G | CI gate | `tools/ci/check_scientist_best_in_class_phase1_2.py` | Required files/tests/repo_quality/architecture/docs check | tools test |
 
 #### Migration plan
 
@@ -1593,7 +1602,7 @@ agent promotion, benchmark authority and human review agree.
 ```text
 policy-engine/docs/reference/scientist/best-in-class-wave1-acceptance.md
 policy-engine/tools/ci/check_scientist_best_in_class_wave1.py
-policy-engine/tests/tools/test_scientist_best_in_class_wave1.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_wave1.py
 ```
 
 ### Acceptance criteria
@@ -1635,7 +1644,7 @@ policy-engine/docs/adr/0132-scientist-voi-compute-law.md
 policy-engine/docs/reference/scientist/wave2-runtime-contracts.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_0.py
 policy-engine/tests/unit/scientist/orchestrator_v2/test_compatibility_contracts.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_0.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_0.py
 ```
 
 ### Acceptance criteria
@@ -1666,7 +1675,7 @@ Baseline:
 
 ```bash
 uv run python tools/ci/check_scientist_best_in_class_wave1.py --repo-root . --output-format json --require-passing
-uv run pytest tests/tools/test_scientist_best_in_class_wave1.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_wave1.py -q
 ```
 
 #### Non-goals
@@ -1714,7 +1723,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_0.py
-tests/tools/test_scientist_best_in_class_phase2_0.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_0.py
 ```
 
 Gate checks:
@@ -1773,7 +1782,7 @@ policy-engine/tests/unit/scientist/claims/test_lifecycle.py
 policy-engine/tests/unit/scientist/claims/test_audit.py
 policy-engine/tests/unit/scientist/claims/test_diff.py
 policy-engine/tests/unit/scientist/claims/test_export.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_1.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_1.py
 ```
 
 ### Best-in-class behavior
@@ -1922,7 +1931,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_1.py
-tests/tools/test_scientist_best_in_class_phase2_1.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_1.py
 ```
 
 Gate checks:
@@ -1979,7 +1988,7 @@ policy-engine/tools/ci/check_scientist_best_in_class_phase2_2.py
 policy-engine/tests/unit/scientist/research_dag/test_replay_plan.py
 policy-engine/tests/unit/scientist/research_dag/test_comparison.py
 policy-engine/tests/unit/scientist/research_dag/test_invalidation.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_2.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_2.py
 ```
 
 ### Acceptance criteria
@@ -2044,7 +2053,7 @@ Baseline:
 
 ```bash
 uv run pytest tests/unit/scientist/research_dag tests/unit/scientist/evidence -q
-uv run pytest tests/tools/test_scientist_best_in_class_phase1_2.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_phase1_2.py -q
 ```
 
 #### Non-goals
@@ -2109,7 +2118,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_2.py
-tests/tools/test_scientist_best_in_class_phase2_2.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_2.py
 ```
 
 Gate checks:
@@ -2169,7 +2178,7 @@ policy-engine/tests/unit/scientist/search/test_voi_reports.py
 policy-engine/tests/unit/scientist/search/test_voi_calibration.py
 policy-engine/tests/unit/scientist/evidence/test_claim_support_voi.py
 policy-engine/tests/unit/scientist/human_review/test_voi_escalation.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_3.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_3.py
 ```
 
 ### Scheduling decisions
@@ -2314,7 +2323,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_3.py
-tests/tools/test_scientist_best_in_class_phase2_3.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_3.py
 ```
 
 Gate checks:
@@ -2380,7 +2389,7 @@ policy-engine/tests/unit/scientist/memory/test_contamination.py
 policy-engine/tests/unit/scientist/memory/test_retrieval.py
 policy-engine/tests/unit/scientist/memory/test_consolidation.py
 policy-engine/tests/unit/scientist/memory/test_research_dag_projection.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_4.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_4.py
 ```
 
 ### Rules
@@ -2515,7 +2524,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_4.py
-tests/tools/test_scientist_best_in_class_phase2_4.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_4.py
 ```
 
 Gate checks:
@@ -2576,7 +2585,7 @@ policy-engine/tests/unit/scientist/evals/test_challenge_factory.py
 policy-engine/tests/unit/scientist/evals/test_sentinels.py
 policy-engine/tests/unit/scientist/evals/test_red_team.py
 policy-engine/tests/unit/scientist/evals/test_rotation.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_5.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_5.py
 ```
 
 ### Challenge classes
@@ -2655,7 +2664,7 @@ Baseline:
 
 ```bash
 uv run pytest tests/unit/scientist/evals tests/unit/scientist/search -q
-uv run pytest tests/tools/test_scientist_benchmark_authority.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_benchmark_authority.py -q
 ```
 
 #### Non-goals
@@ -2719,7 +2728,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_5.py
-tests/tools/test_scientist_best_in_class_phase2_5.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_5.py
 ```
 
 Gate checks:
@@ -2780,7 +2789,7 @@ policy-engine/src/polisyos/scientist/continuous_governance/
 
 policy-engine/docs/reference/scientist/continuous-governance.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_6.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_6.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py
 policy-engine/tests/unit/scientist/continuous_governance/
 ```
 
@@ -2912,7 +2921,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_6.py
-tests/tools/test_scientist_best_in_class_phase2_6.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py
 ```
 
 Gate checks:
@@ -2970,7 +2979,7 @@ policy-engine/src/polisyos/scientist/claims/export.py
 policy-engine/docs/reference/scientist/decision-grade-compiler.md
 policy-engine/tools/ci/check_scientist_best_in_class_phase2_7.py
 policy-engine/tests/unit/scientist/orchestrator/test_decision_grade_compiler.py
-policy-engine/tests/tools/test_scientist_best_in_class_phase2_7.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py
 ```
 
 ### Output tiers
@@ -3104,7 +3113,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_phase2_7.py
-tests/tools/test_scientist_best_in_class_phase2_7.py
+tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py
 ```
 
 Gate checks:
@@ -3138,7 +3147,7 @@ Do not promote if:
 `docs/reference/scientist/best-in-class-maturity.md`,
 `docs/reference/scientist/wave2-migration-notes.md`,
 `tools/ci/check_scientist_best_in_class_wave2.py`, and
-`tests/tools/test_scientist_best_in_class_wave2.py`.
+`tests/repo_quality/tools/test_scientist_best_in_class_wave2.py`.
 
 **Длительность:** 1-2 недели.
 **Тезис:** Wave 2 is closed only with metrics, docs, CI gates, shadow evidence
@@ -3178,14 +3187,14 @@ Baseline:
 
 ```bash
 uv run python tools/ci/check_scientist_best_in_class_wave1.py --repo-root . --output-format json --require-passing
-uv run pytest tests/tools/test_scientist_best_in_class_phase2_*.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_phase2_*.py -q
 ```
 
 #### Deliverable expansion
 
 ```text
 policy-engine/tools/ci/check_scientist_best_in_class_wave2.py
-policy-engine/tests/tools/test_scientist_best_in_class_wave2.py
+policy-engine/tests/repo_quality/tools/test_scientist_best_in_class_wave2.py
 policy-engine/docs/reference/scientist/best-in-class-wave2-acceptance.md
 policy-engine/docs/reference/scientist/best-in-class-maturity.md
 policy-engine/docs/reference/scientist/wave2-migration-notes.md
@@ -3226,7 +3235,7 @@ Create:
 
 ```text
 tools/ci/check_scientist_best_in_class_wave2.py
-tests/tools/test_scientist_best_in_class_wave2.py
+tests/repo_quality/tools/test_scientist_best_in_class_wave2.py
 ```
 
 Gate checks:

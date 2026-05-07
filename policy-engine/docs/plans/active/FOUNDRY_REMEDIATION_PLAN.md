@@ -1,3 +1,12 @@
+---
+title: Foundry Audit Remediation Plan
+status: active
+owner: team-foundry
+created: 2026-04-09
+last_verified: 2026-05-05
+stability: draft
+---
+
 # Foundry Audit Remediation Plan
 
 > Living plan for hardening and upgrading `polisyos.foundry` to uncompromising
@@ -345,7 +354,7 @@ Cross-cutting verification gaps found during this pass:
 - `tests/unit/foundry/methods/test_selection_v2.py` exercises thread safety only for
   in-memory history, not persisted concurrent JSONL append;
 
-- `tests/architecture/test_components_bridge.py` and
+- `tests/repo_quality/architecture/test_components_bridge.py` and
   `tests/unit/foundry/methods/test_components_bootstrap_adapter.py` do not assert
   that bootstrap leaves registry default-policy behavior unchanged;
 
@@ -680,7 +689,7 @@ Primary surfaces:
 
 - `tests/unit/foundry/**`
 - benchmark tooling under `tools/research/benchmarks/**`
-- Foundry golden fixtures under `tests/unit/foundry/golden/**`
+- Foundry golden records under `tests/_golden/foundry/**`
 
 Required changes:
 

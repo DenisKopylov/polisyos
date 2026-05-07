@@ -32,9 +32,9 @@ infrastructure decision.
    - **FRONT_DOOR**: front-door criterion applicable (X -> M -> Y, U -> X, U -> Y).
    - **DIAMOND**: diamond structure (X -> A, X -> B, A -> Y, B -> Y) for
      multi-path effect decomposition.
-2. Implement fixtures in `tests/fixtures/canonical_scms.py` as frozen dataclasses
-   exposing `nodes`, `edges`, `scm_spec`, `ground_truth_ate`, and a `to_networkx()`
-   helper.
+2. Implement fixtures in `tests/_helpers/causal_scm_fixtures.py` as shared helper
+   functions exposing canonical graph data, fixture registry entries, and
+   ground-truth ATE values.
 3. All foundry method tests and governance pass tests must use these fixtures
    instead of defining local graphs, enforced by the `lint_foundry` tool.
 4. Each fixture includes a `generate_data(n, seed)` method that produces a

@@ -95,7 +95,7 @@ Negative:
   differences.
 - `tools/design/check-atlas-v4-token-drift.ts` verifies that every v4
   token mismatch has a documented decision.
-- `frontend/runtime-dashboard/src/styles/theme-dark.css` remains the production
+- `apps/runtime-dashboard/src/styles/theme-dark.css` remains the production
   source of truth for dark theme tokens.
 
 ## Related Decisions

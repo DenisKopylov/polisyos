@@ -20,22 +20,26 @@ Adopt explicit test topology:
 
 ```text
 tests/
+|-- _data/
+|-- _golden/
+|-- _helpers/
 |-- architecture/
 |-- contract/
 |-- property/
 |-- unit/
 |-- integration/
 |-- e2e/
-|-- golden/
 |-- performance/
+|-- repo_quality/
 |-- tools/
-|-- lint/
-`-- fixtures/
+`-- lint/
 ```
 
 `tests/unit/<package>` mirrors `src/polisyos/<package>`. Architecture gates live
-under `tests/architecture`; full pipeline behavior lives under `tests/e2e` and
-`tests/golden`.
+under `tests/repo_quality/architecture`; full pipeline behavior lives under `tests/e2e` and
+product API/schema contracts live under `tests/contract`. Committed scenario data
+lives under `tests/_data`, golden records under `tests/_golden`, and shared helper
+code under `tests/_helpers`.
 
 ## Consequences
 

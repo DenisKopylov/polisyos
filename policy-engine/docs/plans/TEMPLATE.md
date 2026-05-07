@@ -33,4 +33,4 @@ State the bounded workstream and what is explicitly out of scope.
 1. Every irreversible decision has an ADR.
 2. Every topology/import/schema/generated-artifact rule has a machine-readable
    contract.
-3. The plan has an exit path to `accepted/` or `docs/archive/plans/`.
+3. The plan has an exit path to `accepted/` or `docs/plans/archive/`.

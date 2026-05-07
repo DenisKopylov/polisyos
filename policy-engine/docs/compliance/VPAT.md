@@ -6,7 +6,7 @@
 - Date: 2026-04-23
 - Product: PolicyOS Runtime Dashboard
 - Version under review: `@polisyos/runtime-dashboard@0.1.0`
-- Evaluation scope: `policy-engine/frontend/runtime-dashboard`
+- Evaluation scope: `policy-engine/apps/runtime-dashboard`
 - Standards: WCAG 2.2 Level A and AA, Revised Section 508, EN 301 549 V3.2.1
 - Owner and internal signatory: Denis Kopylov
 - External accessibility countersign: Post-closeout enhancement; not required for the engineering Wave 1 gate
@@ -23,16 +23,16 @@ Primary evidence for this VPAT is committed alongside the product:
 
 - [A11Y_CONTRAST.md](./A11Y_CONTRAST.md) — generated contrast matrix from theme tokens
 - [A11Y_AUDIT_2026Q2.md](./A11Y_AUDIT_2026Q2.md) — internal pre-audit report and external audit plan
-- `frontend/runtime-dashboard/src/shared/a11y/*` — focus, contrast, reduced-motion, live region, and high-contrast infrastructure
-- `frontend/runtime-dashboard/src/test/a11y/*` and `frontend/runtime-dashboard/e2e/a11y/*` — automated route, keyboard, screen-reader, and color-blind coverage
+- `apps/runtime-dashboard/src/shared/a11y/*` — focus, contrast, reduced-motion, live region, and high-contrast infrastructure
+- `apps/runtime-dashboard/src/test/a11y/*` and `apps/runtime-dashboard/e2e/a11y/*` — automated route, keyboard, screen-reader, and color-blind coverage
 - `docs/brand/storybook-wave1-snapshot/EVIDENCE_BUNDLE.md` — canonical Wave 1 evidence index
 
 ## 2. Evaluation Methods
 
 | Method                       | Coverage                                                                                                                                                                               |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automated WCAG route audit   | `npm run test:a11y:pages` on login, dashboard, composer, runs, artifacts, evidence, platform, and run detail routes                                                                    |
-| Automated component audit    | `npm run test:a11y:components` covering every root component in `src/shared/ui/`                                                                                                       |
+| Automated WCAG route audit   | `corepack pnpm run test:a11y:pages` on login, dashboard, composer, runs, artifacts, evidence, platform, and run detail routes                                                                    |
+| Automated component audit    | `corepack pnpm run test:a11y:components` covering every root component in `src/shared/ui/`                                                                                                       |
 | Keyboard-only journey        | Start on runs list, open a run, navigate to report, download decision packet within the tab-stop budget                                                                                |
 | Screen-reader snapshot audit | Landmark and control-name checks on runs list and run report                                                                                                                           |
 | Contrast enforcement         | `check-contrast.ts` plus generated contrast matrix document; required semantic text pairs are enforced while prohibited dark-theme accent pairs remain visible in the published matrix |

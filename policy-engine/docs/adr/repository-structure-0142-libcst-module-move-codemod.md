@@ -20,7 +20,7 @@ for a decomposition that must preserve public FQNs and formatting.
    are preserved.
 3. It supports `--dry-run`, physical `git mv`, targeted shim generation, import
    rewrites in `src/`, `tests/`, and `tools/`, and text rewrites in
-   `frontend/runtime-api-client/scripts/`.
+   `packages/runtime-api-client/scripts/`.
 4. Generated shim records are appended to `architecture/shims.toml` with
    `type = "python_reexport"`.
 5. Star-import re-export shims are forbidden by ADR-RSR-0144.

@@ -20,7 +20,8 @@ Full authored scope for lint/format waves:
 - `src/polisyos/**`
 - `tests/**`
 - `tools/**`
-- `frontend/**`
+- `apps/**`
+- `packages/**`
 - `docs/**`
 - `schemas/**`
 - `ops/**`
@@ -71,9 +72,9 @@ Excluded from bulk sweeps:
   `corepack pnpm --filter @polisyos/runtime-dashboard run a11y:*`.
   Current policy: `tools/design/*.ts` stays under the frontend accessibility
   contract and is validated through
-  `frontend/runtime-dashboard/package.json` rather than the Python unified CLI.
-  The canonical frontend workspaces are `frontend/runtime-dashboard`,
-  `frontend/runtime-api-client`, and `frontend/runtime-reference-shell`.
+  `apps/runtime-dashboard/package.json` rather than the Python unified CLI.
+  The canonical frontend workspaces are `apps/runtime-dashboard`,
+  `packages/runtime-api-client`, and `apps/runtime-reference-shell`.
 
 - YAML
   Canonical tools: `yamllint`, `actionlint`, `helm lint`.
@@ -149,7 +150,7 @@ ratchet entry in this status board and
 | green | `src/polisyos/runtime`, `tests/unit/runtime` | `workspace runtime-surface` | Runtime API/client drift is part of the owning surface. |
 | green | frontend workspaces | `corepack pnpm -C policy-engine lint`, `corepack pnpm -C policy-engine typecheck`, and workspace-local architecture gates | Covers dashboard, runtime API client, reference shell, and CLI. |
 | ratcheted | `src/polisyos/calibration`, `src/polisyos/foundry/agent_sim/world` | `workspace lint-fast` with explicit Ruff per-file ignores | Historical annotation/import-line debt is ledgered in `pyproject.toml`. |
-| ratcheted | `tools/lib`, `tools/devx/**`, `tools/ops/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
+| ratcheted | `tools/lib`, `tools/devx/**`, `tools/ops_runners/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
 | ratcheted | `tests/**` support and smoke suites | `workspace lint-fast` with test-specific Ruff policy | Tests keep looser security/assert/type-import policy while source surfaces tighten first. |
 | phase8-limited | `benchmarks/**`, `tools/research/benchmarks/**`, `tools/research/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract and stays outside strict `lint-fast` Ruff. |
 | pending | Full removal of Ruff ratchet entries | Directory-by-directory owner work | New debt must be added only as a named ratchet entry with owner context. |
@@ -208,6 +209,17 @@ Rule of use:
   surface, generated drift, docs freshness, public polish, shims, complexity
   exceptions, security, dependencies, SBOM, release policy, and
   command-registry drift.
+
+- `uv run polisyos-tools workspace release-build-cache-lifecycle check`
+  Release/build/cache lifecycle gate. It fails on tracked files under ignored
+  `_build/**` or `_cache/**`, release source under `_build/**`, ignored release
+  inputs, and committed generated outputs that lack generator metadata.
+
+- `uv run polisyos-tools workspace release-build-cache-lifecycle cleanup`
+  Dry-run cleanup for `_build/scratch/**`, `_cache/**`, wrong-root
+  build/cache/tmp residue, and expired ignored generated output. Add `--apply`
+  only after reviewing the listed targets; tracked files and release inputs are
+  protected.
 
 ## Pre-commit Policy
 

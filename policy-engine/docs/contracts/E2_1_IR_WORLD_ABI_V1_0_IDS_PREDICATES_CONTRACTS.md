@@ -77,7 +77,7 @@ IR constraints from `policy-engine/architecture/imports/policy.toml`:
 - `polisyos.ir.*` may import only `pydantic`, `typing_extensions`, `yaml` + stdlib
 - IR must not import `core/fabric/foundry/scientist`
 
-Enforced by `policy-engine/tests/architecture/test_arch_import_gate.py`.
+Enforced by `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py`.
 
 ---
 

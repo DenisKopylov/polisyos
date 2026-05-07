@@ -57,7 +57,9 @@ operational streams, not OpenAPI-generated client surfaces.
 | ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------- |
 | Executive Overview  | `ops/observability/grafana/dashboards/executive-overview.json`  | platform-wide posture and leadership signal                                    | `@platform-owners`                     |
 | SLO Overview        | `ops/observability/grafana/dashboards/slo-overview.json`        | shared SLO view across runtime API, control-plane, DAG, simulation, connectors | `@platform-owners` with service owners |
+| Runtime Operability | `ops/observability/grafana/dashboards/runtime-operability.json` | runtime API, control-plane, queue, cache, and routing health                   | `@runtime-owners`                      |
 | Scientist Agents    | `ops/observability/grafana/dashboards/scientist-agents.json`    | workflow/agent behavior and orchestration health                               | `@scientist-owners`                    |
+| Scientist LLM Cost  | `ops/observability/grafana/dashboards/scientist-llm-cost.json`  | provider cost, model usage, and budget pressure                                | `@scientist-owners`                    |
 | Foundry HPC         | `ops/observability/grafana/dashboards/foundry-hpc.json`         | numerical/runtime compute signal                                               | `@foundry-owners`                      |
 | Knowledge Freshness | `ops/observability/grafana/dashboards/knowledge-freshness.json` | evidence freshness and connector/data signal                                   | `@fabric-owners`                       |
 | Security Phase 4    | `ops/observability/grafana/dashboards/security-phase4.json`     | authz, TEE, SBOM, security posture                                             | security/compliance owner              |
@@ -132,7 +134,7 @@ Critical alerts must be periodically proven alive.
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | runtime availability alerts      | synthetic `/health` and `/ready` checks against known-good deployment path                                                                      |
 | contract/codegen drift           | `polisyos-tools workspace doctor` plus dedicated contract checks on clean workspace                                                             |
-| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`                                         |
+| runtime API OpenAPI drift        | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                         |
 | auth/tenant fail-closed behavior | `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/runtime/http/test_runtime_api_authz.py` |
 | replay failures                  | known-good record/replay fixture path from `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
 | docs publication                 | local `mkdocs build --strict` and green `Documentation` workflow from `main`                                                                    |

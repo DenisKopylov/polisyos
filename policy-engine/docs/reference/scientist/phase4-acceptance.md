@@ -52,7 +52,7 @@ frontier methods remain explicitly feature-gated until offline evidence exists.
 
 | Surface                 | Evidence                                                                                                                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime rollout report  | `src/polisyos/scientist/frontier_runtime.py` and `tests/unit/scientist/search/test_frontier_runtime.py`                                                                           |
+| Runtime rollout report  | `src/polisyos/scientist/orchestration/engine/frontier_runtime.py` and `tests/unit/scientist/search/test_frontier_runtime.py`                                                                           |
 | Benchmark/eval registry | `src/polisyos/scientist/search/benchmark_registry.py`, `src/polisyos/scientist/search/registry_contracts.py`, and `tests/unit/scientist/search/test_benchmark_registry.py` |
 | Runtime promotion gate  | `src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py`                                                                                        |
 

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/continuous_governance/**`, `src/polisyos/scientist/research_dag/invalidation.py`, `src/polisyos/scientist/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `tests/unit/scientist/continuous_governance/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/tools/test_scientist_best_in_class_phase2_6.py`.
+Source of truth: `src/polisyos/scientist/governance/continuous/**`, `src/polisyos/scientist/methods/research_dag/invalidation.py`, `src/polisyos/scientist/evidence/claims/lifecycle.py`, `src/polisyos/scientist/governance/report.py`, `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`, `tests/unit/scientist/governance/continuous/**`, `tools/ci/check_scientist_best_in_class_phase2_6.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py`.
 
 Continuous governance is the Phase 2.6 control plane for living decision
 artifacts. A decision packet can remain valid, enter monitoring, become stale,
@@ -16,13 +16,13 @@ sidecars and governance links.
 
 | Contract | Module | Role |
 | --- | --- | --- |
-| `DecisionValidityStatus` | `continuous_governance.monitors` | Public lifecycle status: `valid`, `monitoring`, `stale`, `review_required`, `reissued`, `withdrawn`. |
-| `GovernanceMonitorEvent` | `continuous_governance.monitors` | Typed source invalidation, calibration drift, fairness drift, policy-context drift or incident signal. |
-| `GovernanceMonitorRecommendation` | `continuous_governance.monitors` | Deterministic action recommendation: continue monitoring, mark stale, human review, reissue or withdrawal review. |
-| `ContinuousInvalidationResult` | `continuous_governance.invalidation` | Bridge result tying Research DAG invalidation to Claim Ledger lifecycle events and monitor recommendations. |
-| `ReissuePacket` | `continuous_governance.reissue` | Old/new decision-packet and Claim Ledger linkage for review-required or reissued artifacts. |
-| `IncidentReport` and `WithdrawalRecord` | `continuous_governance.incident` | Incident posture and explicit audited withdrawal action. |
-| `DecisionValidityReport` | `continuous_governance.reports` | Internal validity report plus public redaction export. |
+| `DecisionValidityStatus` | `governance.continuous.monitors` | Public lifecycle status: `valid`, `monitoring`, `stale`, `review_required`, `reissued`, `withdrawn`. |
+| `GovernanceMonitorEvent` | `governance.continuous.monitors` | Typed source invalidation, calibration drift, fairness drift, policy-context drift or incident signal. |
+| `GovernanceMonitorRecommendation` | `governance.continuous.monitors` | Deterministic action recommendation: continue monitoring, mark stale, human review, reissue or withdrawal review. |
+| `ContinuousInvalidationResult` | `governance.continuous.invalidation` | Bridge result tying Research DAG invalidation to Claim Ledger lifecycle events and monitor recommendations. |
+| `ReissuePacket` | `governance.continuous.reissue` | Old/new decision-packet and Claim Ledger linkage for review-required or reissued artifacts. |
+| `IncidentReport` and `WithdrawalRecord` | `governance.continuous.incident` | Incident posture and explicit audited withdrawal action. |
+| `DecisionValidityReport` | `governance.continuous.reports` | Internal validity report plus public redaction export. |
 
 `persist_validity_report`, `persist_reissue_packet`,
 `persist_incident_report` and `persist_withdrawal_record` write these sidecars
@@ -130,8 +130,8 @@ hidden holdout refs, private eval ids or internal monitor identifiers.
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/continuous_governance -q
+uv run pytest tests/unit/scientist/governance/continuous -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_6.py --repo-root . --output-format json --require-passing
-uv run pytest tests/unit/scientist/claims tests/unit/scientist/research_dag tests/unit/scientist/human_review -q
+uv run pytest tests/unit/scientist/evidence/claims tests/unit/scientist/methods/research_dag tests/unit/scientist/governance/human_review -q
 uv run pytest tests/unit/scientist/governance -q
 ```

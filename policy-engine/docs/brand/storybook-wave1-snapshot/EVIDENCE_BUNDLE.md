@@ -21,7 +21,7 @@ artifacts and a machine-readable manifest.
 
 ## Storybook
 
-- Static build: `_build/frontend/runtime-dashboard/storybook-static/`
+- Static build: `_build/apps/runtime-dashboard/storybook-static/`
 - Snapshot manifest: `docs/brand/storybook-wave1-snapshot/stories.index.json`
 - Rollout manifest: `docs/brand/storybook-wave1-snapshot/staging-feature-flags.all_on.json`
 - Team walkthrough script:
@@ -33,13 +33,13 @@ artifacts and a machine-readable manifest.
 - VPAT: `docs/compliance/VPAT.md`
 - Internal audit report: `docs/compliance/A11Y_AUDIT_2026Q2.md`
 - Route/component a11y suite:
-  `frontend/runtime-dashboard/src/test/a11y/` and
-  `frontend/runtime-dashboard/e2e/a11y/`
+  `apps/runtime-dashboard/src/test/a11y/` and
+  `apps/runtime-dashboard/e2e/a11y/`
 
 ## Design-System Integrity
 
 - Glyph parity script:
-  `frontend/runtime-dashboard/scripts/check-glyph-vocabulary.mjs`
+  `apps/runtime-dashboard/scripts/check-glyph-vocabulary.mjs`
 
 - ADR lint: `tools/design/adr_lint.py`
 - Contrast gate: `tools/design/check-contrast.ts`
@@ -50,7 +50,7 @@ artifacts and a machine-readable manifest.
 
 - Runtime OpenAPI: `schemas/runtime_api_v1.openapi.json`
 - Generated TypeScript client types:
-  `frontend/runtime-dashboard/src/api/types.ts`
+  `apps/runtime-dashboard/src/api/types.ts`
 
 - API client generation script:
-  `frontend/runtime-dashboard/scripts/generate-api-client.sh`
+  `apps/runtime-dashboard/scripts/generate-api-client.sh`

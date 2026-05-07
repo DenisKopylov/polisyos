@@ -31,6 +31,18 @@ not renumber historical ADRs.
 
 ## Index
 
-`index.md` is the human navigation page. Repository SOTA Phase 5 validates the
-ADR directory through `workspace repository-sota-closeout`, while generated ADR
-index validation remains a follow-up until ADR front matter is normalized.
+`index.toml` is the machine-readable ADR inventory. Regenerate the human pages
+and stale-link report after ADR changes:
+
+```bash
+python3 tools/quality/validation/generate_adr_index.py
+```
+
+Repository closeout wiring is checked with
+`uv run polisyos-tools workspace repository-sota-closeout --contract-only`.
+
+Generated outputs:
+
+- `docs/adr/index.md`
+- `docs/adr/by-topic.md`
+- `docs/archive/reports/ADR_STALE_LINK_REPORT.md`

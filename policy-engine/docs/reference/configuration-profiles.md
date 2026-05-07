@@ -3,7 +3,7 @@
 Related reference: [Configuration](configuration.md), [Environment Matrix](environment-matrix.md), [Security Model](../explanation/security-model.md), [Key Rotation](../key-rotation.md).
 
 Owner: `@runtime-owners`
-Source of truth: `docs/reference/configuration.md`, `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `policy-engine/.env.example`, and `frontend/runtime-dashboard/.env.example`
+Source of truth: `docs/reference/configuration.md`, `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `policy-engine/.env.example`, and `apps/runtime-dashboard/.env.example`
 
 This page governs environment-variable taxonomy, example profile composition,
 and secret handling for PolicyOS.
@@ -11,7 +11,7 @@ and secret handling for PolicyOS.
 Canonical sources:
 
 - variable-by-variable reference: [`reference/configuration.md`](configuration.md)
-- safe local examples: `policy-engine/.env.example` and `frontend/runtime-dashboard/.env.example`
+- safe local examples: `policy-engine/.env.example` and `apps/runtime-dashboard/.env.example`
 
 ## Taxonomy
 
@@ -41,7 +41,7 @@ Use `policy-engine/.env.example` as the safe baseline for:
 - filesystem CAS;
 - local logging and tracing defaults.
 
-For the dashboard, use `frontend/runtime-dashboard/.env.example` for browser-safe `VITE_*` values only.
+For the dashboard, use `apps/runtime-dashboard/.env.example` for browser-safe `VITE_*` values only.
 
 ### Research / Durable Local Runtime
 

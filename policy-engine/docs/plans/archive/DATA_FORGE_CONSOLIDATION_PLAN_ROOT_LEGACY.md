@@ -636,7 +636,7 @@ owned. Once accepted, each plan should leave behind:
 1. An ADR for irreversible architecture decisions.
 2. Reference documentation for stable commands, layouts, and policies.
 3. Runbooks for operational procedures.
-4. The original plan moved to `docs/archive/plans/`.
+4. The original plan moved to `docs/plans/archive/`.
 
 This prevents long-lived root docs from becoming a second, stale source of
 truth beside `docs/reference/**`.
@@ -656,7 +656,7 @@ Repository root disposition:
 | `filter_topics.py`, `organize_relevant_topics.py`                                                                            | Move maintained logic to `policy-engine/tools/research/topics/`; remove or wrap old root paths                                                                                          |
 | `topics.csv`                                                                                                                 | Move to root `data/topics/` if local, or to a registered fixture/curated data path if canonical                                                                                         |
 | `compileall.txt`, `import_gate.txt`, `ruff_stats.txt`, `stale_sources_missing_paths.txt`, `summary.json`, `test_collect.txt` | Treat as local freeze outputs; keep curated baselines in `policy-engine/baseline/` or curated reports in `docs/archive/reports/`; otherwise write to `.polisyos/reports/`               |
-| `scm-implementation-spec-v3.md`                                                                                              | If canonical product spec, move to `policy-engine/docs/contracts/` or `docs/archive/plans/` and update diagnostics; if external/private input, keep ignored and document as local input |
+| `scm-implementation-spec-v3.md`                                                                                              | If canonical product spec, move to `policy-engine/docs/contracts/` or `docs/plans/archive/` and update diagnostics; if external/private input, keep ignored and document as local input |
 | `.DS_Store`                                                                                                                  | Delete locally; ignored                                                                                                                                                                 |
 
 `policy-engine/` product-root disposition:
@@ -867,18 +867,18 @@ the backlog for making the repository layout match Sections 2.4 and 2.5.
 
 | Area                                                                                                   | Finding                                                       | Target work                                                                                                                                   |
 | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontend/runtime-dashboard/node_modules`                                                              | ~760 MB local dependency tree                                 | Ignored/local only; hide in IDE and cleanup command                                                                                           |
-| `frontend/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results` | Generated outputs live beside source                          | Keep ignored; route persistent curated reports to docs/archive or CI artifacts                                                                |
-| `frontend/runtime-dashboard/src/api/types.ts`                                                          | Large generated API type file (~8.2k LOC) is tracked          | Register as generated artifact with source OpenAPI command, owner, and freshness rule                                                         |
-| `frontend/runtime-api-client`                                                                          | Generated client is tracked                                   | Register as generated artifact; ensure generation command is canonical and CI-verifiable                                                      |
-| `frontend/runtime-dashboard/.tmp`                                                                      | Local fixture/generated runtime payloads live inside frontend | Keep ignored; if fixtures become canonical, move to `src/test/fixtures` or `tests/frontend/fixtures` with README                              |
-| `frontend/runtime-dashboard/src/features/*`                                                            | Feature-sliced layout is mostly healthy                       | Keep; apply the same boundary policy: features consume `src/api`, `shared`, and domain models through public barrels rather than deep imports |
+| `apps/runtime-dashboard/node_modules`                                                              | ~760 MB local dependency tree                                 | Ignored/local only; hide in IDE and cleanup command                                                                                           |
+| `apps/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results` | Generated outputs live beside source                          | Keep ignored; route persistent curated reports to docs/archive or CI artifacts                                                                |
+| `apps/runtime-dashboard/src/api/types.ts`                                                          | Large generated API type file (~8.2k LOC) is tracked          | Register as generated artifact with source OpenAPI command, owner, and freshness rule                                                         |
+| `packages/runtime-api-client`                                                                          | Generated client is tracked                                   | Register as generated artifact; ensure generation command is canonical and CI-verifiable                                                      |
+| `apps/runtime-dashboard/.tmp`                                                                      | Local fixture/generated runtime payloads live inside frontend | Keep ignored; if fixtures become canonical, move to `src/test/fixtures` or `tests/frontend/fixtures` with README                              |
+| `apps/runtime-dashboard/src/features/*`                                                            | Feature-sliced layout is mostly healthy                       | Keep; apply the same boundary policy: features consume `src/api`, `shared`, and domain models through public barrels rather than deep imports |
 
 #### 2.6.5 Docs, Architecture, and Release Metadata
 
 | Area                                  | Finding                                                                                                 | Target work                                                                                                                                |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `docs/*.md`                           | Many active root-level plan docs coexist with reference/how-to/runbook docs                             | Every active plan gets owner and `.gitignore` exception; accepted plans move to `docs/archive/plans/` with ADR/reference/runbook follow-up |
+| `docs/*.md`                           | Many active root-level plan docs coexist with reference/how-to/runbook docs                             | Every active plan gets owner and `.gitignore` exception; accepted plans move to `docs/plans/archive/` with ADR/reference/runbook follow-up |
 | `docs/.DS_Store`                      | Local Finder artifact in docs root                                                                      | Delete locally; keep ignored                                                                                                               |
 | active docs with absolute local paths | Active docs should not contain `/Users/...` or machine-local paths except intentional archived evidence | Keep archive evidence if needed; fix active reference docs and rely on docs accuracy gate                                                  |
 | `architecture/`                       | Already has public surface and generated artifact registry                                              | Add `topology.toml` and `package_boundaries.toml`; make guardrails read these instead of hardcoded assumptions                             |
@@ -2171,7 +2171,7 @@ Move `ukraine_data/` into `data_forge/ukraine/`. **Can run in parallel with Phas
 | Demote Runtime batch imports          | Replace runtime direct imports of `lex.batch` with Data Forge job/service facades                                                                                                  |
 | Tighten packs policy                  | Replace `packs = ["*"]` with explicit package-specific public facade dependencies                                                                                                  |
 | Normalize tests after source moves    | Move old-domain tests to `tests/unit/data_forge/**` or keep wrapper tests that assert compatibility imports                                                                             |
-| Register generated frontend artifacts | Add `frontend/runtime-api-client/**` and `frontend/runtime-dashboard/src/api/types.ts` to the generated-artifact registry with regeneration commands                               |
+| Register generated frontend artifacts | Add `packages/runtime-api-client/**` and `apps/runtime-dashboard/src/api/types.ts` to the generated-artifact registry with regeneration commands                               |
 
 **Validation:** Package import graph has no new reverse edges from Section 2.5,
 and all remaining temporary exceptions have owners and sunset phases in

@@ -8,7 +8,7 @@ Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_artifact_inspector_api.py tests/unit/runtime/http/test_artifact_inspector_service.py tests/unit/runtime/http/test_runtime_api_authz.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 The artifact surface provides manifest, content, schema, and lineage inspection over CAS-backed runtime artifacts.
 

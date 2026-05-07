@@ -17,5 +17,7 @@ recorded in the owning TOML contract.
 | SLO | `team-observability` | `ops/observability/slo/`, `ops/observability/prometheus/slo_*.yml` |
 | Release fragments | `team-release` | `ops/release/release-fragment-policy.toml`, `release-fragments/` |
 | Commit policy | `team-release` | `ops/release/commit-policy.toml` |
+| Release topology | `team-release` | `ops/release/deployment-topology.toml`, `ops/release/promotion-gates.toml` |
 | Runtime | `team-runtime` | `ops/runtime/runtime-contracts.toml` |
-| Migrations | `team-platform` | `ops/migrations/README.md`, `ops/migrations/migration-contracts.toml`, `ops/migrations/*.sql` |
+| Migrations | `team-platform` | `ops/migrations/README.md`, `ops/migrations/migration-contracts.toml`, `ops/migrations/db/*.sql`, `ops/migrations/{db,runtime_state,api_schemas,ir}/README.md` |
+| Operability contracts | `team-ops` | `architecture/runtime_state_layout.toml`, `architecture/runbook_coverage.toml`, `architecture/component_observability.toml` |

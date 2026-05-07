@@ -12,8 +12,8 @@
 ## Output
 
 - синхронизированы `schemas/runtime_api_v1.openapi.json`,
-  `frontend/runtime-api-client/runtimeApiClient.{ts,js}`,
-  `frontend/runtime-dashboard/src/api/types.ts`;
+  `packages/runtime-api-client/runtimeApiClient.{ts,js}`,
+  `apps/runtime-dashboard/src/api/types.ts`;
 
 - runtime and frontend contract checks снова green.
 
@@ -21,17 +21,17 @@
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
-cd frontend/runtime-dashboard && npm run generate:api
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+cd apps/runtime-dashboard && corepack pnpm run generate:api
 ```
 
 Verification:
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
-cd frontend/runtime-dashboard && npm run contracts:verify && npm run typecheck
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
+cd apps/runtime-dashboard && corepack pnpm run contracts:verify && corepack pnpm run typecheck
 ```
 
 ## 1. Update the runtime source of truth
@@ -50,7 +50,7 @@ Do not force route-only endpoints into generated clients.
 Run:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
 ```
 
 This file is the committed source of truth for runtime consumers.
@@ -60,7 +60,7 @@ This file is the committed source of truth for runtime consumers.
 Run:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
 ```
 
 This updates the lightweight frontend consumer surface used by the reference
@@ -68,10 +68,10 @@ shell and other non-dashboard consumers.
 
 ## 4. Regenerate dashboard API types
 
-Run from `frontend/runtime-dashboard/`:
+Run from `apps/runtime-dashboard/`:
 
 ```bash
-npm run generate:api
+corepack pnpm run generate:api
 ```
 
 This updates `src/api/types.ts` from the same committed OpenAPI snapshot.
@@ -81,15 +81,15 @@ This updates `src/api/types.ts` from the same committed OpenAPI snapshot.
 Backend-side drift and invariants:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 Frontend-side drift:
 
 ```bash
-cd frontend/runtime-dashboard
-npm run contracts:verify
-npm run typecheck
+cd apps/runtime-dashboard
+corepack pnpm run contracts:verify
+corepack pnpm run typecheck
 ```
 
 ## Rollback
@@ -108,7 +108,7 @@ npm run typecheck
 - `check_runtime_api_contract.py` fails: snapshot, generated client and runtime
   code are out of sync;
 
-- `npm run generate:api` changes only dashboard types, not the shared JS/TS
+- `corepack pnpm run generate:api` changes only dashboard types, not the shared JS/TS
   runtime client;
 
 - `contracts:verify` fails after a valid backend change: the dashboard fixtures

@@ -44,15 +44,15 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `decision_data_envelope` | `implemented` | status=`implemented`; decision_data_module=true; trust_envelope_schema=true; coverage_report=true |
 | `discovery_intelligence` | `implemented` | status=`implemented`; semantic_catalog=true; source_contract_v2_count=20; eval_case_count=4 |
 | `product_api_integration` | `implemented` | status=`implemented`; runtime_endpoints=5; frontend_fixture_count=12; required_frontend_fixture_count=12 |
-| `public_facade_exports` | `implemented` | status=`implemented`; export_count=28; exports=28; tests=3 |
+| `public_facade_exports` | `implemented` | status=`implemented`; export_count=30; exports=30; tests=3 |
 
 ## Tests By Plane
 
 | Plane | Tests |
 | ----- | ----- |
-| Source | `tests/unit/fabric/connectors/test_contract_system.py`, `tests/unit/fabric/connectors/test_protocol_compliance.py`, `tests/unit/fabric/connectors/test_registry.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, `tests/unit/fabric/connectors/profiles/test_source_profiles.py`, `tests/unit/fabric/data_plane/test_processing_guarantees.py`, `tests/tools/test_fabric_schema_governance.py`, `tests/tools/test_fabric_source_contracts.py`, +1 more |
+| Source | `tests/unit/fabric/connectors/test_contract_system.py`, `tests/unit/fabric/connectors/test_protocol_compliance.py`, `tests/unit/fabric/connectors/test_registry.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, `tests/unit/fabric/connectors/profiles/test_source_profiles.py`, `tests/unit/fabric/data_plane/test_processing_guarantees.py`, `tests/repo_quality/tools/test_fabric_schema_governance.py`, `tests/repo_quality/tools/test_fabric_source_contracts.py`, +1 more |
 | Evidence | `tests/unit/fabric/data_plane/test_record_replay.py`, `tests/unit/fabric/data_plane/test_quarantine.py`, `tests/unit/fabric/data_plane/test_streaming_runtime.py`, `tests/unit/fabric/data_plane/test_processing_guarantees.py`, `tests/unit/fabric/data_plane/test_benchmarks.py`, `tests/unit/fabric/data_plane/test_orchestrator.py`, `tests/unit/fabric/test_ingestion_quarantine.py`, `tests/unit/fabric/test_provenance.py`, +3 more |
-| Semantics | `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`, `tests/unit/fabric/connectors/test_quality_statistics.py`, `tests/unit/fabric/connectors/test_schema_system.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, `tests/unit/fabric/test_discovery_intelligence.py`, `tests/unit/fabric/test_entity_resolution.py`, `tests/tools/test_fabric_schema_governance.py`, +2 more |
+| Semantics | `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_system.py`, `tests/unit/fabric/connectors/test_quality_statistics.py`, `tests/unit/fabric/connectors/test_schema_system.py`, `tests/unit/fabric/connectors/test_source_contract_v2.py`, `tests/unit/fabric/test_discovery_intelligence.py`, `tests/unit/fabric/test_entity_resolution.py`, `tests/repo_quality/tools/test_fabric_schema_governance.py`, +2 more |
 | World | `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`, `tests/unit/fabric/test_world_branch_governance.py`, `tests/unit/fabric/test_world_temporal_capabilities.py`, `tests/unit/fabric/test_entity_resolution.py`, `tests/unit/fabric/test_world_query_multibackend.py`, `tests/unit/runtime/http/test_temporal_api.py`, `tests/unit/runtime/http/test_temporal_routes.py` |
 | Trust | `tests/unit/fabric/test_lineage.py`, `tests/unit/fabric/test_decision_data_envelope.py`, `tests/unit/fabric/test_fabric_observability.py`, `tests/unit/fabric/test_observability_governance_quality_phase4.py`, `tests/unit/fabric/test_provenance.py`, `tests/unit/fabric/test_discovery_intelligence.py`, `tests/unit/fabric/test_entity_resolution.py`, `tests/unit/fabric/test_access_control.py`, +16 more |
 
@@ -133,7 +133,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `trust.openlineage_export` | `implemented` | `P2` | OpenLineage export | export_openlineage_json=true | - |
 | `trust.product_evidence_adapters` | `implemented` | `P2` | Scholar, Lex, and Foundry Fabric evidence adapters | fabric_evidence_path=true; scholar=true; lex=true; foundry_calibration=true | - |
 | `trust.prov_export` | `implemented` | `P2` | W3C PROV export | prov_o_export=true; prov_json_export=true | - |
-| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | export_count=28; exports=28 | - |
+| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | export_count=30; exports=30 | - |
 | `trust.runtime_fabric_product_api` | `implemented` | `P1` | Runtime Fabric product API endpoints | operation_ids=5; route=true; service=true; openapi=true | - |
 | `trust.runtime_lineage_adapter` | `implemented` | `P1` | Runtime lineage API adapter | route=true; service=true | - |
 | `trust.scientist_fabric_trust_governance` | `implemented` | `P1` | Scientist readiness cap from Fabric trust metadata | pass=true; readiness_cap=true | - |
@@ -161,5 +161,5 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 uv run python tools/quality/validation/fabric_wave2_strict_closure.py --check
 uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check
 uv run bash tools/quality/validation/run_fabric_best_in_class_inventory.sh
-uv run pytest tests/tools/test_fabric_best_in_class_inventory.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_best_in_class_inventory.py -q
 ```

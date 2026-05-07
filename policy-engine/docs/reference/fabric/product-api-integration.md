@@ -4,7 +4,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-28.
 Owner: `@fabric-owners`
-Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration.py`, `src/polisyos/fabric/compatibility.py`, `frontend/runtime-dashboard/src/test/contracts/**`, `tools/quality/validation/fabric_product_integration.py`
+Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration.py`, `src/polisyos/fabric/compatibility.py`, `apps/runtime-dashboard/src/test/contracts/**`, `tools/quality/validation/fabric_product_integration.py`
 
 Fabric Phase 10 closes the loop between governed data and downstream product
 surfaces. Runtime exposes additive endpoints for scorecards, quality/trust
@@ -89,7 +89,7 @@ root Fabric facade remains governed by the existing public-surface policy.
 ```bash
 uv run python tools/quality/validation/fabric_product_integration.py --check
 uv run pytest tests/unit/runtime/http/test_fabric_integration_routes.py -q
-uv run pytest tests/tools/test_fabric_product_integration.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_product_integration.py -q
 uv run pytest tests/unit/fabric/test_product_integration.py tests/unit/scholar/test_fabric_provenance.py tests/unit/lex/test_fabric_provenance.py -q
 uv run pytest tests/unit/foundry/calibration/test_fabric_quality.py tests/unit/foundry/uncertainty/test_fabric_quality.py -q
 corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts

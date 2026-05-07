@@ -1,12 +1,12 @@
 # WCAG 2.2 AA Contrast Matrix
 
-> Auto-generated from `frontend/runtime-dashboard/src/styles.css` by
+> Auto-generated from `apps/runtime-dashboard/src/styles.css` by
 > `policy-engine/tools/design/check-contrast.ts` using `axe-core` color utilities.
 > Manual edits are not permitted.
 
 - Status: Generated
 - Owner: Denis Kopylov
-- Source: `frontend/runtime-dashboard/src/styles.css`
+- Source: `apps/runtime-dashboard/src/styles.css`
 - Generator: `policy-engine/tools/design/check-contrast.ts`
 
 ## Light Theme Tokens

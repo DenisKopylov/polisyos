@@ -4,9 +4,10 @@
 > blameless postmortem.
 
 Owner: `@platform-owners`
-Last tested: `2026-04-17` against the current runbook set, docs inventory, and platform acceptance audit ledger.
+Last tested: `2026-05-06` against the current runbook set, docs inventory, and platform acceptance audit ledger.
 Evidence path: `docs/reference/documentation-inventory.md`; `docs/archive/reports/platform-acceptance.md`
 Rollback path: use the specific linked runbook for the failing surface; this index is a routing page, not the execution procedure itself.
+Component bundle index: `ops/components/README.md`.
 
 Каждый runbook в этом разделе обязан отвечать на одни и те же вопросы:
 
@@ -29,6 +30,7 @@ Rollback path: use the specific linked runbook for the failing surface; this ind
 | [Artifact Signing or SBOM Failure](artifact-signing-sbom-failure.md)                                  | Подпись артефактов, SBOM gate или SLSA payload сломались                                  | `@platform-owners` + security       |
 | [Key Rotation](key-rotation.md)                                                                       | Плановая или аварийная ротация signing keys и trust store                                 | `@platform-owners` + security       |
 | [Canary Rollback or Failed Promotion](canary-rollback-or-promotion-failure.md)                        | Staged rollout или production promotion остановлены либо откатились                       | `@platform-owners`                  |
+| [Migration Release Promotion](migration-release-promotion.md)                                         | Breaking DB/runtime-state/API/IR/persisted-artifact migration blocks promotion            | `@platform-owners`                  |
 | [Idempotency Incident](idempotency-incident.md)                                                       | Retry/replay path создал дубликаты, mismatch или stuck pending state                      | `@runtime-owners`                   |
 | [Mutation Audit Investigation](mutation-audit-investigation.md)                                       | Нужно установить кто, когда и что изменил в runtime mutation path                         | `@runtime-owners`                   |
 | [Cache Rebuild Storm](cache-rebuild-storm.md)                                                         | Run/timeline/lineage cache services ушли в rebuild storm и бьют по latency/CPU            | `@runtime-owners`                   |

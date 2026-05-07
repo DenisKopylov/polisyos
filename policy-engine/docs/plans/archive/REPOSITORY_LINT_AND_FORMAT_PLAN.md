@@ -97,7 +97,7 @@ archived: 2026-04-24
 
 - `eslint` flat config остается каноническим linter.
 - `typescript-eslint` typed linting остается обязательным для
-  `frontend/runtime-dashboard`.
+  `apps/runtime-dashboard`.
 
 - `prettier` остается formatter для TS/TSX/JS/JSON/CSS/HTML в frontend.
 - `dependency-cruiser` и custom architecture checks остаются частью gate.
@@ -269,8 +269,8 @@ archived: 2026-04-24
 
 | Параллельный поток | Scope                                                                   | Блокируется чем                              |
 | ------------------ | ----------------------------------------------------------------------- | -------------------------------------------- |
-| F1                 | `frontend/runtime-dashboard`                                            | только frontend-specific config              |
-| F2                 | `frontend/runtime-api-client`, `runtime-reference-shell`                | generator contract / minimal frontend config |
+| F1                 | `apps/runtime-dashboard`                                            | только frontend-specific config              |
+| F2                 | `packages/runtime-api-client`, `runtime-reference-shell`                | generator contract / minimal frontend config |
 | P1                 | `src/polisyos/common` + `tests/unit/common`                                  | foundation                                   |
 | D1                 | `docs/**`, `README.md`, `CONTRIBUTING.md`                               | markdown policy                              |
 | C1                 | `architecture/**`, `release/**`, `release-fragments/**`, top-level TOML | taplo policy                                 |
@@ -381,9 +381,9 @@ archived: 2026-04-24
 
 ### Scope
 
-- `frontend/runtime-dashboard`
-- `frontend/runtime-api-client`
-- `frontend/runtime-reference-shell`
+- `apps/runtime-dashboard`
+- `packages/runtime-api-client`
+- `apps/runtime-reference-shell`
 
 ### Причина раннего параллелизма
 
@@ -659,7 +659,7 @@ uv run dmypy check <dirs>
 ## 9.2 Frontend
 
 ```bash
-cd frontend/runtime-dashboard
+cd apps/runtime-dashboard
 npm run format
 npm run format:check
 npm run lint
@@ -770,7 +770,7 @@ opa test <paths>
 
 ### Шаг 2. Сразу после него параллельно
 
-1. `frontend/runtime-dashboard`
+1. `apps/runtime-dashboard`
 2. `docs + top-level prose`
 3. `architecture + release + release-fragments + schemas`
 4. `.github + ops`

@@ -20,7 +20,7 @@ claims live in the linked child reference pages.
 | [Scientist](scientist/index.md) | 4 exports                                                                                          | Orchestration — workflows, governance passes, experiment state           |
 | [Lex](lex/index.md)             | 58 types                                                                                           | Legal text processing — norm packs, interventions, knowledge             |
 | [Fabric](fabric/index.md)       | 9 connectors                                                                                       | Data fabric — connectors, profiles, world queries                        |
-| Frontend consumer surfaces      | `frontend/runtime-dashboard/`, `frontend/runtime-api-client/`, `frontend/runtime-reference-shell/` | Dashboard, generated runtime client, and static reference shell          |
+| Frontend consumer surfaces      | `apps/runtime-dashboard/`, `packages/runtime-api-client/`, `apps/runtime-reference-shell/` | Dashboard, generated runtime client, and static reference shell          |
 
 ## Other
 

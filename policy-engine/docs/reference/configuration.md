@@ -107,11 +107,11 @@ through `RuntimeExecutionPolicyResolver`.
 | Variable                            | Default                                 | Effect                                                              |
 | ----------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
 | `POLISYOS_CAS_BACKEND`              | `filesystem`                            | Artifact store backend selector                                     |
-| `POLISYOS_CAS_ROOT`                 | backend-specific                        | CAS root directory for filesystem/cache backends                    |
+| `POLISYOS_CAS_ROOT`                 | `.polisyos/cas` for local filesystem    | CAS root directory for filesystem/cache backends                    |
 | `POLISYOS_CAS_BUCKET`               | empty                                   | Object bucket for cloud-backed CAS                                  |
 | `POLISYOS_CAS_PREFIX`               | `polisyos-cas`                          | Object prefix for cloud-backed CAS                                  |
 | `POLISYOS_CAS_REGION`               | `us-east-1`                             | Object storage region                                               |
-| `POLISYOS_CAS_LOCAL_CACHE_DIR`      | empty                                   | Optional local cache directory for cloud-backed stores              |
+| `POLISYOS_CAS_LOCAL_CACHE_DIR`      | `.polisyos/cas/_cache` for cached local | Optional local cache directory for cloud-backed stores              |
 | `POLISYOS_SIGNING_ENABLED`          | `false`                                 | Enable artifact-signing integration                                 |
 | `POLISYOS_SIGN_ON_PUT`              | `false`                                 | Sign new CAS artifacts automatically on write                       |
 | `POLISYOS_SIGN_ON_PUT_POLICY`       | `fail`                                  | `fail` raises on signing errors, `warn` keeps the artifact unsigned |

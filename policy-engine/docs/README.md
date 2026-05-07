@@ -24,7 +24,7 @@ compliance corpus.
 ## Design Plans
 
 - Wave 1 / Wave 2 design evidence: `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md`
-- Wave 1 release evidence: `docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md`
+- Wave 1 release evidence: `release/design-wave1-release-notes.md`
 
 ## ADR
 

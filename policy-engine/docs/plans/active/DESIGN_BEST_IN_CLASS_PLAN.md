@@ -1,10 +1,19 @@
+---
+title: PolicyOS Atlas Best-in-Class Design Roadmap
+status: active
+owner: denis-kopylov
+created: 2026-04-29
+last_verified: 2026-05-05
+stability: draft
+---
+
 # PolicyOS Atlas - Best-in-Class Design Roadmap
 
 > Дата: 2026-04-29
 > Статус: active
 > Версия: 3.0, post-implementation frontier plan
 > Владелец: Denis Kopylov
-> Scope: `policy-engine/frontend/runtime-dashboard/`, `policy-engine/docs/brand/`,
+> Scope: `policy-engine/apps/runtime-dashboard/`, `policy-engine/docs/brand/`,
 > `policy-engine/docs/compliance/`, runtime/fabric/scientist API contracts
 
 ---
@@ -45,7 +54,7 @@ time, provenance, uncertainty, trust, objections, publication и reviewer craft
 
 | Слой                                         | Production anchor                                               | Статус                                 |
 | -------------------------------------------- | --------------------------------------------------------------- | -------------------------------------- |
-| Atlas shell, sandstone/glass/graphite layout | `frontend/runtime-dashboard/src/styles.css`                     | done                                   |
+| Atlas shell, sandstone/glass/graphite layout | `apps/runtime-dashboard/src/styles.css`                     | done                                   |
 | Light theme tokens                           | `src/styles/theme-light.css`                                    | done                                   |
 | Dark theme tokens                            | `src/styles/theme-dark.css`                                     | done, но требует v4 canonical decision |
 | High contrast / forced colors                | `src/styles/theme-high-contrast.css`                            | done                                   |
@@ -97,13 +106,13 @@ time, provenance, uncertainty, trust, objections, publication и reviewer craft
 
 | Gate                  | Anchor                                                | Must remain green |
 | --------------------- | ----------------------------------------------------- | ----------------- |
-| Component/unit tests  | `npm run test:components`                             | yes               |
-| A11y suite            | `npm run test:a11y`, `tools/design/check-contrast.ts` | yes               |
-| Design polish suite   | `npm run design:polish`                               | yes               |
-| Visual snapshots      | `npm run test:visual`                                 | yes               |
-| Architecture checks   | `npm run check:architecture`                          | yes               |
-| Glyph vocabulary gate | `npm run test:glyph-vocabulary`                       | yes               |
-| Quantity coverage     | `npm run quantity:coverage`                           | yes               |
+| Component/unit tests  | `corepack pnpm run test:components`                             | yes               |
+| A11y suite            | `corepack pnpm run test:a11y`, `tools/design/check-contrast.ts` | yes               |
+| Design polish suite   | `corepack pnpm run design:polish`                               | yes               |
+| Visual snapshots      | `corepack pnpm run test:visual`                                 | yes               |
+| Architecture checks   | `corepack pnpm run check:architecture`                          | yes               |
+| Glyph vocabulary gate | `corepack pnpm run test:glyph-vocabulary`                       | yes               |
+| Quantity coverage     | `corepack pnpm run quantity:coverage`                           | yes               |
 
 ---
 
@@ -238,7 +247,7 @@ Each capability follows the same implementation ladder.
 ### 4.2. Suggested frontend file layout
 
 ```text
-frontend/runtime-dashboard/src/features/
+apps/runtime-dashboard/src/features/
 ├── causal/                         # Track A causal/scientific layer
 │   ├── atlas/
 │   ├── identifiability/
@@ -1093,9 +1102,9 @@ explicit design decision.
 - `docs/brand/ATLAS_V4_ADOPTION.md`
 - `docs/brand/atlas-v4/colors_and_type.css`
 - `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md`
-- `frontend/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx`
+- `apps/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx`
 - `tools/design/check-atlas-v4-token-drift.ts`
-- `frontend/runtime-dashboard/package.json` script `design:atlas-v4`
+- `apps/runtime-dashboard/package.json` script `design:atlas-v4`
 
 ### 12.2. Phase 3.1 - Surface infrastructure
 
@@ -1115,31 +1124,31 @@ explicit design decision.
 
 **Implemented artefacts:**
 
-- `frontend/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts` defines the
+- `apps/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts` defines the
   canonical workspace, run-tab and nested-panel registry, including parent
   surfaces, command metadata, route resolution, glyphs, permissions,
   capabilities, semantic explanation ids and visual fixture classification.
-- `frontend/runtime-dashboard/src/features/runs/domain/runDetailTabs.ts` now
+- `apps/runtime-dashboard/src/features/runs/domain/runDetailTabs.ts` now
   derives run inspector tabs from the surface registry instead of maintaining a
   separate tab source of truth.
-- `frontend/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx`
+- `apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx`
   renders navigation, contextual run surfaces and workspace nested surfaces
   from the registry, with route context, feature flags, capabilities and
   permissions applied before entries are shown. Surface commands include
   labels, ids, route ids, aliases and legacy aliases in their searchable command
   value.
-- `frontend/runtime-dashboard/src/app/surfaces/semanticExplanationRegistry.ts`
+- `apps/runtime-dashboard/src/app/surfaces/semanticExplanationRegistry.ts`
   provides the shared Track E2 explanation registry for surfaces, confidence
   intervals, Atlas glyphs and threshold controls.
-- `frontend/runtime-dashboard/src/app/surfaces/replayEvents.ts` defines the
+- `apps/runtime-dashboard/src/app/surfaces/replayEvents.ts` defines the
   Track D3 replay event envelope with stable ids, route context, actor context,
   temporal scope, first-class `surface.opened` events and runtime validation
   for replay import.
-- `frontend/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts`
+- `apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts`
   provides deterministic large-graph and temporal fixtures for graph/time
   visualization stories and tests, including lookup by registered surface
   visualization metadata.
-- `frontend/runtime-dashboard/src/app/workspaces.ts` imports run sample query
+- `apps/runtime-dashboard/src/app/workspaces.ts` imports run sample query
   options directly to avoid a feature barrel import cycle in surface
   infrastructure.
 - Locale keys for command groups and registered nested surfaces are present in
@@ -1150,7 +1159,7 @@ explicit design decision.
 - `npm exec vitest run src/app/surfaces/surfaceRegistry.test.ts src/app/surfaces/semanticExplanationRegistry.test.ts src/app/surfaces/replayEvents.test.ts src/app/surfaces/visualFixtureHarness.test.ts src/features/commandPalette/CommandPalette.test.tsx`
   plus `src/features/runs/routes/useRunDetailSummary.test.tsx` passed: 26
   tests.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` for surface infrastructure, command palette, run tabs and
   workspace import boundaries passed.
 - Phase 3.1 locale keys are present in `en`, `uk` and `ru`; full
@@ -1229,7 +1238,7 @@ health, causal graph, choreography and objection status without leaving Atlas.
 
 - `npx vitest run src/app/surfaces/surfaceRegistry.test.ts src/features/evidence/domain/productionSlice.test.ts src/features/runs/domain/runChoreography.test.ts src/features/evidence/routes/EvidenceFabricPage.test.tsx src/features/runs/routes/runDetailSurfaces.test.tsx`
   passed: 27 tests.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` passed for Phase 3.2 domain adapters, panels, routes,
   i18n-consuming components and route tests.
 - `src/i18n/parity.test.ts` still fails on pre-existing unrelated locale
@@ -1254,7 +1263,7 @@ block/warning.
 **Implemented production slice:**
 
 - A2 Identifiability Surface is implemented through
-  `frontend/runtime-dashboard/src/features/runs/domain/scientificDepth.ts` and
+  `apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts` and
   rendered inside the Atlas decision packet by
   `ScientificDepthPanel.tsx`. Decision metrics are projected into a
   deterministic surface with `point`, `partial`, `set` and `not_identified`
@@ -1319,7 +1328,7 @@ block/warning.
   passed: 29 tests covering deterministic A2-A5 contracts, registry command
   routing, semantic explanation coverage, fixture backing and decision packet
   rendering.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` passed for the Phase 3.3 domain adapter, panel, registry and
   route test files.
 - Phase 3.3 locale keys are present and structurally matched across English,
@@ -1344,7 +1353,7 @@ and auditable.
 **Implemented production slice:**
 
 - C2 Stakeholder Lens Switcher is implemented in
-  `frontend/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts`
+  `apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts`
   and rendered by `PublicSectorReadinessPanel.tsx`. Operator, regulator,
   appellant, data-scientist and public-viewer projections all derive from the
   same deterministic decision hash; each lens changes emphasis, collapsed
@@ -1373,7 +1382,7 @@ and auditable.
   runs and replacement rationale. Superseded/revoked policy states become
   visible approval blockers.
 - C1 objections are now shared through
-  `frontend/runtime-dashboard/src/features/runs/domain/disputes.ts`, so the
+  `apps/runtime-dashboard/src/features/runs/domain/disputes.ts`, so the
   Phase 3.2 Dispute Registry and Phase 3.4 approval gate use the same local
   objection store and governance issue projection.
 - The Phase 3.4 nested surfaces are registered in the Phase 3.1 surface registry
@@ -1409,7 +1418,7 @@ and auditable.
   passed: 36 tests covering C2-C7/G4 blockers, lens hash invariants, embargo
   masking, shared objection projection, registry routing, semantic explanation
   coverage, fixture backing and decision packet/governance rendering.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` passed for the Phase 3.4 domain adapters, panels, registry,
   governance tab and route tests.
 - Phase 3.4 locale keys are present in English, Ukrainian and Russian catalogs.
@@ -1432,7 +1441,7 @@ private context.
 **Implemented production slice:**
 
 - E1 Argument Map is implemented in
-  `frontend/runtime-dashboard/src/features/runs/domain/publicationPacket.ts` as
+  `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts` as
   a deterministic Toulmin graph: claim, grounds, warrant, backing and rebuttal
   nodes with stable ids, statuses and public refs.
 - E2 Comprehension Layer is implemented through the Phase 3.1 semantic surface
@@ -1500,7 +1509,7 @@ private context.
   passed: 55 tests covering E1-E6/F1-F5 packet construction, public redaction,
   signing, verification, isolated public rendering, command surfaces,
   route/provider boundaries and run-detail integration.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` passed for Phase 3.5 domain, components, routes, surface
   registry and route metadata.
 - Phase 3.5 locale keys are present in English, Ukrainian and Russian catalogs.
@@ -1522,7 +1531,7 @@ to wallet and complete a reading-grade onboarding run.
 **Implemented production slice:**
 
 - G1 Global Sensitivity / Trust Dial is implemented in
-  `frontend/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` and
+  `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` and
   rendered in both `OperatorCraftPanel.tsx` and the always-on
   `AmbientTelemetryHud.tsx`. The reviewer threshold is versioned in local
   storage, emits a `threshold.changed` replay envelope and recomputes visible
@@ -1583,7 +1592,7 @@ to wallet and complete a reading-grade onboarding run.
   passed: 27 tests covering threshold persistence, hidden claims, snapshot
   annotations, wallet dedupe, onboarding timing, replay event validation,
   surface registration and run-detail rendering.
-- `npm run typecheck` passed.
+- `corepack pnpm run typecheck` passed.
 - Targeted `eslint` passed for Phase 3.6 domain, component, HUD, route,
   replay-event and surface-registry files.
 - Phase 3.6 locale keys are present and structurally matched across English,
@@ -1627,8 +1636,8 @@ to wallet and complete a reading-grade onboarding run.
 
 ### 13.5. Design quality
 
-- `npm run test:a11y` green.
-- `npm run design:polish` green.
+- `corepack pnpm run test:a11y` green.
+- `corepack pnpm run design:polish` green.
 - Visual snapshots reviewed for every new surface.
 - No new domain color outside token allowlist.
 - No raw Unicode domain symbols in production JSX except documented anchors.

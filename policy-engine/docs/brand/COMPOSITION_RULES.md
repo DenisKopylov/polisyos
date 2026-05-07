@@ -148,7 +148,7 @@ their own background.
   epistemic language and future `docs/brand/VOICE.md` (Phase 1.5).
 
 - Domain vocabulary — owned by
-  `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts`.
+  `apps/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts`.
 
 ## 10. Phase 2.7 Stacking Rules
 

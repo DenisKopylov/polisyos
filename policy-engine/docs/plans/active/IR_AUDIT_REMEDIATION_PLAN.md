@@ -1,3 +1,12 @@
+---
+title: IR Audit Remediation Plan
+status: active
+owner: team-ir
+created: 2026-04-12
+last_verified: 2026-05-05
+stability: draft
+---
+
 # План исправления и SOTA-улучшения IR
 
 > Консолидированный remediation plan для `src/polisyos/ir` по итогам трех

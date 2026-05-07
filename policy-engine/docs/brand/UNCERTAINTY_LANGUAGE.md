@@ -172,7 +172,7 @@ New components:
 ## 6. SVG pattern references
 
 The canonical SVG definitions for P2 and P3 live in
-`frontend/runtime-dashboard/src/shared/charts/patterns/` and are consumed
+`apps/runtime-dashboard/src/shared/charts/patterns/` and are consumed
 via `<defs>` blocks in the chart components. They are not inlined per-chart.
 
 ```xml
@@ -200,8 +200,8 @@ via `<defs>` blocks in the chart components. They are not inlined per-chart.
 
 ## 6.5. Storybook links
 
-These links assume local Storybook is running via `npm run storybook` in
-`frontend/runtime-dashboard/`.
+These links assume local Storybook is running via `corepack pnpm run storybook` in
+`apps/runtime-dashboard/`.
 
 - [UncertaintyBand](http://localhost:6006/?path=/story/charts-uncertainty-uncertaintyband--identified-series)
 - [FanChart](http://localhost:6006/?path=/story/charts-uncertainty-fanchart--identified)

@@ -114,7 +114,7 @@ This runs `create_workers.sh` in `phase1` mode, which creates 6 VMs with per-VM 
 ./collect_telemetry.sh
 
 # Compare hypotheses side-by-side
-python3 tools/ops/calibration/compare_shards.py /tmp/calibration/
+python3 tools/ops_runners/calibration/compare_shards.py /tmp/calibration/
 ```
 
 The comparison script (Section 5.9) outputs a table like:
@@ -670,12 +670,12 @@ done
 
 echo ""
 echo "Telemetry saved to $OUT_DIR (status-pass=${STATUS_PASS})"
-echo "Run:  python3 tools/ops/calibration/compare_shards.py $OUT_DIR"
+echo "Run:  python3 tools/ops_runners/calibration/compare_shards.py $OUT_DIR"
 ```
 
 ### 5.9 Compare hypotheses — `compare_shards.py`
 
-Save as `tools/ops/calibration/compare_shards.py`:
+Save as `tools/ops_runners/calibration/compare_shards.py`:
 
 ```python
 #!/usr/bin/env python3

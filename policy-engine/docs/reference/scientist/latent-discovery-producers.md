@@ -3,7 +3,7 @@
 Freshness: 2026-04-20
 Owner: `@scientist-owners`, `@causal-owners`
 Source of truth: `src/polisyos/scientist/discovery/latent_producers.py`, `src/polisyos/scientist/latent_separation.py`
-Research rationale: Phase 2 stages `9.1` and `9.2` in `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md`
+Research rationale: Phase 2 stages `9.1` and `9.2` in `docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md`
 
 ## Purpose
 

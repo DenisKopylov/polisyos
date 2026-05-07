@@ -67,7 +67,7 @@ Kuzu traversal helpers:
 ## Evaluation
 
 The relevance and false-positive pack lives at
-`tests/fixtures/fabric_discovery_eval.json`. It covers dataset relevance and a
+`tests/_data/fabric/discovery_eval.json`. It covers dataset relevance and a
 negative query that should not produce an overconfident source match.
 
 Validation:

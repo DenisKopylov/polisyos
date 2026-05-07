@@ -2,7 +2,17 @@
 
 Owner: `@platform-owners`  
 Backup owner: `@tools-owners`  
-Source of truth: repository-root `.github/workflows/{abi.yml,ci.yml,core-runtime-long-soak.yml,core-runtime-release-gate.yml,docs-pages.yml,fabric-remediation.yml,frontend-nightly.yml,frontend-quality.yml,release.yml}`, reusable product workflow templates under `ops/ci/templates/workflows/{abi.yml,arch.yml,arch-freeze.yml,build-and-push.yml,causal-phases.yml,design-wave1-evidence.yml,docs.yml,foundry-release-gate.yml,mutation.yml,perf.yml,replay.yml,repository-hygiene.yml,signatures.yml}`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/labels.yml`, `tools/devx/workspace/{verify.py,docs_style.py,format_check.py,lint_fast.py,lint_full.py,ci_parity.py,acceptance_audit.py,repository_sota_closeout.py}`, `docs/reference/repository-hygiene.md`, `tools/quality/validation/check_docs_gate.py`, `tools/ops/runtime/check_runtime_api_contract.py`, and `tools/devx/architecture/guardrails.py`
+Source of truth: `architecture/control_plane_supply_chain.toml`,
+repository-root
+`.github/{CODEOWNERS,repository-rulesets/main.yml,workflows/{abi.yml,ci.yml,core-runtime-long-soak.yml,core-runtime-release-gate.yml,docs-pages.yml,fabric-remediation.yml,frontend-nightly.yml,frontend-quality.yml,release.yml}}`,
+reusable product workflow templates under
+`ops/ci/templates/workflows/{abi.yml,arch.yml,arch-freeze.yml,build-and-push.yml,causal-phases.yml,design-wave1-evidence.yml,docs.yml,foundry-release-gate.yml,mutation.yml,perf.yml,replay.yml,repository-hygiene.yml,signatures.yml}`,
+`.github/PULL_REQUEST_TEMPLATE.md`, `.github/labels.yml`,
+`tools/devx/workspace/{verify.py,docs_style.py,format_check.py,lint_fast.py,lint_full.py,ci_parity.py,acceptance_audit.py,repository_sota_closeout.py}`,
+`docs/reference/repository-hygiene.md`,
+`tools/quality/validation/{check_docs_gate.py,control_plane_supply_chain_contracts.py}`,
+`tools/ops_runners/runtime/check_runtime_api_contract.py`, and
+`tools/devx/architecture/guardrails.py`
 
 This page is the single repo-tracked map for local validation commands, current
 CI workflows, and the PR taxonomy recorded in the repository itself.
@@ -30,6 +40,8 @@ or explicit non-default roadmap note.
 
 ## Repo-Tracked Local Gates
 
+<!-- markdownlint-disable MD060 -->
+
 | Local gate                       | Canonical command                                                                                                                                                                           | Source of truth                                                                                                      | Use when                                                                                                                                                                             |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Docs drift gate                  | `uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main`                                                                                                     | `tools/quality/validation/check_docs_gate.py`                                                                        | Docs-sensitive paths changed and you want the single D6 gate that dispatches path-aware docs, OpenAPI, schema, public-surface, tools, README-freshness, and runbook-evidence checks. |
@@ -44,14 +56,20 @@ or explicit non-default roadmap note.
 | CI parity without browser suites | `uv run polisyos-tools workspace ci-parity --skip-browser`                                                                                                                                  | `tools/devx/workspace/ci_parity.py`                                                                                  | Broad platform, docs, workflow, or generated-artifact changes need CI-like evidence.                                                                                                 |
 | Cross-surface acceptance audit   | `uv run polisyos-tools workspace acceptance-audit`                                                                                                                                          | `tools/devx/workspace/acceptance_audit.py`                                                                           | Repo policy, onboarding, release, governance, or multi-surface closeout changes land.                                                                                                |
 | Repository SOTA closeout         | `uv run polisyos-tools workspace repository-sota-closeout`                                                                                                                                  | `architecture/repository_sota_gates.toml`, `tools/devx/workspace/repository_sota_closeout.py`                        | Repository topology, imports, generated artifacts, docs freshness, public-polish hygiene, shims, local data, security, release, or ops policy changes land.                         |
-| Public-polish topology gate      | `uv run pytest tests/architecture/test_repository_public_polish.py -q`                                                                                                                      | `docs/reference/repository-topology.md`, `tests/architecture/test_repository_public_polish.py`                       | Published docs navigation, excluded-plan links, Repository SOTA lifecycle placement, or human-readable topology reference pages change.                                              |
+| Directory hygiene and assets     | `uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors`                                                                                                       | `architecture/asset_placement.toml`, `tools/quality/validation/directory_hygiene_assets.py`                          | Product assets, test fixtures, golden records, examples, local reports, generated benchmark reports, or cleanup/promotion rules change.                                             |
+| Directory health ratchet         | `uv run polisyos-tools validation directory-health --fail-on-regression`                                                                                                                    | `architecture/directory_health.toml`, `tools/quality/validation/directory_health.py`                                  | Test/benchmark role gates, directory closure rules, and directory-health dashboard metrics need Phase 6.2 no-regression evidence.                                                   |
+| Stale local report cleanup       | `uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run`                                                                                                             | `architecture/asset_placement.toml`, `tools/devx/workspace/clean_local_reports.py`                                    | Local `.polisyos/reports`, `benchmarks/_reports`, source-adjacent `.DS_Store`/`__pycache__`, or egg-info residue needs a reviewed cleanup pass.                                    |
+| Control-plane supply-chain contract | `uv run python tools/quality/validation/control_plane_supply_chain_contracts.py`                                                                                                          | `architecture/control_plane_supply_chain.toml`, `docs/archive/reports/supply-chain-control-crosswalk.json`, `.github/CODEOWNERS`, `.github/repository-rulesets/main.yml`         | CODEOWNERS/ruleset intent, workflow permissions, OIDC usage, Renovate placement, release SBOM/provenance/signing, or supply-chain control reporting changes land.                  |
+| Public-polish topology gate      | `uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q`                                                                                                                      | `docs/reference/repository-topology.md`, `tests/repo_quality/architecture/test_repository_public_polish.py`                       | Published docs navigation, excluded-plan links, Repository SOTA lifecycle placement, or human-readable topology reference pages change.                                              |
 | Tools reference regeneration     | `uv run polisyos-tools docs --output docs/reference/tools.md`                                                                                                                               | `tools.registry`, `tools/cli.py`                                                                                     | `tools.registry`, command metadata, aliases, lifecycle status, or compatibility wrappers change.                                                                                     |
 | Guardrail drift check            | `uv run polisyos-tools architecture guardrails check`                                                                                                                                       | `architecture/public_surface.toml`, `architecture/generated_artifacts.toml`, `tools/devx/architecture/guardrails.py` | Public-surface or generated-artifact manifests/docs change.                                                                                                                          |
 | Docs freshness baseline          | `uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks`                                                                                                         | `architecture/docs_freshness_exceptions.toml`, `tools/quality/validation/check_docs_accuracy.py`                      | Published-doc drift needs the fail-closed Phase 5 baseline check; raw `check-docs-accuracy` remains a diagnostic command while the legacy baseline is burned down.                  |
 | Strict docs build                | `uv run --extra docs python -m mkdocs build --strict`                                                                                                                                       | `mkdocs.yml`, published docs tree                                                                                    | Navigation, reference docs, links, or docs-site config change.                                                                                                                       |
-| Runtime contract drift           | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`                                                                                     | `tools/ops/runtime/check_runtime_api_contract.py`, committed OpenAPI/client artifacts                                    | Runtime HTTP routes, DTOs, examples, or generated clients change.                                                                                                                    |
-| Schema snapshot drift            | `PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check`                                                                                                         | `tools/quality/diagnostics/gen_schema.py`, ABI registry, schema catalog generator                                    | ABI-visible IR or Fabric schema contracts change.                                                                                                                                    |
+| Runtime contract drift           | `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`                                                                                     | `tools/ops_runners/runtime/check_runtime_api_contract.py`, committed OpenAPI/client artifacts                                    | Runtime HTTP routes, DTOs, examples, or generated clients change.                                                                                                                    |
+| Schema snapshot drift            | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                                                                         | `tools/quality/diagnostics/gen_schema.py`, ABI registry, schema catalog generator                                    | ABI-visible IR or Fabric schema contracts change.                                                                                                                                    |
 | Semantic docstrings              | `uv run polisyos-tools validation check-docstring-quality --repo-root . --allowlist tools/quality/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85` | `tools/quality/validation/check_docstring_quality.py`, `tools/quality/validation/docstring_quality_allowlist.txt`            | Public-surface docstrings or package-entrypoint documentation changes.                                                                                                               |
+
+<!-- markdownlint-enable MD060 -->
 
 `workspace verify` currently covers the fast backend/runtime/dashboard path:
 import policy, Foundry purity, state-read invariants, Scholar boundary checks,
@@ -69,6 +87,8 @@ build/test surfaces unless the corresponding skip flags are used.
 
 ## Repo-Tracked CI Workflow Inventory
 
+<!-- markdownlint-disable MD060 -->
+
 | Workflow                                          | Trigger shape                                                    | Current role                                                                                                                                                                                      |
 | ------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.github/workflows/abi.yml`                       | PRs and pushes to `main`                                         | Repository-root Fast PR workflow. Runs the path-aware D6 docs drift gate, docs accuracy, strict MkDocs, global public-surface docstring quality, ABI snapshot checks, and fast non-browser tests. |
@@ -80,6 +100,8 @@ build/test surfaces unless the corresponding skip flags are used.
 | `.github/workflows/frontend-quality.yml`          | frontend path changes and manual dispatch                        | Frontend lint, unit, contracts, build, and targeted quality checks.                                                                                                                               |
 | `.github/workflows/release.yml`                   | release tags/manual dispatch                                     | Release orchestration, package/build artifacts, and publication evidence.                                                                                                                         |
 | `ops/ci/templates/workflows/*.yml`                | reusable product workflow templates                              | Product-local workflow specs retained for template/reference use only; repository-root workflows above are the GitHub-executed source for current PR enforcement.                                  |
+
+<!-- markdownlint-enable MD060 -->
 
 Historical or removed workflow names are not part of the factual CI gate
 inventory. The table above is the source of truth.
@@ -104,6 +126,8 @@ When a PR uses that taxonomy, it should include:
 
 ## Change Categories
 
+<!-- markdownlint-disable MD060 -->
+
 | Category           | Typical scope                                                    | Review expectation                                                                         | Additional expectations beyond baseline                                                                                                         |
 | ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Architecture       | ownership, ADRs, import-policy boundaries, major package moves   | `@platform-owners` plus every touched subsystem owner                                      | explain boundary impact; link ADR or explicit rationale; call out rollout and compatibility risk                                                |
@@ -111,8 +135,10 @@ When a PR uses that taxonomy, it should include:
 | Runtime behavior   | HTTP behavior, control plane, operator-visible backend semantics | `@runtime-owners` plus touched subsystem owners                                            | describe behavior change; update failure-path tests; update runbook if rollout or incident handling changes                                     |
 | Frontend           | dashboard UX, runtime-api-client, typed dashboard contracts      | `@frontend-owners`; add `@runtime-owners` when API contract changes                        | verify generated frontend contracts; run the dashboard suites relevant to touched paths; document meaningful operator UX changes                |
 | Docs               | reference, tutorials, how-to, ownership or governance docs       | `@docs-owners`; add subsystem owner when docs change contract meaning                      | keep docs aligned with repo reality; update the relevant entry point, not only leaf pages                                                       |
-| Ops / security     | workflows, secrets, deployment, signing, incident surfaces       | `@platform-owners`; add `@runtime-owners` or subsystem owners as needed                    | describe config/secret/rollback impact; update policy or runbook material; note workflow trust or supply-chain implications                     |
+| Ops / security     | workflows, secrets, deployment, signing, incident surfaces       | `@platform-owners`; add `@runtime-owners` or subsystem owners as needed                    | describe config/secret/rollback impact; update policy or runbook material; run the control-plane supply-chain contract when workflow trust, CODEOWNERS, ruleset, or release identity changes |
 | Dependency upgrade | Python, Node, lockfiles, GitHub Actions, toolchain               | owner of affected surface; add `@platform-owners` for shared toolchain or workflow changes | cite upstream notes for breaking/security changes; validate every affected surface; call out rollout risk when upgrades are not purely internal |
+
+<!-- markdownlint-enable MD060 -->
 
 ## Compatibility Classification Rules
 
@@ -171,6 +197,16 @@ Exactly one is required.
 Exactly one is required. These labels determine how the PR is summarized in
 human release notes and whether it needs migration callouts.
 
+### Structured Compatibility Changes
+
+Release fragments use `[[compatibility_change]]` entries when a change affects
+Python public APIs, schemas/OpenAPI, extension contracts, runtime-state formats,
+persisted artifacts, or generated JS clients. The Phase 5.10 report-only gate is
+`uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors`.
+Every structured entry names the change class, impact, owner, version owner,
+deprecation window, release note, and migration/runbook or generated-client
+evidence when that class requires it.
+
 ## Release-Note Mapping Rules
 
 - `compat:breaking` should normally pair with `release:breaking`.
@@ -189,15 +225,17 @@ human release notes and whether it needs migration callouts.
 
 ## Live GitHub Enforcement
 
-Anything enforced only in the GitHub UI is outside the repo-tracked truth on
-this page.
+Anything enforced only in the GitHub UI is outside the repo-tracked applied
+state on this page. The repository does track intended CODEOWNERS and ruleset
+state through `.github/CODEOWNERS`, `.github/repository-rulesets/main.yml`, and
+`architecture/control_plane_supply_chain.toml`.
 
 That includes:
 
-- branch-protection toggles;
-- required-check selections;
-- reviewer routing rules in GitHub settings;
-- merge queue configuration.
+- proof that the tracked ruleset is applied to `main`;
+- required-check selections after live GitHub context names change;
+- reviewer routing rules configured only in GitHub settings;
+- merge queue configuration beyond the tracked disabled state.
 
 Use [Merge Governance](merge-governance.md) and
 [`docs/how-to/apply-github-governance.md`](../how-to/apply-github-governance.md)

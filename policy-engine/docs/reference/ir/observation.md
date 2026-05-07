@@ -11,7 +11,7 @@ bundle manifests that Scientist and Foundry exchange.
 
 Freshness: 2026-04-17
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/refs.py`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/observation/**`
+Source of truth: `src/polisyos/ir/observation/**`, `src/polisyos/ir/references/`, `schemas/snapshots/ir/*.schema.json`, `tests/unit/ir/observation/**`
 Source plan phases: D1-L4 Phase 2 lineage/analysis contracts and Phase 4 transport/interoperability.
 
 ## Contract Layers

@@ -16,7 +16,7 @@ datasets.
 
 ## Decision
 
-1. Small deterministic fixtures live under `tests/fixtures/<domain>/` or a
+1. Small deterministic fixtures live under `tests/_data/<domain>/` or a
    domain-owned `data_forge/domains/<domain>/fixtures/` directory when they are
    source fixtures for that domain.
 2. Large or sensitive snapshots live outside git or behind an explicit DVC or

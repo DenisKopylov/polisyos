@@ -18,6 +18,11 @@ uv run polisyos-tools workspace acceptance-audit \
   --json-output docs/archive/reports/platform-acceptance.json
 ```
 
+When `docs/archive/reports/platform-acceptance.manual.toml` exists, the CLI
+loads it by default so final closeout runs report zero manual pending checks.
+Pass `--no-default-manual-evidence` only when intentionally auditing automated
+coverage separately.
+
 The automated pass checks these surfaces together:
 
 | Acceptance slice                       | Repo-tracked evidence                                                                                                       |
@@ -32,13 +37,12 @@ The automated pass checks these surfaces together:
 
 Runtime-specific acceptance evidence should include:
 
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 - `uv run pytest -q tests/unit/core/security/test_auth_middlewares.py tests/unit/core/security/test_router.py tests/unit/core/security/test_tenant_context.py tests/unit/runtime/http/test_runtime_api_authz.py`
 - `uv run pytest -q tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
 - `uv run polisyos-tools workspace core-runtime-closeout --summary docs/archive/reports/core-runtime-closeout.md --json-output docs/archive/reports/core-runtime-closeout.json`
 
-If you want the manual rehearsals to become blocking too, pass a filled evidence
-file:
+If you want to use an alternate manual evidence file, pass it explicitly:
 
 ```bash
 uv run polisyos-tools workspace acceptance-audit \
@@ -102,13 +106,13 @@ manual evidence TOML:
 Recommended local release rehearsal:
 
 ```bash
-python3 tools/ops/release/check_release_version.py --tag v0.1.0
-python3 tools/ops/release/build_release_notes.py \
+python3 tools/ops_runners/release/check_release_version.py --tag v0.1.0
+python3 tools/ops_runners/release/build_release_notes.py \
   --version 0.1.0 \
   --fragments-dir _build/release-fragments/0.1.0 \
   --output /tmp/polisyos-release-notes.md \
   --require-curated-sections compatibility migration api limitations
-uv run --extra runtime --extra ml python tools/ops/release/run_release_canary.py \
+uv run --extra runtime --extra ml python tools/ops_runners/release/run_release_canary.py \
   --summary /tmp/polisyos-release-canary.md
 ```
 

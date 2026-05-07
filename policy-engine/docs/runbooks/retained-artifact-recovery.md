@@ -72,7 +72,7 @@ Freshness: 2026-04-17.
 
 | Family                       | Lookup key                                                                       | Validation                                                                                           |
 | ---------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Connector recorded fixtures  | fixture path under `tests/unit/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests                                              |
+| Connector recorded fixtures  | fixture path under `tests/_data/fabric/connectors/sources/` plus connector id | source-specific connector tests and record/replay tests                                              |
 | Connector contract snapshots | contract id and schema id/version                                                | `polisyos-tools connectors check-contracts --check` and `tools/ci/check_fabric_schema_registry.py --check` |
 | Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                      | `tests/unit/fabric/data_plane/test_record_replay.py`                                                      |
 | Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                    | `tests/unit/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                         |
@@ -93,7 +93,7 @@ Inspect legacy archive payload and report:
 
 ```bash
 cd policy-engine
-uv run python tools/ops/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
+uv run python tools/ops_runners/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
 ```
 
 Rebuild snapshot manifest for validation:

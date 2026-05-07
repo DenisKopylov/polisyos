@@ -509,8 +509,8 @@ P10 implementation completed with the following evidence:
    - removed top-level `dashboard.py`.
    - updated `README.md` and `src/polisyos/runtime/README.md` to API-first/core-only guidance.
    - updated reference shell core-only assumptions:
-     - `frontend/runtime-reference-shell/app.js`
-     - `frontend/runtime-reference-shell/styles.css`
+     - `apps/runtime-reference-shell/app.js`
+     - `apps/runtime-reference-shell/styles.css`
 7. Migration/archive tooling added:
 
    - `tools/ops/runtime/inventory_legacy_runs.py`

@@ -55,8 +55,8 @@ true for Fabric to become the category-defining policy data substrate?"
 | Fabric package boundary | `policy-engine/src/polisyos/fabric/README.md` |
 | Fabric tests | `policy-engine/tests/unit/fabric/**` |
 | Design integration | `policy-engine/docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md` |
-| Foundry research model | `policy-engine/docs/archive/plans/FOUNDRY_METHODS_RESEARCH_AGENDA.md` |
-| Causal research model | `policy-engine/docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md` |
+| Foundry research model | `policy-engine/docs/plans/archive/FOUNDRY_METHODS_RESEARCH_AGENDA.md` |
+| Causal research model | `policy-engine/docs/plans/archive/CAUSAL_ENGINE_RESEARCH_AGENDA.md` |
 | Public facade | `policy-engine/docs/reference/public-surface.md` |
 | Repository topology | `policy-engine/docs/plans/accepted/REPOSITORY_SOTA_PLAN.md` |
 
@@ -229,7 +229,7 @@ decision-bearing data.
 - `tools/quality/validation/fabric_best_in_class_manifest.json`
 - `tools/quality/validation/run_fabric_best_in_class_inventory.sh`
 - `docs/reference/fabric/best-in-class-inventory.md`
-- `tests/tools/test_fabric_best_in_class_inventory.py`
+- `tests/repo_quality/tools/test_fabric_best_in_class_inventory.py`
 - coverage report for:
   - source contracts;
   - source profiles;
@@ -329,7 +329,7 @@ Validation:
 
 ```bash
 uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check
-uv run pytest tests/tools/test_fabric_best_in_class_inventory.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_best_in_class_inventory.py -q
 ```
 
 #### Phase 1 — Security and Integrity
@@ -476,7 +476,7 @@ Closure artifacts:
 - `tools/quality/validation/fabric_source_contracts.py`;
 - `docs/reference/fabric/source-platform.md`;
 - `tests/unit/fabric/connectors/test_source_contract_v2.py`;
-- `tests/tools/test_fabric_source_contracts.py`.
+- `tests/repo_quality/tools/test_fabric_source_contracts.py`.
 
 **Deliverables**
 
@@ -583,7 +583,7 @@ terms:
   disallowed_uses: []
 replay:
   required: true
-  fixture_ref: tests/fixtures/fabric/worldbank/wdi.replay.json
+  fixture_ref: tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json
 lineage:
   seed_node_kind: source_dataset
 source_trust:
@@ -598,7 +598,7 @@ Tests:
 uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
 uv run pytest tests/unit/fabric/connectors/test_protocol_compliance.py -q
 uv run pytest tests/unit/fabric/connectors/test_source_contract_v2.py -q
-uv run pytest tests/tools/test_fabric_source_contracts.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_source_contracts.py -q
 ```
 
 Gate:

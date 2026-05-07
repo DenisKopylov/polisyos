@@ -120,17 +120,18 @@ issue = "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-
 
 ### Tests
 
-Phase 4A must update:
+Phase 4A/Phase 3.3 update:
 
-- `tests/unit/ddm_15_7/**` imports to `polisyos.ddm.*`
+- DDM behavior tests live under `tests/unit/ddm/**` and import `polisyos.ddm.*`
 - package facade smoke tests to cover `import polisyos.ddm`
-- shim smoke test for `import polisyos.ddm_15_7`
+- `tests/unit/ddm_15_7/**` is collapsed to one shim smoke test for
+  `import polisyos.ddm_15_7`
 - architecture tests that still list `ddm_15_7` as an accepted package root
 
 Suggested focused verification:
 
 ```bash
-pytest tests/unit/ddm_15_7 tests/architecture -q
+pytest tests/unit/ddm tests/unit/ddm_15_7 tests/repo_quality/architecture -q
 ```
 
 ### Rollback
@@ -189,7 +190,7 @@ are gone.
 Suggested focused verification:
 
 ```bash
-pytest tests/architecture -q
+pytest tests/repo_quality/architecture -q
 ```
 
 ### Rollback
@@ -211,8 +212,8 @@ under `polisyos.foundry.agent_sim.world`, and the top-level
 Rationale:
 
 - `foundry/agent_sim` is already the larger ABM/RL runtime owner.
-- Foundry code already imports `polisyos.synthetic_world`, creating a boundary
-  smell that the move resolves.
+- Legacy Foundry imports of `polisyos.synthetic_world` created a boundary smell;
+  the Phase 3.4 collapse keeps first-party imports on the Foundry world target.
 - Moving the smaller truth-centric world-generation package into the Foundry
   simulation owner creates one simulation/world responsibility instead of two
   competing top-level package roots.
@@ -233,7 +234,8 @@ Rationale:
 | `src/polisyos/synthetic_world/templates/` | `polisyos.synthetic_world.templates` | `src/polisyos/foundry/agent_sim/world/templates/` | `polisyos.foundry.agent_sim.world.templates` |
 | `src/polisyos/foundry/agent_sim/` | `polisyos.foundry.agent_sim` | unchanged; gains `world/` child | `polisyos.foundry.agent_sim` plus `polisyos.foundry.agent_sim.world` |
 
-Phase 4A must rewrite internal imports from `polisyos.synthetic_world.*` to
+Phase 3.4 verifies that first-party source and tests do not deep-import through
+`polisyos.synthetic_world.*`; implementation imports use
 `polisyos.foundry.agent_sim.world.*`.
 
 ### Public Surface Impact
@@ -282,9 +284,11 @@ surface; first-party tests and docs must migrate to the target FQNs.
 
 ### Tests
 
-Phase 4A must update:
+Phase 3.4 collapses compatibility coverage and keeps behavioral coverage on the
+canonical Foundry path:
 
-- `tests/unit/synthetic_world/**` to target the new FQN
+- `tests/unit/synthetic_world/test_shim.py` is the only compatibility smoke contract
+- `tests/unit/foundry/agent_sim/world/test_seed_worlds.py` owns seed-world behavior
 - `tests/performance/test_synthetic_world_seed_benchmark.py` only where Python
   import FQNs change
 - `tests/integration/test_c7_synthetic_full_pipeline.py`
@@ -295,8 +299,8 @@ Phase 4A must update:
 Suggested focused verification:
 
 ```bash
-pytest tests/unit/synthetic_world tests/unit/foundry/agent_sim \
-  tests/integration/test_c7_synthetic_full_pipeline.py tests/architecture -q
+pytest tests/unit/synthetic_world tests/unit/foundry/agent_sim/world \
+  tests/integration/test_c7_synthetic_full_pipeline.py tests/repo_quality/architecture -q
 ```
 
 ### Rollback
@@ -378,13 +382,13 @@ Phase 4A must keep these focused tests green:
 - `tests/unit/calibration/**`
 - `tests/unit/foundry/calibration/**`
 - `tests/unit/scientist/**` calibration-related tests
-- `tests/architecture/**` name-registry and public-surface checks
+- `tests/repo_quality/architecture/**` name-registry and public-surface checks
 
 Suggested focused verification:
 
 ```bash
 pytest tests/unit/calibration tests/unit/foundry/calibration \
-  tests/unit/scientist/governance tests/unit/scientist/search tests/architecture -q
+  tests/unit/scientist/governance tests/unit/scientist/search tests/repo_quality/architecture -q
 ```
 
 ### Rollback
@@ -434,7 +438,7 @@ Phase 4A must keep:
 Suggested focused verification:
 
 ```bash
-pytest tests/unit/berl tests/unit/scientist/validation tests/architecture -q
+pytest tests/unit/berl tests/unit/scientist/validation tests/repo_quality/architecture -q
 ```
 
 ### Rollback
@@ -459,7 +463,8 @@ Scientist preflight first.
 ## Phase 3B Completion Checklist
 
 - [x] Blueprint exists and authorizes zero source moves.
-- [x] `ddm_15_7` has exact target `ddm` and shim metadata.
+- [x] `ddm_15_7` has exact target `ddm`, shim metadata, and facade-only smoke
+  coverage.
 - [x] `packs/` decision is deletion, not extension namespace.
 - [x] `synthetic_world` has one chosen direction into
   `foundry.agent_sim.world`.

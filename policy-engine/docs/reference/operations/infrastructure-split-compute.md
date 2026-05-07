@@ -412,7 +412,7 @@ export POLISYOS_CAS_PREFIX=polisyos-cas              # Prefix in bucket
 # L1 cache (локальный, разный path на каждом сервере)
 export POLISYOS_CAS_LOCAL_CACHE_DIR=/data/cas_cache  # GPU worker
 # или
-export POLISYOS_CAS_LOCAL_CACHE_DIR=~/.polisyos/cas_cache  # LLM server
+export POLISYOS_CAS_LOCAL_CACHE_DIR=~/.polisyos/cas/_cache  # LLM server
 ```
 
 ### Layout в GCS

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Wave 2 runtime contracts](wave2-runt
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `tools/ci/check_scientist_best_in_class_wave2.py`, `tests/tools/test_scientist_best_in_class_wave2.py`, `docs/reference/scientist/wave2-migration-notes.md`, and the Phase 2.0-2.7 gates.
+Source of truth: `tools/ci/check_scientist_best_in_class_wave2.py`, `tests/repo_quality/tools/test_scientist_best_in_class_wave2.py`, `docs/reference/scientist/wave2-migration-notes.md`, and the Phase 2.0-2.7 gates.
 
 This is the Wave 2 acceptance record. Wave 2 closes only when Claim Ledger
 lifecycle, Research DAG replay, VOI, reflexive memory, challenge factory,
@@ -66,7 +66,7 @@ Run:
 
 ```bash
 uv run python tools/ci/check_scientist_best_in_class_wave2.py --repo-root . --output-format json --require-passing
-uv run pytest tests/tools/test_scientist_best_in_class_wave2.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_wave2.py -q
 ```
 
 The gate checks Wave 1, all Phase 2.0-2.7 gates, this acceptance page, migration

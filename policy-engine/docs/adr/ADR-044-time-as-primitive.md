@@ -75,10 +75,10 @@ point-in-time queries?
 
 Source of truth:
 
-- Frontend: `frontend/runtime-dashboard/src/shared/time/TimeContext.tsx`
+- Frontend: `apps/runtime-dashboard/src/shared/time/TimeContext.tsx`
   (new, Phase 2.1).
 
-- Frontend scrubber: `frontend/runtime-dashboard/src/shared/time/TimeScrubber.tsx`.
+- Frontend scrubber: `apps/runtime-dashboard/src/shared/time/TimeScrubber.tsx`.
 - Backend: `policy-engine/src/policy_engine/runtime/as_of.py` (new,
   Phase 2.1) centralising `as_of` parsing, validation, and routing
   to lakehouse snapshots.
@@ -106,10 +106,10 @@ Source of truth:
 
 Files created or modified in Phase 2.1:
 
-- New: `frontend/runtime-dashboard/src/shared/time/TimeContext.tsx`
-- New: `frontend/runtime-dashboard/src/shared/time/TimeScrubber.tsx`
-- New: `frontend/runtime-dashboard/src/shared/time/useTimeCursor.ts`
-- New: `frontend/runtime-dashboard/src/shared/time/time.test.tsx`
+- New: `apps/runtime-dashboard/src/shared/time/TimeContext.tsx`
+- New: `apps/runtime-dashboard/src/shared/time/TimeScrubber.tsx`
+- New: `apps/runtime-dashboard/src/shared/time/useTimeCursor.ts`
+- New: `apps/runtime-dashboard/src/shared/time/time.test.tsx`
 - New: `policy-engine/src/policy_engine/runtime/as_of.py`
 - New: `policy-engine/tests/unit/runtime/test_as_of.py`
 - Modified: every runtime route under `policy-engine/src/policy_engine/runtime/routes/**`
@@ -118,7 +118,7 @@ Files created or modified in Phase 2.1:
 - Modified: `policy-engine/schemas/runtime_api_v1.openapi.json` —
   `AsOfQueryParameter` shared schema.
 
-- Modified: `frontend/runtime-dashboard/src/api/types.ts` (regenerated).
+- Modified: `apps/runtime-dashboard/src/api/types.ts` (regenerated).
 
 ## Related Decisions
 

@@ -21,7 +21,7 @@ Evidence: `tests/unit/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_AS
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \

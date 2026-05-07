@@ -36,7 +36,7 @@ The versioning contract is checked together with OpenAPI drift and generated
 clients:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 Relevant test and workflow anchors:

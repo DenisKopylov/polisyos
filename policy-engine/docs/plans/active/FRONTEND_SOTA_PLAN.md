@@ -1,3 +1,12 @@
+---
+title: PolicyOS Frontend SOTA Improvement Plan
+status: active
+owner: team-frontend
+created: 2026-04-06
+last_verified: 2026-05-05
+stability: approved
+---
+
 # PolicyOS Frontend — SOTA Improvement Plan
 
 > Comprehensive plan to bring the PolicyOS frontend to state-of-the-art
@@ -840,7 +849,7 @@ type: {
 **Lucide** (MIT, monoline stroke 1.5px, tree-shakeable, React components):
 
 ```bash
-npm install lucide-react
+corepack pnpm add lucide-react
 ```
 
 Usage: `import { BarChart3, Shield, AlertTriangle, Check } from "lucide-react";`
@@ -893,7 +902,7 @@ Gartner 2025: 75% customer-facing apps will incorporate micro-interactions as st
 **framer-motion** (declarative, spring physics, layout animations, AnimatePresence for exit animations):
 
 ```bash
-npm install framer-motion
+corepack pnpm add framer-motion
 ```
 
 Shared motion presets:

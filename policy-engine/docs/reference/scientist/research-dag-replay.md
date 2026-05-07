@@ -4,7 +4,7 @@ Related references: [Research DAG](research-dag.md), [Claim Ledger](claim-ledger
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/research_dag/replay.py`, `src/polisyos/scientist/research_dag/comparison.py`, `src/polisyos/scientist/research_dag/invalidation.py`, `src/polisyos/scientist/research_dag/diff.py`, `src/polisyos/scientist/claims/lifecycle.py`, `tests/unit/scientist/research_dag/test_replay_plan.py`, `tests/unit/scientist/research_dag/test_comparison.py`, `tests/unit/scientist/research_dag/test_invalidation.py`, and `tools/ci/check_scientist_best_in_class_phase2_2.py`.
+Source of truth: `src/polisyos/scientist/methods/research_dag/replay.py`, `src/polisyos/scientist/methods/research_dag/comparison.py`, `src/polisyos/scientist/methods/research_dag/invalidation.py`, `src/polisyos/scientist/methods/research_dag/diff.py`, `src/polisyos/scientist/evidence/claims/lifecycle.py`, `tests/unit/scientist/methods/research_dag/test_replay_plan.py`, `tests/unit/scientist/methods/research_dag/test_comparison.py`, `tests/unit/scientist/methods/research_dag/test_invalidation.py`, and `tools/ci/check_scientist_best_in_class_phase2_2.py`.
 
 Research DAG replay explains and compares runs from pinned artifacts and
 summarized research nodes. It does not regenerate LLM tokens, call live web, or
@@ -14,11 +14,11 @@ rebuild external pages.
 
 | Contract | Module | Role |
 | --- | --- | --- |
-| `ReplayMode` | `research_dag/replay.py` | `audit_reconstruction`, `pinned_input_replay`, and `variance_envelope` modes. |
-| `ResearchReplayPlan` | `research_dag/replay.py` | Required CAS inputs, unsupported steps, live-fetch guard and replay status. |
-| `ResearchDAGReplay` | `research_dag/replay.py` | Audit-safe ordered path through question, source, extraction, synthesis, governance and publication nodes. |
-| `ResearchTrajectoryComparisonReport` | `research_dag/comparison.py` | Changed queries, sources, snippets, claims, governance outcomes and node ids. |
-| `SourceInvalidationEvent` | `research_dag/invalidation.py` | Source stale/withdrawn/contradicted/unavailable events with explicit source refs. |
+| `ReplayMode` | `methods/research_dag/replay.py` | `audit_reconstruction`, `pinned_input_replay`, and `variance_envelope` modes. |
+| `ResearchReplayPlan` | `methods/research_dag/replay.py` | Required CAS inputs, unsupported steps, live-fetch guard and replay status. |
+| `ResearchDAGReplay` | `methods/research_dag/replay.py` | Audit-safe ordered path through question, source, extraction, synthesis, governance and publication nodes. |
+| `ResearchTrajectoryComparisonReport` | `methods/research_dag/comparison.py` | Changed queries, sources, snippets, claims, governance outcomes and node ids. |
+| `SourceInvalidationEvent` | `methods/research_dag/invalidation.py` | Source stale/withdrawn/contradicted/unavailable events with explicit source refs. |
 
 ## Replay Semantics
 
@@ -80,6 +80,6 @@ invalidation reports for review and reissue triggers.
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/research_dag/test_replay_plan.py tests/unit/scientist/research_dag/test_comparison.py tests/unit/scientist/research_dag/test_invalidation.py -q
+uv run pytest tests/unit/scientist/methods/research_dag/test_replay_plan.py tests/unit/scientist/methods/research_dag/test_comparison.py tests/unit/scientist/methods/research_dag/test_invalidation.py -q
 uv run python tools/ci/check_scientist_best_in_class_phase2_2.py --repo-root . --output-format json --require-passing
 ```

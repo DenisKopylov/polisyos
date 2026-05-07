@@ -70,7 +70,7 @@ Regenerate the underlying machine-readable inputs with:
 
 ```bash
 uv run python - <<'PY'
-from polisyos.foundry.methods.catalog_snapshot import (
+from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
     build_method_catalog_snapshot,
     build_method_operator_evidence,
@@ -167,4 +167,4 @@ Numeric/JAX claims in this documentation should point to one of these anchors:
 
 ::: polisyos.foundry.release_acceptance
 
-::: polisyos.foundry.methods.catalog_snapshot
+::: polisyos.foundry.methods.catalog.snapshot

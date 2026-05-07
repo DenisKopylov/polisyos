@@ -7,7 +7,7 @@
 - Status: Foundation (Phase 1.0)
 - Date: 2026-04-22
 - Owner: Denis Kopylov
-- Token source: `frontend/runtime-dashboard/src/styles.css` (under `@layer base`)
+- Token source: `apps/runtime-dashboard/src/styles.css` (under `@layer base`)
 - Related: [GLYPH_SPECIFICATION](GLYPH_SPECIFICATION.md), [UNCERTAINTY_LANGUAGE](UNCERTAINTY_LANGUAGE.md)
 
 ## 1. Philosophy
@@ -164,8 +164,8 @@ The helper `testing/motion.ts` exports `renderWithReducedMotion` and
 ## 10. Phase 2.7 System Polish Addendum
 
 Canonical runtime tokens now live in
-`frontend/runtime-dashboard/src/styles/motion.css`; reduced-motion and
-forced-color fallbacks live in `frontend/runtime-dashboard/src/styles/media.css`.
+`apps/runtime-dashboard/src/styles/motion.css`; reduced-motion and
+forced-color fallbacks live in `apps/runtime-dashboard/src/styles/media.css`.
 New components must use those files, not local one-off durations.
 
 Additional Wave 2 rules:

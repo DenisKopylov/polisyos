@@ -2,7 +2,7 @@
 
 - Status: active rollback notes, 2026-05-02
 - Owner: team-data-forge
-- Release notes: `docs/migration/data_forge_shim_sunset_release_notes.md`
+- Release notes: `release/data-forge-shim-sunset-release-notes.md`
 
 The current Phase 8 release physically deletes the Data Forge compatibility
 packages for academic, catalog, Ukraine, shared-kernel, snapshot, and old Lex

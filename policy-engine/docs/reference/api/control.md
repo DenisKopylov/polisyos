@@ -8,7 +8,7 @@ Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/ru
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_control_api.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 The control plane is the write-capable orchestration surface for launching runs, driving data collection, and operating Lex and decision-validity workflows.
 

@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`
+Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/orchestration/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`.
+> Source of truth: `src/polisyos/scientist/nodes/__init__.py`, `src/polisyos/scientist/nodes/builtins/**`, `src/polisyos/scientist/orchestration/engine/protocol.py`, `src/polisyos/scientist/nodes/builtins/state_keys.py`, `tests/unit/scientist/nodes/**`, and `tests/unit/scientist/causal/test_causal_evaluation_node.py`.
 
 `polisyos.scientist.nodes` exposes a single stable root export:
 `builtin_nodes()`. Every concrete builtin node lives under

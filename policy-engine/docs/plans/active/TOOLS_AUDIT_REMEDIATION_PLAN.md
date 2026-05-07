@@ -1,3 +1,12 @@
+---
+title: Tools Audit Remediation Plan
+status: active
+owner: team-devx
+created: 2026-04-12
+last_verified: 2026-05-05
+stability: draft
+---
+
 # Tools Audit Remediation Plan
 
 > Консолидированный план улучшения и исправления `policy-engine/tools` по
@@ -32,10 +41,10 @@
 План покрывает не только `policy-engine/tools/**`, но и все смежные зоны,
 которые определяют его фактическое качество:
 
-- `tests/tools/**`;
+- `tests/repo_quality/tools/**`;
 - `scripts/**`, если это тонкие обертки или data-prep утилиты вокруг `tools/`;
 - `cloud_deploy/**`, если там лежат env/shard/deploy артефакты, которые должны
-  быть частью `tools/ops/cloud`;
+  быть частью `tools/ops_runners/cloud`;
 
 - root-level `benchmarks/**`, если они описывают обязательный benchmark-story;
 - `pyproject.toml`, entry points, extras, packaging и dependency metadata;
@@ -167,8 +176,8 @@ polisyos-tools = "tools.cli:main"
 
 **Основные поверхности:**
 
-- `tools/ops/cloud/merge_shards.py`
-- `tools/ops/migrations/migrate_duckdb_to_pg.py`
+- `tools/ops_runners/cloud/merge_shards.py`
+- `tools/ops_runners/migrations/migrate_duckdb_to_pg.py`
 - `tools/quality/diagnostics/scan_fabric.py`
 - `tools/quality/diagnostics/verify_scm_v3.py`
 - `tools/quality/diagnostics/verify_scm_v3_fullspec.py`
@@ -197,9 +206,9 @@ polisyos-tools = "tools.cli:main"
 
 **Основные поверхности:**
 
-- `tools/ops/cloud/run_datasets_validation.sh`
-- `tools/ops/cloud/check_progress.sh`
-- `tools/ops/cloud/prepare_shards.sh`
+- `tools/ops_runners/cloud/run_datasets_validation.sh`
+- `tools/ops_runners/cloud/check_progress.sh`
+- `tools/ops_runners/cloud/prepare_shards.sh`
 - `tools/ci/install_actionlint.sh`
 - `tools/ci/install_supply_chain_tools.sh`
 
@@ -223,9 +232,9 @@ polisyos-tools = "tools.cli:main"
 
 **Основные поверхности:**
 
-- `tools/ops/cloud/canonical_auto_approve.py`
-- `tools/ops/cloud/merge_shards.py`
-- `tools/ops/cloud/run_pipeline.sh`
+- `tools/ops_runners/cloud/canonical_auto_approve.py`
+- `tools/ops_runners/cloud/merge_shards.py`
+- `tools/ops_runners/cloud/run_pipeline.sh`
 
 **Задачи:**
 
@@ -251,9 +260,9 @@ polisyos-tools = "tools.cli:main"
 
 **Основные поверхности:**
 
-- `tools/ops/cloud/merge_shards.py`
-- `tools/ops/ukraine_data/harvest_spending_contracts_by_disposer.py`
-- `tools/ops/ukraine_data/harvest_spending_daily.py`
+- `tools/ops_runners/cloud/merge_shards.py`
+- `tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py`
+- `tools/ops_runners/ukraine_data/harvest_spending_daily.py`
 
 **Задачи:**
 
@@ -276,12 +285,12 @@ polisyos-tools = "tools.cli:main"
 
 **Основные поверхности:**
 
-- `tools/ops/cloud/run_lex_from_manifest.py`
-- `tools/ops/ukraine_data/pre_shard_lex_corpus.py`
+- `tools/ops_runners/cloud/run_lex_from_manifest.py`
+- `tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py`
 - `tools/quality/diagnostics/check_udf_perf.py`
 - `tools/quality/diagnostics/check_perf_regression.py`
-- `tools/ops/ukraine_data/*`
-- `tools/ops/calibration/compare_shards.py`
+- `tools/ops_runners/ukraine_data/*`
+- `tools/ops_runners/calibration/compare_shards.py`
 
 **Задачи:**
 
@@ -315,7 +324,7 @@ tests.
 **Основные поверхности:**
 
 - `tools/quality/lint/lint_foundry_data_plane.py`
-- `tools/ops/migrations/migrate.py`
+- `tools/ops_runners/migrations/migrate.py`
 - `tools/ci/check_action_freshness.py`
 - `tools/quality/diagnostics/gen_schema.py`
 - все места с `except Exception`
@@ -348,7 +357,7 @@ lookup, а unified CLI блокирует failed/degraded preflight с machine-r
 
 **Основные поверхности:**
 
-- `tools/ops/migrations/migrate.py`
+- `tools/ops_runners/migrations/migrate.py`
 - broken UDF demos/diagnostics
 - legacy foundry imports в `tools/research/demos/*`
 
@@ -490,9 +499,9 @@ shared runtime modules (`runner`, `output`, `preflight`, `cache`, `timing`,
 - `tools/devx/workspace/bootstrap.py`
 - `tools/devx/workspace/doctor.py`
 - `tools/devx/workspace/verify.py`
-- `tools/ops/cloud/*`
-- `tools/ops/ukraine_data/*`
-- `tools/ops/migrations/*`
+- `tools/ops_runners/cloud/*`
+- `tools/ops_runners/ukraine_data/*`
+- `tools/ops_runners/migrations/*`
 - `tools/quality/diagnostics/check_perf_regression.py`
 - `tools/quality/diagnostics/visualize_provenance.py`
 
@@ -546,7 +555,7 @@ shared runtime modules (`runner`, `output`, `preflight`, `cache`, `timing`,
 - performance regression в tooling становится наблюдаемой.
 
 **Статус исполнения (2026-04-13):** выполнено для unified tooling surface и
-критичных Phase 3 modules. Добавлены новые tests в `tests/tools/` для
+критичных Phase 3 modules. Добавлены новые tests в `tests/repo_quality/tools/` для
 `lint_imports`, `guardrails`, `scaffold`, `gen_schema`, `abi_diff`,
 `check_perf_regression`, `visualize_provenance`, `workspace/bootstrap`,
 `workspace/doctor`, `workspace/verify` и unified CLI; покрыты unit,
@@ -556,7 +565,7 @@ results, `check_perf_regression` различает `skipped`, `lint_imports`
 поддерживает SARIF/JUnit, а `tools/lib/timing.py` пишет bounded structured
 timing log с `tool/category/output-format/status/preflight_status`, retention,
 baseline budgets и `polisyos-tools report-timing` c Markdown summary для CI
-artifacts. Полный `tests/tools` по-прежнему имеет 2 pre-existing unrelated
+artifacts. Полный `tests/repo_quality/tools` по-прежнему имеет 2 pre-existing unrelated
 acceptance-audit blocker-а по `workflow-identity`; новая Phase 3 поверхность
 проходит без регрессий.
 
@@ -566,12 +575,12 @@ acceptance-audit blocker-а по `workflow-identity`; новая Phase 3 пов�
 
 ### WS-4A. Cloud consolidation
 
-**Цель:** убрать раздробленность между `tools/ops/cloud/`, `cloud_deploy/` и
+**Цель:** убрать раздробленность между `tools/ops_runners/cloud/`, `cloud_deploy/` и
 `scripts/remote-acceptance`.
 
 **Задачи:**
 
-1. Перенести `cloud_deploy/` assets под `tools/ops/cloud/`.
+1. Перенести `cloud_deploy/` assets под `tools/ops_runners/cloud/`.
 2. Разделить cloud surface на `deploy/`, `pipeline/`, `shards/`, `preflight/`.
 3. Свести документацию и env contracts в одном месте.
 4. Убрать дублирование shell/python entry points.
@@ -583,7 +592,7 @@ acceptance-audit blocker-а по `workflow-identity`; новая Phase 3 пов�
 **Задачи:**
 
 1. Bash wrappers -> CLI subcommands в `tools/devx/workspace`.
-2. Data-prep scripts -> `tools/ops/data/`.
+2. Data-prep scripts -> `tools/ops_runners/data/`.
 3. Mutation scripts -> `tools/quality/testing/mutation.py`.
 4. После миграции очистить `scripts/` или оставить только truly external helpers.
 
@@ -613,7 +622,7 @@ acceptance-audit blocker-а по `workflow-identity`; новая Phase 3 пов�
 
 Примечания исполнения:
 
-- canonical data-prep surface перенесен в `tools/ops/data/*`; legacy `scripts/*.py`
+- canonical data-prep surface перенесен в `tools/ops_runners/data/*`; legacy `scripts/*.py`
   оставлены как thin wrappers;
 
 - workspace `scripts/*` теперь проксируют в `python -m tools.cli workspace ...`;
@@ -634,7 +643,7 @@ acceptance-audit blocker-а по `workflow-identity`; новая Phase 3 пов�
   JAX smoke scripts — в `tools/research/benchmarks/jax/`, lex bench helpers — в
   `tools/research/benchmarks/lex/`;
 
-- cloud surface разбит на `tools/ops/cloud/deploy|pipeline|shards|preflight`,
+- cloud surface разбит на `tools/ops_runners/cloud/deploy|pipeline|shards|preflight`,
   `cloud_deploy/` переведен в compatibility bridge;
 
 - legacy remaining-stages flow больше не хранит hardcoded API keys и работает

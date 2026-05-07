@@ -3,7 +3,7 @@
 Related reference: [Agent Search And Reasoning](agent-search-reasoning.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/unit/scientist/{test_frontier_runtime.py,search/test_benchmark_registry.py}`
+Source of truth: `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, compatibility shim `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/scientist/methods/search/{benchmark_registry.py,registry_contracts.py}`, and `tests/unit/scientist/search/{test_frontier_runtime.py,test_benchmark_registry.py}`
 
 > Phase 4 runtime contract for frontier capabilities. The default path stays
 > conservative: frontier methods remain feature-flagged until offline validation

@@ -176,7 +176,7 @@ def resolve_ci_threshold_policy(
     if registry_root is None:
         return policy
 
-    from polisyos.scientist.search.judge_thresholds import JudgeThresholdRegistry
+    from polisyos.scientist.methods.search.judge_thresholds import JudgeThresholdRegistry
 
     registry = JudgeThresholdRegistry(_Path(registry_root))
     resolved = registry.resolve(

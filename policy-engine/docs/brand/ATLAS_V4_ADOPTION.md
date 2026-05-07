@@ -82,17 +82,17 @@ Existing component stories remain canonical for component-level API examples.
 Run:
 
 ```bash
-npm --prefix policy-engine/frontend/runtime-dashboard run design:atlas-v4
+npm --prefix policy-engine/apps/runtime-dashboard run design:atlas-v4
 ```
 
 The check compares:
 
 - v4 reference: `docs/brand/atlas-v4/colors_and_type.css`
-- production light: `frontend/runtime-dashboard/src/styles.css` +
-  `frontend/runtime-dashboard/src/styles/theme-light.css`
-- production dark: `frontend/runtime-dashboard/src/styles.css` +
-  `frontend/runtime-dashboard/src/styles/theme-light.css` +
-  `frontend/runtime-dashboard/src/styles/theme-dark.css`
+- production light: `apps/runtime-dashboard/src/styles.css` +
+  `apps/runtime-dashboard/src/styles/theme-light.css`
+- production dark: `apps/runtime-dashboard/src/styles.css` +
+  `apps/runtime-dashboard/src/styles/theme-light.css` +
+  `apps/runtime-dashboard/src/styles/theme-dark.css`
 
 Failure policy:
 

@@ -1,0 +1,9 @@
+[retention_policy]
+component = "core"
+owner = "team-core"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["audits", "cas", "idempotency", "runtime", "security", "keys"]
+default_class = "R3 Compliance"
+cleanup = "Manual approval for audit, security, idempotency, and key material; dry-run first for rebuildable CAS cache."
+

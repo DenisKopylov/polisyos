@@ -1,0 +1,9 @@
+[retention_policy]
+component = "fabric"
+owner = "team-fabric"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["cas", "facts", "production_data", "reports"]
+default_class = "R1 Short operational"
+cleanup = "Replay/session state is retained while active and promoted to R4 only for incident-linked restores."
+

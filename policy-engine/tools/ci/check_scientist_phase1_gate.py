@@ -61,17 +61,17 @@ DEFAULT_BROAD_EXCEPTION_TARGETS = (
     "src/polisyos/scientist/agent/supervisor.py",
     "src/polisyos/scientist/agent/rag.py",
     "src/polisyos/scientist/agent/norm_loader.py",
-    "src/polisyos/scientist/autotune/execution_plan.py",
-    "src/polisyos/scientist/autotune/calibration.py",
+    "src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "src/polisyos/scientist/methods/autotune/calibration.py",
     "src/polisyos/scientist/cross_graph/compiler.py",
     "src/polisyos/scientist/cross_graph/gatherers/academic.py",
     "src/polisyos/scientist/search/funnel/level2_causal.py",
     "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
     "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
-    "src/polisyos/scientist/workflows/builder.py",
+    "src/polisyos/scientist/orchestration/workflows/builder.py",
 )
 DEFAULT_DEEP_COPY_ALLOWLIST = (
-    "src/polisyos/scientist/engine/state_branching.py",
+    "src/polisyos/scientist/orchestration/engine/state_branching.py",
     "src/polisyos/scientist/remediation_status.py",
 )
 

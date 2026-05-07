@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.ir._lazy_facade import lazy_dir, resolve_lazy_export
-from polisyos.ir.public_surface import WORLD_FACADE_EXPORTS
+from polisyos.ir.api import WORLD_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
 
 __all__ = sorted(WORLD_FACADE_EXPORTS)
 

@@ -7,7 +7,7 @@
 - Internal completion date: 2026-04-22
 - External audit status: Scheduled for Q2 2026, vendor countersign pending
 - Product under review: `@polisyos/runtime-dashboard@0.1.0`
-- Evaluation scope: `policy-engine/frontend/runtime-dashboard`
+- Evaluation scope: `policy-engine/apps/runtime-dashboard`
 - Standards targeted: WCAG 2.2 Level A and AA, Revised Section 508, EN 301 549 V3.2.1
 - Assessment owner: Denis Kopylov
 
@@ -23,7 +23,7 @@ Phase 1.3 accessibility infrastructure is exercised by the same command used
 for dashboard merge gating:
 
 ```bash
-npm run test:a11y
+corepack pnpm run test:a11y
 ```
 
 Internal outcome on 2026-04-22:
@@ -43,14 +43,14 @@ refresh cadence.
 
 | Method                          | Evidence                                                            | Reproduction command           |
 | ------------------------------- | ------------------------------------------------------------------- | ------------------------------ |
-| Aggregate accessibility gate    | Full internal pre-audit bundle                                      | `npm run test:a11y`            |
-| Route WCAG audit                | `e2e/a11y/routes.a11y.spec.ts` with axe-core on `17` named surfaces | `npm run test:a11y:pages`      |
-| Component accessibility audit   | `src/shared/ui/**/*.a11y.test.tsx`                                  | `npm run test:a11y:components` |
-| Contrast enforcement            | Required token-pair gate plus generated matrix                      | `npm run a11y:contrast`        |
-| Reduced-motion enforcement      | Provider wiring plus animation guard scan                           | `npm run a11y:motion`          |
-| Color-blind enforcement         | Token simulation plus required uncertainty patterns                 | `npm run a11y:color-blind`     |
-| Screen-reader regression checks | `src/test/a11y/screen-reader-snapshots.spec.ts`                     | `npm run test:a11y:pages`      |
-| Keyboard-only regression check  | `src/test/a11y/keyboard-journeys.spec.ts`                           | `npm run test:a11y:pages`      |
+| Aggregate accessibility gate    | Full internal pre-audit bundle                                      | `corepack pnpm run test:a11y`            |
+| Route WCAG audit                | `e2e/a11y/routes.a11y.spec.ts` with axe-core on `17` named surfaces | `corepack pnpm run test:a11y:pages`      |
+| Component accessibility audit   | `src/shared/ui/**/*.a11y.test.tsx`                                  | `corepack pnpm run test:a11y:components` |
+| Contrast enforcement            | Required token-pair gate plus generated matrix                      | `corepack pnpm run a11y:contrast`        |
+| Reduced-motion enforcement      | Provider wiring plus animation guard scan                           | `corepack pnpm run a11y:motion`          |
+| Color-blind enforcement         | Token simulation plus required uncertainty patterns                 | `corepack pnpm run a11y:color-blind`     |
+| Screen-reader regression checks | `src/test/a11y/screen-reader-snapshots.spec.ts`                     | `corepack pnpm run test:a11y:pages`      |
+| Keyboard-only regression check  | `src/test/a11y/keyboard-journeys.spec.ts`                           | `corepack pnpm run test:a11y:pages`      |
 
 Assessment notes:
 
@@ -92,11 +92,11 @@ than to intermediate loading shells.
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
 | VPAT publication                               | [VPAT.md](./VPAT.md)                                                                              | Published   | Internal sign-off document linked to this audit packet                    |
 | Contrast matrix                                | [A11Y_CONTRAST.md](./A11Y_CONTRAST.md)                                                            | Generated   | Broader than the PR gate; includes exploratory token combinations         |
-| Shared a11y runtime infrastructure             | `frontend/runtime-dashboard/src/shared/a11y/`                                                     | Implemented | Focus, roving tabindex, live announcements, high contrast, reduced motion |
-| Route accessibility specs                      | `frontend/runtime-dashboard/e2e/a11y/`                                                            | Passing     | Axe route coverage for the full surface inventory                         |
-| Keyboard, screen-reader, and color-blind specs | `frontend/runtime-dashboard/src/test/a11y/`                                                       | Passing     | Regression coverage for non-mouse use and signal distinguishability       |
+| Shared a11y runtime infrastructure             | `apps/runtime-dashboard/src/shared/a11y/`                                                     | Implemented | Focus, roving tabindex, live announcements, high contrast, reduced motion |
+| Route accessibility specs                      | `apps/runtime-dashboard/e2e/a11y/`                                                            | Passing     | Axe route coverage for the full surface inventory                         |
+| Keyboard, screen-reader, and color-blind specs | `apps/runtime-dashboard/src/test/a11y/`                                                       | Passing     | Regression coverage for non-mouse use and signal distinguishability       |
 | Pre-commit and CI gates                        | `policy-engine/tools/design/check-contrast.ts`, `check-reduced-motion.ts`, `check-color-blind.ts` | Passing     | Same tooling used locally and in CI                                       |
-| Hook wiring                                    | `frontend/runtime-dashboard/lefthook.yml`                                                         | Active      | PR gate runs before commits land                                          |
+| Hook wiring                                    | `apps/runtime-dashboard/lefthook.yml`                                                         | Active      | PR gate runs before commits land                                          |
 
 ## 5. Findings Closed During Phase 1.3
 
@@ -134,7 +134,7 @@ operational watchlist:
 
 | Cadence                    | Action                                                                                                                                         |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Every pull request         | Run `npm run test:a11y` and block merges on failure                                                                                            |
+| Every pull request         | Run `corepack pnpm run test:a11y` and block merges on failure                                                                                            |
 | Weekly                     | Refresh accessibility evidence in CI and review trendlines for regressions                                                                     |
 | Quarterly                  | Refresh VPAT, rerun the internal audit bundle, and collect external countersign where scheduled                                                |
 | Before procurement release | Re-run the full suite, regenerate [A11Y_CONTRAST.md](./A11Y_CONTRAST.md), and confirm the sign-off table below still matches the shipped build |

@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.search.calibration_report import (
+from polisyos.scientist.methods.search.calibration_report import (
     build_calibration_report,
     load_funnel_calibration_report,
     persist_funnel_calibration_report,
     render_calibration_report,
 )
-from polisyos.scientist.search.cold_start import BurnInRunReport
-from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonRegistry
-from polisyos.scientist.search.sentinels import SentinelCandidate, SentinelKind, SentinelSet
-from polisyos.scientist.search.stages import CorrelationTracker, StageResult
+from polisyos.scientist.methods.search.cold_start import BurnInRunReport
+from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonRegistry
+from polisyos.scientist.methods.search.sentinels import SentinelCandidate, SentinelKind, SentinelSet
+from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 
 
 def _stage_result(*, score: float, passed: bool, stage_name: str) -> StageResult:

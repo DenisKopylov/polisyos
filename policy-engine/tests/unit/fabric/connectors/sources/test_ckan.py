@@ -17,7 +17,9 @@ from polisyos.fabric.connectors.sources.ckan_resource import CKANResourceConnect
 from polisyos.fabric.connectors.types import FetchError
 from polisyos.ir.connectors import ConnectorCapability
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "ckan"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parents[4] / "_data" / "fabric" / "connectors" / "sources" / "ckan"
+)
 
 
 def _run_async(coro):

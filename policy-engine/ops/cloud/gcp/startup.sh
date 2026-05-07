@@ -225,7 +225,7 @@ trap cleanup EXIT TERM INT
 
 if [ "${WORKER_MODE}" = "preflight" ]; then
   echo "[7/7] Running preflight validation"
-  python /opt/polisyos/policy-engine/tools/ops/cloud/gcp_preflight.py \
+  python /opt/polisyos/policy-engine/tools/ops_runners/cloud/gcp_preflight.py \
     --manifest "/mnt/work/input/${MANIFEST_NAME}" \
     --summary /mnt/work/input/summary.json \
     --output /mnt/work/output/preflight.json \
@@ -288,7 +288,7 @@ fi
 
 RUN_ARGS=(
   /opt/venv/bin/python
-  /opt/polisyos/policy-engine/tools/ops/cloud/run_lex_from_manifest.py
+  /opt/polisyos/policy-engine/tools/ops_runners/cloud/run_lex_from_manifest.py
   --manifest "/mnt/work/input/${MANIFEST_NAME}"
   --output-dir /mnt/work/output
   --shard-count "${SHARD_COUNT}"

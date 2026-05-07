@@ -1,16 +1,25 @@
-"""Public facade -- re-exports from decomposed sub-modules."""
+"""Public helper facade for Foundry execution internals.
+
+`polisyos.foundry.execute` is the canonical public execution entrypoint.
+This module keeps a narrower helper surface for tests, state fixtures, and
+runtime glue without exposing the `_internal` package layout as API.
+"""
 
 from __future__ import annotations
 
 # Program-graph orchestrator
-from ._graph import (
+from ._internal.graph import (
     execute_program_graph,
 )
 
 # Models & low-level helpers
-from ._models import (
+from ._internal.models import (
     ApplyArtifacts,
     ExecuteArtifacts,
+    ExecutionStrictness,
+    FailureCard,
+    FailureKind,
+    FailureSeverity,
     artifact_id,
     get_state_path,
     load_model,
@@ -21,7 +30,7 @@ from ._models import (
 )
 
 # Selector evaluation, constraint checking, patch-op application
-from ._ops import (
+from ._internal.ops import (
     apply_op,
     apply_operator,
     apply_ops_for_slot,
@@ -35,7 +44,7 @@ from ._ops import (
 )
 
 # State-delta application & patching
-from ._patching import (
+from ._internal.patching import (
     apply_patch_map,
     apply_patch_records,
     apply_state_delta,
@@ -43,7 +52,7 @@ from ._patching import (
 )
 
 # State snapshot persistence
-from ._snapshots import (
+from ._internal.snapshots import (
     export_seed_state_npz,
     import_seed_state_npz,
     load_state_snapshot,
@@ -54,6 +63,10 @@ __all__ = [
     # dataclasses
     "ExecuteArtifacts",
     "ApplyArtifacts",
+    "ExecutionStrictness",
+    "FailureCard",
+    "FailureKind",
+    "FailureSeverity",
     # graph orchestrator
     "execute_program_graph",
     # patching / delta

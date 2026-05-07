@@ -38,10 +38,10 @@ Fabric-specific source-of-truth surfaces:
 
 | Artifact                                                     | Source of truth                                                                   | Check                                                                                                              |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models                               | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
+| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `src/polisyos/schemas/abi_models.py` and Fabric/world ABI models                               | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
 | `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
 | `schemas/snapshots/connectors/contracts.json`                | `polisyos-tools connectors check-contracts` and `ALL_SOURCE_CONTRACTS`                  | `uv run polisyos-tools connectors check-contracts --check`                                                        |
-| `tests/unit/fabric/connectors/sources/fixtures/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
+| `tests/_data/fabric/connectors/sources/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
 
 ## Базовый цикл
 
@@ -59,7 +59,7 @@ uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contr
 uv run polisyos-tools docs --output docs/reference/tools.md
 uv run polisyos-tools connectors check-contracts --check
 uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
-cd frontend/runtime-dashboard && npm run generate:api
+cd apps/runtime-dashboard && corepack pnpm run generate:api
 ```
 
 `docs/reference/tools.md` is generated from `tools.registry`; do not hand-edit
@@ -70,7 +70,7 @@ its command tables. Change the registry metadata first, then regenerate.
 - `commit_policy = committed`: source и generated outputs должны ехать в одном PR.
 - `commit_policy = mixed`: коммитьте только review-worthy baselines/evidence artifacts; локальные и transient outputs должны оставаться ignored.
 - `drift_gate = manual_review`: автоматический freshness gate не обязателен, но reviewer должен видеть источник, команду и причину обновления.
-- Для bundle stats это означает: `_build/frontend/runtime-dashboard/dist/bundle-stats.json`
+- Для bundle stats это означает: `_build/apps/runtime-dashboard/dist/bundle-stats.json`
   обычно остаётся локальным output и попадает в PR только если вы намеренно
   продвигаете bundle baseline.
 
@@ -96,7 +96,7 @@ the gates. Do not hand-edit the snapshots.
 ```bash
 uv run polisyos-tools connectors check-contracts --check
 uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
-uv run pytest tests/tools/test_fabric_schema_governance.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_schema_governance.py -q
 ```
 
 If the gate reports a breaking change, add governance metadata to the contract:

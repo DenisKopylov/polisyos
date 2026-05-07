@@ -392,7 +392,7 @@ def _build_trusted_partition_plan():
             "lineage_ref": "lineage:test.connector:dataset.partitioned",
             "quality_contract_ref": "fabric.quality.test.connector.v1",
             "access_classification": "public",
-            "replay_ref": "tests/fixtures/fabric/test.replay.json",
+            "replay_ref": "tests/_data/fabric/shared/test.replay.json",
             "processing": processing_contract_snapshot(batch_processing_contract()),
         },
     )

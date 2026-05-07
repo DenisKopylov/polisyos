@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
-from polisyos.scientist.search.funnel.types import CheapSignalVector, FunnelStageResult
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
-from polisyos.scientist.search.voi_scheduler import (
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
+from polisyos.scientist.methods.search.voi_scheduler import (
     SimpleVOIScheduler,
     build_adversarial_challenge_voi_decision,
     build_stop_search_voi_decision,

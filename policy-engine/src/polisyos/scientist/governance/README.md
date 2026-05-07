@@ -2,11 +2,11 @@
 
 ## Purpose
 
-`polisyos.scientist.governance` is the Scientist validation and accountability
+`polisyos.scientist.governance` is the Scientist governance and accountability
 layer: pre/post-flight checks, pass registry and pipeline execution, backtest
-and calibration review, stress scenarios, leaderboard rollups, and
-audit-friendly governance artifacts used before decision publication or
-promotion.
+and calibration review, human oversight, continuous governance, stress
+scenarios, leaderboard rollups, and audit-friendly governance artifacts used
+before or after decision publication.
 
 ## Where to Start
 
@@ -14,6 +14,8 @@ promotion.
 - Pre/post-flight entrypoints: [`preflight.py`](preflight.py) and [`postflight.py`](postflight.py)
 - Pass registry and pipeline semantics: [`pass_registry.py`](pass_registry.py), [`pass_entrypoints.py`](pass_entrypoints.py), and [`pipeline.py`](pipeline.py)
 - Builtin pass implementations: [`passes/`](passes/)
+- Continuous governance lifecycle: [`continuous/`](continuous/)
+- Human review and oversight: [`human_review/`](human_review/)
 - Calibration and accountability surfaces: [`calibration.py`](calibration.py), [`calibration_validation.py`](calibration_validation.py), [`calibration_leaderboard.py`](calibration_leaderboard.py), [`accountability.py`](accountability.py), and [`stress_scenarios.py`](stress_scenarios.py)
 
 ## Public Entrypoints
@@ -24,6 +26,8 @@ promotion.
 - Calibration surfaces in [`calibration.py`](calibration.py), [`calibration_validation.py`](calibration_validation.py), and [`calibration_leaderboard.py`](calibration_leaderboard.py)
 - Accountability/report surfaces in [`accountability.py`](accountability.py) and [`report.py`](report.py)
 - Stress and backtest surfaces in [`backtest_matrix.py`](backtest_matrix.py) and [`stress_scenarios.py`](stress_scenarios.py)
+- Continuous governance public contracts in [`continuous/`](continuous/) for monitor events, decision validity reports, reissue packets, incidents, and withdrawals
+- Human review public contracts in [`human_review/`](human_review/) for review packets, decisions, queue state, oversight policy, and VOI escalation
 
 ## Depends On / Depended On By
 
@@ -36,6 +40,8 @@ Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.governance import ValidationProfile, preflight_checks, CalibrationValidationRunner; print(ValidationProfile.__name__, callable(preflight_checks), CalibrationValidationRunner.__name__)"`
 - Conceptual full-slice test run: `uv run pytest tests/unit/scientist/governance -q`
+- Continuous governance tests: `uv run pytest tests/unit/scientist/governance/continuous -q`
+- Human review tests: `uv run pytest tests/unit/scientist/governance/human_review -q`
 
 ## Test / Verification Commands
 
@@ -55,4 +61,4 @@ uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/s
 
 ## Last Updated
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-05

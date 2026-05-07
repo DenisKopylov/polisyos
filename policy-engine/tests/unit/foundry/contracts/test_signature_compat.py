@@ -2,7 +2,7 @@
 CI breaking-change detection test.
 
 Compares the currently registered method signatures against a committed
-baseline snapshot (``tests/unit/foundry/fixtures/signature_baseline.json``).
+baseline snapshot (``tests/_golden/foundry/signature_baseline.json``).
 
 Usage
 -----
@@ -36,7 +36,9 @@ from pathlib import Path
 
 import pytest
 
-_BASELINE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "signature_baseline.json"
+_BASELINE_PATH = (
+    Path(__file__).resolve().parents[3] / "_golden" / "foundry" / "signature_baseline.json"
+)
 _ALLOW_BREAKING_ENV = "FOUNDRY_ALLOW_BREAKING"
 
 

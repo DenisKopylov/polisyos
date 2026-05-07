@@ -1,14 +1,14 @@
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
-from polisyos.scientist.discovery.priors import (
+from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBuilder,
     GraphPriorBundle,
     PriorEdge,
     load_graph_prior_bundle,
     persist_graph_prior_bundle,
 )
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )

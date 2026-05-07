@@ -251,6 +251,40 @@ reference-visible symbols). Method-level gaps остаются в отчёте �
 
 One paragraph: что делает модуль, какую проблему решает.
 
+## Purpose
+
+What this package owns and when a contributor should start here.
+
+## Public API
+
+Document the stable facade, supported entrypoints, and any public generated
+artifacts. Link the authoritative reference page when one exists.
+
+## Internal Layout
+
+Map important subpackages or files to their roles. Call out private/internal
+subtrees explicitly.
+
+## Extension Points
+
+List plugin hosts, registry loaders, generated-client boundaries, or state that
+there are no extension points.
+
+## Tests
+
+Name the canonical unit, contract, integration, fixture, and golden test
+locations plus the smallest useful verification command.
+
+## Operability Links
+
+Link SLOs, runbooks, dashboards, release gates, or state explicitly that the
+package has no standalone operability surface.
+
+## Known Shims/Deprecations
+
+List compatibility wrappers, legacy import paths, sunset dates, or state that
+there are no known shims/deprecations.
+
 ## Роль в системе
 
 - **Зависит от:** ir, core

@@ -30,7 +30,7 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/evals/challenge_packs.py"),
     Path("src/polisyos/scientist/evals/reports.py"),
     Path("src/polisyos/scientist/agent/promotion.py"),
-    Path("src/polisyos/scientist/frontier_runtime.py"),
+    Path("src/polisyos/scientist/orchestration/engine/frontier_runtime.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/evals/test_authority.py"),
@@ -44,7 +44,7 @@ REQUIRED_TEST_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/search/test_benchmark_registry.py"),
     Path("tests/unit/scientist/search/test_phase_d4_runtime_integration.py"),
     Path("tests/unit/scientist/search/test_frontier_runtime.py"),
-    Path("tests/tools/test_scientist_benchmark_authority.py"),
+    Path("tests/repo_quality/tools/test_scientist_benchmark_authority.py"),
 )
 REQUIRED_SPLIT_DOC_TOKENS: tuple[str, ...] = (
     "`public`",
@@ -233,7 +233,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             "require_benchmark_authority",
             "benchmark_authority_not_allowed",
         ),
-        Path("src/polisyos/scientist/frontier_runtime.py"): (
+        Path("src/polisyos/scientist/orchestration/engine/frontier_runtime.py"): (
             "require_benchmark_authority",
             "benchmark_authority_default_enable_allowed",
         ),

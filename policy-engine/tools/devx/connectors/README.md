@@ -53,7 +53,7 @@ source adapters.
 
 | Command                                                                                                                                              | What it verifies                                                            | Status         |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_contract_system.py tests/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`   |
+| `uv run pytest -q tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_contract_system.py tests/repo_quality/tools/test_phase4_consolidation.py` | Registry contract, schema evolution behavior и zoned-tooling consolidation. | `conceptual`   |
 | `uv run polisyos-tools validation fabric-schema-governance --check --evidence-out _build/.tmp/fabric-schema-governance.json`                                | Governance-level compatibility evidence поверх connector contract changes.  | `smoke-tested` |
 
 ## Reference Docs

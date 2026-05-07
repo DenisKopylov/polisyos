@@ -14,7 +14,7 @@ Rollback path: revert the unintended contract change or regenerate all affected 
 ## Symptom
 
 - `uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check` падает;
-- `uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py` сообщает drift;
+- `uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py` сообщает drift;
 - `corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify`
   ломается;
 - `mkdocs build --strict` или docs pages ссылаются на устаревший API shape;
@@ -50,7 +50,7 @@ Rollback path: revert the unintended contract change or regenerate all affected 
    ```bash
    cd policy-engine
    uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
-   uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+   uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
    corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify
    ```
 

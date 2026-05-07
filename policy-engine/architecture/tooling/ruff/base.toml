@@ -1,0 +1,46 @@
+# Ruff configuration split from pyproject.toml.
+
+line-length = 100
+target-version = "py314"
+cache-dir = "_cache/ruff"
+
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort (imports sorting)
+  "B",   # flake8-bugbear (catching common bugs)
+  "T20", # flake8-print (FORBID PRINT STATEMENTS - требование ТЗ)
+  "N",   # pep8-naming
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit
+  "PT",  # pytest style
+  "SIM", # simplify
+  "RUF", # ruff-native correctness rules
+  "ANN", # explicit annotations
+  "C4",  # comprehensions
+  "TCH", # type-checking import hygiene
+]
+ignore = []
+allowed-confusables = [
+  "–",
+  "σ",
+  "−",
+  "α",
+  "с",
+  "ρ",
+  "р",
+  "γ",
+  "В",
+  "е",
+  "а",
+  "б",
+  "о",
+  "∪",
+  "у",
+  "×",
+]
+
+# Suppression policy: new noqa/type-ignore entries require an ADR-style comment
+# in the touched file or an explicit per-file ignore here; blanket project-wide
+# ignores are intentionally left empty.

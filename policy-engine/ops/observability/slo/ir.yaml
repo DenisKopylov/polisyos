@@ -1,0 +1,17 @@
+service: ir
+version: 1
+owner: team-ir
+objectives:
+  - name: ir_schema_catalog_generation_success_rate
+    sli: rate(polisyos_ir_schema_catalog_generations_total{status="success"}[30m]) / rate(polisyos_ir_schema_catalog_generations_total[30m])
+    threshold: ">= 0.99"
+    window: 28d
+    owner: team-ir
+    runbook: docs/runbooks/broken-contract-generation.md
+  - name: ir_schema_compatibility_failures
+    sli: increase(polisyos_ir_schema_compatibility_failures_total[1h])
+    threshold: "= 0"
+    window: 7d
+    owner: team-ir
+    runbook: docs/runbooks/dependency-upgrade-regression.md
+

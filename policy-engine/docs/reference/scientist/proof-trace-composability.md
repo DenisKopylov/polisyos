@@ -1,6 +1,6 @@
 # Proof Trace Composability
 
-Related references: [Scientist Causal Validity](causal-validity.md), [Run causal analysis](../../how-to/run-causal-analysis.md). Historical agenda evidence path: `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md`.
+Related references: [Scientist Causal Validity](causal-validity.md), [Run causal analysis](../../how-to/run-causal-analysis.md). Historical agenda evidence path: `docs/plans/archive/CAUSAL_ENGINE_RESEARCH_AGENDA.md`.
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  

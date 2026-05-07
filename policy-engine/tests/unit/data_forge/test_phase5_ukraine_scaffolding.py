@@ -31,7 +31,7 @@ from polisyos.data_forge.read_api.ukraine import (
     load_ukraine_shadow_bundle,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "ukraine_shadow"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "ukraine_shadow"
 BASELINE_ROOT = FIXTURES_ROOT / "baseline"
 CANDIDATE_ROOT = FIXTURES_ROOT / "candidate"
 

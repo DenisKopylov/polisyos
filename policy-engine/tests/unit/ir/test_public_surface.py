@@ -9,7 +9,7 @@ import polisyos.ir as ir
 import polisyos.ir.analytics as analytics
 import polisyos.ir.kernel as kernel
 import polisyos.ir.world as world
-from polisyos.ir.public_surface import PACKAGE_FACADE_EXPORTS, PACKAGE_FACADE_IMPORT_POLICY
+from polisyos.ir.api import PACKAGE_FACADE_EXPORTS, PACKAGE_FACADE_IMPORT_POLICY
 
 
 def _subprocess_json(script: str) -> list[str]:

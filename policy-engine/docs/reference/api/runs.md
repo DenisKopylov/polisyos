@@ -9,7 +9,7 @@ Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_timeline_api.py tests/unit/runtime/http/test_runtime_api_authz.py`
 - `uv run pytest -q tests/unit/runtime/http/test_lineage_routes.py tests/unit/runtime/http/test_temporal_routes.py`
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 The runs surface is the read-only operational view over runtime executions. Every run-specific endpoint enforces tenant access before returning data.
 

@@ -32,4 +32,4 @@ done
 
 echo ""
 echo "Telemetry saved to ${OUT_DIR}"
-echo "Run: python3 /Users/deniskopylov/polisyos/policy-engine/tools/ops/calibration/compare_shards.py ${OUT_DIR}"
+echo "Run: python3 /Users/deniskopylov/polisyos/policy-engine/tools/ops_runners/calibration/compare_shards.py ${OUT_DIR}"

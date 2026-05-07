@@ -1,5 +1,8 @@
 # OPA Policies (`ops/policy`)
 
+- Owner: `team-security`
+- Artifact type: `policy-as-code`
+
 `ops/policy` хранит policy-as-code для двух контуров: runtime authorization и deploy security gate.
 
 ## Роль в системе

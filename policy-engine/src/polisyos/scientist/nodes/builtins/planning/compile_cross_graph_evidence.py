@@ -40,10 +40,10 @@ from polisyos.scientist.cross_graph.feedback import (
     load_benchmark_suite,
     write_need_backlog,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     merge_evidence_sources_payload,
@@ -357,7 +357,7 @@ def _augment_with_graph_prior(
 
     try:
         from polisyos.core.contracts.scientist import GraphPriorBundleRef
-        from polisyos.scientist.discovery.priors import load_graph_prior_bundle
+        from polisyos.scientist.methods.discovery.priors import load_graph_prior_bundle
 
         graph_prior_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
         bundle = load_graph_prior_bundle(ctx.store, graph_prior_ref)

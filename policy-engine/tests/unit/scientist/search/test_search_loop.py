@@ -9,26 +9,26 @@ from unittest.mock import MagicMock
 
 import pytest
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
-from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
-from polisyos.scientist.llm.cycle import preflight_execution_plan
-from polisyos.scientist.search.controller import (
+from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
+from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
     SearchStatus,
 )
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     GDPGrowthObjective,
     ObjectivePresets,
 )
-from polisyos.scientist.search.stages import CheapStage, ExpensiveStage
-from polisyos.scientist.search.stopping import (
+from polisyos.scientist.methods.search.stages import CheapStage, ExpensiveStage
+from polisyos.scientist.methods.search.stopping import (
     CompositeStoppingCriterion,
     ImprovementPlateau,
     MaxIterations,
     MaxWallTime,
 )
-from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
+from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixtures
@@ -71,7 +71,7 @@ def quadratic_objective():
             return "quadratic"
 
         def evaluate(self, results: dict[str, Any]) -> Any:
-            from polisyos.scientist.search.objective import (
+            from polisyos.scientist.methods.search.objective import (
                 ObjectiveValue,
                 OptimizationDirection,
             )
@@ -370,7 +370,7 @@ class TestWorkflowEngineAbstraction:
 
     def test_engine_protocol_compliance(self):
         """Verify engines satisfy WorkflowEngine protocol."""
-        from polisyos.scientist.workflows.engine_base import WorkflowEngine
+        from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
         engine = SimpleLoopEngine([("test", lambda s: s)])
 

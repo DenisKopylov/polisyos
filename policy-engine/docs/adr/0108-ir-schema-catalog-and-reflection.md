@@ -11,7 +11,7 @@ grep or ad-hoc imports. Public/root facades, package facades, ABI snapshots,
 and compatibility rules already exist, but they were split across:
 
 - `polisyos.ir.__all__` and package-level `__all__`;
-- `schemas/abi_models.py`;
+- `src/polisyos/schemas/abi_models.py`;
 - migration compatibility registry;
 - hand-written docs pages in `docs/reference/ir/**`.
 

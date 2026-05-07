@@ -15,7 +15,7 @@ from uuid import UUID
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods._logging import get_foundry_logger
+from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -33,12 +33,12 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 )
 from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
 from polisyos.foundry.methods.exceptions import MethodContractError
-from polisyos.foundry.methods.io import (
+from polisyos.foundry.methods.components.io import (
     dematerialize_method_output,
     materialize_method_input,
     validate_value_for_slot,
 )
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
 
 try:

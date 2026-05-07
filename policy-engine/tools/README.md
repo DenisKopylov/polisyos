@@ -12,7 +12,10 @@ wrapper-пути для migration window.
 - Command router: `tools/cli.py`.
 - Tool metadata, aliases, dependency graph и docs generation: `tools/registry.py`.
 - Canonical implementation roots:
-  `tools/devx/`, `tools/quality/`, `tools/ops/`, `tools/research/`.
+  `tools/devx/`, `tools/quality/`, `tools/ops_runners/`,
+  `tools/research/`.
+- Operational runner implementation lives in `tools/ops_runners/**`.
+  Declarative operational contracts live in `ops/**`.
 
 - Non-CLI design/a11y helper surface: `tools/design/`.
 
@@ -41,7 +44,7 @@ wrapper-пути для migration window.
 | ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `devx`     | `workspace`, `architecture`, `connectors`, `foundry`                               | contributor setup, scaffolding, repo structure, codegen             |
 | `quality`  | `lint`, `diagnostics`, `validation`, `testing`, `ci`                               | quality gates, diagnostics, validation, mutation/integration checks |
-| `ops`      | `calibration`, `cloud`, `data`, `deploy`, `ops-experiments`, `migrations`, `release`, `runtime`, `ukraine_data` | runtime/release/data/cloud operational flows                        |
+| `ops`      | `calibration`, `cloud`, `data`, `deploy`, `ops-experiments`, `migrations`, `release`, `runtime`, `ukraine_data` | CLI zone backed by `tools/ops_runners/**` for runtime/release/data/cloud operational flows |
 | `research` | `benchmarks`, `demos`, `research-experiments`                                      | benchmark orchestration и manual research/demo surfaces             |
 
 Canonical implementation layout:
@@ -49,7 +52,7 @@ Canonical implementation layout:
 ```text
 tools/devx/<category>/
 tools/quality/<category>/
-tools/ops/<category>/
+tools/ops_runners/<category>/ # executable operational runners
 tools/research/<category>/
 ```
 
@@ -90,7 +93,7 @@ tools/design/
 | Command                                                                                                                   | What it verifies                                                       | Status         |
 | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------- |
 | `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                      | Документация и generated references не расходятся с repo reality.      | `smoke-tested` |
-| `uv run pytest -q tests/tools/test_unified_cli.py tests/tools/test_phase5_tooling.py tests/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior. | `conceptual`   |
+| `uv run pytest -q tests/repo_quality/tools/test_unified_cli.py tests/repo_quality/tools/test_phase5_tooling.py tests/repo_quality/tools/test_tools_hardening.py` | CLI boundary, registry contract, hardening and compatibility behavior. | `conceptual`   |
 
 ## Reference Docs
 
@@ -100,7 +103,7 @@ tools/design/
 - [Connectors DevX README](./devx/connectors/README.md)
 - [Foundry DevX README](./devx/foundry/README.md)
 - [Design Tools README](./design/README.md)
-- [Ops Experiments README](./ops/experiments/README.md)
+- [Ops Experiments README](./ops_runners/experiments/README.md)
 - [Research Experiments README](./research/experiments/README.md)
 - [Ops README](../ops/README.md)
 - [Tool Reference](../docs/reference/tools.md)

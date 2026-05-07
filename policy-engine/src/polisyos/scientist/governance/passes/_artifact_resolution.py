@@ -12,7 +12,7 @@ from pydantic import BaseModel, ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 T = TypeVar("T", bound=BaseModel)
 module_logger = get_logger(__name__)

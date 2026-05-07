@@ -1,0 +1,95 @@
+[package]
+id = "common"
+module = "polisyos.common"
+name = "common"
+owner = "team-core"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Shared helper boundary for config, logging, serialization, and migrations."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-core"
+source_root = "src/polisyos/common"
+readme = "src/polisyos/common/README.md"
+root_facade_policy = "root package is a lazy public facade over shared helpers and migration primitives"
+implementation_roots = ["src/polisyos/common/migrations"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.common"
+allowed_dependencies = []
+forbidden_dependencies = ["polisyos.*"]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.common"]
+major_subsystem = false
+notes = "Shared helper boundary for config, logging, serialization, and migrations."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/common"]
+contract_roots = ["tests/contract"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/common"]
+minimum_expectations = [
+  "shared helper changes keep dependent package smoke coverage",
+  "migration helper changes keep property coverage under tests/property/common",
+]
+
+[slo_runbook]
+status = "covered_by_dependents"
+slo_files = ["ops/components/common/slo.yaml"]
+runbooks = ["docs/runbooks/dependency-upgrade-regression.md"]
+runbook_expectation = "Common has no standalone runtime traffic; dependency, migration, or helper failures use dependent component runbooks until a standalone SLO is accepted."
+
+[observability]
+status = "exception"
+metrics_owner = "team-core"
+metric_surfaces = ["ops/components/common/runtime-contract.toml"]
+trace_expectation = "Shared helper observability keeps package.name/dependency context and delegates user-visible SLOs to consuming packages."
+
+[name_collisions]
+status = "none"
+owner = "team-core"
+registry = "architecture/name_registry.toml"
+allowed = []
+
+[exceptions]
+status = "declared"
+owner = "team-core"
+registries = ["architecture/component_observability.toml"]
+
+[[exception]]
+id = "common-dependent-slo"
+owner = "team-core"
+kind = "slo_exception"
+reason = "Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic."
+sunset = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/component_observability.toml"
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-core"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "Common is a shared dependency layer, not an extension host."

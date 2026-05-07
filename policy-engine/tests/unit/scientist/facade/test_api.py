@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from unittest.mock import MagicMock, patch
 
 import pytest
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -90,7 +90,7 @@ class TestRunExperiment:
     @patch(
         "polisyos.scientist.api.run_selected_workflow"
         if False
-        else "polisyos.scientist.workflows.builder.run_selected_workflow"
+        else "polisyos.scientist.orchestration.workflows.builder.run_selected_workflow"
     )
     @patch("polisyos.scientist.api._resolve_observability")
     def test_dict_state_returns_dict(self, mock_obs, mock_run):
@@ -105,7 +105,7 @@ class TestRunExperiment:
         assert isinstance(result, dict)
         assert result["run_id"] == "R_result"
 
-    @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_none_state_returns_dict(self, mock_obs, mock_run):
         tracer, _span = _mock_tracer()
@@ -124,7 +124,7 @@ class TestRunExperiment:
         with pytest.raises(ValueError, match="Unsupported Scientist state keys"):
             run_experiment({"run_id": "R_bad", "nonexistent_field_xyz": 123})
 
-    @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_records_metrics_on_success(self, mock_obs, mock_run):
         tracer, _span = _mock_tracer()
@@ -141,7 +141,7 @@ class TestRunExperiment:
         metrics.decrement_active_runs.assert_called_once()
         metrics.record_workflow_run.assert_called_once()
 
-    @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_records_error_metrics_on_failure(self, mock_obs, mock_run):
         tracer, _span = _mock_tracer()
@@ -157,7 +157,7 @@ class TestRunExperiment:
         metrics.record_workflow_run.assert_called_once_with("error", "UNKNOWN", "orchestrator")
         metrics.decrement_active_runs.assert_called_once()
 
-    @patch("polisyos.scientist.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
     @patch("polisyos.scientist.api._resolve_observability")
     def test_explicit_provider_overrides_bypass_global_resolution(self, mock_obs, mock_run):
         tracer, _span = _mock_tracer()

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.stopping import (
+from polisyos.scientist.methods.search.stopping import (
     AllStoppingCriteria,
     CompositeStoppingCriterion,
     CostBudgetStopping,

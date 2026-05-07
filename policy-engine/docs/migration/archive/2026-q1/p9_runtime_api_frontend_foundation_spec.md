@@ -542,12 +542,12 @@ Implemented artifacts:
      - `tools/ops/runtime/export_runtime_openapi.py`
      - `tools/ops/runtime/generate_runtime_client.py`
    - Generated typed client:
-     - `frontend/runtime-api-client/runtimeApiClient.ts`
-     - `frontend/runtime-api-client/runtimeApiClient.js`
+     - `packages/runtime-api-client/runtimeApiClient.ts`
+     - `packages/runtime-api-client/runtimeApiClient.js`
    - Reference UI shell:
-     - `frontend/runtime-reference-shell/index.html`
-     - `frontend/runtime-reference-shell/app.js`
-     - `frontend/runtime-reference-shell/styles.css`
+     - `apps/runtime-reference-shell/index.html`
+     - `apps/runtime-reference-shell/app.js`
+     - `apps/runtime-reference-shell/styles.css`
 5. Test coverage:
 
    - `tests/unit/runtime/http/test_runs_api.py`

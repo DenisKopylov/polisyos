@@ -39,7 +39,7 @@ if TYPE_CHECKING:
         LegalSourceBundle,
     )
     from polisyos.scholar.search.models import WebEvidenceBundle
-    from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
+    from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack, LegalSourcePack
 
 
 class KnowledgeToolkit:
@@ -379,7 +379,7 @@ class KnowledgeToolkit:
         top_k_facts: int = 25,
         top_k_provisions: int = 15,
     ) -> LegalCandidatePack:
-        from polisyos.scientist.policy_verified.models import LegalCandidatePack
+        from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack
 
         fact_hits = self.search_legal_facts(
             query,
@@ -422,7 +422,7 @@ class KnowledgeToolkit:
         max_source_docs: int = 120,
         max_reference_hops: int = 2,
     ) -> LegalSourcePack:
-        from polisyos.scientist.policy_verified.models import LegalSourcePack
+        from polisyos.scientist.validation.policy_verified.models import LegalSourcePack
 
         if self._legal_graph is None:
             return LegalSourcePack(request_id=candidate_pack.request_id)

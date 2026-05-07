@@ -56,7 +56,7 @@ from polisyos.ir.refs import (
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection
-from polisyos.scientist.verification.ic import (
+from polisyos.scientist.validation.verification.ic import (
     load_ic_certificate,
     load_ic_negative_certificate,
     load_ic_report,

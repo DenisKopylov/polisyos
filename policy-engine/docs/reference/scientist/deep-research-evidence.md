@@ -7,7 +7,7 @@ Source of truth:
 - `src/polisyos/scholar/search/models.py`
 - `src/polisyos/scientist/evidence/**`
 - `src/polisyos/scientist/agent/tools/scholar_search_tools.py`
-- `src/polisyos/scientist/research_dag/projections.py`
+- `src/polisyos/scientist/methods/research_dag/projections.py`
 - `tests/unit/scientist/evidence/**`
 - `tools/ci/check_scientist_best_in_class_phase1_3.py`
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.execute._models import ExecuteArtifacts
+from polisyos.foundry.execute._internal.models import ExecuteArtifacts
 
 
 class TestProvenanceFields:

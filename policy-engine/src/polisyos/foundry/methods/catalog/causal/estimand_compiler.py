@@ -1475,7 +1475,7 @@ def compile_to_method_dag_nodes(
         )
         # B4: FQN validation against registry
         try:
-            from polisyos.foundry.methods.registry import MethodRegistry  # lazy import
+            from polisyos.foundry.methods.selection.registry import MethodRegistry  # lazy import
 
             _reg = MethodRegistry.get_instance()
             fqn_full = f"{method_fqn}@{version}"

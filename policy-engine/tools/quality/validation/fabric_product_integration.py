@@ -95,7 +95,7 @@ FRONTEND_FIXTURES = (
 PRODUCT_ADAPTERS: tuple[dict[str, str | tuple[str, ...]], ...] = (
     {
         "id": "fabric.product_evidence_path",
-        "path": "src/polisyos/fabric/product_integration.py",
+        "path": "src/polisyos/fabric/product_integration/__init__.py",
         "tokens": (
             "FabricProductEvidencePath",
             "evidence_path_from_fabric_decision_data",
@@ -172,7 +172,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         )
     )
     runtime_client_text = _read(
-        repo_root / "frontend" / "runtime-api-client" / "runtimeApiClient.ts"
+        repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts"
     )
 
     endpoint_rows = []
@@ -188,11 +188,11 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         )
 
     fixtures_dir = (
-        repo_root / "frontend" / "runtime-dashboard" / "src" / "test" / "contracts" / "fixtures"
+        repo_root / "apps" / "runtime-dashboard" / "src" / "test" / "contracts" / "fixtures"
     )
     fixture_registry_text = _read(
         repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "test"
@@ -200,7 +200,7 @@ def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         / "runtimeContractFixtures.ts"
     )
     validators_text = _read(
-        repo_root / "frontend" / "runtime-dashboard" / "src" / "api" / "validators.ts"
+        repo_root / "apps" / "runtime-dashboard" / "src" / "api" / "validators.ts"
     )
     fixture_rows = [
         {
@@ -326,12 +326,20 @@ def _scientist_rows(repo_root: Path) -> list[dict[str, Any]]:
     registry_text = _read(
         repo_root / "src" / "polisyos" / "scientist" / "governance" / "pass_registry.py"
     )
-    readiness_text = _read(repo_root / "src" / "polisyos" / "scientist" / "search" / "readiness.py")
+    readiness_text = _read(
+        repo_root
+        / "src"
+        / "polisyos"
+        / "scientist"
+        / "methods"
+        / "search"
+        / "readiness.py"
+    )
     governance_tests_text = _read(
-        repo_root / "tests" / "scientist" / "governance" / "test_fabric_trust_gate_pass.py"
+        repo_root / "tests" / "unit" / "scientist" / "governance" / "test_fabric_trust_gate_pass.py"
     )
     readiness_tests_text = _read(
-        repo_root / "tests" / "scientist" / "search" / "test_phase_b_policy_runtime.py"
+        repo_root / "tests" / "unit" / "scientist" / "search" / "test_phase_b_policy_runtime.py"
     )
     rows = [
         {
@@ -389,7 +397,7 @@ def _fixture_ok(row: Mapping[str, Any]) -> bool:
 def _frontend_rendering_rows(repo_root: Path) -> list[dict[str, Any]]:
     adapter_path = (
         repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "shared"
@@ -400,7 +408,7 @@ def _frontend_rendering_rows(repo_root: Path) -> list[dict[str, Any]]:
     adapter_test_path = adapter_path.with_suffix(".test.tsx")
     hook_path = (
         repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "api"

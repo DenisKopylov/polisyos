@@ -30,7 +30,7 @@ python3 -m tools.cli architecture scaffold runtime-route \
 Verification:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 uv run pytest -q \
   tests/unit/runtime/http/test_runtime_api_contract_hardening.py \
   tests/unit/runtime/http/test_architecture_boundaries.py \
@@ -113,7 +113,7 @@ That flow is documented in
 Minimum route-level checks:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 uv run pytest -q tests/unit/runtime/http/test_architecture_boundaries.py
 ```
 

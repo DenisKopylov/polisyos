@@ -28,17 +28,18 @@ the union of:
 
 ## Registered Builtin/Entry-Point Passes
 
-These 21 passes are the current builtin registry surface exposed by
+These 22 passes are the current builtin registry surface exposed by
 `load_governance_passes()`:
 
 | `pass_id`                   | Class                          | Estimated cost ms | Runtime allowed |
 | --------------------------- | ------------------------------ | ----------------: | --------------- |
 | `budget`                    | `BudgetPass`                   | 5                 | No              |
-| `causal_frontier_leakage`   | `CausalFrontierLeakagePass`    | 15                | No              |
+| `causal_frontier_leakage`   | `CausalFrontierLeakagePass`    | 15                | Yes             |
 | `checkpoint`                | `CheckpointPass`               | 20                | No              |
 | `confidence`                | `ConfidencePass`               | 50                | Yes             |
 | `cross_graph_evidence`      | `CrossGraphEvidencePass`       | 25                | Yes             |
 | `equity`                    | `EquityPass`                   | 25                | Yes             |
+| `fabric_trust`              | `FabricTrustGatePass`          | 50                | Yes             |
 | `freshness`                 | `FreshnessPass`                | 15                | No              |
 | `human_review_required`     | `HumanReviewRequiredPass`      | 50                | Yes             |
 | `incentive_compatibility`   | `IncentiveCompatibilityPass`   | 40                | No              |
@@ -60,8 +61,10 @@ These 21 passes are the current builtin registry surface exposed by
 `runtime_profile()` currently preserves only:
 
 - `confidence`
+- `causal_frontier_leakage`
 - `cross_graph_evidence`
 - `equity`
+- `fabric_trust`
 - `human_review_required`
 - `literature_gate`
 - `normative_arbitration`

@@ -1,158 +1,129 @@
-"""Register all built-in Foundry method families into a `MethodRegistry`.
-
-Each `ensure_*_methods_registered()` function loads one family namespace on
-demand. The package-level `ensure_all_methods_registered()` helper is the
-catalog bootstrap entrypoint used by tooling, tutorials, and registry cache
-rebuilds.
-"""
+"""Lazy bootstrap for built-in Foundry method families."""
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.registry import MethodRegistry
+from importlib import import_module
+from typing import Callable
 
-try:
-    from .causal import ensure_causal_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
-    def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
+_FamilyBootstrap = Callable[[MethodRegistry | None], None]
+
+_FAMILY_BOOTSTRAPS: dict[str, tuple[str, str]] = {
+    "bayesian": ("bayesian", "ensure_bayesian_methods_registered"),
+    "causal": ("causal", "ensure_causal_methods_registered"),
+    "dependence": ("dependence", "ensure_dependence_methods_registered"),
+    "distributional": ("distributional", "ensure_distributional_methods_registered"),
+    "econometrics": ("econometrics", "ensure_econometric_methods_registered"),
+    "forecasting": ("forecasting", "ensure_forecasting_methods_registered"),
+    "mechanism": ("mechanism", "ensure_mechanism_methods_registered"),
+    "microsim": ("microsim", "ensure_microsim_methods_registered"),
+    "ml": ("ml", "ensure_ml_methods_registered"),
+    "network": ("network", "ensure_network_methods_registered"),
+    "optimization": ("optimization", "ensure_optimization_methods_registered"),
+    "policy": ("policy", "ensure_policy_methods_registered"),
+    "sensitivity": ("sensitivity", "ensure_sensitivity_methods_registered"),
+    "simulation": ("simulation", "ensure_simulation_methods_registered"),
+    "spatial": ("spatial", "ensure_spatial_methods_registered"),
+    "survey": ("survey", "ensure_survey_methods_registered"),
+    "validation": ("validation", "ensure_validation_methods_registered"),
+}
+
+
+def _load_bootstrap(family: str) -> _FamilyBootstrap | None:
+    module_name, function_name = _FAMILY_BOOTSTRAPS[family]
+    try:
+        module = import_module(f"polisyos.foundry.methods.catalog.{module_name}")
+    except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
         return None
+    return getattr(module, function_name)
 
 
-from .econometrics import ensure_econometric_methods_registered
-from .optimization import ensure_optimization_methods_registered
-
-try:
-    from .ml import ensure_ml_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def _ensure_family_registered(family: str, registry: MethodRegistry | None = None) -> None:
+    bootstrap = _load_bootstrap(family)
+    if bootstrap is None:
+        return
+    bootstrap(registry)
 
 
-try:
-    from .microsim import ensure_microsim_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_microsim_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("bayesian", registry)
 
 
-try:
-    from .spatial import ensure_spatial_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("causal", registry)
 
 
-try:
-    from .network import ensure_network_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_network_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_dependence_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("dependence", registry)
 
 
-try:
-    from .dependence import ensure_dependence_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_dependence_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("distributional", registry)
 
 
-try:
-    from .bayesian import ensure_bayesian_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_econometric_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("econometrics", registry)
 
 
-try:
-    from .distributional import ensure_distributional_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("forecasting", registry)
 
 
-try:
-    from .survey import ensure_survey_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("mechanism", registry)
 
 
-try:
-    from .forecasting import ensure_forecasting_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_microsim_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("microsim", registry)
 
 
-try:
-    from .validation import ensure_validation_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_validation_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("ml", registry)
 
 
-try:
-    from .sensitivity import ensure_sensitivity_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_sensitivity_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_network_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("network", registry)
 
 
-try:
-    from .mechanism import ensure_mechanism_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_optimization_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("optimization", registry)
 
 
-try:
-    from .simulation import ensure_simulation_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
-
-    def ensure_simulation_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+def ensure_policy_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("policy", registry)
 
 
-try:
-    from .policy import ensure_policy_methods_registered
-except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+def ensure_sensitivity_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("sensitivity", registry)
 
-    def ensure_policy_methods_registered(registry: MethodRegistry | None = None) -> None:
-        return None
+
+def ensure_simulation_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("simulation", registry)
+
+
+def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("spatial", registry)
+
+
+def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("survey", registry)
+
+
+def ensure_validation_methods_registered(registry: MethodRegistry | None = None) -> None:
+    _ensure_family_registered("validation", registry)
 
 
 def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Register every built-in method family into `registry` or the singleton registry."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    ensure_causal_methods_registered(reg)
-    ensure_econometric_methods_registered(reg)
-    ensure_optimization_methods_registered(reg)
-    ensure_ml_methods_registered(reg)
-    ensure_microsim_methods_registered(reg)
-    ensure_spatial_methods_registered(reg)
-    ensure_network_methods_registered(reg)
-    ensure_dependence_methods_registered(reg)
-    ensure_bayesian_methods_registered(reg)
-    ensure_distributional_methods_registered(reg)
-    ensure_survey_methods_registered(reg)
-    ensure_forecasting_methods_registered(reg)
-    ensure_validation_methods_registered(reg)
-    ensure_sensitivity_methods_registered(reg)
-    ensure_mechanism_methods_registered(reg)
-    ensure_simulation_methods_registered(reg)
-    ensure_policy_methods_registered(reg)
+    """Register installed Foundry method extensions into `registry` or the singleton."""
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+
+    bootstrap_foundry_method_registry(
+        registry if registry is not None else MethodRegistry.get_instance(),
+        include_builtins=True,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
 
 
 __all__ = [

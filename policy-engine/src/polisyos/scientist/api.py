@@ -46,13 +46,16 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.scientist.engine.metrics_protocol import EngineMetricsCollector
-    from polisyos.scientist.engine.state import ExperimentState
-    from polisyos.scientist.workflows.builder import QuotaRegistry
+    from polisyos.core.governance.passes.base import ValidatorPass
+    from polisyos.scientist.governance.pipeline import ValidationPipeline
+    from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
+    from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.workflows.builder import QuotaRegistry
 
 
 def _experiment_state_cls() -> type[ExperimentState]:
-    from polisyos.scientist.engine.state import ExperimentState as _ExperimentState
+    from polisyos.scientist.orchestration.engine.state import ExperimentState as _ExperimentState
 
     return cast("type[ExperimentState]", _ExperimentState)
 
@@ -158,6 +161,33 @@ def _resolve_observability() -> tuple[Any, Any]:
     return tracer_factory(), metrics_factory()
 
 
+def load_governance_passes() -> list[ValidatorPass]:
+    """Load Scientist governance passes from entry points plus builtin fallbacks."""
+    from polisyos.scientist.governance.pass_registry import load_governance_passes as _load
+
+    return _load()
+
+
+def build_governance_pipeline() -> ValidationPipeline:
+    """Build the governance validation pipeline from discovered pass providers."""
+    from polisyos.scientist.governance.pass_registry import (
+        build_governance_pipeline as _build,
+    )
+
+    return _build()
+
+
+def discover_scientist_nodes(
+    registry: NodeRegistry | None = None,
+    *,
+    include_dev_scan: bool = True,
+) -> tuple[NodeRegistry, NodeBootstrapReport]:
+    """Discover builtin and external node providers for the Scientist DAG runtime."""
+    from polisyos.scientist.nodes import discover_scientist_nodes as _discover
+
+    return _discover(registry, include_dev_scan=include_dev_scan)
+
+
 def run_experiment(
     state: Mapping[str, Any] | ExperimentState | None = None,
     *,
@@ -222,7 +252,10 @@ def run_experiment(
             )
 
     initial_state = _prepare_initial_state(state)
-    from polisyos.scientist.workflows.builder import resolve_workflow_id, run_selected_workflow
+    from polisyos.scientist.orchestration.workflows.builder import (
+        resolve_workflow_id,
+        run_selected_workflow,
+    )
 
     workflow_id = resolve_workflow_id(initial_state)
 
@@ -276,4 +309,9 @@ def run_experiment(
             resolved_metrics.decrement_active_runs()
 
 
-__all__ = ["run_experiment"]
+__all__ = [
+    "build_governance_pipeline",
+    "discover_scientist_nodes",
+    "load_governance_passes",
+    "run_experiment",
+]

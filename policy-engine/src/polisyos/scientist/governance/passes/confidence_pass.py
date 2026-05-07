@@ -13,7 +13,7 @@ from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
 
 

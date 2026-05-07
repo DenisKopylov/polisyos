@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.claims.models import (
+from polisyos.scientist.evidence.claim_support import build_source_verification_voi_decisions
+from polisyos.scientist.evidence.claims.models import (
     ClaimPublishability,
     ClaimRecord,
     ClaimSupportStatus,
     ClaimType,
 )
-from polisyos.scientist.evidence.claim_support import build_source_verification_voi_decisions
-from polisyos.scientist.search.readiness import DecisionReadiness
+from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
 
 def _ref(suffix: str) -> ArtifactRef:

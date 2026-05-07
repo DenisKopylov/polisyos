@@ -1,0 +1,8 @@
+service: common
+version: 1
+owner: team-core
+status: exception
+exception_reason: Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic.
+exception_expires: 2026-08-01
+objectives: []
+

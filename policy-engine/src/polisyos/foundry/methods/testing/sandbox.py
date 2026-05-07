@@ -215,7 +215,7 @@ class MethodSandbox:
     @property
     def method_class(self) -> type:
         if self._method_class is None:
-            from polisyos.foundry.methods.registry import get_registry
+            from polisyos.foundry.methods.selection.registry import get_registry
 
             reg = self._registry or get_registry()
             self._method_class = reg.get(self.fqn)
@@ -278,7 +278,7 @@ class MethodSandbox:
         -------
         (SandboxResult, MethodExecutionProfile)
         """
-        from polisyos.foundry.methods.profiler import MethodProfiler
+        from polisyos.foundry.methods.lifecycle.profiler import MethodProfiler
 
         if state is None:
             state = kwargs

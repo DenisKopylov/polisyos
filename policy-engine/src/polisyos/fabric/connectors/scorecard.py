@@ -9,7 +9,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.fabric.connectors.contracts import SourceContract
-from polisyos.fabric.finite import ensure_probability
+from polisyos.fabric.quality.finite import ensure_probability
 
 ScorecardDimension = Literal[
     "freshness",

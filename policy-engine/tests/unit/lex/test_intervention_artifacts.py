@@ -14,7 +14,7 @@ from polisyos.lex.intervention_artifacts import (
     load_provision_program_crosswalk_entries,
 )
 
-_FIXTURE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "lex" / "c6a"
+_FIXTURE_DIR = Path(__file__).resolve().parents[2] / "_data" / "lex" / "c6a"
 
 
 def _selector() -> SelectorPredicate:

@@ -5,7 +5,10 @@ Related runbooks: [Key Rotation](../runbooks/key-rotation.md),
 Related reference: [Operations reference](operations/index.md), [platform acceptance audit](operations/platform-acceptance-audit.md), [security model](../explanation/security-model.md).
 
 Owner: `@platform-owners`
-Source of truth: `src/polisyos/core/security/**`, `src/polisyos/runtime/http/{csrf.py,jwt_auth_middleware.py,authz_middleware.py,fail_closed_middleware.py}`, and the linked runbooks
+Source of truth: `architecture/control_plane_supply_chain.toml`,
+`ops/security/**`, `src/polisyos/core/security/**`,
+`src/polisyos/runtime/http/{csrf.py,jwt_auth_middleware.py,authz_middleware.py,fail_closed_middleware.py}`,
+and the linked runbooks
 
 > This page defines the production operating contract for runtime key rotation,
 > CSRF posture, and audit-trail compliance review.
@@ -25,6 +28,39 @@ artifacts:
 If a control is only partially evidenced today, the FedRAMP gap analysis or
 POAM should remain the source of truth for that gap instead of this page
 describing it as fully closed.
+
+## CI Identity And Supply-Chain Policy
+
+Workflow identity is governed by the active control-plane contract:
+
+- default workflow permissions are least-privilege, with top-level
+  `contents: read` and job-scoped write permissions only where required;
+- every job-scoped write permission is declared in
+  `workflow_write_permission`, and `id-token: write` is allowed only for exact
+  OIDC-backed jobs such as GitHub Pages deployment, Sigstore/cosign keyless
+  signing, and GitHub artifact attestations;
+- long-lived cloud provider secrets are forbidden where OIDC, workload
+  identity, or managed identity is supported;
+- Sentry publication secrets remain an allowed non-cloud exception only in
+  conditional main/push CI paths.
+- the committed
+  `docs/archive/reports/supply-chain-control-crosswalk.json` report maps
+  OpenSSF Scorecard, SLSA provenance, SBOM, and signed-artifact controls to
+  release phases, artifacts, and workflow evidence.
+
+Run the contract check when workflow identity, signing, SBOM, dependency
+scanning, or release provenance changes:
+
+```bash
+uv run python tools/quality/validation/control_plane_supply_chain_contracts.py
+```
+
+Regenerate the reporting crosswalk after those changes:
+
+```bash
+uv run python tools/quality/validation/control_plane_supply_chain_contracts.py \
+  --crosswalk-json docs/archive/reports/supply-chain-control-crosswalk.json
+```
 
 ## Secret and Trust-Anchor Rotation
 
@@ -109,6 +145,8 @@ Unsafe cookie-authenticated requests without a matching header fail with
 Security/compliance review for the runtime API should link claims to current
 middleware tests rather than only to architecture prose.
 
+<!-- markdownlint-disable MD060 -->
+
 | Control area               | Runtime behavior                                                                  | Validation anchor                                                                    |
 | -------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | JWT claim normalization    | bearer tokens populate `request.state.access_scope` and `authenticated_tenant_id` | `tests/unit/core/security/test_auth_middlewares.py`                                       |
@@ -117,6 +155,8 @@ middleware tests rather than only to architecture prose.
 | Runtime read authorization | cross-tenant run/artifact access returns typed `403` problems                     | `tests/unit/runtime/http/test_runtime_api_authz.py`                                       |
 | Property coverage          | run/artifact tenant guards fail closed across generated tenant combinations       | `tests/unit/runtime/http/test_access_invariants_properties.py`                            |
 | OPA dependency posture     | timeout or denial returns typed deny/timeout responses                            | `tests/unit/runtime/http/test_runtime_api_authz.py`                                       |
+
+<!-- markdownlint-enable MD060 -->
 
 Focused local check:
 

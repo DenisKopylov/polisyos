@@ -8,7 +8,7 @@ from typing import Final
 
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.decision_validity import DecisionValidityStatus
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,

@@ -20,7 +20,7 @@ from polisyos.foundry.coupling.messages import (
     entity_index,
     sort_messages,
 )
-from polisyos.foundry.execute._models import get_state_path, set_state_path
+from polisyos.foundry.execute._internal.models import get_state_path, set_state_path
 
 
 def _priority_for_kind(kind: str) -> int:

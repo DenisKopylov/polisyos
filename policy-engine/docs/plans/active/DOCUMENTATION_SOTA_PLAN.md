@@ -1,3 +1,12 @@
+---
+title: Documentation SOTA Plan
+status: active
+owner: team-docs
+created: 2026-04-17
+last_verified: 2026-05-05
+stability: draft
+---
+
 # Documentation SOTA Plan
 
 > Детальный, максимально параллельный план доведения документации PolicyOS
@@ -125,7 +134,7 @@ use this definition:
 | Field           | Required content                                                         |
 | --------------- | ------------------------------------------------------------------------ |
 | Source plan     | Which remediation plan and phase/workstream produced the code change.    |
-| Code surface    | Paths under `src/`, `tools/`, `frontend/`, `ops/`, `schemas/`, or tests. |
+| Code surface    | Paths under `src/`, `tools/`, `apps/`, `packages/`, `ops/`, `schemas/`, or tests. |
 | Docs surface    | Exact docs/README files to update.                                       |
 | Source of truth | Generator, schema, OpenAPI, CLI registry, ADR, test, or code owner.      |
 | Validation      | Command or manual check proving docs match reality.                      |
@@ -508,7 +517,7 @@ Each major README should include:
 | IR            | `src/polisyos/ir/README.md`, `trinity`, `analytics`, `observation`, `governance`, `kernel`, `migrations` READMEs                                    | L4                      |
 | Tools/Ops     | `tools/README.md`, `tools/quality/validation/README.md`, `tools/devx/**/README.md`, `ops/README.md`                                                         | L5/L8                   |
 | Scientist     | `src/polisyos/scientist/README.md`, `agent`, `search`, `governance`, `nodes`, `workflows`, `engine`, `compute` READMEs                              | L6                      |
-| Frontend      | `frontend/README.md`, `frontend/runtime-dashboard/README.md`, `frontend/runtime-api-client/README.md`, `frontend/runtime-reference-shell/README.md` | L7                      |
+| Frontend      | `frontend/README.md`, `apps/runtime-dashboard/README.md`, `packages/runtime-api-client/README.md`, `apps/runtime-reference-shell/README.md` | L7                      |
 | Tests         | `tests/README.md`, subsystem test READMEs                                                                                                           | L9 with subsystem lanes |
 
 ### D3 acceptance

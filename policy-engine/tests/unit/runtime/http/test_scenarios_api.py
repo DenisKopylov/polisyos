@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
-from fixtures.runtime_http import build_runtime_api_env
+from _helpers.runtime_http import build_runtime_api_env
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.runtime import (
     CounterfactualMetric,

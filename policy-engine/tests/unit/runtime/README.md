@@ -75,7 +75,7 @@ uv run pytest --collect-only tests/unit/runtime/http -q
 
 - [`../../src/polisyos/runtime/README.md`](../../src/polisyos/runtime/README.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
-- [`../../tools/ops/runtime/README.md`](../../tools/ops/runtime/README.md)
+- [`../../tools/ops_runners/runtime/README.md`](../../tools/ops_runners/runtime/README.md)
 - [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
 
 ## Last Updated

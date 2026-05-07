@@ -12,6 +12,7 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 - Fast local gate: `tools/devx/workspace/verify.py`.
 - CI-like parity pass: `tools/devx/workspace/ci_parity.py`.
 - Repository SOTA closeout: `tools/devx/workspace/repository_sota_closeout.py`.
+- Tool config split generator: `tools/devx/workspace/tool_configs.py`.
 - Shared baseline/constants: `tools/devx/workspace/_common.py`.
 
 ## Public Entrypoints
@@ -29,14 +30,16 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 | `uv run polisyos-tools workspace runtime-surface`                                  | Прогнать Phase 5B runtime gate: Ruff, source type checks, OpenAPI/client drift и `tests/unit/runtime`.                                             |
 | `uv run polisyos-tools workspace lint-full`                                        | Прогнать полный authored lint contract с Phase 3 base-layer type gates, `helm lint` и Rego strict/test pass.                                  |
 | `uv run polisyos-tools workspace benchmark-surfaces`                               | Прогнать Phase 8 gate для `benchmarks/**` и `tools/research/**`: Ruff по authored Python и shell/YAML hooks без markdown/result-bundle churn. |
+| `uv run polisyos-tools workspace clean-local-reports`                              | Показать или удалить stale local reports, benchmark reports и optional source-adjacent residue по Phase 2.9 hygiene contract.                 |
 | `uv run polisyos-tools workspace ci-parity`                                        | Запустить более тяжёлый pass, близкий к основным CI jobs.                                                                                     |
 | `uv run polisyos-tools workspace acceptance-audit`                                 | Сформировать Phase 7 acceptance evidence.                                                                                                     |
 | `uv run polisyos-tools workspace repository-sota-closeout`                         | Проверить fail-closed Repository SOTA policy layer, exception registries и closeout evidence.                                                  |
+| `uv run polisyos-tools workspace tool-configs --check`                             | Проверить split-конфиги `mypy`, Ruff и MkDocs, включая dead override report.                                                                    |
 | `uv run polisyos-tools workspace remote-acceptance`                                | Вести remote Linux runner для тяжёлого closeout.                                                                                              |
 
 ## Depends On / Depended On By
 
-- **Depends on:** `pyproject.toml`, `uv.lock`, `frontend/runtime-dashboard`,
+- **Depends on:** `pyproject.toml`, `uv.lock`, `apps/runtime-dashboard`,
   `package-lock.json`, generated contracts, optional env surfaces и `tools`
   validation/lint/runtime categories.
 
@@ -59,6 +62,8 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 | `uv run polisyos-tools workspace runtime-surface --skip-tests`                                                          | Проверить Phase 5B lint/type/OpenAPI contract без полного runtime pytest.             | `conceptual`                                |
 | `uv run polisyos-tools workspace lint-full --skip-policy --skip-helm`                                                   | Прогнать полный authored lint contract на машине без локальных `opa` и `helm`.        | `conceptual`                                |
 | `uv run polisyos-tools workspace benchmark-surfaces`                                                                    | Прогнать точечный benchmark/research hygiene gate без Markdown/JSON/log/result churn. | `conceptual`                                |
+| `uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run`                                         | Показать cleanup candidates для `.polisyos/reports`, `benchmarks/_reports` и `_build` audit output. | `conceptual`                                |
+| `uv run polisyos-tools workspace tool-configs --check`                                                                  | Проверить generated `mypy`, Ruff и MkDocs configs без переписывания файлов.       | `smoke-tested`                              |
 | `uv run polisyos-tools workspace repository-sota-closeout --contract-only`                                              | Проверить Phase 5 contract layer без тяжёлых drift subprocesses.                 | `conceptual`                                |
 | `uv run polisyos-tools workspace doctor --skip-playwright --skip-lockfile-checks --skip-contract-checks`                | Быстрый workstation preflight без тяжёлых browser/lock/contract checks.               | `smoke-tested`                              |
 | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright --skip-hooks --skip-doctor` | Установить docs-oriented baseline на новой машине.                                    | `conceptual` (изменяет локальное окружение) |
@@ -69,7 +74,7 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 
 | Command                                                                                                                                    | What it verifies                                                                      | Status         |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | -------------- |
-| `uv run pytest -q tests/tools/test_workspace_phase3.py tests/unit/core/phase0/test_workspace_commands.py tests/tools/test_remote_acceptance.py` | Workspace command contract, compatibility wrappers и remote acceptance orchestration. | `conceptual`   |
+| `uv run pytest -q tests/repo_quality/tools/test_workspace_phase3.py tests/unit/core/phase0/test_workspace_commands.py tests/repo_quality/tools/test_remote_acceptance.py` | Workspace command contract, compatibility wrappers и remote acceptance orchestration. | `conceptual`   |
 | `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                                                       | README/doc references вокруг workspace tooling остаются publishable.                  | `smoke-tested` |
 
 ## Reference Docs
@@ -97,6 +102,10 @@ preflight, fast local gates, CI parity и remote acceptance closeout.
 
 - Phase 5B runtime uses `runtime-surface` to combine Ruff, source-only type
   checks, public-facade/runtime policy tests, and OpenAPI/client drift checks.
+
+- Repository Best-In-Class Phase 2.9 uses `clean-local-reports` with
+  `architecture/asset_placement.toml` to keep local reports, benchmark outputs,
+  product seed assets, test fixtures, golden records, and examples distinct.
 
 - Repository SOTA Phase 5 uses `repository-sota-closeout` to enforce topology,
   import, public-surface, generated-artifact, docs-freshness, shim, complexity,

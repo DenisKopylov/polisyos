@@ -435,13 +435,13 @@ def _measure_scientist_replay_from_bundle(
     replay_bundle_ref: ArtifactRef,
     bundle: Any,
 ) -> dict[str, Any]:
-    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.nodes.builtins.state_keys import (
         ARTIFACT_DECISION_PACKET_REF,
         ARTIFACT_SIMULATION_RESULT_REF,
     )
     from polisyos.scientist.replay.diff import compute_replay_diff
-    from polisyos.scientist.workflows.builder import run_selected_workflow
+    from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 
     replay_run_id = f"replay_bundle_{str(replay_bundle_ref.artifact_id)[7:19]}"
     params_snapshot = dict(bundle.runtime_params_snapshot or {})

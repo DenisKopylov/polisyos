@@ -56,13 +56,13 @@ NON_DOC_SEGMENTS = {
     "tests",
     "tools",
 }
-GENERATED_REFERENCE_ALLOWLIST = {
+GENERATED_REFERENCE_ALLOWLIST = (
     Path("docs/reference/public-surface.md"),
     Path("docs/reference/generated-artifacts.md"),
     Path("docs/reference/tools.md"),
     Path("docs/reference/schemas.md"),
     Path("docs/reference/ir/schema-catalog.md"),
-}
+)
 
 
 @dataclass(frozen=True)
@@ -433,6 +433,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _violation_sort_key(repo_root: Path, violation: Violation) -> tuple[str, int, str]:
+    try:
+        relative = violation.file_path.relative_to(repo_root).as_posix()
+    except ValueError:
+        relative = violation.file_path.as_posix()
+    return (relative, violation.lineno, violation.message)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the accuracy checks and return a CI-friendly exit code."""
     parser = build_arg_parser()
@@ -455,6 +463,7 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if violations:
+        violations = sorted(violations, key=lambda item: _violation_sort_key(repo_root, item))
         print("Docs accuracy report")
         print(f"- violations: {len(violations)}")
         for violation in violations:

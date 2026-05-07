@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
-from polisyos.scientist.discovery.portfolio import PortfolioRunnerConfig
-from polisyos.scientist.discovery.schema import DiscoveryMethod
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.methods.discovery.portfolio import PortfolioRunnerConfig
+from polisyos.scientist.methods.discovery.schema import DiscoveryMethod
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
     RunDiscoveryBlueprintRuntimeNode,
     _measure_seed_reproducibility,

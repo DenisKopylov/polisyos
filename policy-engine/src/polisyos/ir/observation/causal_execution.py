@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_unique_ids
 from polisyos.ir.artifacts import (
     ArtifactStore,
     ArtifactTaskBinding,
@@ -28,7 +28,7 @@ from polisyos.ir.observation.contracts import (
     ObservationFamily,
     StrategicResponseChannel,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.references import (
     BoundsBundleRef,
     CausalExecutionBundleRef,
     DynamicTreatmentRegimeRef,

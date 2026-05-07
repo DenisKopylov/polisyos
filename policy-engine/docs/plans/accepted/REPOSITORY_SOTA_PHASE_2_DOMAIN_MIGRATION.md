@@ -53,7 +53,7 @@ The Data Forge compatibility packages for academic, catalog, Ukraine, shared
 batch, snapshot, and old Lex offline paths have been removed after sunset.
 Release and rollback notes live in:
 
-- `docs/migration/data_forge_shim_sunset_release_notes.md`
+- `release/data-forge-shim-sunset-release-notes.md`
 - `docs/migration/data_forge_shim_sunset_rollback.md`
 
 The remaining active migration shims are governed by

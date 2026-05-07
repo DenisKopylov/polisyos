@@ -1,0 +1,12 @@
+[component_runtime_contract]
+component = "berl"
+owner = "team-architecture"
+aliases = ["berl", "polisyos.berl"]
+source_readme = "src/polisyos/berl/README.md"
+runtime_contract_links = [
+  "architecture/public_surface.toml",
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/scientist/reliability-scorecard.md",
+]
+release_gate_mode = "report_only"
+

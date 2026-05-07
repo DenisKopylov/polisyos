@@ -88,9 +88,9 @@ uv run polisyos-tools workspace ci-parity --skip-browser
 ```bash
 uv run polisyos-tools workspace bootstrap --profile runtime
 uv run polisyos-tools workspace verify --frontend-only --skip-doctor
-cd frontend/runtime-dashboard
-npm run generate:api
-npm run contracts:verify
+cd apps/runtime-dashboard
+corepack pnpm run generate:api
+corepack pnpm run contracts:verify
 ```
 
 ## Manual editable install
@@ -115,12 +115,12 @@ pip install -e "."
 | `.[research]`                    | causal / Scientist / Foundry heavy workflows             |
 | `.[all]`                         | curated umbrella для широкого локального feature surface |
 
-Для frontend после manual path все равно нужен npm install:
+Для frontend после manual path все равно нужен pnpm через Corepack:
 
 ```bash
-cd frontend/runtime-dashboard
-npm ci --ignore-scripts
-npm run playwright:install
+corepack pnpm install --frozen-lockfile --ignore-scripts
+cd apps/runtime-dashboard
+corepack pnpm run playwright:install
 ```
 
 ## Проверка результата
@@ -136,7 +136,7 @@ uv run polisyos-tools workspace verify --backend-only --skip-doctor
 Если вы меняете runtime contract surface:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 Если вы меняете docs surface:
@@ -150,7 +150,7 @@ uv run --extra docs python -m mkdocs build --strict
 Если профиль оказался слишком тяжелым или не тем:
 
 1. удалите локальное окружение `.venv` или другой venv, который вы создали;
-2. если bootstrap тянул frontend зря, удалите `frontend/runtime-dashboard/node_modules`;
+2. если bootstrap тянул frontend зря, удалите `apps/runtime-dashboard/node_modules`;
 3. повторите bootstrap с более узким профилем и нужными `--skip-*` флагами.
 
 Если вы сознательно не хотите держать browser stack локально, используйте

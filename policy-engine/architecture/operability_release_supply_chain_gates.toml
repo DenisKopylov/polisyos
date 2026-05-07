@@ -1,0 +1,140 @@
+[operability_release_supply_chain_gates]
+version = 1
+status = "fail_closed"
+owner = "team-security"
+phase = "repository-best-in-class-phase-6.3"
+gate_command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+release_workflow = ".github/workflows/release.yml"
+release_workflow_job = "operability-release-gate"
+promotion_gate_id = "operability_release_supply_chain"
+source_contracts = [
+  "architecture/operability_release_supply_chain_gates.toml",
+  "architecture/runbook_coverage.toml",
+  "architecture/component_observability.toml",
+  "architecture/compatibility_release_gates.toml",
+  "architecture/control_plane_supply_chain.toml",
+  "ops/components/index.toml",
+  "ops/components/*/alerts.yml",
+  "ops/components/*/slo.yaml",
+  "ops/migrations/migration-contracts.toml",
+  "ops/release/deployment-topology.toml",
+  "ops/release/promotion-gates.toml",
+  "ops/release/release-fragment-policy.toml",
+  "release-fragments/template.toml",
+  "release-fragments/unreleased",
+  ".github/workflows/release.yml",
+]
+
+[[gate]]
+id = "slo-runbook-coverage"
+area = "operability"
+owner = "team-ops"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/runbook_coverage.toml",
+  "ops/components/index.toml",
+  "ops/components/*/slo.yaml",
+  "ops/components/*/runbooks.md",
+]
+blocks = "public-stable component promotion without SLO/runbook coverage or explicit exception"
+
+[[gate]]
+id = "component-observability"
+area = "observability"
+owner = "team-observability"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/component_observability.toml",
+  "ops/components/index.toml",
+  "ops/observability/prometheus",
+  "ops/observability/grafana",
+]
+blocks = "component promotion without dashboards, rules, trace/log context, and release gate"
+
+[[gate]]
+id = "alert-to-runbook"
+area = "operability"
+owner = "team-ops"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/runbook_coverage.toml",
+  "ops/components/*/alerts.yml",
+  "ops/observability/prometheus",
+]
+blocks = "alert changes that do not map to at least one live runbook"
+
+[[gate]]
+id = "migration-classes"
+area = "migrations"
+owner = "team-platform"
+mode = "fail_closed"
+source_contracts = [
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/db/README.md",
+  "ops/migrations/runtime_state/README.md",
+  "ops/migrations/api_schemas/README.md",
+  "ops/migrations/ir/README.md",
+]
+blocks = "breaking runtime-state, DB, API schema, IR, or persisted artifact changes without operator migration docs"
+
+[[gate]]
+id = "release-topology"
+area = "release"
+owner = "team-release"
+mode = "fail_closed"
+source_contracts = ["ops/release/deployment-topology.toml"]
+blocks = "release promotion for a unit that lacks declared topology, evidence roots, rollback runbooks, or required gates"
+
+[[gate]]
+id = "promotion-gates"
+area = "release"
+owner = "team-release"
+mode = "fail_closed"
+source_contracts = ["ops/release/promotion-gates.toml"]
+blocks = "release promotion when deployment units and gate evidence do not agree"
+
+[[gate]]
+id = "compatibility-release-metadata"
+area = "release"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/compatibility_release_gates.toml",
+  "architecture/extension_points.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/public_surface.toml",
+  "architecture/runtime_state_layout.toml",
+  "ops/migrations/migration-contracts.toml",
+  "ops/release/release-fragment-policy.toml",
+  "release-fragments/template.toml",
+  "release-fragments/unreleased",
+]
+blocks = "release candidates with breaking compatibility classes but no structured fragment, migration docs, public-surface review, or generated-client compatibility metadata"
+
+[[gate]]
+id = "release-supply-chain"
+area = "supply_chain"
+owner = "team-security"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/control_plane_supply_chain.toml",
+  "architecture/generated_artifacts.toml",
+  "docs/archive/reports/supply-chain-control-crosswalk.json",
+  "ops/security/sbom.toml",
+  "ops/security/osv-scanner.toml",
+  "release/cve-exceptions.toml",
+]
+blocks = "release candidates without SBOM, vulnerability policy, provenance, signing, or explicit owner-approved exception"
+
+[[gate]]
+id = "workflow-permissions-oidc"
+area = "supply_chain"
+owner = "team-security"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/control_plane_supply_chain.toml",
+  ".github/workflows/release.yml",
+  ".github/workflows/docs-pages.yml",
+  ".github/workflows/frontend-nightly.yml",
+]
+blocks = "workflow changes that add uncontracted write permissions, OIDC, unpinned actions, or release identity drift"

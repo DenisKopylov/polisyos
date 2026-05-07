@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
+from polisyos.ir.references import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

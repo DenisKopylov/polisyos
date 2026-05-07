@@ -196,6 +196,7 @@ type = "forbidden"
 source_modules = ["polisyos.runtime"]
 forbidden_modules = [
   "polisyos.common._private",
+  "polisyos.ir._internal",
   "polisyos.ir._private",
   "polisyos.core._private",
   "polisyos.fabric._private",

@@ -1,0 +1,9 @@
+[retention_policy]
+component = "calibration"
+owner = "team-foundry"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["decision_validity", "reports", "cas"]
+default_class = "R1 Short operational"
+cleanup = "Calibration reports follow Foundry/Scientist retention unless they affect release evidence or incident decisions."
+

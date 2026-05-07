@@ -25,16 +25,16 @@ from polisyos.ir.observation.governance import (
     GovernancePassMappingRegistry,
     ObservationFamilyPolicyRegistry,
 )
-from polisyos.scientist.backtesting import (
+from polisyos.scientist.methods.backtesting import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
     STRATEGIC_GAMING_SUITE_ID,
 )
-from polisyos.scientist.backtesting.adversarial import (
+from polisyos.scientist.methods.backtesting.adversarial import (
     ChallengeSuiteResult,
     run_phase_d4_challenge_suites,
 )
-from polisyos.scientist.discovery.active import (
+from polisyos.scientist.methods.discovery.active import (
     ActiveDisambiguationPlan,
     ActiveDisambiguationPlanner,
     ActiveDisambiguationPlannerInput,
@@ -207,8 +207,8 @@ class LessonCardPublisher:
     ) -> ArtifactRef | None:
         """Write a local lesson card when the bundle exposes a lesson registry."""
 
-        from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonTrustLevel
-        from polisyos.scientist.search.transfer_context import resolve_transfer_context
+        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonTrustLevel
+        from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
         registry = bundle.lesson_registry
         if registry is None or not hasattr(registry, "record_local"):

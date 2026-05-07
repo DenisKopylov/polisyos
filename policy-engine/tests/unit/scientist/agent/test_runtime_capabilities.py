@@ -6,7 +6,7 @@ from polisyos.scientist.agent.runtime_capabilities import (
     get_agent_capability,
     list_agent_capabilities,
 )
-from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
+from polisyos.scientist.orchestration.engine.frontier_runtime import FrontierCapabilityStatus
 
 
 def test_agent_capability_registry_lists_every_known_id_once() -> None:

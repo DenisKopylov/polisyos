@@ -39,8 +39,8 @@ from polisyos.ir.analytics.welfare import (
     load_welfare_bundle,
     load_welfare_sample_bundle,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
     PropagateWelfareNode,
 )

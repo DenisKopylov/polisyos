@@ -15,8 +15,8 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
-from polisyos.scientist.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.search.transfer_context import TransferContext
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 def _candidate() -> PolicyCandidateSchema:

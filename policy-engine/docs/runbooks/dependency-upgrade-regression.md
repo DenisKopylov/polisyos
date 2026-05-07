@@ -40,7 +40,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 - PR / commit SHA, где впервые появилась regression;
 - какие файлы менялись:
   `pyproject.toml`, `uv.lock`,
-  `frontend/runtime-dashboard/package.json`,
+  `apps/runtime-dashboard/package.json`,
   `pnpm-lock.yaml`,
   `.python-version`, `.nvmrc`;
 
@@ -65,7 +65,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
      policy-engine/uv.lock \
      policy-engine/.python-version \
      policy-engine/.nvmrc \
-     policy-engine/frontend/runtime-dashboard/package.json \
+     policy-engine/apps/runtime-dashboard/package.json \
      policy-engine/pnpm-lock.yaml
    ```
 
@@ -82,7 +82,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
    ```bash
    cd policy-engine
    uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
-   uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+   uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
    corepack pnpm --filter @polisyos/runtime-dashboard run contracts:verify
    ```
 

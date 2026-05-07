@@ -11,10 +11,10 @@ from polisyos.foundry.methods.catalog import (
 )
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
 from polisyos.ir.analytics.causal_capabilities import persist_causal_capability_contract
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF,

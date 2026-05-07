@@ -26,16 +26,16 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/publisher.py"),
-    Path("src/polisyos/scientist/orchestrator/decision_card.py"),
-    Path("src/polisyos/scientist/claims/export.py"),
+    Path("src/polisyos/scientist/orchestration/orchestrator/decision_card.py"),
+    Path("src/polisyos/scientist/evidence/claims/export.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_7.py"),
-    Path("tests/unit/scientist/orchestrator/test_decision_grade_compiler.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_7.py"),
+    Path("tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "DecisionGradeExport",
@@ -140,15 +140,15 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.scientist.claims.lifecycle import AppendOnlyClaimLedger
-        from polisyos.scientist.claims.models import (
+        from polisyos.scientist.evidence.claims.lifecycle import AppendOnlyClaimLedger
+        from polisyos.scientist.evidence.claims.models import (
             ClaimPublishability,
             ClaimRecord,
             ClaimSupportStatus,
             ClaimType,
         )
-        from polisyos.scientist.orchestrator.decision_card import DecisionCard
-        from polisyos.scientist.orchestrator.publisher import (
+        from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
+        from polisyos.scientist.orchestration.orchestrator.publisher import (
             DecisionGradeExport,
             OutputAudience,
             OutputOmissionRecord,

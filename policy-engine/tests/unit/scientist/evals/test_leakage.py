@@ -11,7 +11,7 @@ from polisyos.scientist.evals.leakage import (
     public_payload_contains_hidden_refs,
     redact_hidden_benchmark_refs,
 )
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 
 
 def _ref(seed: str) -> ArtifactRef:

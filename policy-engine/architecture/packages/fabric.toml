@@ -1,0 +1,154 @@
+[package]
+id = "fabric"
+module = "polisyos.fabric"
+name = "fabric"
+owner = "team-fabric"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Connector-backed ingestion, world queries, catalog surfaces, and data-plane materialization."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-fabric"
+source_root = "src/polisyos/fabric"
+readme = "src/polisyos/fabric/README.md"
+root_facade_policy = "top-level package is a lazy public facade; implementation remains in subpackages"
+implementation_roots = [
+  "src/polisyos/fabric/_internal",
+  "src/polisyos/fabric/catalog",
+  "src/polisyos/fabric/claims",
+  "src/polisyos/fabric/connectors",
+  "src/polisyos/fabric/data_plane",
+  "src/polisyos/fabric/decision_data",
+  "src/polisyos/fabric/docs",
+  "src/polisyos/fabric/evidence",
+  "src/polisyos/fabric/ingestion",
+  "src/polisyos/fabric/observability",
+  "src/polisyos/fabric/processing_guarantees",
+  "src/polisyos/fabric/quality",
+  "src/polisyos/fabric/retrieval",
+  "src/polisyos/fabric/trust",
+  "src/polisyos/fabric/world",
+  "src/polisyos/fabric/world_query",
+]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.fabric"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.fabric", "polisyos.fabric.api"]
+major_subsystem = true
+notes = "Connector-backed ingestion, world queries, and catalog surfaces."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/fabric"]
+contract_roots = ["tests/contract", "tests/unit/fabric/connectors"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/fabric"]
+minimum_expectations = [
+  "connector source contracts keep schema evolution tests",
+  "data-plane orchestration keeps replay and fixture coverage",
+  "public facade changes refresh public-surface inventory",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/observability/slo/fabric.yaml"]
+runbooks = ["docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md"]
+runbook_expectation = "Production-affecting ingestion, quarantine, DLQ, or connector outage changes update the Fabric recovery runbook."
+
+[observability]
+status = "report_only"
+metrics_owner = "team-fabric"
+metric_surfaces = [
+  "polisyos.fabric.observability",
+  "ops/observability/slo/fabric.yaml",
+]
+trace_expectation = "Connector, materialization, and world-store paths emit component, source, and tenant identifiers."
+
+[name_collisions]
+status = "declared"
+owner = "team-fabric"
+registry = "architecture/name_registry.toml"
+allowed = ["contracts", "validation"]
+
+[[allowed_name_collision]]
+name = "contracts"
+scope = "within package"
+reason = "Fabric connector contracts are package-local and distinct from core/foundry contract modules."
+owner = "team-fabric"
+
+[[allowed_name_collision]]
+name = "validation"
+scope = "connector subpackages"
+reason = "Validation modules are source-contract local and must not become a cross-package facade."
+owner = "team-fabric"
+
+[exceptions]
+status = "declared"
+owner = "team-fabric"
+registries = ["architecture/static_analysis_overrides.toml"]
+
+[[exception]]
+id = "fabric-ruff-ratchet"
+owner = "team-fabric"
+kind = "lint_ratchet"
+reason = "Phase 4B keeps Fabric on explicit Ruff per-file and package ratchets while connector payload typing is narrowed."
+sunset = "2026-10-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/static_analysis_overrides.toml"
+
+[sunsets]
+status = "declared"
+owner = "team-architecture"
+
+[[sunset]]
+id = "fabric-aggregate-mirror"
+owner = "team-architecture"
+date = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+condition = "legacy aggregate gates read generated package-contract output instead of hand-edited TOML"
+
+[extension_host]
+status = "active"
+owner = "team-fabric"
+extension_points = ["polisyos.fabric_connectors"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = ["polisyos.fabric.connectors.components:__polisyos_components__"]
+example_packages = ["examples/extensions/fabric_connector"]

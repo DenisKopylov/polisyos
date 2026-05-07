@@ -75,7 +75,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.safety import (
+from polisyos.fabric.quality.safety import (
     UnsafeDataPathError,
     extract_bounded_data_path,
     validate_data_path,

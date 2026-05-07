@@ -3,7 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 from polisyos.core.canon import to_canonical_bytes
-from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def test_workflow_spec_roundtrip_and_canonical_json():

@@ -1,0 +1,777 @@
+[runtime_state_layout]
+version = 3
+status = "active"
+owner = "team-ops"
+phase = "repository-best-in-class-phase-2.3"
+default_gate_mode = "fail_closed"
+legacy_mirror = "architecture/local_runtime_state.toml"
+schema_document = ".polisyos/SCHEMA.md"
+schema_document_status = "present"
+physical_changes_phase = "2.3 Runtime-State Schema And Cleanup"
+description = "Runtime-state contract layout for the ignored .polisyos local runtime-state root."
+safe_cleanup_policy = "cleanup commands target registered slots; production snapshots, audits, CAS roots, local key material, security evidence, and persisted local state require explicit owner approval"
+promotion_policy = "raw runtime state stays local; committed evidence must be a reviewed summary, manifest, or release evidence record with secrets and large payloads removed"
+unknown_first_level_policy = "fail_closed: every .polisyos/<name> entry must appear in registered_first_level_entries or legacy_first_level_entries with a migration target"
+cleanup_tool = "tools/ops_runners/runtime/runtime_state_cleanup.py"
+compatibility_release_gate = "architecture/compatibility_release_gates.toml#runtime-state-migration-readers"
+compatibility_class = "runtime-state-format"
+version_owner = "team-ops"
+deprecation_window = "1 major release"
+release_fragment_change_class = "runtime-state-format"
+reader_policy = "Runtime-state readers keep N-1 compatibility or publish an export/cleanup runbook before promotion."
+breaking_change_requires_fragment = true
+runbook_docs_required = true
+
+registered_first_level_entries = [
+  "audits",
+  "cas",
+  "control.sqlite3",
+  "control_plane.sqlite3",
+  "decision_validity",
+  "evicted",
+  "facts",
+  "idempotency",
+  "keys",
+  "production_data",
+  "provider_verification",
+  "reports",
+  "runtime",
+  "runs",
+  "scholar_cache",
+  "scholar_jobs",
+  "scientist",
+  "search_registry",
+  "security",
+  "state",
+]
+legacy_first_level_entries = [
+  "artifacts",
+  "cas-readme-check",
+  "cas_cache",
+  "live_gonka_smoke.json",
+]
+normalized_first_level_entries = [
+  "artifacts",
+  "cas-readme-check",
+  "cas_cache",
+  "live_gonka_smoke.json",
+]
+
+[schema_md_contract]
+purpose = "Human-readable schema for the ignored .polisyos local runtime-state root."
+owner = "team-platform"
+required_sections = [
+  "Purpose",
+  "Owner And Contact",
+  "Allowed Directory Layout",
+  "File Naming",
+  "Formats",
+  "Retention",
+  "Backup Policy",
+  "Safe Cleanup",
+  "Promotion Rules",
+  "Migration Slots",
+]
+file_naming = "first-level directories use snake_case slot ids unless preserving a documented legacy alias; run/evidence leaves include stable run ids, ISO-8601 dates, provider ids, or content-addressed hashes"
+formats = [
+  "TOML for local manifests and migration metadata",
+  "JSON or JSONL for machine evidence and event streams",
+  "Markdown for reviewed human summaries",
+  "SQLite only for local control-plane state slots",
+  "binary blobs only under .polisyos/cas, .polisyos/cas/_cache, production_data, or owner-approved legacy quarantine slots",
+]
+retention = "each slot declares default_retention_days and whether cleanup is automatic, dry-run first, protected, or production-approved"
+backup_policy = "no default backups for recomputable state; audits, production snapshots, local keys, security evidence, and promoted release evidence require explicit backup/export before cleanup"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot <slot> --dry-run"
+promotion_rules = [
+  "promote summaries or manifests, not raw local runtime directories",
+  "redact secrets, credentials, tenant payloads, provider keys, and large binaries before commit",
+  "commit promoted evidence only under docs/archive/reports, release evidence, or another registered generated-artifact family",
+  "record the source slot, run id, owner, review date, and cleanup decision in promoted evidence",
+]
+
+[cas_normalization]
+canonical_path = ".polisyos/cas"
+artifact_path = ".polisyos/cas/artifacts/sha256"
+cache_path = ".polisyos/cas/_cache"
+validation_path = ".polisyos/cas/_readme_check"
+legacy_cache_paths = [".polisyos/artifacts", ".polisyos/cas_cache"]
+legacy_validation_paths = [".polisyos/cas-readme-check"]
+decision = "canonicalize all content-addressed local artifacts under .polisyos/cas; keep recomputable cache under .polisyos/cas/_cache; keep README/check artifacts under .polisyos/cas/_readme_check until a tool-owned validation directory supersedes it"
+status = "normalized_in_local_workspace"
+promotion_rule = "CAS blobs are promoted only through manifests or reviewed evidence summaries; raw blobs stay ignored unless a tiny fixture is separately registered"
+
+[[state_surface]]
+id = "runs"
+owner = "team-runtime"
+paths = [".polisyos/runs"]
+commit_policy = "ignored"
+retention_class = "short_lived_runtime"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot runs --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "reports"
+owner = "team-platform"
+paths = [".polisyos/reports"]
+commit_policy = "ignored_promote_reviewed_summaries"
+retention_class = "review_evidence_candidate"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot reports --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "audits"
+owner = "team-platform"
+paths = [".polisyos/audits"]
+commit_policy = "ignored_promote_redacted_audit_summaries"
+retention_class = "local_audit_evidence"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "cas"
+owner = "team-core"
+paths = [".polisyos/cas"]
+commit_policy = "ignored"
+retention_class = "content_addressed_runtime_artifacts"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "cas_cache"
+owner = "team-data-forge"
+paths = [".polisyos/cas/_cache"]
+commit_policy = "ignored"
+retention_class = "recomputable_cache"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot cas_cache --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "cas_readme_check"
+owner = "team-devx"
+paths = [".polisyos/cas/_readme_check"]
+commit_policy = "ignored_promote_final_validation_summary"
+retention_class = "tool_validation_output"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot cas_readme_check --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "production_data"
+owner = "team-data-forge"
+paths = [".polisyos/production_data"]
+commit_policy = "ignored_never_raw_snapshots"
+retention_class = "local_production_snapshot"
+cleanup_command = "manual approval only with --approve-production-snapshots"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "provider_verification"
+owner = "team-platform"
+paths = [".polisyos/provider_verification"]
+commit_policy = "ignored_promote_release_gate_summaries"
+retention_class = "local_provider_evidence"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot provider_verification --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "idempotency"
+owner = "team-runtime"
+paths = [".polisyos/idempotency"]
+commit_policy = "ignored"
+retention_class = "local_replay_guard_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "decision_validity"
+owner = "team-scientist"
+paths = [".polisyos/decision_validity"]
+commit_policy = "ignored_promote_redacted_lifecycle_summaries"
+retention_class = "decision_lifecycle_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "search_registry"
+owner = "team-scholar"
+paths = [".polisyos/search_registry"]
+commit_policy = "ignored"
+retention_class = "recomputable_registry_cache"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot search_registry --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "runtime"
+owner = "team-runtime"
+paths = [".polisyos/runtime"]
+commit_policy = "ignored"
+retention_class = "runtime_component_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "security"
+owner = "team-security"
+paths = [".polisyos/security"]
+commit_policy = "ignored_promote_release_security_evidence"
+retention_class = "local_security_evidence"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "evicted"
+owner = "team-platform"
+paths = [".polisyos/evicted"]
+commit_policy = "ignored_legacy_quarantine"
+retention_class = "legacy_quarantine"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "facts"
+owner = "team-scholar"
+paths = [".polisyos/facts"]
+commit_policy = "ignored"
+retention_class = "local_fact_log"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot facts --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "keys"
+owner = "team-security"
+paths = [".polisyos/keys"]
+commit_policy = "ignored_never_commit_key_material"
+retention_class = "local_key_material"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "scholar_cache"
+owner = "team-scholar"
+paths = [".polisyos/scholar_cache"]
+commit_policy = "ignored"
+retention_class = "recomputable_cache"
+cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot scholar_cache --apply"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "scholar_jobs"
+owner = "team-scholar"
+paths = [".polisyos/scholar_jobs"]
+commit_policy = "ignored"
+retention_class = "resumable_job_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "scientist"
+owner = "team-scientist"
+paths = [".polisyos/scientist"]
+commit_policy = "ignored"
+retention_class = "local_scientist_memory"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "control_plane"
+owner = "team-runtime"
+paths = [".polisyos/control_plane.sqlite3", ".polisyos/control.sqlite3"]
+commit_policy = "ignored"
+retention_class = "local_control_plane_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_surface]]
+id = "persisted_local_state"
+owner = "team-platform"
+paths = [".polisyos/state"]
+commit_policy = "ignored"
+retention_class = "future_persisted_local_state"
+cleanup_command = "manual approval only"
+mode = "fail_closed"
+
+[[state_slot]]
+id = "runs"
+paths = [".polisyos/runs/<run-id>/"]
+owner = "team-runtime"
+purpose = "Per-run execution state, logs, node outputs, and resumable local context."
+naming = "run ids are stable lowercase slugs, R_ ids, or UUIDs; nested files include step ids and monotonic attempt numbers"
+formats = ["json", "jsonl", "toml", "txt", "artifact refs"]
+retention_class = "short_lived_runtime"
+default_retention_days = 7
+backup_policy = "no backup by default; rerun or promote a reviewed summary before cleanup"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot runs --apply"
+promotion_rule = "promote run summaries only after owner review"
+migration_class = "runtime_state"
+migration_slot = "run_records"
+first_level_entry = "runs"
+
+[[state_slot]]
+id = "reports"
+paths = [".polisyos/reports/<report-id>/"]
+owner = "team-platform"
+purpose = "Local generated reports that may become archived evidence after review."
+naming = "report id includes report family, date, and optional run id"
+formats = ["markdown", "json", "toml"]
+retention_class = "review_evidence_candidate"
+default_retention_days = 30
+backup_policy = "promote useful summaries to docs/archive/reports before cleanup"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot reports --apply"
+promotion_rule = "commit only curated report summaries or generated evidence files"
+migration_class = "runtime_state"
+migration_slot = "reports"
+first_level_entry = "reports"
+
+[[state_slot]]
+id = "audits"
+paths = [".polisyos/audits/<audit-id>/"]
+owner = "team-platform"
+purpose = "Local audit-chain, incident, tenant-boundary, and recovery evidence."
+naming = "audit id includes incident or run id plus UTC date"
+formats = ["jsonl", "toml", "markdown", "tar.gz"]
+retention_class = "local_audit_evidence"
+default_retention_days = 365
+backup_policy = "export or promote reviewed audit evidence before destructive cleanup"
+safe_cleanup_command = "manual approval only: archive or remove .polisyos/audits/* after promotion review"
+promotion_rule = "promote redacted incident summaries and evidence manifests"
+migration_class = "runtime_state"
+migration_slot = "audit"
+first_level_entry = "audits"
+
+[[state_slot]]
+id = "cas"
+paths = [".polisyos/cas/artifacts/sha256/<prefix>/<digest>.*"]
+owner = "team-core"
+purpose = "Canonical local content-addressed artifact store."
+naming = "digest paths use the stable FileSystemCAS artifacts/sha256 shard layout"
+formats = ["binary", "json", "toml", "sig"]
+retention_class = "content_addressed_runtime_artifacts"
+default_retention_days = 365
+backup_policy = "back up only manifests or owner-approved artifact sets needed for recovery"
+safe_cleanup_command = "manual approval only: remove unreferenced .polisyos/cas blobs after manifest review"
+promotion_rule = "promote manifests or small registered fixtures, not raw CAS trees"
+migration_class = "runtime_state"
+migration_slot = "artifact_cas"
+first_level_entry = "cas"
+
+[[state_slot]]
+id = "cas_cache"
+paths = [".polisyos/cas/_cache/artifacts/sha256/<prefix>/<digest>.*"]
+legacy_paths = [".polisyos/artifacts", ".polisyos/cas_cache"]
+owner = "team-data-forge"
+purpose = "Recomputable cache under the canonical CAS root."
+naming = "cache keys use FileSystemCAS artifact ids or tool/version/content hash segments"
+formats = ["json", "jsonl", "parquet", "duckdb", "binary"]
+retention_class = "recomputable_cache"
+default_retention_days = 30
+backup_policy = "no backup; cache must be rebuildable"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot cas_cache --apply"
+promotion_rule = "promote only tiny fixtures through data/ or tests fixture allow-lists"
+migration_class = "runtime_state"
+migration_slot = "artifact_cache"
+first_level_entry = "cas"
+
+[[state_slot]]
+id = "cas_readme_check"
+paths = [".polisyos/cas/_readme_check/<tool-run-id>/"]
+legacy_paths = [".polisyos/cas-readme-check"]
+owner = "team-devx"
+purpose = "Tool-owned README/check artifacts produced while validating CAS references."
+naming = "tool-run id includes tool name and UTC timestamp"
+formats = ["markdown", "json", "txt", "FileSystemCAS artifacts"]
+retention_class = "tool_validation_output"
+default_retention_days = 7
+backup_policy = "no backup; regenerate checks"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot cas_readme_check --apply"
+promotion_rule = "promote only final validation summaries"
+migration_class = "runtime_state"
+migration_slot = "validation_artifacts"
+first_level_entry = "cas"
+
+[[state_slot]]
+id = "provider_verification"
+paths = [".polisyos/provider_verification/<provider-or-run>.json"]
+legacy_paths = [".polisyos/live_gonka_smoke.json"]
+owner = "team-platform"
+purpose = "Local provider verification and release-gate evidence."
+naming = "provider id plus verification run id; root smoke JSON is normalized into this slot"
+formats = ["json", "jsonl", "markdown", "toml"]
+retention_class = "local_provider_evidence"
+default_retention_days = 30
+backup_policy = "promote release-gate evidence before cleanup"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot provider_verification --apply"
+promotion_rule = "promote reviewed gate summaries to release evidence"
+migration_class = "runtime_state"
+migration_slot = "provider_verification"
+first_level_entry = "provider_verification"
+
+[[state_slot]]
+id = "idempotency"
+paths = [".polisyos/idempotency/<scope>/<key>/"]
+owner = "team-runtime"
+purpose = "Local replay guards, idempotency keys, and dedupe manifests."
+naming = "scope names match runtime component ids; keys are hashes or UUIDs"
+formats = ["json", "toml", "sqlite"]
+retention_class = "local_replay_guard_state"
+default_retention_days = 90
+backup_policy = "export before format migrations that affect replay safety"
+safe_cleanup_command = "manual approval only: remove .polisyos/idempotency/* after replay safety review"
+promotion_rule = "promote incident summaries or dedupe manifests when needed for release review"
+migration_class = "runtime_state"
+migration_slot = "idempotency"
+first_level_entry = "idempotency"
+
+[[state_slot]]
+id = "decision_validity"
+paths = [".polisyos/decision_validity/<decision-id>/"]
+owner = "team-scientist"
+purpose = "Decision lifecycle, validity transition, and dependency-review local state."
+naming = "decision ids match runtime API decision ids or stable artifact refs"
+formats = ["json", "jsonl", "toml", "markdown"]
+retention_class = "decision_lifecycle_state"
+default_retention_days = 180
+backup_policy = "export lifecycle state before incompatible decision schema migrations"
+safe_cleanup_command = "manual approval only: remove .polisyos/decision_validity/* after lifecycle export review"
+promotion_rule = "promote redacted decision validity summaries, not full local payloads"
+migration_class = "runtime_state"
+migration_slot = "decision_validity"
+first_level_entry = "decision_validity"
+
+[[state_slot]]
+id = "search_registry"
+paths = [".polisyos/search_registry/<provider-or-index>/"]
+owner = "team-scholar"
+purpose = "Local Scholar/Lex search provider registry, freshness, and replay hints."
+naming = "provider or index id plus registry version"
+formats = ["json", "toml", "sqlite"]
+retention_class = "recomputable_registry_cache"
+default_retention_days = 30
+backup_policy = "no backup unless the registry is promoted as release evidence"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot search_registry --apply"
+promotion_rule = "promote only provider verification summaries or tiny registry fixtures"
+migration_class = "runtime_state"
+migration_slot = "search_registry"
+first_level_entry = "search_registry"
+
+[[state_slot]]
+id = "production_data"
+paths = [".polisyos/production_data/<dataset-or-snapshot>/"]
+owner = "team-data-forge"
+purpose = "Local production-like snapshots used for controlled replay or recovery."
+naming = "dataset id, snapshot date, and source version"
+formats = ["parquet", "duckdb", "json", "toml", "binary"]
+retention_class = "local_production_snapshot"
+default_retention_days = 365
+backup_policy = "owner-approved backup or export required before destructive cleanup"
+safe_cleanup_command = "manual approval only: uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot production_data --apply --approve-production-snapshots"
+promotion_rule = "never commit raw snapshots; promote only redacted metadata or tiny fixtures"
+migration_class = "runtime_state"
+migration_slot = "production_snapshot"
+first_level_entry = "production_data"
+
+[[state_slot]]
+id = "runtime"
+paths = [".polisyos/runtime/audit", ".polisyos/runtime/idempotency"]
+owner = "team-runtime"
+purpose = "Runtime component-owned local audit and idempotency state before slot-specific migration."
+naming = "subdirectories match runtime state family names; nested entries use run ids, hashes, or UTC dates"
+formats = ["json", "jsonl", "toml", "sqlite"]
+retention_class = "runtime_component_state"
+default_retention_days = 90
+backup_policy = "export audit/idempotency state before incompatible runtime-state migrations"
+safe_cleanup_command = "manual approval only: remove .polisyos/runtime/* after audit/idempotency migration review"
+promotion_rule = "promote only reviewed runtime-state migration summaries"
+migration_class = "runtime_state"
+migration_slot = "runtime_component_state"
+first_level_entry = "runtime"
+
+[[state_slot]]
+id = "security"
+paths = [".polisyos/security/<evidence-family>/"]
+owner = "team-security"
+purpose = "Local security evidence such as SLSA transparency logs and JWT trust-anchor state."
+naming = "evidence-family names match security subsystem ids"
+formats = ["json", "jsonl", "toml", "pem"]
+retention_class = "local_security_evidence"
+default_retention_days = 365
+backup_policy = "export or promote release security evidence before cleanup"
+safe_cleanup_command = "manual approval only: remove .polisyos/security/* after security evidence export review"
+promotion_rule = "promote redacted SLSA/SBOM/transparency summaries, never raw secrets"
+migration_class = "runtime_state"
+migration_slot = "security_evidence"
+first_level_entry = "security"
+
+[[state_slot]]
+id = "evicted"
+paths = [".polisyos/evicted/<phase-or-date>/"]
+owner = "team-platform"
+purpose = "Quarantined legacy local files moved out of product roots during repository cleanup."
+naming = "phase id or UTC date plus original directory family"
+formats = ["mixed legacy payloads", "json", "jsonl", "csv", "zip", "tar.gz"]
+retention_class = "legacy_quarantine"
+default_retention_days = 90
+backup_policy = "review for production snapshots before cleanup; export anything needed as evidence"
+safe_cleanup_command = "manual approval only: remove .polisyos/evicted/* after archive and production-data review"
+promotion_rule = "promote only curated inventory rows or migration summaries"
+migration_class = "runtime_state"
+migration_slot = "evicted_legacy_state"
+first_level_entry = "evicted"
+
+[[state_slot]]
+id = "facts"
+paths = [".polisyos/facts/<run-or-bundle-id>/"]
+owner = "team-scholar"
+purpose = "Local fact logs emitted by Scholar/Lex enrichment and normpack workflows."
+naming = "run or bundle id plus monotonic event file names"
+formats = ["jsonl", "json", "toml"]
+retention_class = "local_fact_log"
+default_retention_days = 30
+backup_policy = "no backup unless fact logs are promoted as reviewed evidence"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot facts --apply"
+promotion_rule = "promote redacted fact-log summaries only"
+migration_class = "runtime_state"
+migration_slot = "fact_logs"
+first_level_entry = "facts"
+
+[[state_slot]]
+id = "keys"
+paths = [".polisyos/keys/<trust-or-identity-family>/"]
+owner = "team-security"
+purpose = "Local signing identities, trusted public keys, revoked-key markers, and identity maps."
+naming = "family names match signing/trust subsystem ids; key files use identity labels or key ids"
+formats = ["pem", "json", "toml"]
+retention_class = "local_key_material"
+default_retention_days = 365
+backup_policy = "owner-approved backup or rotation record required before cleanup"
+safe_cleanup_command = "manual approval only: remove .polisyos/keys/* after key rotation and backup review"
+promotion_rule = "never promote private key material; promote only public trust manifests after review"
+migration_class = "runtime_state"
+migration_slot = "key_material"
+first_level_entry = "keys"
+
+[[state_slot]]
+id = "scholar_cache"
+paths = [".polisyos/scholar_cache/<url-or-provider-cache-key>/"]
+owner = "team-scholar"
+purpose = "Recomputable Scholar URL acquisition and provider cache state."
+naming = "provider id plus URL/content hash"
+formats = ["json", "jsonl", "binary"]
+retention_class = "recomputable_cache"
+default_retention_days = 14
+backup_policy = "no backup; cache must be rebuildable"
+safe_cleanup_command = "uv run python tools/ops_runners/runtime/runtime_state_cleanup.py --slot scholar_cache --apply"
+promotion_rule = "promote only final source manifests or tiny fixtures"
+migration_class = "runtime_state"
+migration_slot = "search_registry"
+first_level_entry = "scholar_cache"
+
+[[state_slot]]
+id = "scholar_jobs"
+paths = [".polisyos/scholar_jobs/<job-id>/"]
+owner = "team-scholar"
+purpose = "Background/resumable deep-research job status, checkpoints, and progress events."
+naming = "job ids are stable UUIDs or run ids"
+formats = ["json", "jsonl", "toml", "artifact refs"]
+retention_class = "resumable_job_state"
+default_retention_days = 30
+backup_policy = "promote or export active jobs before cleanup"
+safe_cleanup_command = "manual approval only: remove .polisyos/scholar_jobs/* after resumability review"
+promotion_rule = "promote reviewed job summaries, not checkpoint payloads"
+migration_class = "runtime_state"
+migration_slot = "search_registry"
+first_level_entry = "scholar_jobs"
+
+[[state_slot]]
+id = "scientist"
+paths = [".polisyos/scientist/<memory-or-run-family>/"]
+owner = "team-scientist"
+purpose = "Local Scientist memory, reflexion indexes, and experiment-side persisted state."
+naming = "family names match Scientist subsystem ids; leaves include run ids or index versions"
+formats = ["txt", "json", "jsonl", "toml", "sqlite"]
+retention_class = "local_scientist_memory"
+default_retention_days = 90
+backup_policy = "export memory/index state before incompatible Scientist migration"
+safe_cleanup_command = "manual approval only: remove .polisyos/scientist/* after memory export review"
+promotion_rule = "promote only reviewed Scientist memory summaries"
+migration_class = "runtime_state"
+migration_slot = "persisted_local_state"
+first_level_entry = "scientist"
+
+[[state_slot]]
+id = "control_plane"
+paths = [".polisyos/control_plane.sqlite3", ".polisyos/control.sqlite3"]
+owner = "team-runtime"
+purpose = "Local SQLite state store for development control-plane execution."
+naming = "root file name is control_plane.sqlite3; control.sqlite3 is a legacy test/dev alias"
+formats = ["sqlite"]
+retention_class = "local_control_plane_state"
+default_retention_days = 90
+backup_policy = "export or migrate to the durable state store before destructive cleanup"
+safe_cleanup_command = "manual approval only: remove .polisyos/control*.sqlite3 after state-store migration review"
+promotion_rule = "never promote SQLite databases; promote schema/version summaries only"
+migration_class = "runtime_state"
+migration_slot = "persisted_local_state"
+first_level_entry = "control_plane.sqlite3"
+
+[[state_slot]]
+id = "persisted_local_state"
+paths = [".polisyos/state/<component>/"]
+owner = "team-platform"
+purpose = "Reserved slot for future persisted local state not covered by current slots."
+naming = "component id plus state schema version"
+formats = ["toml", "json", "sqlite"]
+retention_class = "future_persisted_local_state"
+default_retention_days = 90
+backup_policy = "owner migration review required before cleanup or format change"
+safe_cleanup_command = "manual approval only: remove .polisyos/state/* after owner migration review"
+promotion_rule = "promote only reviewed state summaries or migration manifests"
+migration_class = "runtime_state"
+migration_slot = "persisted_local_state"
+first_level_entry = "state"
+
+[[legacy_alias]]
+path = ".polisyos/artifacts"
+canonical_path = ".polisyos/cas/_cache/artifacts"
+owner = "team-data-forge"
+migration_slot = "artifact_cache"
+status = "normalized_in_phase_2_3"
+
+[[legacy_alias]]
+path = ".polisyos/cas_cache"
+canonical_path = ".polisyos/cas/_cache"
+owner = "team-data-forge"
+migration_slot = "artifact_cache"
+status = "normalized_in_phase_2_3"
+
+[[legacy_alias]]
+path = ".polisyos/cas-readme-check"
+canonical_path = ".polisyos/cas/_readme_check"
+owner = "team-devx"
+migration_slot = "validation_artifacts"
+status = "normalized_in_phase_2_3"
+
+[[legacy_alias]]
+path = ".polisyos/live_gonka_smoke.json"
+canonical_path = ".polisyos/provider_verification/live_gonka_smoke.json"
+owner = "team-platform"
+migration_slot = "provider_verification"
+status = "normalized_in_phase_2_3"
+
+[[migration_slot]]
+id = "run_records"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/run_records"
+owner = "team-runtime"
+compatibility_policy = "run record migrations must preserve resume semantics or publish an archive/export report"
+
+[[migration_slot]]
+id = "reports"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/reports"
+owner = "team-platform"
+compatibility_policy = "report migrations affect only local generated evidence candidates and must keep promoted summaries stable"
+
+[[migration_slot]]
+id = "audit"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/audit"
+owner = "team-platform"
+compatibility_policy = "readers keep N-1 audit manifest support; breaking migrations require export and runbook review"
+
+[[migration_slot]]
+id = "artifact_cas"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/artifact_cas"
+owner = "team-core"
+compatibility_policy = "CAS layout migrations require manifest review, import/export compatibility, and no raw blob deletion by default"
+
+[[migration_slot]]
+id = "artifact_cache"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/artifact_cache"
+owner = "team-data-forge"
+compatibility_policy = "cache migrations must be rebuildable and may drop stale cache entries after dry-run evidence"
+
+[[migration_slot]]
+id = "validation_artifacts"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/validation_artifacts"
+owner = "team-devx"
+compatibility_policy = "validation artifact migrations may drop recomputable outputs after preserving final summaries"
+
+[[migration_slot]]
+id = "production_snapshot"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/production_snapshot"
+owner = "team-data-forge"
+compatibility_policy = "production snapshot migrations require owner approval, backup/export evidence, and explicit cleanup approval"
+
+[[migration_slot]]
+id = "provider_verification"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/provider_verification"
+owner = "team-platform"
+compatibility_policy = "provider verification readers keep N-1 release-gate evidence support"
+
+[[migration_slot]]
+id = "idempotency"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/idempotency"
+owner = "team-runtime"
+compatibility_policy = "idempotency migrations must preserve replay safety and old-key deny behavior"
+
+[[migration_slot]]
+id = "decision_validity"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/decision_validity"
+owner = "team-scientist"
+compatibility_policy = "decision validity migrations must preserve dependency review and invalidation history"
+
+[[migration_slot]]
+id = "search_registry"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/search_registry"
+owner = "team-scholar"
+compatibility_policy = "registry migrations must be deterministic and rebuildable from provider metadata"
+
+[[migration_slot]]
+id = "runtime_component_state"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/runtime_component_state"
+owner = "team-runtime"
+compatibility_policy = "runtime component-state migrations must declare audit/idempotency target slots before cleanup"
+
+[[migration_slot]]
+id = "security_evidence"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/security_evidence"
+owner = "team-security"
+compatibility_policy = "security evidence migrations must preserve release-audit summaries and never expose secrets"
+
+[[migration_slot]]
+id = "evicted_legacy_state"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/evicted_legacy_state"
+owner = "team-platform"
+compatibility_policy = "evicted legacy-state cleanup requires inventory review and production snapshot classification"
+
+[[migration_slot]]
+id = "fact_logs"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/fact_logs"
+owner = "team-scholar"
+compatibility_policy = "fact-log migrations must preserve promoted evidence references or remain recomputable"
+
+[[migration_slot]]
+id = "key_material"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/key_material"
+owner = "team-security"
+compatibility_policy = "key material migrations require explicit rotation/backup review and never promote private keys"
+
+[[migration_slot]]
+id = "persisted_local_state"
+class = "runtime_state"
+target_path = "ops/migrations/runtime_state/persisted_local_state"
+owner = "team-platform"
+compatibility_policy = "future persisted local state must declare schema version, reader policy, and cleanup approval before use"

@@ -12,7 +12,7 @@
 ## Output
 
 - новый IR type под `src/polisyos/ir/**`;
-- при необходимости запись в `schemas/abi_models.py`;
+- при необходимости запись в `src/polisyos/schemas/abi_models.py`;
 - обновленные schema snapshots и reference catalog.
 
 ## Commands
@@ -21,7 +21,7 @@ Regenerate snapshots and IR reference catalog:
 
 ```bash
 cd policy-engine
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
+uv run --extra ml polisyos-tools diagnostics gen-schema
 ```
 
 Verification:
@@ -52,11 +52,11 @@ Possible visibility levels:
 - package facade: exported from a section facade such as `polisyos.ir.analytics`;
 - root facade: exported from `polisyos.ir`;
 - snapshot-only: not exported from a facade, but still tracked through
-  `schemas/abi_models.py`.
+  `src/polisyos/schemas/abi_models.py`.
 
 That visibility shows up in `IRPublicStatus` inside the generated schema catalog.
 
-## 3. Register ABI-backed types in `schemas/abi_models.py`
+## 3. Register ABI-backed types in `src/polisyos/schemas/abi_models.py`
 
 If the contract is ABI-visible, add an `ABIModelEntry` with:
 
@@ -75,7 +75,7 @@ committed ABI snapshot set.
 Run:
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
+uv run --extra ml polisyos-tools diagnostics gen-schema
 ```
 
 This generator is the canonical path for both:

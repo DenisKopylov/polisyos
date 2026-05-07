@@ -53,8 +53,8 @@ from polisyos.ir.observation.contracts import (
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )

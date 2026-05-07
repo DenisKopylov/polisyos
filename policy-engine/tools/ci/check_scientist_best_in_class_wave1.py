@@ -24,7 +24,7 @@ ACTIVE_PLAN_DOC = Path("docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md")
 READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 INDEX_DOC = Path("docs/reference/scientist/index.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 PHASE_GATE_MODULES: tuple[tuple[str, str], ...] = (
     ("phase1_0", "tools.ci.check_scientist_best_in_class_phase1_0"),
@@ -39,7 +39,7 @@ PHASE_GATE_MODULES: tuple[tuple[str, str], ...] = (
 REQUIRED_FILES: tuple[Path, ...] = (
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_wave1.py"),
-    Path("tests/tools/test_scientist_best_in_class_wave1.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_wave1.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "Wave 1 acceptance",
@@ -83,11 +83,11 @@ DECISION_PACKET_TOKENS: dict[Path, tuple[str, ...]] = {
         'payload["research_dag_ref"]',
         "missing_claims_ref_for_decision_bearing_payload",
     ),
-    Path("tests/unit/scientist/research_dag/test_workflow_integration.py"): (
+    Path("tests/unit/scientist/methods/research_dag/test_workflow_integration.py"): (
         "research_dag_ref",
         "scientist_policy_design",
     ),
-    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"): (
+    Path("tests/unit/scientist/governance/human_review/test_decision_packet_integration.py"): (
         "missing_human_review_packet_ref",
         "human_review_validation_failed",
     ),
@@ -156,7 +156,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_naked_decision_claims,
             validate_state_claim_projection,
         )
-        from polisyos.scientist.engine.frontier_runtime import (
+        from polisyos.scientist.orchestration.engine.frontier_runtime import (
             FrontierRuntimeConfig,
             build_frontier_runtime_report,
         )
@@ -164,19 +164,19 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             BenchmarkAuthority,
             PromotionEvidenceRequest,
         )
-        from polisyos.scientist.human_review.audit import signature_for_decision
-        from polisyos.scientist.human_review.decisions import human_review_status
-        from polisyos.scientist.human_review.models import (
+        from polisyos.scientist.governance.human_review.audit import signature_for_decision
+        from polisyos.scientist.governance.human_review.decisions import human_review_status
+        from polisyos.scientist.governance.human_review.models import (
             HumanReviewDecision,
             HumanReviewStatus,
             ReviewAction,
         )
-        from polisyos.scientist.human_review.oversight_policy import (
+        from polisyos.scientist.governance.human_review.oversight_policy import (
             evaluate_human_review_requirement,
             human_review_section,
             validate_human_reviewed_readiness,
         )
-        from polisyos.scientist.human_review.packets import build_review_packet
+        from polisyos.scientist.governance.human_review.packets import build_review_packet
         from polisyos.scientist.nodes.builtins.state_keys import (
             ARTIFACT_CLAIMS_REF,
             ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,

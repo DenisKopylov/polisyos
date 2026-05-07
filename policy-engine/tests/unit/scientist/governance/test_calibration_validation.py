@@ -14,8 +14,8 @@ from polisyos.ir.analytics.interference import (
 )
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
@@ -30,7 +30,7 @@ from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationRunnerInput,
     load_calibration_validation_bundle,
 )
-from polisyos.scientist.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
+from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:

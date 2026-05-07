@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_spatial_methods
 from .advanced import (
@@ -28,12 +28,7 @@ from .protocols import AccessibilityData, GravityFlowData, SpatialData, SpatialR
 
 def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with spatial methods for autocorrelation, access, and panel workflows."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_spatial_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("spatial", registry)
 
 
 __all__ = [

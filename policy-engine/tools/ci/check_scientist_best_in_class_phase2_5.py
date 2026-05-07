@@ -25,7 +25,7 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/evals/challenge_factory.py"),
@@ -40,7 +40,7 @@ REQUIRED_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/evals/test_sentinels.py"),
     Path("tests/unit/scientist/evals/test_red_team.py"),
     Path("tests/unit/scientist/evals/test_rotation.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_5.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_5.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "GeneratedChallenge",

@@ -1,3 +1,12 @@
+---
+title: Ukraine Funding Intelligence Plan
+status: active
+owner: team-data-forge
+created: 2026-04-15
+last_verified: 2026-05-05
+stability: draft
+---
+
 # Ukraine Funding Intelligence Plan
 
 > Детерминированный план построения funding-intelligence слоя для PolicyOS с

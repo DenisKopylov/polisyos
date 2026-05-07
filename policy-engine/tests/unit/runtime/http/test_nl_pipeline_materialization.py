@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 
@@ -89,6 +90,28 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
 
     monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+        lambda: None,
+    )
+
+    def _build_test_catalog_snapshot(*, run_id: str | None = None) -> MethodCatalogSnapshot:
+        return MethodCatalogSnapshot(snapshot_id=f"test-catalog-{run_id or 'run'}", run_id=run_id)
+
+    def _persist_test_catalog_snapshot(
+        _store: object,
+        _snapshot: MethodCatalogSnapshot,
+    ) -> MethodCatalogSnapshotRef:
+        return MethodCatalogSnapshotRef(artifact_id="sha256:" + "1" * 64)
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.build_method_catalog_snapshot",
+        _build_test_catalog_snapshot,
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.persist_method_catalog_snapshot",
+        _persist_test_catalog_snapshot,
+    )
     from polisyos.common import async_tools
 
     real_run_coro_sync = async_tools.run_coro_sync

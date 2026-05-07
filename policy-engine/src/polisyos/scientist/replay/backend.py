@@ -32,7 +32,6 @@ from polisyos.runtime.replay import (
     verify_replay,
 )
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
-from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -45,7 +44,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.workflows.builder import run_selected_workflow
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.ids import ArtifactID
@@ -293,7 +293,7 @@ async def replay_dead_letter(
     max_retries: int | None = None,
 ) -> Any:
     """Replay a dead-lettered node with caller-supplied execution context/state."""
-    from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
 
     record = load_dead_letter(store, artifact_id)
     resolved_node = node

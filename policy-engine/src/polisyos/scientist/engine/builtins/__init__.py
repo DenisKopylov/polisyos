@@ -1,20 +1,11 @@
-"""Always-available engine builtins for no-op, state mutation, and artifact emission."""
+"""Compatibility shim for `polisyos.scientist.engine.builtins`.
+
+Canonical package: `polisyos.scientist.orchestration.engine.builtins`.
+Sunset: 2026-12-31.
+"""
 
 from __future__ import annotations
 
-from polisyos.scientist.engine.builtins.emit_artifact import EmitArtifactNode
-from polisyos.scientist.engine.builtins.noop import NoopNode
-from polisyos.scientist.engine.builtins.set_state import SetStateNode
-from polisyos.scientist.engine.protocol import Node
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
 
-__all__ = [
-    "EmitArtifactNode",
-    "NoopNode",
-    "SetStateNode",
-    "builtin_nodes",
-]
-
-
-def builtin_nodes() -> list[Node]:
-    """Return the engine-level builtin nodes used to bootstrap a minimal registry."""
-    return [NoopNode(), SetStateNode(), EmitArtifactNode()]
+_reexport_package(__name__, "polisyos.scientist.orchestration.engine.builtins", globals())

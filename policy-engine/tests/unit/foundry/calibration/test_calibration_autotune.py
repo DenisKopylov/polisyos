@@ -13,7 +13,7 @@ from polisyos.ir.analytics.calibration import (
     CalibrationTarget,
     TrainableParamRef,
 )
-from polisyos.scientist.autotune import (
+from polisyos.scientist.methods.autotune import (
     BenchmarkSplitManifest,
     BenchmarkSuite,
     ChampionRegistry,
@@ -21,7 +21,7 @@ from polisyos.scientist.autotune import (
     persist_benchmark_suite,
     persist_mutation_artifact,
 )
-from polisyos.scientist.autotune.calibration import (
+from polisyos.scientist.methods.autotune.calibration import (
     CalibrationMetaEvaluator,
     CalibrationMetaSearchConfig,
     apply_calibration_meta_overrides,

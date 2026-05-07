@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import NormativeArbitrationResultRef
+from polisyos.ir.references import NormativeArbitrationResultRef
 
 if TYPE_CHECKING:
     from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy

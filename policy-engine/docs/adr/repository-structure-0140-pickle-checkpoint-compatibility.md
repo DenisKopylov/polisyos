@@ -18,9 +18,9 @@ load after a source move.
 
 1. Phase 3A inventories pickle/checkpoint call sites in `src/` and `tools/`.
 2. Phase 3A inventories live `*.pkl`, `*.pickle`, `*.joblib`, and `*.ckpt`
-   artifacts under `.polisyos/` and `tests/fixtures/`.
+   artifacts under `.polisyos/` and `tests/_data/`.
 3. Canonical compatibility fixtures live under
-   `tests/fixtures/checkpoint_compat/`.
+   `tests/_data/checkpoint_compat/`.
 4. `tests/contract/test_pickle_compat.py` is part of the normal pytest suite
    and must load every committed compatibility fixture.
 5. Phase 5/6 module moves must keep old FQNs loadable through targeted

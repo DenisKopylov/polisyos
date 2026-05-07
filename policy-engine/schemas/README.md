@@ -4,13 +4,15 @@
 
 ## Что находится в директории
 
-| Артефакт                                                       | Назначение                                                                    |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `abi_models.py`                                                | Реестр ABI (`ABI_MODELS`): что и как версионируется в `snapshots/{ir,fabric}` |
-| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff                                        |
-| `snapshots/*/_manifest.json`                                   | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`)                |
-| `snapshots/connectors/contracts.json`                          | Snapshot контрактов source-коннекторов                                        |
-| `runtime_api_v1.openapi.json`                                  | Коммитный OpenAPI контракт Runtime API v1                                     |
+| Артефакт                                                       | Назначение                                                     |
+| -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff                         |
+| `snapshots/*/_manifest.json`                                   | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`) |
+| `snapshots/connectors/contracts.json`                          | Snapshot контрактов source-коннекторов                         |
+| `runtime_api_v1.openapi.json`                                  | Коммитный OpenAPI контракт Runtime API v1                      |
+
+Кодовый ABI registry находится в `src/polisyos/schemas/abi_models.py`; эта
+директория остается только для JSON/YAML/OpenAPI snapshot артефактов.
 
 ## Актуальное состояние (2026-03-03)
 
@@ -22,13 +24,13 @@
   - `snapshots/fabric/_manifest.json`: `generated_at=2026-03-02T16:48:08+00:00`.
 - Connector snapshot: `version=1`, контрактов `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
 - Runtime OpenAPI: `openapi=3.1.0`, `PolicyOS Runtime API 1.0.0`, `37` операций (`27 GET`, `10 POST`).
-- `tools/ops/runtime/generate_runtime_client.py` генерирует клиент только по `GET`; типы для полного OpenAPI генерируются отдельно в `frontend/runtime-dashboard/src/api/types.ts`.
+- `tools/ops_runners/runtime/generate_runtime_client.py` генерирует клиент только по `GET`; типы для полного OpenAPI генерируются отдельно в `apps/runtime-dashboard/src/api/types.ts`.
 
 ## Архитектурные потоки
 
 ```text
 src/polisyos/ir/** + src/polisyos/ir/world/abi.py
-  -> schemas/abi_models.py
+  -> src/polisyos/schemas/abi_models.py
   -> tools/quality/diagnostics/gen_schema.py
   -> schemas/snapshots/{ir,fabric}
   -> ABI checks: .github/workflows/abi.yml + .github/workflows/ci.yml
@@ -43,11 +45,11 @@ src/polisyos/fabric/connectors/sources/_contracts/*
 
 ```text
 src/polisyos/runtime/http/app.py
-  -> tools/ops/runtime/export_runtime_openapi.py
+  -> tools/ops_runners/runtime/export_runtime_openapi.py
   -> schemas/runtime_api_v1.openapi.json
-  -> tools/ops/runtime/check_runtime_api_contract.py
-  -> tools/ops/runtime/generate_runtime_client.py -> frontend/runtime-api-client/*
-  -> frontend/runtime-dashboard/scripts/generate-api-client.sh -> frontend/runtime-dashboard/src/api/types.ts
+  -> tools/ops_runners/runtime/check_runtime_api_contract.py
+  -> tools/ops_runners/runtime/generate_runtime_client.py -> packages/runtime-api-client/*
+  -> apps/runtime-dashboard/scripts/generate-api-client.sh -> apps/runtime-dashboard/src/api/types.ts
 ```
 
 ## Связи с соседними директориями
@@ -60,36 +62,36 @@ src/polisyos/runtime/http/app.py
 | `src/polisyos/runtime/http`                         | Источник OpenAPI контракта для `runtime_api_v1.openapi.json`            |
 | `tools/quality/diagnostics`                                 | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
 | `tools/devx/connectors`                             | Drift/compatibility проверка и обновление connector snapshot            |
-| `tools/ops/runtime`                                     | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
-| `frontend/runtime-api-client`                       | Коммитный runtime SDK (TS/JS)                                           |
-| `frontend/runtime-dashboard`                        | Генерация OpenAPI типов для UI (`npm run generate:api`)                 |
+| `tools/ops_runners/runtime`                                     | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
+| `packages/runtime-api-client`                       | Коммитный runtime SDK (TS/JS)                                           |
+| `apps/runtime-dashboard`                        | Генерация OpenAPI типов для UI (`corepack pnpm run generate:api`)                 |
 
 ## Рабочие команды (из `policy-engine/`)
 
 ```bash
 # Проверка baseline без изменений
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
 uv run polisyos-tools connectors check-contracts --check
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 ```bash
 # Обновление baseline
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py
+uv run --extra ml polisyos-tools diagnostics gen-schema
 uv run polisyos-tools connectors check-contracts --update
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
 ```
 
 ```bash
 # Синхронизация UI типов
-cd frontend/runtime-dashboard
-npm run generate:api
+cd apps/runtime-dashboard
+corepack pnpm run generate:api
 ```
 
 ```bash
 # Локальный semantic diff ABI (перед PR)
-python3 tools/quality/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
+uv run --extra ml polisyos-tools diagnostics gen-schema --output-dir /tmp/current_schemas
 python3 tools/quality/diagnostics/abi_diff.py \
   --baseline schemas/snapshots \
   --current /tmp/current_schemas \
@@ -98,12 +100,14 @@ python3 tools/quality/diagnostics/abi_diff.py \
 
 ## Инварианты сопровождения
 
+- Не добавлять Python modules/package markers в `schemas/`; product imports идут
+  через `polisyos.*`, а не через `import schemas`.
 - Не редактировать вручную файлы в `snapshots/ir` и `snapshots/fabric`.
 - Не редактировать вручную `snapshots/connectors/contracts.json`, использовать `check_contracts.py --update`.
 - Любое изменение Runtime API сопровождается синхронным обновлением:
   - `schemas/runtime_api_v1.openapi.json`,
-  - `frontend/runtime-api-client/runtimeApiClient.ts` и `runtimeApiClient.js`,
-  - `frontend/runtime-dashboard/src/api/types.ts`.
+  - `packages/runtime-api-client/runtimeApiClient.ts` и `runtimeApiClient.js`,
+  - `apps/runtime-dashboard/src/api/types.ts`.
 
 ## Подробности по подпапкам
 

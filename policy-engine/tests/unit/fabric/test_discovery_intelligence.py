@@ -97,9 +97,9 @@ def test_nl_to_dataset_resolution_is_ranked_and_explainable() -> None:
 
 def test_dataset_discovery_eval_pack_tracks_relevance_and_false_positive_budget() -> None:
     payload = json.loads(
-        (Path(__file__).resolve().parents[2] / "fixtures" / "fabric_discovery_eval.json").read_text(
-            "utf-8"
-        )
+        (
+            Path(__file__).resolve().parents[2] / "_data" / "fabric" / "discovery_eval.json"
+        ).read_text("utf-8")
     )
     benchmark = DatasetDiscoveryBenchmarkPack.from_mapping(payload)
     catalog = _catalog()

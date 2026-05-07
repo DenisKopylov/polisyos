@@ -2,7 +2,7 @@
 
 > Geometric, stroke, and grammatical rules for the ten-radical PolicyOS glyph
 > alphabet. Source of truth for all SVG assets under
-> `frontend/runtime-dashboard/public/atlas/glyphs/` and the
+> `apps/runtime-dashboard/public/atlas/glyphs/` and the
 > `shared/brand/glyph-vocabulary.ts` map.
 
 - Status: Foundation (Phase 1.0)
@@ -127,7 +127,7 @@ permitted; PolicyOS does not have an "info blue" and will not acquire one.
 
 ## 9. File and export conventions
 
-- Files live in `frontend/runtime-dashboard/public/atlas/glyphs/<name>.svg`.
+- Files live in `apps/runtime-dashboard/public/atlas/glyphs/<name>.svg`.
 - Each SVG is optimised with `svgo` (no `style` blocks, no `class` attributes,
   no inline `width`/`height`, preserve `viewBox`).
 

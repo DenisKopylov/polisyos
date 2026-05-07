@@ -10,7 +10,7 @@ import numpy as np
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import PatchOp
-from polisyos.foundry.methods.merge_engine import MergeEngine, MergeRecord
+from polisyos.foundry.methods.components.merge_engine import MergeEngine, MergeRecord
 from polisyos.ir.kernel import MergeRuleKind, MergeRuleRegistry, SlotRegistry
 
 

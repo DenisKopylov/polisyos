@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.strategies.ensemble_surrogate import EnsembleSurrogate
+from polisyos.scientist.methods.search.strategies.ensemble_surrogate import EnsembleSurrogate
 
 # ---------------------------------------------------------------------------
 # Construction & availability

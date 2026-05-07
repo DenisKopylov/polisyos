@@ -7,7 +7,7 @@ import unicodedata
 from collections.abc import Iterable
 from decimal import Decimal
 
-from polisyos.fabric._numeric_parsing import parse_decimal_text
+from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
 from polisyos.ir.kernel.base import ID_PATTERN
 
 _ID_RE = re.compile(ID_PATTERN)

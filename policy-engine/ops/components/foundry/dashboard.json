@@ -1,0 +1,13 @@
+{
+  "component": "foundry",
+  "owner": "team-foundry",
+  "aliases": ["foundry", "polisyos.foundry", "polisyos.foundry.compile", "polisyos.foundry.execute", "polisyos.synthetic_world"],
+  "dashboards": [
+    {
+      "name": "Foundry HPC",
+      "path": "ops/observability/grafana/dashboards/foundry-hpc.json",
+      "purpose": "Simulation health, cache behavior, and compute saturation"
+    }
+  ]
+}
+

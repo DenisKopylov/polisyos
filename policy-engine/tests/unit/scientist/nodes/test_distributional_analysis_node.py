@@ -19,8 +19,8 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.analytics.distributional import CohortDimension, load_distributional_report
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
     RunDistributionalAnalysisNode,
 )

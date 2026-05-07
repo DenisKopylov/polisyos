@@ -67,7 +67,7 @@ Archive legacy runs with report:
 
 ```bash
 cd policy-engine
-uv run python tools/ops/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
+uv run python tools/ops_runners/runtime/archive_legacy_runs.py --runs-root runs --archive-dir _build/.tmp/legacy_runs_archive
 ```
 
 Record/replay regression coverage:

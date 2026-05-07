@@ -15,8 +15,8 @@ from polisyos.ir.analytics.metric_validation_report import (
     SignificanceRecord,
     persist_metric_validation_report,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,

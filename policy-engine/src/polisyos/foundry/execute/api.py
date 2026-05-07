@@ -54,7 +54,7 @@ from polisyos.foundry.data_plane import (
     inject_feedback_state,
     load_input_bindings,
 )
-from polisyos.foundry.execute._posture import (
+from polisyos.foundry.execute._internal.posture import (
     ResolvedExecutionPosture,
     resolve_execution_posture,
 )

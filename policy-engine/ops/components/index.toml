@@ -1,0 +1,261 @@
+[component_bundles]
+version = 1
+status = "active_draft"
+owner = "team-ops"
+phase = "repository-best-in-class-phase-4.9"
+ops_organization_decision = "invert_to_ops_components"
+component_bundle_root = "ops/components"
+runbook_coverage_contract = "architecture/runbook_coverage.toml"
+observability_contract = "architecture/component_observability.toml"
+retention_policy_reference = "docs/reference/operations/retention-and-recovery.md"
+runtime_contract_reference = "ops/runtime/runtime-contracts.toml"
+compatibility_policy = "component aliases include package facade names and active compatibility roots so old and new caller language resolves to the same operability bundle"
+
+[[component]]
+id = "common"
+aliases = ["common", "polisyos.common"]
+classification = "public_stable"
+owner = "team-core"
+bundle = "ops/components/common"
+source_readme = "src/polisyos/common/README.md"
+slo_status = "exception"
+slo_file = "ops/components/common/slo.yaml"
+runbooks = ["docs/runbooks/dependency-upgrade-regression.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/common/retention-policy.toml"
+escalation = "team-core primary; team-platform joins for shared dependency or migration incidents"
+exception_reason = "Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic."
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component]]
+id = "core"
+aliases = ["core", "polisyos.core"]
+classification = "public_stable"
+owner = "team-core"
+bundle = "ops/components/core"
+source_readme = "src/polisyos/core/README.md"
+slo_status = "present"
+slo_file = "ops/components/core/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/core.yaml"]
+runbooks = ["docs/runbooks/artifact-corruption-recovery.md", "docs/runbooks/idempotency-incident.md", "docs/runbooks/mutation-audit-investigation.md", "docs/runbooks/cas-opa-outage.md"]
+alerts = ["AuditChainTamperDetected", "AuditSinkQueueBackpressure", "AuditColdTierWriteFailure", "ArtifactIntegrityFailuresDetected"]
+dashboards = ["ops/observability/grafana/dashboards/executive-overview.json"]
+runtime_contracts = ["architecture/public_surface.toml", "ops/runtime/runtime-contracts.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/core/retention-policy.toml"
+escalation = "team-core primary; team-security joins immediately for audit, artifact integrity, or tenant-boundary incidents"
+
+[[component]]
+id = "ir"
+aliases = ["ir", "polisyos.ir", "polisyos.ir.api", "polisyos.ir.public_surface", "polisyos.ir.schema_catalog"]
+classification = "public_stable"
+owner = "team-ir"
+bundle = "ops/components/ir"
+source_readme = "src/polisyos/ir/README.md"
+slo_status = "present"
+slo_file = "ops/components/ir/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/ir.yaml"]
+runbooks = ["docs/runbooks/broken-contract-generation.md", "docs/runbooks/dependency-upgrade-regression.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+runtime_contracts = ["architecture/packages/ir.toml", "architecture/imports/reports.toml", "ops/migrations/migration-contracts.toml"]
+retention_policy = "ops/components/ir/retention-policy.toml"
+escalation = "team-ir primary; team-platform joins for schema registry or migration incidents"
+
+[[component]]
+id = "fabric"
+aliases = ["fabric", "polisyos.fabric", "polisyos.fabric.api"]
+classification = "public_stable"
+owner = "team-fabric"
+bundle = "ops/components/fabric"
+source_readme = "src/polisyos/fabric/README.md"
+slo_status = "present"
+slo_file = "ops/components/fabric/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/fabric.yaml"]
+runbooks = ["docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md", "docs/runbooks/broken-contract-generation.md", "docs/runbooks/replay-or-restore.md"]
+alerts = ["SLO_ConnectorErrorRateBreach"]
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+runtime_contracts = ["architecture/packages/fabric.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/fabric/retention-policy.toml"
+escalation = "team-fabric primary; team-data-forge joins for source or materialization incidents"
+
+[[component]]
+id = "foundry"
+aliases = ["foundry", "polisyos.foundry", "polisyos.foundry.api", "polisyos.foundry.compile", "polisyos.foundry.execute", "polisyos.synthetic_world", "polisyos.foundry.agent_sim.world"]
+classification = "public_stable"
+owner = "team-foundry"
+bundle = "ops/components/foundry"
+source_readme = "src/polisyos/foundry/README.md"
+slo_status = "present"
+slo_file = "ops/components/foundry/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/foundry.yaml"]
+runbooks = ["docs/runbooks/benchmark-regression-triage.md", "docs/runbooks/cache-rebuild-storm.md", "docs/runbooks/artifact-corruption-recovery.md"]
+alerts = ["SLO_SimulationNanRateBreach", "SimulationStall", "JITRecompilationStorm", "JITRecompilationStormCritical", "LowCacheHitRatio"]
+dashboards = ["ops/observability/grafana/dashboards/foundry-hpc.json"]
+runtime_contracts = ["architecture/packages/foundry.toml", "architecture/shims.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/foundry/retention-policy.toml"
+escalation = "team-foundry primary; team-platform joins for infrastructure saturation"
+
+[[component]]
+id = "scientist"
+aliases = ["scientist", "polisyos.scientist"]
+classification = "public_stable"
+owner = "team-scientist"
+bundle = "ops/components/scientist"
+source_readme = "src/polisyos/scientist/README.md"
+slo_status = "present"
+slo_file = "ops/components/scientist/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/scientist.yaml"]
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md", "docs/runbooks/benchmark-regression-triage.md", "docs/runbooks/idempotency-incident.md"]
+alerts = ["SLO_DagSuccessRateBreach", "SLO_DagSuccessRateCritical", "SLO_DagLatencyP99High", "HighLLMCost", "HighLLMCostCritical", "AgentErrorSpike", "AgentErrorSpikeCritical", "GovernancePassSlowdown", "ScientistNodeP95LatencyHigh", "ScientistWorkflowFailRate", "ScientistBudgetNearExhaustion", "ScientistTierQueueDepthHigh", "ScientistSemaphoreWaitHigh"]
+dashboards = ["ops/observability/grafana/dashboards/scientist-agents.json", "ops/observability/grafana/dashboards/scientist-llm-cost.json"]
+runtime_contracts = ["architecture/packages/scientist.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/scientist/retention-policy.toml"
+escalation = "team-scientist primary; team-runtime joins for worker starvation and team-platform joins for provider or budget incidents"
+
+[[component]]
+id = "runtime"
+aliases = ["runtime", "polisyos.runtime"]
+classification = "public_stable"
+owner = "team-runtime"
+bundle = "ops/components/runtime"
+source_readme = "src/polisyos/runtime/README.md"
+slo_status = "present"
+slo_file = "ops/components/runtime/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/runtime.yaml"]
+runbooks = ["docs/runbooks/runtime-api-outage.md", "docs/runbooks/canary-rollback-or-promotion-failure.md", "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md", "docs/runbooks/cache-rebuild-storm.md"]
+alerts = ["SLO_RuntimeApiAvailabilityBreach", "SLO_RuntimeApiLatencyP95High", "SLO_RuntimeApiLatencyP99High", "SLO_ControlPlaneAdmissionBreach", "SLO_ControlPlaneAdmissionLatencyP95High", "RuntimeDependencyCircuitOpen", "RuntimeRateLimitSaturation", "ControlPlaneQueueLagHigh", "RuntimeCacheRebuildStorm", "RuntimeCacheStalenessHigh", "CellRoutingErrorRateHigh", "CellRoutingLatencyHigh"]
+dashboards = ["ops/observability/grafana/dashboards/runtime-operability.json"]
+runtime_contracts = ["ops/runtime/runtime-contracts.toml", "schemas/runtime_api_v1.openapi.json", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/runtime/retention-policy.toml"
+escalation = "team-runtime primary; team-platform incident commander for P1 or cross-component outage"
+
+[[component]]
+id = "lex"
+aliases = ["lex", "polisyos.lex"]
+classification = "public_stable"
+owner = "team-lex"
+bundle = "ops/components/lex"
+source_readme = "src/polisyos/lex/README.md"
+slo_status = "present"
+slo_file = "ops/components/lex/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/lex.yaml"]
+runbooks = ["docs/runbooks/lex-production-140k.md", "docs/runbooks/cache-rebuild-storm.md", "docs/runbooks/broken-contract-generation.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/lex/retention-policy.toml"
+escalation = "team-lex primary; team-scholar joins for provider/search dependency incidents"
+
+[[component]]
+id = "scholar"
+aliases = ["scholar", "polisyos.scholar"]
+classification = "public_experimental_phase_4_9_required"
+owner = "team-scholar"
+bundle = "ops/components/scholar"
+source_readme = "src/polisyos/scholar/README.md"
+slo_status = "present"
+slo_file = "ops/components/scholar/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/scholar.yaml"]
+runbooks = ["docs/runbooks/docs-publication-failure.md", "docs/runbooks/cache-rebuild-storm.md", "docs/runbooks/lex-production-140k.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/scholar/retention-policy.toml"
+escalation = "team-scholar primary; team-lex joins for search registry or norm-pack freshness incidents"
+
+[[component]]
+id = "data_forge"
+aliases = ["data_forge", "polisyos.data_forge", "polisyos.data_forge.read_api"]
+classification = "public_experimental"
+owner = "team-data-forge"
+bundle = "ops/components/data_forge"
+source_readme = "src/polisyos/data_forge/README.md"
+slo_status = "present"
+slo_file = "ops/components/data_forge/slo.yaml"
+legacy_slo_files = ["ops/observability/slo/data_forge.yaml"]
+runbooks = ["docs/runbooks/replay-or-restore.md", "docs/runbooks/retained-artifact-recovery.md", "docs/runbooks/broken-contract-generation.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/data_forge/retention-policy.toml"
+escalation = "team-data-forge primary; team-fabric joins when source contracts or lineage are affected"
+
+[[component]]
+id = "berl"
+aliases = ["berl", "polisyos.berl"]
+classification = "public_experimental_phase_4_9_exception"
+owner = "team-architecture"
+bundle = "ops/components/berl"
+source_readme = "src/polisyos/berl/README.md"
+slo_status = "exception"
+slo_file = "ops/components/berl/slo.yaml"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/scientist-agents.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/berl/retention-policy.toml"
+escalation = "team-architecture primary; team-scientist joins when explanation reliability blocks validation"
+exception_reason = "BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet."
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component]]
+id = "ddm"
+aliases = ["ddm", "polisyos.ddm", "polisyos.ddm_15_7"]
+classification = "internal_with_compatibility_alias_phase_4_9_exception"
+owner = "team-architecture"
+bundle = "ops/components/ddm"
+source_readme = "src/polisyos/ddm/README.md"
+slo_status = "exception"
+slo_file = "ops/components/ddm/slo.yaml"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md", "docs/runbooks/replay-or-restore.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/shims.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/ddm/retention-policy.toml"
+escalation = "team-architecture primary; team-scientist joins for drift/degradation readiness incidents"
+exception_reason = "DDM behavior is currently contract/unit scoped and ddm_15_7 is a wrapper-only compatibility alias; add a standalone SLO if promoted to public-stable operations."
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component]]
+id = "calibration"
+aliases = ["calibration", "polisyos.calibration", "polisyos.foundry.calibration", "polisyos.ddm.calibration"]
+classification = "public_experimental_phase_4_9_exception"
+owner = "team-foundry"
+bundle = "ops/components/calibration"
+source_readme = "src/polisyos/calibration/README.md"
+slo_status = "exception"
+slo_file = "ops/components/calibration/slo.yaml"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+alerts = ["CalibrationDiverging", "CalibrationStuck"]
+dashboards = ["ops/observability/grafana/dashboards/foundry-hpc.json"]
+runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/calibration/retention-policy.toml"
+escalation = "team-foundry primary; team-scientist joins when decision validity depends on calibration output"
+exception_reason = "Calibration alerts are covered by Foundry/Scientist runbooks until calibration becomes a standalone public-stable component."
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component]]
+id = "security"
+aliases = ["security", "polisyos.core.security", "core.security"]
+classification = "operational_control"
+owner = "team-security"
+bundle = "ops/components/security"
+source_readme = "src/polisyos/core/security/README.md"
+slo_status = "exception"
+slo_file = "ops/components/security/slo.yaml"
+runbooks = ["docs/runbooks/artifact-signing-sbom-failure.md", "docs/runbooks/key-rotation.md", "docs/runbooks/cas-opa-outage.md"]
+alerts = ["TenantBoundaryViolation", "CrossTenantAccessAttempt", "RuntimeAuthFailuresSpike", "TEEAttestationFailureRate", "TEEUnavailableOnConfidentialNode", "SBOMCriticalCVEDetected", "SBOMDeploymentGateDenySpike", "PlaintextConnectionDetected", "MTLSCertificateExpiringSoon"]
+dashboards = ["ops/observability/grafana/dashboards/security-phase4.json"]
+runtime_contracts = ["ops/security/secrets-baseline.toml", "ops/release/promotion-gates.toml", "architecture/runtime_state_layout.toml"]
+retention_policy = "ops/components/security/retention-policy.toml"
+escalation = "team-security primary; team-platform joins for identity, policy, or infrastructure remediation"
+exception_reason = "Security owns alert response and compliance evidence, but Phase 4.9 does not introduce a standalone security SLO gate before Wave 6."
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+

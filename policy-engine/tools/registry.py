@@ -13,6 +13,9 @@ from tools.lib.runner import ToolSpec, ToolStatus
 TOOLS_ROOT = Path(__file__).resolve().parent
 
 ZONE_ORDER: tuple[str, ...] = ("devx", "quality", "ops", "research")
+ZONE_IMPLEMENTATION_DIRS: dict[str, str] = {
+    "ops": "ops_runners",
+}
 
 _SKIP_FILES = {"__init__.py", "_common.py"}
 
@@ -95,12 +98,12 @@ SOURCE_PHASE_MAP: tuple[tuple[str, str, str], ...] = (
     (
         "Phase 3",
         "critical tool test program, structured CI output, timing telemetry",
-        "`tests/tools/**`, `tools.lib.output`, `tools.lib.timing`, workspace gates",
+        "`tests/repo_quality/tools/**`, `tools.lib.output`, `tools.lib.timing`, workspace gates",
     ),
     (
         "Phase 4",
         "cloud, benchmarks, scripts, and duplicate namespace consolidation",
-        "`tools/ops/**`, `tools/research/**`, final topology and retired wrapper evidence",
+        "`tools/ops_runners/**`, `tools/research/**`, final topology and retired wrapper evidence",
     ),
     (
         "Phase 5",
@@ -111,13 +114,14 @@ SOURCE_PHASE_MAP: tuple[tuple[str, str, str], ...] = (
 
 
 def _manifest_entry(zone: str, category: str) -> CategoryManifestEntry:
+    implementation_zone = ZONE_IMPLEMENTATION_DIRS.get(zone, zone)
     implementation_dir = _CATEGORY_IMPLEMENTATION_DIRS.get((zone, category), category)
-    implementation_package = f"tools.{zone}.{implementation_dir}"
+    implementation_package = f"tools.{implementation_zone}.{implementation_dir}"
     return CategoryManifestEntry(
         zone=zone,
         category=category,
         implementation_package=implementation_package,
-        implementation_root=TOOLS_ROOT / zone / implementation_dir,
+        implementation_root=TOOLS_ROOT / implementation_zone / implementation_dir,
         compatibility_package=f"tools.{category}",
         summary=_CATEGORY_SUMMARIES[category],
     )

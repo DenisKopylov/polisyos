@@ -17,6 +17,8 @@ class Capability(IntFlag):
     LEX_EVALUATOR = auto()
     SCIENTIST_NODE = auto()
     NORM_PACK_PROVIDER = auto()
+    DATA_FORGE_DOMAIN = auto()
+    RUNTIME_MIDDLEWARE = auto()
 
     # Cross-cutting capabilities
     CAS_READ = auto()

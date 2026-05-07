@@ -1,0 +1,9 @@
+[retention_policy]
+component = "data_forge"
+owner = "team-data-forge"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["production_data", "reports", "cas", "search_registry"]
+default_class = "R2 Release evidence"
+cleanup = "Production snapshots require owner approval; derived pipeline reports are retained according to release or incident linkage."
+

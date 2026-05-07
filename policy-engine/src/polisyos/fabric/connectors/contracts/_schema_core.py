@@ -16,8 +16,8 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.finite import ensure_probability
-from polisyos.fabric.safety import validate_sql_identifier
+from polisyos.fabric.quality.finite import ensure_probability
+from polisyos.fabric.quality.safety import validate_sql_identifier
 from polisyos.ir.kernel.units import UnitRef
 
 from ._schema_field import SCHEMA_ID_PATTERN, FieldSpec, SchemaVersion, make_schema_id

@@ -1,0 +1,68 @@
+# Repository hygiene closeout ratchets: these surfaces are now part of the
+# canonical Ruff pass, but their historical style/security debt stays explicit
+# until each directory owner burns it down.
+"src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
+"src/polisyos/synthetic_world/**" = ["ANN401", "E501", "RUF046", "TC001", "TC003"]
+"src/polisyos/schemas/abi_models.py" = ["TC003"]
+"examples/**" = ["RUF012"]
+"ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
+"jax_bootstrap.py" = ["E402"]
+"migrate.py" = ["E402"]
+"tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]
+"tools/quality/testing/repeat_pytest.py" = ["S603", "T201"]
+"tools/lib/**" = ["ANN401", "RUF046", "S108", "S310", "S603", "S607", "TC001", "TC003"]
+"tools/ci/**" = ["E402", "E501", "RUF100", "S314", "TC003"]
+"tools/cli.py" = ["E501", "S101", "TC003"]
+"tools/devx/architecture/**" = ["E501", "S603", "SIM102"]
+"tools/devx/connectors/**" = ["ANN401", "SIM102", "TC001"]
+"tools/devx/foundry/**" = ["TC003"]
+"tools/devx/workspace/**" = ["E402", "E501", "RUF100", "S101", "S603", "S607", "SIM108", "TC003"]
+"tools/ops_runners/**" = [
+  "ANN001",
+  "ANN202",
+  "ANN401",
+  "C401",
+  "C416",
+  "E402",
+  "E501",
+  "F841",
+  "RUF001",
+  "RUF100",
+  "S101",
+  "S105",
+  "S106",
+  "S108",
+  "S110",
+  "S310",
+  "S324",
+  "S603",
+  "S607",
+  "S608",
+  "SIM105",
+  "TC003",
+  "UP031",
+]
+"tools/quality/**" = [
+  "ANN001",
+  "ANN401",
+  "B007",
+  "E402",
+  "E501",
+  "RUF005",
+  "RUF100",
+  "S101",
+  "S105",
+  "S314",
+  "S603",
+  "S607",
+  "SIM101",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "TC003",
+  "UP022",
+]
+"tools/registry.py" = ["E501"]
+"tools/*" = ["T201"]
+"tools/**" = ["T201"]

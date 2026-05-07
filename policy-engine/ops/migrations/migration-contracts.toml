@@ -2,9 +2,22 @@
 version = 1
 owner = "team-platform"
 mode = "fail_closed"
-source_of_truth = "ops/migrations/*.sql and src/polisyos/core/security/db_backend.py"
+source_of_truth = "ops/migrations/db/*.sql, ops/migrations/*/README.md, Python migration helper bindings, and src/polisyos/core/security/db_backend.py"
+version_owner = "team-platform"
+deprecation_window = "1 major release for incompatible storage or runtime-state reader changes"
+release_fragment_change_class = "runtime-state-format"
 database = "postgresql"
 tenant_context_setting = "app.current_tenant"
+layout_decision = "classed_subdirectories"
+current_layout = "classed_subdirectories"
+target_layout_phase = "5.6 Migrations And Release Topology"
+target_roots = [
+  "ops/migrations/db",
+  "ops/migrations/runtime_state",
+  "ops/migrations/api_schemas",
+  "ops/migrations/ir",
+]
+sequence_root = "ops/migrations/db"
 forward_sequence = [
   "001_tenant_columns.sql",
   "002_tenant_backfill.sql",
@@ -22,4 +35,158 @@ preconditions = [
 baseline_checks = [
   "manual review: verify forward sequence order before production migration",
   "manual review: verify relrowsecurity and relforcerowsecurity after 003_rls_enable.sql",
+  "manual review: verify class README and migration/runbook docs before breaking runtime-state, schema, IR, or persisted artifact promotion",
 ]
+required_operator_docs = [
+  "ops/migrations/db/README.md",
+  "ops/migrations/runtime_state/README.md",
+  "ops/migrations/api_schemas/README.md",
+  "ops/migrations/ir/README.md",
+  "docs/runbooks/migration-release-promotion.md",
+  "docs/how-to/release-policy.md",
+]
+
+[[migration_class]]
+id = "db"
+owner = "team-platform"
+target_path = "ops/migrations/db"
+current_paths = ["ops/migrations/db/*.sql"]
+format = "sql"
+applies_to = ["postgresql tenant/RLS schema", "database roles and grants"]
+compatibility_policy = "forward-only by default; rollback scripts are emergency-only and owner-reviewed"
+version_owner = "team-platform"
+deprecation_window = "operator-reviewed rollout window"
+release_fragment_change_class = "runtime-state-format"
+release_gate = "ops/release/promotion-gates.toml#db_migration_review"
+operator_docs = ["ops/migrations/db/README.md", "docs/runbooks/migration-release-promotion.md"]
+
+[[migration_class]]
+id = "runtime_state"
+owner = "team-ops"
+target_path = "ops/migrations/runtime_state"
+current_paths = ["architecture/runtime_state_layout.toml", "architecture/local_runtime_state.toml"]
+format = "toml plus owner-specific readers"
+applies_to = [
+  ".polisyos audit slots",
+  ".polisyos idempotency slots",
+  ".polisyos decision validity slots",
+  ".polisyos search registry slots",
+  ".polisyos provider verification slots",
+  ".polisyos CAS/cache normalization slots",
+  ".polisyos security/key/control-plane slots",
+  "future persisted local state",
+]
+compatibility_policy = "runtime-state readers keep N-1 compatibility or publish an export/cleanup runbook before promotion"
+version_owner = "team-ops"
+deprecation_window = "1 major release"
+release_fragment_change_class = "runtime-state-format"
+release_gate = "ops/release/promotion-gates.toml#runtime_state_migration_review"
+slot_roots = [
+  "ops/migrations/runtime_state/run_records",
+  "ops/migrations/runtime_state/reports",
+  "ops/migrations/runtime_state/audit",
+  "ops/migrations/runtime_state/artifact_cas",
+  "ops/migrations/runtime_state/artifact_cache",
+  "ops/migrations/runtime_state/validation_artifacts",
+  "ops/migrations/runtime_state/production_snapshot",
+  "ops/migrations/runtime_state/idempotency",
+  "ops/migrations/runtime_state/decision_validity",
+  "ops/migrations/runtime_state/search_registry",
+  "ops/migrations/runtime_state/runtime_component_state",
+  "ops/migrations/runtime_state/security_evidence",
+  "ops/migrations/runtime_state/evicted_legacy_state",
+  "ops/migrations/runtime_state/fact_logs",
+  "ops/migrations/runtime_state/key_material",
+  "ops/migrations/runtime_state/provider_verification",
+  "ops/migrations/runtime_state/persisted_local_state",
+]
+operator_docs = [
+  "ops/migrations/runtime_state/README.md",
+  "docs/reference/local-runtime-state.md",
+  "docs/runbooks/migration-release-promotion.md",
+  "docs/runbooks/replay-or-restore.md",
+]
+
+[[migration_class]]
+id = "api_schemas"
+owner = "team-runtime"
+target_path = "ops/migrations/api_schemas"
+current_paths = [
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/runtimeApiClient.ts",
+  "packages/runtime-api-client/runtimeApiClient.js",
+]
+format = "openapi and generated-client migration notes"
+applies_to = [
+  "Runtime OpenAPI",
+  "frontend runtime API client",
+  "dashboard API types",
+  "common persisted artifact manifests consumed by API or data-plane operators",
+]
+compatibility_policy = "schema changes must declare additive, compatible-breaking, or breaking behavior and generated-client impact"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+release_fragment_change_class = "schema-openapi-abi"
+generated_client_compatibility = "required"
+release_gate = "ops/release/promotion-gates.toml#api_schema_compatibility"
+operator_docs = [
+  "ops/migrations/api_schemas/README.md",
+  "docs/reference/api/migration-guide.md",
+  "docs/how-to/manage-schemas.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[migration_class]]
+id = "ir"
+owner = "team-ir"
+target_path = "ops/migrations/ir"
+current_paths = ["src/polisyos/ir/migrations/**", "schemas/snapshots/ir/**"]
+format = "python migration helpers plus manifest metadata"
+applies_to = ["Policy IR", "Trinity bundle", "persisted artifact schemas"]
+compatibility_policy = "IR migrations must be deterministic, schema-versioned, and covered by compatibility fixtures"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+release_fragment_change_class = "persisted-artifact-format"
+release_gate = "ops/release/promotion-gates.toml#ir_migration_review"
+operator_docs = [
+  "ops/migrations/ir/README.md",
+  "docs/reference/ir/schema-catalog.md",
+  "docs/how-to/add-schema-backed-ir-type.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[helper_binding]]
+artifact = "policy_ir"
+cli = "polisyos-tools migrations migrate policy_ir"
+migration_class = "ir"
+implementation = "polisyos.ir.migrations.migrate_policy_ir"
+contract_path = "ops/migrations/ir"
+release_gate = "ops/release/promotion-gates.toml#ir_migration_review"
+operator_docs = ["ops/migrations/ir/README.md", "docs/runbooks/migration-release-promotion.md"]
+
+[[helper_binding]]
+artifact = "dataset_manifest"
+cli = "polisyos-tools migrations migrate dataset_manifest"
+migration_class = "api_schemas"
+implementation = "polisyos.common.migrations.migrate_artifact"
+contract_path = "ops/migrations/api_schemas"
+release_gate = "ops/release/promotion-gates.toml#api_schema_compatibility"
+operator_docs = ["ops/migrations/api_schemas/README.md", "docs/runbooks/migration-release-promotion.md"]
+
+[[helper_binding]]
+artifact = "run_manifest"
+cli = "polisyos-tools migrations migrate run_manifest"
+migration_class = "runtime_state"
+implementation = "tools.ops_runners.migrations.migrate.run_manifest_relative_path_rewrite"
+contract_path = "ops/migrations/runtime_state"
+release_gate = "ops/release/promotion-gates.toml#runtime_state_migration_review"
+operator_docs = ["ops/migrations/runtime_state/README.md", "docs/runbooks/migration-release-promotion.md"]
+
+[[helper_binding]]
+artifact = "duckdb_to_postgresql"
+cli = "polisyos-tools migrations migrate-duckdb-to-pg"
+migration_class = "db"
+implementation = "tools.ops_runners.migrations.migrate_duckdb_to_pg"
+contract_path = "ops/migrations/db"
+release_gate = "ops/release/promotion-gates.toml#db_migration_review"
+operator_docs = ["ops/migrations/db/README.md", "docs/runbooks/migration-release-promotion.md"]

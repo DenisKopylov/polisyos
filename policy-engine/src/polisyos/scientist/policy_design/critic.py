@@ -24,10 +24,10 @@ from polisyos.scientist.governance.pass_entrypoints import (
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.lessons import LessonCard, lesson_from_failure_card
-from polisyos.scientist.search.uncertainty import UncertaintyType
+from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.lessons import LessonCard, lesson_from_failure_card
+from polisyos.scientist.methods.search.uncertainty import UncertaintyType
 
 
 class ConstraintFinding(BaseModel):

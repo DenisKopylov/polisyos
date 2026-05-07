@@ -7,19 +7,19 @@ from dataclasses import dataclass
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import LegalCandidatePackRef
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
 )
-from polisyos.scientist.policy_verified import (
+from polisyos.scientist.validation.policy_verified import (
     load_legal_candidate_pack,
     persist_legal_source_pack,
 )
-from polisyos.scientist.policy_verified.service import expand_legal_source_pack
+from polisyos.scientist.validation.policy_verified.service import expand_legal_source_pack
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_expand_legal_source_pack@1.0.0"),

@@ -99,6 +99,9 @@ jobs:
       - name: Enforce import policy
         run: uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
 
+      - name: Check fail-closed package import gates
+        run: uv run polisyos-tools validation check-package-import-gates --fail-closed
+
       - name: Enforce Foundry purity
         run: uv run python tools/quality/lint/lint_foundry.py --repo-root .
 
@@ -119,6 +122,12 @@ jobs:
 
       - name: Check Repository SOTA contract closeout
         run: uv run polisyos-tools workspace repository-sota-closeout --contract-only
+
+      - name: Check extension example installability
+        run: uv run polisyos-tools validation check-extension-examples
+
+      - name: Check tool config split drift
+        run: uv run polisyos-tools workspace tool-configs --check
 
       - name: Run fast unit suite
         run: uv run pytest -m "not integration and not benchmark" --ignore=tests/unit/runtime/http
@@ -153,8 +162,14 @@ jobs:
           BASE_REF: ${{ github.event.before }}
         run: uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref "${BASE_REF}"
 
-      - name: Check Repository SOTA docs freshness baseline
-        run: uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks
+      - name: Check docs freshness baseline
+        run: uv run polisyos-tools validation check-docs-freshness-baseline
+
+      - name: Check docs lifecycle gates
+        run: uv run polisyos-tools validation check-docs-lifecycle
+
+      - name: Check tool config split drift
+        run: uv run polisyos-tools workspace tool-configs --check
 
       - name: Build docs in strict mode
         run: uv run python -m mkdocs build --strict

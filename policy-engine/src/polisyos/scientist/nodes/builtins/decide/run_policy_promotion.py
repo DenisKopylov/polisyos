@@ -17,16 +17,16 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.autotune.models import (
+from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
     MetricDirection,
     PromotionPolicy,
 )
-from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
@@ -57,14 +57,14 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
 )
-from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.judge_stack import (
+from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
-from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_policy_promotion@1.0.0"),

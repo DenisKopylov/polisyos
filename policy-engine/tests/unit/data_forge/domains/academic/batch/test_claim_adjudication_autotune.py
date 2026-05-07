@@ -10,13 +10,13 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     SupportStatus,
 )
-from polisyos.scientist.autotune import (
+from polisyos.scientist.methods.autotune import (
     ChampionRegistry,
     persist_benchmark_evaluation,
     persist_benchmark_suite,
     persist_mutation_artifact,
 )
-from polisyos.scientist.autotune.claim_adjudication import (
+from polisyos.scientist.methods.autotune.claim_adjudication import (
     ClaimAdjudicationRuntimeLoader,
     ClaimAdjudicationSearchConfig,
     ClaimGoldEvaluator,

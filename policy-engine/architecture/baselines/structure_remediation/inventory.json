@@ -71,24 +71,24 @@
         "both_exist": false,
         "pair": "lib_vs_shared_lib",
         "paths": [
-          "frontend/runtime-dashboard/src/lib",
-          "frontend/runtime-dashboard/src/shared/lib"
+          "apps/runtime-dashboard/src/lib",
+          "apps/runtime-dashboard/src/shared/lib"
         ]
       },
       {
         "both_exist": false,
         "pair": "i18n_vs_shared_i18n",
         "paths": [
-          "frontend/runtime-dashboard/src/i18n",
-          "frontend/runtime-dashboard/src/shared/i18n"
+          "apps/runtime-dashboard/src/i18n",
+          "apps/runtime-dashboard/src/shared/i18n"
         ]
       },
       {
         "both_exist": true,
         "pair": "app_state_vs_app_providers",
         "paths": [
-          "frontend/runtime-dashboard/src/app/state",
-          "frontend/runtime-dashboard/src/app/providers"
+          "apps/runtime-dashboard/src/app/state",
+          "apps/runtime-dashboard/src/app/providers"
         ]
       }
     ]
@@ -1783,13 +1783,13 @@
       {
         "conftest_count": 0,
         "name": "fixtures",
-        "path": "tests/fixtures",
+        "path": "tests/_data",
         "test_file_count": 1
       },
       {
         "conftest_count": 0,
         "name": "golden",
-        "path": "tests/golden",
+        "path": "tests/_golden",
         "test_file_count": 0
       },
       {

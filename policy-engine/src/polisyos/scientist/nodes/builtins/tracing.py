@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.scientist.engine.protocol import NodeEvent
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent
 
 _OTEL_TRACE_ACCESS_ERRORS = (
     AttributeError,

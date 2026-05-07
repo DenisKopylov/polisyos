@@ -1,0 +1,241 @@
+[component_observability]
+version = 2
+status = "report_only"
+owner = "team-observability"
+phase = "repository-best-in-class-phase-4.9"
+default_gate_mode = "report_only"
+description = "Observability expectations for package-level components."
+ops_organization_decision = "invert_to_ops_components"
+component_bundle_root = "ops/components"
+release_gate_policy = "public-stable components need SLO coverage, Prometheus rule ownership, dashboard coverage, trace/log context keys, and a release gate or explicit owner-approved exception"
+
+[[component_contract]]
+component = "common"
+owner = "team-core"
+slo_file = "ops/components/common/slo.yaml"
+slo_status = "exception"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/slo-overview.json"
+trace_context_keys = ["service.name", "deployment.environment", "package.name"]
+log_context_keys = ["package_name", "dependency_group"]
+release_gate = "Common is covered by dependent component SLOs until it exposes standalone runtime traffic"
+exception_reason = "Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic"
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component]]
+id = "fabric-connectors"
+package = "fabric"
+owner = "team-fabric"
+contract = "architecture/packages/fabric.toml"
+slo_files = ["ops/observability/slo/fabric.yaml"]
+metrics = ["connector_requests_total", "connector_failures_total", "connector_freshness_seconds"]
+logs = ["source_id", "connector_id", "tenant_id", "failure_class"]
+traces = ["source_id", "artifact_ref", "data_plane_mode"]
+mode = "report_only"
+
+[[component]]
+id = "foundry-method-dispatch"
+package = "foundry"
+owner = "team-foundry"
+contract = "architecture/packages/foundry.toml"
+slo_files = ["ops/observability/slo/foundry.yaml"]
+metrics = ["method_dispatch_total", "method_failure_total", "method_duration_seconds"]
+logs = ["method_id", "backend", "determinism_tier", "artifact_ref"]
+traces = ["method_id", "seed_manifest", "runtime_backend"]
+mode = "report_only"
+
+[[component]]
+id = "scientist-workflow-engine"
+package = "scientist"
+owner = "team-scientist"
+contract = "architecture/packages/scientist.toml"
+slo_files = ["ops/observability/slo/scientist.yaml"]
+metrics = ["workflow_runs_total", "workflow_failures_total", "node_duration_seconds"]
+logs = ["workflow_id", "node_id", "run_id", "failure_class"]
+traces = ["workflow_id", "node_id", "artifact_ref", "replay_id"]
+mode = "report_only"
+
+[[component]]
+id = "runtime-control-plane"
+package = "runtime"
+owner = "team-runtime"
+contract = "ops/runtime/runtime-contracts.toml"
+slo_files = ["ops/observability/slo/runtime.yaml"]
+metrics = ["runtime_api_requests_total", "runtime_api_errors_total", "control_plane_job_admissions_total"]
+logs = ["route", "tenant_id", "run_id", "status_code"]
+traces = ["route", "run_id", "job_id"]
+mode = "report_only"
+
+[[component_contract]]
+component = "core"
+owner = "team-core"
+slo_file = "ops/components/core/slo.yaml"
+slo_status = "present"
+prometheus_rules = [
+  "ops/observability/prometheus/rules/audit_chain_alerts.yml",
+  "ops/observability/prometheus/rules/runtime_operability_alerts.yml",
+]
+grafana_dashboard = "ops/observability/grafana/dashboards/executive-overview.json"
+trace_context_keys = ["service.name", "deployment.environment", "tenant.id", "artifact.ref", "audit.chain_id"]
+log_context_keys = ["request_id", "tenant_id", "artifact_ref", "audit_chain_id", "severity"]
+release_gate = "Core artifact integrity, audit, and tenant-boundary SLOs remain report-only until Phase 6.3 fail-closed conversion"
+
+[[component_contract]]
+component = "runtime"
+owner = "team-runtime"
+slo_file = "ops/components/runtime/slo.yaml"
+slo_status = "present"
+prometheus_rules = [
+  "ops/observability/prometheus/slo_alerts.yml",
+  "ops/observability/prometheus/rules/runtime_operability_alerts.yml",
+]
+grafana_dashboard = "ops/observability/grafana/dashboards/runtime-operability.json"
+trace_context_keys = ["service.name", "deployment.environment", "http.route", "tenant.id", "run.id"]
+log_context_keys = ["request_id", "tenant_id", "route", "run_id", "decision_id"]
+release_gate = "runtime API SLO and OpenAPI contract checks must pass before promotion"
+
+[[component_contract]]
+component = "scientist"
+owner = "team-scientist"
+slo_file = "ops/components/scientist/slo.yaml"
+slo_status = "present"
+prometheus_rules = [
+  "ops/observability/prometheus/slo_alerts.yml",
+  "ops/observability/prometheus/rules/scientist-alerts.yml",
+  "ops/observability/prometheus/alerts.yml",
+]
+grafana_dashboard = "ops/observability/grafana/dashboards/scientist-agents.json"
+trace_context_keys = ["service.name", "deployment.environment", "run.id", "workflow.id", "node.id", "decision.id"]
+log_context_keys = ["run_id", "workflow_id", "node_id", "decision_id", "provider_id"]
+release_gate = "Scientist DAG SLO and runbook mappings must pass before agent/runtime promotion"
+
+[[component_contract]]
+component = "fabric"
+owner = "team-fabric"
+slo_file = "ops/components/fabric/slo.yaml"
+slo_status = "present"
+prometheus_rules = ["ops/observability/prometheus/slo_alerts.yml"]
+grafana_dashboard = "ops/observability/grafana/dashboards/knowledge-freshness.json"
+trace_context_keys = ["service.name", "deployment.environment", "connector.id", "source.contract_id", "artifact.ref"]
+log_context_keys = ["connector_id", "source_contract_id", "artifact_ref", "tenant_id"]
+release_gate = "Fabric source SLO and connector error budget must pass before data-plane promotion"
+
+[[component_contract]]
+component = "data_forge"
+owner = "team-data-forge"
+slo_file = "ops/components/data_forge/slo.yaml"
+slo_status = "present"
+prometheus_rules = ["ops/observability/prometheus/slo_alerts.yml"]
+grafana_dashboard = "ops/observability/grafana/dashboards/slo-overview.json"
+trace_context_keys = ["service.name", "deployment.environment", "dataset.id", "artifact.ref", "schema.version"]
+log_context_keys = ["dataset_id", "artifact_ref", "schema_version", "promotion_id"]
+release_gate = "Data Forge schema, lineage, and SLO checks must pass before source promotion"
+
+[[component_contract]]
+component = "ir"
+owner = "team-ir"
+slo_file = "ops/components/ir/slo.yaml"
+slo_status = "present"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/slo-overview.json"
+trace_context_keys = ["service.name", "deployment.environment", "ir.schema_version", "artifact.ref", "migration.id"]
+log_context_keys = ["ir_schema_version", "artifact_ref", "migration_id"]
+release_gate = "IR schema catalog and compatibility SLOs remain report-only until Phase 6.3 fail-closed promotion"
+
+[[component_contract]]
+component = "foundry"
+owner = "team-foundry"
+slo_file = "ops/components/foundry/slo.yaml"
+slo_status = "present"
+prometheus_rules = [
+  "ops/observability/prometheus/slo_alerts.yml",
+  "ops/observability/prometheus/alerts.yml",
+]
+grafana_dashboard = "ops/observability/grafana/dashboards/foundry-hpc.json"
+trace_context_keys = ["service.name", "deployment.environment", "run.id", "simulation.id", "method.id", "artifact.ref"]
+log_context_keys = ["run_id", "simulation_id", "method_id", "artifact_ref"]
+release_gate = "Foundry simulation SLO and cache/rebuild alerts must be covered before executor or methods promotion"
+
+[[component_contract]]
+component = "lex"
+owner = "team-lex"
+slo_file = "ops/components/lex/slo.yaml"
+slo_status = "present"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/knowledge-freshness.json"
+trace_context_keys = ["service.name", "deployment.environment", "norm_pack.id", "jurisdiction.id", "search.provider"]
+log_context_keys = ["norm_pack_id", "jurisdiction_id", "search_provider", "artifact_ref"]
+release_gate = "Lex production SLO must exist before 140k production promotion is fail-closed"
+
+[[component_contract]]
+component = "scholar"
+owner = "team-scholar"
+slo_file = "ops/components/scholar/slo.yaml"
+slo_status = "present"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/knowledge-freshness.json"
+trace_context_keys = ["service.name", "deployment.environment", "provider.id", "query.id", "registry.version"]
+log_context_keys = ["provider_id", "query_id", "registry_version", "artifact_ref"]
+release_gate = "Scholar provider/search registry SLO must exist before provider verification becomes fail-closed"
+
+[[component_contract]]
+component = "berl"
+owner = "team-architecture"
+slo_file = "ops/components/berl/slo.yaml"
+slo_status = "exception"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/scientist-agents.json"
+trace_context_keys = ["service.name", "deployment.environment", "package.name"]
+log_context_keys = ["package_name"]
+release_gate = "No standalone BERL release gate until it exposes an operational service surface"
+exception_reason = "BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet"
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "ddm"
+owner = "team-architecture"
+slo_file = "ops/components/ddm/slo.yaml"
+slo_status = "exception"
+prometheus_rules = []
+grafana_dashboard = "ops/observability/grafana/dashboards/slo-overview.json"
+trace_context_keys = ["service.name", "deployment.environment", "package.name"]
+log_context_keys = ["package_name"]
+release_gate = "No standalone DDM release gate until shim and package-version policy stabilizes"
+exception_reason = "DDM has compatibility-shim work in flight; SLO coverage is required if ddm is promoted as a public-stable package"
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "calibration"
+owner = "team-foundry"
+slo_file = "ops/components/calibration/slo.yaml"
+slo_status = "exception"
+prometheus_rules = ["ops/observability/prometheus/alerts.yml"]
+grafana_dashboard = "ops/observability/grafana/dashboards/foundry-hpc.json"
+trace_context_keys = ["service.name", "deployment.environment", "calibration.run_id", "method.id"]
+log_context_keys = ["calibration_run_id", "method_id", "artifact_ref"]
+release_gate = "Calibration alerts map to Foundry runbooks until calibration becomes a standalone public-stable component"
+exception_reason = "Calibration is currently covered by Foundry/Scientist operability; add standalone SLO if promoted as a public-stable package"
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "security"
+owner = "team-security"
+slo_file = "ops/components/security/slo.yaml"
+slo_status = "exception"
+prometheus_rules = [
+  "ops/observability/prometheus/alerts.yml",
+  "ops/observability/prometheus/rules/audit_chain_alerts.yml",
+  "ops/observability/prometheus/rules/mtls-rules.yaml",
+  "ops/observability/prometheus/rules/runtime_operability_alerts.yml",
+]
+grafana_dashboard = "ops/observability/grafana/dashboards/security-phase4.json"
+trace_context_keys = ["service.name", "deployment.environment", "tenant.id", "artifact.ref", "security.control"]
+log_context_keys = ["request_id", "tenant_id", "artifact_ref", "security_control", "severity"]
+release_gate = "Security alert routing remains report-only here; release/security gates are converted in Wave 6"
+exception_reason = "Security owns alert response and compliance evidence, but Phase 4.9 does not introduce a standalone security SLO gate before Wave 6"
+exception_expires = "2026-08-01"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"

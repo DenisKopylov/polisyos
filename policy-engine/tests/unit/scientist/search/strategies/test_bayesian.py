@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.strategies._deps import fit_gpytorch_mll
-from polisyos.scientist.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
-from polisyos.scientist.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
+from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
 
 from .conftest import make_evaluation
 

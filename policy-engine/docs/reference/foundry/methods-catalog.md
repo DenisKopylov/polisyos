@@ -26,8 +26,10 @@ Source of truth: `src/polisyos/foundry/methods/**`, `src/polisyos/foundry/method
 - Use `build_method_capability_matrix()` when docs, CI, or operators need a
   machine-readable view of runnable and blocked methods.
 
-- Use `bootstrap_method_registry_from_components()` when providers arrive
-  through the component registry instead of direct imports.
+- Use `polisyos.foundry.extensions.bootstrap_foundry_method_registry()` when
+  providers arrive through `polisyos.foundry_methods`. Builtin and external
+  methods both pass through this component path before reaching
+  `MethodRegistry`.
 
 ## Generated Inputs
 
@@ -37,7 +39,7 @@ Regenerate those inputs with the Python APIs that back the CLI:
 
 ```bash
 uv run python - <<'PY'
-from polisyos.foundry.methods.catalog_snapshot import (
+from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
     build_method_catalog_snapshot,
     build_method_operator_evidence,
@@ -60,7 +62,7 @@ bootstrap logs before the JSON document on stdout.
 | Layer                | Contract                                                           | Responsibility                                                                                          |
 | -------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
 | Method ABI           | `FoundryMethod`, `MethodSignature`, `MethodMetadata`               | Declares slots, params, backend, determinism tier, and use/not-use guidance.                            |
-| Registry/discovery   | `MethodRegistry`, family `ensure_*_methods_registered()` functions | Loads methods lazily and keeps version resolution explicit.                                             |
+| Registry/discovery   | `polisyos.foundry.extensions`, `MethodRegistry`                    | Discovers builtin and external method plugins, loads methods lazily, and keeps version resolution explicit. |
 | Backend dispatch     | `MethodRunner`, `MethodDispatcher`, `MethodResult`                 | Executes one protocol-compliant method on JAX, NumPy, solver, Ray, or Bayesian-style runtimes.          |
 | Specialization/cache | `Specialization`, `BackendSpec`, `CompilationCache`                | Reuses compiled variants for static params, shapes, and backend fingerprint.                            |
 | Evidence/artifacts   | `MethodArtifact`, `ChainArtifact`, `ExecutionEvidence`             | Persists immutable receipts linking source/signature hashes, chain structure, RNG, and device metadata. |
@@ -70,6 +72,7 @@ bootstrap logs before the JSON document on stdout.
 | API                                | Use it when                                                            |
 | ---------------------------------- | ---------------------------------------------------------------------- |
 | `ensure_all_methods_registered()`  | A registry needs every shipped catalog family loaded.                  |
+| `bootstrap_foundry_method_registry()` | A registry needs builtin plus installed `polisyos.foundry_methods` plugins loaded through one path. |
 | `build_method_catalog_snapshot()`  | Release gates, docs, or operators need an immutable registry snapshot. |
 | `build_method_capability_matrix()` | A consumer needs runtime applicability and replay metadata.            |
 | `advise_methods()`                 | A planner needs a ranked answer to "which methods fit this problem?"   |
@@ -116,6 +119,27 @@ answer = advise_methods(snapshot, query)
 rows = build_method_capability_matrix(snapshot, runnable_only=True)
 ```
 
+## External Method Plugin
+
+External packages publish one entry point in `polisyos.foundry_methods`:
+
+```toml
+[project.entry-points."polisyos.foundry_methods"]
+"example.weighted_average" = "polisyos_foundry_method_example:weighted_average_plugin"
+```
+
+The entry point exposes a `FoundryMethodPlugin`:
+
+```python
+from polisyos.foundry.extensions import component_for_method
+
+weighted_average_plugin = component_for_method(WeightedAverageMethod)
+```
+
+See `examples/extensions/foundry_method/` for the installable smoke package.
+The older `polisyos.foundry.plugins` / `polisyos.plugins` surface is retained
+only for agent-simulation domain plugins and is not a method-authoring path.
+
 ## Representative Families
 
 This table is intentionally high-signal, not exhaustive. For the full current
@@ -158,13 +182,13 @@ catalog/capabilities surfaces above.
 
 ::: polisyos.foundry.methods.backends.dispatch
 
-::: polisyos.foundry.methods.specialization
+::: polisyos.foundry.methods.compiler.specialization
 
 ::: polisyos.foundry.methods.cache
 
 ::: polisyos.foundry.methods.artifacts
 
-::: polisyos.foundry.methods.catalog_snapshot
+::: polisyos.foundry.methods.catalog.snapshot
 
 ### Family Facades
 

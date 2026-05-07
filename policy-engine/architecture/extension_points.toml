@@ -1,0 +1,304 @@
+[extension_points]
+version = 1
+status = "contract_only"
+owner = "team-architecture"
+phase = "repository-best-in-class-phase-1.5"
+source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-15---extension-abi-dynamic-import-and-versioning-contracts"
+dynamic_import_registry = "architecture/dynamic_imports.toml"
+versioning_policy = "docs/adr/repository-structure-0135-versioning-out-of-package-names.md"
+parallel_safety = "Physical registry consolidation and registry rewrites wait for Wave 5 integration."
+
+[defaults]
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+compatibility_class = "extension-plugin-abi"
+version_owner = "extension owner"
+release_fragment_change_class = "extension-plugin-abi"
+discovery_modes = ["python_entry_points", "declared_builtin_loader"]
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_verifier = "installable-example-smoke"
+
+[dynamic_import_policy]
+plugin_discovery_rule = "Plugin discovery must use the extension point entry-point group or the extension point builtin_loader."
+ad_hoc_import_rule = "Ad hoc string imports must be registered in architecture/dynamic_imports.toml."
+required_registry_fields = ["owner", "target", "verifier"]
+target_field = "Use target for extension-point loader targets and allowed_targets for concrete import targets."
+verifier_field = "Use verifier to name the gate, smoke test, or owner review that proves the target remains intentional."
+
+[[compatibility_category]]
+id = "python_public_api"
+label = "Python public API"
+version_owner = "team-architecture"
+deprecation_window = "2 minor releases"
+source_of_truth = "architecture/public_surface.toml and package facade modules"
+breaking_change_signal = "SemVer major or explicit shim/deprecation entry"
+release_fragment_change_class = "python-public-api"
+
+[[compatibility_category]]
+id = "schema_openapi_abi"
+label = "Schema/OpenAPI ABI"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+source_of_truth = "schemas/** and committed OpenAPI snapshots"
+breaking_change_signal = "Schema major, OpenAPI path major, or migration guide entry"
+release_fragment_change_class = "schema-openapi-abi"
+
+[[compatibility_category]]
+id = "extension_plugin_abi"
+label = "Extension plugin ABI"
+version_owner = "team-architecture"
+deprecation_window = "2 minor releases"
+source_of_truth = "architecture/extension_points.toml"
+breaking_change_signal = "contract_version major or incompatible abi_compatibility entry"
+release_fragment_change_class = "extension-plugin-abi"
+
+[[compatibility_category]]
+id = "runtime_state_format"
+label = "Runtime-state format"
+version_owner = "team-ops"
+deprecation_window = "1 major release"
+source_of_truth = "architecture/local_runtime_state.toml and .polisyos schema docs"
+breaking_change_signal = "Migration reader/writer version change"
+release_fragment_change_class = "runtime-state-format"
+
+[[compatibility_category]]
+id = "persisted_artifact_format"
+label = "Persisted artifact format"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+source_of_truth = "Artifact schemas, CAS manifests, and producer_version metadata"
+breaking_change_signal = "Artifact schema major or migration manifest"
+release_fragment_change_class = "persisted-artifact-format"
+
+[[compatibility_category]]
+id = "js_package_api"
+label = "JS package API"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases"
+source_of_truth = "frontend workspaces, package exports, and generated client snapshots"
+breaking_change_signal = "npm package major or generated client compatibility note"
+release_fragment_change_class = "js-package-api"
+
+[[deprecation_window]]
+id = "shim_packages"
+category = "python_public_api"
+minimum_notice = "2 minor releases"
+removal_gate = "architecture/shims.toml sunset date plus migration-guide entry"
+owner = "team-architecture"
+
+[[deprecation_window]]
+id = "renamed_public_imports"
+category = "python_public_api"
+minimum_notice = "2 minor releases"
+removal_gate = "wrapper-only shim, warning, release fragment, and public-surface update"
+owner = "team-architecture"
+
+[[deprecation_window]]
+id = "extension_contract_versions"
+category = "extension_plugin_abi"
+minimum_notice = "2 minor releases"
+removal_gate = "new contract_version, compatibility adapter, and installable example update"
+owner = "team-architecture"
+
+[[deprecation_window]]
+id = "runtime_state_migration_readers"
+category = "runtime_state_format"
+minimum_notice = "1 major release"
+removal_gate = "operator migration guide and state-reader compatibility test removal"
+owner = "team-runtime"
+
+[[deprecation_window]]
+id = "generated_client_compatibility"
+category = "js_package_api"
+minimum_notice = "2 minor releases"
+removal_gate = "OpenAPI snapshot, generated client release note, and dashboard compatibility test"
+owner = "team-frontend"
+
+[[extension_point]]
+name = "polisyos.fabric_connectors"
+entry_point_group = "polisyos.fabric_connectors"
+component_kind = "fabric_connector"
+contract = "polisyos.fabric.extensions.api.FabricConnectorPlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-fabric"
+builtin_loader = "polisyos.fabric.connectors.components:__polisyos_components__"
+builtin_loader_owner = "team-fabric"
+builtin_loader_verifier = "uv run pytest tests/unit/fabric/connectors -q"
+dynamic_import_target = "entry-point group polisyos.fabric_connectors or builtin loader polisyos.fabric.connectors.components:__polisyos_components__"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/fabric_connector"
+example_smoke_command = "python -m pip install -e examples/extensions/fabric_connector && polisyos components list --kind fabric_connector --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.fabric_connectors entry point",
+  "uses ComponentMetadata.kind=fabric_connector",
+  "ships a local smoke test that instantiates the connector without network access",
+]
+
+[[extension_point]]
+name = "polisyos.scientist_governance_passes"
+entry_point_group = "polisyos.scientist_governance_passes"
+component_kind = "scientist_governance_pass"
+contract = "polisyos.scientist.extensions.api.ScientistGovernancePassPlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-scientist"
+builtin_loader = "polisyos.scientist.governance.pass_entrypoints:builtin_governance_pass_factories"
+builtin_loader_owner = "team-scientist"
+builtin_loader_verifier = "uv run pytest tests/unit/scientist tests/integration/scientist -q"
+dynamic_import_target = "entry-point group polisyos.scientist_governance_passes or builtin loader polisyos.scientist.governance.pass_entrypoints:builtin_governance_pass_factories"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/scientist_governance_pass"
+example_smoke_command = "python -m pip install -e examples/extensions/scientist_governance_pass && python -m polisyos.scientist.governance.pass_registry"
+example_expectations = [
+  "declares exactly one polisyos.scientist_governance_passes entry point",
+  "factory returns a ValidatorPass-compatible object",
+  "ships a deterministic PassContext smoke test",
+]
+
+[[extension_point]]
+name = "polisyos.foundry_methods"
+entry_point_group = "polisyos.foundry_methods"
+component_kind = "foundry_method"
+contract = "polisyos.foundry.extensions.api.FoundryMethodPlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-foundry"
+builtin_loader = "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+builtin_loader_owner = "team-foundry"
+builtin_loader_verifier = "uv run pytest tests/unit/foundry/methods -q"
+dynamic_import_target = "entry-point group polisyos.foundry_methods or builtin loader polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/foundry_method"
+example_smoke_command = "python -m pip install -e examples/extensions/foundry_method && polisyos components list --kind foundry_method --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.foundry_methods entry point",
+  "uses ComponentMetadata.kind=foundry_method and a foundry_methods_api ABI target",
+  "ships a pure-step smoke test with deterministic inputs",
+]
+
+[[extension_point]]
+name = "polisyos.scientist_nodes"
+entry_point_group = "polisyos.scientist_nodes"
+component_kind = "scientist_node"
+contract = "polisyos.scientist.extensions.api.ScientistNodePlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-scientist"
+builtin_loader = "polisyos.scientist.nodes.components:__polisyos_components__"
+builtin_loader_owner = "team-scientist"
+builtin_loader_verifier = "uv run pytest tests/unit/scientist tests/integration/scientist -q"
+dynamic_import_target = "entry-point group polisyos.scientist_nodes or builtin loader polisyos.scientist.nodes.components:__polisyos_components__"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/scientist_node"
+example_smoke_command = "python -m pip install -e examples/extensions/scientist_node && polisyos components list --kind scientist_node --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.scientist_nodes entry point",
+  "uses ComponentMetadata.kind=scientist_node",
+  "ships a node outcome smoke test with a minimal ExperimentState",
+]
+
+[[extension_point]]
+name = "polisyos.data_forge_domains"
+entry_point_group = "polisyos.data_forge_domains"
+component_kind = "data_forge_domain"
+contract = "polisyos.data_forge.extensions.api.DataForgeDomainPlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-data-forge"
+builtin_loader = "polisyos.data_forge.domains.components:__polisyos_components__"
+builtin_loader_owner = "team-data-forge"
+builtin_loader_verifier = "uv run pytest tests/unit/data_forge -q"
+dynamic_import_target = "entry-point group polisyos.data_forge_domains or builtin loader polisyos.data_forge.domains.components:__polisyos_components__"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/data_forge_domain"
+example_smoke_command = "python -m pip install -e examples/extensions/data_forge_domain && polisyos components list --kind data_forge_domain --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.data_forge_domains entry point",
+  "uses ComponentMetadata.kind=data_forge_domain and data_forge_domain_api ABI target",
+  "ships a small committed fixture and offline materialization smoke test",
+]
+
+[[extension_point]]
+name = "polisyos.lex_normpacks"
+entry_point_group = "polisyos.lex_normpacks"
+legacy_entry_point_groups = ["polisyos.norm_pack_providers"]
+component_kind = "norm_pack_provider"
+contract = "polisyos.lex.extensions.api.LexNormPackPlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-lex"
+builtin_loader = "polisyos.lex.normpack.components:__polisyos_components__"
+builtin_loader_owner = "team-lex"
+builtin_loader_verifier = "uv run pytest tests/unit/lex -q"
+dynamic_import_target = "entry-point group polisyos.lex_normpacks, legacy group polisyos.norm_pack_providers, or builtin loader polisyos.lex.normpack.components:__polisyos_components__"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/lex_normpack"
+example_smoke_command = "python -m pip install -e examples/extensions/lex_normpack && polisyos components list --kind norm_pack_provider --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.lex_normpacks entry point",
+  "uses ComponentMetadata.kind=norm_pack_provider",
+  "ships an offline NormPack provider smoke test with a tiny jurisdiction fixture",
+]
+
+[[extension_point]]
+name = "polisyos.runtime_middlewares"
+entry_point_group = "polisyos.runtime_middlewares"
+component_kind = "runtime_middleware"
+contract = "polisyos.runtime.extensions.api.RuntimeMiddlewarePlugin"
+contract_version = "1.0"
+abi_compatibility = "semver-major"
+deprecation_notice_window = "2 minor releases"
+owner = "team-runtime"
+builtin_loader = "polisyos.runtime.http.middleware_components:__polisyos_components__"
+builtin_loader_owner = "team-runtime"
+builtin_loader_verifier = "uv run pytest tests/unit/runtime/http -q"
+dynamic_import_target = "entry-point group polisyos.runtime_middlewares or builtin loader polisyos.runtime.http.middleware_components:__polisyos_components__"
+dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+example_package = "examples/extensions/runtime_middleware"
+example_smoke_command = "python -m pip install -e examples/extensions/runtime_middleware && polisyos components list --kind runtime_middleware --tag external-example"
+example_expectations = [
+  "declares exactly one polisyos.runtime_middlewares entry point",
+  "uses ComponentMetadata.kind=runtime_middleware and runtime_middleware_api ABI target",
+  "ships a plain ASGI smoke test proving deterministic middleware wrapping",
+]
+
+[phase_1_3_report_only_overlay]
+status = "report_only"
+owner = "team-architecture"
+source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-13---architecture-report-only-contracts"
+gate_registry = "architecture/gates/report_only.toml"
+notes = "Phase 1.3 keeps new extension-point checks report-only and uses package contracts for owners and tests before any fail-closed conversion."
+
+[[phase_1_3_extension_point]]
+id = "fabric-connector-sources"
+package = "fabric"
+owner = "team-fabric"
+surface = "polisyos.fabric.connectors.sources"
+registry = "polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS"
+boundary_contract = "architecture/packages/fabric.toml"
+mode = "report_only"
+
+[[phase_1_3_extension_point]]
+id = "foundry-method-catalog"
+package = "foundry"
+owner = "team-foundry"
+surface = "polisyos.foundry.methods"
+registry = "polisyos.foundry.methods.registry"
+boundary_contract = "architecture/packages/foundry.toml"
+mode = "report_only"
+
+[[phase_1_3_extension_point]]
+id = "scientist-workflow-nodes"
+package = "scientist"
+owner = "team-scientist"
+surface = "polisyos.scientist.nodes"
+registry = "polisyos.scientist.engine.registry"
+boundary_contract = "architecture/packages/scientist.toml"
+mode = "report_only"

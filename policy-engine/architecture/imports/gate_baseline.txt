@@ -60,7 +60,6 @@ Top god files (internal import count, top 80):
 - src/polisyos/scientist/governance/preflight.py: 18
 - src/polisyos/lex/normpack/extract_norm_claims.py: 17
 - src/polisyos/core/audit/_assembler_core.py: 16
-- src/polisyos/foundry/_executor_graph.py: 16
 - src/polisyos/scholar/orchestrator/enrich.py: 16
 - src/polisyos/scientist/agent/__init__.py: 16
 - src/polisyos/scientist/agent/_drafter_orchestrator.py: 16
@@ -106,7 +105,6 @@ Top god files (internal import count, top 80):
 - src/polisyos/core/audit/_assembler_slsa.py: 10
 - src/polisyos/fabric/connectors/__init__.py: 10
 - src/polisyos/fabric/world/materialize/duckdb.py: 10
-- src/polisyos/foundry/_executor_patching.py: 10
 - src/polisyos/ir/linker/_trinity_linker.py: 10
 - src/polisyos/ir/linker/_trinity_mechanisms.py: 10
 - src/polisyos/lex/corpus/ingest.py: 10

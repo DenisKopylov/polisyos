@@ -26,7 +26,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 )
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
-from polisyos.foundry.methods.io import dematerialize_method_output
+from polisyos.foundry.methods.components.io import dematerialize_method_output
 
 _ENGINE_PACKAGES = {
     "numpy": "numpy",

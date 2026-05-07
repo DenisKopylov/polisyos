@@ -21,9 +21,9 @@ Classification policy:
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 28 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 3 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 50 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 16 | `team-polisyos` | `src/polisyos/scholar/README.md` |
@@ -31,7 +31,7 @@ Classification policy:
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
 | `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
-| `polisyos.ddm_15_7` | `compatibility` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm_15_7/README.md` |
+| `polisyos.ddm_15_7` | `compatibility` | `eager_exports` | 17 | `team-architecture` | `src/polisyos/ddm_15_7/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 | `polisyos.synthetic_world` | `compatibility` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/synthetic_world/README.md` |
 
@@ -96,12 +96,12 @@ run
 ## `polisyos.ir`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.ir`
+- Supported entrypoints: `polisyos.ir`, `polisyos.ir.api`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/ir/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Primary compatibility boundary for policy, governance, analytics, and observation contracts.
+- Notes: Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata.
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
 <details><summary>Supported exports (273)</summary>
@@ -167,17 +167,12 @@ DependentSensitivityAnalysisBundle
 DependentSensitivityAnalysisBundleRef
 DependentSensitivityResult
 DependentSensitivityResultRef
-DriftReadinessRef
-ExplanationBundleRef
-JudgeVerdictRef
-SensitivityAnalysisBundle
-SensitivityAnalysisBundleRef
-SensitivityAnalysisIndex
 DetectorResult
 DiagnosticTest
 DimensionBreakdown
 DistributionFamily
 DistributionalReport
+DriftReadinessRef
 DynamicMicrosimValidationReport
 DynamicMicrosimValidationReportRef
 EnsembleMember
@@ -186,6 +181,7 @@ EnvironmentConfig
 EnvironmentParam
 EquilibriumMultiplicityWelfareAnnotation
 EstimationStatus
+ExplanationBundleRef
 ExposureMappingType
 FanChartSpec
 FeatureImportance
@@ -240,6 +236,7 @@ InterferenceMethod
 IntervalSemantics
 InterventionSpec
 InterventionType
+JudgeVerdictRef
 KPISpec
 LeontiefIOBundle
 LeontiefIOInput
@@ -321,6 +318,9 @@ RuleType
 SchemaChangepoint
 SchemaRegimeRegistry
 SchemaRegimeSpec
+SensitivityAnalysisBundle
+SensitivityAnalysisBundleRef
+SensitivityAnalysisIndex
 ShiftComponent
 ShiftDiagnosticReport
 ShiftDiagnosticReportRef
@@ -387,7 +387,7 @@ persist_dependent_sensitivity_result
 ## `polisyos.fabric`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.fabric`
+- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/fabric/README.md`
@@ -395,11 +395,12 @@ persist_dependent_sensitivity_result
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (28)</summary>
+<details><summary>Supported exports (30)</summary>
 
 ```text
 AccessRef
 AuthoredText
+ConnectorRegistryLike
 FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
@@ -423,6 +424,7 @@ fabric_get_data
 query_claims
 query_events
 query_world_table
+resolve_connector_registry
 run_connectors_ingestion
 stream_processing_contract
 world
@@ -462,12 +464,15 @@ execute
 - Notes: Workflow orchestration facade for experiment execution and shared observability hooks.
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Supported exports (4)</summary>
+<details><summary>Supported exports (7)</summary>
 
 ```text
 ExperimentState
+build_governance_pipeline
+discover_scientist_nodes
 get_metrics
 get_tracer
+load_governance_passes
 run_experiment
 ```
 
@@ -751,10 +756,10 @@ ShiftRiskEvent
 - Classification: `compatibility`
 - Supported entrypoints: `polisyos.ddm_15_7`
 - Facade policy: expected `eager_exports`, observed `eager_exports`
-- Owner: `team-scientist`
+- Owner: `team-architecture`
 - README: `src/polisyos/ddm_15_7/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01.
+- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only.
 - Summary: Compatibility facade for :mod:`polisyos.ddm`.
 
 <details><summary>Supported exports (17)</summary>

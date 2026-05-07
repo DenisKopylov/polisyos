@@ -17,7 +17,7 @@ from polisyos.scientist.evals.rotation import (
     challenge_lineage_from_registry_entry,
     validate_fresh_rotating_challenge_evidence,
 )
-from polisyos.scientist.search.benchmark_registry import (
+from polisyos.scientist.methods.search.benchmark_registry import (
     BenchmarkRegistry,
     BenchmarkRegistryEntry,
     FrontierBenchmarkBundle,

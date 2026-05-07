@@ -17,8 +17,8 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentTrustLevel,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.scientist.causal.latent_separation import SEPARATION_DIAGNOSTIC_INPUTS_KEY
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.causal.latent_separation import SEPARATION_DIAGNOSTIC_INPUTS_KEY
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,

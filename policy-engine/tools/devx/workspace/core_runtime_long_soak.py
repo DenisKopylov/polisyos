@@ -419,12 +419,12 @@ def _checkpoint_long_soak(iterations: int, sample_every: int, root: Path) -> Sce
     try:
         from polisyos.common.async_tools import run_coro_sync
         from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.scientist.engine.checkpoint import (
+        from polisyos.scientist.orchestration.engine.checkpoint import (
             CASCheckpointHook,
             restore_checkpoint_hook_from_runtime_metadata,
             serialize_checkpoint_hook_runtime_metadata,
         )
-        from polisyos.scientist.engine.state import ExperimentState
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
 
         def _build_benchmark_state(step: int) -> ExperimentState:
             return ExperimentState(

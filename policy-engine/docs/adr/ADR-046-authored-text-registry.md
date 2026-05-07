@@ -91,10 +91,10 @@ Source of truth:
   (new, Phase 1.6).
 
 - Frontend type: generated from OpenAPI into
-  `frontend/runtime-dashboard/src/api/types.ts`.
+  `apps/runtime-dashboard/src/api/types.ts`.
 
 - Frontend component:
-  `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
+  `apps/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
   (new, Phase 1.6).
 
 - Packet compiler: `policy-engine/src/policy_engine/packet/compiler.py`
@@ -130,13 +130,13 @@ Files created or modified in Phase 1.6:
   (return `AuthoredText[]` instead of `str`).
 
 - Modified: `policy-engine/schemas/runtime_api_v1.openapi.json`
-- Modified: `frontend/runtime-dashboard/src/api/types.ts`
+- Modified: `apps/runtime-dashboard/src/api/types.ts`
   (regenerated).
 
-- New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
-- New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.test.tsx`
-- New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.stories.tsx`
-- New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.a11y.test.tsx`
+- New: `apps/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
+- New: `apps/runtime-dashboard/src/shared/authored/AuthoredTextBlock.test.tsx`
+- New: `apps/runtime-dashboard/src/shared/authored/AuthoredTextBlock.stories.tsx`
+- New: `apps/runtime-dashboard/src/shared/authored/AuthoredTextBlock.a11y.test.tsx`
 - Migration: sweep through existing prose emitters in
   `policy-engine/src/policy_engine/runtime/routes/**` (catalogued
   during Phase 1.6 kickoff).

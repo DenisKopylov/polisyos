@@ -1,6 +1,6 @@
 # polisyos.synthetic_world
 
-- Last updated: 2026-05-03
+- Last updated: 2026-05-05
 
 Compatibility facade for `polisyos.foundry.agent_sim.world`.
 
@@ -11,6 +11,17 @@ root wrapper and this README until the 2026-10-01 shim sunset.
 Use `polisyos.foundry.agent_sim.world` for new imports. Deep
 `polisyos.synthetic_world.*` imports are not supported as public compatibility
 surface.
+
+Shim contract:
+
+- owner: `team-foundry`
+- target: `src/polisyos/foundry/agent_sim/world`
+- sunset: `2026-10-01`
+- reference: `docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#synthetic_world-into-foundryagentsimworld`
+- smoke coverage: `tests/unit/synthetic_world/test_shim.py`
+
+Behavioral seed-world coverage lives under the canonical Foundry path:
+`tests/unit/foundry/agent_sim/world/test_seed_worlds.py`.
 
 Public entrypoint:
 

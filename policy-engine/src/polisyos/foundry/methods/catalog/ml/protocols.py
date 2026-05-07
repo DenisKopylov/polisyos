@@ -189,7 +189,7 @@ class PredictionResult(BaseModel):
     def to_consensus_target(self, query: Any) -> Any:
         """Expose this prediction on the canonical cross-method consensus surface."""
 
-        from polisyos.foundry.methods.consensus import target_from_prediction_result
+        from polisyos.foundry.methods.components.consensus import target_from_prediction_result
 
         return target_from_prediction_result(self, query)
 

@@ -1,8 +1,8 @@
 # Plans Lifecycle
 
-This directory contains active and accepted implementation plans. Plans are not
-the final source of truth for irreversible architecture decisions; every
-accepted plan must leave behind ADRs, reference docs, runbooks, and
+This directory contains active, accepted, and archived implementation plans.
+Plans are not the final source of truth for irreversible architecture
+decisions; every accepted plan must leave behind ADRs, reference docs, runbooks, and
 machine-checkable contracts.
 
 ## Buckets
@@ -10,8 +10,8 @@ machine-checkable contracts.
 | Path                  | Meaning                                     | Exit rule                                   |
 | --------------------- | ------------------------------------------- | ------------------------------------------- |
 | `active/`             | Under review or currently being implemented | Move to `accepted/` when approved           |
-| `accepted/`           | Approved and implementation is in progress  | Move to `docs/archive/plans/` when complete |
-| `docs/archive/plans/` | Historical plans and superseded drafts      | Keep only curated history                   |
+| `accepted/`           | Approved and implementation is in progress  | Move to `docs/plans/archive/` when complete |
+| `docs/plans/archive/` | Historical plans and superseded drafts      | Keep only curated history                   |
 
 ## Required Front Matter
 
@@ -43,3 +43,5 @@ stability: draft
    they move out of `active/`; for Repository SOTA this is
    `accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md` plus the
    `workspace repository-sota-closeout` gate.
+6. Historical plans do not live under `docs/archive/**`; that subtree is for
+   reviewed evidence, reports, frozen specs, incidents, and postmortems.

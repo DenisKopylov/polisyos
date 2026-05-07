@@ -15,6 +15,8 @@ from typing import Any, ClassVar
 from unittest import mock
 
 import pytest
+
+from polisyos.foundry.extensions import component_for_method
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -385,6 +387,44 @@ class TestEntryPointSource:
             methods = list(source.discover())
 
             assert len(methods) == 2
+
+    def test_discover_foundry_method_component(self) -> None:
+        method_class = create_test_method("component", "test.component")
+        plugin = component_for_method(method_class, domains=["test"])
+
+        mock_ep = mock.MagicMock()
+        mock_ep.name = "component"
+        mock_ep.value = "module:component"
+        mock_ep.load.return_value = lambda: plugin
+
+        with mock.patch(
+            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
+        ) as mock_eps:
+            mock_eps.return_value = [mock_ep]
+
+            source = EntryPointSource()
+            methods = list(source.discover())
+
+            assert methods == [method_class]
+
+    def test_discover_direct_foundry_method_plugin_object(self) -> None:
+        method_class = create_test_method("direct_component", "test.component")
+        plugin = component_for_method(method_class, domains=["test"])
+
+        mock_ep = mock.MagicMock()
+        mock_ep.name = "direct_component"
+        mock_ep.value = "module:direct_component"
+        mock_ep.load.return_value = plugin
+
+        with mock.patch(
+            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
+        ) as mock_eps:
+            mock_eps.return_value = [mock_ep]
+
+            source = EntryPointSource()
+            methods = list(source.discover())
+
+            assert methods == [method_class]
 
     def test_discover_function_returning_none(self) -> None:
         def register_func():
@@ -1136,4 +1176,4 @@ class TestEdgeCases:
 
 
 def test_entry_point_group_constant() -> None:
-    assert ENTRY_POINT_GROUP == "polisyos.methods"
+    assert ENTRY_POINT_GROUP == "polisyos.foundry_methods"

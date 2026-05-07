@@ -14,7 +14,7 @@ from polisyos.foundry.contracts.state import (
     HouseholdCellState,
     ProcurementGraphState,
 )
-from polisyos.foundry.execute._snapshots import _build_dataclass
+from polisyos.foundry.execute._internal.snapshots import _build_dataclass
 from polisyos.foundry.execute.executor import (
     export_seed_state_npz,
     import_seed_state_npz,

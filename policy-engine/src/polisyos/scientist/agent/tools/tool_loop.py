@@ -15,12 +15,12 @@ from polisyos.scientist.agent.reflexion_evaluator import (
     RubricReflexionEvaluator,
     build_reflexion_summary_text,
 )
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 from .registry import ToolCallResult, ToolRegistry
 
 if TYPE_CHECKING:
-    from polisyos.scientist.engine.convergence import ConvergenceConfig
+    from polisyos.scientist.orchestration.engine.convergence import ConvergenceConfig
 
     from .dependency_graph import ToolDependencyGraph
 
@@ -53,7 +53,7 @@ def project_tool_loop_result_to_research_dag(
 ) -> Any:
     """Adapter-only bridge from tool-loop results to the Phase 1.2 research DAG."""
 
-    from polisyos.scientist.research_dag.projections import (
+    from polisyos.scientist.methods.research_dag.projections import (
         project_tool_loop_result_to_research_dag as _project,
     )
 
@@ -419,7 +419,7 @@ async def run_tool_loop(
     * **Tool dependency ordering** — when *tool_dependencies* is provided,
       tool calls within an iteration are sorted topologically.
     """
-    from polisyos.scientist.engine.convergence import ConvergenceDetector
+    from polisyos.scientist.orchestration.engine.convergence import ConvergenceDetector
 
     registry_size = len(tool_registry.list_definitions())
     if registry_size > max(0, int(tool_discovery_threshold)):

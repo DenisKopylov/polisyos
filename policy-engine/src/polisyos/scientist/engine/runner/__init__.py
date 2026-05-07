@@ -1,33 +1,11 @@
-"""Workflow runner backends — local, Temporal, Ray."""
+"""Compatibility shim for `polisyos.scientist.engine.runner`.
+
+Canonical package: `polisyos.scientist.orchestration.engine.runner`.
+Sunset: 2026-12-31.
+"""
 
 from __future__ import annotations
 
-from polisyos.scientist.engine.runner.config import (
-    WorkflowRunnerConfig,
-    build_workflow_runner,
-)
-from polisyos.scientist.engine.runner.protocol import (
-    RemoteNodeExecutor,
-    RunnerHealth,
-    WorkflowRunnerBackend,
-)
-from polisyos.scientist.engine.runner.serialization import (
-    deserialize_outcome,
-    deserialize_state,
-    serialize_context_meta,
-    serialize_outcome,
-    serialize_state,
-)
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
 
-__all__ = [
-    "RemoteNodeExecutor",
-    "RunnerHealth",
-    "WorkflowRunnerBackend",
-    "WorkflowRunnerConfig",
-    "build_workflow_runner",
-    "deserialize_outcome",
-    "deserialize_state",
-    "serialize_context_meta",
-    "serialize_outcome",
-    "serialize_state",
-]
+_reexport_package(__name__, "polisyos.scientist.orchestration.engine.runner", globals())

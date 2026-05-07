@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polisyos-scientist-node-example"
+version = "0.1.0"
+description = "Minimal external Scientist node extension example."
+requires-python = ">=3.14,<3.15"
+dependencies = ["policy-engine"]
+
+[project.entry-points."polisyos.scientist_nodes"]
+"example.annotate_state" = "polisyos_scientist_node_example:annotate_state_node_component"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/polisyos_scientist_node_example"]

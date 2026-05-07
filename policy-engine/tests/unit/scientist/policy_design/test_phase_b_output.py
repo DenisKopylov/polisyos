@@ -84,14 +84,14 @@ from polisyos.scientist.policy_design.schema import (
     persist_policy_candidate_schema,
 )
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.search.judge_stack import JudgeVerdict
-from polisyos.scientist.search.pareto_registry import ParetoRegistryEntry, ParetoRegistrySnapshot
-from polisyos.scientist.search.readiness import (
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistryEntry, ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
     persist_decision_readiness_contract,
 )
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,

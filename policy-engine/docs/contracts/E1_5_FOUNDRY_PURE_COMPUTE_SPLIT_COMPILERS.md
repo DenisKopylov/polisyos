@@ -43,7 +43,7 @@
 
 ### 1.1 Import gate / Dependency-guard
 
-Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/architecture/imports/policy.toml`, `policy-engine/tools/quality/lint/lint_imports.py`, тест `policy-engine/tests/architecture/test_arch_import_gate.py`.
+Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/architecture/imports/policy.toml`, `policy-engine/tools/quality/lint/lint_imports.py`, тест `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py`.
 
 Текущее правило: `foundry` может импортировать только `foundry|core|ir|common` (см. `architecture/imports/policy.toml`).
 
@@ -759,7 +759,7 @@ E1.5 может сделать один из вариантов (выбрать 
 
 ### 11.1 Dependency gate (уже есть)
 
-- `policy-engine/tests/architecture/test_arch_import_gate.py` должен оставаться зелёным.
+- `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py` должен оставаться зелёным.
 - В рамках E1.5 добавить регрессию: новые модули `foundry/compile/*` и `foundry/execute/*` не должны нарушать `architecture/imports/policy.toml`.
 
 ### 11.2 Unit tests: surface_compiler

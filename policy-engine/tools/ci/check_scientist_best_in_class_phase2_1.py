@@ -24,20 +24,20 @@ ACTIVE_PLAN_DOC = Path("docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md")
 READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/claims/lifecycle.py"),
-    Path("src/polisyos/scientist/claims/audit.py"),
-    Path("src/polisyos/scientist/claims/export.py"),
-    Path("src/polisyos/scientist/claims/diff.py"),
+    Path("src/polisyos/scientist/evidence/claims/lifecycle.py"),
+    Path("src/polisyos/scientist/evidence/claims/audit.py"),
+    Path("src/polisyos/scientist/evidence/claims/export.py"),
+    Path("src/polisyos/scientist/evidence/claims/diff.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_1.py"),
-    Path("tests/unit/scientist/claims/test_lifecycle.py"),
-    Path("tests/unit/scientist/claims/test_audit.py"),
-    Path("tests/unit/scientist/claims/test_diff.py"),
-    Path("tests/unit/scientist/claims/test_export.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_1.py"),
+    Path("tests/unit/scientist/evidence/claims/test_lifecycle.py"),
+    Path("tests/unit/scientist/evidence/claims/test_audit.py"),
+    Path("tests/unit/scientist/evidence/claims/test_diff.py"),
+    Path("tests/unit/scientist/evidence/claims/test_export.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_1.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "AppendOnlyClaimLedger",
@@ -137,21 +137,21 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     notes: list[str] = []
     try:
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.claims.diff import diff_claim_ledgers
-        from polisyos.scientist.claims.export import (
+        from polisyos.scientist.evidence.claims.diff import diff_claim_ledgers
+        from polisyos.scientist.evidence.claims.export import (
             ClaimExportAudience,
             blocked_claim_summary,
             claim_ledger_summary,
             export_claim_ledger,
         )
-        from polisyos.scientist.claims.lifecycle import (
+        from polisyos.scientist.evidence.claims.lifecycle import (
             AppendOnlyClaimLedger,
             ClaimLifecycleAction,
             ClaimLifecycleEvent,
             build_initial_append_only_ledger,
             validate_claim_transition,
         )
-        from polisyos.scientist.claims.models import (
+        from polisyos.scientist.evidence.claims.models import (
             ClaimLedger,
             ClaimPublishability,
             ClaimRecord,

@@ -24,8 +24,8 @@ public_facades = ["polisyos.data_forge.read_api.academic"]
 entrypoints = ["polisyos.data_forge.domains.academic.cli"]
 shim_ids = []
 evidence_paths = [
-  "tests/unit/data_forge/fixtures/non_lex_split/academic",
-  "tests/unit/data_forge/fixtures/non_lex_split/academic_candidate",
+  "tests/_data/data_forge/non_lex_split/academic",
+  "tests/_data/data_forge/non_lex_split/academic_candidate",
 ]
 acceptance_tests = [
   "tests/unit/data_forge/test_phase2_academic_completion.py",
@@ -49,8 +49,8 @@ public_facades = ["polisyos.data_forge.read_api.catalog"]
 entrypoints = ["polisyos.data_forge.domains.catalog.cli"]
 shim_ids = []
 evidence_paths = [
-  "tests/unit/data_forge/fixtures/non_lex_split/catalog",
-  "tests/unit/data_forge/fixtures/non_lex_split/catalog_candidate",
+  "tests/_data/data_forge/non_lex_split/catalog",
+  "tests/_data/data_forge/non_lex_split/catalog_candidate",
 ]
 acceptance_tests = [
   "tests/unit/data_forge/test_phase3_catalog_completion.py",
@@ -80,13 +80,13 @@ public_facades = [
 ]
 entrypoints = [
   "python -m polisyos.data_forge.domains.legal.batch",
-  "tools/ops/cloud/run_lex_from_manifest.py",
+  "tools/ops_runners/cloud/run_lex_from_manifest.py",
 ]
 shim_ids = []
 evidence_paths = [
-  "tests/unit/data_forge/fixtures/legal_shadow/accepted_artifact_root.json",
-  "tests/unit/data_forge/fixtures/legal_shadow/baseline",
-  "tests/unit/data_forge/fixtures/legal_shadow/candidate",
+  "tests/_data/data_forge/legal_shadow/accepted_artifact_root.json",
+  "tests/_data/data_forge/legal_shadow/baseline",
+  "tests/_data/data_forge/legal_shadow/candidate",
 ]
 acceptance_tests = [
   "tests/unit/data_forge/test_phase4_legal_cutover.py",
@@ -110,8 +110,8 @@ public_facades = ["polisyos.data_forge.read_api.ukraine"]
 entrypoints = ["ukraine-data = polisyos.data_forge.domains.ukraine.cli:main"]
 shim_ids = []
 evidence_paths = [
-  "tests/unit/data_forge/fixtures/ukraine_shadow/baseline",
-  "tests/unit/data_forge/fixtures/ukraine_shadow/candidate",
+  "tests/_data/data_forge/ukraine_shadow/baseline",
+  "tests/_data/data_forge/ukraine_shadow/candidate",
 ]
 acceptance_tests = [
   "tests/unit/data_forge/test_phase5_ukraine_scaffolding.py",
@@ -142,7 +142,7 @@ entrypoints = ["polisyos.data_forge.kernel.snapshot.cli"]
 shim_ids = []
 evidence_paths = [
   "tests/unit/data_forge/test_phase1_shared_kernel_cutover.py",
-  "docs/migration/data_forge_shim_sunset_release_notes.md",
+  "release/data-forge-shim-sunset-release-notes.md",
   "docs/migration/data_forge_shim_sunset_rollback.md",
 ]
 acceptance_tests = [
@@ -241,7 +241,7 @@ risk_class = "M"
 status = "complete"
 compatibility_status = "public_facade"
 source_paths = [
-  "src/polisyos/scientist/engine",
+  "src/polisyos/scientist/orchestration/engine",
   "src/polisyos/scientist/nodes",
   "src/polisyos/scientist/governance",
 ]

@@ -29,7 +29,7 @@ from polisyos.fabric.connectors.sources.http_common import (
     safe_int,
 )
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError, RateLimitError
-from polisyos.fabric.safety import safe_path_segment
+from polisyos.fabric.quality.safety import safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,

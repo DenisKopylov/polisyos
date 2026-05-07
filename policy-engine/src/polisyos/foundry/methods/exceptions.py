@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.resolution import ResolutionPolicy, VersionConstraint
+    from polisyos.foundry.methods.selection.resolution import ResolutionPolicy, VersionConstraint
 
 
 class FoundryMethodError(PolicyOSError):
@@ -340,7 +340,7 @@ class ResolutionError(FoundryMethodError):
         if len(self.available) > 5:
             avail_str += f" ... ({len(self.available)} total)"
 
-        from polisyos.foundry.methods.resolution import ResolutionPolicy
+        from polisyos.foundry.methods.selection.resolution import ResolutionPolicy
 
         if self.policy == ResolutionPolicy.EXACT:
             return f"Exact version '{self.requested}' not found. Available: [{avail_str}]"

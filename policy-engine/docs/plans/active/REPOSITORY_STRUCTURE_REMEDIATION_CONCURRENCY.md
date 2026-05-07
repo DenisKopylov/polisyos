@@ -33,7 +33,7 @@ This document is the Phase 0 handoff for parallel implementation of
 | 1C | team-architecture | `architecture/name_registry.toml`, `architecture/package_layout.toml`, name ADRs | Physical moves in `scientist/` or `foundry/` |
 | 1D | team-devx | `tools/{devx,ops,quality,research,ci}`, tool shims, CI references | `tools/devx/refactor/move_module.py`, new Phase 3A validation gates |
 | 1E | team-quality | `tests/`, `architecture/test_topology.toml` | Source package moves |
-| 1F | team-frontend | `frontend/runtime-dashboard/src/**` duplicate cleanup | Lockfiles, workspace manager, `_build/` paths |
+| 1F | team-frontend | `apps/runtime-dashboard/src/**` duplicate cleanup | Lockfiles, workspace manager, `_build/` paths |
 | 2A | team-platform | Workspace root layout, `.venv`, lockfile placement, topology paths | Safety net baselines |
 | 2B | team-devx | `_build/`, `_cache/`, `.gitignore`, tool cache dirs | Source package moves |
 | 3A | team-architecture | `DECOMPOSITION_BLUEPRINT.md`, safety gates, codemod, baselines | Any `.py` moves in `scientist/` or `foundry/` |

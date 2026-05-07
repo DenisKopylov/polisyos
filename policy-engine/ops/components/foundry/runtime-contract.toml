@@ -1,0 +1,21 @@
+[component_runtime_contract]
+component = "foundry"
+owner = "team-foundry"
+aliases = [
+  "foundry",
+  "polisyos.foundry",
+  "polisyos.foundry.api",
+  "polisyos.foundry.compile",
+  "polisyos.foundry.execute",
+  "polisyos.synthetic_world",
+  "polisyos.foundry.agent_sim.world",
+]
+source_readme = "src/polisyos/foundry/README.md"
+package_contract = "architecture/packages/foundry.toml"
+runtime_contract_links = [
+  "architecture/shims.toml",
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/foundry/observability-reproducibility.md",
+]
+release_gate_mode = "report_only"
+

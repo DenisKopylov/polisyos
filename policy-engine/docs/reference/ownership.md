@@ -1,8 +1,9 @@
 # Ownership
 
 Owner: `@platform-owners`
-Source of truth: `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`, `architecture/*.toml`,
-`src/polisyos/**`, `frontend/**`, `tools/**`, `ops/**`, `docs/**`, and the
+Source of truth: `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`,
+`architecture/control_plane_supply_chain.toml`, `architecture/*.toml`,
+`src/polisyos/**`, `apps/**`, `packages/**`, `tools/**`, `ops/**`, `docs/**`, and the
 logical owner-group policy documented on this page
 
 This page defines human ownership for the PolicyOS canonical product root under
@@ -11,8 +12,9 @@ This page defines human ownership for the PolicyOS canonical product root under
 Per [ADR-0096](../adr/0096-canonical-product-root-and-workspace-boundary.md),
 `policy-engine/` is the product root and the repository root is repo control
 plane. The active GitHub enforcement file is the repository-root
-`.github/CODEOWNERS`; this page remains the logical owner-group reference for
-reviews and escalation.
+`.github/CODEOWNERS`; the active control-plane projection lives in
+`architecture/control_plane_supply_chain.toml`; this page remains the logical
+owner-group reference for reviews and escalation.
 
 ## Ownership Model
 
@@ -29,6 +31,8 @@ reviews and escalation.
 
 ## Subsystem Owners
 
+<!-- markdownlint-disable MD060 -->
+
 | Area                           | Canonical paths                                                              | Logical owner group    | Current GitHub reviewer | Fallback owner     |
 | ------------------------------ | ---------------------------------------------------------------------------- | ---------------------- | ----------------------- | ------------------ |
 | Core                           | `src/polisyos/core/**`                                                       | `@core-owners`         | `@DenisKopylov`         | `@platform-owners` |
@@ -40,14 +44,20 @@ reviews and escalation.
 | Runtime                        | `src/polisyos/runtime/**`                                                    | `@runtime-owners`      | `@DenisKopylov`         | `@platform-owners` |
 | Common                         | `src/polisyos/common/**`                                                     | `@core-owners`         | `@DenisKopylov`         | `@platform-owners` |
 | Data Forge                     | `src/polisyos/data_forge/**`, `schemas/artifacts/**`, `schemas/manifests/**` | `@data-forge-owners`   | `@DenisKopylov`         | `@platform-owners` |
+| Scholar                        | `src/polisyos/scholar/**`                                                    | `@scholar-owners`      | `@DenisKopylov`         | `@platform-owners` |
+| Scientist support packages     | `src/polisyos/berl/**`, `src/polisyos/calibration/**`, `src/polisyos/ddm/**` | `@scientist-owners` | `@DenisKopylov` | `@architecture-owners` |
+| DDM compatibility shim          | `src/polisyos/ddm_15_7/**`, `tests/unit/ddm_15_7/**` | `@architecture-owners` | `@DenisKopylov` | `@scientist-owners` |
+| Foundry support packages       | `src/polisyos/foundry/agent_sim/world/**`, `src/polisyos/synthetic_world/**` | `@foundry-owners`      | `@DenisKopylov`         | `@architecture-owners` |
 | Architecture contracts         | `architecture/**`, `schemas/topology/**`                                     | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
 | Schemas                        | `schemas/**`                                                                 | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
-| Frontend                       | `frontend/**`                                                                | `@frontend-owners`     | `@DenisKopylov`         | `@platform-owners` |
+| Frontend                       | `apps/**`, `packages/**`, `frontend/README.md`                               | `@frontend-owners`     | `@DenisKopylov`         | `@platform-owners` |
 | Tools                          | `tools/**`                                                                   | `@tools-owners`        | `@DenisKopylov`         | `@platform-owners` |
 | Docs                           | `docs/**`                                                                    | `@docs-owners`         | `@DenisKopylov`         | `@platform-owners` |
 | ADRs and active plans          | `docs/adr/**`, `docs/plans/**`                                               | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
 | Ops                            | `ops/**`                                                                     | `@platform-owners`     | `@DenisKopylov`         | `@platform-owners` |
 | Observability and security ops | `ops/observability/**`, `ops/security/**`                                    | `@platform-owners`     | `@DenisKopylov`         | `@runtime-owners`  |
+
+<!-- markdownlint-enable MD060 -->
 
 ## Documentation SOTA Lane Owners
 
@@ -65,7 +75,7 @@ conflict resolution, and escalation when the primary owner is unavailable.
 | L4 IR                      | `src/polisyos/ir/README.md`, `docs/reference/ir/**`, `docs/reference/schemas.md`, `docs/contracts/**`, IR ADR surfaces                                                                   | `@ir-owners`         | `@platform-owners` |
 | L5 Tools                   | `tools/README.md`, `docs/reference/tools.md`, CI/CD how-to, validation and contributor command maps                                                                                      | `@tools-owners`      | `@platform-owners` |
 | L6 Scientist               | `src/polisyos/scientist/README.md`, `docs/reference/scientist/**`, Scientist tutorials and how-to surfaces                                                                               | `@scientist-owners`  | `@platform-owners` |
-| L7 Frontend/API consumers  | `frontend/**` docs, runtime API client docs, dashboard/API-consumer reference surfaces                                                                                                   | `@frontend-owners`   | `@runtime-owners`  |
+| L7 Frontend/API consumers  | `apps/**` docs, `packages/runtime-api-client/**` docs, dashboard/API-consumer reference surfaces                                                                                         | `@frontend-owners`   | `@runtime-owners`  |
 | L8 Ops/Security/Compliance | `docs/runbooks/**`, `docs/reference/security-compliance.md`, SLO, audit, FedRAMP, release-gate evidence                                                                                  | `@platform-owners`   | `@runtime-owners`  |
 | L9 Automation/Gates        | `docs/reference/quality-gates.md`, generated reference pages, docs QA commands, CI gate docs                                                                                             | `@platform-owners`   | `@tools-owners`    |
 | L10 Data Forge             | `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`, Data Forge ADRs, `schemas/artifacts/**`, Data Forge runbooks                                                                       | `@data-forge-owners` | `@platform-owners` |

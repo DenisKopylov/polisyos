@@ -91,7 +91,7 @@ Detailed recovery execution lives in
 ### Legacy Run Archives
 
 - restore requires both tarball and `.report.json` emitted by
-  `tools/ops/runtime/archive_legacy_runs.py`;
+  `tools/ops_runners/runtime/archive_legacy_runs.py`;
 
 - hash must match stored `archive_sha256`;
 - if `--delete-source` was used, cold archive becomes the only truth and must

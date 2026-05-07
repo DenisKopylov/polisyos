@@ -1,21 +1,11 @@
-"""Acquisition helper utilities."""
+"""Compatibility shim for `polisyos.scientist.search.strategies.acquisition`.
+
+Canonical module: `polisyos.scientist.methods.search.strategies.acquisition`.
+Sunset: 2027-03-02.
+"""
 
 from __future__ import annotations
 
-from polisyos.scientist.search.strategies.types import AcquisitionType
+from polisyos.scientist.methods._compat import alias_module as _alias_module
 
-
-def is_batch_acquisition(acquisition: AcquisitionType) -> bool:
-    """Return True when acquisition function is batch-oriented."""
-    return acquisition in {
-        AcquisitionType.QEI,
-        AcquisitionType.QEHVI,
-    }
-
-
-def is_multi_objective_acquisition(acquisition: AcquisitionType) -> bool:
-    """Return True when acquisition function is multi-objective."""
-    return acquisition in {
-        AcquisitionType.EHVI,
-        AcquisitionType.QEHVI,
-    }
+_alias_module(__name__, "polisyos.scientist.methods.search.strategies.acquisition", globals())

@@ -8,7 +8,7 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._models import ExecutionStrictness
+from polisyos.foundry.execute.executor import ExecutionStrictness
 from polisyos.foundry.execute.executor import apply_state_delta_and_snapshot, execute_program_graph
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame

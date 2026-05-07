@@ -6,8 +6,8 @@
       "connector_id": "ckan.catalog",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/ckan.catalog.generic.replay.json",
-        "source_contract_hash": "sha256:91e0e50bc524c9bf935bdea4f4228cfa76d385720402fd0f9ee54b8b8c7836f2"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/ckan.catalog.generic.replay.json",
+        "source_contract_hash": "sha256:0ff75d420a91881fc4d2a28d942eb9f9fd8922619e825c4544b44e79c55b289c"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -96,8 +96,8 @@
       "connector_id": "ckan.resource",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/ckan.resource.generic.replay.json",
-        "source_contract_hash": "sha256:ee341ffdf24d79ada662fd51307732dd05ae9f61c4c3ae8b34e8917b53284120"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/ckan.resource.generic.replay.json",
+        "source_contract_hash": "sha256:9c09f68a76e1ee968d70128fc514f5f1fe089b4ae7e7da5c8c15325dc2986e7d"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -186,8 +186,8 @@
       "connector_id": "eurostat.data",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/eurostat.data.generic.replay.json",
-        "source_contract_hash": "sha256:ce3731e770af800b805bf151a012fdb8cd66815c59bab54fd199efb7aa8a349a"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/eurostat.data.generic.replay.json",
+        "source_contract_hash": "sha256:e937b8c4fd522fb7b6368cc54589ac4c6d1df61cef15d922f10357e9b12d0e2e"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -276,8 +276,8 @@
       "connector_id": "files.tabular",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/files.tabular.generic.replay.json",
-        "source_contract_hash": "sha256:7aef8944f077968b57f821678ed3b1267b0a0563d6f6eb4aa6e2da5fcbd705df"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/files.tabular.generic.replay.json",
+        "source_contract_hash": "sha256:f1799f437fc8b422cc5104952755301da3c36872b98ee69135edce5268befae2"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -366,8 +366,8 @@
       "connector_id": "geojson.features",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/geojson.features.generic.replay.json",
-        "source_contract_hash": "sha256:7e6c3a2c05937cde678425b0843190e0ca7edbf9f6ed59f67e21af1ae25f04d4"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/geojson.features.generic.replay.json",
+        "source_contract_hash": "sha256:7159267737e9cd9cfec84422b93f9302302c8b837a3f1491252a2dc787994e88"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -456,8 +456,8 @@
       "connector_id": "graphql.api",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/graphql.api.generic.replay.json",
-        "source_contract_hash": "sha256:08eeedaf5c09e8c5451b54f5f12c2439be2fae2a279198ab9f4dd1028319dc51"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/graphql.api.generic.replay.json",
+        "source_contract_hash": "sha256:47afeca3905a7d2770cb619d6dbe4104df0295b210488d28d9c3cbfc8baa983b"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -546,8 +546,8 @@
       "connector_id": "object_storage.blob",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/object_storage.blob.generic.replay.json",
-        "source_contract_hash": "sha256:78f96319e2079791c80e7dbf95ce1b1b5d61be631bb7b28650d6a3fd14c704c9"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/object_storage.blob.generic.replay.json",
+        "source_contract_hash": "sha256:a6a10cdaf48987184ad48edbef5b2eddc6df2f52028afa8ec4bf956f4686be65"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -636,8 +636,8 @@
       "connector_id": "opendatasoft.ods",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/opendatasoft.ods.generic.replay.json",
-        "source_contract_hash": "sha256:420b4c63c9f77b520464c0daa589f5e1d2ee26884ac25f1e54871a1ab682d74c"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/opendatasoft.ods.generic.replay.json",
+        "source_contract_hash": "sha256:5ab7d1097139d3df38de21c773de0e9b95d8773299fe1fd707dbbc26896b89a0"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -726,8 +726,8 @@
       "connector_id": "rest.json",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/rest.json.generic.replay.json",
-        "source_contract_hash": "sha256:2eef0ac17074f78b0e929b54eefade4c60f27a48e96a01a5b2121d824c7eb24b"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/rest.json.generic.replay.json",
+        "source_contract_hash": "sha256:37f5c6f587089bb521e31b75ad1dc5c2873f32508c0e7fd3e8559cefae165d7a"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -816,8 +816,8 @@
       "connector_id": "sdmx.source",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/sdmx.generic.replay.json",
-        "source_contract_hash": "sha256:4ae5cb504a8be246d20e51c022ca1c6bf35a7e67a090132184e2011e204960c6"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/sdmx.generic.replay.json",
+        "source_contract_hash": "sha256:ee2907dc32fe755e1de4686d060b05005d18df1afe202ec89e541fa395ee9fc3"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -906,8 +906,8 @@
       "connector_id": "socrata.soda",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/socrata.soda.generic.replay.json",
-        "source_contract_hash": "sha256:b30e5323e3120566dcb135dfc6a002068412d9386a84775be720d04c9279c5ae"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/socrata.soda.generic.replay.json",
+        "source_contract_hash": "sha256:59665bfa2aa40aa68a4969439ae5dc90140be695ed6aa3890ffe9568e45c8f30"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -996,8 +996,8 @@
       "connector_id": "sparql.endpoint",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/sparql.endpoint.generic.replay.json",
-        "source_contract_hash": "sha256:d6c922fc04eecd48c0c8c621cdb6923d96487950892a985104c9f1f87ac2bc9c"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/sparql.endpoint.generic.replay.json",
+        "source_contract_hash": "sha256:00afbcf64bd00504aff9ef785b47131e060aade96edf585ff8f1cacae772077e"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1086,8 +1086,8 @@
       "connector_id": "sql.query",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/sql.query.generic.replay.json",
-        "source_contract_hash": "sha256:31eb23eb3b0c1bb4ef74d77cb091133e26877319c7cca5071922e237e7876c3b"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/sql.query.generic.replay.json",
+        "source_contract_hash": "sha256:f81dc2da87fd3b4b10004539817d9fd3ab899153d20cd9abaafc2dee34309361"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1176,8 +1176,8 @@
       "connector_id": "stream.jsonl",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/stream.jsonl.generic.replay.json",
-        "source_contract_hash": "sha256:07fcac1bbc9d17f86a6e5357493620d06fdc54dcbbc0773fdbdac785e2a17ee5"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/stream.jsonl.generic.replay.json",
+        "source_contract_hash": "sha256:50dd00aaa9efb83ec1e37771b5f460acb4dfff8a0b6139c5750fba43cba0f835"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1266,8 +1266,8 @@
       "connector_id": "ukons.datasets",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/ukons.datasets.generic.replay.json",
-        "source_contract_hash": "sha256:e2e480e06b7c2df03938822a51f5f82343841224a26b8123fc698252f13f89f8"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/ukons.datasets.generic.replay.json",
+        "source_contract_hash": "sha256:619c6c878fb227a3e282bc93db242a7c2a824af9057b979aef40df08e424ccc4"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1356,8 +1356,8 @@
       "connector_id": "unesco_uis.data",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/unesco_uis.data.generic.replay.json",
-        "source_contract_hash": "sha256:79609396a19423d357851401b88b30d26d0e693f4915b38a4349d8016b5a7d07"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/unesco_uis.data.generic.replay.json",
+        "source_contract_hash": "sha256:39ec641bb89a0a2feaf5fc5aa8a5735b728b3724bd3a80fcb756a3252aea2638"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1446,8 +1446,8 @@
       "connector_id": "unpd.data",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/unpd.data.generic.replay.json",
-        "source_contract_hash": "sha256:cbe0a85675956e4dbee29d931f3004ce10581e92837bb8f35d64cb58f23fbe2f"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/unpd.data.generic.replay.json",
+        "source_contract_hash": "sha256:708956442d8923cac85b0e9e3c68f298776b5b334dbeaa4cccf2000c67e3e3f3"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1536,8 +1536,8 @@
       "connector_id": "who.indicators",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/who.indicators.generic.replay.json",
-        "source_contract_hash": "sha256:0e42cc2423838babec0bed53c243ed06a1f3ff5dfd5343451cb4aea42a9735ce"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/who.indicators.generic.replay.json",
+        "source_contract_hash": "sha256:e4d8a877edfc2071e0628000bdff550b49169f26ef8710f0b12e9a587e36d768"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1626,8 +1626,8 @@
       "connector_id": "worldbank.wdi",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/worldbank.wdi.generic.replay.json",
-        "source_contract_hash": "sha256:b7d0c0d462a7a38db852a5c9ebe1f3012aa87b441724675758c371578ae57bd0"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json",
+        "source_contract_hash": "sha256:9e8b7f9d437d55eff890363bcd3330116981e8ac1fd948d3a04a0d0b3110a11e"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1716,8 +1716,8 @@
       "connector_id": "wvs.wave7",
       "evidence": {
         "non_replayable_reason": null,
-        "replay_fixture": "tests/fixtures/fabric/source_contracts/wvs.wave7.generic.replay.json",
-        "source_contract_hash": "sha256:0dba934623afdfb2d98e82a53a539846b6e5b9971fc6a378c3863d0a375f8518"
+        "replay_fixture": "tests/_data/fabric/shared/source_contracts/wvs.wave7.generic.replay.json",
+        "source_contract_hash": "sha256:0ec02148ebd79531f89e91206afa521f5f4458ed82f41b12c351a7cdaaf7d36b"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",

@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.search.failure_cards import TypedFailureCard
-from polisyos.scientist.search.lessons import (
+from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+from polisyos.scientist.methods.search.lessons import (
     LessonCard,
     LessonKind,
     LessonQuery,

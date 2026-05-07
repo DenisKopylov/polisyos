@@ -1,3 +1,12 @@
+---
+title: Data Forge Cutover Readiness
+status: completed
+owner: team-data-forge
+created: 2026-05-02
+last_verified: 2026-05-05
+stability: final
+---
+
 # Data Forge Cutover Readiness
 
 - Status: completed

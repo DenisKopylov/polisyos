@@ -13,7 +13,7 @@ from typing import Any
 
 import pandas as pd
 
-from polisyos.fabric.finite import (
+from polisyos.fabric.quality.finite import (
     ensure_finite_float,
     ensure_non_negative_finite,
     ensure_probability,

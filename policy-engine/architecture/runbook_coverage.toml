@@ -1,0 +1,573 @@
+[runbook_coverage]
+version = 2
+status = "report_only"
+owner = "team-ops"
+phase = "repository-best-in-class-phase-4.9"
+default_gate_mode = "report_only"
+description = "Package and component runbook coverage map."
+ops_organization_decision = "invert_to_ops_components"
+component_bundle_root = "ops/components"
+component_bundle_status = "active_drafts_in_ops_components"
+component_index = "ops/components/index.toml"
+alert_policy = "every Prometheus alert must map to at least one runbook or an explicit exception before fail-closed conversion"
+preferred_bundle_shape = [
+  "README.md",
+  "slo.yaml",
+  "alerts.yml",
+  "dashboard.json",
+  "runbooks.md",
+  "runtime-contract.toml",
+  "retention-policy.toml",
+]
+
+[[coverage]]
+id = "fabric-ingestion-recovery"
+package = "fabric"
+owner = "team-fabric"
+status = "covered"
+contract = "architecture/packages/fabric.toml"
+runbooks = ["docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md"]
+slo_files = ["ops/observability/slo/fabric.yaml"]
+expectation = "Connector ingestion, quarantine, DLQ, and data-plane recovery changes update the runbook."
+
+[[coverage]]
+id = "foundry-method-registry-recovery"
+package = "foundry"
+owner = "team-foundry"
+status = "covered"
+contract = "architecture/packages/foundry.toml"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+slo_files = ["ops/components/foundry/slo.yaml", "ops/observability/slo/foundry.yaml"]
+expectation = "Foundry method-registry and execution degradation changes update the Foundry bundle before fail-closed conversion."
+
+[[coverage]]
+id = "core-artifact-audit-recovery"
+package = "core"
+owner = "team-core"
+status = "covered"
+contract = "ops/components/core/runtime-contract.toml"
+runbooks = [
+  "docs/runbooks/artifact-corruption-recovery.md",
+  "docs/runbooks/idempotency-incident.md",
+  "docs/runbooks/mutation-audit-investigation.md",
+  "docs/runbooks/cas-opa-outage.md",
+]
+slo_files = ["ops/components/core/slo.yaml", "ops/observability/slo/core.yaml"]
+expectation = "Core artifact, audit, idempotency, and tenant-boundary changes update the Core bundle."
+
+[[coverage]]
+id = "ir-schema-compatibility-recovery"
+package = "ir"
+owner = "team-ir"
+status = "covered"
+contract = "architecture/packages/ir.toml"
+runbooks = [
+  "docs/runbooks/broken-contract-generation.md",
+  "docs/runbooks/dependency-upgrade-regression.md",
+]
+slo_files = ["ops/components/ir/slo.yaml", "ops/observability/slo/ir.yaml"]
+expectation = "IR schema catalog, migration, and compatibility changes update the IR bundle."
+
+[[coverage]]
+id = "lex-scholar-knowledge-freshness"
+package = "lex-scholar"
+owner = "team-lex"
+status = "covered"
+contract = "ops/components/lex/runtime-contract.toml"
+runbooks = [
+  "docs/runbooks/lex-production-140k.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/docs-publication-failure.md",
+]
+slo_files = [
+  "ops/components/lex/slo.yaml",
+  "ops/components/scholar/slo.yaml",
+  "ops/observability/slo/lex.yaml",
+  "ops/observability/slo/scholar.yaml",
+]
+expectation = "Lex and Scholar freshness or provider/search changes update their component bundles."
+
+[[coverage]]
+id = "scientist-replay-restore"
+package = "scientist"
+owner = "team-scientist"
+status = "covered"
+contract = "architecture/packages/scientist.toml"
+runbooks = [
+  "docs/runbooks/replay-or-restore.md",
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+]
+slo_files = ["ops/observability/slo/scientist.yaml"]
+expectation = "Workflow, replay, checkpoint, and stuck-worker incidents have operator-facing recovery steps."
+
+[[coverage]]
+id = "generated-artifact-recovery"
+package = "architecture"
+owner = "team-architecture"
+status = "covered"
+contract = "architecture/generated_artifacts.toml"
+runbooks = [
+  "docs/runbooks/broken-contract-generation.md",
+  "docs/runbooks/artifact-corruption-recovery.md",
+  "docs/runbooks/retained-artifact-recovery.md",
+]
+slo_files = ["ops/observability/slo/schema_drift.yaml"]
+expectation = "Generated artifact drift and recovery procedures remain tied to artifact contracts."
+
+[[component_contract]]
+component = "common"
+owner = "team-core"
+runbooks = ["docs/runbooks/dependency-upgrade-regression.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+escalation = "team-core primary; team-platform joins for shared dependency or migration incidents"
+slo_exception = "ops/components/common/slo.yaml"
+slo_exception_reason = "Component `common` has an explicit SLO exception mirrored in ops/components/common/slo.yaml."
+slo_exception_expires = "2026-08-01"
+slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "core"
+owner = "team-core"
+runbooks = [
+  "docs/runbooks/artifact-corruption-recovery.md",
+  "docs/runbooks/idempotency-incident.md",
+  "docs/runbooks/mutation-audit-investigation.md",
+  "docs/runbooks/cas-opa-outage.md",
+]
+alerts = [
+  "AuditChainTamperDetected",
+  "AuditSinkQueueBackpressure",
+  "AuditColdTierWriteFailure",
+  "ArtifactIntegrityFailuresDetected",
+]
+dashboards = ["ops/observability/grafana/dashboards/executive-overview.json"]
+escalation = "team-core primary; team-security joins immediately for audit, artifact integrity, or tenant-boundary incidents"
+
+[[component_contract]]
+component = "ir"
+owner = "team-ir"
+runbooks = [
+  "docs/runbooks/broken-contract-generation.md",
+  "docs/runbooks/dependency-upgrade-regression.md",
+]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+escalation = "team-ir primary; team-platform joins for schema registry or migration incidents"
+slo_files = ["ops/components/ir/slo.yaml"]
+
+[[component_contract]]
+component = "runtime"
+owner = "team-runtime"
+runbooks = [
+  "docs/runbooks/runtime-api-outage.md",
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+]
+alerts = [
+  "SLO_RuntimeApiAvailabilityBreach",
+  "SLO_RuntimeApiLatencyP95High",
+  "SLO_RuntimeApiLatencyP99High",
+  "SLO_ControlPlaneAdmissionBreach",
+  "SLO_ControlPlaneAdmissionLatencyP95High",
+  "RuntimeDependencyCircuitOpen",
+  "RuntimeRateLimitSaturation",
+  "ControlPlaneQueueLagHigh",
+  "RuntimeCacheRebuildStorm",
+  "RuntimeCacheStalenessHigh",
+  "CellRoutingErrorRateHigh",
+  "CellRoutingLatencyHigh",
+]
+dashboards = ["ops/observability/grafana/dashboards/runtime-operability.json"]
+escalation = "team-runtime primary; team-platform incident commander for P1 or cross-component outage"
+
+[[component_contract]]
+component = "scientist"
+owner = "team-scientist"
+runbooks = [
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/idempotency-incident.md",
+]
+alerts = [
+  "SLO_DagSuccessRateBreach",
+  "SLO_DagSuccessRateCritical",
+  "SLO_DagLatencyP99High",
+  "HighLLMCost",
+  "HighLLMCostCritical",
+  "AgentErrorSpike",
+  "AgentErrorSpikeCritical",
+  "GovernancePassSlowdown",
+  "ScientistNodeP95LatencyHigh",
+  "ScientistWorkflowFailRate",
+  "ScientistBudgetNearExhaustion",
+  "ScientistTierQueueDepthHigh",
+  "ScientistSemaphoreWaitHigh",
+]
+dashboards = [
+  "ops/observability/grafana/dashboards/scientist-agents.json",
+  "ops/observability/grafana/dashboards/scientist-llm-cost.json",
+]
+escalation = "team-scientist primary; team-runtime joins for worker starvation and team-platform joins for provider or budget incidents"
+
+[[component_contract]]
+component = "foundry"
+owner = "team-foundry"
+runbooks = [
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/artifact-corruption-recovery.md",
+]
+alerts = [
+  "SLO_SimulationNanRateBreach",
+  "SimulationStall",
+  "JITRecompilationStorm",
+  "JITRecompilationStormCritical",
+  "LowCacheHitRatio",
+]
+dashboards = ["ops/observability/grafana/dashboards/foundry-hpc.json"]
+escalation = "team-foundry primary; team-platform joins for infrastructure saturation"
+
+[[component_contract]]
+component = "fabric"
+owner = "team-fabric"
+runbooks = [
+  "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md",
+  "docs/runbooks/broken-contract-generation.md",
+  "docs/runbooks/replay-or-restore.md",
+]
+alerts = ["SLO_ConnectorErrorRateBreach"]
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+escalation = "team-fabric primary; team-data-forge joins for source or materialization incidents"
+
+[[component_contract]]
+component = "data_forge"
+owner = "team-data-forge"
+runbooks = [
+  "docs/runbooks/replay-or-restore.md",
+  "docs/runbooks/retained-artifact-recovery.md",
+  "docs/runbooks/broken-contract-generation.md",
+]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+escalation = "team-data-forge primary; team-fabric joins when source contracts or lineage are affected"
+
+[[component_contract]]
+component = "lex"
+owner = "team-lex"
+runbooks = [
+  "docs/runbooks/lex-production-140k.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/broken-contract-generation.md",
+]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+escalation = "team-lex primary; team-scholar joins for provider/search dependency incidents"
+
+[[component_contract]]
+component = "scholar"
+owner = "team-scholar"
+runbooks = [
+  "docs/runbooks/docs-publication-failure.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/lex-production-140k.md",
+]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
+escalation = "team-scholar primary; team-lex joins for search registry or norm-pack freshness incidents"
+
+[[component_contract]]
+component = "security"
+owner = "team-security"
+runbooks = [
+  "docs/runbooks/artifact-signing-sbom-failure.md",
+  "docs/runbooks/key-rotation.md",
+  "docs/runbooks/cas-opa-outage.md",
+]
+alerts = [
+  "TenantBoundaryViolation",
+  "CrossTenantAccessAttempt",
+  "RuntimeAuthFailuresSpike",
+  "TEEAttestationFailureRate",
+  "TEEUnavailableOnConfidentialNode",
+  "SBOMCriticalCVEDetected",
+  "SBOMDeploymentGateDenySpike",
+  "PlaintextConnectionDetected",
+  "MTLSCertificateExpiringSoon",
+]
+dashboards = ["ops/observability/grafana/dashboards/security-phase4.json"]
+escalation = "team-security primary; team-platform joins for identity, policy, or infrastructure remediation"
+slo_exception = "ops/components/security/slo.yaml"
+slo_exception_reason = "Component `security` has an explicit SLO exception mirrored in ops/components/security/slo.yaml."
+slo_exception_expires = "2026-08-01"
+slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "calibration"
+owner = "team-foundry"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+alerts = ["CalibrationDiverging", "CalibrationStuck"]
+dashboards = ["ops/observability/grafana/dashboards/foundry-hpc.json"]
+escalation = "team-foundry primary; team-scientist joins when decision validity depends on calibration output"
+slo_exception = "ops/components/calibration/slo.yaml"
+slo_exception_reason = "Component `calibration` has an explicit SLO exception mirrored in ops/components/calibration/slo.yaml."
+slo_exception_expires = "2026-08-01"
+slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "berl"
+owner = "team-architecture"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/scientist-agents.json"]
+escalation = "team-architecture primary; team-scientist joins when explanation reliability blocks validation"
+slo_exception = "ops/components/berl/slo.yaml"
+slo_exception_reason = "Component `berl` has an explicit SLO exception mirrored in ops/components/berl/slo.yaml."
+slo_exception_expires = "2026-08-01"
+slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[component_contract]]
+component = "ddm"
+owner = "team-architecture"
+runbooks = [
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/replay-or-restore.md",
+]
+alerts = []
+dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
+escalation = "team-architecture primary; team-scientist joins for drift/degradation readiness incidents"
+slo_exception = "ops/components/ddm/slo.yaml"
+slo_exception_reason = "Component `ddm` has an explicit SLO exception mirrored in ops/components/ddm/slo.yaml."
+slo_exception_expires = "2026-08-01"
+slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
+
+[[alert_mapping]]
+alert = "SLO_DagSuccessRateBreach"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "SLO_DagSuccessRateCritical"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "SLO_DagLatencyP99High"
+component = "scientist"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "SLO_SimulationNanRateBreach"
+component = "foundry"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "SLO_ConnectorErrorRateBreach"
+component = "fabric"
+runbooks = ["docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md"]
+
+[[alert_mapping]]
+alert = "SLO_RuntimeApiAvailabilityBreach"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "SLO_RuntimeApiLatencyP95High"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "SLO_RuntimeApiLatencyP99High"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "SLO_ControlPlaneAdmissionBreach"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "SLO_ControlPlaneAdmissionLatencyP95High"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "AuditChainTamperDetected"
+component = "core"
+runbooks = ["docs/runbooks/mutation-audit-investigation.md"]
+
+[[alert_mapping]]
+alert = "AuditSinkQueueBackpressure"
+component = "core"
+runbooks = ["docs/runbooks/mutation-audit-investigation.md"]
+
+[[alert_mapping]]
+alert = "TenantBoundaryViolation"
+component = "security"
+runbooks = ["docs/runbooks/cas-opa-outage.md"]
+
+[[alert_mapping]]
+alert = "AuditColdTierWriteFailure"
+component = "core"
+runbooks = ["docs/runbooks/mutation-audit-investigation.md"]
+
+[[alert_mapping]]
+alert = "HighLLMCost"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "HighLLMCostCritical"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "AgentErrorSpike"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "AgentErrorSpikeCritical"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "GovernancePassSlowdown"
+component = "scientist"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "SimulationStall"
+component = "foundry"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "JITRecompilationStorm"
+component = "foundry"
+runbooks = ["docs/runbooks/cache-rebuild-storm.md"]
+
+[[alert_mapping]]
+alert = "JITRecompilationStormCritical"
+component = "foundry"
+runbooks = ["docs/runbooks/cache-rebuild-storm.md"]
+
+[[alert_mapping]]
+alert = "LowCacheHitRatio"
+component = "foundry"
+runbooks = ["docs/runbooks/cache-rebuild-storm.md"]
+
+[[alert_mapping]]
+alert = "CalibrationDiverging"
+component = "calibration"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "CalibrationStuck"
+component = "calibration"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "CrossTenantAccessAttempt"
+component = "security"
+runbooks = ["docs/runbooks/cas-opa-outage.md"]
+
+[[alert_mapping]]
+alert = "CellRoutingErrorRateHigh"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "CellRoutingLatencyHigh"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "TEEAttestationFailureRate"
+component = "security"
+runbooks = ["docs/runbooks/artifact-signing-sbom-failure.md"]
+
+[[alert_mapping]]
+alert = "TEEUnavailableOnConfidentialNode"
+component = "security"
+runbooks = ["docs/runbooks/artifact-signing-sbom-failure.md"]
+
+[[alert_mapping]]
+alert = "SBOMCriticalCVEDetected"
+component = "security"
+runbooks = ["docs/runbooks/artifact-signing-sbom-failure.md"]
+
+[[alert_mapping]]
+alert = "SBOMDeploymentGateDenySpike"
+component = "security"
+runbooks = ["docs/runbooks/artifact-signing-sbom-failure.md"]
+
+[[alert_mapping]]
+alert = "RuntimeDependencyCircuitOpen"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "RuntimeRateLimitSaturation"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-api-outage.md"]
+
+[[alert_mapping]]
+alert = "RuntimeAuthFailuresSpike"
+component = "security"
+runbooks = ["docs/runbooks/cas-opa-outage.md"]
+
+[[alert_mapping]]
+alert = "ControlPlaneQueueLagHigh"
+component = "runtime"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "RuntimeCacheRebuildStorm"
+component = "runtime"
+runbooks = ["docs/runbooks/cache-rebuild-storm.md"]
+
+[[alert_mapping]]
+alert = "RuntimeCacheStalenessHigh"
+component = "runtime"
+runbooks = ["docs/runbooks/cache-rebuild-storm.md"]
+
+[[alert_mapping]]
+alert = "ArtifactIntegrityFailuresDetected"
+component = "core"
+runbooks = ["docs/runbooks/artifact-corruption-recovery.md"]
+
+[[alert_mapping]]
+alert = "ScientistNodeP95LatencyHigh"
+component = "scientist"
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+
+[[alert_mapping]]
+alert = "ScientistWorkflowFailRate"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "ScientistBudgetNearExhaustion"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "ScientistTierQueueDepthHigh"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "ScientistSemaphoreWaitHigh"
+component = "scientist"
+runbooks = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+
+[[alert_mapping]]
+alert = "PlaintextConnectionDetected"
+component = "security"
+runbooks = ["docs/runbooks/key-rotation.md"]
+
+[[alert_mapping]]
+alert = "MTLSCertificateExpiringSoon"
+component = "security"
+runbooks = ["docs/runbooks/key-rotation.md"]

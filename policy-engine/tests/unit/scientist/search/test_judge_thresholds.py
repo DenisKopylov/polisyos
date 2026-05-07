@@ -4,7 +4,7 @@ import pytest
 from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
     tetrad_threshold_recommendations,
 )
-from polisyos.scientist.search.judge_stack import (
+from polisyos.scientist.methods.search.judge_stack import (
     JudgeName,
     JudgeThresholdEntry,
     JudgeThresholdRegistry,

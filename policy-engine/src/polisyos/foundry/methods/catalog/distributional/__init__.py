@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_distributional_methods
 from .advanced import (
@@ -37,12 +37,7 @@ from .poverty_advanced import (
 
 def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with inequality, poverty, and mobility methods."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_distributional_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("distributional", registry)
 
 
 __all__ = [

@@ -29,12 +29,12 @@ from polisyos.scientist.agent.reflexion_evaluator import (
     RubricReflexionEvaluator,
     build_reflexion_summary_text,
 )
-from polisyos.scientist.autotune.reflexion import (
+from polisyos.scientist.methods.autotune.reflexion import (
     ReflexionReplayRecorder,
     load_reflexion_routing_config,
     route_recoverable_failure,
 )
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = get_logger(__name__)
 

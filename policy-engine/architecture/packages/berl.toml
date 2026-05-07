@@ -1,0 +1,116 @@
+[package]
+id = "berl"
+module = "polisyos.berl"
+name = "berl"
+owner = "team-scientist"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Bounded Explanation Reliability Layer support package for Scientist validation evidence."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active"
+layout_owner = "team-scientist"
+source_root = "src/polisyos/berl"
+readme = "src/polisyos/berl/README.md"
+root_facade_policy = "small experimental facade with implementation in explicit subpackages"
+implementation_roots = [
+  "src/polisyos/berl/adapters",
+  "src/polisyos/berl/benchmarks",
+  "src/polisyos/berl/contracts",
+  "src/polisyos/berl/metrics",
+]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "active"
+
+[boundaries]
+public_facade = "polisyos.berl"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_experimental"
+facade_mode = "eager_exports"
+registry_owner = "team-scientist"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.berl"]
+major_subsystem = false
+notes = "Active Bounded Explanation Reliability Layer facade for Scientist validation and explanation reliability evidence. API is experimental."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/berl"]
+contract_roots = ["tests/contract"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "explanation reliability metrics keep deterministic unit coverage",
+  "Scientist validation integration points keep dependent package smoke coverage",
+]
+
+[slo_runbook]
+status = "exception"
+slo_files = ["ops/components/berl/slo.yaml"]
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+runbook_expectation = "BERL incidents use the Scientist/benchmark triage path until BERL exposes standalone operational traffic."
+
+[observability]
+status = "exception"
+metrics_owner = "team-scientist"
+metric_surfaces = ["ops/components/berl/runtime-contract.toml"]
+trace_expectation = "BERL traces/logs carry package_name and Scientist validation context when called by Scientist."
+
+[name_collisions]
+status = "declared"
+owner = "team-scientist"
+registry = "architecture/name_registry.toml"
+allowed = ["governance"]
+
+[[allowed_name_collision]]
+name = "governance"
+scope = "dependent context"
+reason = "BERL may reference Scientist governance context but must not own governance primitives."
+owner = "team-scientist"
+
+[exceptions]
+status = "declared"
+owner = "team-scientist"
+registries = ["architecture/component_observability.toml"]
+
+[[exception]]
+id = "berl-standalone-slo-deferred"
+owner = "team-scientist"
+kind = "slo_exception"
+reason = "BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet."
+sunset = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/component_observability.toml"
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-scientist"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "BERL is not an extension host in Phase 5.8."

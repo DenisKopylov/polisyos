@@ -20,7 +20,7 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
-from polisyos.fabric.safety import UnsafeFilterExpressionError
+from polisyos.fabric.quality.safety import UnsafeFilterExpressionError
 
 __all__ = ["FilterTransform"]
 

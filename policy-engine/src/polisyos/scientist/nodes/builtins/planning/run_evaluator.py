@@ -15,13 +15,13 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.execution_plan import (
     IterationState,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.iteration_state_machine import transition
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.iteration_state_machine import transition
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.llm.cycle import (
+from polisyos.scientist.orchestration.llm.cycle import (
     evaluate_iteration,
     persist_evaluator_report,
     persist_iteration_state,

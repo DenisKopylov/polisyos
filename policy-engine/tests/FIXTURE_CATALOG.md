@@ -8,15 +8,15 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 
 | Family | Purpose | Canonical path(s) | Notes |
 |---|---|---|---|
-| Session/runtime fixtures | repo-wide test environment, artifact helpers, observability shims | `tests/conftest.py`, `tests/fixtures/artifacts.py`, `tests/fixtures/observability.py` | loaded automatically for pytest |
-| Runtime HTTP environment | fixture-backed FastAPI app and metadata used by backend + dashboard tests | `tests/fixtures/runtime_http.py`, `tests/unit/runtime/http/conftest.py`, `frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py` | canonical local integration demo dataset |
-| Deterministic synthetic builders | generated data when static JSON is too brittle | `tests/fixtures/c7_synthetic_data.py`, `tests/fixtures/causal_scm_fixtures.py`, `tests/fixtures/search_strategies.py` | prefer seeded builders over sprawling static blobs |
-| Contract golden records | stable IDs, canonical bytes, ABI-critical fixtures | `tests/contract/golden_records.json`, `tests/contract/conftest.py` | refresh only with explicit contract decision |
-| Foundry goldens | cross-method regression expectations | `tests/unit/foundry/golden/*.yaml` | human-reviewed YAML goldens |
+| Session/runtime fixtures | repo-wide test environment, artifact helpers, observability shims | `tests/conftest.py`, `tests/_helpers/artifacts.py`, `tests/_helpers/observability.py` | loaded automatically for pytest |
+| Runtime HTTP environment | fixture-backed FastAPI app and metadata used by backend + dashboard tests | `tests/_helpers/runtime_http.py`, `tests/unit/runtime/http/conftest.py`, `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py` | canonical local integration demo dataset |
+| Deterministic synthetic builders | generated data when static JSON is too brittle | `tests/_helpers/c7_synthetic_data.py`, `tests/_helpers/causal_scm_fixtures.py`, `tests/_helpers/search_strategies.py` | prefer seeded builders over sprawling static blobs |
+| Contract golden records | stable IDs, canonical bytes, ABI-critical fixtures | `tests/_golden/contract/golden_records.json`, `tests/contract/conftest.py` | refresh only with explicit contract decision |
+| Foundry goldens | cross-method regression expectations | `tests/_golden/foundry/methods/*.yaml` | human-reviewed YAML goldens |
 | Schema snapshots | generated contract snapshots checked in to gate ABI drift | `schemas/snapshots/**` | refresh via schema generation tooling, never manual edits |
-| Frontend contract fixtures | recorded runtime payloads parsed by frontend schemas | `frontend/runtime-dashboard/src/test/contracts/fixtures/*.json` | refresh via `npm run contracts:record` |
-| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/unit/fabric/connectors/sources/fixtures/**`, `polisyos-tools data record-fixtures` | committed only for narrow, reviewable source slices |
-| Seed/minimal data bundles | tiny domain examples for lex, transportability, phase0 and benchmark cases | `tests/fixtures/lex/**`, `tests/fixtures/phase0/**`, `tests/fixtures/transportability/**`, `benchmarks/*/fixtures/public_cases.json` | small enough to reason about in code review |
+| Frontend contract fixtures | recorded runtime payloads parsed by frontend schemas | `apps/runtime-dashboard/src/test/contracts/fixtures/*.json` | refresh via `corepack pnpm run contracts:record` |
+| Connector capture fixtures | recorded upstream source payloads and simulator fixtures | `tests/_data/fabric/connectors/sources/**`, `polisyos-tools data record-fixtures` | committed only for narrow, reviewable source slices |
+| Seed/minimal data bundles | tiny domain examples for lex, transportability, phase0 and benchmark cases | `tests/_data/lex/**`, `tests/_data/phase0/**`, `tests/_data/transportability/**`, `benchmarks/*/fixtures/public_cases.json` | small enough to reason about in code review |
 
 ## 2. Policy: Generated Fixtures
 
@@ -32,8 +32,8 @@ Phase 4 catalog for reusable test data, snapshots, and deterministic builders.
 
 - Goldens represent reviewed compatibility baselines, not convenience fixtures.
 - Canonical golden surfaces in this repo:
-  - `tests/contract/golden_records.json`
-  - `tests/unit/foundry/golden/*.yaml`
+  - `tests/_golden/contract/golden_records.json`
+  - `tests/_golden/foundry/methods/*.yaml`
   - `schemas/snapshots/**`
 - Golden refresh requires:
   - an intentional change reason;
@@ -58,9 +58,9 @@ uv run python tools/quality/diagnostics/gen_schema.py --models fabric --check --
 ### Frontend runtime contract fixtures
 
 ```bash
-cd policy-engine/frontend/runtime-dashboard
-npm run contracts:verify
-npm run contracts:record
+cd policy-engine/apps/runtime-dashboard
+corepack pnpm run contracts:verify
+corepack pnpm run contracts:record
 ```
 
 - `contracts:verify` is the safety gate.
@@ -81,10 +81,11 @@ npm run contracts:record
 
 ### Committed test data
 
-- `tests/**`
+- `tests/_data/**`
+- `tests/_golden/**`
 - `schemas/snapshots/**`
 - `benchmarks/*/fixtures/**`
-- `frontend/runtime-dashboard/src/test/contracts/fixtures/**`
+- `apps/runtime-dashboard/src/test/contracts/fixtures/**`
 
 ### Local or large data that must not be committed
 
@@ -116,8 +117,8 @@ Minimum expectations for a deterministic builder:
 
 The canonical lightweight demo dataset for local smoke and dashboard e2e is the fixture-backed runtime environment built by:
 
-- `tests/fixtures/runtime_http.py`
-- `frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py`
+- `tests/_helpers/runtime_http.py`
+- `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py`
 
 It is the default demo profile for the local integration stack because it is:
 

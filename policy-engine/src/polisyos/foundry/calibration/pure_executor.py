@@ -22,7 +22,7 @@ from pydantic import TypeAdapter
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.methods.merge_engine import JAXMergeEngine
+from polisyos.foundry.methods.components.merge_engine import JAXMergeEngine
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.governance.selector_expr import (
     SelectorAll,

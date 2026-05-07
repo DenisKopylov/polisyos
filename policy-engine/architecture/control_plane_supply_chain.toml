@@ -1,0 +1,609 @@
+[control_plane_supply_chain]
+version = 1
+status = "active_contract"
+mode = "phase5_9_supply_chain_closeout"
+phase = "repository-best-in-class-phases-1.7-2.8-5.9"
+owner = "team-security"
+backup_owner = "team-security"
+description = "Active control-plane, CODEOWNERS, CI identity, dependency-update, and release supply-chain contract for the split-root repository topology."
+validation_command = "uv run python tools/quality/validation/control_plane_supply_chain_contracts.py"
+
+[root_topology]
+product_root = "policy-engine"
+repository_control_plane_root = "."
+root_decision = "policy-engine is the effective product root; the outer Git root is reserved for GitHub-native control plane and Git-wide metadata."
+codeowners_source = ".github/CODEOWNERS"
+ruleset_source = ".github/repository-rulesets/main.yml"
+wave2_cleanup_phase = "2.8"
+
+[renovate]
+current_path = ".github/renovate.json"
+target_path = ".github/renovate.json"
+preferred_target = ".github/renovate.json"
+fallback_policy = "archived root-level fallback was retired on 2026-05-07 after config-location validation; reintroducing renovate.json requires a new ADR and fail-closed control-plane update."
+move_gate = "Renovate config is canonical at .github/renovate.json; packageRules matchFileNames must resolve to tracked workspace manifests."
+
+[codeowners_gate]
+mode = "fail_closed"
+enforced_since_phase = "2.8"
+current_enforced_reviewer = "@DenisKopylov"
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to the current repository owner until organization teams exist."
+owner_source_order = [
+  "architecture/packages/*.toml",
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "docs/reference/ownership.md",
+]
+required_public_surface_classifications = ["public_stable"]
+target_policy = "Every active package owner and every public_stable package has an explicit logical owner mapping and a target CODEOWNERS pattern or a personal-repo exception."
+
+[[owner_mapping]]
+owner = "team-platform"
+logical_owner_group = "@platform-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/.github/**",
+  "/.github/CODEOWNERS",
+  "/.github/repository-rulesets/**",
+  "/.github/workflows/**",
+  "/policy-engine/ops/**",
+  "/policy-engine/docs/reference/merge-governance.md",
+  "/policy-engine/docs/how-to/apply-github-governance.md",
+]
+critical_paths = [
+  ".github/**",
+  ".github/CODEOWNERS",
+  ".github/repository-rulesets/**",
+  ".github/workflows/**",
+  "policy-engine/ops/**",
+]
+
+[[owner_mapping]]
+owner = "team-security"
+logical_owner_group = "@platform-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/policy-engine/ops/security/**",
+  "/policy-engine/ops/policy/**",
+  "/policy-engine/docs/reference/security-compliance.md",
+  "/policy-engine/docs/runbooks/artifact-signing-sbom-failure.md",
+  "/policy-engine/src/polisyos/core/security/**",
+]
+critical_paths = [
+  "policy-engine/ops/security/**",
+  "policy-engine/ops/policy/**",
+  "policy-engine/src/polisyos/core/security/**",
+]
+
+[[owner_mapping]]
+owner = "team-release"
+logical_owner_group = "@platform-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/.github/workflows/release.yml",
+  "/policy-engine/ops/release/**",
+  "/policy-engine/release/**",
+  "/policy-engine/release-fragments/**",
+  "/policy-engine/docs/how-to/release-policy.md",
+]
+critical_paths = [
+  ".github/workflows/release.yml",
+  "policy-engine/ops/release/**",
+  "policy-engine/release/**",
+  "policy-engine/release-fragments/**",
+]
+
+[[owner_mapping]]
+owner = "team-architecture"
+logical_owner_group = "@architecture-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = [
+  "polisyos.ddm",
+  "polisyos.ddm_15_7",
+  "polisyos.calibration",
+  "polisyos.synthetic_world",
+]
+target_codeowners_patterns = [
+  "/policy-engine/architecture/**",
+  "/policy-engine/schemas/**",
+  "/policy-engine/docs/adr/**",
+  "/policy-engine/docs/plans/**",
+  "/policy-engine/src/polisyos/ddm/**",
+  "/policy-engine/src/polisyos/ddm_15_7/**",
+  "/policy-engine/src/polisyos/calibration/**",
+  "/policy-engine/src/polisyos/synthetic_world/**",
+]
+
+[[owner_mapping]]
+owner = "team-polisyos"
+logical_owner_group = "@platform-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = [
+  "polisyos.common",
+  "polisyos.core",
+  "polisyos.ir",
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.lex",
+]
+target_codeowners_patterns = [
+  "/policy-engine/**",
+  "/policy-engine/src/polisyos/**",
+]
+
+[[owner_mapping]]
+owner = "team-core"
+logical_owner_group = "@core-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.common", "polisyos.core"]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/common/**",
+  "/policy-engine/src/polisyos/core/**",
+]
+
+[[owner_mapping]]
+owner = "team-ir"
+logical_owner_group = "@ir-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.ir"]
+target_codeowners_patterns = ["/policy-engine/src/polisyos/ir/**"]
+
+[[owner_mapping]]
+owner = "team-data-forge"
+logical_owner_group = "@data-forge-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.data_forge"]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/data_forge/**",
+  "/policy-engine/schemas/artifacts/**",
+  "/policy-engine/schemas/manifests/**",
+]
+
+[[owner_mapping]]
+owner = "team-fabric"
+logical_owner_group = "@fabric-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.fabric"]
+target_codeowners_patterns = ["/policy-engine/src/polisyos/fabric/**"]
+
+[[owner_mapping]]
+owner = "team-lex"
+logical_owner_group = "@lex-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.lex"]
+target_codeowners_patterns = ["/policy-engine/src/polisyos/lex/**"]
+
+[[owner_mapping]]
+owner = "team-foundry"
+logical_owner_group = "@foundry-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = [
+  "polisyos.foundry",
+  "polisyos.foundry.agent_sim.world",
+  "polisyos.synthetic_world",
+]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/foundry/**",
+  "/policy-engine/src/polisyos/synthetic_world/**",
+]
+
+[[owner_mapping]]
+owner = "team-scholar"
+logical_owner_group = "@scholar-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.scholar"]
+target_codeowners_patterns = ["/policy-engine/src/polisyos/scholar/**"]
+
+[[owner_mapping]]
+owner = "team-scientist"
+logical_owner_group = "@scientist-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = [
+  "polisyos.scientist",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.ddm_15_7",
+]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/scientist/**",
+  "/policy-engine/src/polisyos/berl/**",
+  "/policy-engine/src/polisyos/calibration/**",
+  "/policy-engine/src/polisyos/ddm/**",
+  "/policy-engine/src/polisyos/ddm_15_7/**",
+]
+
+[[owner_mapping]]
+owner = "team-runtime"
+logical_owner_group = "@runtime-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = ["polisyos.runtime"]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/runtime/**",
+  "/policy-engine/docs/reference/api/**",
+  "/policy-engine/docs/runbooks/runtime-api-outage.md",
+]
+
+[[owner_mapping]]
+owner = "team-frontend"
+logical_owner_group = "@frontend-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/policy-engine/apps/**",
+  "/policy-engine/packages/**",
+]
+
+[[owner_mapping]]
+owner = "team-devx"
+logical_owner_group = "@tools-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/policy-engine/tools/**",
+  "/policy-engine/.devcontainer/**",
+  "/policy-engine/.pre-commit-config.yaml",
+]
+
+[[owner_mapping]]
+owner = "team-docs"
+logical_owner_group = "@docs-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/policy-engine/docs/**",
+  "/policy-engine/mkdocs.yml",
+]
+
+[[owner_mapping]]
+owner = "team-quality"
+logical_owner_group = "@tools-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = [
+  "/policy-engine/tests/**",
+  "/policy-engine/benchmarks/**",
+]
+
+[[owner_mapping]]
+owner = "team-design"
+logical_owner_group = "@docs-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+target_codeowners_patterns = ["/policy-engine/design/**"]
+
+[[ruleset_tier]]
+id = "required-review"
+owner = "team-platform"
+target = "main"
+requirements = [
+  "require pull request before merge",
+  "require at least one approval",
+  "dismiss stale approvals on push",
+  "require approval of the most recent push",
+  "require conversation resolution",
+]
+current_evidence = ".github/repository-rulesets/main.yml"
+
+[[ruleset_tier]]
+id = "code-owner-review"
+owner = "team-platform"
+target = "main"
+requirements = [
+  "require code-owner review",
+  "CODEOWNERS self-protects .github/**, CODEOWNERS, rulesets, workflows, and security config",
+]
+current_evidence = ".github/repository-rulesets/main.yml"
+
+[[ruleset_tier]]
+id = "fast-pr-checks"
+owner = "team-platform"
+target = "main"
+required_status_checks = ["Fast PR / Gate", "Standard PR / Gate"]
+current_evidence = ".github/repository-rulesets/main.yml"
+
+[[ruleset_tier]]
+id = "release-gate-checks"
+owner = "team-release"
+target = "release tags and release-critical changes"
+required_workflows = [
+  ".github/workflows/core-runtime-release-gate.yml",
+  ".github/workflows/release.yml",
+]
+required_jobs = [
+  "Release / Operability and promotion gates",
+  "Release / SBOM and vulnerability gate",
+  "Release / Canary",
+  "Release / Sign artifacts",
+  "Release / Attest artifacts",
+]
+
+[[ruleset_tier]]
+id = "protected-branch-restrictions"
+owner = "team-platform"
+target = "main"
+requirements = [
+  "block force-push on protected default branch",
+  "block branch deletion on protected default branch",
+  "treat ruleset application proof as GitHub-side evidence, not repository file evidence",
+]
+target_evidence = "GitHub ruleset export or screenshot linked from a release/platform acceptance report"
+
+[ci_permissions]
+default_top_level_permissions = "contents: read"
+top_level_write_permissions_forbidden = true
+job_scope_write_permissions_only = true
+id_token_policy = "id-token: write is allowed only on jobs that use OIDC-backed publish, Pages, Sigstore/cosign, or GitHub attestations."
+long_lived_cloud_secret_policy = "Long-lived cloud provider secrets are forbidden where OIDC, workload identity, or managed identity is supported."
+workflow_policy_gate = "uv run python tools/quality/ci/check_workflow_policy.py --repo-root .."
+allowed_long_lived_secret_families = [
+  "SENTRY_* for non-cloud error-reporting publication in conditional main/push CI paths",
+]
+
+[[workflow_write_permission]]
+workflow = ".github/workflows/docs-pages.yml"
+job = "deploy"
+purpose = "GitHub Pages deployment"
+permissions = ["pages: write", "id-token: write"]
+
+[[workflow_write_permission]]
+workflow = ".github/workflows/release.yml"
+job = "sign-artifacts"
+purpose = "Sigstore/cosign keyless release artifact signing"
+permissions = ["id-token: write"]
+
+[[workflow_write_permission]]
+workflow = ".github/workflows/release.yml"
+job = "attest-artifacts"
+purpose = "GitHub release artifact and supply-chain evidence attestations"
+permissions = ["attestations: write", "id-token: write"]
+
+[[workflow_write_permission]]
+workflow = ".github/workflows/release.yml"
+job = "publish-release"
+purpose = "Create the immutable GitHub release and upload release artifacts"
+permissions = ["contents: write"]
+
+[[workflow_write_permission]]
+workflow = ".github/workflows/frontend-nightly.yml"
+job = "scorecard"
+purpose = "Upload OpenSSF Scorecard SARIF to GitHub code scanning"
+permissions = ["security-events: write"]
+
+[[oidc_job]]
+workflow = ".github/workflows/docs-pages.yml"
+job = "deploy"
+purpose = "GitHub Pages deployment"
+permissions = ["pages: write", "id-token: write"]
+
+[[oidc_job]]
+workflow = ".github/workflows/release.yml"
+job = "sign-artifacts"
+purpose = "Sigstore/cosign keyless artifact signing"
+permissions = ["id-token: write"]
+
+[[oidc_job]]
+workflow = ".github/workflows/release.yml"
+job = "attest-artifacts"
+purpose = "GitHub artifact provenance attestations"
+permissions = ["attestations: write", "id-token: write"]
+
+[[security_secret_policy]]
+id = "cloud-identity"
+owner = "team-security"
+policy = "Prefer OIDC/workload identity/managed identity for cloud deployment and registry publication. Static cloud keys require an owner-approved exception with rotation and sunset."
+
+[[security_secret_policy]]
+id = "local-offline-signing"
+owner = "team-security"
+policy = "Local/offline signing keys may be documented for break-glass or development workflows, but release.yml must use keyless signing when publishing official release artifacts."
+
+[[release_phase_gate]]
+phase = "pull_request"
+owner = "team-platform"
+checks = [
+  "Fast PR / Gate",
+  "Standard PR / Gate",
+  "workflow policy gate",
+]
+scan_gates = [
+  "workflow policy gate",
+  "standard PR dependency-sensitive checks when lockfiles or release workflows change",
+]
+dependency_scan_policy = "Dependency/security scan evidence may be scheduled or path-triggered unless lockfiles or release workflows change."
+
+[[release_phase_gate]]
+phase = "dependency_lock_change"
+owner = "team-security"
+checks = [
+  "OSV or equivalent dependency vulnerability scan",
+  "SBOM refresh or explicit release-sbom non-commit evidence",
+  "dependency update grouping follows .github/renovate.json",
+]
+trigger_paths = [
+  ".github/renovate.json",
+  "policy-engine/uv.lock",
+  "policy-engine/pnpm-lock.yaml",
+]
+scan_gates = [
+  "OSV or equivalent dependency vulnerability scan",
+  "repository or release-candidate SBOM generation",
+  "Grype or equivalent vulnerability policy evaluation",
+]
+sbom_required = true
+generated_artifact_family = "release-sbom"
+
+[[release_phase_gate]]
+phase = "release_candidate"
+owner = "team-release"
+checks = [
+  "operability release gate",
+  "release immutability check",
+  "artifact size policy",
+  "release SBOM generation",
+  "vulnerability scan and policy evaluation",
+  "release canary",
+  "keyless signing",
+  "build provenance attestation",
+]
+trigger_paths = [
+  "v* tags",
+  "workflow_dispatch tag input",
+  "policy-engine/release/**",
+  "policy-engine/release-fragments/**",
+]
+scan_gates = [
+  "release SBOM generation",
+  "Grype vulnerability scan from generated SBOM",
+  "CVE exception policy evaluation",
+  "release canary before signing/publishing",
+]
+sbom_required = true
+provenance_required = true
+signed_artifacts_required = true
+generated_artifact_family = "release-sbom"
+
+[[release_artifact_contract]]
+artifact_type = "python-wheel"
+patterns = ["policy_engine-*.whl"]
+owner = "team-release"
+sbom_required = true
+provenance_target = "GitHub build provenance attestation"
+signing_target = "cosign keyless sign-blob where release tooling supports it"
+evidence_workflow = ".github/workflows/release.yml"
+generated_artifact_family = "release-sbom"
+
+[[release_artifact_contract]]
+artifact_type = "python-sdist"
+patterns = ["policy_engine-*.tar.gz"]
+owner = "team-release"
+sbom_required = true
+provenance_target = "GitHub build provenance attestation"
+signing_target = "cosign keyless sign-blob where release tooling supports it"
+evidence_workflow = ".github/workflows/release.yml"
+generated_artifact_family = "release-sbom"
+
+[[release_artifact_contract]]
+artifact_type = "runtime-dashboard-bundle"
+patterns = ["runtime-dashboard-dist-*.tar.gz"]
+owner = "team-frontend"
+sbom_required = true
+provenance_target = "GitHub build provenance attestation"
+signing_target = "cosign keyless sign-blob where release tooling supports it"
+evidence_workflow = ".github/workflows/release.yml"
+generated_artifact_family = "release-sbom"
+
+[[release_artifact_contract]]
+artifact_type = "checksum-manifest"
+patterns = ["SHA256SUMS"]
+owner = "team-release"
+sbom_required = true
+provenance_target = "GitHub build provenance attestation"
+signing_target = "cosign keyless sign-blob where release tooling supports it"
+evidence_workflow = ".github/workflows/release.yml"
+generated_artifact_family = "release-sbom"
+
+[[control_crosswalk]]
+control = "OpenSSF Scorecard"
+owner = "team-security"
+reporting_artifact = "nightly-scorecard"
+evidence = ".github/workflows/frontend-nightly.yml"
+release_phase = "scheduled and dependency/security review"
+
+[[control_crosswalk]]
+control = "SLSA provenance"
+owner = "team-security"
+reporting_artifact = "build provenance attestations"
+evidence = ".github/workflows/release.yml"
+release_phase = "release_candidate"
+
+[[control_crosswalk]]
+control = "SBOM"
+owner = "team-security"
+reporting_artifact = "release-supply-chain"
+evidence = "ops/security/sbom.toml"
+release_phase = "dependency_lock_change and release_candidate"
+
+[[control_crosswalk]]
+control = "Signed artifacts"
+owner = "team-release"
+reporting_artifact = "release-signatures"
+evidence = ".github/workflows/release.yml"
+release_phase = "release_candidate"

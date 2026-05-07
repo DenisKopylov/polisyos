@@ -35,14 +35,14 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
-from polisyos.scientist.causal.validity import persist_causal_validity_bundle
-from polisyos.scientist.claims.ledger import persist_claim_ledger
-from polisyos.scientist.claims.projections import project_causal_effect_claims
-from polisyos.scientist.claims.validators import is_claim_spine_enabled
+from polisyos.scientist.methods.causal.validity import persist_causal_validity_bundle
+from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
+from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
+from polisyos.scientist.evidence.claims.validators import is_claim_spine_enabled
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -57,8 +57,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.scientist.engine.context import ExecutionContext
-    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_causal_evaluation@1.2.0"),

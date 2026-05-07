@@ -27,7 +27,7 @@ Fabric-specific incident execution is routed through
 [Fabric Quarantine/DLQ And Data-Plane Recovery](../../runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md)
 when quarantine, CDC, or connector replay evidence is the primary blast radius.
 
-Historical implementation planning for async CAS rollout lives in `docs/archive/plans/CAS_ASYNC_IO_ROADMAP.md` and is kept outside the published factual reference surface.
+Historical implementation planning for async CAS rollout lives in `docs/plans/archive/CAS_ASYNC_IO_ROADMAP.md` and is kept outside the published factual reference surface.
 
 ## Operating Assumptions
 

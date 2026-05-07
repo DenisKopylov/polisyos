@@ -17,7 +17,7 @@ from urllib.request import urlopen
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
-DASHBOARD_ROOT = REPO_ROOT / "frontend" / "runtime-dashboard"
+DASHBOARD_ROOT = REPO_ROOT / "apps" / "runtime-dashboard"
 DEFAULT_RUNTIME_HOST = "127.0.0.1"
 DEFAULT_RUNTIME_PORT = 8000
 DEFAULT_DASHBOARD_HOST = "127.0.0.1"
@@ -76,7 +76,7 @@ def _runtime_command(config: StackConfig) -> list[str]:
         "--extra",
         "runtime-http",
         "python",
-        "frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
         "--host",
         config.runtime_host,
         "--port",

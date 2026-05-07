@@ -13,8 +13,8 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scholar.freshness import build_freshness_metadata
 from polisyos.scholar.types import KnowledgeBundlePayloadV1
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,

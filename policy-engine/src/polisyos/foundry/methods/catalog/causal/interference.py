@@ -32,7 +32,7 @@ from itertools import combinations
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import ValidationError
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -46,6 +46,13 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.foundry.methods.catalog.causal._interference_contracts import (
+    InterferenceAugmentedGraph,
+    InterferenceIdentificationResult,
+    _ReductionErrorBoundPlan,
+    _SimplicialSupportGate,
+    _TopologyCertificatePlan,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import NetworkCausalData
 from polisyos.foundry.methods.catalog.network.generative_protocols import SBMStratificationResult
@@ -360,44 +367,6 @@ def _cross_unit_edges(
     return tuple(cross_unit)
 
 
-class InterferenceAugmentedGraph(BaseModel):
-    """Graph augmentation used by the interference identification layer."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    original_graph: CausalGraphModel
-    augmented_graph: CausalGraphModel
-    exposure_nodes: tuple[str, ...] = ()
-    cluster_partition: tuple[tuple[str, ...], ...] = ()
-    interference_type: Literal["none", "partial", "network", "bipartite", "spatial"] = "network"
-    exposure_mapping: ExposureMappingType = ExposureMappingType.FRACTIONAL
-    cross_unit_edges: tuple[tuple[str, str], ...] = ()
-    node_to_cluster: dict[str, str] = Field(default_factory=dict)
-    cluster_var: str | None = None
-
-
-class InterferenceIdentificationResult(BaseModel):
-    """Result of graph-based interference identification."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
-    treatment: str
-    outcome: str
-    status: Literal["identified", "non_identified", "input_invalid"]
-    interference_detected: bool
-    sutva_violated: bool
-    identification_method: str = "graph_based_interference_id"
-    augmented_graph: InterferenceAugmentedGraph
-    proof_steps: tuple[IRProofStep, ...] = ()
-    trace: tuple[str, ...] = ()
-    base_identification_status: str | None = None
-    estimand_ast: dict[str, Any] | None = None
-    required_distributions: tuple[dict[str, Any], ...] = ()
-    negative_certificate: dict[str, Any] | None = None
-    warnings: tuple[str, ...] = ()
-
-
 def _coerce_topology_contract_source(
     payload: InterferenceAugmentedGraph | InterferenceIdentificationResult | Mapping[str, Any],
 ) -> tuple[InterferenceAugmentedGraph, InterferenceIdentificationResult | None]:
@@ -461,32 +430,6 @@ def _requested_interference_mode(
     if reduction_policy == "cluster_projection":
         return "clustered"
     return "complex"
-
-
-@dataclass(frozen=True)
-class _SimplicialSupportGate:
-    supported: bool
-    assumptions: tuple[str, ...]
-    failures: tuple[str, ...]
-
-
-@dataclass(frozen=True)
-class _TopologyCertificatePlan:
-    supported_query_family: str
-    fallback_mode: Literal["pairwise", "clustered", "unsupported"]
-    exposure_assumptions: tuple[str, ...]
-    reduction_error_bound: float | None
-    mode_requested: Literal["pairwise", "clustered", "complex"]
-    mode_used: Literal["pairwise", "clustered", "complex", "unsupported"]
-    fallback_triggered: bool
-    fallback_reason_codes: tuple[str, ...]
-    estimability_checks: dict[str, Literal["pass", "fail", "not_applicable"]]
-
-
-@dataclass(frozen=True)
-class _ReductionErrorBoundPlan:
-    reduction_error_bound: float | None
-    assumptions: tuple[str, ...] = ()
 
 
 def _supported_query_family(

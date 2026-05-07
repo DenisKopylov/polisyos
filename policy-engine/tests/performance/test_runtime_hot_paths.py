@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
-from fixtures.runtime_http import build_runtime_api_env
+from _helpers.runtime_http import build_runtime_api_env
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.core.artifacts.async_store import (

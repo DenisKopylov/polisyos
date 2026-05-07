@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,

@@ -37,7 +37,7 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
-from polisyos.foundry.methods.specialization import (
+from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
     ShapeSpec,
     Specialization,

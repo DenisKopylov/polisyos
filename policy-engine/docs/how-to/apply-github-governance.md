@@ -27,11 +27,14 @@ the GitHub UI:
 
 ```bash
 cd policy-engine
-rg --files .github/workflows
-sed -n '1,200p' .github/labels.yml
+rg --files ../.github/workflows
+sed -n '1,200p' ../.github/labels.yml
+sed -n '1,220p' ../.github/CODEOWNERS
+sed -n '1,220p' ../.github/repository-rulesets/main.yml
 sed -n '1,200p' docs/reference/merge-governance.md
 sed -n '1,200p' docs/reference/quality-gates.md
 sed -n '1,200p' docs/reference/ownership.md
+sed -n '1,220p' architecture/control_plane_supply_chain.toml
 ```
 
 ## Before You Start
@@ -41,16 +44,22 @@ repository settings, branch protection, labels, and merge rules.
 
 The current repo-tracked inputs are:
 
-- labels: `.github/labels.yml`
-- reviewer and change taxonomy prompts: `.github/PULL_REQUEST_TEMPLATE.md`
+- labels: repository-root `.github/labels.yml`
+- reviewer and change taxonomy prompts:
+  repository-root `.github/PULL_REQUEST_TEMPLATE.md`
 - merge-governance narrative: `docs/reference/merge-governance.md`
 - local/CI gate inventory: `docs/reference/quality-gates.md`
 - owner routing: `docs/reference/ownership.md`
-- active workflow inventory: `.github/workflows/*.yml`
+- active workflow inventory: repository-root `.github/workflows/*.yml`
+- CODEOWNERS routing: repository-root `.github/CODEOWNERS`
+- default-branch ruleset intent:
+  repository-root `.github/repository-rulesets/main.yml`
+- active control-plane target contract:
+  `policy-engine/architecture/control_plane_supply_chain.toml`
 
-There is no repo-tracked `.github/repository-rulesets/main.yml` or
-`.github/CODEOWNERS` file in this checkout, so those parts of GitHub
-governance are manual today.
+The repository now versions CODEOWNERS and ruleset intent. GitHub-side
+application of that ruleset is still manual evidence: after changing the file,
+verify the UI or export the ruleset from GitHub.
 
 ## 1. Create or Update Labels
 
@@ -82,18 +91,18 @@ Before configuring required checks, verify which workflows actually exist under
 As of this docs refresh, the active inventory includes:
 
 - `abi.yml`
-- `arch.yml`
-- `arch-freeze.yml`
-- `build-and-push.yml`
-- `causal-phases.yml`
-- `docs.yml`
-- `foundry-release-gate.yml`
-- `perf.yml`
-- `replay.yml`
-- `signatures.yml`
+- `ci.yml`
+- `core-runtime-long-soak.yml`
+- `core-runtime-release-gate.yml`
+- `docs-pages.yml`
+- `fabric-remediation.yml`
+- `frontend-nightly.yml`
+- `frontend-quality.yml`
+- `release.yml`
 
-Do not create required checks for absent historical files such as `ci.yml`,
-`frontend-nightly.yml`, `release.yml`, or `docs-pages.yml`.
+Product-local templates under `policy-engine/ops/ci/templates/workflows/` are
+reference/template material unless they are promoted to the repository-root
+`.github/workflows/` control plane.
 
 ## 3. Configure Branch Protection Manually
 
@@ -103,16 +112,20 @@ Path in GitHub UI:
 2. Click **Settings**.
 3. Open the branch-protection or rulesets section for `main`.
 
-Recommended posture:
+Recommended posture, matching the tracked ruleset intent:
 
 - require pull requests before merging;
 - require at least one approval;
+- require code-owner review;
+- dismiss stale approvals on push;
+- require approval of the most recent push;
 - require conversation resolution before merge;
-- enable stale-approval dismissal if that matches your team's review posture.
+- block force-push and branch deletion on the protected default branch.
 
 These are operational settings. Keep them aligned with
-`docs/reference/merge-governance.md`, but do not treat them as repo-tracked
-facts unless the repository starts versioning them.
+`.github/repository-rulesets/main.yml` and
+`docs/reference/merge-governance.md`; treat the repository files as intended
+state and the GitHub UI as applied-state evidence.
 
 ## 4. Choose Required Checks from Current Workflows
 
@@ -126,17 +139,20 @@ Recommended process:
 3. Add only those live check names to branch protection.
 4. Recheck them whenever workflow job names change.
 
-The repository does not currently version a canonical required-check allowlist,
-so this remains manual.
+The tracked ruleset currently names `Fast PR / Gate` and `Standard PR / Gate`
+as the fast PR tier. If job names change, update the ruleset file and this
+guide before changing the GitHub UI.
 
 ## 5. Reviewer Routing
 
-Because there is no repo-tracked `.github/CODEOWNERS` file here, reviewer
-routing should follow:
+Reviewer routing should follow:
 
-1. `docs/reference/ownership.md`
-2. the nearest package `README.md`
-3. the shared-surface guidance in `docs/reference/quality-gates.md`
+1. `.github/CODEOWNERS` for current enforceable reviewer routing
+2. `architecture/control_plane_supply_chain.toml` for target logical-owner
+   projection and personal-repo exceptions
+3. `docs/reference/ownership.md`
+4. the nearest package `README.md`
+5. the shared-surface guidance in `docs/reference/quality-gates.md`
 
 For shared control-plane changes such as `.github/workflows/**`, `mkdocs.yml`,
 release ledgers, or shared reference pages, request `@platform-owners`
@@ -144,14 +160,16 @@ attention explicitly.
 
 ## 6. Merge Queue and Signatures
 
-- Merge queue is not part of the repo-tracked contract today. If you enable it
-  in GitHub, treat that as a manual operational decision.
+- Merge queue is disabled in `.github/repository-rulesets/main.yml`. If you
+  enable it in GitHub, update the tracked contract first and add
+  merge_group-compatible required checks.
 
 - `signatures.yml` and `build-and-push.yml` are the repo-tracked signing and
   SBOM surfaces.
 
-- Commit-signature enforcement on `main`, if you use it, is a manual GitHub
-  setting rather than a versioned repository rule.
+- Signed release tags are required by the tracked ruleset. Commit-signature
+  enforcement on `main` remains recommended but is not enforced until key
+  management and automation signing posture are standardized.
 
 ## 7. Post-Setup Verification Checklist
 
@@ -162,9 +180,9 @@ After saving the ruleset, verify all of the following:
   exist;
 
 - labels from `.github/labels.yml` are available and can be applied;
-- a sample PR routes reviewers according to `docs/reference/ownership.md`;
+- a sample PR routes reviewers according to `.github/CODEOWNERS`;
 - a sample PR shows the expected blocking rules in the merge box;
-- labels from `.github/labels.yml` are available and can be applied.
+- release tag/signing expectations match `.github/repository-rulesets/main.yml`.
 
 ## 8. Drift-Control Rule
 
@@ -172,9 +190,12 @@ When governance policy changes in the repo:
 
 1. update `.github/labels.yml`, workflow files, and/or the relevant governance
    docs;
-2. update the relevant docs page;
-3. apply the same change in GitHub UI;
-4. verify the live repository state still matches the repo-tracked source of
+2. update `.github/CODEOWNERS`, `.github/repository-rulesets/main.yml`, or
+   `architecture/control_plane_supply_chain.toml` when ownership, protection,
+   or supply-chain posture changes;
+3. update the relevant docs page;
+4. apply the same change in GitHub UI;
+5. verify the live repository state still matches the repo-tracked source of
    truth.
 
 ## Rollback

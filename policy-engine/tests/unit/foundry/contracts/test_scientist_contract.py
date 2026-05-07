@@ -59,7 +59,7 @@ def snapshot():
 
     with registry_scope() as reg:
         try:
-            from polisyos.foundry.methods.catalog_snapshot import (
+            from polisyos.foundry.methods.catalog.snapshot import (
                 build_method_catalog_snapshot,
             )
 

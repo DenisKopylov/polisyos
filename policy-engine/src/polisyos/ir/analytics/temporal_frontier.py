@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel

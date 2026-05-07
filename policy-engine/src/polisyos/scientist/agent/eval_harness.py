@@ -39,7 +39,7 @@ from polisyos.scientist.agent.reflexion_evaluator import (
 )
 from polisyos.scientist.agent.tools.registry import ToolRegistry
 from polisyos.scientist.agent.tools.schema import ToolDefinition
-from polisyos.scientist.llm.provider_verification import run_gonka_provider_smoke
+from polisyos.scientist.orchestration.llm.provider_verification import run_gonka_provider_smoke
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore

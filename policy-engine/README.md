@@ -119,7 +119,7 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 | Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
 | Runtime API            | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json`                                       | Governed by the Runtime API contract check                                                    |
 | CLI                    | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities`                                                | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/)      |
-| Frontend consumers     | `frontend/runtime-api-client`, `frontend/runtime-dashboard`, `frontend/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
+| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
 
 ## Dependency Boundaries
 

@@ -20,7 +20,7 @@ Rollback path: restore the last known-good deployment, preserve read-only access
 | Primary owner      | `@runtime-owners`                                                                                                                                                  |
 | Coordination owner | `@platform-owners`                                                                                                                                                 |
 | Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                                    |
-| Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_contract_hardening.py`, `tests/unit/runtime/http/test_runtime_api_observability.py`, `tools/ops/runtime/check_runtime_api_contract.py` |
+| Evidence anchors   | `tests/unit/runtime/http/test_runtime_api_contract_hardening.py`, `tests/unit/runtime/http/test_runtime_api_observability.py`, `tools/ops_runners/runtime/check_runtime_api_contract.py` |
 | Rollback posture   | restore last known-good deployment, preserve read-only surface when write path is the failing branch                                                               |
 
 ## Symptom

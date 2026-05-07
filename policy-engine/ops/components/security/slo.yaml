@@ -1,0 +1,8 @@
+service: security
+version: 1
+owner: team-security
+status: exception
+exception_reason: Security owns alert response and compliance evidence, but Phase 4.9 does not introduce a standalone security SLO gate before Wave 6.
+exception_expires: 2026-08-01
+objectives: []
+

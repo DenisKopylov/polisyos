@@ -15,7 +15,7 @@ from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 ASSESSMENT_ID = "scientist_best_in_class_phase1_1"
 TOOL_NAME = "ci.check-scientist-best-in-class-phase1-1"
 
-CLAIMS_PACKAGE = Path("src/polisyos/scientist/claims")
+CLAIMS_PACKAGE = Path("src/polisyos/scientist/evidence/claims")
 REFERENCE_DOC = Path("docs/reference/scientist/claims.md")
 ACTIVE_PLAN_DOC = Path("docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md")
 REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
@@ -27,11 +27,11 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     CLAIMS_PACKAGE / "validators.py",
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/unit/scientist/claims/test_models.py"),
-    Path("tests/unit/scientist/claims/test_readiness.py"),
-    Path("tests/unit/scientist/claims/test_ledger.py"),
-    Path("tests/unit/scientist/claims/test_projections.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase1_1.py"),
+    Path("tests/unit/scientist/evidence/claims/test_models.py"),
+    Path("tests/unit/scientist/evidence/claims/test_readiness.py"),
+    Path("tests/unit/scientist/evidence/claims/test_ledger.py"),
+    Path("tests/unit/scientist/evidence/claims/test_projections.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase1_1.py"),
 )
 REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
     Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
@@ -43,13 +43,15 @@ REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
         "claim_spine.naked_decision_claims",
         "missing_claims_ref_for_decision_bearing_state",
     ),
-    Path("tests/unit/scientist/claims/test_readiness.py"): (
+    Path("tests/unit/scientist/evidence/claims/test_readiness.py"): (
         "test_legal_claim_without_evidence_requires_review",
     ),
-    Path("tests/unit/scientist/claims/test_models.py"): (
+    Path("tests/unit/scientist/evidence/claims/test_models.py"): (
         "test_claim_with_unresolved_counterevidence_cannot_be_publishable",
     ),
-    Path("tests/unit/scientist/claims/test_projections.py"): ("legacy_claim_ledger_status",),
+    Path("tests/unit/scientist/evidence/claims/test_projections.py"): (
+        "legacy_claim_ledger_status",
+    ),
 }
 INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"),
@@ -57,8 +59,8 @@ INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"),
     Path("src/polisyos/scientist/governance/report.py"),
     Path("src/polisyos/scientist/governance/accountability.py"),
-    Path("src/polisyos/scientist/causal/validity.py"),
-    Path("src/polisyos/scientist/frontier_runtime.py"),
+    Path("src/polisyos/scientist/methods/causal/validity.py"),
+    Path("src/polisyos/scientist/orchestration/engine/frontier_runtime.py"),
 )
 
 
@@ -75,7 +77,7 @@ def _import_and_validate_claim_fixture(repo_root: Path) -> tuple[bool, list[str]
     sys.path.insert(0, str(repo_root / "src"))
     try:
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.claims import (
+        from polisyos.scientist.evidence.claims import (
             ClaimLedger,
             ClaimPublishability,
             ClaimRecord,

@@ -46,8 +46,8 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,

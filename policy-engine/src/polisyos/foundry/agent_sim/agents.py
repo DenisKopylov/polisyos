@@ -32,7 +32,7 @@ def _cas_root() -> Path:
     env = os.getenv("POLISYOS_CAS_ROOT")
     if env:
         return Path(env)
-    return Path(".polisyos")
+    return Path(".polisyos/cas")
 
 
 def _load_policy_from_artifact(weights_artifact: str, template: eqx.Module) -> eqx.Module:

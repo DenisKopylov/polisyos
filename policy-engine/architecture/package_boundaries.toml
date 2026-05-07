@@ -67,7 +67,7 @@ allowed_dependencies = [
   "polisyos.common",
   "polisyos.ir",
   "polisyos.core",
-  "polisyos.fabric.connectors",
+  "polisyos.fabric",
 ]
 forbidden_dependencies = [
   "polisyos.runtime",
@@ -138,7 +138,7 @@ allowed_dependencies = [
   "polisyos.common",
   "polisyos.ir",
   "polisyos.core",
-  "polisyos.fabric.data_plane",
+  "polisyos.fabric",
   "polisyos.data_forge.read_api",
 ]
 forbidden_dependencies = [
@@ -263,7 +263,7 @@ forbidden_dependencies = [
 
 [[package]]
 module = "polisyos.ddm_15_7"
-owner = "team-scientist"
+owner = "team-architecture"
 public_facade = "polisyos.ddm_15_7"
 compatibility_shim = true
 shim_id = "ddm-15-7-rename"
@@ -282,7 +282,7 @@ allowed_dependencies = [
   "polisyos.common",
   "polisyos.ir",
   "polisyos.core",
-  "polisyos.foundry.agent_sim",
+  "polisyos.foundry",
 ]
 forbidden_dependencies = [
   "polisyos.scientist",

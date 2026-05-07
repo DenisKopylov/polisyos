@@ -9,12 +9,12 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.finite import ensure_probability
 from polisyos.fabric.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
     default_processing_contract_for_connector,
 )
+from polisyos.fabric.quality.finite import ensure_probability
 from polisyos.ir.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.connectors import ConnectorMetadataSpec
 

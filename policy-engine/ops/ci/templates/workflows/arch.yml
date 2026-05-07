@@ -26,15 +26,15 @@ jobs:
       - name: Sync Python dependencies
         run: uv sync --frozen --extra lint --extra test --extra runtime --extra causal-discovery
       - name: Install frontend dashboard dependencies
-        working-directory: frontend/runtime-dashboard
-        run: npm ci
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm install --frozen-lockfile
       - name: Run import gate
         run: uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
       - name: Run Foundry backend lint policy
         run: uv run python tools/quality/lint/lint_foundry.py --repo-root .
       - name: Run mypy strict ratchet
         run: |
-          uv run mypy --strict --follow-imports=silent \
+          uv run mypy --config-file architecture/tooling/mypy/generated.ini --strict --follow-imports=silent \
             src/polisyos/runtime/http/errors.py \
             src/polisyos/common/serialization.py \
             src/polisyos/core/security/authz.py \
@@ -56,12 +56,14 @@ jobs:
         run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
       - name: Verify architecture guardrails
         run: uv run polisyos-tools architecture guardrails check
+      - name: Verify tool config split
+        run: uv run polisyos-tools workspace tool-configs --check
       - name: Verify Runtime API contract drift
-        run: uv run --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+        run: uv run --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
       - name: Verify frontend API types are current
-        working-directory: frontend/runtime-dashboard
+        working-directory: apps/runtime-dashboard
         run: |
-          npm run generate:api
+          corepack pnpm run generate:api
           git diff --exit-code -- src/api/types.ts
       - name: Verify Repository SOTA closeout
         run: uv run polisyos-tools workspace repository-sota-closeout

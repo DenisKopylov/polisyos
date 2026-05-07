@@ -13,6 +13,7 @@ by domain family and registered into the shared `MethodRegistry`.
 
 - **Domain families** - causal, econometrics, optimization, simulation, survey, ml, and more.
 - **Bootstrap registration** - each family exposes `ensure_*_methods_registered()`.
+- **Catalog snapshots** - `snapshot.py` captures immutable registry inventories for docs, CI, and release evidence.
 - **Flat public surface** - high-level packages remain importable without deep legacy shims.
 - **Causal is largest** - discovery, estimation, transportability, policy learning and strategic response families live there.
 - **Optional dependencies** - families can degrade gracefully when scientific stacks are unavailable.

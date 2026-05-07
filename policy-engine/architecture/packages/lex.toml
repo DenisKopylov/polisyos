@@ -1,0 +1,121 @@
+[package]
+id = "lex"
+module = "polisyos.lex"
+name = "lex"
+owner = "team-lex"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and legal knowledge APIs."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-lex"
+source_root = "src/polisyos/lex"
+readme = "src/polisyos/lex/README.md"
+root_facade_policy = "top-level package is a lazy runtime facade; offline corpus/domain build work belongs to Data Forge"
+implementation_roots = [
+  "src/polisyos/lex/extensions",
+  "src/polisyos/lex/knowledge",
+  "src/polisyos/lex/legal_evaluation",
+  "src/polisyos/lex/normpack",
+  "src/polisyos/lex/simulator",
+]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.lex"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.scholar",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.lex"]
+major_subsystem = true
+notes = "Stable runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and read-only legal knowledge APIs. Offline legal preprocessing is owned by polisyos.data_forge.domains.legal."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/lex"]
+contract_roots = ["tests/contract", "tests/unit/lex"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/lex"]
+minimum_expectations = [
+  "NormPack and legal-evaluation changes keep golden or schema tests",
+  "runtime Lex facade changes do not import Data Forge domain-private modules",
+  "extension-host changes keep lex norm pack smoke coverage",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/lex/slo.yaml", "ops/observability/slo/lex.yaml"]
+runbooks = [
+  "docs/runbooks/lex-production-140k.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/broken-contract-generation.md",
+]
+runbook_expectation = "Lex production, norm-pack freshness, legal evaluation, and cache changes update the Lex component bundle."
+
+[observability]
+status = "covered"
+metrics_owner = "team-lex"
+metric_surfaces = ["ops/components/lex/runtime-contract.toml", "ops/observability/slo/lex.yaml"]
+trace_expectation = "Lex traces/logs carry norm_pack_id, jurisdiction_id, search_provider, and artifact_ref."
+
+[name_collisions]
+status = "declared"
+owner = "team-lex"
+registry = "architecture/name_registry.toml"
+allowed = ["runtime", "contracts"]
+
+[[allowed_name_collision]]
+name = "runtime"
+scope = "package-local references"
+reason = "Lex runtime means legal evaluation runtime behavior and must not become Runtime API/control-plane ownership."
+owner = "team-lex"
+
+[exceptions]
+status = "none"
+owner = "team-lex"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "active"
+owner = "team-lex"
+extension_points = ["polisyos.lex_normpacks"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = ["polisyos.lex.normpack.components:__polisyos_components__"]
+example_packages = ["examples/extensions/lex_normpack"]

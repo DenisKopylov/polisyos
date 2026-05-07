@@ -30,7 +30,7 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
-from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_unique_ids
 from polisyos.ir.analytics.microsim_calibration import build_microsim_calibration_report
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.observation.bundles import (
@@ -79,7 +79,7 @@ from polisyos.ir.observation.measurement import (
     MeasurementRegistry,
     SchemaRegimeRegistry,
 )
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

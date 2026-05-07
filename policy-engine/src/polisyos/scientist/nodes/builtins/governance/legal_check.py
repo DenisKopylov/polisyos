@@ -17,11 +17,11 @@ from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
 from polisyos.lex.types import NormPackBuildRequest
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,

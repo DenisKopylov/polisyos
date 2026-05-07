@@ -15,7 +15,7 @@ import pandas as pd
 from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.safety import quote_sql_identifier
+from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.security import (
     ArtifactGovernanceError,
     DataClassification,

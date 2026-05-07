@@ -1,0 +1,32 @@
+component: security
+owner: team-security
+status: draft
+alerts:
+  - name: TenantBoundaryViolation
+    source: ops/observability/prometheus/rules/audit_chain_alerts.yml
+    runbook: docs/runbooks/cas-opa-outage.md
+  - name: CrossTenantAccessAttempt
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/cas-opa-outage.md
+  - name: RuntimeAuthFailuresSpike
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/cas-opa-outage.md
+  - name: TEEAttestationFailureRate
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/artifact-signing-sbom-failure.md
+  - name: TEEUnavailableOnConfidentialNode
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/artifact-signing-sbom-failure.md
+  - name: SBOMCriticalCVEDetected
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/artifact-signing-sbom-failure.md
+  - name: SBOMDeploymentGateDenySpike
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/artifact-signing-sbom-failure.md
+  - name: PlaintextConnectionDetected
+    source: ops/observability/prometheus/rules/mtls-rules.yaml
+    runbook: docs/runbooks/key-rotation.md
+  - name: MTLSCertificateExpiringSoon
+    source: ops/observability/prometheus/rules/mtls-rules.yaml
+    runbook: docs/runbooks/key-rotation.md
+

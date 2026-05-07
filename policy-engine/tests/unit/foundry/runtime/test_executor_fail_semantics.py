@@ -19,14 +19,14 @@ from polisyos.core.contracts.foundry import (
     ProgramOp,
 )
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._graph import (
+from polisyos.foundry.execute._internal.graph import (
     _MAX_FAILURE_CARDS,
     _append_failure_card,
     _classify_failure,
     _hash_traceback,
     execute_program_graph,
 )
-from polisyos.foundry.execute._models import (
+from polisyos.foundry.execute._internal.models import (
     ExecutionStrictness,
     FailureCard,
     FailureKind,

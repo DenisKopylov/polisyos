@@ -1,6 +1,6 @@
 """Per-tool circuit breaker registry.
 
-Wraps :class:`~polisyos.scientist.engine.circuit_breaker.CircuitBreaker` to
+Wraps :class:`~polisyos.scientist.orchestration.engine.circuit_breaker.CircuitBreaker` to
 provide isolated failure tracking for each tool in a :class:`ToolRegistry`.
 """
 
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import threading
 
-from polisyos.scientist.engine.circuit_breaker import (
+from polisyos.scientist.orchestration.engine.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
 )

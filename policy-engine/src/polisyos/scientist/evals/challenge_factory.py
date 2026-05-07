@@ -13,8 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evals.leakage import detect_benchmark_contamination
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.search.failure_cards import TypedFailureCard
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
 
 __all__ = [
     "ChallengeClass",

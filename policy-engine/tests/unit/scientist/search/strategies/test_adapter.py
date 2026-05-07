@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from polisyos.scientist.search.controller import SearchIteration
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.search.strategies.adapter import StrategyAdapter
-from polisyos.scientist.search.strategies.random import RandomSearchStrategy
-from polisyos.scientist.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.controller import SearchIteration
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
 
 
 def test_adapter_generates_controller_payload(simple_space: SearchSpace) -> None:

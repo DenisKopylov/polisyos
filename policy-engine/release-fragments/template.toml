@@ -1,12 +1,33 @@
+id = "YYYY-MM-DD-short-change-id"
 title = "Short release note title"
 type = "changed"
 component = "platform"
+owner = "team-owner"
 summary = "Describe the user-visible change in one sentence."
+evidence = ["tests/or/docs/evidence/path"]
 
 # Release snapshots must cover these curated sections across the selected
 # fragment set before a tag can be cut.
 compatibility = ""
+change_class = "internal"
 surface_classification = ""
 migration = ""
 api = ""
 limitations = ""
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "short-compatibility-change-id"
+change_class = "internal"
+impact = "internal"
+surface = "internal: internal-only"
+owner = "team-owner"
+version_owner = "team-owner"
+deprecation_window = "not_applicable"
+release_note = "One release-note-ready sentence for this compatibility change."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

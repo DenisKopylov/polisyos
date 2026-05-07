@@ -3,13 +3,13 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Any
 
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
 class SimpleObjective:

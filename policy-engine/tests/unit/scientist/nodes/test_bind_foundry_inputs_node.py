@@ -21,8 +21,8 @@ from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import BindFoundryInputsNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INPUT_BINDING_REPORT_REF,

@@ -1,0 +1,7 @@
+  - Tutorials:
+      - tutorials/index.md
+      - Getting Started: tutorials/getting-started.md
+      - First Policy Analysis: tutorials/first-policy-analysis.md
+      - Writing a Connector: tutorials/writing-a-connector.md
+      - Creating a Governance Pass: tutorials/creating-governance-pass.md
+

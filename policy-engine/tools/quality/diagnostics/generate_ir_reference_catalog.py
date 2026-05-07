@@ -92,7 +92,7 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
         "Canonical regeneration command (snapshots + reference docs):",
         "",
         "```bash",
-        "PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py",
+        "uv run --extra ml polisyos-tools diagnostics gen-schema",
         "```",
         "",
         "## Summary",
@@ -151,7 +151,7 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
         "Canonical regeneration command (snapshots + reference docs):",
         "",
         "```bash",
-        "PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py",
+        "uv run --extra ml polisyos-tools diagnostics gen-schema",
         "```",
         "",
     ]

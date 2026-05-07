@@ -18,7 +18,7 @@ import numpy as np
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 # ---------------------------------------------------------------------------
 # Models

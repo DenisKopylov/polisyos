@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from polisyos.scientist.search.funnel.level3_medium import (
+from polisyos.scientist.methods.search.funnel.level3_medium import (
     _FORBIDDEN_PRUNING_METRICS,
     Level3MediumFidelity,
 )
@@ -127,7 +127,7 @@ class TestLevel3MediumFidelity:
         stage = Level3MediumFidelity(workflow_engine=engine)
         result = stage.evaluate(_make_candidate(), {})
 
-        from polisyos.scientist.search.funnel.types import UncertaintyType
+        from polisyos.scientist.methods.search.funnel.types import UncertaintyType
 
         assert UncertaintyType.MODEL in result.uncertainty_envelope.uncertainties
 

@@ -4,7 +4,7 @@ Freshness: 2026-04-24.
 Owner: `@runtime-dashboard-owners`
 Source of truth:
 `src/polisyos/core/contracts/runtime.py`,
-`frontend/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx`
+`apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx`
 
 Provenance is not a decorative hover. It is the way PolicyOS lets a reader
 trust a quantitative claim without leaving the decision context.

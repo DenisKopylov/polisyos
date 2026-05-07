@@ -1,0 +1,31 @@
+  - How-to Guides:
+      - how-to/index.md
+      - Installation: how-to/install.md
+      - Post-Refactor Migration: how-to/post-refactor-migration.md
+      - Add Runtime Route: how-to/add-runtime-route.md
+      - Add Public Facade: how-to/add-public-facade.md
+      - Add Schema-Backed IR Type: how-to/add-schema-backed-ir-type.md
+      - Add Data Source: how-to/add-data-source.md
+      - Update Runtime Dashboard API Client: how-to/update-runtime-dashboard-api-client.md
+      - Connector Contributing: connectors/CONTRIBUTING.md
+      - Deploy Runtime: how-to/deploy-runtime.md
+      - Run Benchmarks: how-to/run-benchmarks.md
+      - Run Causal Analysis: how-to/run-causal-analysis.md
+      - Write Governance Pass: how-to/write-governance-pass.md
+      - Configure Lex Pipeline: how-to/configure-lex-pipeline.md
+      - Use Control Plane: how-to/use-control-plane.md
+      - Debug Failed Run: how-to/debug-failed-run.md
+      - Manage Schemas: how-to/manage-schemas.md
+      - Operate the CI/CD Platform: how-to/operate-ci-cd-platform.md
+      - Review Migrations and Rollouts: how-to/review-rollouts.md
+      - Manage Generated Artifacts: how-to/manage-generated-artifacts.md
+      - Release Policy: how-to/release-policy.md
+      - Apply GitHub Governance: how-to/apply-github-governance.md
+      - Onboarding Tracks:
+          - how-to/onboarding/index.md
+          - Domain / Policy Reader: how-to/onboarding/domain-policy-reader.md
+          - Backend Engineer: how-to/onboarding/backend-engineer.md
+          - Frontend Engineer: how-to/onboarding/frontend-engineer.md
+          - Platform / Ops Engineer: how-to/onboarding/platform-ops-engineer.md
+          - Security / Compliance Reviewer: how-to/onboarding/security-compliance-reviewer.md
+

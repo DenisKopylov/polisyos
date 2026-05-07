@@ -24,7 +24,7 @@ function readRuntimeFile(relativePath: string) {
 }
 
 export function readRuntimeStyles() {
-  return readRuntimeFile("frontend/runtime-dashboard/src/styles.css");
+  return readRuntimeFile("apps/runtime-dashboard/src/styles.css");
 }
 
 function extractCssBlock(source: string, selector: string) {
@@ -69,10 +69,10 @@ function extractCssVariables(block: string) {
 export function loadThemeVariables(theme: "dark" | "light") {
   const styles = readRuntimeStyles();
   const lightThemeStyles = readRuntimeFile(
-    "frontend/runtime-dashboard/src/styles/theme-light.css",
+    "apps/runtime-dashboard/src/styles/theme-light.css",
   );
   const darkThemeStyles = readRuntimeFile(
-    "frontend/runtime-dashboard/src/styles/theme-dark.css",
+    "apps/runtime-dashboard/src/styles/theme-dark.css",
   );
 
   const lightVariables = {

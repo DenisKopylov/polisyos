@@ -1,0 +1,8 @@
+service: berl
+version: 1
+owner: team-architecture
+status: exception
+exception_reason: BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet.
+exception_expires: 2026-08-01
+objectives: []
+

@@ -9,7 +9,7 @@ slot layout, execute-time state snapshots, and agent-simulation runtime state.
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
 Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/foundry/methods/layout.py`, `src/polisyos/foundry/execute/_snapshots.py`, `src/polisyos/foundry/execute/executor.py`
+Source of truth: `src/polisyos/foundry/contracts/state.py`, `src/polisyos/foundry/methods/layout.py`, `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, `src/polisyos/foundry/execute/executor.py`
 
 This page documents `polisyos.foundry.contracts.state.GlobalState`, the
 compile/execute and release-acceptance state contract. The standalone
@@ -32,7 +32,7 @@ directly.
 - Read `polisyos.foundry.contracts.state` for what compiled programs can read
   or patch at runtime.
 
-- Read `polisyos.foundry.methods.layout` for `slot_id -> state_path` materialization and
+- Read `polisyos.foundry.methods.compiler.layout` for `slot_id -> state_path` materialization and
   family manifests.
 
 - Read `polisyos.foundry.execute.executor` for state snapshot, state delta, and
@@ -84,7 +84,7 @@ directly.
 
 ## Reference
 
-::: polisyos.foundry.methods.layout
+::: polisyos.foundry.methods.compiler.layout
 
 ::: polisyos.foundry.contracts.state
 

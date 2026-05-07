@@ -66,18 +66,18 @@ from polisyos.ir.refs import (
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
-from polisyos.scientist.autotune.models import (
+from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
     PromotionPolicy,
     persist_benchmark_evaluation,
 )
-from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.discovery.priors import (
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
 )
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
@@ -94,9 +94,9 @@ from polisyos.scientist.replay.verification import (
     ReplayVerificationReport,
     persist_replay_verification_report,
 )
-from polisyos.scientist.search.adversarial import PlatformMetaEvaluationReport
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.judge_stack import (
+from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.judge_stack import (
     JudgeInputBundle,
     JudgeName,
     JudgeStack,
@@ -104,12 +104,12 @@ from polisyos.scientist.search.judge_stack import (
     PolicyPromotionCoordinator,
     SingleJudgeVerdict,
 )
-from polisyos.scientist.search.latent_governance import latent_governance_metadata
-from polisyos.scientist.search.objective import CompositeObjective
-from polisyos.scientist.search.pareto_registry import ParetoRegistry, ParetoView
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessEvaluator
-from polisyos.scientist.search.stopping import MaxIterations
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.latent_governance import latent_governance_metadata
+from polisyos.scientist.methods.search.objective import CompositeObjective
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessEvaluator
+from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,

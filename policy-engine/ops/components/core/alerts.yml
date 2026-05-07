@@ -1,0 +1,17 @@
+component: core
+owner: team-core
+status: draft
+alerts:
+  - name: AuditChainTamperDetected
+    source: ops/observability/prometheus/rules/audit_chain_alerts.yml
+    runbook: docs/runbooks/mutation-audit-investigation.md
+  - name: AuditSinkQueueBackpressure
+    source: ops/observability/prometheus/rules/audit_chain_alerts.yml
+    runbook: docs/runbooks/mutation-audit-investigation.md
+  - name: AuditColdTierWriteFailure
+    source: ops/observability/prometheus/rules/audit_chain_alerts.yml
+    runbook: docs/runbooks/mutation-audit-investigation.md
+  - name: ArtifactIntegrityFailuresDetected
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/artifact-corruption-recovery.md
+

@@ -1,8 +1,9 @@
 # Contract Tests
 
 `tests/contract` is the compatibility slice for cross-layer contracts: Trinity
-and IR bundles, typed artifact refs, ABI snapshots, migration rules, golden
-records, and governance-facing protocol models. The directory currently
+and IR bundles, typed artifact refs, ABI snapshots, migration rules, and
+governance-facing protocol models. Golden records live in `tests/_golden`.
+The directory currently
 contains `19` `test_*.py` files plus a local `conftest.py`.
 
 ## Purpose
@@ -15,8 +16,8 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 
 - [`../../src/polisyos/ir/README.md`](../../src/polisyos/ir/README.md)
 - [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
-- `golden_records.json` and `conftest.py` if the failing test mentions golden
-  fixtures.
+- `../_golden/contract/golden_records.json` and `conftest.py` if the failing
+  test mentions golden fixtures.
 
 ## Public Entrypoints
 

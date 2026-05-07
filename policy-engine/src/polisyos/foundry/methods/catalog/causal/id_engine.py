@@ -38,9 +38,17 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
-from enum import Enum
 from typing import Any, Literal
 
+from polisyos.foundry.methods.catalog.causal._id_contracts import (
+    CtfQuery,
+    HedgeCertificate,
+    IdentificationResult,
+    IdentificationStatus,
+    ProofStep,
+    RequiredDataSpec,
+    SourceDomain,
+)
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
     augment_with_s_nodes,
@@ -74,100 +82,6 @@ from polisyos.ir.analytics.estimand import (
     make_frontdoor_estimand,
     make_z_transport_estimand,
 )
-
-# ---------------------------------------------------------------------------
-# Internal result types (dataclasses, not Pydantic)
-# ---------------------------------------------------------------------------
-
-
-@dataclasses.dataclass(frozen=True)
-class ProofStep:
-    """A single deductive step in the ID algorithm proof trace."""
-
-    rule_name: str  # "RULE1"|"RULE2"|"RULE3"|"ANCESTRAL_COLLAPSE"|"C_COMPONENT"|"HEDGE"|"ORACLE"
-    antecedent_vars: tuple[str, ...]
-    consequent_vars: tuple[str, ...]
-    applied_to_graph_state: str
-    depth: int = 0
-    graph_state_before: str = ""  # pre-step graph description for audit trail
-
-
-@dataclasses.dataclass(frozen=True)
-class RequiredDataSpec:
-    """Specification of data needed to achieve identification."""
-
-    missing_distributions: tuple[Any, ...]  # tuple of DistributionRef objects
-    suggested_experiment: str | None = None
-    alternative_identification: str | None = None
-
-
-@dataclasses.dataclass(frozen=True)
-class HedgeCertificate:
-    """Mathematical witness of non-identifiability (Shpitser & Pearl 2006, Thm 3).
-
-    A "hedge" (F, F') is a pair of c-forests such that:
-    - F' ⊆ F
-    - F' is a c-component of G[An(Y)]
-    - F is a c-component of G[V \\ X] that contains F'
-    - Every root of F' is also a root of F and in X
-
-    When the ID algorithm detects this structure, the interventional distribution
-    P(Y|do(X)) is provably non-identifiable from observational data.
-    """
-
-    treatment: frozenset[str]
-    outcome: frozenset[str]
-    hedge_forest: frozenset[str]  # F  — larger component
-    hedge_root: frozenset[str]  # F' — smaller component (⊆ F)
-    c_component_witness: frozenset[str]  # the c-component triggering non-ID
-    description: str = ""
-    required_data: RequiredDataSpec | None = None
-    minimal_required_s_nodes: frozenset[str] = dataclasses.field(default_factory=frozenset)
-    # ^ minimum set of S-nodes (selection variables) that, if resolved,
-    #   would make transport potentially identifiable via tr_algorithm.
-    #   Computed as endpoints in V\X of bidirected edges crossing the X boundary
-    #   inside the c_component_witness.
-
-
-class IdentificationStatus(str, Enum):
-    """Classify whether a causal query is identified, blocked, ambiguous, or oracle-gated."""
-
-    IDENTIFIED = "identified"
-    HEDGE_FOUND = "hedge_found"  # non-identifiable, certificate returned
-    PAG_AMBIGUOUS = "pag_ambiguous"  # PAG input, result depends on orientation
-    ORACLE_NEEDED = "oracle_needed"  # beyond native impl scope
-    NOT_RECOVERABLE = "not_recoverable"  # M-graph Stage 1 failure: P(V) not recoverable
-
-
-@dataclasses.dataclass(frozen=True)
-class IdentificationResult:
-    """Result of running id_algorithm() or idc_algorithm()."""
-
-    status: IdentificationStatus
-    estimand_ast: EstimandAST | None
-    hedge_certificate: HedgeCertificate | None
-    trace: list[str]
-    required_distributions: list[DistributionRef]
-    algorithm_version: str = "id_v1"
-    proof_steps: list[ProofStep] = dataclasses.field(default_factory=list)
-    query_str: str = ""
-    metadata: dict[str, Any] = dataclasses.field(default_factory=dict)
-
-
-@dataclasses.dataclass(frozen=True)
-class CtfQuery:
-    """Counterfactual query container for Layer-3 ID* / IDC* requests."""
-
-    outcome: str
-    intervention: tuple[tuple[str, float], ...]
-    conditioning: tuple[str, ...] = ()
-    evidence: tuple[tuple[str, float], ...] = ()
-    kind: str = "generic"
-    mediators: tuple[str, ...] = ()
-    protected_attribute: str | None = None
-    reference_intervention: tuple[tuple[str, float], ...] = ()
-    outcome_value: float | None = None
-
 
 # ---------------------------------------------------------------------------
 # PAG-specific identification (Malinsky & Spirtes 2017)
@@ -2258,17 +2172,6 @@ def _oracle_dosearch(
 # ---------------------------------------------------------------------------
 # Track A: Z-ID and MZ-ID (Bareinboim-Pearl 2013/2014)
 # ---------------------------------------------------------------------------
-
-
-@dataclasses.dataclass(frozen=True)
-class SourceDomain:
-    """Descriptor for a source domain in multi-domain transportability."""
-
-    domain_id: str
-    s_nodes: frozenset[str] = dataclasses.field(default_factory=frozenset)
-    z_interventions: frozenset[str] = dataclasses.field(default_factory=frozenset)
-    dataset_ref: str | None = None
-    distribution_domain: Any = "source"  # DistributionDomain.SOURCE equivalent
 
 
 def z_id_algorithm(

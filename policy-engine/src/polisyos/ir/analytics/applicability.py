@@ -6,7 +6,7 @@ import re
 
 from pydantic import Field, field_validator, model_validator
 
-from polisyos.ir._validation import ensure_interval_monotonicity, ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_interval_monotonicity, ensure_unique_ids
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"

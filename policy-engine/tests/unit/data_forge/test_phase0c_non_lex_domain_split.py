@@ -30,7 +30,7 @@ from polisyos.data_forge.read_api.catalog import (
     load_catalog_shadow_bundle,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "non_lex_split"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "non_lex_split"
 
 
 def test_academic_asset_group_declares_dependency_order() -> None:

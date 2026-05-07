@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
-from polisyos.scientist.discovery.priors import DisputedEdge, GraphPriorBundle, PriorEdge
+from polisyos.scientist.methods.discovery.prior_miner import PriorMiner, PriorMinerConfig
+from polisyos.scientist.methods.discovery.priors import DisputedEdge, GraphPriorBundle, PriorEdge
 
 
 def _bundle() -> GraphPriorBundle:

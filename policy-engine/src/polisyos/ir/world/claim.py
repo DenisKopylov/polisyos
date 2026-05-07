@@ -20,11 +20,11 @@ from polisyos.ir.kernel.base import (
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from polisyos.ir.citations import CitationRef
+    from polisyos.ir.references import CitationRef
 else:
     from datetime import datetime
 
-    from polisyos.ir.citations import CitationRef
+    from polisyos.ir.references import CitationRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

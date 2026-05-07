@@ -4,7 +4,7 @@
 acquisition, document and claim pipelines, data-plane orchestration,
 provenance, retrieval, and world materialization.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-06
 
 ## Purpose
 
@@ -32,7 +32,7 @@ subpackage READMEs below explain the implementation boundaries in more detail.
 - Use [tests/unit/fabric/README.md](../../../tests/unit/fabric/README.md) to find the
   focused validation suite for the area you are changing.
 
-## Public Entrypoints
+## Public API
 
 | Entrypoint                              | Description                                                                                       |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -47,6 +47,31 @@ subpackage READMEs below explain the implementation boundaries in more detail.
 `polisyos.fabric.__all__` is the stable public facade. Catalog and semantic
 discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
 retrieval README rather than being part of the root facade contract.
+
+## Internal Layout
+
+- [`api.py`](api.py) and [`__init__.py`](__init__.py) own the stable lazy root
+  facade and public-surface helper metadata.
+- [`_internal/`](_internal/) contains post-cleanup private helpers. Do not
+  deep-import it from callers outside Fabric.
+- Connector-facing code lives under [`connectors/`](connectors/),
+  [`connectors/sources/`](connectors/sources/README.md), and
+  [`ingestion/`](ingestion/).
+- World, claims, retrieval, catalog, quality, trust, security, and provenance
+  subpackages own domain-specific implementation surfaces behind the facade.
+- Compatibility wrapper packages such as `config`, `compatibility`, and
+  `connectors_ingestion` exist only where recorded in the shim registry.
+
+## Extension Points
+
+- External connectors use the `polisyos.fabric_connectors` entry-point group
+  declared in
+  [architecture/extension_points.toml](../../../architecture/extension_points.toml).
+- Builtin connector components register through the connector component loader
+  and source contracts documented in
+  [connectors/sources/README.md](connectors/sources/README.md).
+- Use [connectors/sources/AUTHORING.md](connectors/sources/AUTHORING.md) for
+  source-adapter naming, fixture, and version-policy rules.
 
 ## Depends On / Depended On By
 
@@ -72,7 +97,7 @@ Run from the repository root (`policy-engine/`).
   Inspect the package-local quarantine/report CLI exposed inside Fabric.
   Smoke-tested on 2026-04-17.
 
-## Test / Verification Commands
+## Tests
 
 Run from the repository root (`policy-engine/`).
 
@@ -84,6 +109,28 @@ Run from the repository root (`policy-engine/`).
 
 - `uv run pytest tests/unit/fabric -q`
   Full Fabric suite. Conceptual in this README refresh; not run in this pass.
+
+## Operability Links
+
+- [Fabric component SLO](../../../ops/components/fabric/slo.yaml)
+- [Fabric component runbooks](../../../ops/components/fabric/runbooks.md)
+- [Fabric observability and governance](../../../docs/reference/fabric/observability-governance.md)
+- [Fabric quarantine and data-plane recovery runbook](../../../docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md)
+- [CAS/OPA outage runbook](../../../docs/runbooks/cas-opa-outage.md)
+
+## Known Shims/Deprecations
+
+- Active Fabric facade-cleanup shims are registered in
+  [architecture/shims.toml](../../../architecture/shims.toml) with owner
+  `team-fabric` and sunset `2026-12-31`.
+- Current wrapper-only import paths include `polisyos.fabric._numeric_parsing`,
+  `polisyos.fabric.compatibility`, `polisyos.fabric.config`,
+  `polisyos.fabric.connectors_ingestion`, `polisyos.fabric.finite`,
+  `polisyos.fabric.fitness_report`, `polisyos.fabric.ingestion_providers`,
+  `polisyos.fabric.registry`, `polisyos.fabric.safety`, and
+  `polisyos.fabric.trust_adapter`.
+- New public imports must be added to `api.py`, the generated public-surface
+  reference, and compatibility policy before old import paths are removed.
 
 ## Reference Docs
 

@@ -5,10 +5,12 @@ src_root = "../../src"
 
 [roots]
 # data_forge is the planned build-time layer. calibration is the shared
-# diagnostics/recalibration root, while synthetic world generation is owned by
-# foundry.agent_sim.world with a temporary synthetic_world compatibility facade.
+# diagnostics/recalibration root. ddm_15_7 and synthetic_world remain known
+# roots only for wrapper-only compatibility facades; new first-party imports
+# should target ddm and foundry.agent_sim.world respectively.
 known = [
   "common",
+  "schemas",
   "ir",
   "core",
   "fabric",
@@ -32,7 +34,8 @@ known = [
 
 [internal.allow]
 common = ["common"]
-ir = ["ir", "data_forge", "common"]
+schemas = ["schemas", "common"]
+ir = ["ir", "schemas", "data_forge", "common"]
 core = ["core", "ir", "common"]
 fabric = ["fabric", "data_forge", "core", "ir", "common"]
 foundry = [
@@ -65,6 +68,8 @@ runtime = ["runtime", "scientist", "lex", "data_forge", "foundry", "fabric", "co
 scholar = ["scholar", "fabric", "ir", "core", "common"]
 lex = ["lex", "data_forge", "batch_common", "fabric", "ir", "core", "common"]
 berl = ["berl", "core", "ir", "common"]
+# Wrapper-only import boundary exception for the root compatibility facade.
+# Deep first-party imports through polisyos.ddm_15_7.* are not supported.
 ddm_15_7 = ["ddm_15_7", "ddm", "core", "ir", "common"]
 academic = ["academic", "batch_common", "ir", "core", "common"]
 batch_common = ["batch_common", "data_forge", "ir", "core", "common"]

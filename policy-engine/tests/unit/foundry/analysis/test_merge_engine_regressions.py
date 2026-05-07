@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from polisyos.foundry.methods.merge_engine import MergeConflictKind, MergeEngine, MergeRecord
+from polisyos.foundry.methods.components.merge_engine import MergeConflictKind, MergeEngine, MergeRecord
 from polisyos.ir.kernel import (
     DEFAULT_MERGE_RULE_REGISTRY,
     MergeRuleRef,

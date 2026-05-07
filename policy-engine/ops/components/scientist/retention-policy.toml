@@ -1,0 +1,9 @@
+[retention_policy]
+component = "scientist"
+owner = "team-scientist"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["runs", "reports", "scientist_memory", "decision_validity", "cas"]
+default_class = "R1 Short operational"
+cleanup = "Replay and checkpoint state is retained while active; incident-linked sessions promote to R4 cold archive."
+

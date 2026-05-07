@@ -48,7 +48,7 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.scientist.governance.passes.strategic_response_pass import _bundle_summary
-from polisyos.scientist.kernel.budgets import ComputeBudget
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
 
 def _artifact_id(ch: str) -> str:

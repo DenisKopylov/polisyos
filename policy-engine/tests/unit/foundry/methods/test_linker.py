@@ -18,7 +18,7 @@ from polisyos.foundry.methods.exceptions import (
     SlotConnectionError,
     UnitMismatchError,
 )
-from polisyos.foundry.methods.linker import (
+from polisyos.foundry.methods.components.linker import (
     LinkerConfig,
     SlotLinker,
     check_linkable,

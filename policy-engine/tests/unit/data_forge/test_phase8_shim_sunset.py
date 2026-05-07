@@ -31,7 +31,7 @@ REMOVED_EXCEPTION_IDS = {
     "E-2026-04-FOUNDRY-UKRAINE-DATA-001",
     "E-2026-04-DATASETS-ACADEMIC-001",
 }
-RELEASE_NOTES = REPO_ROOT / "docs" / "migration" / "data_forge_shim_sunset_release_notes.md"
+RELEASE_NOTES = REPO_ROOT / "release" / "data-forge-shim-sunset-release-notes.md"
 ROLLBACK_NOTES = REPO_ROOT / "docs" / "migration" / "data_forge_shim_sunset_rollback.md"
 
 
@@ -41,14 +41,14 @@ def test_phase8_migrated_consumers_do_not_import_removed_shims() -> None:
             "polisyos.batch_common",
             "polisyos.batch_snapshot",
         ),
-        "tools/ops/cloud/run_lex_from_manifest.py": ("polisyos.batch_common",),
+        "tools/ops_runners/cloud/run_lex_from_manifest.py": ("polisyos.batch_common",),
         "src/polisyos/lex": ("polisyos.lex.batch", "polisyos.lex.corpus"),
         "src/polisyos/fabric/retrieval/service.py": ("polisyos.datasets",),
         "src/polisyos/foundry/release_acceptance.py": ("polisyos.ukraine_data",),
-        "tools/ops/ukraine_data/build_spending_contracts_procurement_proxy.py": (
+        "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py": (
             "polisyos.ukraine_data",
         ),
-        "tools/ops/ukraine_data/build_edr_identity_seed_candidates.py": ("polisyos.ukraine_data",),
+        "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py": ("polisyos.ukraine_data",),
     }
 
     violations: list[str] = []
@@ -94,7 +94,7 @@ def test_phase8_release_and_rollback_notes_cover_deleted_data_forge_shims() -> N
         assert shim_id in release_text
         assert shim_id in shims
         assert shims[shim_id]["issue"].startswith(
-            "docs/migration/data_forge_shim_sunset_release_notes.md#"
+            "release/data-forge-shim-sunset-release-notes.md#"
         )
 
     assert "Rollback Steps" in rollback_text
@@ -149,8 +149,8 @@ def test_phase8_external_live_consumers_are_migrated_to_data_forge() -> None:
         ),
         *_imports_under("src/polisyos/ir/analytics", ("polisyos.datasets",)),
         *_imports_under("src/polisyos/foundry", ("polisyos.academic",)),
-        *_imports_under("tools/ops/cloud", ("polisyos.academic", "polisyos.datasets")),
-        *_imports_under("tools/ops/ukraine_data", ("polisyos.lex.batch", "polisyos.lex.corpus")),
+        *_imports_under("tools/ops_runners/cloud", ("polisyos.academic", "polisyos.datasets")),
+        *_imports_under("tools/ops_runners/ukraine_data", ("polisyos.lex.batch", "polisyos.lex.corpus")),
         *_imports_under(
             "tools/research/benchmarks/lex", ("polisyos.lex.batch", "polisyos.lex.corpus")
         ),

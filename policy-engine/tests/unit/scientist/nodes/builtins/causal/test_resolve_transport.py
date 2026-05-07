@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     RunTransportabilityNode,
     _build_skg_query,

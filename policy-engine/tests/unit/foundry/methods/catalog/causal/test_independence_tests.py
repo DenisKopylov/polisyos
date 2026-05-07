@@ -5,7 +5,7 @@ import pytest
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.scientist.search.judge_thresholds import (
+from polisyos.scientist.methods.search.judge_thresholds import (
     JudgeThresholdEntry,
     JudgeThresholdRegistry,
 )

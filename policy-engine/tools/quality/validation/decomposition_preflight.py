@@ -38,9 +38,9 @@ IMPORT_GRAPH_BASELINE_PATH = BASELINE_DIR / "import_graph_pre_decomp.json"
 IMPORT_TIME_BASELINE_PATH = BASELINE_DIR / "import_time_pre_decomp.json"
 PICKLE_INVENTORY_PATH = BASELINE_DIR / "pickle_checkpoint_inventory.json"
 TESTS_BASELINE_PATH = BASELINE_DIR / "tests_baseline.txt"
-CHECKPOINT_FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "checkpoint_compat"
+CHECKPOINT_FIXTURE_ROOT = REPO_ROOT / "tests" / "_data" / "checkpoint_compat"
 
-AUDIT_SCOPES = ("src", "tests", "tools", "frontend")
+AUDIT_SCOPES = ("src", "tests", "tools", "apps", "packages")
 TEXT_SUFFIXES = {
     ".py",
     ".pyi",
@@ -67,6 +67,16 @@ DYNAMIC_CALL_NAMES = {
     "metadata.entry_points",
     "pkg_resources.iter_entry_points",
     "list_entry_points",
+}
+EXTENSION_ENTRY_POINT_GROUP_NAMES = {
+    "polisyos.fabric_connectors",
+    "polisyos.scientist_governance_passes",
+    "polisyos.foundry_methods",
+    "polisyos.scientist_nodes",
+    "polisyos.data_forge_domains",
+    "polisyos.lex_normpacks",
+    "polisyos.runtime_middlewares",
+    "polisyos.norm_pack_providers",
 }
 PICKLE_PATTERNS = (
     "pickle.dump",
@@ -98,7 +108,7 @@ MOVE_TARGETS: Mapping[str, tuple[str, str]] = {
         "Decision-validity checks belong with the Scientist validation package.",
     ),
     "polisyos.scientist.error_semantics": (
-        "polisyos.scientist.engine.error_semantics",
+        "polisyos.scientist.orchestration.engine.error_semantics",
         "Engine error normalization is used by checkpoint/resume flows.",
     ),
     "polisyos.scientist.evidence_sources": (
@@ -114,19 +124,19 @@ MOVE_TARGETS: Mapping[str, tuple[str, str]] = {
         "Feedback helpers should move next to the feedback implementation.",
     ),
     "polisyos.scientist.frontier_runtime": (
-        "polisyos.scientist.engine.frontier_runtime",
+        "polisyos.scientist.orchestration.engine.frontier_runtime",
         "Runtime capability glue is engine-owned and should not shadow top-level runtime.",
     ),
     "polisyos.scientist.latent_separation": (
-        "polisyos.scientist.causal.latent_separation",
+        "polisyos.scientist.methods.causal.latent_separation",
         "Latent-separation diagnostics are causal-readiness concerns.",
     ),
     "polisyos.scientist.llm_cycle": (
-        "polisyos.scientist.llm.cycle",
+        "polisyos.scientist.orchestration.llm.cycle",
         "LLM orchestration belongs under the Scientist LLM package.",
     ),
     "polisyos.scientist.publisher": (
-        "polisyos.scientist.orchestrator.publisher",
+        "polisyos.scientist.orchestration.orchestrator.publisher",
         "Publisher orchestration should live with decision-card orchestration.",
     ),
     "polisyos.scientist.reliability_scorecard": (
@@ -140,34 +150,6 @@ MOVE_TARGETS: Mapping[str, tuple[str, str]] = {
     "polisyos.scientist.replay_backend": (
         "polisyos.scientist.replay.backend",
         "Replay backend belongs with replay comparators and verification.",
-    ),
-    "polisyos.foundry._execution_posture": (
-        "polisyos.foundry.execute._posture",
-        "Execution posture is internal execute-layer state.",
-    ),
-    "polisyos.foundry._executor_graph": (
-        "polisyos.foundry.execute._graph",
-        "Executor graph internals belong under the execute package.",
-    ),
-    "polisyos.foundry._executor_models": (
-        "polisyos.foundry.execute._models",
-        "Executor payload models are execute-layer internals.",
-    ),
-    "polisyos.foundry._executor_ops": (
-        "polisyos.foundry.execute._ops",
-        "Executor operations belong under the execute package.",
-    ),
-    "polisyos.foundry._executor_patching": (
-        "polisyos.foundry.execute._patching",
-        "Executor patching belongs under the execute package.",
-    ),
-    "polisyos.foundry._executor_snapshots": (
-        "polisyos.foundry.execute._snapshots",
-        "Executor snapshots belong under the execute package.",
-    ),
-    "polisyos.foundry._numeric": (
-        "polisyos.foundry.runtime.numeric",
-        "Numeric runtime guards should sit beside runtime nan/fingerprint helpers.",
     ),
     "polisyos.foundry.agent_metrics": (
         "polisyos.foundry.agent_sim.agent_metrics",
@@ -206,7 +188,7 @@ MOVE_TARGETS: Mapping[str, tuple[str, str]] = {
         "Mechanism-design helpers belong with mechanisms.",
     ),
     "polisyos.foundry.merge_engine": (
-        "polisyos.foundry.methods.merge_engine",
+        "polisyos.foundry.methods.components.merge_engine",
         "Method merge contracts belong with the methods package.",
     ),
     "polisyos.foundry.patch_vm": (
@@ -309,8 +291,14 @@ def _iter_text_files(*scopes: str) -> Iterable[Path]:
 def _parse_python(path: Path) -> ast.Module | None:
     try:
         return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    except (SyntaxError, UnicodeDecodeError):
+    except (OSError, SyntaxError, UnicodeDecodeError):
         return None
+
+
+def _shim_source_python_path(path: Path) -> Path:
+    if path.is_dir():
+        return path / "__init__.py"
+    return path
 
 
 def module_fqn_from_path(path: Path) -> str:
@@ -410,12 +398,12 @@ def _entry_point_targets(group: str) -> list[str]:
 def _allowed_targets_for_pattern(call_name: str, pattern: str) -> list[str]:
     if pattern.startswith("group:"):
         return _entry_point_targets(pattern.removeprefix("group:"))
+    if pattern in EXTENSION_ENTRY_POINT_GROUP_NAMES:
+        return _entry_point_targets(pattern)
     if call_name.endswith("entry_points") and pattern.startswith("polisyos."):
         return _entry_point_targets(pattern)
     if pattern.startswith("polisyos."):
         return [pattern.split(":", 1)[0]]
-    if pattern in {"polisyos.fabric_connectors", "polisyos.scientist_governance_passes"}:
-        return _entry_point_targets(pattern)
     return []
 
 
@@ -427,14 +415,14 @@ def _owner_for_path(path: Path) -> str:
         return "team-foundry"
     if rel.startswith("tools/"):
         return "team-devx"
-    if rel.startswith("frontend/"):
+    if rel.startswith(("apps/", "packages/")):
         return "team-frontend"
     return "team-architecture"
 
 
 def collect_dynamic_imports() -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
-    for path in _iter_text_files("src", "tools", "frontend"):
+    for path in _iter_text_files("src", "tools", "apps", "packages"):
         if path.suffix != ".py":
             continue
         tree = _parse_python(path)
@@ -457,6 +445,8 @@ def collect_dynamic_imports() -> list[dict[str, Any]]:
                     "line": node.lineno,
                     "call": resolved_call,
                     "owner": _owner_for_path(path),
+                    "target": pattern,
+                    "verifier": "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports",
                     "allowed_targets": allowed_targets,
                     "notes": _dynamic_notes(rel_path, pattern, allowed_targets),
                 }
@@ -493,7 +483,17 @@ def render_dynamic_imports_toml(entries: Sequence[Mapping[str, Any]]) -> str:
         'status = "fail_closed"',
         'owner = "team-architecture"',
         'phase = "3A"',
+        'review_owner = "team-architecture"',
+        'reviewed_at = "2026-05-06"',
+        'review_expires = "2026-08-04"',
+        'exception_policy = "Dynamic imports must declare owner, target or allowed_targets, verifier, and notes; unresolved plugin slots require a dated owner review."',
+        'issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"',
+        'adr = "docs/adr/repository-structure-0141-dynamic-import-registry.md"',
         'notes = "Every allowed target must resolve; empty target lists are audited dynamic/plugin slots."',
+        'extension_points = "architecture/extension_points.toml"',
+        'new_entry_required_fields = ["owner", "target_or_allowed_targets", "verifier"]',
+        'target_semantics = "target names the intended import, extension point, or builtin loader; allowed_targets lists concrete importable modules."',
+        'verifier_semantics = "verifier names the gate, smoke test, or owner review that proves the dynamic edge remains intentional."',
         "",
     ]
     for entry in entries:
@@ -506,6 +506,8 @@ def render_dynamic_imports_toml(entries: Sequence[Mapping[str, Any]]) -> str:
                 f"line = {int(entry['line'])}",
                 f"call = {_toml_quote(str(entry['call']))}",
                 f"owner = {_toml_quote(str(entry['owner']))}",
+                f"target = {_toml_quote(str(entry['target']))}",
+                f"verifier = {_toml_quote(str(entry['verifier']))}",
                 f"allowed_targets = {_toml_array([str(item) for item in entry['allowed_targets']])}",
                 f"notes = {_toml_quote(str(entry['notes']))}",
                 "",
@@ -530,7 +532,11 @@ def collect_pickle_inventory() -> dict[str, Any]:
                         "text": line.strip(),
                     }
                 )
-    artifact_roots = [REPO_ROOT / ".polisyos", REPO_ROOT / "tests" / "fixtures"]
+    artifact_roots = [
+        REPO_ROOT / ".polisyos",
+        REPO_ROOT / "tests" / "fixtures",
+        CHECKPOINT_FIXTURE_ROOT,
+    ]
     artifacts: list[dict[str, Any]] = []
     for root in artifact_roots:
         if not root.exists():
@@ -978,7 +984,7 @@ def measure_import_time(runs: int = 10) -> dict[str, Any]:
             if cumulative is not None:
                 cumulative_us.append(cumulative)
         sorted_samples = sorted(samples_ms)
-        p95_index = min(len(sorted_samples) - 1, int(round((len(sorted_samples) - 1) * 0.95)))
+        p95_index = min(len(sorted_samples) - 1, round((len(sorted_samples) - 1) * 0.95))
         results[package] = {
             "samples_wall_ms": samples_ms,
             "median_wall_ms": round(median(samples_ms), 3),
@@ -1012,8 +1018,11 @@ def create_checkpoint_fixtures() -> list[dict[str, Any]]:
         ExperimentResult,
         ExperimentTracker,
     )
-    from polisyos.scientist.engine.checkpoint import create_checkpoint, load_checkpoint
-    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.checkpoint import (
+        create_checkpoint,
+        load_checkpoint,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     manifests: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="phase3a-checkpoint-compat-") as temp_dir_name:
@@ -1083,8 +1092,8 @@ def create_checkpoint_fixtures() -> list[dict[str, Any]]:
             {
                 "package": "scientist",
                 "scenario": "engine_checkpoint_artifact",
-                "producer": "polisyos.scientist.engine.checkpoint.create_checkpoint/load_checkpoint",
-                "expected_type": "polisyos.scientist.engine.checkpoint.CheckpointArtifact",
+                "producer": "polisyos.scientist.orchestration.engine.checkpoint.create_checkpoint/load_checkpoint",
+                "expected_type": "polisyos.scientist.orchestration.engine.checkpoint.CheckpointArtifact",
                 "expected_fields": {
                     "metadata.run_id": "phase3a_scientist_checkpoint",
                     "state.params.status": "ok",
@@ -1287,7 +1296,7 @@ def validate_reexport_shim_shapes() -> list[Finding]:
     for shim in data.get("shim", []):
         if shim.get("type") != "python_reexport":
             continue
-        source_path = REPO_ROOT / str(shim.get("source_path", ""))
+        source_path = _shim_source_python_path(REPO_ROOT / str(shim.get("source_path", "")))
         tree = _parse_python(source_path)
         if tree is None:
             findings.append(
@@ -1413,7 +1422,7 @@ def generate_blueprint() -> str:
                 lines.append(f"- `{importer['path']}:{importer['line']}` ({importer['kind']})")
         else:
             lines.append(
-                "- No external importers found in `src/`, `tests/`, `tools/`, or `frontend/`."
+                "- No external importers found in `src/`, `tests/`, `tools/`, `apps/`, or `packages/`."
             )
         lines.append("")
     lines.extend(
@@ -1482,7 +1491,7 @@ def generate_blueprint() -> str:
             "- `architecture/baselines/structure_remediation/tests_baseline.txt`",
             "",
             "`tests_baseline.txt` intentionally records a deferred full-suite baseline:",
-            "the local `pytest tests/unit tests/integration tests/property tests/contract tests/golden -q`",
+            "the local `pytest tests/unit tests/integration tests/property tests/contract tests/repo_quality -q`",
             "run was not completed because of thermal load on the laptop. The full baseline",
             "must be run in cloud infrastructure during the final Phase 7 closeout; it is",
             "not a local Phase 3A prerequisite.",

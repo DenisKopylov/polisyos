@@ -27,15 +27,15 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_payoff_table,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.doe.stress_report import (
+from polisyos.scientist.methods.doe.stress_report import (
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
-from polisyos.scientist.kernel.budgets import ComputeBudget
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _SPEC,
     _merge_stress_test_reports,

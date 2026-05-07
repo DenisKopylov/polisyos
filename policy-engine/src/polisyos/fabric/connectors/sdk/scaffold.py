@@ -100,11 +100,7 @@ def make_source_contract_id(connector_id: str, dataset_pattern: str = "*") -> st
         else dataset_pattern.strip().lower().replace("*", "generic")
     )
     normalized = (
-        dataset.replace("-", "_")
-        .replace("/", ".")
-        .replace(" ", "_")
-        .replace("..", ".")
-        .strip(".")
+        dataset.replace("-", "_").replace("/", ".").replace(" ", "_").replace("..", ".").strip(".")
     )
     if not normalized:
         normalized = "generic"
@@ -130,7 +126,7 @@ def make_quality_contract_id(contract_id: str) -> str:
 def make_replay_fixture_id(contract_id: str) -> str:
     """Build a stable replay fixture path for source authoring."""
 
-    return f"tests/fixtures/fabric/source_contracts/{contract_id}.replay.json"
+    return f"tests/_data/fabric/shared/source_contracts/{contract_id}.replay.json"
 
 
 def make_source_doc_stub(contract: SourceContract) -> str:
@@ -218,7 +214,9 @@ def build_source_contract_scaffold(
             schema_version="1.0.0" if schema_id else None,
             schema_contract_ref=schema_ref,
             compatibility_status=(
-                "template_only" if metadata.schema_id_template else "pending_profile_specific_schema"
+                "template_only"
+                if metadata.schema_id_template
+                else "pending_profile_specific_schema"
             ),
         ),
         semantics=SourceContractSemantics(domain=resolved.domain),

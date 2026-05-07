@@ -23,7 +23,7 @@ Workspace toolchain baseline:
 | Docs contributor                   | `uv sync --frozen --extra lint --extra docs`                                  | MkDocs, docstring quality, docs accuracy and nav work                                      |
 | Runtime contributor                | `uv sync --frozen --extra lint --extra test --extra runtime`                  | Runtime API, contracts, observability, backend contributors using the canonical local gate |
 | Full research / causal contributor | `uv sync --frozen --extra lint --extra test --extra runtime --extra research` | Foundry, Scientist, causal, econometrics, and research-heavy flows                         |
-| Frontend contributor               | `uv run polisyos-tools workspace bootstrap --profile runtime`                 | Runtime contributor Python surface plus `npm ci` and optional Playwright browser install   |
+| Frontend contributor               | `uv run polisyos-tools workspace bootstrap --profile runtime`                 | Runtime contributor Python surface plus `corepack pnpm install` and optional Playwright browser install |
 
 Repo-local workspace helpers encode the same tiers:
 

@@ -20,7 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import FrontierSketchRef
+from polisyos.ir.references import FrontierSketchRef
 
 if TYPE_CHECKING:
     from ..refs import ArtifactRefModel
@@ -31,7 +31,7 @@ StageClosureState = Literal["execution_grade", "narrow_accepted", "deferred_or_r
 ValidationSeverity = Literal["info", "error"]
 ValidationStatus = Literal["complete", "incomplete"]
 
-_DEFAULT_PLAN_DOC_PATH = "docs/archive/plans/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
+_DEFAULT_PLAN_DOC_PATH = "docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
 _DEFAULT_CLOSURE_TEST = "tests/unit/ir/analytics/test_phase_closure_contracts.py"
 _PHASE_ID_BY_NUMBER = {
     "1": "phase_1_first_production_unlocks_and_certificate_foundations",

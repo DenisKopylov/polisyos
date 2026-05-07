@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 pytestmark = pytest.mark.property
 

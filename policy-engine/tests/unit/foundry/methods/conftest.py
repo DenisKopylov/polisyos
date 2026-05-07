@@ -287,7 +287,7 @@ def methods_test_root() -> Path:
 @pytest.fixture(scope="session")
 def golden_records_path(methods_test_root: Path) -> Path:
     """Path to golden records directory."""
-    path = methods_test_root / "golden_records"
+    path = methods_test_root.parents[2] / "_golden" / "foundry" / "generated_records"
     path.mkdir(exist_ok=True)
     return path
 

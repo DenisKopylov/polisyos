@@ -11,7 +11,7 @@ from polisyos.scientist.agent.formalizer import (
     create_mock_draft,
 )
 from polisyos.scientist.agent.pi import LLMPIAgent
-from polisyos.scientist.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 
 
 class _FakeJSONLLMClient:

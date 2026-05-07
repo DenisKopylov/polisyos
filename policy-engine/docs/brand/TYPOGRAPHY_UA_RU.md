@@ -158,7 +158,7 @@ translateY(0.5px)` under `@media (min-resolution: 2dppx)`.
 
 ## 11. Specimen
 
-The specimen page `frontend/runtime-dashboard/src/shared/brand/specimen/`
+The specimen page `apps/runtime-dashboard/src/shared/brand/specimen/`
 renders all combinations of face × weight × script for visual review.
 Phase 1.7 will expand the specimen with a plural-form tester and
 date-format inspector.

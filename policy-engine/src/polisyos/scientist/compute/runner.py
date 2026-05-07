@@ -25,7 +25,7 @@ from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 try:  # pragma: no cover - optional dependency for local/dev environments
     import jax as _jax

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import (
+from polisyos.ir._internal.validation import (
     ensure_confidence_interval,
     ensure_finite_numeric,
     ensure_unique_ids,
@@ -22,7 +22,7 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.artifacts.contracts import ArtifactID
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import LiteratureCausalPriorRef
+from polisyos.ir.references import LiteratureCausalPriorRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.context import ContextProfile

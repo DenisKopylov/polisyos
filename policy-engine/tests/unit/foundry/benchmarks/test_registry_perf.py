@@ -177,7 +177,7 @@ def test_plan_optimizer_is_fast(benchmark, populated_registry):
     well under 50 ms.
     """
     from polisyos.foundry.methods.composer import MethodComposer
-    from polisyos.foundry.methods.plan_optimizer import ExecutionPlanOptimizer
+    from polisyos.foundry.methods.compiler.plan_optimizer import ExecutionPlanOptimizer
 
     entries = populated_registry.list_all()
     assert len(entries) >= 2, "Need ≥2 registered methods"

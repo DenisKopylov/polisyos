@@ -10,8 +10,8 @@ id = "topology-loose-files"
 area = "topology"
 owner = "team-architecture"
 mode = "fail_closed"
-command = "uv run pytest tests/architecture/test_repository_sota_phase3_topology_cleanup.py -q"
-evidence = "tests/architecture/test_repository_sota_phase3_topology_cleanup.py"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q"
+evidence = "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py"
 
 [[gate]]
 id = "import-linter"
@@ -53,8 +53,8 @@ id = "public-polish"
 area = "docs"
 owner = "team-docs"
 mode = "fail_closed"
-command = "uv run pytest tests/architecture/test_repository_public_polish.py -q"
-evidence = "tests/architecture/test_repository_public_polish.py"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q"
+evidence = "tests/repo_quality/architecture/test_repository_public_polish.py"
 
 [[gate]]
 id = "shim-audit"

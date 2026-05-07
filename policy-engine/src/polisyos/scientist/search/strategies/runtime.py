@@ -1,38 +1,11 @@
-"""Runtime helpers for Torch-backed search strategies."""
+"""Compatibility shim for `polisyos.scientist.search.strategies.runtime`.
+
+Canonical module: `polisyos.scientist.methods.search.strategies.runtime`.
+Sunset: 2027-03-02.
+"""
 
 from __future__ import annotations
 
-import os
+from polisyos.scientist.methods._compat import alias_module as _alias_module
 
-from polisyos.common.logger import get_logger
-
-logger = get_logger(__name__)
-
-
-def apply_torch_runtime_settings(torch_module) -> str:
-    """
-    Apply Torch runtime limits from environment variables.
-
-    Returns:
-        Preferred torch device name.
-    """
-    num_threads = int(os.getenv("SCIENTIST_TORCH_NUM_THREADS", "4"))
-    interop_threads = int(os.getenv("SCIENTIST_TORCH_NUM_INTEROP_THREADS", "1"))
-    device = os.getenv("SCIENTIST_TORCH_DEVICE", "cpu").lower()
-
-    try:
-        torch_module.set_num_threads(max(1, num_threads))
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
-    try:
-        torch_module.set_num_interop_threads(max(1, interop_threads))
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
-
-    logger.info(
-        "Torch runtime configured: device={} threads={} interop_threads={}",
-        device,
-        num_threads,
-        interop_threads,
-    )
-    return device
+_alias_module(__name__, "polisyos.scientist.methods.search.strategies.runtime", globals())

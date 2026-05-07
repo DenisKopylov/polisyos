@@ -195,15 +195,15 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 Пакет dashboard:
 
 ```text
-frontend/runtime-dashboard
+apps/runtime-dashboard
 ```
 
 Локальный запуск:
 
 ```bash
-cd frontend/runtime-dashboard
-npm install
-npm run dev
+cd apps/runtime-dashboard
+corepack pnpm install --frozen-lockfile
+corepack pnpm run dev
 ```
 
 Локальный frontend URL по умолчанию:
@@ -273,4 +273,4 @@ Runtime уже импортирует observability helpers:
 - `src/polisyos/runtime/http/routes/control.py`
 - `src/polisyos/runtime/http/services/control.py`
 - `src/polisyos/runtime/http/services/task_runner.py`
-- `frontend/runtime-dashboard/src/app/workspaces.ts`
+- `apps/runtime-dashboard/src/app/workspaces.ts`

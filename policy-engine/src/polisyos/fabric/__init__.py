@@ -14,6 +14,7 @@ from typing import Any
 __all__ = [
     "AccessRef",
     "AuthoredText",
+    "ConnectorRegistryLike",
     "FabricDecisionData",
     "FabricDecisionDataCoverage",
     "FabricDecisionDataResponse",
@@ -37,6 +38,7 @@ __all__ = [
     "query_claims",
     "query_events",
     "query_world_table",
+    "resolve_connector_registry",
     "run_connectors_ingestion",
     "stream_processing_contract",
     "world",
@@ -89,7 +91,12 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.fabric.processing_guarantees",
         "stream_processing_contract",
     ),
+    "ConnectorRegistryLike": ("polisyos.fabric._connector_bridge", "ConnectorRegistryLike"),
     "fabric_get_data": ("polisyos.fabric._connector_bridge", "fabric_get_data"),
+    "resolve_connector_registry": (
+        "polisyos.fabric._connector_bridge",
+        "resolve_connector_registry",
+    ),
     "execute_world_query": ("polisyos.fabric.world_query", "execute_world_query"),
     "run_connectors_ingestion": ("polisyos.fabric.ingestion", "run_connectors_ingestion"),
     "query_claims": ("polisyos.fabric.world_query", "query_claims"),

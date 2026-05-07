@@ -8,7 +8,7 @@ from polisyos.foundry.calibration.dp_ci import (
     required_n_kernel,
     resolve_ci_threshold_policy,
 )
-from polisyos.scientist.search.judge_thresholds import (
+from polisyos.scientist.methods.search.judge_thresholds import (
     JudgeThresholdEntry,
     JudgeThresholdRegistry,
 )

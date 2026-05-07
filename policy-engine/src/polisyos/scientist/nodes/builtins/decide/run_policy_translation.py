@@ -6,10 +6,10 @@ from dataclasses import dataclass
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
@@ -34,9 +34,9 @@ from polisyos.scientist.policy_design.translator import (
     PolicyTranslatorWorker,
     TranslatorInputBundle,
 )
-from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
-from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,

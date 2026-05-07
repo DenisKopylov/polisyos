@@ -12,6 +12,7 @@ Phase 0 closure.
 - Manifest: `tools/quality/validation/foundry_phase0_manifest.json`
 - Validator: `tools/quality/validation/validate_foundry_phase0_closure.py`
 - Wrapper: `tools/quality/validation/run_foundry_phase0_validation.sh`
+- Registry test: `tests/unit/foundry/agent_sim/world/test_seed_worlds.py`
 - Required benchmark: `benchmarks/synthetic_world/phase0_seed_benchmark.py --mode smoke`
 
 ## Exit Criteria

@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from polisyos.fabric.connectors.base import FetchRequest
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.quality.report import DataQualityReport
-from polisyos.fabric.finite import ensure_probability
+from polisyos.fabric.quality.finite import ensure_probability
 from polisyos.fabric.temporal import utc_now
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 

@@ -9,8 +9,8 @@ Generated from `tools.registry` command metadata.
 | Phase 0 | SQL/shell injection, shell safety, destructive operation guardrails | `tools.lib.runner`, `tools.lib.sql`, `tools.lib.fs` |
 | Phase 1 | atomicity, rollback, resource/I/O validation, degraded mode, legacy quarantine | `tools.lib.fs`, `tools.lib.http`, `tools.lib.preflight`, lifecycle status metadata |
 | Phase 2 | unified CLI, shared runtime, packaging/import normalization, dependency graph, docs metadata | `polisyos-tools`, `tools.registry`, `tools.cli`, compatibility package shims |
-| Phase 3 | critical tool test program, structured CI output, timing telemetry | `tests/tools/**`, `tools.lib.output`, `tools.lib.timing`, workspace gates |
-| Phase 4 | cloud, benchmarks, scripts, and duplicate namespace consolidation | `tools/ops/**`, `tools/research/**`, final topology and retired wrapper evidence |
+| Phase 3 | critical tool test program, structured CI output, timing telemetry | `tests/repo_quality/tools/**`, `tools.lib.output`, `tools.lib.timing`, workspace gates |
+| Phase 4 | cloud, benchmarks, scripts, and duplicate namespace consolidation | `tools/ops_runners/**`, `tools/research/**`, final topology and retired wrapper evidence |
 | Phase 5 | incremental execution, cache, autofix/rule registry, hot-path maintainability | `tools.lib.cache`, `tools/quality/lint/**`, targeted `--fix` and changed-file modes |
 
 ## Validation Contract
@@ -53,6 +53,7 @@ Generated from `tools.registry` command metadata.
 | `workspace` | `benchmark-surfaces` | `active` | `polisyos-tools workspace benchmark-surfaces` | Run the Phase 8 benchmark/research hygiene gate for authored assets. | - | - | - |
 | `workspace` | `bootstrap` | `active` | `polisyos-tools workspace bootstrap` | Bootstrap a contributor machine for the policy-engine workspace. | - | - | `workspace.doctor` |
 | `workspace` | `ci-parity` | `active` | `polisyos-tools workspace ci-parity` | Run a local validation pass that approximates the main CI surfaces. | - | - | - |
+| `workspace` | `clean-local-reports` | `active` | `polisyos-tools workspace clean-local-reports` | Clean stale local reports and optional source-adjacent residue. | - | - | - |
 | `workspace` | `core-runtime-basedpyright` | `active` | `polisyos-tools workspace core-runtime-basedpyright` | Run basedpyright across the full core-runtime surface plus curated extras. | - | - | - |
 | `workspace` | `core-runtime-closeout` | `active` | `polisyos-tools workspace core-runtime-closeout` | Validate and render the CORE common/runtime closeout ledger. | - | - | - |
 | `workspace` | `core-runtime-long-soak` | `active` | `polisyos-tools workspace core-runtime-long-soak` | Run the core-runtime long-soak evidence suite and emit machine-readable reports. | - | - | - |
@@ -64,9 +65,11 @@ Generated from `tools.registry` command metadata.
 | `workspace` | `lint-full` | `active` | `polisyos-tools workspace lint-full` | Run the full authored lint contract used by CI and nightly sweeps. | - | - | `workspace.lint-fast`, `workspace.format-check`, `workspace.python-base-mypy`, `workspace.python-base-basedpyright` |
 | `workspace` | `python-base-basedpyright` | `active` | `polisyos-tools workspace python-base-basedpyright` | Run basedpyright across the Phase 3 Python base layers in serial order. | - | - | - |
 | `workspace` | `python-base-mypy` | `active` | `polisyos-tools workspace python-base-mypy` | Run mypy across the Phase 3 Python base layers in serial order. | - | - | - |
+| `workspace` | `release-build-cache-lifecycle` | `active` | `polisyos-tools workspace release-build-cache-lifecycle` | Check and clean release/build/cache lifecycle state. | - | - | - |
 | `workspace` | `remote-acceptance` | `active` | `polisyos-tools workspace remote-acceptance` | Provision and drive a remote Linux runner for acceptance closeout. | - | - | - |
 | `workspace` | `repository-sota-closeout` | `active` | `polisyos-tools workspace repository-sota-closeout` | Enforce the Repository SOTA Phase 5 closeout gate. | - | - | - |
 | `workspace` | `runtime-surface` | `active` | `polisyos-tools workspace runtime-surface` | Run the Phase 5B runtime lint, type, boundary, and API contract gate. | - | - | - |
+| `workspace` | `tool-configs` | `active` | `polisyos-tools workspace tool-configs` | Generate and verify split mypy, Ruff, and MkDocs configuration. | - | - | - |
 | `workspace` | `verify` | `active` | `polisyos-tools workspace verify` | Run the standard fast local gate for policy-engine contributors. | - | - | `workspace.doctor` |
 | `architecture` | `guardrails` | `active` | `polisyos-tools architecture guardrails` | architecture/guardrails | - | - | - |
 | `architecture` | `scaffold` | `active` | `polisyos-tools architecture scaffold` | architecture/scaffold | - | - | - |
@@ -104,8 +107,16 @@ Generated from `tools.registry` command metadata.
 | `diagnostics` | `visualize-provenance` | `active` | `polisyos-tools diagnostics visualize-provenance` | Provenance visualization / validation utility. | - | - | - |
 | `validation` | `check-ci-ratchets` | `active` | `polisyos-tools validation check-ci-ratchets` | Ratchet targeted CI escapes across common/core/runtime HTTP packages. | - | - | - |
 | `validation` | `check-docs-accuracy` | `active` | `polisyos-tools validation check-docs-accuracy` | Validate published docs against current repository reality. | - | - | - |
+| `validation` | `check-docs-freshness-baseline` | `active` | `polisyos-tools validation check-docs-freshness-baseline` | Validate the fail-closed docs freshness baseline without running repo-wide gates. | - | - | - |
 | `validation` | `check-docs-gate` | `active` | `polisyos-tools validation check-docs-gate` | Run the Phase D6 path-aware documentation drift gate. | - | - | - |
+| `validation` | `check-docs-lifecycle` | `active` | `polisyos-tools validation check-docs-lifecycle` | Validate the Phase 6.4 documentation lifecycle conversion contract. | - | - | - |
 | `validation` | `check-docstring-quality` | `active` | `polisyos-tools validation check-docstring-quality` | Fail CI when public API docstrings regress to generic placeholders. | - | - | - |
+| `validation` | `check-extension-examples` | `active` | `polisyos-tools validation check-extension-examples` | Install extension examples in editable mode and verify entry-point discovery. | - | - | - |
+| `validation` | `check-package-import-gates` | `active` | `polisyos-tools validation check-package-import-gates` | Fail-closed Phase 6.1 package, public-surface, and import gates. | - | - | - |
+| `validation` | `control-plane-supply-chain-contracts` | `active` | `polisyos-tools validation control-plane-supply-chain-contracts` | Validate the control-plane and supply-chain contract. | - | - | - |
+| `validation` | `decomposition-preflight` | `active` | `polisyos-tools validation decomposition-preflight` | Phase 3A decomposition preflight inventory and gates. | - | - | - |
+| `validation` | `directory-health` | `active` | `polisyos-tools validation directory-health` | Build the Phase 6.2 directory-health dashboard and ratchet report. | - | - | - |
+| `validation` | `directory-hygiene-assets` | `active` | `polisyos-tools validation directory-hygiene-assets` | Report Phase 2.9 directory hygiene, asset placement, and local residue state. | - | - | - |
 | `validation` | `empty-namespace-gate` | `active` | `polisyos-tools validation empty-namespace-gate` | Fail-closed gate for Foundry methods namespace cutover. | - | - | - |
 | `validation` | `fabric-best-in-class-inventory` | `active` | `polisyos-tools validation fabric-best-in-class-inventory` | Generate the Fabric best-in-class baseline inventory. | - | - | - |
 | `validation` | `fabric-decision-data-coverage` | `active` | `polisyos-tools validation fabric-decision-data-coverage` | Validate Fabric decision-data trust-envelope coverage. | - | - | - |
@@ -115,9 +126,12 @@ Generated from `tools.registry` command metadata.
 | `validation` | `fabric-schema-governance` | `active` | `polisyos-tools validation fabric-schema-governance` | Validate Fabric connector contract evolution against governance policy. | - | - | - |
 | `validation` | `fabric-source-contracts` | `active` | `polisyos-tools validation fabric-source-contracts` | Validate Fabric SourceContract v2 coverage and source scorecards. | - | - | - |
 | `validation` | `fabric-wave2-strict-closure` | `active` | `polisyos-tools validation fabric-wave2-strict-closure` | Validate strict Fabric Wave 2 best-in-class closure without Wave R scope. | - | - | - |
+| `validation` | `generate-adr-index` | `active` | `polisyos-tools validation generate-adr-index` | Generate ADR TOML and Markdown indexes from ``docs/adr``. | - | - | - |
 | `validation` | `generate-foundry-phase2-evidence` | `active` | `polisyos-tools validation generate-foundry-phase2-evidence` | Generate Phase 2 synthetic-world and judge evidence from enrolled JUnit reports. | - | - | - |
 | `validation` | `name-collision-gate` | `active` | `polisyos-tools validation name-collision-gate` | Fail-closed Phase 1C cross-package directory-name collision gate. | - | - | - |
-| `validation` | `repository-structure-phase0` | `active` | `polisyos-tools validation repository-structure-phase0` | Phase 0 repository-structure inventory and report-only gates. | - | - | - |
+| `validation` | `repository-best-in-class-phase0-7-inventory` | `active` | `polisyos-tools validation repository-best-in-class-phase0-7-inventory` | Read-only Phase 0.7 inventory for repository best-in-class remediation. | - | - | - |
+| `validation` | `repository-structure-phase0` | `active` | `polisyos-tools validation repository-structure-phase0` | Phase 0 repository-structure inventory and fail-closed gates. | - | - | - |
+| `validation` | `repository-verification-inventory` | `active` | `polisyos-tools validation repository-verification-inventory` | Generate the Repository Best-In-Class Phase 0.4 verification inventory. | - | - | - |
 | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
 | `validation` | `validate-foundry-phase2-closure` | `active` | `polisyos-tools validation validate-foundry-phase2-closure` | Emit a machine-readable closure report for Foundry Phase 2. | - | - | - |
 | `validation` | `validate-phase-closure` | `active` | `polisyos-tools validation validate-phase-closure` | Emit a machine-readable closure report for the causal research phases. | - | - | - |
@@ -127,6 +141,7 @@ Generated from `tools.registry` command metadata.
 | `testing` | `mutation` | `active` | `polisyos-tools testing mutation` | Run canonical mutmut-based mutation suites for Foundry and Scientist. | - | - | - |
 | `testing` | `repeat-pytest` | `active` | `polisyos-tools testing repeat-pytest` | Repeat one pytest invocation multiple times and fail on the first red run. | - | - | - |
 | `testing` | `report-test-economics` | `active` | `polisyos-tools testing report-test-economics` | Summarize slow suites and unstable tests from JUnit XML plus quarantine metadata. | - | - | - |
+| `testing` | `report-test-ratchets` | `active` | `polisyos-tools testing report-test-ratchets` | Report package-level mirror and property-test ratchets. | - | - | - |
 | `ci` | `check-action-freshness` | `active` | `polisyos-tools ci check-action-freshness` | Audit pinned third-party GitHub Actions against latest upstream releases. | - | - | - |
 | `ci` | `check-fabric-schema-registry` | `active` | `polisyos-tools ci check-fabric-schema-registry` | CI wrapper for the Fabric schema governance gate. | - | - | - |
 | `ci` | `check-foundry-domain-coverage` | `active` | `polisyos-tools ci check-foundry-domain-coverage` | Enforce Foundry coverage thresholds by domain instead of only globally. | - | - | - |
@@ -188,6 +203,8 @@ Generated from `tools.registry` command metadata.
 | `migrations` | `migrate` | `active` | `polisyos-tools migrations migrate` | Migrate schema artifacts to their declared target versions. | - | - | - |
 | `migrations` | `migrate-duckdb-to-pg` | `active` | `polisyos-tools migrations migrate-duckdb-to-pg` | Migrate tenant-scoped data from DuckDB to PostgreSQL. | - | - | - |
 | `release` | `build-release-notes` | `active` | `polisyos-tools release build-release-notes` | Render Keep-a-Changelog style release notes from structured TOML fragments. | - | - | - |
+| `release` | `check-compatibility-release-gates` | `active` | `polisyos-tools release check-compatibility-release-gates` | Report Phase 5.10 compatibility release-gate readiness. | - | - | - |
+| `release` | `check-operability-release-gates` | `active` | `polisyos-tools release check-operability-release-gates` | Fail-closed Phase 6.3 operability, release, and supply-chain gates. | - | - | - |
 | `release` | `check-release-artifact-sizes` | `active` | `polisyos-tools release check-release-artifact-sizes` | Check release artifact sizes against repo-tracked thresholds. | - | - | - |
 | `release` | `check-release-version` | `active` | `polisyos-tools release check-release-version` | Validate that a release tag matches packaged versions and fragment state. | - | - | - |
 | `release` | `evaluate-vuln-report` | `active` | `polisyos-tools release evaluate-vuln-report` | Evaluate vulnerability reports against PolicyOS release policy exceptions. | - | - | - |
@@ -199,6 +216,7 @@ Generated from `tools.registry` command metadata.
 | `runtime` | `export-runtime-openapi` | `active` | `polisyos-tools runtime export-runtime-openapi` | runtime/export_runtime_openapi | - | - | - |
 | `runtime` | `generate-runtime-client` | `active` | `polisyos-tools runtime generate-runtime-client` | runtime/generate_runtime_client | - | - | `runtime.export-runtime-openapi` |
 | `runtime` | `inventory-legacy-runs` | `active` | `polisyos-tools runtime inventory-legacy-runs` | runtime/inventory_legacy_runs | - | - | - |
+| `runtime` | `runtime-state-cleanup` | `active` | `polisyos-tools runtime runtime-state-cleanup` | Clean registered .polisyos runtime-state slots with dry-run summaries. | - | - | - |
 | `ukraine_data` | `build-edr-identity-seed-candidates` | `active` | `polisyos-tools ukraine_data build-edr-identity-seed-candidates` | ukraine_data/build_edr_identity_seed_candidates | - | - | - |
 | `ukraine_data` | `build-p1-source-bindings` | `active` | `polisyos-tools ukraine_data build-p1-source-bindings` | Build pragmatic D1 source bindings from downloaded public raw layers. | - | - | - |
 | `ukraine_data` | `build-spending-contracts-procurement-proxy` | `active` | `polisyos-tools ukraine_data build-spending-contracts-procurement-proxy` | Materialize the Spending contracts procurement proxy as a standalone source run. | - | - | - |
@@ -234,9 +252,11 @@ Generated from `tools.registry` command metadata.
 
 ## Retired Compatibility Wrappers
 
-Phase 1D retired path-based tool wrappers. Use `polisyos-tools` commands or
-the canonical `tools/devx`, `tools/ops`, and `tools/research` implementation
-trees.
+Legacy path-based wrappers are retained only for the Phase 1D migration window.
+All wrappers emit a deprecation warning and sunset on 2026-09-01.
+
+| Legacy path | Replacement |
+| ----------- | ----------- |
 
 ## Deprecated And Quarantined Commands
 

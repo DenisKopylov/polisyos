@@ -3,7 +3,7 @@
 Freshness: 2026-04-19
 Owner: `@ir-owners`, `@causal-owners`
 Source of truth: `src/polisyos/ir/analytics/distributional.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py`
-Research rationale: Stage 5.1 in `docs/archive/plans/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md`
+Research rationale: Stage 5.1 in `docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md`
 
 ## Purpose
 

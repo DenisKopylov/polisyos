@@ -13,7 +13,7 @@ from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
-from polisyos.fabric._numeric_parsing import parse_decimal_text
+from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
 from polisyos.fabric.temporal import (
     FutureTimestampError,
     from_unix_timestamp_utc,

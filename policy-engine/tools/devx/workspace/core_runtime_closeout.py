@@ -15,7 +15,9 @@ from tools.lib.imports import repo_root_from
 PRODUCT_ROOT = repo_root_from(__file__)
 WORKSPACE_ROOT = PRODUCT_ROOT.parent
 DEFAULT_LEDGER_PATH = PRODUCT_ROOT / "release" / "core-runtime-closeout.ledger.toml"
-DEFAULT_PLAN_PATH = PRODUCT_ROOT / "docs" / "CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
+DEFAULT_PLAN_PATH = (
+    PRODUCT_ROOT / "docs" / "plans" / "active" / "CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
+)
 VALID_STATUSES = frozenset({"implemented", "partial", "missing", "reopened"})
 WORKSTREAM_HEADING_RE = re.compile(r"^###\s+(WS-\d[A-Z])\.")
 

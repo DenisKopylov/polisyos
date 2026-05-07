@@ -38,7 +38,6 @@ from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
 from polisyos.lex.simulator.cli import load_norm_pack
 from polisyos.lex.simulator.diff import diff_norm_packs
-from polisyos.scientist.engine.operational_monitoring import get_operational_monitor
 from polisyos.scientist.feedback.utils import (
     _aggregate_monitoring_verdict,
     _as_bool_or_none,
@@ -53,6 +52,7 @@ from polisyos.scientist.feedback.utils import (
     _path_get,
     _within_range,
 )
+from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 

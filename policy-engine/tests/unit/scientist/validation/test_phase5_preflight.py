@@ -8,8 +8,8 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.sensitivity import SensitivityAnalysisBundle
 from polisyos.ir.governance.validation import Phase5GateComponent, ValidationReport
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_FAIRNESS_AUDIT_REPORT_REF
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,

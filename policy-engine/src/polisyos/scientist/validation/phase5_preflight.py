@@ -16,8 +16,8 @@ from polisyos.ir.governance.validation import (
     ValidationReport,
     persist_validation_report,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_FAIRNESS_AUDIT_REPORT_REF,
     ARTIFACT_DRIFT_READINESS_REF,
@@ -977,7 +977,7 @@ def _phase5_judge_verdict(
     else:
         judge_input = _judge_input_bundle_from_state(state)
         if judge_input is not None:
-            from polisyos.scientist.search.judge_stack import JudgeStack
+            from polisyos.scientist.methods.search.judge_stack import JudgeStack
 
             verdict = JudgeStack(store=_ctx_store(ctx)).evaluate_phase5_preflight(judge_input)
         else:
@@ -986,7 +986,7 @@ def _phase5_judge_verdict(
     store = _ctx_store(ctx)
     if store is None:
         return verdict, None
-    from polisyos.scientist.search.judge_stack import persist_judge_verdict
+    from polisyos.scientist.methods.search.judge_stack import persist_judge_verdict
 
     ref = persist_judge_verdict(store, verdict, inputs=_input_refs_for_publication(None, None))
     model_copy = getattr(verdict, "model_copy", None)
@@ -1000,7 +1000,7 @@ def _judge_input_bundle_from_state(state: ExperimentState) -> Any | None:
         value = state.params.get(key)
         if value is None:
             continue
-        from polisyos.scientist.search.judge_stack import JudgeInputBundle
+        from polisyos.scientist.methods.search.judge_stack import JudgeInputBundle
 
         if isinstance(value, JudgeInputBundle):
             return value
@@ -1012,7 +1012,7 @@ def _judge_input_bundle_from_state(state: ExperimentState) -> Any | None:
 
 
 def _extract_existing_judge_verdict(payload: Any) -> Any | None:
-    from polisyos.scientist.search.judge_stack import JudgeVerdict
+    from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
 
     for record in _walk_mappings(payload):
         candidate = record.get("judge_verdict") if "judge_verdict" in record else record
@@ -1032,8 +1032,8 @@ def _has_all_six_judges(verdict: Mapping[str, Any]) -> bool:
 
 
 def _blocked_judge_verdict(reason: str) -> Any:
-    from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
-    from polisyos.scientist.search.judge_stack import JudgeName, JudgeVerdict, SingleJudgeVerdict
+    from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
+    from polisyos.scientist.methods.search.judge_stack import JudgeName, JudgeVerdict, SingleJudgeVerdict
 
     per_judge = {}
     failures = []

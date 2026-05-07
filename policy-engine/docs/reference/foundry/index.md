@@ -13,7 +13,7 @@ This page is the D1-L3 documentation map for the Foundry remediation plan in
 Freshness: 2026-04-17
 Owner: `@foundry-owners`
 Source plan: `docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md`, D1-L3 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: stable `polisyos.foundry` facade, `src/polisyos/foundry/**`, linked tests/ADRs, and generated method-snapshot inputs from `polisyos.foundry.methods.catalog_snapshot`
+Source of truth: stable `polisyos.foundry` facade, `src/polisyos/foundry/**`, linked tests/ADRs, and generated method-snapshot inputs from `polisyos.foundry.methods.catalog.snapshot`
 
 ## Phase Map
 

@@ -23,13 +23,13 @@ from polisyos.scientist.agent.tool_contracts import (
     ToolContractSummary,
     tool_contract_default_blockers,
 )
-from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
+from polisyos.scientist.orchestration.engine.frontier_runtime import FrontierCapabilityStatus
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.eval_harness import AgentPolicyComparisonReport
     from polisyos.scientist.agent.reasoning import ReasoningPolicyGate
     from polisyos.scientist.evals.authority import BenchmarkAuthorityVerdict
-    from polisyos.scientist.search.strategies.advanced_policy import AdvancedSearchPolicyReport
+    from polisyos.scientist.methods.search.strategies.advanced_policy import AdvancedSearchPolicyReport
 
 __all__ = [
     "AgentCapabilityPromotionReport",

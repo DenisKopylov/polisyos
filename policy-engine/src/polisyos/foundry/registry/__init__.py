@@ -1,4 +1,4 @@
-"""Compatibility shim for a Phase 5/6 decomposition module move."""
+"""Compatibility shim for the canonical Foundry extensions registry."""
 
 from __future__ import annotations
 
@@ -22,30 +22,32 @@ __all__ = (
     "validate_mechanism_params",
 )
 
+_TARGET = "polisyos.foundry.extensions.registry"
+
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "MECHANISM_REGISTRY": ("polisyos.foundry._registry", "MECHANISM_REGISTRY"),
-    "MECHANISM_SPECS": ("polisyos.foundry._registry", "MECHANISM_SPECS"),
-    "MechanismRuntimeDescriptor": ("polisyos.foundry._registry", "MechanismRuntimeDescriptor"),
+    "MECHANISM_REGISTRY": (_TARGET, "MECHANISM_REGISTRY"),
+    "MECHANISM_SPECS": (_TARGET, "MECHANISM_SPECS"),
+    "MechanismRuntimeDescriptor": (_TARGET, "MechanismRuntimeDescriptor"),
     "MissingRuntimeMechanismSupportError": (
-        "polisyos.foundry._registry",
+        _TARGET,
         "MissingRuntimeMechanismSupportError",
     ),
     "UnsupportedRuntimeFidelityError": (
-        "polisyos.foundry._registry",
+        _TARGET,
         "UnsupportedRuntimeFidelityError",
     ),
-    "create_mechanism": ("polisyos.foundry._registry", "create_mechanism"),
-    "create_mechanism_from_spec": ("polisyos.foundry._registry", "create_mechanism_from_spec"),
-    "get_mechanism_class": ("polisyos.foundry._registry", "get_mechanism_class"),
-    "get_mechanism_descriptor": ("polisyos.foundry._registry", "get_mechanism_descriptor"),
-    "get_mechanism_spec": ("polisyos.foundry._registry", "get_mechanism_spec"),
+    "create_mechanism": (_TARGET, "create_mechanism"),
+    "create_mechanism_from_spec": (_TARGET, "create_mechanism_from_spec"),
+    "get_mechanism_class": (_TARGET, "get_mechanism_class"),
+    "get_mechanism_descriptor": (_TARGET, "get_mechanism_descriptor"),
+    "get_mechanism_spec": (_TARGET, "get_mechanism_spec"),
     "has_runtime_mechanism_support": (
-        "polisyos.foundry._registry",
+        _TARGET,
         "has_runtime_mechanism_support",
     ),
-    "mechanism_catalog": ("polisyos.foundry._registry", "mechanism_catalog"),
-    "resolve_runtime_fidelity": ("polisyos.foundry._registry", "resolve_runtime_fidelity"),
-    "validate_mechanism_params": ("polisyos.foundry._registry", "validate_mechanism_params"),
+    "mechanism_catalog": (_TARGET, "mechanism_catalog"),
+    "resolve_runtime_fidelity": (_TARGET, "resolve_runtime_fidelity"),
+    "validate_mechanism_params": (_TARGET, "validate_mechanism_params"),
 }
 
 

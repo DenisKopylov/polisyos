@@ -23,7 +23,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     SemanticType,
     TimeGranularity,
 )
-from polisyos.fabric.finite import is_finite_number
+from polisyos.fabric.quality.finite import is_finite_number
 
 from ._inference_config import InferenceConfig, SchemaHints
 from ._inference_result import InferenceResult

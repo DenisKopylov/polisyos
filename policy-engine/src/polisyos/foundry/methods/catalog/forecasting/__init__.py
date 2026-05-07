@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_forecasting_methods
 from .advanced import (
@@ -35,12 +35,7 @@ from .univariate import (
 
 def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with baseline and advanced forecasting methods."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_forecasting_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("forecasting", registry)
 
 
 __all__ = [

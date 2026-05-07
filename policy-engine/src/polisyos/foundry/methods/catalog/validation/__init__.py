@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_validation_methods
 from .diagnostics import (
@@ -16,12 +16,7 @@ from .scoring import ProbabilisticScoringEstimator
 
 def ensure_validation_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with validation methods for backtests and diagnostics."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_validation_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("validation", registry)
 
 
 __all__ = [

@@ -23,7 +23,7 @@ Use a docs lifecycle:
 2. `docs/plans/active/` holds work under review or implementation.
 3. `docs/plans/accepted/` holds approved plans while implementation is in
    progress.
-4. `docs/archive/plans/` holds superseded or completed historical plans.
+4. `docs/plans/archive/` holds superseded or completed historical plans.
 5. Irreversible decisions move into ADRs; machine-checkable behavior moves into
    `architecture/*.toml` and `schemas/**`.
 

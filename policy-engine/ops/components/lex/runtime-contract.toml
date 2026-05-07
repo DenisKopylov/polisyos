@@ -1,0 +1,12 @@
+[component_runtime_contract]
+component = "lex"
+owner = "team-lex"
+aliases = ["lex", "polisyos.lex"]
+source_readme = "src/polisyos/lex/README.md"
+runtime_contract_links = [
+  "architecture/public_surface.toml",
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/lex/index.md",
+]
+release_gate_mode = "report_only"
+

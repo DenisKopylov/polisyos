@@ -1,0 +1,9 @@
+[retention_policy]
+component = "scholar"
+owner = "team-scholar"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["scholar_cache", "scholar_jobs", "search_registry", "cas"]
+default_class = "R1 Short operational"
+cleanup = "Scholar cache cleanup uses dry-run first; scholar jobs require resumability review before deletion."
+

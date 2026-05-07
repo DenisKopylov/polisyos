@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import polisyos.scientist.search as search_mod
+import polisyos.scientist.methods.search as search_mod
 from polisyos.scientist.nodes.builtins import decide as decide_mod
 
 

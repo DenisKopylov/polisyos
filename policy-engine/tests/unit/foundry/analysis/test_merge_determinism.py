@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
-from polisyos.foundry.methods.merge_engine import (
+from polisyos.foundry.methods.components.merge_engine import (
     JAXMergeEngine,
     MergeConflictKind,
     MergeEngine,

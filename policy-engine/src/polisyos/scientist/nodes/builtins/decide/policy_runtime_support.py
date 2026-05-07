@@ -26,23 +26,23 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.autotune.models import (
+from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
     MetricDirection,
     PromotionPolicy,
 )
-from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.discovery.output import (
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+from polisyos.scientist.methods.discovery.output import (
     load_discovery_artifact_bundle,
     load_merged_latent_discovery_bundle,
 )
-from polisyos.scientist.discovery.priors import (
+from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -69,15 +69,15 @@ from polisyos.scientist.replay.verification import (
     load_replay_verification_report,
     verify_and_persist_replay_bundle,
 )
-from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.judge_stack import (
+from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
-from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
@@ -538,7 +538,7 @@ def build_vulnerabilities(
     governance_report: GovernanceReport | None,
 ) -> list[Any]:
     """Build vulnerabilities."""
-    from polisyos.scientist.doe.stress_report import Vulnerability, VulnerabilityType
+    from polisyos.scientist.methods.doe.stress_report import Vulnerability, VulnerabilityType
 
     vulnerabilities: list[Vulnerability] = []
     if evaluation is not None:

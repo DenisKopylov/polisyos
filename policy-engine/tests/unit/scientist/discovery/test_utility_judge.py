@@ -20,20 +20,20 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityStatus,
     TransportMode,
 )
-from polisyos.scientist.discovery import utility_judge as utility_module
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery import utility_judge as utility_module
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
 )
-from polisyos.scientist.discovery.stability import (
+from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
     BootstrapStabilityConfig,
     BootstrapStabilityReport,
     HypothesisStabilitySummary,
 )
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
 )

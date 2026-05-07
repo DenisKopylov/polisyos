@@ -60,7 +60,7 @@ RSYNC_EXCLUDES = (
     "build/",
     "*.egg-info/",
 )
-SYNC_ROOT_ENTRIES = ("renovate.json", ".github", "policy-engine")
+SYNC_ROOT_ENTRIES = (".github", "policy-engine")
 
 
 @dataclass(frozen=True, slots=True)
@@ -500,7 +500,6 @@ def sync_workspace(config: RemoteAcceptanceConfig, *, delete: bool, dry_run: boo
         set -euo pipefail
         mkdir -p {shlex.quote(config.worktree)} {shlex.quote(config.artifacts_root)}
         find {shlex.quote(config.worktree)} -mindepth 1 -maxdepth 1 \\
-          ! -name renovate.json \\
           ! -name .github \\
           ! -name policy-engine \\
           -exec rm -rf {{}} +

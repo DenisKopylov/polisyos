@@ -9,7 +9,7 @@
 
 ## Источники данных
 
-- Реестр моделей: `schemas/abi_models.py` (`module="fabric"`).
+- Реестр моделей: `src/polisyos/schemas/abi_models.py` (`module="fabric"`).
 - Источник enum-классов: `src/polisyos/ir/world/abi.py`.
 - Генератор: `tools/quality/diagnostics/gen_schema.py`.
 

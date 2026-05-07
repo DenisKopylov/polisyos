@@ -1,0 +1,13 @@
+{
+  "component": "calibration",
+  "owner": "team-foundry",
+  "aliases": ["calibration", "polisyos.calibration", "polisyos.foundry.calibration", "polisyos.ddm.calibration"],
+  "dashboards": [
+    {
+      "name": "Foundry HPC",
+      "path": "ops/observability/grafana/dashboards/foundry-hpc.json",
+      "purpose": "Calibration convergence and numerical health"
+    }
+  ]
+}
+

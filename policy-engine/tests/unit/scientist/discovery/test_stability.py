@@ -11,15 +11,15 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.scientist.discovery import stability as stability_module
-from polisyos.scientist.discovery.portfolio import PortfolioCandidate
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery import stability as stability_module
+from polisyos.scientist.methods.discovery.portfolio import PortfolioCandidate
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryMethod,
     GraphHypothesis,
     infer_algorithm_family,
 )
-from polisyos.scientist.discovery.stability import (
+from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
     BootstrapStabilityAnalyzer,
     BootstrapStabilityConfig,

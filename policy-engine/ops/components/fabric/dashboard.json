@@ -1,0 +1,13 @@
+{
+  "component": "fabric",
+  "owner": "team-fabric",
+  "aliases": ["fabric", "polisyos.fabric", "polisyos.fabric.api"],
+  "dashboards": [
+    {
+      "name": "Knowledge Freshness",
+      "path": "ops/observability/grafana/dashboards/knowledge-freshness.json",
+      "purpose": "Connector freshness, replay, and source-contract health"
+    }
+  ]
+}
+

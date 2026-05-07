@@ -21,28 +21,28 @@ required_evidence = [
 ]
 
 [[protected_surface]]
-path = "tools/ops/cloud/**"
+path = "tools/ops_runners/cloud/**"
 owner = "team-ops"
 reason = "Historical protected surface from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "wrapper_removal", "runner_import_rewrite", "deploy_asset_move"]
 
 [[protected_surface]]
-path = "tools/ops/cloud/**"
+path = "tools/ops_runners/cloud/**"
 owner = "team-ops"
 reason = "Historical compatibility protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "wrapper_removal", "wrapper_tightening"]
 
 [[protected_surface]]
-path = "tools/ops/ukraine_data/pre_shard_lex_corpus.py"
+path = "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py"
 owner = "team-data-forge"
 reason = "Historical pre-sharding protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]
 forbidden_actions = ["move", "rename", "manifest_schema_change", "shard_assignment_change"]
 
 [[protected_surface]]
-path = "tools/ops/ukraine_data/pre_shard_lex_corpus.py"
+path = "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py"
 owner = "team-data-forge"
 reason = "Historical pre-sharding wrapper protection from the completed Lex cloud-run period."
 allowed_actions = ["read_only_inventory", "narrow_hotfix_preserve_semantics"]

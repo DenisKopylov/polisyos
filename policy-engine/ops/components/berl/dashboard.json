@@ -1,0 +1,13 @@
+{
+  "component": "berl",
+  "owner": "team-architecture",
+  "aliases": ["berl", "polisyos.berl"],
+  "dashboards": [
+    {
+      "name": "Scientist Agents",
+      "path": "ops/observability/grafana/dashboards/scientist-agents.json",
+      "purpose": "Scientist validation and explanation-reliability dependency posture"
+    }
+  ]
+}
+

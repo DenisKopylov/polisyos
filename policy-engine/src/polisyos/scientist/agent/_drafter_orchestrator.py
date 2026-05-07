@@ -34,7 +34,7 @@ from polisyos.scientist.agent.protocols import (
     ProblemFrame,
 )
 from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig, format_few_shot_block
-from polisyos.scientist.engine.convergence import ConvergenceDetector
+from polisyos.scientist.orchestration.engine.convergence import ConvergenceDetector
 
 from ._drafter_formatting import _DrafterFormattingMixin
 from ._drafter_llm import _DrafterLLMMixin

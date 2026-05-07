@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
-from polisyos.scientist.search.objective import CompositeObjective, GDPGrowthObjective
-from polisyos.scientist.search.sentinels import (
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+from polisyos.scientist.methods.search.sentinels import (
     SENTINEL_METADATA_KEY,
     SentinelCandidate,
     SentinelInjector,
     SentinelKind,
     SentinelSet,
 )
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
 def test_sentinel_injector_batch_cadence_is_deterministic() -> None:

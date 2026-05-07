@@ -1,9 +1,33 @@
+id = "2026-04-03-phase-7-closeout"
 title = "Add the Phase 7 closeout layer"
 type = "changed"
 component = "platform"
+owner = "team-platform"
 summary = "Add a repo-tracked acceptance audit, Phase 7 closeout docs, and a ratchet policy for new subsystems and major surfaces."
+evidence = [
+  "docs/reference/ratchet-policy.md",
+  "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md",
+]
 compatibility = "Contributor and maintainer workflows now have an extra closeout expectation for cross-platform changes and new durable surfaces."
+change_class = "internal"
 surface_classification = "internal: internal-only"
 migration = "Use polisyos-tools workspace acceptance-audit for end-to-end platform closeout and fill the PR template ratchet section when introducing a new subsystem or major surface."
 api = "No product runtime API changed; this release affects contributor governance, acceptance automation, and documentation entry points."
 limitations = "Manual rehearsals such as clean-machine bootstrap, release dry run, and incident tabletop still require humans to record evidence explicitly."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/ratchet-policy.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "phase-7-closeout-governance"
+change_class = "internal"
+impact = "additive"
+surface = "internal: contributor governance"
+owner = "team-platform"
+version_owner = "team-platform"
+deprecation_window = "not_applicable"
+release_note = "Contributor release governance gains an additive Phase 7 closeout expectation without changing runtime APIs."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ratchet-policy.md"]
+runbook_docs = []

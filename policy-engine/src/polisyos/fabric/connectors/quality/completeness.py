@@ -16,7 +16,7 @@ from typing import Any
 import pandas as pd
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
+from polisyos.fabric.quality.finite import ensure_non_negative_finite, ensure_probability
 
 from .report import CompletenessResult, RuleViolation
 

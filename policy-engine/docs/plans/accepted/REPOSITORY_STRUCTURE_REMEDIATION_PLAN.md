@@ -404,7 +404,7 @@ fences. Shared registries (`architecture/shims.toml`,
 | 1C   | `architecture/name_registry.toml`, `architecture/package_layout.toml`, name ADRs | Physical moves in `scientist/` / `foundry/`                         |
 | 1D   | `tools/{devx,ops,quality,research,ci}`, tool shims, CI refs           | `tools/devx/refactor/move_module.py`, new Phase 3A validation gates |
 | 1E   | `tests/`, `architecture/test_topology.toml`                           | Source package moves                                                |
-| 1F   | `frontend/runtime-dashboard/src/**` source duplicate cleanup          | Lockfiles, workspace manager, `_build/` paths                       |
+| 1F   | `apps/runtime-dashboard/src/**` source duplicate cleanup          | Lockfiles, workspace manager, `_build/` paths                       |
 | 2A   | Workspace root layout, `.venv`, lockfile placement, topology paths    | Safety net baselines                                                |
 | 2B   | `_build/`, `_cache/`, `.gitignore`, tool cache dirs                   | Source package moves                                                |
 | 3A   | `DECOMPOSITION_BLUEPRINT.md`, safety gates, codemod, baselines        | Any `.py` moves in `scientist/` / `foundry/`                        |
@@ -615,9 +615,9 @@ ADR‑0130 фиксирует один из двух путей.
    `[tool.uv.workspace]`).
 2. Установить `pnpm-workspace.yaml` или `turbo.json` для TS.
 3. Переместить:
-   - `policy-engine/frontend/runtime-dashboard/` → `apps/runtime-dashboard/`
-   - `policy-engine/frontend/runtime-reference-shell/` → `apps/runtime-reference-shell/`
-   - `policy-engine/frontend/runtime-api-client/` → `packages/runtime-api-client/`
+   - `policy-engine/apps/runtime-dashboard/` → `apps/runtime-dashboard/`
+   - `policy-engine/apps/runtime-reference-shell/` → `apps/runtime-reference-shell/`
+   - `policy-engine/packages/runtime-api-client/` → `packages/runtime-api-client/`
    - `policy-engine/packages/cli/` → `packages/cli/`
    - `policy-engine/` → `services/policy-engine/`
 4. Обновить `architecture/topology.toml` под новую root‑топологию.
@@ -666,8 +666,8 @@ ADR‑0130 фиксирует один из двух путей.
 - `policy-engine/benchmark-results/` → `_build/benchmark-results/`
 - `policy-engine/release/sbom/` → `_build/release/sbom/`
 - `policy-engine/release-fragments/releases/` → `_build/release-fragments/`
-- `frontend/runtime-dashboard/{coverage,dist,playwright-report,output,
-  storybook-static,test-results}/` → `_build/frontend/runtime-dashboard/...`
+- `apps/runtime-dashboard/{coverage,dist,playwright-report,output,
+  storybook-static,test-results}/` → `_build/apps/runtime-dashboard/...`
 
 Всё в `.gitignore`. Шаблоны (`release/templates/`, `release/*.toml`,
 `release-fragments/template.toml`, `release-fragments/unreleased/`)
@@ -1155,7 +1155,7 @@ ADR‑0142.
    `--to polisyos.scientist.feedback.utils`. Выходы:
    - физический move файла (`git mv`),
    - update всех `from X import Y` и `import X` в `src/`, `tests/`,
-     `tools/`, `frontend/runtime-api-client/scripts/`,
+     `tools/`, `packages/runtime-api-client/scripts/`,
    - генерация re‑export shim в старом FQN (`from .new_path import *  # noqa: F401`,
      **либо точечный** список — выбор зависит от ADR‑0144 проверки,
      обычно точечный),
@@ -1627,7 +1627,7 @@ Phase 4B:
 Внутри `runtime-dashboard/`:
 - `coverage/`, `dist/`, `playwright-report/`, `output/`,
   `storybook-static/`, `test-results/` — переезжают в
-  root‑level `_build/frontend/runtime-dashboard/...`.
+  root‑level `_build/apps/runtime-dashboard/...`.
 
 ### 19.4 packages/cli alignment
 

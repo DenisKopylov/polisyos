@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
-from polisyos.scientist.search.strategies.types import (
+from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
+from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
     Evaluation,
     EvaluationStatus,
@@ -65,8 +65,8 @@ class TestAdaptiveAcquisition:
     def test_adaptive_off_returns_config(self):
         """When adaptive_acquisition=False, use the configured acquisition."""
         try:
-            from polisyos.scientist.search.strategies.space import SearchSpace
-            from polisyos.scientist.search.strategies.types import ParameterBounds
+            from polisyos.scientist.methods.search.strategies.space import SearchSpace
+            from polisyos.scientist.methods.search.strategies.types import ParameterBounds
 
             space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0)])
             cfg = BayesianConfig(adaptive_acquisition=False, acquisition=AcquisitionType.UCB)
@@ -79,8 +79,8 @@ class TestAdaptiveAcquisition:
     def test_adaptive_on_few_evals_returns_ei(self):
         """With < 5 evaluations, default to EI."""
         try:
-            from polisyos.scientist.search.strategies.space import SearchSpace
-            from polisyos.scientist.search.strategies.types import ParameterBounds
+            from polisyos.scientist.methods.search.strategies.space import SearchSpace
+            from polisyos.scientist.methods.search.strategies.types import ParameterBounds
 
             space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0)])
             cfg = BayesianConfig(adaptive_acquisition=True)
@@ -94,8 +94,8 @@ class TestAdaptiveAcquisition:
     def test_adaptive_stuck_returns_ucb(self):
         """When no improvement in recent window, switch to UCB."""
         try:
-            from polisyos.scientist.search.strategies.space import SearchSpace
-            from polisyos.scientist.search.strategies.types import ParameterBounds
+            from polisyos.scientist.methods.search.strategies.space import SearchSpace
+            from polisyos.scientist.methods.search.strategies.types import ParameterBounds
 
             space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0)])
             cfg = BayesianConfig(adaptive_acquisition=True)

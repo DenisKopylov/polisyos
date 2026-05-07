@@ -33,12 +33,12 @@ FOUNDRY_DOMAIN_TARGETS: tuple[DomainTarget, ...] = (
         name="executor_internals",
         minimum_percent=90.0,
         patterns=(
-            "**/src/polisyos/foundry/execute/_graph.py",
-            "**/src/polisyos/foundry/execute/_models.py",
-            "**/src/polisyos/foundry/execute/_ops.py",
-            "**/src/polisyos/foundry/execute/_patching.py",
-            "**/src/polisyos/foundry/execute/_posture.py",
-            "**/src/polisyos/foundry/execute/_snapshots.py",
+            "**/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+            "**/src/polisyos/foundry/execute/_internal/models/__init__.py",
+            "**/src/polisyos/foundry/execute/_internal/ops/__init__.py",
+            "**/src/polisyos/foundry/execute/_internal/patching/__init__.py",
+            "**/src/polisyos/foundry/execute/_internal/posture/__init__.py",
+            "**/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
         ),
     ),
     DomainTarget(

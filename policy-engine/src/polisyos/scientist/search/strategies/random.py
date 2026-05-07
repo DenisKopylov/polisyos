@@ -1,19 +1,11 @@
-"""Uniform-random search baseline."""
+"""Compatibility shim for `polisyos.scientist.search.strategies.random`.
+
+Canonical module: `polisyos.scientist.methods.search.strategies.random`.
+Sunset: 2027-03-02.
+"""
 
 from __future__ import annotations
 
-from polisyos.scientist.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.search.strategies.types import Evaluation, PolicyCandidate
+from polisyos.scientist.methods._compat import alias_module as _alias_module
 
-
-class RandomSearchStrategy(BaseSearchStrategy):
-    """Simple random exploration baseline."""
-
-    def suggest(
-        self,
-        evaluations: list[Evaluation],
-        pending: list[PolicyCandidate] | None = None,
-    ) -> PolicyCandidate:
-        del pending
-        self._iteration = len(evaluations)
-        return self._random_candidate(source="random")
+_alias_module(__name__, "polisyos.scientist.methods.search.strategies.random", globals())

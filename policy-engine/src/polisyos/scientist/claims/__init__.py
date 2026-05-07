@@ -1,159 +1,30 @@
-"""Claim/evidence/readiness spine for Scientist artifacts."""
+"""Compatibility shim for Scientist claim helpers.
 
-from polisyos.scientist.claims.audit import (
-    CLAIM_LEDGER_V2_KIND,
-    CLAIM_LEDGER_V2_SCHEMA_NAME,
-    CLAIM_LEDGER_V2_SCHEMA_VERSION,
-    append_and_persist_claim_event,
-    append_only_audit_summary,
-    claim_ledger_v2_inputs,
-    load_append_only_claim_ledger,
-    load_claim_ledger_as_append_only,
-    persist_append_only_claim_ledger,
-    retention_window_for_export,
-)
-from polisyos.scientist.claims.diff import (
-    ClaimFieldChange,
-    ClaimLedgerDiff,
-    diff_claim_ledgers,
-)
-from polisyos.scientist.claims.export import (
-    ClaimExportAudience,
-    ClaimLedgerExport,
-    ClaimLedgerExportClaim,
-    blocked_claim_summary,
-    claim_ledger_summary,
-    export_claim_ledger,
-    legacy_claim_ledger_export_status,
-)
-from polisyos.scientist.claims.ledger import (
-    CLAIM_LEDGER_KIND,
-    CLAIM_LEDGER_SCHEMA_NAME,
-    CLAIM_LEDGER_SCHEMA_VERSION,
-    claim_ledger_inputs,
-    load_claim_ledger,
-    persist_claim_ledger,
-)
-from polisyos.scientist.claims.lifecycle import (
-    CLAIM_LEDGER_V2_FLAG,
-    REQUIRE_LIFECYCLE_EVENTS_FLAG,
-    AppendOnlyClaimLedger,
-    ClaimLifecycleAction,
-    ClaimLifecycleEvent,
-    append_lifecycle_event,
-    build_initial_append_only_ledger,
-    claim_by_id,
-    lifecycle_event_id,
-    lifecycle_status_for_ledger,
-    validate_claim_transition,
-)
-from polisyos.scientist.claims.models import (
-    ClaimLedger,
-    ClaimPublishability,
-    ClaimReadinessAssessment,
-    ClaimRecord,
-    ClaimSupportStatus,
-    ClaimType,
-    ClaimValidationResult,
-)
-from polisyos.scientist.claims.projections import (
-    deterministic_claim_id,
-    has_decision_bearing_content,
-    project_causal_effect_claims,
-    project_causal_validity_bundle_claims,
-    project_decision_packet_claims,
-    project_frontier_runtime_claims,
-    project_governance_report_claims,
-    project_policy_artifact_bundle_claims,
-)
-from polisyos.scientist.claims.readiness import (
-    assess_claim_readiness,
-    ledger_has_publication_blockers,
-    ledger_publishability_counts,
-    normalize_claim_readiness,
-    readiness_at_least,
-    readiness_rank,
-    summarize_ledger_readiness,
-)
-from polisyos.scientist.claims.validators import (
-    CLAIM_SPINE_FLAG,
-    CLAIMS_REF_KEY,
-    FAIL_ON_NAKED_CLAIMS_FLAG,
-    is_claim_spine_enabled,
-    is_fail_on_naked_claims_enabled,
-    legacy_claim_ledger_status,
-    validate_claim_ledger_for_publication,
-    validate_naked_decision_claims,
-    validate_state_claim_projection,
+Use `polisyos.scientist.evidence.claims` for new imports. This package remains
+available until the 2026-11-30 Phase 4.4 shim sunset.
+"""
+
+from __future__ import annotations
+
+from polisyos.scientist.evidence._shim import (
+    install_module_shim,
+    shim_dir,
+    shim_getattr,
 )
 
-__all__ = [
-    "CLAIMS_REF_KEY",
-    "CLAIM_LEDGER_KIND",
-    "CLAIM_LEDGER_SCHEMA_NAME",
-    "CLAIM_LEDGER_SCHEMA_VERSION",
-    "CLAIM_LEDGER_V2_FLAG",
-    "CLAIM_LEDGER_V2_KIND",
-    "CLAIM_LEDGER_V2_SCHEMA_NAME",
-    "CLAIM_LEDGER_V2_SCHEMA_VERSION",
-    "CLAIM_SPINE_FLAG",
-    "FAIL_ON_NAKED_CLAIMS_FLAG",
-    "REQUIRE_LIFECYCLE_EVENTS_FLAG",
-    "AppendOnlyClaimLedger",
-    "ClaimExportAudience",
-    "ClaimFieldChange",
-    "ClaimLedgerDiff",
-    "ClaimLedgerExport",
-    "ClaimLedgerExportClaim",
-    "ClaimLedger",
-    "ClaimLifecycleAction",
-    "ClaimLifecycleEvent",
-    "ClaimPublishability",
-    "ClaimReadinessAssessment",
-    "ClaimRecord",
-    "ClaimSupportStatus",
-    "ClaimType",
-    "ClaimValidationResult",
-    "append_and_persist_claim_event",
-    "append_lifecycle_event",
-    "append_only_audit_summary",
-    "assess_claim_readiness",
-    "blocked_claim_summary",
-    "build_initial_append_only_ledger",
-    "claim_by_id",
-    "claim_ledger_inputs",
-    "claim_ledger_summary",
-    "claim_ledger_v2_inputs",
-    "deterministic_claim_id",
-    "diff_claim_ledgers",
-    "export_claim_ledger",
-    "has_decision_bearing_content",
-    "is_claim_spine_enabled",
-    "is_fail_on_naked_claims_enabled",
-    "ledger_has_publication_blockers",
-    "ledger_publishability_counts",
-    "legacy_claim_ledger_export_status",
-    "legacy_claim_ledger_status",
-    "lifecycle_event_id",
-    "lifecycle_status_for_ledger",
-    "load_append_only_claim_ledger",
-    "load_claim_ledger",
-    "load_claim_ledger_as_append_only",
-    "normalize_claim_readiness",
-    "persist_append_only_claim_ledger",
-    "persist_claim_ledger",
-    "project_causal_effect_claims",
-    "project_causal_validity_bundle_claims",
-    "project_decision_packet_claims",
-    "project_frontier_runtime_claims",
-    "project_governance_report_claims",
-    "project_policy_artifact_bundle_claims",
-    "readiness_at_least",
-    "readiness_rank",
-    "retention_window_for_export",
-    "summarize_ledger_readiness",
-    "validate_claim_transition",
-    "validate_claim_ledger_for_publication",
-    "validate_naked_decision_claims",
-    "validate_state_claim_projection",
-]
+install_module_shim(
+    globals(),
+    legacy_module=__name__,
+    canonical_module="polisyos.scientist.evidence.claims",
+    shim_id="scientist.claims-to-evidence.claims",
+    sunset_date="2026-11-30",
+    migration_hint="Use polisyos.scientist.evidence.claims for new imports.",
+)
+
+
+def __getattr__(name: str):
+    return shim_getattr(globals(), name)
+
+
+def __dir__() -> list[str]:
+    return shim_dir(globals())

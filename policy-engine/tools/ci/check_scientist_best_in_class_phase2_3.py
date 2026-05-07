@@ -25,13 +25,13 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/search/voi_models.py"),
     Path("src/polisyos/scientist/search/voi_scheduler.py"),
     Path("src/polisyos/scientist/search/voi_calibration.py"),
-    Path("src/polisyos/scientist/human_review/voi_escalation.py"),
+    Path("src/polisyos/scientist/governance/human_review/voi_escalation.py"),
     Path("src/polisyos/scientist/evidence/claim_support.py"),
     Path("src/polisyos/scientist/nodes/builtins/state_keys.py"),
     Path("src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"),
@@ -42,8 +42,8 @@ REQUIRED_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/search/test_voi_reports.py"),
     Path("tests/unit/scientist/search/test_voi_calibration.py"),
     Path("tests/unit/scientist/evidence/test_claim_support_voi.py"),
-    Path("tests/unit/scientist/human_review/test_voi_escalation.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_3.py"),
+    Path("tests/unit/scientist/governance/human_review/test_voi_escalation.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_3.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "VOIDecisionRecord",
@@ -128,10 +128,10 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     notes: list[str] = []
     try:
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
-        from polisyos.scientist.human_review.models import ReviewRiskTier
-        from polisyos.scientist.human_review.oversight_policy import HumanReviewRequirement
-        from polisyos.scientist.human_review.voi_escalation import (
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.governance.human_review.models import ReviewRiskTier
+        from polisyos.scientist.governance.human_review.oversight_policy import HumanReviewRequirement
+        from polisyos.scientist.governance.human_review.voi_escalation import (
             build_human_escalation_voi_decision,
             validate_human_escalation_voi_decision,
         )

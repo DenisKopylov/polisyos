@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claims](claims.md), [Workflows](work
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/research_dag/**`, `src/polisyos/scientist/engine/executor.py`, `src/polisyos/scientist/provenance/run_dag.py`, `src/polisyos/scientist/agent/tools/tool_loop.py`, `tests/unit/scientist/research_dag/**`, and `tools/ci/check_scientist_best_in_class_phase1_2.py`
+Source of truth: `src/polisyos/scientist/methods/research_dag/**`, compatibility shim `src/polisyos/scientist/research_dag/**`, `src/polisyos/scientist/orchestration/engine/executor.py`, `src/polisyos/scientist/evidence/provenance/run_dag.py`, `src/polisyos/scientist/agent/tools/tool_loop.py`, `tests/unit/scientist/methods/research_dag/**`, and `tools/ci/check_scientist_best_in_class_phase1_2.py`
 
 The Research DAG is the Phase 1.2 sidecar that turns a Scientist research run
 into a typed, replayable graph. It is not a raw LLM transcript. It records the
@@ -35,7 +35,7 @@ Phase 1.2 integrates the sidecar through:
 - selected workflow dispatch in `workflows/builder.py`;
 - trace attributes in `engine/trace_attributes.py`;
 - checkpoint metadata compatibility in `engine/checkpoint.py`;
-- provenance projection in `provenance/run_dag.py`;
+- provenance projection in `evidence/provenance/run_dag.py`;
 - tool-loop projection adapter in `agent/tools/tool_loop.py`;
 - planning and decide hot paths through policy request planning, policy output
   bundles and decision packets.
@@ -93,7 +93,7 @@ The publication requirement remains opt-in until Wave 1 closeout.
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/research_dag -q
+uv run pytest tests/unit/scientist/methods/research_dag -q
 uv run python tools/ci/check_scientist_best_in_class_phase1_2.py --repo-root . --output-format json --require-passing
-uv run pytest tests/tools/test_scientist_best_in_class_phase1_2.py -q
+uv run pytest tests/repo_quality/tools/test_scientist_best_in_class_phase1_2.py -q
 ```

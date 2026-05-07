@@ -11,7 +11,7 @@ from polisyos.common.logger import get_logger
 from polisyos.fabric.catalog.registry import DataContractRegistry
 from polisyos.scientist.agent.prompts import get_data_need_extractor_prompt
 from polisyos.scientist.agent.protocols import DataNeedExtractorAgent, DataNeedSpec, ProblemFrame
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 logger = get_logger(__name__)
 

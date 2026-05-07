@@ -83,6 +83,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     findings.extend(_check_time_bounded_import_exceptions())
     findings.extend(_check_complexity_exceptions())
     findings.extend(_check_migration_shims())
+    findings.extend(_check_phase65_exception_cleanup())
     findings.extend(_check_wiring())
     findings.extend(_check_closeout_docs())
     findings.extend(_check_public_polish_contract())
@@ -135,6 +136,51 @@ def _parse_date(
         return None, Finding(gate, f"{subject} has invalid `{field}`", raw)
 
 
+def _has_issue_or_adr(item: dict[str, Any]) -> bool:
+    return any(str(item.get(field, "")).strip() for field in ("issue", "adr", "adr_reference"))
+
+
+def _has_renewal_owner_and_adr(item: dict[str, Any]) -> bool:
+    owner = str(item.get("renewal_owner", "")).strip()
+    adr = str(item.get("adr") or item.get("adr_reference") or "").strip()
+    return bool(owner and adr)
+
+
+def _require_issue_or_adr(
+    findings: list[Finding], gate: str, subject: str, item: dict[str, Any]
+) -> None:
+    if not _has_issue_or_adr(item):
+        findings.append(Finding(gate, f"{subject} missing issue/ADR reference"))
+
+
+def _check_required_fields(
+    findings: list[Finding],
+    *,
+    gate: str,
+    subject: str,
+    item: dict[str, Any],
+    fields: Sequence[str],
+) -> None:
+    for field in fields:
+        if item.get(field) in (None, "", [], {}):
+            findings.append(Finding(gate, f"{subject} missing `{field}`"))
+
+
+def _check_future_date_field(
+    findings: list[Finding],
+    *,
+    gate: str,
+    subject: str,
+    item: dict[str, Any],
+    field: str,
+) -> None:
+    date_value, error = _parse_date(item.get(field), gate=gate, subject=subject, field=field)
+    if error is not None:
+        findings.append(error)
+    elif date_value is not None and date_value < dt.date.today():
+        findings.append(Finding(gate, f"{subject} expired", date_value.isoformat()))
+
+
 def _check_gate_registry() -> list[Finding]:
     findings: list[Finding] = []
     data = _read_toml("architecture/repository_sota_gates.toml")
@@ -172,8 +218,12 @@ def _check_gate_registry() -> list[Finding]:
         findings.append(Finding("gate-registry", "missing required gates", ", ".join(missing)))
 
     expected_commands = {
-        "docs-freshness": "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks",
-        "public-polish": "uv run pytest tests/architecture/test_repository_public_polish.py -q",
+        "docs-freshness": (
+            "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
+        ),
+        "public-polish": (
+            "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q"
+        ),
     }
     for gate_id, gate in gates.items():
         if gate.get("mode") != "fail_closed":
@@ -313,7 +363,7 @@ def _check_docs_freshness_contract() -> list[Finding]:
         findings.append(
             Finding("docs-freshness", "docs freshness mode is not fail_closed_baseline")
         )
-    for field in ("owner", "reason", "command"):
+    for field in ("owner", "reason", "command", "issue"):
         if not str(baseline.get(field, "")).strip():
             findings.append(Finding("docs-freshness", f"docs freshness baseline missing `{field}`"))
 
@@ -360,6 +410,7 @@ def _check_time_bounded_import_exceptions() -> list[Finding]:
         for field in ("owner", "reason", "source_glob"):
             if not str(exception.get(field, "")).strip():
                 findings.append(Finding("import-exceptions", f"{subject} missing `{field}`"))
+        _require_issue_or_adr(findings, "import-exceptions", subject, exception)
         expires, error = _parse_date(
             exception.get("expires"), gate="import-exceptions", subject=subject, field="expires"
         )
@@ -399,6 +450,7 @@ def _check_complexity_exceptions() -> list[Finding]:
         for field in ("owner", "reason", "remediation"):
             if not str(exception.get(field, "")).strip():
                 findings.append(Finding("complexity", f"{subject} missing `{field}`"))
+        _require_issue_or_adr(findings, "complexity", subject, exception)
         expires, error = _parse_date(
             exception.get("expires"), gate="complexity", subject=subject, field="expires"
         )
@@ -440,7 +492,7 @@ def _check_migration_shims() -> list[Finding]:
         )
         if error is not None:
             findings.append(error)
-        elif sunset is not None and sunset < today:
+        elif sunset is not None and sunset < today and not _has_renewal_owner_and_adr(shim):
             findings.append(Finding("shims", f"{subject} expired", sunset.isoformat()))
 
         target = str(shim.get("target_path", "")).strip()
@@ -450,6 +502,592 @@ def _check_migration_shims() -> list[Finding]:
         if shim.get("type") == "wrapper_only" and source and not _resolve(source).exists():
             findings.append(Finding("shims", f"{subject} wrapper source missing", source))
     return findings
+
+
+def _check_phase65_exception_cleanup() -> list[Finding]:
+    findings: list[Finding] = []
+    findings.extend(_check_import_exception_docs_registry())
+    findings.extend(_check_dynamic_import_exception_metadata())
+    findings.extend(_check_structure_remediation_exception_metadata())
+    findings.extend(_check_package_contract_exception_metadata())
+    findings.extend(_check_test_topology_exception_metadata())
+    findings.extend(_check_test_ratchet_exception_metadata())
+    findings.extend(_check_static_override_exception_metadata())
+    findings.extend(_check_module_size_budget_exception_metadata())
+    findings.extend(_check_slo_runbook_exception_metadata())
+    findings.extend(_check_directory_contract_exception_policy())
+    findings.extend(_check_generated_artifact_exception_policy())
+    findings.extend(_check_control_plane_exception_metadata())
+    findings.extend(_check_guardrail_exception_metadata())
+    findings.extend(_check_public_surface_compatibility_sunsets())
+    findings.extend(_check_package_boundary_shim_refs())
+    findings.extend(_check_non_expired_named_sunsets())
+    return findings
+
+
+def _check_import_exception_docs_registry() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    exceptions = _read_toml("architecture/imports/exceptions.toml").get("exception", [])
+    toml_ids = {str(item.get("id", "")).strip() for item in exceptions if item.get("id")}
+    md_path = _resolve("architecture/imports/exceptions.md")
+    md_text = md_path.read_text(encoding="utf-8")
+    md_ids = set(re.findall(r"`(E-\d{4}-\d{2}-[A-Z0-9-]+)`", md_text))
+
+    extra = sorted(md_ids - toml_ids)
+    missing = sorted(toml_ids - md_ids)
+    if extra:
+        findings.append(
+            Finding(
+                gate,
+                "import exception Markdown registry has retired ids",
+                ", ".join(extra),
+            )
+        )
+    if missing:
+        findings.append(
+            Finding(
+                gate,
+                "import exception Markdown registry is missing active ids",
+                ", ".join(missing),
+            )
+        )
+    if "issue/ADR" not in md_text and "issue or ADR" not in md_text:
+        findings.append(Finding(gate, "import exception Markdown registry omits issue/ADR policy"))
+    return findings
+
+
+def _check_structure_remediation_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/exceptions/structure_remediation.toml")
+    for idx, exception in enumerate(payload.get("exception", []), start=1):
+        subject = str(exception.get("id", "")).strip() or f"structure_exception[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=exception,
+            fields=("id", "gate", "owner", "reason", "sunset", "match"),
+        )
+        _require_issue_or_adr(findings, gate, subject, exception)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=exception, field="sunset"
+        )
+    return findings
+
+
+def _check_dynamic_import_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/dynamic_imports.toml")
+    header = payload.get("dynamic_imports", {})
+    _check_required_fields(
+        findings,
+        gate=gate,
+        subject="dynamic_imports",
+        item=header,
+        fields=(
+            "owner",
+            "status",
+            "extension_points",
+            "review_owner",
+            "reviewed_at",
+            "review_expires",
+            "exception_policy",
+        ),
+    )
+    _require_issue_or_adr(findings, gate, "dynamic_imports", header)
+    _check_future_date_field(
+        findings,
+        gate=gate,
+        subject="dynamic_imports",
+        item=header,
+        field="review_expires",
+    )
+    reviewed_at, error = _parse_date(
+        header.get("reviewed_at"),
+        gate=gate,
+        subject="dynamic_imports",
+        field="reviewed_at",
+    )
+    if error is not None:
+        findings.append(error)
+    elif reviewed_at is not None and reviewed_at > dt.date.today():
+        findings.append(Finding(gate, "dynamic_imports review date is in the future"))
+
+    extension_points = str(header.get("extension_points", "")).strip()
+    if extension_points and not _resolve(extension_points).exists():
+        findings.append(Finding(gate, "dynamic_imports extension point contract missing"))
+
+    seen: set[str] = set()
+    for idx, pattern in enumerate(payload.get("pattern", []), start=1):
+        subject = str(pattern.get("id", "")).strip() or f"dynamic_import[{idx}]"
+        if subject in seen:
+            findings.append(Finding(gate, f"duplicate dynamic import id {subject}"))
+        seen.add(subject)
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=pattern,
+            fields=("id", "pattern", "source_file", "line", "call", "owner", "verifier", "notes"),
+        )
+        if not pattern.get("target") and not pattern.get("allowed_targets"):
+            findings.append(Finding(gate, f"{subject} missing target or allowed_targets"))
+        source_file = str(pattern.get("source_file", "")).strip()
+        if source_file and not _resolve(source_file).exists():
+            findings.append(Finding(gate, f"{subject} source_file missing", source_file))
+        if any(word in str(pattern.get("notes", "")).lower() for word in ("temporary", "shim")):
+            _require_issue_or_adr(findings, gate, subject, pattern)
+            _check_future_date_field(
+                findings, gate=gate, subject=subject, item=pattern, field="sunset"
+            )
+    return findings
+
+
+def _check_package_contract_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    for path in sorted(_resolve("architecture/packages").glob("*.toml")):
+        payload = _read_toml(str(path.relative_to(REPO_ROOT)))
+        package_name = str(payload.get("package", {}).get("name", path.stem))
+        for idx, exception in enumerate(payload.get("exception", []), start=1):
+            subject = str(exception.get("id", "")).strip() or f"{package_name}.exception[{idx}]"
+            _check_required_fields(
+                findings,
+                gate=gate,
+                subject=subject,
+                item=exception,
+                fields=("id", "owner", "kind", "reason", "sunset", "registry"),
+            )
+            _require_issue_or_adr(findings, gate, subject, exception)
+            _check_future_date_field(
+                findings, gate=gate, subject=subject, item=exception, field="sunset"
+            )
+            registry = str(exception.get("registry", "")).strip()
+            if registry and not _resolve(registry).exists():
+                findings.append(Finding(gate, f"{subject} registry path missing", registry))
+        for idx, sunset in enumerate(payload.get("sunset", []), start=1):
+            subject = str(sunset.get("id", "")).strip() or f"{package_name}.sunset[{idx}]"
+            _check_required_fields(
+                findings,
+                gate=gate,
+                subject=subject,
+                item=sunset,
+                fields=("id", "owner", "date", "condition"),
+            )
+            _require_issue_or_adr(findings, gate, subject, sunset)
+            _check_future_date_field(
+                findings, gate=gate, subject=subject, item=sunset, field="date"
+            )
+    return findings
+
+
+def _check_test_ratchet_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/test_ratchets.toml")
+    for idx, exception in enumerate(payload.get("pytest_universe_exception", []), start=1):
+        subject = str(exception.get("id", "")).strip() or f"pytest_universe_exception[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=exception,
+            fields=("id", "owner", "reason", "expires"),
+        )
+        _require_issue_or_adr(findings, gate, subject, exception)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=exception, field="expires"
+        )
+
+    for idx, exception in enumerate(payload.get("package_exception", []), start=1):
+        subject = str(exception.get("id", "")).strip() or f"package_exception[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=exception,
+            fields=("id", "owner", "reason", "sunset_date"),
+        )
+        _require_issue_or_adr(findings, gate, subject, exception)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=exception, field="sunset_date"
+        )
+
+    for idx, ratchet in enumerate(payload.get("package_ratchet", []), start=1):
+        subject = str(ratchet.get("name", "")).strip() or f"package_ratchet[{idx}]"
+        if ratchet.get("package_mode") == "explicit_exception":
+            _check_required_fields(
+                findings,
+                gate=gate,
+                subject=subject,
+                item=ratchet,
+                fields=("exception_reason", "exception_expires", "exception_issue"),
+            )
+            _check_future_date_field(
+                findings, gate=gate, subject=subject, item=ratchet, field="exception_expires"
+            )
+        for prefix in ("mirror_regression_exception", "strict_mirror_regression_exception"):
+            if ratchet.get(prefix):
+                _check_required_fields(
+                    findings,
+                    gate=gate,
+                    subject=f"{subject}.{prefix}",
+                    item=ratchet,
+                    fields=(
+                        f"{prefix}_owner",
+                        f"{prefix}_reason",
+                        f"{prefix}_expires",
+                        f"{prefix}_issue",
+                    ),
+                )
+                _check_future_date_field(
+                    findings,
+                    gate=gate,
+                    subject=f"{subject}.{prefix}",
+                    item=ratchet,
+                    field=f"{prefix}_expires",
+                )
+    return findings
+
+
+def _check_test_topology_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/test_topology.toml")
+    for idx, exception in enumerate(payload.get("source_package_exception", []), start=1):
+        subject = str(exception.get("name", "")).strip() or f"source_package_exception[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=exception,
+            fields=("name", "source_path", "classification", "owner", "reason", "sunset"),
+        )
+        _require_issue_or_adr(findings, gate, subject, exception)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=exception, field="sunset"
+        )
+        source_path = str(exception.get("source_path", "")).strip()
+        if source_path and not _resolve(source_path).exists():
+            findings.append(Finding(gate, f"{subject} source_path missing", source_path))
+    return findings
+
+
+def _check_static_override_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/static_analysis_overrides.toml")
+    for idx, override in enumerate(payload.get("override_scope", []), start=1):
+        subject = str(override.get("id", "")).strip() or f"override_scope[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=override,
+            fields=("id", "owner", "expectation", "sunset"),
+        )
+        _require_issue_or_adr(findings, gate, subject, override)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=override, field="sunset"
+        )
+    return findings
+
+
+def _check_module_size_budget_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/module_size_budget.toml")
+    for idx, budget in enumerate(payload.get("budget", []), start=1):
+        subject = str(budget.get("path", "")).strip() or f"module_size_budget[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=budget,
+            fields=("path", "owner", "strategy", "shrink_plan", "sunset"),
+        )
+        _require_issue_or_adr(findings, gate, subject, budget)
+        _check_future_date_field(findings, gate=gate, subject=subject, item=budget, field="sunset")
+    return findings
+
+
+def _check_slo_runbook_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    for relative_path, table_name in (
+        ("architecture/component_observability.toml", "component_contract"),
+        ("ops/components/index.toml", "component"),
+    ):
+        payload = _read_toml(relative_path)
+        for idx, component in enumerate(payload.get(table_name, []), start=1):
+            if component.get("slo_status") != "exception":
+                continue
+            subject = str(
+                component.get("component") or component.get("id") or f"{table_name}[{idx}]"
+            )
+            _check_required_fields(
+                findings,
+                gate=gate,
+                subject=subject,
+                item=component,
+                fields=("owner", "exception_reason", "exception_expires", "exception_issue"),
+            )
+            _check_future_date_field(
+                findings,
+                gate=gate,
+                subject=subject,
+                item=component,
+                field="exception_expires",
+            )
+
+    runbook = _read_toml("architecture/runbook_coverage.toml")
+    for idx, component in enumerate(runbook.get("component_contract", []), start=1):
+        if not component.get("slo_exception"):
+            continue
+        subject = str(component.get("component") or f"runbook_component[{idx}]")
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=component,
+            fields=(
+                "owner",
+                "slo_exception_reason",
+                "slo_exception_expires",
+                "slo_exception_issue",
+            ),
+        )
+        _check_future_date_field(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=component,
+            field="slo_exception_expires",
+        )
+        exception_path = str(component.get("slo_exception", "")).strip()
+        if exception_path and not _resolve(exception_path).exists():
+            findings.append(Finding(gate, f"{subject} SLO exception path missing", exception_path))
+    return findings
+
+
+def _check_directory_contract_exception_policy() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/directory_contracts.toml")
+    header = payload.get("directory_contracts", {})
+    local_docs = payload.get("local_documentation_requirement", {})
+    if not str(header.get("exception_policy_issue", "")).strip():
+        findings.append(Finding(gate, "directory contracts missing exception policy issue"))
+    required_fields = set(local_docs.get("accepted_exception_fields", []))
+    expected = {"owner", "reason", "sunset", "promotion_or_cleanup_target", "issue_or_adr"}
+    missing = sorted(expected - required_fields)
+    if missing:
+        findings.append(
+            Finding(
+                gate,
+                "directory contracts accepted exception fields are incomplete",
+                ", ".join(missing),
+            )
+        )
+    if local_docs.get("require_owner") is not True:
+        findings.append(Finding(gate, "directory contracts do not require exception owner"))
+    if local_docs.get("require_sunset_for_exceptions") is not True:
+        findings.append(Finding(gate, "directory contracts do not require exception sunset"))
+    return findings
+
+
+def _check_generated_artifact_exception_policy() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/generated_artifacts.toml")
+    header = payload.get("generated_artifacts", {})
+    if not str(header.get("exception_policy", "")).strip():
+        findings.append(Finding(gate, "generated artifact contract missing exception policy"))
+    if not str(header.get("exception_policy_issue", "")).strip():
+        findings.append(Finding(gate, "generated artifact contract missing exception policy issue"))
+
+    for idx, family in enumerate(payload.get("family", []), start=1):
+        subject = str(family.get("id", "")).strip() or f"generated_artifact_family[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=family,
+            fields=(
+                "id",
+                "owner",
+                "approval_owner",
+                "source_of_truth",
+                "freshness_rule",
+                "regenerate_commands",
+                "stale_output_behavior",
+                "promotion_target",
+            ),
+        )
+        if any(field in family for field in ("exception_reason", "exception_expires", "sunset")):
+            _require_issue_or_adr(findings, gate, subject, family)
+            date_field = "exception_expires" if "exception_expires" in family else "sunset"
+            _check_future_date_field(
+                findings, gate=gate, subject=subject, item=family, field=date_field
+            )
+    return findings
+
+
+def _check_control_plane_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/control_plane_supply_chain.toml")
+    codeowners_gate = payload.get("codeowners_gate", {})
+    if codeowners_gate.get("personal_repo_exception"):
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject="codeowners_gate.personal_repo_exception",
+            item=codeowners_gate,
+            fields=(
+                "personal_repo_exception_reason",
+                "personal_repo_exception_expires",
+                "personal_repo_exception_issue",
+            ),
+        )
+        _check_future_date_field(
+            findings,
+            gate=gate,
+            subject="codeowners_gate.personal_repo_exception",
+            item=codeowners_gate,
+            field="personal_repo_exception_expires",
+        )
+
+    for idx, mapping in enumerate(payload.get("owner_mapping", []), start=1):
+        if not mapping.get("personal_repo_exception"):
+            continue
+        subject = str(mapping.get("owner", "")).strip() or f"owner_mapping[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=f"{subject}.personal_repo_exception",
+            item=mapping,
+            fields=(
+                "owner",
+                "personal_repo_exception_reason",
+                "personal_repo_exception_expires",
+                "personal_repo_exception_issue",
+            ),
+        )
+        _check_future_date_field(
+            findings,
+            gate=gate,
+            subject=f"{subject}.personal_repo_exception",
+            item=mapping,
+            field="personal_repo_exception_expires",
+        )
+    return findings
+
+
+def _check_guardrail_exception_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/guardrail_exceptions.toml")
+    for idx, exception in enumerate(payload.get("exception", []), start=1):
+        subject = str(exception.get("id", "")).strip() or f"guardrail_exception[{idx}]"
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=exception,
+            fields=("id", "check", "owner", "reason", "expires"),
+        )
+        _require_issue_or_adr(findings, gate, subject, exception)
+        _check_future_date_field(
+            findings, gate=gate, subject=subject, item=exception, field="expires"
+        )
+    return findings
+
+
+def _check_public_surface_compatibility_sunsets() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    payload = _read_toml("architecture/public_surface.toml")
+    for package in payload.get("package", []):
+        if package.get("classification") != "compatibility":
+            continue
+        subject = str(package.get("module", "compatibility-package"))
+        _check_required_fields(
+            findings,
+            gate=gate,
+            subject=subject,
+            item=package,
+            fields=("owner", "notes", "supported_entrypoints"),
+        )
+        note_dates = re.findall(r"\b20\d{2}-\d{2}-\d{2}\b", str(package.get("notes", "")))
+        if not note_dates:
+            findings.append(Finding(gate, f"{subject} compatibility row missing sunset date"))
+            continue
+        sunset = max(dt.date.fromisoformat(raw) for raw in note_dates)
+        if sunset < dt.date.today():
+            findings.append(
+                Finding(gate, f"{subject} compatibility row expired", sunset.isoformat())
+            )
+    return findings
+
+
+def _check_package_boundary_shim_refs() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    shims = {
+        str(shim.get("id", "")).strip()
+        for shim in _read_toml("architecture/shims.toml").get("shim", [])
+        if shim.get("id")
+    }
+    for package in _read_toml("architecture/package_boundaries.toml").get("package", []):
+        if not package.get("compatibility_shim"):
+            continue
+        subject = str(package.get("module", "compatibility-shim"))
+        shim_id = str(package.get("shim_id", "")).strip()
+        if not shim_id:
+            findings.append(Finding(gate, f"{subject} missing shim_id"))
+        elif shim_id not in shims:
+            findings.append(Finding(gate, f"{subject} references unknown shim", shim_id))
+    return findings
+
+
+def _check_non_expired_named_sunsets() -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "phase6.5-exceptions"
+    for relative_path, section_name, subject_field in (
+        ("architecture/name_registry.toml", "shared_name", "name"),
+        ("architecture/name_registry.toml", "rename_backlog", "name"),
+        ("architecture/cross_cutting_concerns.toml", "concern", "name"),
+    ):
+        payload = _read_toml(relative_path)
+        for idx, item in enumerate(payload.get(section_name, []), start=1):
+            subject = str(item.get(subject_field, "")).strip() or f"{section_name}[{idx}]"
+            _check_non_expired_sunset_value(findings, gate, subject, item.get("sunset"))
+            for nested_section in ("allowed_adapters", "unresolved_collisions"):
+                for nested_idx, nested in enumerate(item.get(nested_section, []), start=1):
+                    nested_subject = f"{subject}.{nested_section}[{nested_idx}]"
+                    _check_non_expired_sunset_value(
+                        findings, gate, nested_subject, nested.get("sunset")
+                    )
+    return findings
+
+
+def _check_non_expired_sunset_value(
+    findings: list[Finding], gate: str, subject: str, value: object
+) -> None:
+    raw = str(value or "").strip()
+    if not raw or raw == "none":
+        return
+    try:
+        sunset = dt.date.fromisoformat(raw)
+    except ValueError:
+        findings.append(Finding(gate, f"{subject} has invalid sunset", raw))
+        return
+    if sunset < dt.date.today():
+        findings.append(Finding(gate, f"{subject} sunset expired", raw))
 
 
 def _check_wiring() -> list[Finding]:
@@ -505,7 +1143,8 @@ def _check_public_polish_contract() -> list[Finding]:
         "docs/index.md": "reference/repository-topology.md",
         "docs/reference/index.md": "repository-topology.md",
         "docs/reference/operations/index.md": "../repository-topology.md",
-        "mkdocs.yml": "reference/repository-topology.md",
+        "architecture/tooling/mkdocs/generated.yml": "reference/repository-topology.md",
+        "mkdocs.yml": "architecture/tooling/mkdocs/generated.yml",
     }
     for relative_path, needle in required_links.items():
         text = _resolve(relative_path).read_text(encoding="utf-8")
@@ -607,7 +1246,7 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
                 "uv",
                 "run",
                 "pytest",
-                "tests/architecture/test_repository_public_polish.py",
+                "tests/repo_quality/architecture/test_repository_public_polish.py",
                 "-q",
             ],
         ),

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.compliance_audit import (
+from polisyos.scientist.methods.search.compliance_audit import (
     scientist_blueprint_compliance_audit,
     validate_scientist_blueprint_artifact_minimality,
     validate_scientist_blueprint_compliance_targets,

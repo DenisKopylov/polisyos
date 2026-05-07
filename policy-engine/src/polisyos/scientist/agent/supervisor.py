@@ -23,10 +23,10 @@ from polisyos.scientist.agent.workers import (
     WorkerTaskResult,
     build_self_moa_worker_envelopes,
 )
-from polisyos.scientist.engine.errors import CycleDetectedError
-from polisyos.scientist.engine.topo import topo_sort_tiers
-from polisyos.scientist.engine.workflow_spec import NodeInvocation
-from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
+from polisyos.scientist.orchestration.engine.errors import CycleDetectedError
+from polisyos.scientist.orchestration.engine.topo import topo_sort_tiers
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
+from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.tools.registry import ToolRegistry

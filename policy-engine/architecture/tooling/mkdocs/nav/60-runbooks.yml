@@ -1,0 +1,20 @@
+  - Runbooks:
+      - runbooks/index.md
+      - Dependency Upgrade Regression: runbooks/dependency-upgrade-regression.md
+      - Runtime API Outage: runbooks/runtime-api-outage.md
+      - CAS or OPA Outage: runbooks/cas-opa-outage.md
+      - Broken Contract Generation: runbooks/broken-contract-generation.md
+      - Artifact Signing or SBOM Failure: runbooks/artifact-signing-sbom-failure.md
+      - Key Rotation: runbooks/key-rotation.md
+      - Canary Rollback or Failed Promotion: runbooks/canary-rollback-or-promotion-failure.md
+      - Migration Release Promotion: runbooks/migration-release-promotion.md
+      - Idempotency Incident: runbooks/idempotency-incident.md
+      - Mutation Audit Investigation: runbooks/mutation-audit-investigation.md
+      - Cache Rebuild Storm: runbooks/cache-rebuild-storm.md
+      - Fabric Quarantine/DLQ And Data-Plane Recovery: runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md
+      - Runtime Graceful Shutdown or Stuck Background Worker: runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+      - Replay or Restore Workflow: runbooks/replay-or-restore.md
+      - Retained Artifact Recovery: runbooks/retained-artifact-recovery.md
+      - Artifact Corruption Recovery: runbooks/artifact-corruption-recovery.md
+      - Docs Publication Failure: runbooks/docs-publication-failure.md
+      - Benchmark Regression Triage: runbooks/benchmark-regression-triage.md

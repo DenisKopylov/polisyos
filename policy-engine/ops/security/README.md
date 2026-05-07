@@ -1,5 +1,8 @@
 # Security Operations
 
+- Owner: `team-security`
+- Artifact type: `security-baseline-contracts`
+
 Security-as-code configuration lives here. Phase 5 repository hygiene gates use
 these files together with `architecture/topology.toml` and
 `architecture/generated_artifacts.toml`.

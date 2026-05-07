@@ -7,34 +7,34 @@ import pytest
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent.failure_index import FailurePatternIndex, build_failure_signature
-from polisyos.scientist.autotune.models import (
+from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     MetricDirection,
     PromotionPolicy,
 )
-from polisyos.scientist.autotune.pareto import ParetoPromoter
-from polisyos.scientist.engine.checkpoint import (
+from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
+from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     create_checkpoint,
     restore_checkpoint_hook_from_runtime_metadata,
     serialize_checkpoint_hook_runtime_metadata,
 )
-from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.protocol import NodeOutcome
-from polisyos.scientist.engine.runner.serialization import serialize_state
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
-from polisyos.scientist.engine.state_merge import merge_parallel_outcomes
-from polisyos.scientist.llm.gateway_client import (
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.runner.serialization import serialize_state
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
+from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayToolCall,
     GatewayUsage,
 )
-from polisyos.scientist.llm.prompt_cache import InMemoryPromptCache
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.search.stopping import MaxIterations
-from tests.fixtures.scientist_runtime import (
+from polisyos.scientist.orchestration.llm.prompt_cache import InMemoryPromptCache
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.stopping import MaxIterations
+from _helpers.scientist_runtime import (
     build_execution_context,
     build_initial_state,
     build_linear_registry,

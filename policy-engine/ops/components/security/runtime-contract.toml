@@ -1,0 +1,13 @@
+[component_runtime_contract]
+component = "security"
+owner = "team-security"
+aliases = ["security", "polisyos.core.security", "core.security"]
+source_readme = "src/polisyos/core/security/README.md"
+runtime_contract_links = [
+  "ops/security/secrets-baseline.toml",
+  "ops/release/promotion-gates.toml",
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/security-compliance.md",
+]
+release_gate_mode = "report_only"
+

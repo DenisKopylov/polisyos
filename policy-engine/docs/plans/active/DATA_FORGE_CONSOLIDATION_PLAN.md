@@ -23,7 +23,7 @@ completed the implementation-owner moves, and Phase 8 removed the legacy
 academic, catalog, Ukraine, shared-kernel, and snapshot compatibility packages.
 
 The long-form historical analysis remains in
-`docs/archive/plans/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md`; repository-wide rules live in
+`docs/plans/archive/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md`; repository-wide rules live in
 `docs/plans/accepted/REPOSITORY_SOTA_PLAN.md`.
 
 Key Data Forge decisions are fixed by ADR-0112 through ADR-0114 and ADR-0122
@@ -511,7 +511,7 @@ Required sequence:
 Implementation status as of 2026-05-01:
 
 - The accepted completed NPA output root is recorded as
-  `tests/unit/data_forge/fixtures/legal_shadow/accepted_artifact_root.json`, pointing
+  `tests/_data/data_forge/legal_shadow/accepted_artifact_root.json`, pointing
   at the local immutable root `production_data/lex_current_20260501/finalize`;
   CI-sized replay fixtures cover publish-manifest differential behavior.
 - `polisyos.data_forge.domains.legal.batch` owns the moved Lex batch runtime

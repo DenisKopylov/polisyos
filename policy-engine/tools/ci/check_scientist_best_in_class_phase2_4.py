@@ -24,25 +24,25 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/memory/__init__.py"),
-    Path("src/polisyos/scientist/memory/failure_lessons.py"),
-    Path("src/polisyos/scientist/memory/applicability.py"),
-    Path("src/polisyos/scientist/memory/contamination.py"),
-    Path("src/polisyos/scientist/memory/retrieval.py"),
-    Path("src/polisyos/scientist/memory/consolidation.py"),
-    Path("src/polisyos/scientist/research_dag/projections.py"),
+    Path("src/polisyos/scientist/orchestration/memory/__init__.py"),
+    Path("src/polisyos/scientist/orchestration/memory/failure_lessons.py"),
+    Path("src/polisyos/scientist/orchestration/memory/applicability.py"),
+    Path("src/polisyos/scientist/orchestration/memory/contamination.py"),
+    Path("src/polisyos/scientist/orchestration/memory/retrieval.py"),
+    Path("src/polisyos/scientist/orchestration/memory/consolidation.py"),
+    Path("src/polisyos/scientist/methods/research_dag/projections.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_4.py"),
-    Path("tests/unit/scientist/memory/test_failure_lessons.py"),
-    Path("tests/unit/scientist/memory/test_applicability.py"),
-    Path("tests/unit/scientist/memory/test_contamination.py"),
-    Path("tests/unit/scientist/memory/test_retrieval.py"),
-    Path("tests/unit/scientist/memory/test_consolidation.py"),
-    Path("tests/unit/scientist/memory/test_research_dag_projection.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_4.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_failure_lessons.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_applicability.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_contamination.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_retrieval.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_consolidation.py"),
+    Path("tests/unit/scientist/orchestration/memory/test_research_dag_projection.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_4.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "MemoryVisibility",
@@ -131,7 +131,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     try:
         from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.scientist.agent.reflexion_evaluator import ReflexionReplayEvaluation
-        from polisyos.scientist.memory import (
+        from polisyos.scientist.orchestration.memory import (
             LessonApplicability,
             MemoryApplicabilityContext,
             MemoryContaminationPolicy,

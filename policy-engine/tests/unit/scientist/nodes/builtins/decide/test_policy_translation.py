@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("jax")
 
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
     RunPolicyTranslationNode,
 )
@@ -26,7 +26,7 @@ from polisyos.scientist.policy_design.output import (
     SubgroupImpactReport,
     UncertaintyReport,
 )
-from polisyos.scientist.search.readiness import (
+from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
 )

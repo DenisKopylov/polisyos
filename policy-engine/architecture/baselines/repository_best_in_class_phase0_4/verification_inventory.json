@@ -1,0 +1,3153 @@
+{
+  "benchmarks": {
+    "benchmark_importing_tests": [
+      "tests/performance/test_benchmark_phase15_cli.py",
+      "tests/performance/test_benchmark_phase15_contract.py",
+      "tests/performance/test_benchmark_runtime_pipeline.py",
+      "tests/performance/test_causal_frontier_sae_benchmark.py",
+      "tests/performance/test_local_real_benchmark_pack.py",
+      "tests/performance/test_synthetic_world_seed_benchmark.py",
+      "tests/repo_quality/tools/test_foundry_phase0_closure.py",
+      "tests/repo_quality/tools/test_phase4_consolidation.py",
+      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py",
+      "tests/unit/foundry/methods/catalog/econometrics/test_mobility_latent.py"
+    ],
+    "benchmark_marker_tests": [
+      "tests/performance/test_runtime_hot_paths.py",
+      "tests/performance/test_scientist_runtime_paths.py",
+      "tests/unit/foundry/benchmarks/test_chain_perf.py",
+      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py",
+      "tests/unit/foundry/benchmarks/test_demographic_consistency_perf.py",
+      "tests/unit/foundry/benchmarks/test_foundry_release_gate.py",
+      "tests/unit/foundry/benchmarks/test_method_perf.py",
+      "tests/unit/foundry/benchmarks/test_registry_perf.py",
+      "tests/unit/foundry/benchmarks/test_ws5_jax_perf.py",
+      "tests/unit/ir/test_phase3_benchmarks.py"
+    ],
+    "benchmark_root": {
+      "conftest_files": [
+        "benchmarks/conftest.py",
+        "benchmarks/foundry/conftest.py"
+      ],
+      "exists": true,
+      "init_file_count": 28,
+      "path": "benchmarks",
+      "py_file_count": 147,
+      "test_file_count": 11
+    },
+    "performance_marker_tests": [
+      "tests/performance/test_runtime_hot_paths.py",
+      "tests/performance/test_scientist_runtime_paths.py",
+      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py",
+      "tests/unit/foundry/benchmarks/test_foundry_release_gate.py",
+      "tests/unit/ir/test_phase3_benchmarks.py"
+    ],
+    "performance_tests": {
+      "files": [
+        "tests/performance/test_benchmark_phase15_cli.py",
+        "tests/performance/test_benchmark_phase15_contract.py",
+        "tests/performance/test_benchmark_runtime_pipeline.py",
+        "tests/performance/test_causal_frontier_sae_benchmark.py",
+        "tests/performance/test_extended_benchmark_stack.py",
+        "tests/performance/test_local_real_benchmark_pack.py",
+        "tests/performance/test_overhead.py",
+        "tests/performance/test_runtime_hot_paths.py",
+        "tests/performance/test_scientist_runtime_paths.py",
+        "tests/performance/test_synthetic_world_seed_benchmark.py"
+      ],
+      "path": "tests/performance",
+      "test_file_count": 10
+    },
+    "pytest_configuration": {
+      "benchmark_storage": "file://./_cache/benchmarks",
+      "default_testpaths": "\ntests",
+      "registered_benchmark_marker": true,
+      "registered_performance_marker": true
+    },
+    "report_directories": [
+      {
+        "exists": true,
+        "path": "_cache/benchmarks"
+      },
+      {
+        "exists": true,
+        "path": "benchmarks/_reports"
+      },
+      {
+        "exists": false,
+        "path": "benchmarks/reports"
+      },
+      {
+        "exists": false,
+        "path": "benchmark-results"
+      },
+      {
+        "exists": true,
+        "path": "docs/benchmarks"
+      },
+      {
+        "exists": true,
+        "path": "docs/archive/reports"
+      }
+    ],
+    "role_decision": "benchmarks/ is source-like and importable, while default pytest collection is tests/; Phase 1.4 must decide whether runners become product benchmark APIs or move under tests/performance.",
+    "suite_directories": [
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/_reports",
+        "py_file_count": 0
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/abstraction",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/advanced",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/adversarial",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/capability_wins",
+        "py_file_count": 14
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/comparators",
+        "py_file_count": 5
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/composition/compositional_causality_benchmark.py"
+        ],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/composition",
+        "py_file_count": 4
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/discovery/causalbench_benchmark.py",
+          "benchmarks/discovery/causeme_benchmark.py",
+          "benchmarks/discovery/sachs_benchmark.py",
+          "benchmarks/discovery/tuebingen_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/discovery",
+        "py_file_count": 5
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/distributional",
+        "py_file_count": 6
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/econometrics",
+        "py_file_count": 1
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/estimation/acic_benchmark.py",
+          "benchmarks/estimation/lbidd_benchmark.py",
+          "benchmarks/estimation/realcause_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/estimation",
+        "py_file_count": 5
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/foundry",
+        "py_file_count": 10
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/governance",
+        "py_file_count": 4
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/honest_comparison/run_honest_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/honest_comparison",
+        "py_file_count": 19
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/hte/interpretable_hte_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/hte",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/interaction",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/interference",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/missing/mgraph_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/missing",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/natural_experiments",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/network",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/ops",
+        "py_file_count": 7
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/proof_closure",
+        "py_file_count": 4
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/reproducibility",
+        "py_file_count": 4
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/spatial",
+        "py_file_count": 1
+      },
+      {
+        "entrypoint_like_files": [],
+        "fixture_dir_count": 1,
+        "path": "benchmarks/strategic",
+        "py_file_count": 3
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/survey/causal_frontier_sae_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/survey",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/symbolic/run_symbolic_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/symbolic",
+        "py_file_count": 2
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/synthetic_world/phase0_seed_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/synthetic_world",
+        "py_file_count": 1
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/temporal/temporal_gold_benchmark.py",
+          "benchmarks/temporal/temporal_hidden_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/temporal",
+        "py_file_count": 7
+      },
+      {
+        "entrypoint_like_files": [
+          "benchmarks/transport/transport_benchmark.py"
+        ],
+        "fixture_dir_count": 0,
+        "path": "benchmarks/transport",
+        "py_file_count": 2
+      }
+    ]
+  },
+  "fixtures": {
+    "data_like_directories": [
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/abstraction/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/composition/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/distributional/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/governance/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/interaction/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/proof_closure/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 1
+        },
+        "file_count": 1,
+        "path": "benchmarks/strategic/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".csv": 15
+        },
+        "file_count": 15,
+        "path": "src/polisyos/data_forge/domains/catalog/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".py": 3
+        },
+        "file_count": 3,
+        "path": "src/polisyos/ir/data",
+        "python_file_count": 3,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".py": 4
+        },
+        "file_count": 4,
+        "path": "src/polisyos/scientist/nodes/builtins/data",
+        "python_file_count": 4,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".duckdb": 4,
+          ".json": 93,
+          ".md": 3,
+          ".pkl": 2
+        },
+        "file_count": 102,
+        "path": "tests/_data",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".json": 2,
+          ".md": 2,
+          ".yaml": 11,
+          "<none>": 1
+        },
+        "file_count": 16,
+        "path": "tests/_golden",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".py": 3
+        },
+        "file_count": 3,
+        "path": "tests/unit/ir/data",
+        "python_file_count": 3,
+        "test_file_count": 2
+      },
+      {
+        "exists": true,
+        "extension_counts": {
+          ".py": 2
+        },
+        "file_count": 2,
+        "path": "tests/unit/scientist/nodes/builtins/data",
+        "python_file_count": 2,
+        "test_file_count": 1
+      }
+    ],
+    "data_like_directory_count": 14,
+    "pytest_collectable_tests_under_data_like_dirs": [
+      "tests/unit/ir/data/test_harmonizer.py",
+      "tests/unit/ir/data/test_versioning.py",
+      "tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py"
+    ],
+    "roots": {
+      "tests/_data": {
+        "exists": true,
+        "extension_counts": {
+          ".duckdb": 4,
+          ".json": 93,
+          ".md": 3,
+          ".pkl": 2
+        },
+        "file_count": 102,
+        "path": "tests/_data",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      "tests/_golden": {
+        "exists": true,
+        "extension_counts": {
+          ".json": 2,
+          ".md": 2,
+          ".yaml": 11,
+          "<none>": 1
+        },
+        "file_count": 16,
+        "path": "tests/_golden",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      "tests/_helpers": {
+        "exists": true,
+        "extension_counts": {
+          ".md": 2,
+          ".py": 8
+        },
+        "file_count": 10,
+        "path": "tests/_helpers",
+        "python_file_count": 8,
+        "test_file_count": 0
+      },
+      "tests/contract": {
+        "exists": true,
+        "extension_counts": {
+          ".md": 1,
+          ".py": 21
+        },
+        "file_count": 22,
+        "path": "tests/contract",
+        "python_file_count": 21,
+        "test_file_count": 20
+      }
+    }
+  },
+  "generated_at": "2026-05-05T00:00:00Z",
+  "last_verified": "2026-05-05",
+  "measurement_notes": [
+    "`source_module_count` excludes `__init__.py` files",
+    "`strict_module_mirror_ratio` requires path-preserving `tests/unit/<package>/.../test_<module>.py` or `<module>_test.py`",
+    "`loose_name_mirror_ratio` accepts same-name tests anywhere under `tests/unit/<package>`",
+    "file scans use git-tracked files plus Phase 0.4 files introduced by this inventory, excluding unrelated local untracked files",
+    "no tests, fixtures, benchmarks, or pytest configuration are moved or edited by this inventory"
+  ],
+  "mirror_ratios": {
+    "compatibility_shims": [
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ddm-15-7-rename",
+        "issue": "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-ddm",
+        "owner": "team-architecture",
+        "reference": "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-ddm",
+        "source_exists": true,
+        "source_package": "ddm_15_7",
+        "source_path": "src/polisyos/ddm_15_7",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "ddm",
+        "target_path": "src/polisyos/ddm",
+        "type": "wrapper_only"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-agent_metrics",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/agent_metrics/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/agent_sim/agent_metrics.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-agents",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/agents/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/agent_sim/agents.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-conflict_checker",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/conflict_checker/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/validation/conflict_checker.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-constraints_engine",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/constraints_engine/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/validation/constraints_engine.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-cost_model",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/cost_model/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/cost_model.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-executor",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/executor/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/execute/executor.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-layout",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/layout/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/layout.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-loss",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/loss/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/loss.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-mechanism_design",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/mechanism_design/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/mechanisms/design.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-merge_engine",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/merge_engine/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/merge_engine.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-patch_vm",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/patch_vm/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/execute/patch_vm.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-profiles",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/profiles/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/runtime/profiles.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-queue",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/queue/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/execute/queue.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-quickstart",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/quickstart/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/_quickstart.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-registry",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/registry/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/extensions/registry.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-release_acceptance",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/release_acceptance/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/validation/release_acceptance.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-runtime-numeric",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/runtime/numeric.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-social_weights",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/social_weights/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/welfare/social_weights.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-specs",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/specs/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/contracts/specs.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-trace",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/trace/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/runtime/trace.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-utils",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/utils/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/_internal/utils.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-foundry-welfare_bounds",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/welfare_bounds/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/welfare/bounds.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-decision_validity",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/decision_validity.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/validation/decision_validity.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-discovery-to-methods",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/discovery",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/discovery",
+        "type": "python_package_redirect"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-error_semantics",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/error_semantics.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/engine/error_semantics.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-evidence_sources",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/evidence_sources.py",
+        "sunset_date": "2026-11-30",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/evidence/sources.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-feedback",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/feedback/__init__.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/feedback/core.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-feedback_utils",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/feedback_utils.py",
+        "sunset_date": "2026-11-30",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/feedback/utils.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-frontier_runtime",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/frontier_runtime.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/engine/frontier_runtime.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-latent_separation",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/latent_separation.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/causal/latent_separation.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-llm_cycle",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/llm_cycle.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/llm/cycle.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-publisher",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/publisher.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/publishing",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-reliability_scorecard",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/reliability_scorecard.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/validation/reliability_scorecard.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-remediation_status",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/remediation_status.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/governance/remediation_status.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-replay_backend",
+        "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/replay_backend.py",
+        "sunset_date": "2026-11-30",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/replay/backend.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-research-dag-to-methods",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/research_dag",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/research_dag",
+        "type": "python_package_redirect"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-search-to-methods",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/search",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/search",
+        "type": "python_package_redirect"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "decomp-scientist-workflow-selection-to-orchestration",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/workflows/selection.py",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/workflows/selection.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-compatibility-to-internal",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/compatibility",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/_internal/compatibility.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-config-to-internal",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/config",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/_internal/config.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-connectors-ingestion-to-ingestion",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/connectors_ingestion",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/ingestion/connectors.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-finite-to-quality",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/finite",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/quality/finite.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-fitness-report-to-quality",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/fitness_report",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/quality/fitness_report.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-ingestion-providers-to-ingestion",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/ingestion_providers",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/ingestion/providers.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-numeric-parsing-to-internal",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/_numeric_parsing",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/_internal/numeric_parsing.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-registry-to-internal",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/registry",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/_internal/registry.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-safety-to-quality",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/safety",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/quality/safety.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "fabric-trust-adapter-to-trust",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "owner": "team-fabric",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "fabric",
+        "source_path": "src/polisyos/fabric/trust_adapter",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "fabric",
+        "target_path": "src/polisyos/fabric/trust/adapter.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ir-citations-to-references",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "owner": "team-ir",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "ir",
+        "source_path": "src/polisyos/ir/citations",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "ir",
+        "target_path": "src/polisyos/ir/references",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ir-lazy-facade-to-api",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "owner": "team-ir",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "ir",
+        "source_path": "src/polisyos/ir/_lazy_facade",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "ir",
+        "target_path": "src/polisyos/ir/api.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ir-public-surface-to-api",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "owner": "team-ir",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "ir",
+        "source_path": "src/polisyos/ir/public_surface",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "ir",
+        "target_path": "src/polisyos/ir/api.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ir-refs-to-references",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "owner": "team-ir",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "ir",
+        "source_path": "src/polisyos/ir/refs",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "ir",
+        "target_path": "src/polisyos/ir/references",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "ir-schema-catalog-to-schemas",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "owner": "team-ir",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
+        "source_exists": true,
+        "source_package": "ir",
+        "source_path": "src/polisyos/ir/schema_catalog",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "ir",
+        "target_path": "src/polisyos/ir/schemas",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "phase-4-6-scientist-continuous-governance",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/continuous_governance",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/governance/continuous",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "phase-4-6-scientist-human-review",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/human_review",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/governance/human_review",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "phase-4-6-scientist-policy-verified",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/policy_verified",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/validation/policy_verified",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "phase-4-6-scientist-verification",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/verification",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/validation/verification",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "phase5-1-foundry-plugins-domain-surface",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-51---foundry-extension-registry-integration",
+        "owner": "team-scientist/team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-51---foundry-extension-registry-integration",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/plugins",
+        "sunset_date": "2027-03-02",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/extensions",
+        "type": "legacy_extension_surface"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "product-jax-bootstrap-to-workspace-vendor",
+        "issue": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "owner": "team-devx",
+        "reference": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
+        "source_exists": true,
+        "source_package": null,
+        "source_path": "jax_bootstrap.py",
+        "sunset_date": "2026-08-01",
+        "target_exists": true,
+        "target_package": "common",
+        "target_path": "src/polisyos/common/jax_env.py",
+        "type": "wrapper_only"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-autotune-to-methods-autotune",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/autotune",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/autotune",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-backtesting-to-methods-backtesting",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/backtesting",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/backtesting",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-causal-to-methods-causal",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/causal",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/causal",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-compute-advanced-methods-to-methods-advanced",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/compute/advanced_methods.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/advanced.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-doe-to-methods-doe",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/doe",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/methods/doe",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-engine-to-orchestration-engine",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/engine",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/engine",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-kernel-to-orchestration-kernel",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/kernel",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/kernel",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-llm-to-orchestration-llm",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/llm",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/llm",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-memory-to-orchestration-memory",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/memory",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/memory",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-orchestrator-to-orchestration-orchestrator",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/orchestrator",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/orchestrator",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-workflows-to-orchestration-workflows",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "owner": "team-scientist",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/workflows",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/orchestration/workflows",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "synthetic-world-to-agent-sim-world",
+        "issue": "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#synthetic_world-into-foundryagentsimworld",
+        "owner": "team-foundry",
+        "reference": "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#synthetic_world-into-foundryagentsimworld",
+        "source_exists": true,
+        "source_package": "synthetic_world",
+        "source_path": "src/polisyos/synthetic_world",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/agent_sim/world",
+        "type": "wrapper_only"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-catalog_snapshot",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/catalog_snapshot.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/catalog/snapshot.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-consensus",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/consensus.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/components/consensus.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-linker",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/linker.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/components/linker.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-merge_engine",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/merge_engine.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/components/merge_engine.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-plan_optimizer",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/plan_optimizer.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/compiler/plan_optimizer.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-slot_schema",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/slot_schema.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/components/slot_schema.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "wave4-foundry-methods-specialization",
+        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "owner": "team-foundry",
+        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-4---parallel-deep-decomposition-lanes",
+        "source_exists": true,
+        "source_package": "foundry",
+        "source_path": "src/polisyos/foundry/methods/specialization.py",
+        "sunset_date": "2026-10-01",
+        "target_exists": true,
+        "target_package": "foundry",
+        "target_path": "src/polisyos/foundry/methods/compiler/specialization.py",
+        "type": "python_reexport"
+      }
+    ],
+    "packages": [
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.1948,
+        "loose_name_mirrored_source_count": 30,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/ir/analytics/_truthfulness.py",
+          "src/polisyos/ir/analytics/abm_bridge.py",
+          "src/polisyos/ir/analytics/abstraction.py",
+          "src/polisyos/ir/analytics/actual_causality.py",
+          "src/polisyos/ir/analytics/administrative_missingness.py",
+          "src/polisyos/ir/analytics/alignment_certification.py",
+          "src/polisyos/ir/analytics/applicability.py",
+          "src/polisyos/ir/analytics/backtest.py",
+          "src/polisyos/ir/analytics/calibration.py",
+          "src/polisyos/ir/analytics/calibration_diagnostics.py",
+          "src/polisyos/ir/analytics/causal.py",
+          "src/polisyos/ir/analytics/causal_capabilities.py",
+          "src/polisyos/ir/analytics/causal_discovery.py",
+          "src/polisyos/ir/analytics/causal_ensemble.py",
+          "src/polisyos/ir/analytics/causal_graph.py",
+          "src/polisyos/ir/analytics/causal_graph_kuzu.py",
+          "src/polisyos/ir/analytics/causal_queries.py",
+          "src/polisyos/ir/analytics/causal_rl.py",
+          "src/polisyos/ir/analytics/causal_run_snapshot.py",
+          "src/polisyos/ir/analytics/certified_tightening.py"
+        ],
+        "package": "ir",
+        "package_local_data_dir_count": 2,
+        "package_local_data_dirs": [
+          "src/polisyos/ir/data",
+          "tests/unit/ir/data"
+        ],
+        "property_exists": true,
+        "property_path": "tests/property/ir",
+        "property_test_file_count": 1,
+        "source_exists": true,
+        "source_module_count": 154,
+        "source_path": "src/polisyos/ir",
+        "strict_mirrored_source_count": 22,
+        "strict_module_mirror_ratio": 0.1429,
+        "unit_exists": true,
+        "unit_path": "tests/unit/ir",
+        "unit_test_file_count": 97,
+        "unit_test_to_source_ratio": 0.6299
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.2327,
+        "loose_name_mirrored_source_count": 37,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/core/artifacts/_atomic_write.py",
+          "src/polisyos/core/artifacts/_env_capture.py",
+          "src/polisyos/core/artifacts/_env_comparison.py",
+          "src/polisyos/core/artifacts/_env_models.py",
+          "src/polisyos/core/artifacts/_env_utils.py",
+          "src/polisyos/core/artifacts/_integrity_ops.py",
+          "src/polisyos/core/artifacts/_layout.py",
+          "src/polisyos/core/artifacts/_manifest_lifecycle.py",
+          "src/polisyos/core/artifacts/_signature_ops.py",
+          "src/polisyos/core/artifacts/_transfer_ops.py",
+          "src/polisyos/core/artifacts/environment.py",
+          "src/polisyos/core/artifacts/environment_parts.py",
+          "src/polisyos/core/artifacts/graph.py",
+          "src/polisyos/core/artifacts/ids.py",
+          "src/polisyos/core/artifacts/manifest.py",
+          "src/polisyos/core/artifacts/protocol.py",
+          "src/polisyos/core/artifacts/registry.py",
+          "src/polisyos/core/artifacts/signing.py",
+          "src/polisyos/core/artifacts/store.py",
+          "src/polisyos/core/artifacts/write_contract.py"
+        ],
+        "package": "core",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/core",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 159,
+        "source_path": "src/polisyos/core",
+        "strict_mirrored_source_count": 23,
+        "strict_module_mirror_ratio": 0.1447,
+        "unit_exists": true,
+        "unit_path": "tests/unit/core",
+        "unit_test_file_count": 70,
+        "unit_test_to_source_ratio": 0.4403
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.1299,
+        "loose_name_mirrored_source_count": 30,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/fabric/_internal/compatibility.py",
+          "src/polisyos/fabric/_internal/config.py",
+          "src/polisyos/fabric/_internal/registry.py",
+          "src/polisyos/fabric/catalog/binding.py",
+          "src/polisyos/fabric/catalog/contract.py",
+          "src/polisyos/fabric/catalog/discovery.py",
+          "src/polisyos/fabric/catalog/providers.py",
+          "src/polisyos/fabric/catalog/registry.py",
+          "src/polisyos/fabric/catalog/resolver_fast_lane.py",
+          "src/polisyos/fabric/catalog/search.py",
+          "src/polisyos/fabric/catalog/semantic.py",
+          "src/polisyos/fabric/catalog/source_bindings.py",
+          "src/polisyos/fabric/catalog/validate.py",
+          "src/polisyos/fabric/claims/backends/explicit_lines_v1.py",
+          "src/polisyos/fabric/claims/backends/lex_norm_regex_v1.py",
+          "src/polisyos/fabric/claims/backends/regex_numeric_v1.py",
+          "src/polisyos/fabric/claims/canonicalize.py",
+          "src/polisyos/fabric/claims/citations.py",
+          "src/polisyos/fabric/claims/conflicts/detect.py",
+          "src/polisyos/fabric/claims/conflicts/key.py"
+        ],
+        "package": "fabric",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": true,
+        "property_path": "tests/property/fabric",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 231,
+        "source_path": "src/polisyos/fabric",
+        "strict_mirrored_source_count": 17,
+        "strict_module_mirror_ratio": 0.0736,
+        "unit_exists": true,
+        "unit_path": "tests/unit/fabric",
+        "unit_test_file_count": 98,
+        "unit_test_to_source_ratio": 0.4242
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.4679,
+        "loose_name_mirrored_source_count": 219,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/foundry/_internal/utils.py",
+          "src/polisyos/foundry/_quickstart.py",
+          "src/polisyos/foundry/_registry.py",
+          "src/polisyos/foundry/agent_sim/actor_critic.py",
+          "src/polisyos/foundry/agent_sim/agent_metrics.py",
+          "src/polisyos/foundry/agent_sim/agents.py",
+          "src/polisyos/foundry/agent_sim/analysis.py",
+          "src/polisyos/foundry/agent_sim/artifact.py",
+          "src/polisyos/foundry/agent_sim/credit_assignment.py",
+          "src/polisyos/foundry/agent_sim/dashboard.py",
+          "src/polisyos/foundry/agent_sim/demographics.py",
+          "src/polisyos/foundry/agent_sim/distribution_executor.py",
+          "src/polisyos/foundry/agent_sim/distribution_mechanisms.py",
+          "src/polisyos/foundry/agent_sim/experiment.py",
+          "src/polisyos/foundry/agent_sim/government_policy.py",
+          "src/polisyos/foundry/agent_sim/graph_executor.py",
+          "src/polisyos/foundry/agent_sim/graph_observations.py",
+          "src/polisyos/foundry/agent_sim/graphs.py",
+          "src/polisyos/foundry/agent_sim/mechanism.py",
+          "src/polisyos/foundry/agent_sim/metrics.py"
+        ],
+        "package": "foundry",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": true,
+        "property_path": "tests/property/foundry",
+        "property_test_file_count": 28,
+        "source_exists": true,
+        "source_module_count": 468,
+        "source_path": "src/polisyos/foundry",
+        "strict_mirrored_source_count": 182,
+        "strict_module_mirror_ratio": 0.3889,
+        "unit_exists": true,
+        "unit_path": "tests/unit/foundry",
+        "unit_test_file_count": 373,
+        "unit_test_to_source_ratio": 0.797
+      },
+      {
+        "integration_path": "tests/integration/scientist",
+        "integration_test_file_count": 3,
+        "loose_name_mirror_ratio": 0.5996,
+        "loose_name_mirrored_source_count": 280,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/scientist/agent/_drafter_formatting.py",
+          "src/polisyos/scientist/agent/_drafter_llm.py",
+          "src/polisyos/scientist/agent/_drafter_orchestrator.py",
+          "src/polisyos/scientist/agent/_drafter_parsing.py",
+          "src/polisyos/scientist/agent/_drafter_passes.py",
+          "src/polisyos/scientist/agent/base.py",
+          "src/polisyos/scientist/agent/constraint_context.py",
+          "src/polisyos/scientist/agent/critic.py",
+          "src/polisyos/scientist/agent/drafter.py",
+          "src/polisyos/scientist/agent/drafter_clients.py",
+          "src/polisyos/scientist/agent/drafter_multipass.py",
+          "src/polisyos/scientist/agent/drafter_multipass_parts.py",
+          "src/polisyos/scientist/agent/fabric.py",
+          "src/polisyos/scientist/agent/failure_card.py",
+          "src/polisyos/scientist/agent/feasibility.py",
+          "src/polisyos/scientist/agent/feasibility_duckdb.py",
+          "src/polisyos/scientist/agent/formalizer.py",
+          "src/polisyos/scientist/agent/knowledge_tools.py",
+          "src/polisyos/scientist/agent/memory.py",
+          "src/polisyos/scientist/agent/pi.py"
+        ],
+        "package": "scientist",
+        "package_local_data_dir_count": 2,
+        "package_local_data_dirs": [
+          "src/polisyos/scientist/nodes/builtins/data",
+          "tests/unit/scientist/nodes/builtins/data"
+        ],
+        "property_exists": true,
+        "property_path": "tests/property/scientist",
+        "property_test_file_count": 5,
+        "source_exists": true,
+        "source_module_count": 467,
+        "source_path": "src/polisyos/scientist",
+        "strict_mirrored_source_count": 220,
+        "strict_module_mirror_ratio": 0.4711,
+        "unit_exists": true,
+        "unit_path": "tests/unit/scientist",
+        "unit_test_file_count": 415,
+        "unit_test_to_source_ratio": 0.8887
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.0182,
+        "loose_name_mirrored_source_count": 1,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/runtime/api.py",
+          "src/polisyos/runtime/http/access_audit.py",
+          "src/polisyos/runtime/http/app.py",
+          "src/polisyos/runtime/http/authz_middleware.py",
+          "src/polisyos/runtime/http/cell_router_middleware.py",
+          "src/polisyos/runtime/http/compliance.py",
+          "src/polisyos/runtime/http/container.py",
+          "src/polisyos/runtime/http/csrf.py",
+          "src/polisyos/runtime/http/dependencies.py",
+          "src/polisyos/runtime/http/dev_identity_middleware.py",
+          "src/polisyos/runtime/http/errors.py",
+          "src/polisyos/runtime/http/execution_policy.py",
+          "src/polisyos/runtime/http/fail_closed_middleware.py",
+          "src/polisyos/runtime/http/jwt_auth_middleware.py",
+          "src/polisyos/runtime/http/mutation_policy.py",
+          "src/polisyos/runtime/http/openapi_contract.py",
+          "src/polisyos/runtime/http/resilience.py",
+          "src/polisyos/runtime/http/response_policies.py",
+          "src/polisyos/runtime/http/routes/analysis.py",
+          "src/polisyos/runtime/http/routes/artifacts.py"
+        ],
+        "package": "runtime",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": true,
+        "property_path": "tests/property/runtime",
+        "property_test_file_count": 1,
+        "source_exists": true,
+        "source_module_count": 55,
+        "source_path": "src/polisyos/runtime",
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": 0.0,
+        "unit_exists": true,
+        "unit_path": "tests/unit/runtime",
+        "unit_test_file_count": 41,
+        "unit_test_to_source_ratio": 0.7455
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.2069,
+        "loose_name_mirrored_source_count": 6,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/lex/api.py",
+          "src/polisyos/lex/artifacts.py",
+          "src/polisyos/lex/errors.py",
+          "src/polisyos/lex/factlog.py",
+          "src/polisyos/lex/knowledge/search.py",
+          "src/polisyos/lex/knowledge/store.py",
+          "src/polisyos/lex/knowledge/types.py",
+          "src/polisyos/lex/legal_evaluation/backends/simple_v1.py",
+          "src/polisyos/lex/legal_evaluation/change_proposals.py",
+          "src/polisyos/lex/legal_evaluation/context_builder.py",
+          "src/polisyos/lex/legal_evaluation/evaluate.py",
+          "src/polisyos/lex/legal_evaluation/evaluator_registry.py",
+          "src/polisyos/lex/normpack/applicability.py",
+          "src/polisyos/lex/normpack/assemble_pack.py",
+          "src/polisyos/lex/normpack/extract_norm_claims.py",
+          "src/polisyos/lex/normpack/policies.py",
+          "src/polisyos/lex/normpack/provider_registry.py",
+          "src/polisyos/lex/normpack/select_sources.py",
+          "src/polisyos/lex/provenance.py",
+          "src/polisyos/lex/simulator/cli.py"
+        ],
+        "package": "lex",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": true,
+        "property_path": "tests/property/lex",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 29,
+        "source_path": "src/polisyos/lex",
+        "strict_mirrored_source_count": 7,
+        "strict_module_mirror_ratio": 0.2414,
+        "unit_exists": true,
+        "unit_path": "tests/unit/lex",
+        "unit_test_file_count": 9,
+        "unit_test_to_source_ratio": 0.3103
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.1429,
+        "loose_name_mirrored_source_count": 3,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/scholar/api.py",
+          "src/polisyos/scholar/discover/http_fetch.py",
+          "src/polisyos/scholar/discover/local_files.py",
+          "src/polisyos/scholar/discover/manual.py",
+          "src/polisyos/scholar/errors.py",
+          "src/polisyos/scholar/freshness_store.py",
+          "src/polisyos/scholar/orchestrator/bundle.py",
+          "src/polisyos/scholar/orchestrator/enrich.py",
+          "src/polisyos/scholar/policies.py",
+          "src/polisyos/scholar/provenance.py",
+          "src/polisyos/scholar/search/cache.py",
+          "src/polisyos/scholar/search/fetcher.py",
+          "src/polisyos/scholar/search/jobs.py",
+          "src/polisyos/scholar/search/models.py",
+          "src/polisyos/scholar/search/scoring.py",
+          "src/polisyos/scholar/search/security.py",
+          "src/polisyos/scholar/search/service.py",
+          "src/polisyos/scholar/types.py"
+        ],
+        "package": "scholar",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/scholar",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 21,
+        "source_path": "src/polisyos/scholar",
+        "strict_mirrored_source_count": 3,
+        "strict_module_mirror_ratio": 0.1429,
+        "unit_exists": true,
+        "unit_path": "tests/unit/scholar",
+        "unit_test_file_count": 7,
+        "unit_test_to_source_ratio": 0.3333
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.0385,
+        "loose_name_mirrored_source_count": 1,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/berl/adapters/_linear.py",
+          "src/polisyos/berl/adapters/_utils.py",
+          "src/polisyos/berl/adapters/ale.py",
+          "src/polisyos/berl/adapters/ebm.py",
+          "src/polisyos/berl/adapters/gradients.py",
+          "src/polisyos/berl/adapters/lime.py",
+          "src/polisyos/berl/adapters/permutation.py",
+          "src/polisyos/berl/adapters/protocol.py",
+          "src/polisyos/berl/adapters/shap_kernel.py",
+          "src/polisyos/berl/adapters/shap_tree.py",
+          "src/polisyos/berl/benchmarks/correlation_sweep.py",
+          "src/polisyos/berl/benchmarks/interaction_tests.py",
+          "src/polisyos/berl/benchmarks/policy_tabular_suite.py",
+          "src/polisyos/berl/benchmarks/release_report.py",
+          "src/polisyos/berl/benchmarks/synthetic_redundancy.py",
+          "src/polisyos/berl/contracts/display_policy.py",
+          "src/polisyos/berl/contracts/explanation_bundle.py",
+          "src/polisyos/berl/contracts/schema.py",
+          "src/polisyos/berl/contracts/validation_rules.py",
+          "src/polisyos/berl/metrics/analytical.py"
+        ],
+        "package": "berl",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/berl",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 26,
+        "source_path": "src/polisyos/berl",
+        "strict_mirrored_source_count": 1,
+        "strict_module_mirror_ratio": 0.0385,
+        "unit_exists": true,
+        "unit_path": "tests/unit/berl",
+        "unit_test_file_count": 5,
+        "unit_test_to_source_ratio": 0.1923
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.0,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/ddm/calibration/audit.py",
+          "src/polisyos/ddm/calibration/calibrate.py",
+          "src/polisyos/ddm/calibration/multiple_testing.py",
+          "src/polisyos/ddm/detectors/data_quality_monitor.py",
+          "src/polisyos/ddm/detectors/performance_estimator.py",
+          "src/polisyos/ddm/detectors/realized_performance_monitor.py",
+          "src/polisyos/ddm/detectors/track_2_2_shift_adapter.py",
+          "src/polisyos/ddm/integration/events.py",
+          "src/polisyos/ddm/integration/incident.py",
+          "src/polisyos/ddm/integration/model_registry.py",
+          "src/polisyos/ddm/integration/monitor.py",
+          "src/polisyos/ddm/readiness/readiness_mapper.py"
+        ],
+        "package": "ddm",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/ddm",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 12,
+        "source_path": "src/polisyos/ddm",
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": 0.0,
+        "unit_exists": true,
+        "unit_path": "tests/unit/ddm",
+        "unit_test_file_count": 6,
+        "unit_test_to_source_ratio": 0.5
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.3714,
+        "loose_name_mirrored_source_count": 78,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/data_forge/_version.py",
+          "src/polisyos/data_forge/domains/academic/assets.py",
+          "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+          "src/polisyos/data_forge/domains/academic/batch/claim_ids.py",
+          "src/polisyos/data_forge/domains/academic/batch/config.py",
+          "src/polisyos/data_forge/domains/academic/batch/dedup.py",
+          "src/polisyos/data_forge/domains/academic/batch/demand_harvest.py",
+          "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
+          "src/polisyos/data_forge/domains/academic/batch/embedder.py",
+          "src/polisyos/data_forge/domains/academic/batch/harvester.py",
+          "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py",
+          "src/polisyos/data_forge/domains/academic/batch/numeric_extract.py",
+          "src/polisyos/data_forge/domains/academic/batch/pipeline.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py",
+          "src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py"
+        ],
+        "package": "data_forge",
+        "package_local_data_dir_count": 1,
+        "package_local_data_dirs": [
+          "src/polisyos/data_forge/domains/catalog/fixtures"
+        ],
+        "property_exists": true,
+        "property_path": "tests/property/data_forge",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 210,
+        "source_path": "src/polisyos/data_forge",
+        "strict_mirrored_source_count": 37,
+        "strict_module_mirror_ratio": 0.1762,
+        "unit_exists": true,
+        "unit_path": "tests/unit/data_forge",
+        "unit_test_file_count": 110,
+        "unit_test_to_source_ratio": 0.5238
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.7143,
+        "loose_name_mirrored_source_count": 5,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/calibration/_sklearn_compat.py",
+          "src/polisyos/calibration/curve.py"
+        ],
+        "package": "calibration",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/calibration",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 7,
+        "source_path": "src/polisyos/calibration",
+        "strict_mirrored_source_count": 5,
+        "strict_module_mirror_ratio": 0.7143,
+        "unit_exists": true,
+        "unit_path": "tests/unit/calibration",
+        "unit_test_file_count": 5,
+        "unit_test_to_source_ratio": 0.7143
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": 0.3333,
+        "loose_name_mirrored_source_count": 3,
+        "missing_strict_mirror_sample": [
+          "src/polisyos/common/config.py",
+          "src/polisyos/common/env_parsing.py",
+          "src/polisyos/common/jax_env.py",
+          "src/polisyos/common/migrations/base.py",
+          "src/polisyos/common/migrations/manifest.py",
+          "src/polisyos/common/serialization.py"
+        ],
+        "package": "common",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": true,
+        "property_path": "tests/property/common",
+        "property_test_file_count": 1,
+        "source_exists": true,
+        "source_module_count": 9,
+        "source_path": "src/polisyos/common",
+        "strict_mirrored_source_count": 3,
+        "strict_module_mirror_ratio": 0.3333,
+        "unit_exists": true,
+        "unit_path": "tests/unit/common",
+        "unit_test_file_count": 6,
+        "unit_test_to_source_ratio": 0.6667
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
+        "package": "ddm_15_7",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/ddm_15_7",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 0,
+        "source_path": "src/polisyos/ddm_15_7",
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
+        "unit_exists": true,
+        "unit_path": "tests/unit/ddm_15_7",
+        "unit_test_file_count": 1,
+        "unit_test_to_source_ratio": null
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
+        "package": "schemas",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/schemas",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 0,
+        "source_path": "src/polisyos/schemas",
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
+        "unit_exists": false,
+        "unit_path": "tests/unit/schemas",
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
+      },
+      {
+        "integration_path": null,
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
+        "package": "synthetic_world",
+        "package_local_data_dir_count": 0,
+        "package_local_data_dirs": [],
+        "property_exists": false,
+        "property_path": "tests/property/synthetic_world",
+        "property_test_file_count": 0,
+        "source_exists": true,
+        "source_module_count": 0,
+        "source_path": "src/polisyos/synthetic_world",
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
+        "unit_exists": true,
+        "unit_path": "tests/unit/synthetic_world",
+        "unit_test_file_count": 1,
+        "unit_test_to_source_ratio": null
+      }
+    ],
+    "tracked_packages": [
+      "ir",
+      "core",
+      "fabric",
+      "foundry",
+      "scientist",
+      "runtime",
+      "lex",
+      "scholar",
+      "berl",
+      "ddm",
+      "data_forge",
+      "calibration"
+    ]
+  },
+  "mode": "read_only_inventory",
+  "owner": "team-quality",
+  "phase": "0.4",
+  "property_coverage": {
+    "by_package": [
+      {
+        "data_contract_heavy": true,
+        "exists": true,
+        "hypothesis_file_count": 1,
+        "package": "ir",
+        "property_path": "tests/property/ir",
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.0065
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "core",
+        "property_path": "tests/property/core",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": true,
+        "exists": true,
+        "hypothesis_file_count": 0,
+        "package": "fabric",
+        "property_path": "tests/property/fabric",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": true,
+        "hypothesis_file_count": 28,
+        "package": "foundry",
+        "property_path": "tests/property/foundry",
+        "property_test_file_count": 28,
+        "property_to_source_ratio": 0.0598
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": true,
+        "hypothesis_file_count": 5,
+        "package": "scientist",
+        "property_path": "tests/property/scientist",
+        "property_test_file_count": 5,
+        "property_to_source_ratio": 0.0107
+      },
+      {
+        "data_contract_heavy": true,
+        "exists": true,
+        "hypothesis_file_count": 1,
+        "package": "runtime",
+        "property_path": "tests/property/runtime",
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.0182
+      },
+      {
+        "data_contract_heavy": true,
+        "exists": true,
+        "hypothesis_file_count": 0,
+        "package": "lex",
+        "property_path": "tests/property/lex",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "scholar",
+        "property_path": "tests/property/scholar",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "berl",
+        "property_path": "tests/property/berl",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "ddm",
+        "property_path": "tests/property/ddm",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": true,
+        "exists": true,
+        "hypothesis_file_count": 0,
+        "package": "data_forge",
+        "property_path": "tests/property/data_forge",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "calibration",
+        "property_path": "tests/property/calibration",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": 0.0
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": true,
+        "hypothesis_file_count": 1,
+        "package": "common",
+        "property_path": "tests/property/common",
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.1111
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "ddm_15_7",
+        "property_path": "tests/property/ddm_15_7",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "schemas",
+        "property_path": "tests/property/schemas",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
+      },
+      {
+        "data_contract_heavy": false,
+        "exists": false,
+        "hypothesis_file_count": 0,
+        "package": "synthetic_world",
+        "property_path": "tests/property/synthetic_world",
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
+      }
+    ],
+    "hypothesis_usage_files": [
+      "tests/conftest.py",
+      "tests/integration/test_c7_synthetic_full_pipeline.py",
+      "tests/property/common/test_serialization_properties.py",
+      "tests/property/foundry/data_plane/test_bindings_properties.py",
+      "tests/property/foundry/methods/catalog/bayesian/test_bayesian_gp_properties.py",
+      "tests/property/foundry/methods/catalog/bayesian/test_bayesian_properties.py",
+      "tests/property/foundry/methods/catalog/causal/test_causal_properties.py",
+      "tests/property/foundry/methods/catalog/causal/test_did_properties.py",
+      "tests/property/foundry/methods/catalog/causal/test_transport_properties.py",
+      "tests/property/foundry/methods/catalog/distributional/test_distributional_properties.py",
+      "tests/property/foundry/methods/catalog/distributional/test_mobility_properties.py",
+      "tests/property/foundry/methods/catalog/econometrics/test_econometrics_properties.py",
+      "tests/property/foundry/methods/catalog/econometrics/test_iv_properties.py",
+      "tests/property/foundry/methods/catalog/forecasting/test_forecasting_properties.py",
+      "tests/property/foundry/methods/catalog/mechanism/test_mechanism_properties.py",
+      "tests/property/foundry/methods/catalog/microsim/test_microsim_properties.py",
+      "tests/property/foundry/methods/catalog/ml/test_ml_properties.py",
+      "tests/property/foundry/methods/catalog/network/test_network_properties.py",
+      "tests/property/foundry/methods/catalog/optimization/test_lp_properties.py",
+      "tests/property/foundry/methods/catalog/optimization/test_optimization_properties.py",
+      "tests/property/foundry/methods/catalog/policy/test_policy_properties.py",
+      "tests/property/foundry/methods/catalog/sensitivity/test_sensitivity_extended_properties.py",
+      "tests/property/foundry/methods/catalog/sensitivity/test_sensitivity_properties.py",
+      "tests/property/foundry/methods/catalog/simulation/test_simulation_extended_properties.py",
+      "tests/property/foundry/methods/catalog/simulation/test_simulation_properties.py",
+      "tests/property/foundry/methods/catalog/spatial/test_spatial_properties.py",
+      "tests/property/foundry/methods/catalog/survey/test_survey_design_properties.py",
+      "tests/property/foundry/methods/catalog/survey/test_survey_properties.py",
+      "tests/property/foundry/methods/catalog/validation/test_validation_properties.py",
+      "tests/property/foundry/test_constraints_properties.py",
+      "tests/property/foundry/test_slot_schema_properties.py",
+      "tests/property/ir/test_phase3_properties.py",
+      "tests/property/runtime/http/test_access_invariants_properties.py",
+      "tests/property/scientist/engine/test_property_budget.py",
+      "tests/property/scientist/engine/test_property_checkpoint.py",
+      "tests/property/scientist/engine/test_property_condition.py",
+      "tests/property/scientist/engine/test_property_idempotency.py",
+      "tests/property/scientist/engine/test_property_state.py",
+      "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
+      "tests/repo_quality/conftest.py",
+      "tests/repo_quality/tools/test_diagnostics_phase3.py",
+      "tests/repo_quality/tools/test_lint_imports_phase3.py",
+      "tests/unit/fabric/connectors/test_transform_pipeline.py",
+      "tests/unit/fabric/test_schema_semantic_correctness_phase3.py",
+      "tests/unit/foundry/analysis/test_merge_determinism.py",
+      "tests/unit/foundry/methods/testing/strategies.py",
+      "tests/unit/ir/analytics/test_latent_bridge_synthesis.py",
+      "tests/unit/ir/analytics/test_metric_validation_report.py",
+      "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
+      "tests/unit/ir/test_frontier_causal_contracts.py",
+      "tests/unit/ir/test_phase3_fuzz.py",
+      "tests/unit/scientist/discovery/test_active.py",
+      "tests/unit/scientist/discovery/test_aggregator.py",
+      "tests/unit/scientist/discovery/test_output.py",
+      "tests/unit/scientist/discovery/test_portfolio.py",
+      "tests/unit/scientist/discovery/test_priors.py",
+      "tests/unit/scientist/discovery/test_schema.py",
+      "tests/unit/scientist/discovery/test_stability.py",
+      "tests/unit/scientist/discovery/test_utility_judge.py",
+      "tests/unit/scientist/discovery/test_workers.py",
+      "tests/unit/scientist/evidence/test_evidence_sources_direct.py",
+      "tests/unit/scientist/governance/test_calibration_governance.py",
+      "tests/unit/scientist/governance/test_calibration_leaderboard.py",
+      "tests/unit/scientist/governance/test_calibration_validation.py",
+      "tests/unit/scientist/methods/causal/test_latent_separation.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_build_decision_packet_metric_validation.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_draft_policy_options.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_run_discovery_blueprint_runtime.py",
+      "tests/unit/scientist/nodes/test_decision_packet_node_v3.py"
+    ],
+    "missing_any_property_packages": [
+      "core",
+      "fabric",
+      "lex",
+      "scholar",
+      "berl",
+      "ddm",
+      "data_forge",
+      "calibration",
+      "ddm_15_7",
+      "schemas",
+      "synthetic_world"
+    ],
+    "missing_data_contract_heavy_packages": [
+      "fabric",
+      "lex",
+      "data_forge"
+    ],
+    "property_root": "tests/property",
+    "total_hypothesis_usage_files": 70,
+    "total_property_test_files": 36
+  },
+  "pytest": {
+    "addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+    "asyncio_mode": "auto",
+    "cache_dir": "_cache/pytest",
+    "config_files": {
+      "pyproject_tool_pytest": false,
+      "pytest_ini": true
+    },
+    "conftest_count": 30,
+    "conftest_files": [
+      {
+        "autouse_fixture_count": 0,
+        "depth": 2,
+        "fixture_count": 3,
+        "path": "benchmarks/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 3,
+        "fixture_count": 1,
+        "path": "benchmarks/foundry/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 1,
+        "depth": 2,
+        "fixture_count": 1,
+        "path": "tests/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 3,
+        "fixture_count": 1,
+        "path": "tests/contract/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 1,
+        "depth": 5,
+        "fixture_count": 2,
+        "path": "tests/property/foundry/methods/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 3,
+        "fixture_count": 0,
+        "path": "tests/repo_quality/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/berl/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/calibration/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/common/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/core/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/data_forge/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/ddm/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/fabric/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 10,
+        "path": "tests/unit/fabric/connectors/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 2,
+        "path": "tests/unit/foundry/agent_sim/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 0,
+        "path": "tests/unit/foundry/calibration/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 1,
+        "depth": 4,
+        "fixture_count": 2,
+        "path": "tests/unit/foundry/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 2,
+        "path": "tests/unit/foundry/method_regression/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 31,
+        "path": "tests/unit/foundry/methods/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/ir/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/lex/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/runtime/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 0,
+        "path": "tests/unit/runtime/http/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/scholar/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 4,
+        "fixture_count": 0,
+        "path": "tests/unit/scientist/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 5,
+        "path": "tests/unit/scientist/governance/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 5,
+        "path": "tests/unit/scientist/nodes/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 6,
+        "fixture_count": 2,
+        "path": "tests/unit/scientist/orchestration/kernel/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 5,
+        "fixture_count": 0,
+        "path": "tests/unit/scientist/search/conftest.py"
+      },
+      {
+        "autouse_fixture_count": 0,
+        "depth": 6,
+        "fixture_count": 0,
+        "path": "tests/unit/scientist/search/strategies/conftest.py"
+      }
+    ],
+    "duplicate_fixture_name_count": 3,
+    "duplicate_fixture_names": [
+      {
+        "definition_count": 2,
+        "fixture": "_isolated_backend_circuit_breakers",
+        "paths": [
+          "tests/property/foundry/methods/conftest.py",
+          "tests/unit/foundry/conftest.py"
+        ],
+        "scope_ambiguity": false,
+        "scopes": [
+          "function"
+        ]
+      },
+      {
+        "definition_count": 2,
+        "fixture": "cas_store",
+        "paths": [
+          "tests/unit/scientist/governance/conftest.py",
+          "tests/unit/scientist/nodes/conftest.py"
+        ],
+        "scope_ambiguity": false,
+        "scopes": [
+          "function"
+        ]
+      },
+      {
+        "definition_count": 2,
+        "fixture": "isolated_registry",
+        "paths": [
+          "tests/property/foundry/methods/conftest.py",
+          "tests/unit/foundry/methods/conftest.py"
+        ],
+        "scope_ambiguity": false,
+        "scopes": [
+          "function"
+        ]
+      }
+    ],
+    "import_mode": "importlib",
+    "importable_non_source_roots": [
+      {
+        "exists": true,
+        "has_conftest": true,
+        "init_file_count": 28,
+        "path": "benchmarks"
+      },
+      {
+        "exists": true,
+        "has_conftest": false,
+        "init_file_count": 37,
+        "path": "tools"
+      },
+      {
+        "exists": true,
+        "has_conftest": true,
+        "init_file_count": 63,
+        "path": "tests"
+      },
+      {
+        "exists": true,
+        "has_conftest": false,
+        "init_file_count": 0,
+        "path": "schemas"
+      }
+    ],
+    "registered_markers": [
+      "unit",
+      "contract",
+      "property",
+      "integration",
+      "performance",
+      "repo_quality",
+      "benchmark",
+      "smoke",
+      "slow",
+      "flaky",
+      "quarantine"
+    ],
+    "scope_ambiguous_fixture_names": [],
+    "testpaths": "\ntests"
+  },
+  "ratchet_starting_points": [
+    {
+      "mirror_floor": 0.1429,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "ir",
+      "property_file_floor": 1,
+      "unit_test_file_floor": 97
+    },
+    {
+      "mirror_floor": 0.1447,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "core",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 70
+    },
+    {
+      "mirror_floor": 0.0736,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "fabric",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 98
+    },
+    {
+      "mirror_floor": 0.3889,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "foundry",
+      "property_file_floor": 28,
+      "unit_test_file_floor": 373
+    },
+    {
+      "mirror_floor": 0.4711,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "scientist",
+      "property_file_floor": 5,
+      "unit_test_file_floor": 415
+    },
+    {
+      "mirror_floor": 0.0,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "runtime",
+      "property_file_floor": 1,
+      "unit_test_file_floor": 41
+    },
+    {
+      "mirror_floor": 0.2414,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "lex",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 9
+    },
+    {
+      "mirror_floor": 0.1429,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "scholar",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 7
+    },
+    {
+      "mirror_floor": 0.0385,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "berl",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 5
+    },
+    {
+      "mirror_floor": 0.0,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "ddm",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 6
+    },
+    {
+      "mirror_floor": 0.1762,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "data_forge",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 110
+    },
+    {
+      "mirror_floor": 0.7143,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "calibration",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 5
+    },
+    {
+      "mirror_floor": 0.3333,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "common",
+      "property_file_floor": 1,
+      "unit_test_file_floor": 6
+    },
+    {
+      "mirror_floor": null,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "ddm_15_7",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 1
+    },
+    {
+      "mirror_floor": null,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "schemas",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
+    },
+    {
+      "mirror_floor": null,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "synthetic_world",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 1
+    }
+  ],
+  "schema_version": "repository.verification_inventory.v2",
+  "summary": {
+    "benchmark_py_file_count": 147,
+    "data_contract_heavy_packages_missing_property_tests": [
+      "fabric",
+      "lex",
+      "data_forge"
+    ],
+    "data_like_directory_count": 14,
+    "package_count": 16,
+    "packages_missing_property_tests": [
+      "core",
+      "fabric",
+      "lex",
+      "scholar",
+      "berl",
+      "ddm",
+      "data_forge",
+      "calibration",
+      "ddm_15_7",
+      "schemas",
+      "synthetic_world"
+    ],
+    "performance_test_file_count": 10,
+    "pytest_collectable_data_like_tests": 3,
+    "pytest_conftest_count": 30,
+    "pytest_duplicate_fixture_name_count": 3,
+    "source_module_count": 1848,
+    "strict_mirror_ratio_max": 0.7143,
+    "strict_mirror_ratio_min": 0.0,
+    "strict_mirror_ratio_weighted": 0.2814,
+    "tracked_package_count": 12,
+    "unit_test_file_count": 1244
+  },
+  "test_role_inventory": {
+    "classification": {
+      "product_behavior": [
+        "tests/unit",
+        "tests/integration",
+        "tests/property",
+        "tests/performance",
+        "tests/e2e"
+      ],
+      "product_contract": [
+        "tests/contract"
+      ],
+      "repository_quality": [
+        "tests/repo_quality/architecture",
+        "tests/repo_quality/lint",
+        "tests/repo_quality/tools"
+      ]
+    },
+    "role_roots": [
+      {
+        "conftest_count": 24,
+        "exists": true,
+        "path": "tests/unit",
+        "python_file_count": 1330,
+        "role": "product_behavior",
+        "test_file_count": 1244
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/integration",
+        "python_file_count": 6,
+        "role": "product_behavior",
+        "test_file_count": 6
+      },
+      {
+        "conftest_count": 1,
+        "exists": true,
+        "path": "tests/property",
+        "python_file_count": 37,
+        "role": "product_behavior",
+        "test_file_count": 36
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/performance",
+        "python_file_count": 10,
+        "role": "product_behavior",
+        "test_file_count": 10
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/e2e",
+        "python_file_count": 2,
+        "role": "product_behavior",
+        "test_file_count": 1
+      },
+      {
+        "conftest_count": 1,
+        "exists": true,
+        "path": "tests/contract",
+        "python_file_count": 21,
+        "role": "product_contract",
+        "test_file_count": 20
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/repo_quality/architecture",
+        "python_file_count": 39,
+        "role": "repository_quality",
+        "test_file_count": 39
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/repo_quality/lint",
+        "python_file_count": 1,
+        "role": "repository_quality",
+        "test_file_count": 1
+      },
+      {
+        "conftest_count": 0,
+        "exists": true,
+        "path": "tests/repo_quality/tools",
+        "python_file_count": 61,
+        "role": "repository_quality",
+        "test_file_count": 61
+      }
+    ]
+  }
+}

@@ -1,3 +1,12 @@
+---
+title: Fabric Audit Remediation Plan
+status: active
+owner: team-fabric
+created: 2026-04-11
+last_verified: 2026-05-05
+stability: draft
+---
+
 # План исправления и SOTA-улучшения Fabric
 
 > Консолидированный remediation plan для `src/polisyos/fabric` по итогам

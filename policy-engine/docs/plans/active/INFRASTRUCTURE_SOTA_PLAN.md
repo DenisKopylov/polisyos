@@ -1,3 +1,12 @@
+---
+title: Infrastructure SOTA Plan
+status: active
+owner: team-infrastructure
+created: 2026-04-03
+last_verified: 2026-05-05
+stability: draft
+---
+
 # Infrastructure SOTA Plan
 
 > Bringing the engineering platform around PolicyOS code and architecture to
@@ -424,7 +433,8 @@ Deliverables:
   - `src/polisyos/scientist/**`
   - `src/polisyos/lex/**`
   - `src/polisyos/runtime/**`
-  - `frontend/**`
+  - `apps/**`
+  - `packages/**`
   - `docs/**`
   - `ops/**`
 - `docs/reference/ownership.md` explaining:
@@ -442,7 +452,8 @@ Minimal template:
 /src/polisyos/foundry/     @foundry-owners
 /src/polisyos/scientist/   @scientist-owners
 /src/polisyos/runtime/     @runtime-owners
-/frontend/                 @frontend-owners
+/apps/                     @frontend-owners
+/packages/                 @frontend-owners
 /docs/                     @docs-owners
 /ops/                      @platform-owners
 ```

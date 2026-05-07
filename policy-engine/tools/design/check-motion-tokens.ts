@@ -21,8 +21,8 @@ function read(relativePath: string) {
 }
 
 function main() {
-  const motionCss = read("frontend/runtime-dashboard/src/styles/motion.css");
-  const mediaCss = read("frontend/runtime-dashboard/src/styles/media.css");
+  const motionCss = read("apps/runtime-dashboard/src/styles/motion.css");
+  const mediaCss = read("apps/runtime-dashboard/src/styles/media.css");
   const motionDoc = read("docs/brand/MOTION.md");
 
   for (const token of REQUIRED_TOKENS) {

@@ -1,0 +1,17 @@
+  - Contracts:
+      - Trinity: contracts/TRINITY.md
+      - Merge Semantics: contracts/MERGE_SEMANTICS.md
+      - IR Norms Citations Linker: contracts/E1_3_IR_NORMS_CITATIONS_LINKER.md
+      - Core CAS Canon Contracts Components: contracts/E1_4_CORE_CAS_CANON_CONTRACTS_COMPONENTS.md
+      - Foundry Pure Compute Split Compilers: contracts/E1_5_FOUNDRY_PURE_COMPUTE_SPLIT_COMPILERS.md
+      - Scientist Engine Skeleton Node Protocol: contracts/E1_6_SCIENTIST_ENGINE_SKELETON_NODE_PROTOCOL.md
+      - IR World ABI V1: contracts/E2_1_IR_WORLD_ABI_V1_0_IDS_PREDICATES_CONTRACTS.md
+      - Fabric World Store Emit Facts World Event: contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md
+      - Fabric World DuckDB Materialization V1: contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md
+      - Fabric Docs Pipeline V1: contracts/E2_5_FABRIC_DOCS_PIPELINE_V1_0.md
+      - Fabric Claims Pipeline V1: contracts/E2_6_FABRIC_CLAIMS_PIPELINE_V1_0.md
+      - Lex Corpus MVP V1: contracts/E2_8_LEX_CORPUS_MVP_V1_0.md
+      - Lex NormPack Assembly V1: contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md
+      - Lex Legal Evaluation V1: contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md
+      - IR Transport Streaming V1: contracts/E2_11_IR_TRANSPORT_STREAMING_V1_0.md
+

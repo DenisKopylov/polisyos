@@ -1,6 +1,6 @@
-"""Stable policy-verification facade for request frames, legal packs, and verified reports."""
+"""Compatibility shim for policy verified moved to validation.policy_verified."""
 
-from .models import (
+from polisyos.scientist.validation.policy_verified import (
     LegalCandidatePack,
     LegalSourcePack,
     PolicyEvidenceLink,

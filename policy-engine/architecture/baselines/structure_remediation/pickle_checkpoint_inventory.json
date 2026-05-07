@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-05-03T17:48:35.091574+00:00",
+  "generated_at": "2026-05-06T11:05:29.526696+00:00",
   "call_sites": [
     {
       "path": "src/polisyos/fabric/data_plane/orchestrator.py",
@@ -37,7 +37,7 @@
       "text": "data = pickle.loads(pickled)  # noqa: S301  — HMAC-verified above"
     },
     {
-      "path": "src/polisyos/scientist/search/strategies/multi_objective.py",
+      "path": "src/polisyos/scientist/methods/search/strategies/multi_objective.py",
       "line": 216,
       "patterns": [
         "torch.save"
@@ -45,7 +45,7 @@
       "text": "self._torch.save(self._model.state_dict(), buffer)"
     },
     {
-      "path": "src/polisyos/scientist/search/strategies/bayesian.py",
+      "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
       "line": 214,
       "patterns": [
         "torch.save"
@@ -53,7 +53,7 @@
       "text": "self._torch.save(self._model.state_dict(), buffer)"
     },
     {
-      "path": "src/polisyos/scientist/search/strategies/bayesian.py",
+      "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
       "line": 262,
       "patterns": [
         "torch.load"
@@ -78,7 +78,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 73,
+      "line": 82,
       "patterns": [
         "pickle.dump"
       ],
@@ -86,7 +86,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 74,
+      "line": 83,
       "patterns": [
         "pickle.load"
       ],
@@ -94,7 +94,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 75,
+      "line": 84,
       "patterns": [
         "pickle.dump",
         "pickle.dumps"
@@ -103,7 +103,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 76,
+      "line": 85,
       "patterns": [
         "pickle.load",
         "pickle.loads"
@@ -112,7 +112,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 77,
+      "line": 86,
       "patterns": [
         "cloudpickle"
       ],
@@ -120,7 +120,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 78,
+      "line": 87,
       "patterns": [
         "joblib.dump"
       ],
@@ -128,7 +128,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 79,
+      "line": 88,
       "patterns": [
         "joblib.load"
       ],
@@ -136,7 +136,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 80,
+      "line": 89,
       "patterns": [
         "torch.save"
       ],
@@ -144,7 +144,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 81,
+      "line": 90,
       "patterns": [
         "torch.load"
       ],
@@ -152,7 +152,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 82,
+      "line": 91,
       "patterns": [
         "dill"
       ],
@@ -160,7 +160,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 1040,
+      "line": 1072,
       "patterns": [
         "pickle.dump",
         "pickle.dumps"
@@ -169,7 +169,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 1095,
+      "line": 1130,
       "patterns": [
         "pickle.load"
       ],
@@ -178,13 +178,13 @@
   ],
   "live_artifacts": [
     {
-      "path": "tests/fixtures/checkpoint_compat/foundry/agent_sim_experiment_result.pkl",
+      "path": "tests/_data/checkpoint_compat/foundry/agent_sim_experiment_result.pkl",
       "bytes": 520
     },
     {
-      "path": "tests/fixtures/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
-      "bytes": 1779
+      "path": "tests/_data/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
+      "bytes": 1791
     }
   ],
-  "canonical_fixture_root": "tests/fixtures/checkpoint_compat"
+  "canonical_fixture_root": "tests/_data/checkpoint_compat"
 }

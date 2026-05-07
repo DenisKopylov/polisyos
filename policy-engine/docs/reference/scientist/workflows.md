@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/unit/scientist/workflows/**`, and `tests/unit/scientist/workflows/test_workflow_selection.py`
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, compatibility shim `src/polisyos/scientist/workflows/selection.py`, and workflow selection tests.
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/workflows/builder.py`, `src/polisyos/scientist/workflows/selection.py`, `src/polisyos/scientist/workflows/default.py`, `src/polisyos/scientist/workflows/discovery.py`, `src/polisyos/scientist/workflows/causal_full.py`, `src/polisyos/scientist/workflows/policy_verified.py`, `src/polisyos/scientist/workflows/policy_design.py`, `src/polisyos/scientist/engine/workflow_spec.py`, `tests/unit/scientist/workflows/**`, and `tests/unit/scientist/workflows/test_workflow_selection.py`.
+> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, compatibility shim `src/polisyos/scientist/workflows/selection.py`, and workflow selection tests.
 
 Workflow execution has two layers:
 

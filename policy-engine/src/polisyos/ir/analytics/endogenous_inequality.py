@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir._internal.validation import ensure_confidence_interval, ensure_finite_numeric
 from polisyos.ir.analytics.distributional import (
     CausalAssumptionCard,
     DistributionalBoundsBundle,
@@ -22,7 +22,7 @@ from polisyos.ir.analytics.distributional import (
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import EndogenousGroupInequalityDecompositionRef
+from polisyos.ir.references import EndogenousGroupInequalityDecompositionRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.negative_certificate import NegativeCertificate

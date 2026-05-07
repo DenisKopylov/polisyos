@@ -95,7 +95,7 @@ def build_artifact_store(
         cache_root = (
             Path(config.local_cache_dir)
             if config.local_cache_dir
-            else Path.cwd() / ".polisyos" / "cas_cache"
+            else Path.cwd() / ".polisyos" / "cas" / "_cache"
         )
         local = FileSystemCAS(cache_root, metrics=metrics, tracer=tracer)
 

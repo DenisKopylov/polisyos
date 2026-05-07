@@ -34,8 +34,8 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_bundle,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_WELFARE_BUNDLE_REF
 from polisyos.scientist.policy_design.phase3 import (
     Phase3CertificateStatus,

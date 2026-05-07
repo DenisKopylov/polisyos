@@ -10,8 +10,8 @@ from polisyos.scholar.search.models import (
     SourceSnippet,
     WebEvidenceBundle,
 )
-from polisyos.scientist.research_dag.models import ResearchNodeType
-from polisyos.scientist.research_dag.projections import (
+from polisyos.scientist.methods.research_dag.models import ResearchNodeType
+from polisyos.scientist.methods.research_dag.projections import (
     project_web_evidence_bundle_to_research_dag,
 )
 

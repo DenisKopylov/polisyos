@@ -10,13 +10,13 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
 from polisyos.ir.analytics.abstraction import AbstractionPreservationType
 from polisyos.ir.analytics.causal_queries import InterventionSpec, InterventionType
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import (
+from polisyos.ir.references import (
     ArtifactRefModel,
     MeanFieldEquilibriumCertificateRef,
     MeanFieldMacroSimulationConfigRef,
@@ -25,7 +25,7 @@ from polisyos.ir.refs import (
     StrategicResponseBundleRef,
     StrategicSCMRef,
 )
-from polisyos.scientist.kernel.budgets import ComputeBudget
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
 _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME = "ir.strategic_payoff_table"
 _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION = "1.0"

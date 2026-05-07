@@ -1,4 +1,9 @@
-"""Discover Foundry plugins from built-ins, entry points, and local search paths."""
+"""Discover legacy Foundry domain plugins.
+
+This package remains the agent-simulation domain-plugin compatibility layer.
+Foundry method extensions use `polisyos.foundry.extensions` and the
+`polisyos.foundry_methods` entry-point group instead.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +18,9 @@ from pathlib import Path
 from polisyos.foundry.plugins.core import DomainPlugin, PluginRegistry, get_registry
 
 logger = logging.getLogger(__name__)
+
+LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP = "polisyos.plugins"
+CANONICAL_METHOD_ENTRY_POINT_GROUP = "polisyos.foundry_methods"
 
 
 def discover_plugins(
@@ -63,7 +71,7 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
 
     plugins: list[DomainPlugin] = []
 
-    for ep in pkg_resources.iter_entry_points("polisyos.plugins"):
+    for ep in pkg_resources.iter_entry_points(LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP):
         try:
             plugin_class = ep.load()
             if issubclass(plugin_class, DomainPlugin):

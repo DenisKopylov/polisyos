@@ -164,7 +164,7 @@ Import gate must remain green:
 - `polisyos.fabric.world.*` may import: `polisyos.fabric.*`, `polisyos.core.*`, `polisyos.ir.*`, `polisyos.common.*`
 - Must not import `polisyos.scientist.*`
 
-Enforced by: `policy-engine/tests/architecture/test_arch_import_gate.py`.
+Enforced by: `policy-engine/tests/repo_quality/architecture/test_arch_import_gate.py`.
 
 ---
 

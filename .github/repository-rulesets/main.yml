@@ -21,9 +21,14 @@ ruleset:
   protected_control_plane_paths:
     - .github/**
     - .github/CODEOWNERS
+    - .github/repository-rulesets/**
+    - .github/workflows/**
+    - .github/workflows/release.yml
+    - policy-engine/CODE_OF_CONDUCT.md
     - policy-engine/SECURITY.md
     - policy-engine/SUPPORT.md
-    - policy-engine/CODE_OF_CONDUCT.md
+    - policy-engine/ops/policy/**
+    - policy-engine/ops/security/**
   merge_queue:
     enabled: false
     rationale: >-

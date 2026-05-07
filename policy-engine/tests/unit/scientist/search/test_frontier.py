@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.search.frontier import (
+from polisyos.scientist.methods.search.frontier import (
     policy_candidate_hash,
     update_legacy_pareto_front,
 )
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 
 def test_policy_candidate_hash_ignores_volatile_metadata() -> None:

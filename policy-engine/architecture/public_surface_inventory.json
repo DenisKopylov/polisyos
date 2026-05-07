@@ -75,7 +75,8 @@
       "readme": "src/polisyos/ir/README.md",
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
-        "polisyos.ir"
+        "polisyos.ir",
+        "polisyos.ir.api"
       ],
       "major_subsystem": true,
       "export_count": 273,
@@ -140,17 +141,12 @@
         "DependentSensitivityAnalysisBundleRef",
         "DependentSensitivityResult",
         "DependentSensitivityResultRef",
-        "DriftReadinessRef",
-        "ExplanationBundleRef",
-        "JudgeVerdictRef",
-        "SensitivityAnalysisBundle",
-        "SensitivityAnalysisBundleRef",
-        "SensitivityAnalysisIndex",
         "DetectorResult",
         "DiagnosticTest",
         "DimensionBreakdown",
         "DistributionFamily",
         "DistributionalReport",
+        "DriftReadinessRef",
         "DynamicMicrosimValidationReport",
         "DynamicMicrosimValidationReportRef",
         "EnsembleMember",
@@ -159,6 +155,7 @@
         "EnvironmentParam",
         "EquilibriumMultiplicityWelfareAnnotation",
         "EstimationStatus",
+        "ExplanationBundleRef",
         "ExposureMappingType",
         "FanChartSpec",
         "FeatureImportance",
@@ -213,6 +210,7 @@
         "IntervalSemantics",
         "InterventionSpec",
         "InterventionType",
+        "JudgeVerdictRef",
         "KPISpec",
         "LeontiefIOBundle",
         "LeontiefIOInput",
@@ -294,6 +292,9 @@
         "SchemaChangepoint",
         "SchemaRegimeRegistry",
         "SchemaRegimeSpec",
+        "SensitivityAnalysisBundle",
+        "SensitivityAnalysisBundleRef",
+        "SensitivityAnalysisIndex",
         "ShiftComponent",
         "ShiftDiagnosticReport",
         "ShiftDiagnosticReportRef",
@@ -358,7 +359,7 @@
       "has___dir__": true,
       "source_file": "src/polisyos/ir/__init__.py",
       "summary": "Expose the stable IR contract surface through a lazy package facade.",
-      "notes": "Primary compatibility boundary for policy, governance, analytics, and observation contracts."
+      "notes": "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
     },
     {
       "module": "polisyos.fabric",
@@ -369,13 +370,15 @@
       "readme": "src/polisyos/fabric/README.md",
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
-        "polisyos.fabric"
+        "polisyos.fabric",
+        "polisyos.fabric.api"
       ],
       "major_subsystem": true,
-      "export_count": 28,
+      "export_count": 30,
       "exports": [
         "AccessRef",
         "AuthoredText",
+        "ConnectorRegistryLike",
         "FabricDecisionData",
         "FabricDecisionDataCoverage",
         "FabricDecisionDataResponse",
@@ -399,6 +402,7 @@
         "query_claims",
         "query_events",
         "query_world_table",
+        "resolve_connector_registry",
         "run_connectors_ingestion",
         "stream_processing_contract",
         "world"
@@ -448,11 +452,14 @@
         "polisyos.scientist"
       ],
       "major_subsystem": true,
-      "export_count": 4,
+      "export_count": 7,
       "exports": [
         "ExperimentState",
+        "build_governance_pipeline",
+        "discover_scientist_nodes",
         "get_metrics",
         "get_tracer",
+        "load_governance_passes",
         "run_experiment"
       ],
       "has___getattr__": true,
@@ -761,7 +768,7 @@
       "classification": "compatibility",
       "facade_mode_expected": "eager_exports",
       "facade_mode_observed": "eager_exports",
-      "owner": "team-scientist",
+      "owner": "team-architecture",
       "readme": "src/polisyos/ddm_15_7/README.md",
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
@@ -792,7 +799,7 @@
       "has___dir__": false,
       "source_file": "src/polisyos/ddm_15_7/__init__.py",
       "summary": "Compatibility facade for :mod:`polisyos.ddm`.",
-      "notes": "Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01."
+      "notes": "Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only."
     },
     {
       "module": "polisyos.foundry.agent_sim.world",

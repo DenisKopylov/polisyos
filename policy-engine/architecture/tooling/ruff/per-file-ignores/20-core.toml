@@ -1,0 +1,32 @@
+# Phase 3 keeps Core on the same ratchet model as IR: keep public facades and
+# optional runtime adapters stable now, then remove these local ignores module by
+# module as the base layer is hardened.
+"src/polisyos/core/**" = ["ANN401", "TC001", "TC002", "TC003", "UP046", "UP047"]
+"src/polisyos/core/components/_cli_*.py" = ["N803", "N806", "T201"]
+"src/polisyos/core/components/cli_parts.py" = ["T201"]
+"src/polisyos/core/artifacts/_env_utils.py" = ["S603"]
+"src/polisyos/core/audit/_assembler_core.py" = ["S603"]
+"src/polisyos/core/audit/models.py" = ["S105"]
+"src/polisyos/core/audit/standalone_verifier_template.py" = ["T201"]
+"src/polisyos/core/contracts/__init__.py" = ["F401"]
+"src/polisyos/core/observability/__init__.py" = ["ANN"]
+"src/polisyos/core/security/settings.py" = ["B019"]
+"src/polisyos/core/governance/legal/backends/expr_ast.py" = ["S106"]
+"src/polisyos/core/governance/legal/backends/stub.py" = ["S106"]
+"src/polisyos/core/security/sbom.py" = ["S603"]
+"src/polisyos/core/security/slsa/config.py" = ["S105"]
+"tests/unit/core/**" = [
+  "B017",
+  "B905",
+  "E501",
+  "N806",
+  "PT011",
+  "PT012",
+  "RUF007",
+  "S105",
+  "S108",
+  "S603",
+  "S607",
+  "SIM117",
+  "TC003",
+]

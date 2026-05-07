@@ -11,7 +11,7 @@ from polisyos.foundry.methods.base import (
     MethodSignature,
 )
 from polisyos.foundry.methods.composer import CompositionDAG, MethodNode
-from polisyos.foundry.methods.plan_optimizer import ExecutionPlanOptimizer, MethodCostModel
+from polisyos.foundry.methods.compiler.plan_optimizer import ExecutionPlanOptimizer, MethodCostModel
 
 
 def _make_signature(

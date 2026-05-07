@@ -4,11 +4,11 @@ Related reference: [Operations](../operations/index.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`
+Source of truth: `src/polisyos/scientist/validation/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/repo_quality/tools/test_scientist_reliability_gate.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/tools/test_scientist_reliability_gate.py`.
+> Source of truth: `src/polisyos/scientist/validation/reliability_scorecard.py`, `tools/ci/check_scientist_reliability.py`, `tools/ci/check_scientist_phase0_gate.py`, `tools/ci/check_scientist_phase1_gate.py`, `tools/ci/check_scientist_phase2_ratchet.py`, `tests/unit/scientist/governance/test_reliability_scorecard.py`, and `tests/repo_quality/tools/test_scientist_reliability_gate.py`.
 
 The Scientist reliability scorecard is the repo-tracked gate for runtime
 readiness. The canonical helper is
@@ -101,5 +101,5 @@ uv run python tools/ci/check_scientist_reliability.py \
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/governance/test_reliability_scorecard.py tests/tools/test_scientist_reliability_gate.py -q
+uv run pytest tests/unit/scientist/governance/test_reliability_scorecard.py tests/repo_quality/tools/test_scientist_reliability_gate.py -q
 ```

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.strategies.codec import ScalarParameterCodec
-from polisyos.scientist.search.strategies.space import SearchSpace
-from polisyos.scientist.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.strategies.codec import ScalarParameterCodec
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
 
 
 def test_search_space_roundtrip_mixed_types(mixed_space: SearchSpace) -> None:

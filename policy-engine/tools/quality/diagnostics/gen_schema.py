@@ -36,8 +36,7 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from schemas.abi_models import ABIModelEntry, select_abi_entries  # noqa: E402
-
+from polisyos.schemas.abi_models import ABIModelEntry, select_abi_entries  # noqa: E402
 from tools.quality.diagnostics.generate_ir_reference_catalog import (  # noqa: E402
     generate_reference_docs,
 )
@@ -48,8 +47,24 @@ METADATA_KEYS = {"title", "description", "$comment", "examples"}
 CACHE_NAMESPACE = "diagnostics.gen_schema"
 CACHE_VERSION = "2026.04.phase5"
 DEFAULT_BASELINE_LABEL = "default"
+MODULE_COMPATIBILITY: dict[str, dict[str, str]] = {
+    "fabric": {
+        "compatibility_class": "schema-openapi-abi",
+        "version_owner": "team-fabric",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "schema-openapi-abi",
+        "breaking_change_requires_fragment": "true",
+    },
+    "ir": {
+        "compatibility_class": "persisted-artifact-format",
+        "version_owner": "team-ir",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "persisted-artifact-format",
+        "breaking_change_requires_fragment": "true",
+    },
+}
 FULL_REBUILD_SENTINELS = {
-    REPO_ROOT / "schemas" / "abi_models.py",
+    REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "gen_schema.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "generate_ir_reference_catalog.py",
 }
@@ -255,12 +270,23 @@ def _build_manifest(
     model_entries: dict[str, dict[str, Any]],
     pydantic_version: str,
 ) -> dict[str, Any]:
+    compatibility = MODULE_COMPATIBILITY.get(
+        module,
+        {
+            "compatibility_class": "schema-openapi-abi",
+            "version_owner": "team-polisyos",
+            "deprecation_window": "2 minor releases",
+            "release_fragment_change_class": "schema-openapi-abi",
+            "breaking_change_requires_fragment": "true",
+        },
+    )
     manifest = {
         "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "generator_version": GENERATOR_VERSION,
         "python_version": platform.python_version(),
         "pydantic_version": pydantic_version,
         "module": module,
+        "compatibility": compatibility,
         "models": model_entries,
     }
     manifest["content_hash"] = _schema_hash(manifest["models"])

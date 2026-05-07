@@ -581,14 +581,14 @@ class TestKnowledgeToolkitMemory:
 
 class TestStateSchemaUpdate:
     def test_memory_index_ref_field(self) -> None:
-        from polisyos.scientist.engine.state import ExperimentState
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
 
         state = ExperimentState(run_id="r1")
         assert state.memory_index_ref is None
         assert state.schema_version == "1.3"
 
     def test_memory_index_ref_roundtrip(self) -> None:
-        from polisyos.scientist.engine.state import ExperimentState
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
 
         ref = ArtifactRef(artifact_id=_FAKE_SHA, kind="test", media_type="application/json")
         state = ExperimentState(run_id="r1", memory_index_ref=ref)
@@ -605,7 +605,7 @@ class TestStateSchemaUpdate:
 
 class TestContextUpdates:
     def test_depth_field(self) -> None:
-        from polisyos.scientist.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
         ctx = ExecutionContext(
             store=MagicMock(),
@@ -616,7 +616,7 @@ class TestContextUpdates:
         assert ctx.depth == 2
 
     def test_memory_field(self) -> None:
-        from polisyos.scientist.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
         mem = MagicMock()
         ctx = ExecutionContext(
@@ -628,7 +628,7 @@ class TestContextUpdates:
         assert ctx.memory is mem
 
     def test_defaults(self) -> None:
-        from polisyos.scientist.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
         ctx = ExecutionContext(
             store=MagicMock(),

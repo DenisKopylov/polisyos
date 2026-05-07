@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.transportability import SNode
     from polisyos.ir.observation.governance import GovernancePassAliasRegistry
     from polisyos.ir.types import TimeFrequency
-    from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
+    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 else:
     from datetime import date
 
@@ -38,7 +38,7 @@ else:
     from polisyos.ir.analytics.transportability import SNode
     from polisyos.ir.observation.governance import GovernancePassAliasRegistry
     from polisyos.ir.types import TimeFrequency
-    from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
+    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

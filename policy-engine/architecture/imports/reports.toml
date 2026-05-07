@@ -1,0 +1,65 @@
+[import_reports]
+version = 1
+status = "report_only"
+owner = "team-architecture"
+phase = "repository-best-in-class-phase-1.3"
+description = "Report-only import-boundary and dependency-graph reports. Existing import gates stay fail-closed in their legacy registries."
+
+[[report]]
+id = "import-boundary-mirror"
+owner = "team-architecture"
+mode = "report_only"
+source_contracts = [
+  "architecture/packages/fabric.toml",
+  "architecture/packages/foundry.toml",
+  "architecture/packages/scientist.toml",
+  "architecture/import_contracts.toml",
+  "architecture/package_boundaries.toml",
+]
+output = "_build/reports/architecture/import-boundary-report.json"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dependency-graph --json-output _build/reports/architecture/import-boundary-report.json"
+acceptance = "Report captures package-level dependency edges and hidden-coupling deltas before fail-closed conversion."
+
+[[report]]
+id = "dependency-graph-report"
+owner = "team-architecture"
+mode = "report_only"
+source_contracts = [
+  "architecture/imports/policy.toml",
+  "architecture/imports/exceptions.toml",
+  "architecture/deep_import_baseline.json",
+]
+output = "_build/reports/architecture/dependency-graph-report.json"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dependency-graph --json-output _build/reports/architecture/dependency-graph-report.json"
+acceptance = "Report captures package-level dependency edges and deep-import baseline changes before fail-closed conversion."
+
+[[report]]
+id = "dynamic-import-registry-report"
+owner = "team-architecture"
+mode = "report_only"
+source_contracts = ["architecture/dynamic_imports.toml"]
+output = "_build/reports/architecture/dynamic-import-registry-report.json"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dynamic-imports --json-output _build/reports/architecture/dynamic-import-registry-report.json"
+acceptance = "Report summarizes dynamic import slots and unresolved target allowances."
+
+[[report]]
+id = "phase6-1-package-import-gate-conversion"
+owner = "team-architecture"
+mode = "report_only"
+source_contracts = [
+  "architecture/imports/policy.toml",
+  "architecture/imports/exceptions.toml",
+  "architecture/deep_import_baseline.json",
+  "architecture/dynamic_imports.toml",
+  "architecture/imports/lazy.toml",
+  "architecture/import_contracts.toml",
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/public_surface_inventory.json",
+  "architecture/name_registry.toml",
+  "architecture/shims.toml",
+]
+output = "_build/reports/architecture/phase6-1-package-import-gates.json"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report phase6-1 --json-output _build/reports/architecture/phase6-1-package-import-gates.json"
+acceptance = "Report captures Phase 6.1 package-boundary, public-surface, deep-import, dynamic-import, import-cycle, package-layout, name-collision, and shim-expiry conversion evidence."

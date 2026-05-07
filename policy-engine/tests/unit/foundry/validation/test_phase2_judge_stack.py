@@ -4,12 +4,12 @@ from decimal import Decimal
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import build_data_readiness_report
-from polisyos.scientist.autotune.models import persist_benchmark_evaluation
-from polisyos.scientist.autotune.registry import ChampionRegistry
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.methods.autotune.models import persist_benchmark_evaluation
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
 from polisyos.scientist.replay.verification import load_replay_verification_report
-from polisyos.scientist.search.judge_stack import JudgeName, JudgeStack, PolicyPromotionCoordinator
+from polisyos.scientist.methods.search.judge_stack import JudgeName, JudgeStack, PolicyPromotionCoordinator
 from tests.unit.scientist.search.test_phase_b_policy_runtime import (
     _benchmark,
     _candidate,

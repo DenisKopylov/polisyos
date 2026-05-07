@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -83,6 +84,9 @@ MANUAL_CHECKS: dict[str, tuple[str, str]] = {
         "Walk one critical operational path from alert to runbook to postmortem follow-up.",
     ),
 }
+DEFAULT_MANUAL_EVIDENCE = (
+    PRODUCT_ROOT / "docs" / "archive" / "reports" / "platform-acceptance.manual.toml"
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -93,6 +97,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--manual-evidence",
         type=Path,
         help="Optional TOML file with [manual] boolean statuses for manual closeout rehearsals.",
+    )
+    parser.add_argument(
+        "--no-default-manual-evidence",
+        action="store_true",
+        help="Do not load the repo-tracked platform acceptance manual evidence file by default.",
     )
     parser.add_argument(
         "--require-manual-evidence",
@@ -112,6 +121,20 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def resolve_manual_evidence_path(
+    explicit_path: Path | None,
+    *,
+    use_default: bool = True,
+) -> Path | None:
+    """Return the manual evidence path the CLI should load."""
+
+    if explicit_path is not None:
+        return explicit_path
+    if use_default and DEFAULT_MANUAL_EVIDENCE.exists():
+        return DEFAULT_MANUAL_EVIDENCE
+    return None
+
+
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -123,6 +146,12 @@ def _path_exists(path: Path) -> bool:
 def _contains(path: Path, *needles: str) -> bool:
     text = _read_text(path)
     return all(needle in text for needle in needles)
+
+
+def _environment_matrix_has_supported_version(path: Path, version: str) -> bool:
+    text = _read_text(path)
+    pattern = re.compile(rf"^\|\s*{re.escape(version)}\.x\s*\|\s*Supported\s*\|", re.MULTILINE)
+    return bool(pattern.search(text))
 
 
 def _result(
@@ -158,8 +187,9 @@ def _toolchain_consistency() -> AuditCheck:
         issues.append(f"{python_file} is not pinned to Python {PYTHON_BASELINE}.")
     if node_file.read_text(encoding="utf-8").strip() != NODE_BASELINE:
         issues.append(f"{node_file} is not pinned to Node {NODE_BASELINE}.")
-    if not _contains(
-        env_matrix, f"| {PYTHON_BASELINE}.x | Supported |", f"| {NODE_BASELINE}.x | Supported |"
+    if not (
+        _environment_matrix_has_supported_version(env_matrix, PYTHON_BASELINE)
+        and _environment_matrix_has_supported_version(env_matrix, NODE_BASELINE)
     ):
         issues.append(
             "docs/reference/environment-matrix.md is missing the canonical Python/Node baseline rows."
@@ -227,8 +257,8 @@ def _ownership_coverage() -> AuditCheck:
     quality_gates_text = _read_text(quality_gates).lower()
     if (
         "owned areas touched by the pr" not in quality_gates_text
-        or "migration owner" not in quality_gates_text
-    ):
+        and "owned areas touched by the change" not in quality_gates_text
+    ) or "migration owner" not in quality_gates_text:
         issues.append(
             "docs/reference/quality-gates.md no longer carries ownership metadata expectations."
         )
@@ -323,9 +353,9 @@ def _release_path() -> AuditCheck:
     fragments_readme = PRODUCT_ROOT / "release-fragments" / "README.md"
     fragments_template = PRODUCT_ROOT / "release-fragments" / "template.toml"
     release_tools = (
-        PRODUCT_ROOT / "tools" / "release" / "stage_release_snapshot.py",
-        PRODUCT_ROOT / "tools" / "release" / "build_release_notes.py",
-        PRODUCT_ROOT / "tools" / "release" / "run_release_canary.py",
+        PRODUCT_ROOT / "tools" / "ops_runners" / "release" / "stage_release_snapshot.py",
+        PRODUCT_ROOT / "tools" / "ops_runners" / "release" / "build_release_notes.py",
+        PRODUCT_ROOT / "tools" / "ops_runners" / "release" / "run_release_canary.py",
     )
     issues: list[str] = []
     if not _path_exists(release_workflow):
@@ -390,14 +420,14 @@ def _runbook_presence() -> AuditCheck:
 
 def _bootstrap_and_doctor() -> AuditCheck:
     scripts = (
-        PRODUCT_ROOT / "scripts" / "bootstrap",
-        PRODUCT_ROOT / "scripts" / "doctor",
-        PRODUCT_ROOT / "scripts" / "verify",
-        PRODUCT_ROOT / "scripts" / "ci-parity",
-        PRODUCT_ROOT / "scripts" / "acceptance-audit",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "bootstrap.py",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "doctor.py",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "verify.py",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "ci_parity.py",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "acceptance_audit.py",
     )
     docs = (
-        PRODUCT_ROOT / "tools" / "workspace" / "README.md",
+        PRODUCT_ROOT / "tools" / "devx" / "workspace" / "README.md",
         PRODUCT_ROOT / "docs" / "how-to" / "install.md",
         PRODUCT_ROOT / "docs" / "reference" / "contributor-start-here.md",
         PRODUCT_ROOT / "docs" / "how-to" / "onboarding" / "index.md",
@@ -419,13 +449,13 @@ def _bootstrap_and_doctor() -> AuditCheck:
 
 
 def _dependency_freshness() -> AuditCheck:
-    renovate = WORKSPACE_ROOT / "renovate.json"
+    renovate = WORKSPACE_ROOT / ".github" / "renovate.json"
     nightly = WORKSPACE_ROOT / ".github" / "workflows" / "frontend-nightly.yml"
     freshness_tool = PRODUCT_ROOT / "tools" / "ci" / "check_action_freshness.py"
     workflows_doc = PRODUCT_ROOT / "docs" / "how-to" / "operate-ci-cd-platform.md"
     issues: list[str] = []
     if not _path_exists(renovate):
-        issues.append("renovate.json is missing.")
+        issues.append(".github/renovate.json is missing.")
     if not _path_exists(nightly):
         issues.append("Nightly workflow is missing.")
     if not _path_exists(freshness_tool):
@@ -483,7 +513,7 @@ def _workflow_identity_hardening() -> AuditCheck:
 def _config_and_secrets() -> AuditCheck:
     config_profiles = PRODUCT_ROOT / "docs" / "reference" / "configuration-profiles.md"
     product_env = PRODUCT_ROOT / ".env.example"
-    frontend_env = PRODUCT_ROOT / "frontend" / "runtime-dashboard" / ".env.example"
+    frontend_env = PRODUCT_ROOT / "apps" / "runtime-dashboard" / ".env.example"
     missing = [
         str(path) for path in (config_profiles, product_env, frontend_env) if not _path_exists(path)
     ]
@@ -505,7 +535,7 @@ def _config_and_secrets() -> AuditCheck:
 def _generated_artifacts() -> AuditCheck:
     artifacts_doc = PRODUCT_ROOT / "docs" / "reference" / "generated-artifacts.md"
     artifacts_toml = PRODUCT_ROOT / "architecture" / "generated_artifacts.toml"
-    guardrails = PRODUCT_ROOT / "tools" / "architecture" / "guardrails.py"
+    guardrails = PRODUCT_ROOT / "tools" / "devx" / "architecture" / "guardrails.py"
     missing = [
         str(path) for path in (artifacts_doc, artifacts_toml, guardrails) if not _path_exists(path)
     ]
@@ -784,11 +814,15 @@ def write_summary(path: Path, report: AuditReport) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
-    manual_evidence = load_manual_evidence(args.manual_evidence)
+    manual_path = resolve_manual_evidence_path(
+        args.manual_evidence,
+        use_default=not args.no_default_manual_evidence,
+    )
+    manual_evidence = load_manual_evidence(manual_path)
     report = run_audit(
         manual_evidence=manual_evidence,
         require_manual_evidence=args.require_manual_evidence,
-        manual_path=args.manual_evidence,
+        manual_path=manual_path,
     )
 
     if args.summary:

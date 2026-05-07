@@ -281,7 +281,7 @@ class TestLintConnectors:
         bad_file.write_text(
             textwrap.dedent(
                 """\
-                from polisyos.scientist.orchestrator import something
+                from polisyos.scientist.orchestration.orchestrator import something
                 from polisyos.fabric.connectors.base import FetchRequest
                 """
             ),
@@ -329,7 +329,7 @@ class TestLintConnectors:
                 from typing import TYPE_CHECKING
 
                 if TYPE_CHECKING:
-                    from polisyos.scientist.orchestrator import SomeType
+                    from polisyos.scientist.orchestration.orchestrator import SomeType
 
                 class MyConnector:
                     pass
@@ -372,7 +372,7 @@ class TestLintConnectors:
         bad_file.write_text(
             textwrap.dedent(
                 """\
-                from polisyos.scientist.orchestrator import Foo
+                from polisyos.scientist.orchestration.orchestrator import Foo
                 import polisyos.foundry.engine
                 from polisyos.scientist.agents import Bar
                 """
@@ -415,7 +415,7 @@ class TestLintConnectors:
         dirty_dir = tmp_path / "dirty"
         dirty_dir.mkdir()
         (dirty_dir / "bad.py").write_text(
-            "from polisyos.scientist.orchestrator import X\n",
+            "from polisyos.scientist.orchestration.orchestrator import X\n",
             encoding="utf-8",
         )
         result = subprocess.run(

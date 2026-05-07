@@ -15,7 +15,7 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentTrustLevel,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.search.latent_governance import assess_latent_governance
+from polisyos.scientist.methods.search.latent_governance import assess_latent_governance
 
 
 def _cardinality_spec() -> LatentCardinalityIdentificationSpec:

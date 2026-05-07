@@ -1,0 +1,105 @@
+[package]
+id = "foundry-agent-sim-world"
+module = "polisyos.foundry.agent_sim.world"
+name = "foundry.agent_sim.world"
+owner = "team-foundry"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Truth-centric synthetic world generation and evaluation surface under Foundry agent simulation."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+]
+
+[layout]
+status = "active_nested_facade"
+layout_owner = "team-foundry"
+source_root = "src/polisyos/foundry/agent_sim/world"
+readme = "src/polisyos/foundry/agent_sim/world/README.md"
+root_facade_policy = "nested public experimental facade under Foundry agent_sim; synthetic_world remains wrapper-only until sunset"
+implementation_roots = ["src/polisyos/foundry/agent_sim/world"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.foundry.agent_sim.world"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.foundry",
+]
+forbidden_dependencies = [
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_experimental"
+facade_mode = "eager_exports"
+registry_owner = "team-foundry"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.foundry.agent_sim.world"]
+major_subsystem = false
+notes = "Truth-centric synthetic world generation and evaluation surface under the Foundry agent simulation owner."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/foundry/agent_sim/world"]
+contract_roots = ["tests/contract"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "world generation changes keep Foundry agent-sim world unit coverage",
+  "synthetic_world shim behavior remains covered until sunset",
+]
+
+[slo_runbook]
+status = "covered_by_parent"
+slo_files = ["ops/components/foundry/slo.yaml", "ops/observability/slo/foundry.yaml"]
+runbooks = [
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+]
+runbook_expectation = "Agent simulation world incidents use the Foundry operability bundle unless promoted to a standalone component."
+
+[observability]
+status = "covered_by_parent"
+metrics_owner = "team-foundry"
+metric_surfaces = ["ops/components/foundry/runtime-contract.toml"]
+trace_expectation = "World generation traces/logs carry simulation/world identifiers through Foundry agent-sim telemetry."
+
+[name_collisions]
+status = "declared"
+owner = "team-foundry"
+registry = "architecture/name_registry.toml"
+allowed = ["world"]
+
+[[allowed_name_collision]]
+name = "world"
+scope = "nested public surface"
+reason = "Foundry agent_sim.world is the canonical synthetic world target while polisyos.synthetic_world remains a temporary shim."
+owner = "team-foundry"
+
+[exceptions]
+status = "none"
+owner = "team-foundry"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-foundry"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "Foundry method extensions are hosted by polisyos.foundry, not this nested surface."

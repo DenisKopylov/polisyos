@@ -1,0 +1,9 @@
+[retention_policy]
+component = "ir"
+owner = "team-ir"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["reports", "cas", "persisted_local_state"]
+default_class = "R1 Short operational"
+cleanup = "Schema/catalog generated outputs are rebuildable unless promoted as release evidence; dry-run cleanup first."
+

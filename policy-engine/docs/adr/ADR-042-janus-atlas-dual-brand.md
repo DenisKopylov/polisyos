@@ -62,10 +62,10 @@ Options considered:
 
 Source of truth:
 
-- `frontend/runtime-dashboard/src/shared/brand/JanusGlyph.tsx`
-- `frontend/runtime-dashboard/src/shared/brand/AtlasBrand.tsx`
-- `frontend/runtime-dashboard/public/atlas/logo-janus.svg`
-- `frontend/runtime-dashboard/public/atlas/favicon.svg`
+- `apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx`
+- `apps/runtime-dashboard/src/shared/brand/AtlasBrand.tsx`
+- `apps/runtime-dashboard/public/atlas/logo-janus.svg`
+- `apps/runtime-dashboard/public/atlas/favicon.svg`
 
 ## Consequences
 
@@ -84,18 +84,18 @@ Source of truth:
 
 Files created or modified in Phase 1.1:
 
-- New: `frontend/runtime-dashboard/src/shared/brand/JanusGlyph.tsx`
-- New: `frontend/runtime-dashboard/src/shared/brand/JanusGlyph.test.tsx`
-- New: `frontend/runtime-dashboard/src/shared/brand/JanusGlyph.stories.tsx`
-- New: `frontend/runtime-dashboard/public/atlas/logo-janus.svg`
-- New: `frontend/runtime-dashboard/public/atlas/favicon.svg`
-- Modified: `frontend/runtime-dashboard/public/atlas/logo-mark.svg`
-- Modified: `frontend/runtime-dashboard/public/atlas/logo-mark-inverse.svg`
-- Modified: `frontend/runtime-dashboard/src/app/providers/RouteIconProvider.tsx`
+- New: `apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx`
+- New: `apps/runtime-dashboard/src/shared/brand/JanusGlyph.test.tsx`
+- New: `apps/runtime-dashboard/src/shared/brand/JanusGlyph.stories.tsx`
+- New: `apps/runtime-dashboard/public/atlas/logo-janus.svg`
+- New: `apps/runtime-dashboard/public/atlas/favicon.svg`
+- Modified: `apps/runtime-dashboard/public/atlas/logo-mark.svg`
+- Modified: `apps/runtime-dashboard/public/atlas/logo-mark-inverse.svg`
+- Modified: `apps/runtime-dashboard/src/app/providers/RouteIconProvider.tsx`
   (favicon alternation)
 
 - New ESLint rule:
-  `frontend/runtime-dashboard/eslint-plugin-local/rules/brand-role-separation.js`
+  `apps/runtime-dashboard/eslint-plugin-local/rules/brand-role-separation.js`
 
 ## Related Decisions
 

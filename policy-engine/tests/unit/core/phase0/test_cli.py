@@ -5,7 +5,7 @@ from pathlib import Path
 
 from polisyos.core.components.cli import main
 from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
-from polisyos.scientist.doe.designs import SensitivityMethod, SensitivityResult
+from polisyos.scientist.methods.doe.designs import SensitivityMethod, SensitivityResult
 
 
 def _norm_rule(norm_id: str, description: str) -> NormRule:
@@ -105,7 +105,7 @@ def test_cli_sensitivity_run_json_output(tmp_path: Path, capsys, monkeypatch) ->
     config_path = tmp_path / "sensitivity.json"
     config_path.write_text(json.dumps(config), encoding="utf-8")
 
-    import polisyos.scientist.doe.analysis as doe_analysis
+    import polisyos.scientist.methods.doe.analysis as doe_analysis
 
     def _fake_analyze(plan, samples, outputs):
         del plan, samples, outputs

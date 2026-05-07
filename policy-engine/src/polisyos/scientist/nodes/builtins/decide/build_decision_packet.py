@@ -96,47 +96,51 @@ from polisyos.ir.refs import (
     WelfareBundleRef,
 )
 from polisyos.scholar.search.models import WebEvidenceBundle
-from polisyos.scientist.claims.audit import (
+from polisyos.scientist.evidence.claims.audit import (
     claim_ledger_v2_inputs,
     persist_append_only_claim_ledger,
 )
-from polisyos.scientist.claims.export import (
+from polisyos.scientist.evidence.claims.export import (
     blocked_claim_summary,
     claim_ledger_summary,
 )
-from polisyos.scientist.claims.ledger import persist_claim_ledger
-from polisyos.scientist.claims.lifecycle import (
+from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
+from polisyos.scientist.evidence.claims.lifecycle import (
     CLAIM_LEDGER_V2_FLAG,
     build_initial_append_only_ledger,
 )
-from polisyos.scientist.claims.projections import project_decision_packet_claims
-from polisyos.scientist.claims.readiness import summarize_ledger_readiness
-from polisyos.scientist.claims.validators import (
+from polisyos.scientist.evidence.claims.projections import project_decision_packet_claims
+from polisyos.scientist.evidence.claims.readiness import summarize_ledger_readiness
+from polisyos.scientist.evidence.claims.validators import (
     is_claim_spine_enabled,
     is_fail_on_naked_claims_enabled,
     is_feature_enabled,
     validate_naked_decision_claims,
 )
-from polisyos.scientist.continuous_governance.reports import load_validity_report
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.evidence.safe_fetch import neutralize_instruction_markers
 from polisyos.scientist.feedback.core import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
 )
-from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.human_review.decisions import load_review_decision
-from polisyos.scientist.human_review.oversight_policy import (
+from polisyos.scientist.governance.continuous.reports import load_validity_report
+from polisyos.scientist.governance.human_review.decisions import load_review_decision
+from polisyos.scientist.governance.human_review.oversight_policy import (
     evaluate_human_review_requirement,
     human_review_section,
     validate_human_reviewed_readiness,
 )
-from polisyos.scientist.human_review.packets import load_review_packet
+from polisyos.scientist.governance.human_review.packets import load_review_packet
+from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.methods.research_dag.projections import (
+    is_research_dag_required_for_publication,
+)
+from polisyos.scientist.methods.research_dag.replay import legacy_research_dag_status
+from polisyos.scientist.methods.search.voi_scheduler import load_voi_run_report
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import (
+    _ClaimLedgerAttachment,
+    _DecisionPacketBuildRequest,
+)
 from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
     ReplayReadiness,
     _build_replay_section,
@@ -220,22 +224,27 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
-from polisyos.scientist.policy_verified import (
-    load_source_verification_report,
-    load_verified_policy_report,
-)
-from polisyos.scientist.research_dag.projections import (
-    is_research_dag_required_for_publication,
-)
-from polisyos.scientist.research_dag.replay import legacy_research_dag_status
-from polisyos.scientist.search.voi_scheduler import load_voi_run_report
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
     enforce_phase5_publication,
     run_phase5_artifact_preflight,
+)
+from polisyos.scientist.validation.policy_verified import (
+    load_source_verification_report,
+    load_verified_policy_report,
 )
 
 logger = get_logger(__name__)
@@ -318,46 +327,6 @@ _DECISION_PACKET_LOAD_ERRORS = (
     KeyError,
     ValidationError,
 )
-
-
-@dataclass(frozen=True)
-class _DecisionPacketBuildRequest:
-    seed: int
-    inputs_section: dict[str, object]
-    artifacts_section: dict[str, object]
-    readiness: ReplayReadiness
-    strategy_hint: str
-    policy_summary: dict[str, object]
-    intervention_count: int
-
-
-@dataclass(frozen=True)
-class _ClaimLedgerAttachment:
-    claims_ref: ArtifactRef | None = None
-    claim_ledger_v2_ref: ArtifactRef | None = None
-
-    @property
-    def artifacts(self) -> list[ArtifactRef]:
-        return [
-            artifact
-            for artifact in (self.claims_ref, self.claim_ledger_v2_ref)
-            if artifact is not None
-        ]
-
-    @property
-    def write_paths(self) -> tuple[str, ...]:
-        paths: list[str] = []
-        if self.claims_ref is not None:
-            paths.append(f"artifacts_index.{ARTIFACT_CLAIMS_REF}")
-        if self.claim_ledger_v2_ref is not None:
-            paths.append(f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}")
-        return tuple(paths)
-
-    def apply_to_state(self, state: ExperimentState) -> None:
-        if self.claims_ref is not None:
-            state.artifacts_index[ARTIFACT_CLAIMS_REF] = self.claims_ref
-        if self.claim_ledger_v2_ref is not None:
-            state.artifacts_index[ARTIFACT_CLAIM_LEDGER_V2_REF] = self.claim_ledger_v2_ref
 
 
 @dataclass(frozen=True)
@@ -1838,7 +1807,7 @@ def _build_causal_section(
 
     if readiness_ref is not None:
         try:
-            from polisyos.scientist.search.readiness import load_decision_readiness_contract
+            from polisyos.scientist.methods.search.readiness import load_decision_readiness_contract
 
             readiness = load_decision_readiness_contract(ctx.store, readiness_ref)
             payload["decision_readiness_level"] = readiness.readiness_level.value

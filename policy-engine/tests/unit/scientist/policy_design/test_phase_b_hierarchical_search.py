@@ -14,9 +14,9 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchCoordinator,
 )
 from polisyos.scientist.policy_design.translator import TranslatorInputBundle
-from polisyos.scientist.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
-from polisyos.scientist.search.transfer_context import TransferContext
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 from .test_phase_b_output import _candidate, _evaluation_vector
 

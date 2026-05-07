@@ -19,6 +19,7 @@ reason = "Lex interventions god-module; split into interventions/ subpackage."
 lines = 1276
 owner = "team-lex"
 expires = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Complete the interventions/ split and retire src/polisyos/lex/interventions.py compatibility imports."
 
 # ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@ path = "src/polisyos/runtime/http/services/control.py"
 reason = "Legacy control surface; split by bounded service area."
 owner = "team-runtime"
 expires = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Move control-plane run, artifact, collaboration, and graph handlers into bounded service modules."
 
 # ---------------------------------------------------------------------------
@@ -42,6 +44,7 @@ reason = "Large decision-packet builder retained while decision packet sections 
 owner = "team-scientist"
 lines = 4704
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Split section emitters, validation helpers, and artifact assembly into bounded modules."
 
 [[exception]]
@@ -50,6 +53,7 @@ reason = "Large welfare propagation node retained until welfare metric adapters 
 owner = "team-scientist"
 lines = 2733
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Extract welfare transforms, evidence assembly, and node glue."
 
 [[exception]]
@@ -58,6 +62,7 @@ reason = "Large distributional analysis node retained until analysis kernels are
 owner = "team-scientist"
 lines = 2367
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Extract distributional metrics, reporting, and node boundary helpers."
 
 [[exception]]
@@ -66,6 +71,7 @@ reason = "Large policy blueprint runtime node retained while blueprint execution
 owner = "team-scientist"
 lines = 2173
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Split blueprint runtime validation, evidence mapping, and artifact writes."
 
 [[exception]]
@@ -74,6 +80,7 @@ reason = "Large transport resolution node retained while transport evidence adap
 owner = "team-scientist"
 lines = 1531
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Extract transport scoring, evidence hydration, and fallback handling."
 
 [[exception]]
@@ -82,6 +89,7 @@ reason = "Large policy runtime support module retained during decision-runtime h
 owner = "team-scientist"
 lines = 1478
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Split request normalization, runtime summaries, and artifact helper functions."
 
 [[exception]]
@@ -90,6 +98,7 @@ reason = "Large normative arbitration node retained while arbitration strategies
 owner = "team-scientist"
 lines = 1075
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Extract strategy selection, scoring, and reporting helpers."
 
 [[exception]]
@@ -98,4 +107,5 @@ reason = "Large governance node retained while governance pass orchestration is 
 owner = "team-scientist"
 lines = 1068
 expires = "2026-08-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
 remediation = "Extract pass routing, verdict aggregation, and report writing."

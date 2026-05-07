@@ -67,12 +67,12 @@ Additional product-root ignore coverage added on 2026-05-02:
 
 | Pattern | Reason |
 | ------- | ------ |
-| `frontend/runtime-dashboard/coverage/` | Local test coverage output |
-| `frontend/runtime-dashboard/playwright-report/` | Local Playwright report output |
-| `frontend/runtime-dashboard/test-results/` | Local Playwright/Vitest test output |
-| `frontend/runtime-dashboard/storybook-static/` | Local Storybook build output |
-| `frontend/runtime-dashboard/output/` | Local dashboard output captures |
-| `frontend/runtime-dashboard/.tmp/` | Local dashboard scratch output |
+| `apps/runtime-dashboard/coverage/` | Local test coverage output |
+| `apps/runtime-dashboard/playwright-report/` | Local Playwright report output |
+| `apps/runtime-dashboard/test-results/` | Local Playwright/Vitest test output |
+| `apps/runtime-dashboard/storybook-static/` | Local Storybook build output |
+| `apps/runtime-dashboard/output/` | Local dashboard output captures |
+| `apps/runtime-dashboard/.tmp/` | Local dashboard scratch output |
 
 ## Classification
 

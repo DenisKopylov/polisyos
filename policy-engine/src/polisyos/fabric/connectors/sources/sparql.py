@@ -45,7 +45,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.safety import (
+from polisyos.fabric.quality.safety import (
     UnsafeFilterExpressionError,
     escape_sparql_literal,
     validate_sparql_iri_token,

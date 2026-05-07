@@ -173,7 +173,7 @@ class MethodValidator:
 
     def validate_registry(self) -> list[ValidationReport]:
         """Validate all methods currently in the global registry."""
-        from polisyos.foundry.methods.registry import get_registry
+        from polisyos.foundry.methods.selection.registry import get_registry
 
         reg = get_registry()
         reports = []

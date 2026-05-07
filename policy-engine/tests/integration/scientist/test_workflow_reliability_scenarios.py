@@ -5,12 +5,12 @@ from unittest.mock import patch
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.feedback import MonitoringVerdict
-from polisyos.scientist.engine.checkpoint import CASCheckpointHook, resume_from_checkpoint
-from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.operational_monitoring import ScientistOperationalMonitor
+from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resume_from_checkpoint
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.operational_monitoring import ScientistOperationalMonitor
 from polisyos.scientist.feedback.core import DecisionFeedbackService
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
-from tests.fixtures.scientist_runtime import (
+from _helpers.scientist_runtime import (
     build_execution_context,
     build_initial_state,
     build_linear_registry,
@@ -64,7 +64,7 @@ def test_linear_scientist_workflow_tool_failure_retries_and_succeeds(tmp_path) -
     )
     registry, nodes = build_linear_registry(store, search_failures=1)
 
-    with patch("polisyos.scientist.engine.retry.time.sleep"):
+    with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
         result = WorkflowExecutor(ctx, registry).execute(
             build_linear_workflow_spec(search_retry=1),
             state,

@@ -1,5 +1,10 @@
 """Defense-in-depth helpers for enforcing column-level authorization on fabric outputs."""
 
+from polisyos.fabric.security.adapters import (
+    FabricSecurityAdapter,
+    FabricSecurityContext,
+    get_fabric_security_adapter,
+)
 from polisyos.fabric.security.access_control import (
     AccessAuditEvent,
     DataClassification,
@@ -37,6 +42,8 @@ __all__ = [
     "ArtifactGovernanceError",
     "DataClassification",
     "EncryptionMode",
+    "FabricSecurityAdapter",
+    "FabricSecurityContext",
     "JsonlAccessAuditLog",
     "RetentionDecision",
     "RetentionPlanner",
@@ -51,6 +58,7 @@ __all__ = [
     "classification_allowed",
     "classify_snapshot_retention",
     "current_trace_id",
+    "get_fabric_security_adapter",
     "mask_dataframe_columns",
     "normalize_allowed_columns",
     "normalize_classification",

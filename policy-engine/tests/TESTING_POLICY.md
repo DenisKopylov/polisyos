@@ -1,6 +1,6 @@
 # Test Taxonomy and Execution Policy
 
-Phase 4 ownership document for `policy-engine/tests` and `frontend/runtime-dashboard`.
+Phase 4 ownership document for `policy-engine/tests` and `apps/runtime-dashboard`.
 
 Актуально на **3 апреля 2026**.
 
@@ -15,22 +15,23 @@ Phase 4 ownership document for `policy-engine/tests` and `frontend/runtime-dashb
 | `property` | Hypothesis/property-based invariants | explicit `@pytest.mark.property` or `test_*property*.py` / `test_*properties.py` | `pytest -m property` |
 | `integration` | cross-subsystem, runtime-boundary or reference-source tests | `tests/integration/**`, `tests/unit/runtime/http/**`, `tests/unit/fabric/connectors/reference/**` | `pytest -m integration` |
 | `performance` | benchmark and cost-regression tests | `tests/performance/**`, tests with `@pytest.mark.benchmark` | `pytest -m performance` |
+| `repo_quality` | repository structure, lint, tooling, and topology quality gates | `tests/repo_quality/**` | `pytest -m repo_quality` |
 
 ### Frontend taxonomy
 
 | Class | Meaning | Canonical surface | Default selection |
 |---|---|---|---|
-| `frontend component` | component, hook, route, and Storybook interaction tests | `src/**/*.test.ts(x)`, `src/**/*.a11y.test.ts(x)`, `npm run test:components` | `npm run test:components` |
-| `frontend journey` | end-to-end operator flows across runtime API + dashboard | `e2e/journeys/*.spec.ts`, `npm run test:journeys` | `npm run test:journeys` |
-| `visual` | screenshot/snapshot-regression coverage | `e2e/*.visual.spec.ts`, `npm run test:visual` | `npm run test:visual` |
+| `frontend component` | component, hook, route, and Storybook interaction tests | `src/**/*.test.ts(x)`, `src/**/*.a11y.test.ts(x)`, `corepack pnpm run test:components` | `corepack pnpm run test:components` |
+| `frontend journey` | end-to-end operator flows across runtime API + dashboard | `e2e/journeys/*.spec.ts`, `corepack pnpm run test:journeys` | `corepack pnpm run test:journeys` |
+| `visual` | screenshot/snapshot-regression coverage | `e2e/*.visual.spec.ts`, `corepack pnpm run test:visual` | `corepack pnpm run test:visual` |
 
 ## 2. Marker and Tag Policy
 
 ### Pytest markers
 
-Registered markers live in [`pyproject.toml`](/Users/deniskopylov/polisyos/policy-engine/pyproject.toml).
+Registered markers live in [`pytest.ini`](/Users/deniskopylov/polisyos/policy-engine/pytest.ini).
 
-- Primary class markers are auto-applied during collection: `unit`, `contract`, `property`, `integration`, `performance`.
+- Primary class markers are auto-applied during collection: `unit`, `contract`, `property`, `integration`, `performance`, `repo_quality`.
 - `benchmark` remains available as the plugin-specific marker used by `pytest-benchmark`; it also implies `performance`.
 - `--strict-markers` is enabled. New markers must be registered before use.
 - Quarantined pytest tests are declared in [`tests/quarantine.toml`](/Users/deniskopylov/polisyos/policy-engine/tests/quarantine.toml) and are skipped by default. Use `pytest --run-quarantine ...` to include them.
@@ -46,12 +47,12 @@ Registered markers live in [`pyproject.toml`](/Users/deniskopylov/polisyos/polic
   - `@quarantine`: temporarily de-gated flow; excluded by default through Playwright config.
 - Playwright registry selectors use the full tagged test title so a quarantined journey remains directly re-runnable with `playwright test --grep "<full title>"`.
 - Stable defaults:
-  - `npm run test:journeys`
-  - `npm run test:journeys:smoke`
-  - `npm run test:visual`
+  - `corepack pnpm run test:journeys`
+  - `corepack pnpm run test:journeys:smoke`
+  - `corepack pnpm run test:visual`
 - Explicit quarantine access:
-  - `npm run test:journeys:quarantine`
-  - `npm run test:visual:quarantine`
+  - `corepack pnpm run test:journeys:quarantine`
+  - `corepack pnpm run test:visual:quarantine`
 
 ## 3. Smoke, Slow, Flaky, Quarantine Semantics
 
@@ -77,7 +78,7 @@ Registered markers live in [`pyproject.toml`](/Users/deniskopylov/polisyos/polic
 
 ```bash
 cd policy-engine
-pytest -m "not integration and not performance and not quarantine" --ignore=tests/unit/runtime/http
+pytest -m "not integration and not performance and not repo_quality and not quarantine" --ignore=tests/unit/runtime/http
 ```
 
 ### Dedicated Python surfaces
@@ -88,16 +89,17 @@ pytest -m contract
 pytest -m property
 pytest -m integration --ignore=tests/unit/runtime/http
 pytest -m performance
+pytest -m repo_quality
 pytest tests/unit/runtime/http -m "not quarantine"
 ```
 
 ### Frontend surfaces
 
 ```bash
-cd policy-engine/frontend/runtime-dashboard
-npm run test:components
-npm run test:journeys:smoke
-npm run test:visual
+cd policy-engine/apps/runtime-dashboard
+corepack pnpm run test:components
+corepack pnpm run test:journeys:smoke
+corepack pnpm run test:visual
 ```
 
 ### Local integration smoke stack
@@ -122,7 +124,7 @@ When the suite outgrows a single lane, shard by test class first and by runner-n
 
 ### Recommended order
 
-1. Keep `contract`, `integration`, `performance`, `frontend journey`, and `visual` in separate lanes.
+1. Keep `contract`, `repo_quality`, `integration`, `performance`, `frontend journey`, and `visual` in separate lanes.
 2. Split the large Python `unit + property` surface by historical duration, not by alphabetical file order.
 3. Use `vitest --shard=<index>/<count>` for large frontend-component lanes.
 4. Use `playwright test --shard=<index>/<count>` for large journey suites.
@@ -135,6 +137,7 @@ When the suite outgrows a single lane, shard by test class first and by runner-n
 - Python shard B: `tests/unit/fabric`, `tests/unit/runtime` except `tests/unit/runtime/http`
 - Python shard C: `tests/unit/foundry`, `tests/unit/scientist`
 - Python shard D: `tests/unit/data_forge`, `tests/unit/lex`, `tests/e2e/demos`
+- Python repo-quality shard: `tests/repo_quality`
 - Frontend component shards: `vitest --shard=1/2`, `vitest --shard=2/2`
 - Frontend journey shards: `playwright test --shard=1/2`, `playwright test --shard=2/2`
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.workflows.policy_verified import policy_verified_workflow_spec
+from polisyos.scientist.orchestration.workflows.policy_verified import policy_verified_workflow_spec
 
 
 def test_policy_verified_workflow_contains_source_verification_path() -> None:

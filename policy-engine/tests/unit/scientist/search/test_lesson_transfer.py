@@ -3,14 +3,14 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.search.lessons import (
+from polisyos.scientist.methods.search.lessons import (
     LessonCard,
     LessonKind,
     LessonQuery,
     LessonRegistry,
     LessonTrustLevel,
 )
-from polisyos.scientist.search.transfer_context import TransferContext, TransferPolicy
+from polisyos.scientist.methods.search.transfer_context import TransferContext, TransferPolicy
 
 
 def _registry(tmp_path) -> LessonRegistry:

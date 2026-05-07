@@ -13,21 +13,21 @@ grouped by design wave and phase so release review can map directly back to
 ### Added
 
 - Add Wave 1 closeout release notes in
-  `docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md`.
+  `release/design-wave1-release-notes.md`.
 
 - Add the archival Storybook snapshot manifest in
   `docs/brand/storybook-wave1-snapshot/`, including a copied story index,
   staging `all_on` manifest, and onboarding recording script.
 
 - Add feature-flag manifest shorthands `all_on` and `all_off` in
-  `frontend/runtime-dashboard/src/lib/featureFlags.ts` so staging and review
+  `apps/runtime-dashboard/src/lib/featureFlags.ts` so staging and review
   environments can enable the full Wave 1 surface without enumerating every key
   by hand.
 
 ### Changed
 
 - Raise the PWA precache size ceiling in
-  `frontend/runtime-dashboard/vite.config.ts` so `npm run build-storybook`
+  `apps/runtime-dashboard/vite.config.ts` so `corepack pnpm run build-storybook`
   completes successfully for the Wave 1 review build.
 
 - Establish a dedicated design changelog instead of mixing Wave 1 UI work into
@@ -49,11 +49,11 @@ grouped by design wave and phase so release review can map directly back to
 
 #### Phase 1.1 Visual Language
 
-- Add Janus brand assets under `frontend/runtime-dashboard/public/atlas/`,
+- Add Janus brand assets under `apps/runtime-dashboard/public/atlas/`,
   including `favicon.svg`, `logo-janus.svg`, `logo-mark.svg`,
   `logo-mark-inverse.svg`, and the glyph library in `public/atlas/glyphs/`.
 
-- Add reusable brand primitives in `frontend/runtime-dashboard/src/shared/brand/`
+- Add reusable brand primitives in `apps/runtime-dashboard/src/shared/brand/`
   with Storybook coverage for `Brand/Janus`, `Brand/Glyphs`, and
   `Brand/Evidence Sigil`.
 
@@ -63,7 +63,7 @@ grouped by design wave and phase so release review can map directly back to
 #### Phase 1.2 Uncertainty Visualization
 
 - Add the uncertainty chart suite in
-  `frontend/runtime-dashboard/src/shared/charts/`, including `FanChart`,
+  `apps/runtime-dashboard/src/shared/charts/`, including `FanChart`,
   `UncertaintyBand`, `QuantileDotplot`, and `HypotheticalOutcomePlot`.
 
 - Add Storybook coverage for chart-level uncertainty states and the integrated
@@ -75,9 +75,9 @@ grouped by design wave and phase so release review can map directly back to
   `docs/compliance/A11Y_AUDIT_2026Q2.md`.
 
 - Expand route, component, keyboard, screen-reader, contrast, reduced-motion,
-  and color-blind coverage across `frontend/runtime-dashboard/e2e/a11y/`,
-  `frontend/runtime-dashboard/src/shared/a11y/`, and
-  `frontend/runtime-dashboard/src/test/a11y/`.
+  and color-blind coverage across `apps/runtime-dashboard/e2e/a11y/`,
+  `apps/runtime-dashboard/src/shared/a11y/`, and
+  `apps/runtime-dashboard/src/test/a11y/`.
 
 #### Phase 1.4 Dark Theme and Density
 
@@ -90,7 +90,7 @@ grouped by design wave and phase so release review can map directly back to
 #### Phase 1.5 Prose System
 
 - Add the reading-view surface in
-  `frontend/runtime-dashboard/src/features/artifacts/reading-view/` with
+  `apps/runtime-dashboard/src/features/artifacts/reading-view/` with
   monograph layout, pull quotes, margin notes, reading-progress helpers, and
   print-minded prose tokens.
 
@@ -100,7 +100,7 @@ grouped by design wave and phase so release review can map directly back to
 #### Phase 1.6 AI Authorship Registry
 
 - Add the authored-text registry in
-  `frontend/runtime-dashboard/src/shared/ui/authored-text/`, including
+  `apps/runtime-dashboard/src/shared/ui/authored-text/`, including
   `AuthoredText`, `AuthorshipProvider`, `AuthorBadge`, and the author registry.
 
 - Add Storybook coverage for citation, human, drafter, formalizer, and critic
@@ -109,11 +109,11 @@ grouped by design wave and phase so release review can map directly back to
 #### Phase 1.7 UA/RU Typography and i18n
 
 - Replace the previous message layout with JSON locale packs in
-  `frontend/runtime-dashboard/src/i18n/locales/`.
+  `apps/runtime-dashboard/src/i18n/locales/`.
 
 - Add locale-aware formatters and typographic helpers in
-  `frontend/runtime-dashboard/src/i18n/formatters/` and
-  `frontend/runtime-dashboard/src/i18n/typography/`, including quote-mark and
+  `apps/runtime-dashboard/src/i18n/formatters/` and
+  `apps/runtime-dashboard/src/i18n/typography/`, including quote-mark and
   non-breaking-space enforcement.
 
 - Add the `Shared/Text` Ukrainian typography Storybook specimen for cyrillic

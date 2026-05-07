@@ -47,7 +47,7 @@ Factory behavior:
 - `filesystem` builds `FileSystemCAS`
 - `s3` and `gcs` build direct object-store adapters
 - `cached_s3` and `cached_gcs` wrap a remote object store with a local
-  filesystem cache rooted at `.polisyos/cas_cache` by default
+  filesystem cache rooted at `.polisyos/cas/_cache` by default
 
 ## Runtime Binding
 
@@ -61,7 +61,8 @@ Factory behavior:
   it.
 
 - An async sibling is created through `build_async_artifact_store(...)`.
-- `core_runs_root` defaults to `<cas_root>/runs`.
+- `core_runs_root` is application-owned runtime state and should live under
+  `.polisyos/runs` when the app-level CAS root is `.polisyos/cas`.
 
 That means the runtime app factory, not raw process env alone, decides the
 effective CAS root for one app instance.

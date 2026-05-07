@@ -19,7 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
+from polisyos.ir.references import ArtifactRefModel, RoughPathInterventionCertificateRef
 
 _ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_NAME = "ir.rough_path_intervention_certificate"
 _ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_VERSION = "1.0"

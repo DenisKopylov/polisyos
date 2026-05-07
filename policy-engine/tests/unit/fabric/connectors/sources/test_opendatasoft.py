@@ -13,7 +13,14 @@ from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnecto
 from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.ir.connectors import ConnectorCapability
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "opendatasoft"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parents[4]
+    / "_data"
+    / "fabric"
+    / "connectors"
+    / "sources"
+    / "opendatasoft"
+)
 
 
 def _run_async(coro):

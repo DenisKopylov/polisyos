@@ -10,7 +10,7 @@ not eagerly load whole dependency trees.
 
 Freshness: 2026-04-26
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/public_surface.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/unit/ir/test_public_surface.py`
+Source of truth: `src/polisyos/ir/api.py`, `src/polisyos/ir/__init__.py`, `src/polisyos/ir/analytics/__init__.py`, `src/polisyos/ir/kernel/__init__.py`, `src/polisyos/ir/world/__init__.py`, `tests/unit/ir/test_public_surface.py`
 Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import optimization.
 
 ## Facade Inventory
@@ -37,7 +37,7 @@ submodules, for example `polisyos.ir.analytics.causal_graph`,
 
 ## Export Audit
 
-- The source of truth for package facades lives in `polisyos.ir.public_surface`.
+- The source of truth for package facades lives in `polisyos.ir.api`.
 - Tests verify that documented facade counts match the code manifest and that
   importing package facades does not eagerly import their full submodule trees.
 

@@ -1,0 +1,179 @@
+[report_only_gates]
+version = 1
+status = "report_only"
+owner = "team-architecture"
+phase = "repository-best-in-class-phase-1.3"
+default_mode = "report_only"
+conversion_policy = "No gate may become fail_closed until it has an owner, evidence path, package contract source, and accepted sunset or ratchet."
+
+[[gate]]
+id = "package-contract-schema"
+area = "packages"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report packages"
+evidence = "architecture/packages"
+source_contracts = ["architecture/packages/*.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "compatibility-release-gates"
+area = "release"
+owner = "team-release"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+evidence = "architecture/compatibility_release_gates.toml"
+source_contracts = [
+  "architecture/compatibility_release_gates.toml",
+  "architecture/extension_points.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/public_surface.toml",
+  "architecture/runtime_state_layout.toml",
+  "ops/migrations/migration-contracts.toml",
+  "ops/release/release-fragment-policy.toml",
+  "release-fragments/template.toml",
+]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "package-aggregate-mirror"
+area = "packages"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors"
+evidence = "architecture/package_boundaries.toml"
+source_contracts = ["architecture/packages/*.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "module-size-budget"
+area = "module_size"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size"
+evidence = "architecture/module_size_budget.toml"
+source_contracts = ["architecture/module_size_budget.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "generated-artifact-contracts"
+area = "generated_artifacts"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report generated-artifacts"
+evidence = "architecture/generated_artifacts.toml"
+source_contracts = [
+  "architecture/generated_artifacts.toml",
+  "docs/plans/active/REPOSITORY_LIFECYCLE_AND_OPS_TAXONOMY_DECISION.md",
+]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "extension-points"
+area = "extension_points"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report extension-points"
+evidence = "architecture/extension_points.toml"
+source_contracts = ["architecture/extension_points.toml", "architecture/packages/*.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "runbook-coverage"
+area = "runbooks"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report runbook-coverage"
+evidence = "architecture/runbook_coverage.toml"
+source_contracts = ["architecture/runbook_coverage.toml", "architecture/packages/*.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "component-observability"
+area = "observability"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report component-observability"
+evidence = "architecture/component_observability.toml"
+source_contracts = ["architecture/component_observability.toml", "architecture/packages/*.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "runtime-state-layout"
+area = "runtime_state"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report runtime-state-layout"
+evidence = "architecture/runtime_state_layout.toml"
+source_contracts = ["architecture/runtime_state_layout.toml", "architecture/local_runtime_state.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "test-ratchets"
+area = "tests"
+owner = "team-quality"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report test-ratchets"
+evidence = "architecture/test_ratchets.toml"
+source_contracts = ["architecture/test_ratchets.toml", "architecture/test_topology.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "directory-contracts"
+area = "topology"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report directory-contracts"
+evidence = "architecture/directory_contracts.toml"
+source_contracts = ["architecture/directory_contracts.toml", "architecture/conceptual_groups.toml"]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "directory-hygiene-assets"
+area = "topology"
+owner = "team-quality"
+mode = "report_only"
+command = "uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors"
+evidence = "architecture/asset_placement.toml"
+source_contracts = [
+  "architecture/asset_placement.toml",
+  "architecture/directory_contracts.toml",
+  "architecture/test_ratchets.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/local_runtime_state.toml",
+]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "static-analysis-overrides"
+area = "static_analysis"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report static-analysis-overrides"
+evidence = "architecture/static_analysis_overrides.toml"
+source_contracts = [
+  "architecture/static_analysis_overrides.toml",
+  "architecture/tooling/tool_config_split.toml",
+  "architecture/tooling/mypy/generated.ini",
+  "architecture/tooling/ruff/generated.toml",
+  "mypy.ini",
+  "ruff.toml",
+]
+target_fail_closed_not_before = "2026-10-01"
+
+[[gate]]
+id = "dead-static-analysis-overrides"
+area = "static_analysis"
+owner = "team-devx"
+mode = "report_only"
+command = "uv run python tools/ops_runners/reports/dead_overrides.py"
+evidence = "architecture/static_analysis_overrides.toml"
+source_contracts = [
+  "architecture/static_analysis_overrides.toml",
+  "architecture/tooling/tool_config_split.toml",
+  "architecture/tooling/mypy/generated.ini",
+  "architecture/tooling/ruff/generated.toml",
+  "mypy.ini",
+  "ruff.toml",
+]
+target_fail_closed_not_before = "2026-10-01"

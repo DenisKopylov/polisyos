@@ -122,7 +122,7 @@ def test_control_service_uses_injected_registry_providers(
     from polisyos.fabric.connectors.bindings.registry import BindingProfileRegistry
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
-    from polisyos.scientist.llm.profiles.registry import ModelProfileRegistry
+    from polisyos.scientist.orchestration.llm.profiles.registry import ModelProfileRegistry
 
     monkeypatch.setattr(SourceProfileRegistry, "get_instance", classmethod(_unexpected))
     monkeypatch.setattr(BindingProfileRegistry, "get_instance", classmethod(_unexpected))

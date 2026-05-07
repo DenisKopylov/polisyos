@@ -56,7 +56,7 @@ the same policy:
 | Impact evidence   | The CI/runtime evidence surface reports impacted downstream surfaces as `connector:<id>`, `dataset:<id>`, and `schema:<id>`                                                                       |
 
 The enforcement examples are in
-`tests/tools/test_fabric_schema_governance.py` and
+`tests/repo_quality/tools/test_fabric_schema_governance.py` and
 `tests/unit/fabric/connectors/test_contract_system.py`:
 
 - breaking changes fail without governance metadata;
@@ -79,7 +79,7 @@ The enforcement examples are in
 ```bash
 uv run pytest tests/unit/fabric/connectors/test_schema_system.py -q
 uv run pytest tests/unit/fabric/connectors/test_contract_system.py -q
-uv run pytest tests/tools/test_fabric_schema_governance.py -q
+uv run pytest tests/repo_quality/tools/test_fabric_schema_governance.py -q
 uv run polisyos-tools connectors check-contracts --check
 uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json
 ```

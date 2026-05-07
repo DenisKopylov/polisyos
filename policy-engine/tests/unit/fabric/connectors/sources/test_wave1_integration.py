@@ -21,7 +21,7 @@ from polisyos.fabric.connectors.profiles.resolver import resolve_connection_conf
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.ir.connectors import ConnectorCapability
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parents[4] / "_data" / "fabric" / "connectors" / "sources"
 
 
 def _run(coro):

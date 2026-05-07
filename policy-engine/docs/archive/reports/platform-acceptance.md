@@ -7,7 +7,7 @@
 | Check | Kind | Status | Detail |
 |---|---|---|---|
 | Toolchain consistency | automated | pass | Python 3.14.x, Node 22.x, and uv 0.9.21 stay aligned across local docs and composite actions. |
-| Repo root coherence | automated | pass | Root and product READMEs still agree on the workspace gateway vs canonical product-root split. |
+| Repo root coherence | automated | pass | Product README and ADR-RSR-0130 agree on the collapsed product-root workspace boundary. |
 | Ownership coverage | automated | pass | Ownership is covered in both repo control plane and product docs. |
 | Repository ruleset and merge governance | automated | pass | Ruleset, merge-governance doc, PR template, labels taxonomy, and ratchet enforcement are all repo-tracked. |
 | Required checks | automated | pass | Required PR gates stay consistent between ruleset, docs, and workflow files. |

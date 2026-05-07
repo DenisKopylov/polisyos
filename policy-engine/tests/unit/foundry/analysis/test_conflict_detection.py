@@ -9,7 +9,7 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
-from polisyos.foundry.methods.merge_engine import MergeConflictKind
+from polisyos.foundry.methods.components.merge_engine import MergeConflictKind
 from polisyos.foundry.validation.conflict_checker import (
     CompileTimeConflictChecker,
     ConflictReport,

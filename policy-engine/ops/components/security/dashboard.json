@@ -1,0 +1,13 @@
+{
+  "component": "security",
+  "owner": "team-security",
+  "aliases": ["security", "polisyos.core.security", "core.security"],
+  "dashboards": [
+    {
+      "name": "Security Phase 4",
+      "path": "ops/observability/grafana/dashboards/security-phase4.json",
+      "purpose": "Tenant, authz, TEE, SBOM, signing, and mTLS posture"
+    }
+  ]
+}
+

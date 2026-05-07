@@ -1,0 +1,112 @@
+[package]
+id = "runtime"
+module = "polisyos.runtime"
+name = "runtime"
+owner = "team-runtime"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Replay, Runtime API, HTTP control plane, and runtime-facing contracts."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-runtime"
+source_root = "src/polisyos/runtime"
+readme = "src/polisyos/runtime/README.md"
+root_facade_policy = "top-level package is a lazy facade; HTTP services, middleware, and routes stay internal unless separately documented"
+implementation_roots = [
+  "src/polisyos/runtime/extensions",
+  "src/polisyos/runtime/http",
+]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.runtime"
+allowed_dependencies = ["public_facades_only"]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.lex.batch",
+  "polisyos.lex.corpus",
+  "polisyos.academic",
+  "polisyos.datasets",
+  "polisyos.ukraine_data",
+  "polisyos.batch_common",
+  "polisyos.batch_snapshot",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.runtime"]
+major_subsystem = true
+notes = "Replay and runtime-facing contracts. HTTP subpackages stay internal unless separately documented."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/runtime"]
+contract_roots = ["tests/contract", "tests/unit/runtime/http"]
+integration_required = true
+integration_roots = ["tests/unit/runtime/http"]
+property_required = true
+property_roots = ["tests/property/runtime"]
+minimum_expectations = [
+  "Runtime API and HTTP route changes keep local ASGI boundary tests",
+  "control-plane changes keep runtime property and contract coverage",
+  "middleware extension changes keep deterministic ordering smoke tests",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/runtime/slo.yaml", "ops/observability/slo/runtime.yaml"]
+runbooks = [
+  "docs/runbooks/runtime-api-outage.md",
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+]
+runbook_expectation = "Runtime API, control-plane admission, routing, graceful shutdown, worker, and cache incidents update the Runtime component bundle."
+
+[observability]
+status = "covered"
+metrics_owner = "team-runtime"
+metric_surfaces = ["ops/components/runtime/runtime-contract.toml", "ops/observability/slo/runtime.yaml"]
+trace_expectation = "Runtime traces/logs carry route, tenant_id, run_id, decision_id, and job_id across HTTP/control-plane paths."
+
+[name_collisions]
+status = "declared"
+owner = "team-runtime"
+registry = "architecture/name_registry.toml"
+allowed = ["runtime"]
+
+[[allowed_name_collision]]
+name = "runtime"
+scope = "canonical package"
+reason = "Runtime is the canonical API/control-plane runtime; other package-local runtime names must remain bounded-context specific."
+owner = "team-runtime"
+
+[exceptions]
+status = "none"
+owner = "team-runtime"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "active"
+owner = "team-runtime"
+extension_points = ["polisyos.runtime_middlewares"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = ["polisyos.runtime.http.middleware_components:__polisyos_components__"]
+example_packages = ["examples/extensions/runtime_middleware"]

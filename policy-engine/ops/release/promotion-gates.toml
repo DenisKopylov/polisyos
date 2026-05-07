@@ -1,0 +1,247 @@
+[promotion_gates]
+version = 1
+status = "contract_only"
+owner = "team-release"
+mode = "fail_closed"
+source_of_truth = "ops/release/deployment-topology.toml and architecture operability contracts"
+promotion_order = ["local", "staging", "production"]
+default_policy = "a gate blocks promotion unless it passes or has an owner-approved exception recorded in the release evidence"
+
+[[gate]]
+id = "runtime_api_contract"
+owner = "team-runtime"
+stage = "staging"
+applies_to = ["runtime_api", "frontend"]
+required_evidence = [
+  "schemas/runtime_api_v1.openapi.json",
+  "ops/runtime/runtime-contracts.toml",
+]
+command = "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py"
+blocks = "runtime API and generated-client promotion"
+
+[[gate]]
+id = "api_schema_compatibility"
+owner = "team-runtime"
+stage = "staging"
+applies_to = ["runtime_api", "frontend"]
+required_evidence = [
+  "schemas/runtime_api_v1.openapi.json",
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/api_schemas/README.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+command = "manual review: classify OpenAPI change as additive, compatible-breaking, or breaking and verify generated clients"
+blocks = "schema-breaking promotion without migration notes"
+
+[[gate]]
+id = "db_migration_review"
+owner = "team-platform"
+stage = "staging"
+applies_to = ["control_plane", "data_plane"]
+required_evidence = [
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/README.md",
+  "ops/migrations/db/README.md",
+  "ops/migrations/db/*.sql",
+]
+command = "manual review: verify DB migration class, forward order, RLS checks, rollback note, and release evidence"
+blocks = "database schema promotion"
+
+[[gate]]
+id = "runtime_state_migration_review"
+owner = "team-ops"
+stage = "staging"
+applies_to = ["runtime_api", "data_plane", "python_packages"]
+required_evidence = [
+  "architecture/runtime_state_layout.toml",
+  "architecture/local_runtime_state.toml",
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/runtime_state/README.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+command = "manual review: verify runtime-state slot, reader compatibility, cleanup approval, and promotion evidence"
+blocks = "runtime-state format promotion"
+
+[[gate]]
+id = "ir_migration_review"
+owner = "team-ir"
+stage = "staging"
+applies_to = ["python_packages"]
+required_evidence = [
+  "src/polisyos/ir/migrations",
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/ir/README.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+command = "manual review: verify deterministic IR migration and compatibility fixtures"
+blocks = "IR schema promotion"
+
+[[gate]]
+id = "breaking_migration_runbook_docs"
+owner = "team-release"
+stage = "staging"
+applies_to = ["control_plane", "runtime_api", "data_plane", "frontend", "cli", "python_packages"]
+required_evidence = [
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/db/README.md",
+  "ops/migrations/runtime_state/README.md",
+  "ops/migrations/api_schemas/README.md",
+  "ops/migrations/ir/README.md",
+  "docs/runbooks/migration-release-promotion.md",
+  "docs/how-to/release-policy.md",
+]
+command = "manual review: for breaking runtime-state, API schema, IR schema, or persisted artifact changes, verify migration guide/runbook/release-note evidence before production promotion"
+blocks = "breaking migration promotion without operator docs"
+
+[[gate]]
+id = "runtime_slo_error_budget"
+owner = "team-runtime"
+stage = "production"
+applies_to = ["runtime_api"]
+required_evidence = [
+  "ops/observability/slo/runtime.yaml",
+  "architecture/component_observability.toml",
+]
+command = "manual review: verify runtime SLO burn, alert mappings, and dashboard links"
+blocks = "runtime production promotion"
+
+[[gate]]
+id = "data_plane_slo_error_budget"
+owner = "team-data-forge"
+stage = "production"
+applies_to = ["data_plane"]
+required_evidence = [
+  "ops/observability/slo/data_forge.yaml",
+  "ops/observability/slo/fabric.yaml",
+  "architecture/component_observability.toml",
+]
+command = "manual review: verify data-plane SLO burn and source-contract freshness"
+blocks = "data-plane production promotion"
+
+[[gate]]
+id = "component_observability_coverage"
+owner = "team-observability"
+stage = "staging"
+applies_to = ["control_plane", "runtime_api", "data_plane", "python_packages"]
+required_evidence = [
+  "architecture/component_observability.toml",
+  "architecture/runbook_coverage.toml",
+]
+command = "manual review: verify each changed public-stable component has SLO, alerts, dashboard, context keys, and release gate or exception"
+blocks = "component promotion without observability coverage"
+
+[[gate]]
+id = "runbook_alert_coverage"
+owner = "team-ops"
+stage = "staging"
+applies_to = ["control_plane", "runtime_api", "data_plane", "python_packages"]
+required_evidence = ["architecture/runbook_coverage.toml"]
+command = "manual review: verify every alert maps to at least one runbook or explicit exception"
+blocks = "alert changes without operational guidance"
+
+[[gate]]
+id = "security_sbom_provenance"
+owner = "team-security"
+stage = "production"
+applies_to = ["control_plane", "runtime_api", "frontend", "python_packages"]
+required_evidence = [
+  "architecture/control_plane_supply_chain.toml",
+  "docs/archive/reports/supply-chain-control-crosswalk.json",
+  "ops/security/sbom.toml",
+  "ops/security/secrets-baseline.toml",
+  "ops/release/commit-policy.toml",
+]
+command = "manual review: verify SBOM, scanner baselines, provenance, and least-privilege release identity"
+blocks = "production promotion"
+
+[[gate]]
+id = "policy_bundle_tests"
+owner = "team-security"
+stage = "staging"
+applies_to = ["control_plane"]
+required_evidence = ["ops/policy/policies"]
+command = "opa test ops/policy/policies -v"
+blocks = "policy bundle promotion"
+
+[[gate]]
+id = "frontend_client_drift"
+owner = "team-frontend"
+stage = "staging"
+applies_to = ["frontend"]
+required_evidence = [
+  "packages/runtime-api-client/runtimeApiClient.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+command = "manual review: verify generated client drift after runtime OpenAPI changes"
+blocks = "frontend promotion"
+
+[[gate]]
+id = "cli_command_surface"
+owner = "team-devx"
+stage = "staging"
+applies_to = ["cli"]
+required_evidence = [
+  "packages/cli",
+  "docs/reference/cli.md",
+  "docs/reference/tools.md",
+]
+command = "manual review: verify CLI package commands, generated tool reference, and operator docs"
+blocks = "CLI package promotion"
+
+[[gate]]
+id = "package_public_surface"
+owner = "team-architecture"
+stage = "staging"
+applies_to = ["python_packages"]
+required_evidence = [
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+]
+command = "uv run pytest tests/repo_quality/architecture/test_public_api_facades.py tests/repo_quality/architecture/test_public_surface_snapshot.py"
+blocks = "Python package promotion"
+
+[[gate]]
+id = "docs_and_runbook_links"
+owner = "team-docs"
+stage = "staging"
+applies_to = ["frontend", "runtime_api", "python_packages"]
+required_evidence = [
+  "architecture/runbook_coverage.toml",
+  "docs/runbooks/index.md",
+]
+command = "manual review: verify changed dashboards, alerts, and public docs link to current runbooks"
+blocks = "promotion with stale operator docs"
+
+[[gate]]
+id = "compatibility_release_metadata"
+owner = "team-architecture"
+stage = "staging"
+applies_to = ["control_plane", "runtime_api", "data_plane", "frontend", "cli", "python_packages"]
+required_evidence = [
+  "architecture/compatibility_release_gates.toml",
+  "ops/release/release-fragment-policy.toml",
+  "release-fragments/template.toml",
+  "release-fragments/unreleased",
+  "docs/runbooks/migration-release-promotion.md",
+]
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+blocks = "breaking compatibility promotion without structured release fragments, migration docs, public-surface review, or generated-client metadata"
+
+[[gate]]
+id = "operability_release_supply_chain"
+owner = "team-security"
+stage = "production"
+applies_to = ["control_plane", "runtime_api", "data_plane", "frontend", "cli", "python_packages"]
+required_evidence = [
+  "architecture/operability_release_supply_chain_gates.toml",
+  "architecture/runbook_coverage.toml",
+  "architecture/component_observability.toml",
+  "architecture/control_plane_supply_chain.toml",
+  "ops/components/index.toml",
+  "ops/migrations/migration-contracts.toml",
+  "ops/release/deployment-topology.toml",
+  "ops/release/promotion-gates.toml",
+  "docs/archive/reports/supply-chain-control-crosswalk.json",
+]
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+blocks = "release candidate promotion unless operability, topology, compatibility, SBOM/provenance, workflow-permission, OIDC, and security gates pass"

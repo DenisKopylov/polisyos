@@ -1,0 +1,38 @@
+# Запрещаем print только в продакшн коде (src), разрешаем в скриптах и утилитах
+"tests/*" = ["ANN", "S101", "T201"]
+"tests/**" = [
+  "ANN",
+  "E402",
+  "E501",
+  "F841",
+  "PT011",
+  "PT018",
+  "RUF100",
+  "S101",
+  "S108",
+  "S603",
+  "S607",
+  "SIM102",
+  "T201",
+  "TC001",
+  "TC002",
+  "TC003",
+  "UP047",
+]
+"src/polisyos/ir/**" = [
+  "ANN401",
+  "TC001",
+  "TC003",
+  "E501",
+  "SIM102",
+] # IR contracts rely on runtime-visible annotations for Pydantic model rebuilds.
+"tests/unit/ir/**" = [
+  "ANN",
+  "B017",
+  "E501",
+  "N806",
+  "PT011",
+  "RUF043",
+  "S101",
+  "T201",
+] # IR tests assert broad validation behavior and use math-style fixture names.

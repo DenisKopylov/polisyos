@@ -4,7 +4,7 @@ import path from "node:path";
 import { getPolicyEngineRoot } from "./_a11yColor.ts";
 
 const policyEngineRoot = getPolicyEngineRoot();
-const dashboardRoot = path.join(policyEngineRoot, "frontend/runtime-dashboard");
+const dashboardRoot = path.join(policyEngineRoot, "apps/runtime-dashboard");
 const srcRoot = path.join(dashboardRoot, "src");
 
 function walk(directory: string, files: string[] = []) {

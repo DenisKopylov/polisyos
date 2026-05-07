@@ -22,3 +22,9 @@ Deprecated but not quarantined:
 | ---------------------------- | -------------------------------- | ------------------------------------------------------------- |
 | `demos.run-export-demo`      | `runtime export-runtime-openapi` | Historical Foundry import paths.                              |
 | `demos.run-mechanism-design` | `benchmarks bench-domain`        | Manual research script predating the current method registry. |
+
+Historical one-off utilities:
+
+| Tool | Replacement | Reason |
+| --- | --- | --- |
+| `migrate_to_trinity.py` | `docs/migration/phase4_trinity_only.md` plus current IR loaders | Archived conversion helper retained outside `docs/archive/**` for forensic rollback only. |

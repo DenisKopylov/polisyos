@@ -246,7 +246,7 @@ class MethodScaffold:
 
             def test_{self.name}_registers() -> None:
                 \"\"\"Method must register without errors.\"\"\"
-                from polisyos.foundry.methods.registry import registry_scope
+                from polisyos.foundry.methods.selection.registry import registry_scope
                 with registry_scope() as reg:
                     from polisyos.foundry.methods.catalog.{self.namespace.replace(".", ".")} import {self.class_name}
                     reg.register({self.class_name})

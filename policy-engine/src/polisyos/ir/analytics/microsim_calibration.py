@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import ConfigDict, Field
 
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.refs import DynamicMicrosimValidationReportRef
+from polisyos.ir.references import DynamicMicrosimValidationReportRef
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore
     from polisyos.ir.artifacts.refs import InputRef
-    from polisyos.ir.refs import MicrosimCalibrationReportRef
+    from polisyos.ir.references import MicrosimCalibrationReportRef
 
 
 class MicrosimCalibrationReport(KernelModel):
@@ -171,7 +171,7 @@ def persist_microsim_calibration_report(
 
     from polisyos.ir.artifacts.io import put_json_artifact
     from polisyos.ir.canon import CanonSpec
-    from polisyos.ir.refs import MicrosimCalibrationReportRef
+    from polisyos.ir.references import MicrosimCalibrationReportRef
 
     ref = put_json_artifact(
         store,

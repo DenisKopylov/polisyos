@@ -26,7 +26,7 @@ from polisyos.fabric.connectors.sources.http_common import (
     safe_int,
 )
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
-from polisyos.fabric.safety import UnsafePathSegmentError, safe_path_segment
+from polisyos.fabric.quality.safety import UnsafePathSegmentError, safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,

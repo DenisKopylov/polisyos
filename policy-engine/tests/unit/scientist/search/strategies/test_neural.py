@@ -9,13 +9,13 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.search.strategies.neural import (
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.strategies.neural import (
     NeuralSearchConfig,
     NeuralSearchStrategy,
 )
-from polisyos.scientist.search.strategies.space import SearchSpace
-from polisyos.scientist.search.strategies.types import (
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     EvaluationStatus,
     ParameterBounds,

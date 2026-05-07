@@ -1,0 +1,15 @@
+  - Explanation:
+      - explanation/index.md
+      - Architecture: explanation/architecture.md
+      - Trinity: explanation/trinity.md
+      - Causal Engine: explanation/causal-engine.md
+      - Governance Model: explanation/governance-model.md
+      - Data Fabric: explanation/data-fabric.md
+      - Lex Pipeline: explanation/lex-pipeline.md
+      - IR Design: explanation/ir-design.md
+      - Observation Contracts: explanation/observation-contracts.md
+      - Security Model: explanation/security-model.md
+      - Key Rotation: key-rotation.md
+      - FedRAMP Gap Analysis: fedramp/gap-analysis.md
+      - Freeze Policy: explanation/freeze-policy.md
+

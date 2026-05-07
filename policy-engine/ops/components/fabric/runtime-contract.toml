@@ -1,0 +1,13 @@
+[component_runtime_contract]
+component = "fabric"
+owner = "team-fabric"
+aliases = ["fabric", "polisyos.fabric", "polisyos.fabric.api"]
+source_readme = "src/polisyos/fabric/README.md"
+package_contract = "architecture/packages/fabric.toml"
+runtime_contract_links = [
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/fabric/observability-governance.md",
+  "docs/reference/fabric/data-plane.md",
+]
+release_gate_mode = "report_only"
+

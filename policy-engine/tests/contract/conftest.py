@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-GOLDEN_RECORDS_PATH = Path(__file__).with_name("golden_records.json")
+GOLDEN_RECORDS_PATH = (
+    Path(__file__).resolve().parents[1] / "_golden" / "contract" / "golden_records.json"
+)
 
 
 @pytest.fixture(scope="session")

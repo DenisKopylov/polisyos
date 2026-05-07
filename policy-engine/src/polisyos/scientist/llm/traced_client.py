@@ -1,8 +1,11 @@
-"""Compatibility bridge to the consolidated core LLM layer."""
+"""Compatibility shim for `polisyos.scientist.llm.traced_client`.
 
-from polisyos.core.llm.traced_client import LLMClientProtocol, TracedLLMClient
+Canonical module: `polisyos.scientist.orchestration.llm.traced_client`.
+Sunset: 2026-12-31.
+"""
 
-__all__ = [
-    "LLMClientProtocol",
-    "TracedLLMClient",
-]
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import alias_module as _alias_module
+
+_alias_module(__name__, "polisyos.scientist.orchestration.llm.traced_client", globals())

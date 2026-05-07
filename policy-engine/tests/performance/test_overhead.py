@@ -26,7 +26,9 @@ os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 import jax
 import pytest
 
-BASELINE_PATH = Path(__file__).with_name("overhead_baseline.json")
+BASELINE_PATH = (
+    Path(__file__).resolve().parents[1] / "_data" / "performance" / "overhead_baseline.json"
+)
 
 DEFAULT_BASELINE: dict[str, dict[str, float]] = {
     "simulation.run_scan": {

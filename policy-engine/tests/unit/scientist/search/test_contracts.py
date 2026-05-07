@@ -2,25 +2,25 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from polisyos.scientist.search.contracts import (
+from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
     EvaluationBundle,
     LegacySearchServiceAdapter,
     OrchestratorFunnelService,
 )
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.funnel.types import (
     FunnelStage,
     FunnelStageResult,
     UncertaintyEnvelope,
 )
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
 class _Objective:

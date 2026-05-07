@@ -35,7 +35,7 @@ from polisyos.fabric.connectors.sources.http_common import frame_completeness
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
 )
-from polisyos.fabric.safety import (
+from polisyos.fabric.quality.safety import (
     UnsafeFilterExpressionError,
     UnsafeIdentifierError,
     escape_soql_literal,

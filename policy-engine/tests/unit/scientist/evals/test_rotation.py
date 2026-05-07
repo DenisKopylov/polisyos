@@ -14,7 +14,7 @@ from polisyos.scientist.evals.rotation import (
     dedupe_challenge_lineage,
     validate_fresh_rotating_challenge_evidence,
 )
-from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
+from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 from .test_challenge_factory import _ref
 

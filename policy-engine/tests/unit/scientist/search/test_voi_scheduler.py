@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
-from polisyos.scientist.search.funnel.types import CheapSignalVector, FunnelStageResult
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
-from polisyos.scientist.search.voi_scheduler import (
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
+from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
     SimpleVOIScheduler,

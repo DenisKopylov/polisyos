@@ -9,27 +9,27 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.observation.contracts import ObservationFamily
-from polisyos.scientist.discovery.active import ActiveDisambiguationPlannerInput
-from polisyos.scientist.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
-from polisyos.scientist.discovery.priors import (
+from polisyos.scientist.methods.discovery.active import ActiveDisambiguationPlannerInput
+from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.priors import (
     DisputedEdge,
     GraphPriorBundle,
     PriorEdge,
     PriorKnowledgeBundle,
 )
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
 )
-from polisyos.scientist.discovery.stability import (
+from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
     BootstrapStabilityConfig,
     BootstrapStabilityReport,
     HypothesisStabilitySummary,
 )
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
@@ -38,7 +38,7 @@ from polisyos.scientist.governance.calibration import (
     CalibrationGovernanceReport,
     CalibrationGovernanceRunner,
 )
-from polisyos.scientist.search.lessons import (
+from polisyos.scientist.methods.search.lessons import (
     LessonKind,
     LessonQuery,
     LessonRegistry,

@@ -15,12 +15,12 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.discovery.priors import (
+from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBundle,
     PriorEdge,
     persist_graph_prior_bundle,
 )
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
     CompileCrossGraphEvidenceNode,
 )

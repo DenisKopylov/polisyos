@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ValidationReportRef
+from polisyos.ir.references import ValidationReportRef
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

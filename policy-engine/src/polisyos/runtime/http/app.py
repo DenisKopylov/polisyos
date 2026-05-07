@@ -64,7 +64,7 @@ else:  # pragma: no cover - import aliasing for type-checkers
 
 def create_runtime_api_app(
     *,
-    cas_root: Path | str = Path(".polisyos"),
+    cas_root: Path | str = Path(".polisyos/cas"),
     core_runs_root: Path | str | None = None,
     max_preview_bytes: int = 64 * 1024,
     lineage_max_depth: int = 64,
@@ -93,7 +93,9 @@ def create_runtime_api_app(
 
     normalized_cas_root = Path(cas_root)
     normalized_core_runs_root = (
-        Path(core_runs_root) if core_runs_root is not None else (normalized_cas_root / "runs")
+        Path(core_runs_root)
+        if core_runs_root is not None
+        else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
     security_chain_available = (
@@ -239,6 +241,12 @@ def create_runtime_api_app(
 
     install_runtime_openapi_contract(app)
     return app
+
+
+def _default_core_runs_root(cas_root: Path) -> Path:
+    if cas_root.name == "cas" and cas_root.parent.name == ".polisyos":
+        return cas_root.parent / "runs"
+    return cas_root / "runs"
 
 
 def _assert_runtime_security_middleware_order(

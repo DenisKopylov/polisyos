@@ -24,6 +24,8 @@ class ComponentKind(str, Enum):
     LEX_EVALUATOR = "lex_evaluator"
     SCIENTIST_NODE = "scientist_node"
     NORM_PACK_PROVIDER = "norm_pack_provider"
+    DATA_FORGE_DOMAIN = "data_forge_domain"
+    RUNTIME_MIDDLEWARE = "runtime_middleware"
 
 
 class ComponentDep(BaseModel):

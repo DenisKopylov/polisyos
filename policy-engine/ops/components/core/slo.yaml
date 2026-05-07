@@ -1,0 +1,23 @@
+service: core
+version: 1
+owner: team-core
+objectives:
+  - name: core_artifact_integrity_failures
+    sli: increase(polisyos_artifact_integrity_failures_total[30m])
+    threshold: "= 0"
+    window: 28d
+    owner: team-core
+    runbook: docs/runbooks/artifact-corruption-recovery.md
+  - name: core_audit_sink_success_rate
+    sli: rate(polisyos_audit_sink_writes_total{status="success"}[5m]) / rate(polisyos_audit_sink_writes_total[5m])
+    threshold: ">= 0.999"
+    window: 28d
+    owner: team-core
+    runbook: docs/runbooks/mutation-audit-investigation.md
+  - name: core_tenant_boundary_violations
+    sli: increase(polisyos_tenant_boundary_violations_total[30m])
+    threshold: "= 0"
+    window: 28d
+    owner: team-core
+    runbook: docs/runbooks/cas-opa-outage.md
+

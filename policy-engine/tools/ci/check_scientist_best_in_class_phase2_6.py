@@ -24,24 +24,24 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/continuous_governance/__init__.py"),
-    Path("src/polisyos/scientist/continuous_governance/monitors.py"),
-    Path("src/polisyos/scientist/continuous_governance/invalidation.py"),
-    Path("src/polisyos/scientist/continuous_governance/reissue.py"),
-    Path("src/polisyos/scientist/continuous_governance/incident.py"),
-    Path("src/polisyos/scientist/continuous_governance/reports.py"),
+    Path("src/polisyos/scientist/governance/continuous/__init__.py"),
+    Path("src/polisyos/scientist/governance/continuous/monitors.py"),
+    Path("src/polisyos/scientist/governance/continuous/invalidation.py"),
+    Path("src/polisyos/scientist/governance/continuous/reissue.py"),
+    Path("src/polisyos/scientist/governance/continuous/incident.py"),
+    Path("src/polisyos/scientist/governance/continuous/reports.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_6.py"),
-    Path("tests/unit/scientist/continuous_governance/test_monitors.py"),
-    Path("tests/unit/scientist/continuous_governance/test_invalidation.py"),
-    Path("tests/unit/scientist/continuous_governance/test_reissue.py"),
-    Path("tests/unit/scientist/continuous_governance/test_incident.py"),
-    Path("tests/unit/scientist/continuous_governance/test_reports.py"),
-    Path("tests/unit/scientist/continuous_governance/test_governance_integration.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_6.py"),
+    Path("tests/unit/scientist/governance/continuous/test_monitors.py"),
+    Path("tests/unit/scientist/governance/continuous/test_invalidation.py"),
+    Path("tests/unit/scientist/governance/continuous/test_reissue.py"),
+    Path("tests/unit/scientist/governance/continuous/test_incident.py"),
+    Path("tests/unit/scientist/governance/continuous/test_reports.py"),
+    Path("tests/unit/scientist/governance/continuous/test_governance_integration.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_6.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "DecisionValidityStatus",
@@ -157,7 +157,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ClaimSupportStatus,
             ClaimType,
         )
-        from polisyos.scientist.continuous_governance import (
+        from polisyos.scientist.governance.continuous import (
             DecisionValidityStatus,
             ReissuePacket,
             WithdrawalRecord,
@@ -175,7 +175,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             persist_withdrawal_record,
             recommend_validity_action,
         )
-        from polisyos.scientist.continuous_governance.invalidation import (
+        from polisyos.scientist.governance.continuous.invalidation import (
             governance_event_from_source_invalidation,
         )
         from polisyos.scientist.governance.report import (

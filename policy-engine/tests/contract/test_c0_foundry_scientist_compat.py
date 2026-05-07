@@ -20,7 +20,7 @@ from polisyos.ir.observation.governance import (
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _artifact_ref(suffix: str) -> ArtifactRef:

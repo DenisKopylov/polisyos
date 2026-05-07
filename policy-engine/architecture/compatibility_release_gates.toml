@@ -1,0 +1,151 @@
+[compatibility_release_gates]
+version = 1
+status = "report_only"
+owner = "team-release"
+mode = "report_only"
+source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-510---compatibility-release-gates"
+release_fragment_policy = "ops/release/release-fragment-policy.toml"
+release_fragment_template = "release-fragments/template.toml"
+release_fragment_unreleased_root = "release-fragments/unreleased"
+public_surface_contract = "architecture/public_surface.toml"
+public_surface_inventory = "architecture/public_surface_inventory.json"
+generated_artifact_contract = "architecture/generated_artifacts.toml"
+extension_point_contract = "architecture/extension_points.toml"
+runtime_state_contract = "architecture/runtime_state_layout.toml"
+migration_contract = "ops/migrations/migration-contracts.toml"
+schema_manifest_paths = [
+  "schemas/snapshots/fabric/_manifest.json",
+  "schemas/snapshots/ir/_manifest.json",
+]
+allowed_change_classes = [
+  "python-public-api",
+  "schema-openapi-abi",
+  "extension-plugin-abi",
+  "runtime-state-format",
+  "persisted-artifact-format",
+  "js-package-api",
+  "internal",
+]
+breaking_impacts = ["breaking", "removed", "removal", "major"]
+structured_compatibility_table = "compatibility_change"
+required_structured_fields = [
+  "id",
+  "change_class",
+  "impact",
+  "surface",
+  "owner",
+  "version_owner",
+  "deprecation_window",
+  "release_note",
+]
+target_fail_closed_not_before = "2026-10-01"
+gate_command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[promotion_check]]
+id = "breaking-compatibility-fragment"
+owner = "team-release"
+mode = "report_only"
+description = "Every breaking compatibility class declared for a release candidate must appear in at least one structured compatibility_change fragment."
+source_contracts = [
+  "release-fragments/template.toml",
+  "release-fragments/unreleased/*.toml",
+  "ops/release/release-fragment-policy.toml",
+]
+
+[[promotion_check]]
+id = "migration-runbook-docs"
+owner = "team-ops"
+mode = "report_only"
+description = "Breaking migrations must link existing migration and runbook docs before release promotion."
+source_contracts = [
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/*/README.md",
+  "docs/runbooks/index.md",
+]
+
+[[promotion_check]]
+id = "public-surface-inventory-review"
+owner = "team-architecture"
+mode = "report_only"
+description = "Public Python API changes require a regenerated or owner-reviewed public-surface inventory."
+source_contracts = [
+  "architecture/public_surface.toml",
+  "architecture/public_surface_inventory.json",
+  "architecture/generated_artifacts.toml",
+]
+
+[[promotion_check]]
+id = "generated-client-compatibility"
+owner = "team-frontend"
+mode = "report_only"
+description = "Generated runtime clients and dashboard types must declare compatibility when runtime schemas change."
+source_contracts = [
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/runtimeApiClient.ts",
+  "packages/runtime-api-client/runtimeApiClient.js",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+
+[[compatibility_surface]]
+id = "extension-points"
+compatibility_class = "extension-plugin-abi"
+contract = "architecture/extension_points.toml"
+version_owner_field = "version_owner"
+deprecation_window_field = "deprecation_notice_window"
+release_fragment_change_class = "extension-plugin-abi"
+
+[[compatibility_surface]]
+id = "generated-schema-manifests"
+compatibility_class = "schema-openapi-abi"
+contract = "architecture/generated_artifacts.toml"
+version_owner_field = "version_owner"
+deprecation_window_field = "deprecation_window"
+release_fragment_change_class = "schema-openapi-abi"
+
+[[compatibility_surface]]
+id = "runtime-state-migration-readers"
+compatibility_class = "runtime-state-format"
+contract = "architecture/runtime_state_layout.toml"
+version_owner_field = "version_owner"
+deprecation_window_field = "deprecation_window"
+release_fragment_change_class = "runtime-state-format"
+
+[[compatibility_surface]]
+id = "package-public-surface"
+compatibility_class = "python-public-api"
+contract = "architecture/public_surface.toml"
+version_owner_field = "version_owner"
+deprecation_window_field = "deprecation_window"
+release_fragment_change_class = "python-public-api"
+
+[[compatibility_surface]]
+id = "generated-client-compatibility"
+compatibility_class = "js-package-api"
+contract = "architecture/generated_artifacts.toml"
+version_owner_field = "version_owner"
+deprecation_window_field = "deprecation_window"
+release_fragment_change_class = "js-package-api"
+
+[[generated_family]]
+id = "abi-schema-snapshots"
+requires_schema_manifest_metadata = true
+
+[[generated_family]]
+id = "fabric-connector-contract-registry"
+requires_schema_manifest_metadata = false
+
+[[generated_family]]
+id = "runtime-openapi-snapshot"
+requires_schema_manifest_metadata = false
+
+[[generated_family]]
+id = "runtime-api-client"
+requires_generated_client_compatibility = true
+
+[[generated_family]]
+id = "runtime-dashboard-api-types"
+requires_generated_client_compatibility = true
+
+[[generated_family]]
+id = "public-surface-inventory"
+requires_inventory_review_policy = true

@@ -170,7 +170,9 @@ def test_conformance_v2_passes_for_scaffolded_worldbank_source() -> None:
         WDI_GENERIC_CONTRACT,
         metadata=WorldBankConnector.metadata,
         profile_id="worldbank_wdi",
-        replay_fixture_ref="tests/fixtures/fabric/source_contracts/worldbank.wdi.generic.replay.json",
+        replay_fixture_ref=(
+            "tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json"
+        ),
     )
     profiles = tuple(fabric_source_contracts.SourceProfileRegistry.get_instance().list_all())
 
@@ -191,7 +193,9 @@ def test_conformance_v2_rejects_missing_bounded_read_evidence() -> None:
         WDI_GENERIC_CONTRACT,
         metadata=WorldBankConnector.metadata,
         profile_id="worldbank_wdi",
-        replay_fixture_ref="tests/fixtures/fabric/source_contracts/worldbank.wdi.generic.replay.json",
+        replay_fixture_ref=(
+            "tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json"
+        ),
     )
     contract = contract.model_copy(
         update={

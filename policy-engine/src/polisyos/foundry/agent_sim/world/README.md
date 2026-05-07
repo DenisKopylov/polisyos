@@ -1,6 +1,6 @@
 # polisyos.foundry.agent_sim.world
 
-- Last updated: 2026-05-03
+- Last updated: 2026-05-05
 
 Truth-centric synthetic-world family for Bayesian, ML, forecasting, econometrics,
 survey, distributional, and causal methods.
@@ -8,6 +8,10 @@ survey, distributional, and causal methods.
 This package is the canonical home for synthetic world generation under the
 Foundry agent simulation owner. The old `polisyos.synthetic_world` root remains
 a wrapper-only compatibility facade until 2026-10-01.
+
+New first-party and external examples should import this package directly. The
+compatibility root keeps only facade smoke coverage; behavior coverage lives in
+`tests/unit/foundry/agent_sim/world/test_seed_worlds.py`.
 
 Package layout:
 

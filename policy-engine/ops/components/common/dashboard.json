@@ -1,0 +1,13 @@
+{
+  "component": "common",
+  "owner": "team-core",
+  "aliases": ["common", "polisyos.common"],
+  "dashboards": [
+    {
+      "name": "SLO Overview",
+      "path": "ops/observability/grafana/dashboards/slo-overview.json",
+      "purpose": "Shared reliability posture for dependent components"
+    }
+  ]
+}
+

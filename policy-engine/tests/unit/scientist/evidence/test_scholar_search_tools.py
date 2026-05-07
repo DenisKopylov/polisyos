@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.agent.tools.scholar_search_tools import (
     MAX_FETCH_BYTES,
     build_scholar_search_tool_registry,

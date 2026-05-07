@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from polisyos.scientist.engine.protocol import Node
+    from polisyos.scientist.orchestration.engine.protocol import Node
 
 __all__ = [
     "AssembleLegalCandidatePackNode",

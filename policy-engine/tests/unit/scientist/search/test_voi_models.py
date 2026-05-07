@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.voi_models import (
+from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
     VOIRunReport,

@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateDelta
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._patching import apply_patch_records, apply_state_delta
+from polisyos.foundry.execute._internal.patching import apply_patch_records, apply_state_delta
 from polisyos.foundry.execute.patch_vm import merge_patch_records
 from polisyos.ir.kernel import DEFAULT_MERGE_RULE_REGISTRY, DEFAULT_SLOT_REGISTRY
 

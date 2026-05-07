@@ -130,7 +130,7 @@ def contracts_file(sample_contracts: list[DataContract], tmp_path: Path) -> Path
 
 @pytest.fixture
 def semantic_benchmark_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "fixtures" / "fabric_semantic_benchmark.json"
+    return Path(__file__).resolve().parents[2] / "_data" / "fabric" / "semantic_benchmark.json"
 
 
 # =============================================================================

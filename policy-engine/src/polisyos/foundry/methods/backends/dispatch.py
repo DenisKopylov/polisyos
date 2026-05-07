@@ -18,7 +18,7 @@ from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.truthfulness import extract_truthfulness_receipt
-from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
+from polisyos.foundry.methods._internal.logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
     get_circuit_breaker_registry,
@@ -42,8 +42,8 @@ from polisyos.foundry.methods.equivalence import (
     get_default_equivalence_resolver,
 )
 from polisyos.foundry.methods.exceptions import FoundryMethodError
-from polisyos.foundry.methods.output_monitor import _emit_anomaly_metric, get_output_monitor
-from polisyos.foundry.methods.selection_history import (
+from polisyos.foundry.methods.lifecycle.output_monitor import _emit_anomaly_metric, get_output_monitor
+from polisyos.foundry.methods.selection.history import (
     AdvisorExecutionContext,
     MethodExecutionRecord,
     RuntimePredictor,

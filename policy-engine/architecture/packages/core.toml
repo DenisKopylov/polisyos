@@ -1,0 +1,136 @@
+[package]
+id = "core"
+module = "polisyos.core"
+name = "core"
+owner = "team-core"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Cross-layer contracts, CAS, registry, observability, and security primitives."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-core"
+source_root = "src/polisyos/core"
+readme = "src/polisyos/core/README.md"
+root_facade_policy = "root package is a lazy public facade; artifact, audit, registry, security, and trace implementation lives in subpackages"
+implementation_roots = [
+  "src/polisyos/core/artifacts",
+  "src/polisyos/core/audit",
+  "src/polisyos/core/backends",
+  "src/polisyos/core/cache",
+  "src/polisyos/core/canon",
+  "src/polisyos/core/compiler",
+  "src/polisyos/core/components",
+  "src/polisyos/core/contracts",
+  "src/polisyos/core/discovery",
+  "src/polisyos/core/errors",
+  "src/polisyos/core/evaluation",
+  "src/polisyos/core/governance",
+  "src/polisyos/core/llm",
+  "src/polisyos/core/observability",
+  "src/polisyos/core/pipeline",
+  "src/polisyos/core/registry",
+  "src/polisyos/core/resilience",
+  "src/polisyos/core/run",
+  "src/polisyos/core/security",
+  "src/polisyos/core/trace",
+]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.core"
+allowed_dependencies = ["polisyos.common", "polisyos.ir"]
+forbidden_dependencies = [
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.core"]
+major_subsystem = true
+notes = "Cross-layer contracts, CAS, registry, observability, and security primitives."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/core"]
+contract_roots = ["tests/contract", "tests/unit/core/contracts"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "contract and artifact changes keep tests/unit/core/contracts and tests/contract coverage",
+  "security, audit, and CAS changes keep incident/runbook-facing tests current",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/core/slo.yaml", "ops/observability/slo/core.yaml"]
+runbooks = [
+  "docs/runbooks/artifact-corruption-recovery.md",
+  "docs/runbooks/idempotency-incident.md",
+  "docs/runbooks/mutation-audit-investigation.md",
+  "docs/runbooks/cas-opa-outage.md",
+]
+runbook_expectation = "Core artifact, audit, idempotency, tenant-boundary, and registry changes update the Core operability bundle."
+
+[observability]
+status = "covered"
+metrics_owner = "team-core"
+metric_surfaces = ["ops/components/core/runtime-contract.toml", "ops/components/core/slo.yaml"]
+trace_expectation = "Core logs/traces carry tenant, artifact, audit-chain, and security-control context where applicable."
+
+[name_collisions]
+status = "declared"
+owner = "team-core"
+registry = "architecture/name_registry.toml"
+allowed = ["governance", "contracts", "registry", "security", "trace"]
+
+[[allowed_name_collision]]
+name = "contracts"
+scope = "package-local"
+reason = "Core contracts are cross-layer ABI primitives and remain distinct from package-local contract modules."
+owner = "team-core"
+
+[[allowed_name_collision]]
+name = "governance"
+scope = "package-local"
+reason = "Core governance owns shared primitives; Scientist governance owns workflow/promotion governance."
+owner = "team-core"
+
+[exceptions]
+status = "none"
+owner = "team-core"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-core"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "Core components are shared ABI primitives; extension points are hosted by product packages."

@@ -62,17 +62,17 @@ HISTORICAL_PLAN_SPECS: tuple[tuple[Path, str, re.Pattern[str]], ...] = (
         re.compile(r"^### (WS-\d+[A-Z])\.\s+(.+)$", re.MULTILINE),
     ),
     (
-        Path("docs/archive/plans/SCIENTIST_SOTA_ROADMAP.md"),
+        Path("docs/plans/archive/SCIENTIST_SOTA_ROADMAP.md"),
         "SCIENTIST_SOTA_ROADMAP",
         re.compile(r"^### (WS\d+\.\d+) (?:\u2014|-) (.+)$", re.MULTILINE),
     ),
     (
-        Path("docs/archive/plans/SCIENTIST_AGENT_SOTA_ROADMAP.md"),
+        Path("docs/plans/archive/SCIENTIST_AGENT_SOTA_ROADMAP.md"),
         "SCIENTIST_AGENT_SOTA_ROADMAP",
         re.compile(r"^### Phase (\d+):\s+(.+)$", re.MULTILINE),
     ),
     (
-        Path("docs/archive/plans/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md"),
+        Path("docs/plans/archive/SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT.md"),
         "SCIENTIST_SOTA_AUTORESEARCH_BLUEPRINT",
         re.compile(r"^### Phase ([A-Z]) (?:\u2014|-) (.+)$", re.MULTILINE),
     ),

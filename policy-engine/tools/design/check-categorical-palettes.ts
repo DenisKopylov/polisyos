@@ -1,7 +1,7 @@
 import {
   categorical12,
   categorical8,
-} from "../../frontend/runtime-dashboard/src/shared/charts/categorical-palettes.ts";
+} from "../../apps/runtime-dashboard/src/shared/charts/categorical-palettes.ts";
 
 const REQUIRED_PATTERNS = new Set([
   "solid",

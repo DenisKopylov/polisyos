@@ -19,7 +19,7 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus
 from polisyos.ir.refs import CausalEffectReportRef, CrossGraphEvidenceProfileRef
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 _EXTERNAL_SOURCE_TYPES: frozenset[str] = frozenset(
     {

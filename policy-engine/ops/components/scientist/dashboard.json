@@ -1,0 +1,18 @@
+{
+  "component": "scientist",
+  "owner": "team-scientist",
+  "aliases": ["scientist", "polisyos.scientist"],
+  "dashboards": [
+    {
+      "name": "Scientist Agents",
+      "path": "ops/observability/grafana/dashboards/scientist-agents.json",
+      "purpose": "Workflow, agent, queue, and governance behavior"
+    },
+    {
+      "name": "Scientist LLM Cost",
+      "path": "ops/observability/grafana/dashboards/scientist-llm-cost.json",
+      "purpose": "Provider cost and budget pressure"
+    }
+  ]
+}
+

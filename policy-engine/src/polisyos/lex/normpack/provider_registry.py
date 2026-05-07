@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.components import (
+    ENTRY_POINT_GROUP_LEX_NORMPACKS,
     ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
     ComponentEntry,
     ComponentKind,
@@ -158,7 +159,7 @@ def discover_and_bootstrap_providers(
         return bootstrap_component_providers(components_index)
 
     discovered = discover_components(
-        groups=[ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS],
+        groups=[ENTRY_POINT_GROUP_LEX_NORMPACKS, ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS],
         include_dev_scan=include_dev_scan,
     )
 

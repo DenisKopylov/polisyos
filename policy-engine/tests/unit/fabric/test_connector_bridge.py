@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
-from polisyos.fabric._connector_bridge import fabric_get_data, resolve_connector_registry
+
+from polisyos.fabric.api import fabric_get_data, resolve_connector_registry
 from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
 
 

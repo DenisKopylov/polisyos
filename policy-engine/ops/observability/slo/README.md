@@ -13,3 +13,13 @@ Each SLO file should declare:
 - window
 - alert policy
 - rollback or triage runbook
+
+Phase 1.6 records package-level SLO coverage expectations in
+`architecture/component_observability.toml`. Public-stable components need a
+real SLO file or an explicit owner-approved exception before the operability
+gate moves to fail-closed enforcement.
+
+Phase 4.9 adds component-first bundle drafts under `ops/components/<component>/`.
+When both paths exist, the `ops/components/<component>/slo.yaml` file is the
+bundle-local draft and `ops/observability/slo/<component>.yaml` remains the
+type-cut alias for existing dashboards, rules, and docs.

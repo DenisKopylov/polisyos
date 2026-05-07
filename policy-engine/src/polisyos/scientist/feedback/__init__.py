@@ -1,4 +1,4 @@
-"""Compatibility shim for a Phase 5/6 decomposition module move."""
+"""Scientist feedback hub for decision monitoring and reissue helpers."""
 
 from __future__ import annotations
 

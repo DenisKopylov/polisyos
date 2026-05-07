@@ -4,7 +4,7 @@ import importlib.util
 
 import pytest
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-from polisyos.foundry.methods.catalog_snapshot import (
+from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
     build_method_catalog_snapshot,
 )

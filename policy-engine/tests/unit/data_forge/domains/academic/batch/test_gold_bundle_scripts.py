@@ -10,8 +10,8 @@ REPO_ROOT = Path(__file__).resolve().parents[6]
 
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.ops.data import build_academic_gold_candidates as candidate_scripts  # noqa: E402
-from tools.ops.data import build_expert_review_bundle as bundle_scripts  # noqa: E402
+from tools.ops_runners.data import build_academic_gold_candidates as candidate_scripts  # noqa: E402
+from tools.ops_runners.data import build_expert_review_bundle as bundle_scripts  # noqa: E402
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:

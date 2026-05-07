@@ -115,7 +115,7 @@ def _default_binding_profiles() -> BindingProfileRegistryLike:
 
 
 def _default_model_profiles() -> ModelProfileRegistryLike:
-    from polisyos.scientist.llm.profiles import ModelProfileRegistry
+    from polisyos.scientist.orchestration.llm.profiles import ModelProfileRegistry
 
     return cast("ModelProfileRegistryLike", ModelProfileRegistry.get_instance())
 

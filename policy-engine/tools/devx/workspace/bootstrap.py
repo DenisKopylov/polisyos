@@ -33,7 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--skip-frontend",
         action="store_true",
-        help="Skip npm install for the dashboard.",
+        help="Skip pnpm install for the JavaScript workspace.",
     )
     parser.add_argument(
         "--skip-playwright",
@@ -150,16 +150,16 @@ def main(argv: list[str] | None = None) -> int:
     if not args.skip_frontend:
         commands.append(
             CommandSpec(
-                label="npm ci",
-                argv=("npm", "ci", "--ignore-scripts"),
-                cwd=FRONTEND_ROOT,
+                label="pnpm install",
+                argv=("corepack", "pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+                cwd=PRODUCT_ROOT,
             )
         )
         if not args.skip_playwright:
             commands.append(
                 CommandSpec(
                     label="Playwright browser install",
-                    argv=("npm", "run", "playwright:install"),
+                    argv=("corepack", "pnpm", "run", "playwright:install"),
                     cwd=FRONTEND_ROOT,
                 )
             )

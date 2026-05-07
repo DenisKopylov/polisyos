@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.strategies.advanced_policy import (
+from polisyos.scientist.methods.search.strategies.advanced_policy import (
     AdvancedSearchPolicyConfig,
     AdvancedSearchPolicyRolloutStatus,
     ASHAScheduler,
@@ -17,8 +17,8 @@ from polisyos.scientist.search.strategies.advanced_policy import (
     VOITrainingExample,
     build_advanced_search_policy_report,
 )
-from polisyos.scientist.search.strategies.space import SearchSpace
-from polisyos.scientist.search.strategies.types import (
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     EvaluationStatus,
     ParameterBounds,

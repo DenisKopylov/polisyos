@@ -7,7 +7,9 @@ import datetime as dt
 import difflib
 import fnmatch
 import json
+import os
 import re
+import shlex
 import subprocess
 import tomllib
 from dataclasses import dataclass
@@ -26,6 +28,7 @@ DEFAULT_GENERATED_MD = REPO_ROOT / "docs" / "reference" / "generated-artifacts.m
 DEFAULT_DEEP_IMPORT_BASELINE = REPO_ROOT / "architecture" / "deep_import_baseline.json"
 DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "guardrail_exceptions.toml"
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
+DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
 FRESHNESS_PATTERNS = (
     re.compile(r"^- Last updated:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
@@ -53,9 +56,9 @@ WORKFLOW_BASELINE_REQUIREMENTS: dict[str, tuple[tuple[str, str, str], ...]] = {
             "Architecture workflow must install Python dependencies via the canonical `uv sync` baseline.",
         ),
         (
-            "npm_ci",
-            "npm ci",
-            "Architecture workflow must use `npm ci` for reproducible frontend installs.",
+            "pnpm_install",
+            "corepack pnpm install --frozen-lockfile",
+            "Architecture workflow must use the canonical `corepack pnpm` frontend install.",
         ),
         (
             "uv_guardrails",
@@ -72,9 +75,14 @@ WORKFLOW_BASELINE_FORBIDDEN: dict[str, tuple[tuple[str, str, str], ...]] = {
             "Architecture workflow must not bootstrap repo dependencies with `pip install -e`; use `uv sync` instead.",
         ),
         (
+            "legacy_npm_ci",
+            "run: npm ci",
+            "Architecture workflow must not use `npm ci`; use `corepack pnpm install --frozen-lockfile` instead.",
+        ),
+        (
             "legacy_npm_install",
-            "npm install",
-            "Architecture workflow must not use `npm install`; use `npm ci` instead.",
+            "run: npm install",
+            "Architecture workflow must not use `npm install`; use `corepack pnpm install --frozen-lockfile` instead.",
         ),
     ),
 }
@@ -150,11 +158,25 @@ class GuardrailViolation:
 
 
 @dataclass(frozen=True)
+class ReadmeGateSubject:
+    module: str
+    readme: str
+    major_subsystem: bool
+    reason: str
+    detail: str = ""
+
+
+@dataclass(frozen=True)
 class GeneratedArtifactFamily:
     family_id: str
     label: str
     owner: str
     approval_owner: str
+    lifecycle: str
+    generator: str
+    verifier: str
+    promotion_target: str
+    stale_output_behavior: str
     source_of_truth: str
     outputs: tuple[Path, ...]
     regenerate_commands: tuple[str, ...]
@@ -165,6 +187,7 @@ class GeneratedArtifactFamily:
     check_cwd: Path | None
     check_command: tuple[str, ...] | None
     check_git_diff_paths: tuple[Path, ...]
+    retention_days: int | None
 
 
 def _parse_args() -> argparse.Namespace:
@@ -218,6 +241,14 @@ def _ensure_relative(path_str: str) -> Path:
     return path if path.is_absolute() else REPO_ROOT / path
 
 
+def _parse_check_command(value: Any) -> tuple[str, ...] | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return tuple(shlex.split(value))
+    return tuple(str(part) for part in value)
+
+
 def _parse_public_surface(path: Path) -> list[PackagePolicy]:
     data = _read_toml(path)
     packages = data.get("package", [])
@@ -254,6 +285,11 @@ def _parse_generated_artifacts(path: Path) -> list[GeneratedArtifactFamily]:
                 label=str(item["label"]),
                 owner=str(item["owner"]),
                 approval_owner=str(item["approval_owner"]),
+                lifecycle=str(item.get("lifecycle", "")),
+                generator=str(item.get("generator", "")),
+                verifier=str(item.get("verifier", "")),
+                promotion_target=str(item.get("promotion_target", "")),
+                stale_output_behavior=str(item.get("stale_output_behavior", "")),
                 source_of_truth=str(item["source_of_truth"]),
                 outputs=tuple(_ensure_relative(output) for output in item.get("outputs", [])),
                 regenerate_commands=tuple(
@@ -264,11 +300,12 @@ def _parse_generated_artifacts(path: Path) -> list[GeneratedArtifactFamily]:
                 drift_gate=str(item["drift_gate"]),
                 workflow=_ensure_relative(str(workflow_raw)) if workflow_raw else None,
                 check_cwd=_ensure_relative(str(check_cwd_raw)) if check_cwd_raw else None,
-                check_command=tuple(str(part) for part in check_command_raw)
-                if check_command_raw
-                else None,
+                check_command=_parse_check_command(check_command_raw),
                 check_git_diff_paths=tuple(
                     Path(part) for part in item.get("check_git_diff_paths", [])
+                ),
+                retention_days=(
+                    int(item["retention_days"]) if item.get("retention_days") is not None else None
                 ),
             )
         )
@@ -628,13 +665,13 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
         "",
         "Every committed generated artifact family must have a source of truth, a regeneration command, a freshness rule, and an approval owner.",
         "",
-        "| Family | Commit policy | Drift gate | Owner | Outputs |",
-        "| --- | --- | --- | --- | --- |",
+        "| Family | Lifecycle | Commit policy | Drift gate | Owner | Outputs |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     for family in families:
-        outputs = "<br/>".join(f"`{path.relative_to(REPO_ROOT)}`" for path in family.outputs)
+        outputs = "<br/>".join(f"`{_repo_display_path(path)}`" for path in family.outputs)
         lines.append(
-            f"| `{family.label}` | `{family.commit_policy}` | `{family.drift_gate}` | `{family.owner}` | {outputs} |"
+            f"| `{family.label}` | `{family.lifecycle}` | `{family.commit_policy}` | `{family.drift_gate}` | `{family.owner}` | {outputs} |"
         )
 
     for family in families:
@@ -644,20 +681,27 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
                 f"## `{family.label}`",
                 "",
                 f"- Family id: `{family.family_id}`",
+                f"- Lifecycle: `{family.lifecycle}`",
                 f"- Source of truth: {family.source_of_truth}",
+                f"- Generator: {family.generator}",
+                f"- Verifier: {family.verifier}",
+                f"- Promotion target: {family.promotion_target}",
                 f"- Commit policy: `{family.commit_policy}`",
                 f"- Freshness rule: {family.freshness_rule}",
+                f"- Stale output behavior: `{family.stale_output_behavior}`",
                 f"- Drift gate: `{family.drift_gate}`",
                 f"- Owner: `{family.owner}`",
                 f"- Approval owner: `{family.approval_owner}`",
             ]
         )
+        if family.retention_days is not None:
+            lines.append(f"- Retention: `{family.retention_days}` days")
         if family.workflow is not None:
-            lines.append(f"- Related workflow/config: `{family.workflow.relative_to(REPO_ROOT)}`")
+            lines.append(f"- Related workflow/config: `{_repo_display_path(family.workflow)}`")
         lines.extend(
             [
                 "- Outputs:",
-                *[f"  - `{output.relative_to(REPO_ROOT)}`" for output in family.outputs],
+                *[f"  - `{_repo_display_path(output)}`" for output in family.outputs],
                 "",
                 "Canonical regeneration commands:",
                 "",
@@ -668,6 +712,13 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
         )
     lines.append("")
     return "\n".join(lines)
+
+
+def _repo_display_path(path: Path) -> str:
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return os.path.relpath(path, REPO_ROOT)
 
 
 def _write_if_changed(path: Path, content: str) -> None:
@@ -688,17 +739,54 @@ def _diff(label: str, expected: str, current: str) -> str:
     return "\n".join(lines)
 
 
+def _readme_gate_subjects(inventory: list[PackageInventory]) -> list[ReadmeGateSubject]:
+    subjects: dict[tuple[str, str], ReadmeGateSubject] = {}
+    for item in inventory:
+        subjects[(item.module, item.readme)] = ReadmeGateSubject(
+            module=item.module,
+            readme=item.readme,
+            major_subsystem=item.major_subsystem,
+            reason=f"public_surface:{item.classification}",
+        )
+
+    if DEFAULT_MODULE_SIZE_BUDGET.exists():
+        budget = _read_toml(DEFAULT_MODULE_SIZE_BUDGET)
+        for item in budget.get("budget", []):
+            path = Path(str(item.get("path", "")))
+            if len(path.parts) < 3 or path.parts[:2] != ("src", "polisyos"):
+                continue
+            module = f"polisyos.{path.parts[2]}"
+            readme = f"src/polisyos/{path.parts[2]}/README.md"
+            key = (module, readme)
+            existing = subjects.get(key)
+            reason = "high_complexity"
+            if existing is not None:
+                reason = f"{existing.reason},high_complexity"
+            subjects[key] = ReadmeGateSubject(
+                module=module,
+                readme=readme,
+                major_subsystem=existing.major_subsystem if existing else False,
+                reason=reason,
+                detail=path.as_posix(),
+            )
+
+    return sorted(subjects.values(), key=lambda subject: (subject.readme, subject.module))
+
+
 def _check_readmes(inventory: list[PackageInventory]) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
-    for item in inventory:
+    for item in _readme_gate_subjects(inventory):
         readme_path = REPO_ROOT / item.readme
         if not readme_path.exists():
             violations.append(
                 GuardrailViolation(
                     check="readme_policy",
                     subject=item.readme,
-                    detail=item.module,
-                    message=f"Missing package README for {item.module}: {item.readme}",
+                    detail=item.reason,
+                    message=(
+                        f"Missing package README for {item.module}: {item.readme} "
+                        f"({item.reason})"
+                    ),
                 )
             )
             continue
@@ -708,10 +796,10 @@ def _check_readmes(inventory: list[PackageInventory]) -> list[GuardrailViolation
                 GuardrailViolation(
                     check="readme_policy",
                     subject=item.readme,
-                    detail="freshness_marker",
+                    detail=f"freshness_marker:{item.reason}",
                     message=(
                         f"{item.readme} is missing a README freshness marker "
-                        "(`Last updated` / `Последнее обновление`)."
+                        f"(`Last updated` / `Последнее обновление`) for {item.reason}."
                     ),
                 )
             )
@@ -720,7 +808,7 @@ def _check_readmes(inventory: list[PackageInventory]) -> list[GuardrailViolation
                 GuardrailViolation(
                     check="readme_policy",
                     subject=item.readme,
-                    detail="where_to_start",
+                    detail=f"where_to_start:{item.reason}",
                     message=f"{item.readme} must include a `Where to Start` section.",
                 )
             )
@@ -777,6 +865,20 @@ def _check_generated_artifact_manifest(
 ) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
     seen_ids: set[str] = set()
+    allowed_lifecycles = {
+        "source_committed",
+        "generated_committed",
+        "generated_ignored",
+        "runtime_ignored",
+        "scratch_ignored",
+    }
+    allowed_stale_behaviors = {
+        "fail",
+        "warn",
+        "cleanup_eligible",
+        "ignored_by_policy",
+        "block_release",
+    }
     for family in families:
         if family.family_id in seen_ids:
             violations.append(
@@ -788,15 +890,82 @@ def _check_generated_artifact_manifest(
                 )
             )
         seen_ids.add(family.family_id)
+        for field, value in (
+            ("lifecycle", family.lifecycle),
+            ("generator", family.generator),
+            ("verifier", family.verifier),
+            ("promotion_target", family.promotion_target),
+            ("stale_output_behavior", family.stale_output_behavior),
+        ):
+            if not value.strip():
+                violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail=f"missing_{field}",
+                        message=f"{family.family_id} must declare `{field}`.",
+                    )
+                )
+        if family.lifecycle and family.lifecycle not in allowed_lifecycles:
+            violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail="invalid_lifecycle",
+                    message=f"{family.family_id} has invalid lifecycle `{family.lifecycle}`.",
+                )
+            )
+        if (
+            family.stale_output_behavior
+            and family.stale_output_behavior not in allowed_stale_behaviors
+        ):
+            violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail="invalid_stale_output_behavior",
+                    message=(
+                        f"{family.family_id} has invalid stale_output_behavior "
+                        f"`{family.stale_output_behavior}`."
+                    ),
+                )
+            )
+        if family.commit_policy == "local_ignored" and family.lifecycle == "generated_committed":
+            violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail="commit_policy_lifecycle_mismatch",
+                    message=(
+                        f"{family.family_id} cannot be local_ignored with "
+                        "generated_committed lifecycle."
+                    ),
+                )
+            )
+        if family.commit_policy == "committed" and family.lifecycle in {
+            "generated_ignored",
+            "runtime_ignored",
+            "scratch_ignored",
+        }:
+            violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail="commit_policy_lifecycle_mismatch",
+                    message=(
+                        f"{family.family_id} committed family must not use ignored lifecycle "
+                        f"`{family.lifecycle}`."
+                    ),
+                )
+            )
         if family.workflow is not None and not family.workflow.exists():
             violations.append(
                 GuardrailViolation(
                     check="workflow_config",
-                    subject=str(family.workflow.relative_to(REPO_ROOT)),
+                    subject=_repo_display_path(family.workflow),
                     detail=family.family_id,
                     message=(
-                        "Workflow/config drift: missing file "
-                        f"{family.workflow.relative_to(REPO_ROOT)}"
+                        f"Workflow/config drift: missing file {_repo_display_path(family.workflow)}"
                     ),
                 )
             )
@@ -816,10 +985,10 @@ def _check_generated_artifact_manifest(
                         GuardrailViolation(
                             check="generated_artifact",
                             subject=family.family_id,
-                            detail=str(output.relative_to(REPO_ROOT)),
+                            detail=_repo_display_path(output),
                             message=(
                                 f"{family.family_id} declares committed output "
-                                f"{output.relative_to(REPO_ROOT)} but the path is missing."
+                                f"{_repo_display_path(output)} but the path is missing."
                             ),
                         )
                     )

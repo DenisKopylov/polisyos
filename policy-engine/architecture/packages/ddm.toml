@@ -1,0 +1,120 @@
+[package]
+id = "ddm"
+module = "polisyos.ddm"
+name = "ddm"
+owner = "team-scientist"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Canonical unversioned Drift-and-Degradation Monitor package."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "resolved"
+layout_owner = "team-scientist"
+source_root = "src/polisyos/ddm"
+readme = "src/polisyos/ddm/README.md"
+root_facade_policy = "canonical unversioned package; ddm_15_7 remains wrapper-only until shim sunset"
+implementation_roots = [
+  "src/polisyos/ddm/calibration",
+  "src/polisyos/ddm/contracts",
+  "src/polisyos/ddm/detectors",
+  "src/polisyos/ddm/integration",
+  "src/polisyos/ddm/readiness",
+]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "resolved"
+
+[boundaries]
+public_facade = "polisyos.ddm"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "internal"
+facade_mode = "eager_exports"
+registry_owner = "team-scientist"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.ddm"]
+major_subsystem = false
+notes = "Canonical unversioned drift/degradation monitor surface. It is registered to prevent accidental deep-import promotion, not as a stable public API."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/ddm"]
+contract_roots = ["tests/contract"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "monitor detector and readiness changes keep deterministic replay or acceptance unit tests",
+  "ddm_15_7 compatibility remains wrapper-only and smoke-tested separately",
+]
+
+[slo_runbook]
+status = "exception"
+slo_files = ["ops/components/ddm/slo.yaml"]
+runbooks = [
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/replay-or-restore.md",
+]
+runbook_expectation = "DDM drift/degradation incidents route through Scientist and replay triage until the package is promoted to a public-stable operational surface."
+
+[observability]
+status = "exception"
+metrics_owner = "team-scientist"
+metric_surfaces = ["ops/components/ddm/runtime-contract.toml"]
+trace_expectation = "DDM traces/logs carry package_name and drift/degradation readiness context when surfaced by Scientist flows."
+
+[name_collisions]
+status = "declared"
+owner = "team-scientist"
+registry = "architecture/name_registry.toml"
+allowed = ["calibration"]
+
+[[allowed_name_collision]]
+name = "calibration"
+scope = "package-local"
+reason = "DDM calibration is drift/degradation specific and does not replace the canonical polisyos.calibration diagnostics facade."
+owner = "team-scientist"
+
+[exceptions]
+status = "declared"
+owner = "team-scientist"
+registries = ["architecture/component_observability.toml"]
+
+[[exception]]
+id = "ddm-standalone-slo-deferred"
+owner = "team-scientist"
+kind = "slo_exception"
+reason = "DDM has compatibility-shim work in flight; SLO coverage is required if ddm is promoted as a public-stable package."
+sunset = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/component_observability.toml"
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-scientist"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "DDM is not an extension host in Phase 5.8."

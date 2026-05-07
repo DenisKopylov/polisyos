@@ -64,6 +64,14 @@ mode = "fail_closed"
 baseline_command = "manual review: validate PR, branch, and commit metadata against ops/release/commit-policy.toml"
 
 [[baseline]]
+id = "release_topology"
+area = "ops/release"
+owner = "team-release"
+paths = ["ops/release/deployment-topology.toml", "ops/release/promotion-gates.toml"]
+mode = "fail_closed"
+baseline_command = "manual review: validate deployment units and promotion gates against changed release artifacts"
+
+[[baseline]]
 id = "runtime"
 area = "ops/runtime"
 owner = "team-runtime"
@@ -75,6 +83,26 @@ baseline_command = "manual review: validate runtime deployment, health, telemetr
 id = "migrations"
 area = "ops/migrations"
 owner = "team-platform"
-paths = ["ops/migrations/README.md", "ops/migrations/migration-contracts.toml", "ops/migrations/*.sql"]
+paths = [
+  "ops/migrations/README.md",
+  "ops/migrations/migration-contracts.toml",
+  "ops/migrations/db/README.md",
+  "ops/migrations/db/*.sql",
+  "ops/migrations/runtime_state/README.md",
+  "ops/migrations/api_schemas/README.md",
+  "ops/migrations/ir/README.md",
+]
 mode = "fail_closed"
-baseline_command = "manual review: validate tenant/RLS forward sequence and rollback notes"
+baseline_command = "manual review: validate DB/runtime-state/API/IR migration classes, helper bindings, forward sequence, release gates, and rollback notes"
+
+[[baseline]]
+id = "operability_contracts"
+area = "architecture"
+owner = "team-ops"
+paths = [
+  "architecture/runtime_state_layout.toml",
+  "architecture/runbook_coverage.toml",
+  "architecture/component_observability.toml",
+]
+mode = "fail_closed"
+baseline_command = "manual review: validate runtime-state slots, runbook alert mappings, component SLO expectations, and exceptions"

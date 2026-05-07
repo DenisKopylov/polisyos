@@ -22,7 +22,7 @@ from polisyos.core.security.tee import AttestationResult
 from polisyos.core.security.tee_middleware import TEEGatekeeper
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
-from polisyos.scientist.engine.context import FoundryPort
+from polisyos.scientist.orchestration.engine.context import FoundryPort
 
 
 class FoundryBridgeSecurityError(PolicyOSError):

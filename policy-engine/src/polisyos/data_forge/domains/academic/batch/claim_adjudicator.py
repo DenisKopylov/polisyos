@@ -25,7 +25,7 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     SupportStatus,
 )
-from polisyos.scientist.autotune.claim_adjudication import (
+from polisyos.scientist.methods.autotune.claim_adjudication import (
     ClaimAdjudicationSearchConfig,
     aggregate_claim_rows,
     load_claim_adjudication_config,

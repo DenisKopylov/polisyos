@@ -1,0 +1,13 @@
+[component_runtime_contract]
+component = "scientist"
+owner = "team-scientist"
+aliases = ["scientist", "polisyos.scientist"]
+source_readme = "src/polisyos/scientist/README.md"
+package_contract = "architecture/packages/scientist.toml"
+runtime_contract_links = [
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/scientist/wave2-runtime-contracts.md",
+  "docs/reference/scientist/frontier-runtime.md",
+]
+release_gate_mode = "report_only"
+

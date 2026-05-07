@@ -4,7 +4,7 @@ import hashlib
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 
 
 def _ref(seed: str) -> ArtifactRef:

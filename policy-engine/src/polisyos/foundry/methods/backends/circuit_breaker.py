@@ -42,7 +42,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, TypeVar
 
-from polisyos.foundry.methods._logging import get_foundry_logger
+from polisyos.foundry.methods._internal.logging import get_foundry_logger
 
 _log = get_foundry_logger("foundry.backends.circuit_breaker")
 

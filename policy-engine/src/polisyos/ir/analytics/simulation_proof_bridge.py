@@ -39,7 +39,7 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import (
+from polisyos.ir.references import (
     ArtifactRefModel,
     EvidenceBundleRef,
     InterfaceMappingRef,

@@ -121,26 +121,26 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.linker import LinkReport
 from polisyos.ir.refs import ArtifactRefModel, UncertaintyEnvelopeRef
-from polisyos.scientist.continuous_governance.incident import (
+from polisyos.scientist.governance.continuous.incident import (
     build_withdrawal_record,
     persist_withdrawal_record,
 )
-from polisyos.scientist.continuous_governance.monitors import (
+from polisyos.scientist.governance.continuous.monitors import (
     DecisionValidityStatus as ContinuousDecisionValidityStatus,
 )
-from polisyos.scientist.continuous_governance.monitors import (
+from polisyos.scientist.governance.continuous.monitors import (
     build_drift_monitor_event,
 )
-from polisyos.scientist.continuous_governance.reissue import (
+from polisyos.scientist.governance.continuous.reissue import (
     build_reissue_packet,
     persist_reissue_packet,
 )
-from polisyos.scientist.continuous_governance.reports import (
+from polisyos.scientist.governance.continuous.reports import (
     build_validity_report,
     persist_validity_report,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -152,10 +152,10 @@ from polisyos.scientist.governance.calibration_validation import (
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
-from polisyos.scientist.human_review.audit import signature_for_decision
-from polisyos.scientist.human_review.decisions import persist_review_decision
-from polisyos.scientist.human_review.models import HumanReviewDecision, ReviewAction
-from polisyos.scientist.human_review.packets import build_review_packet, persist_review_packet
+from polisyos.scientist.governance.human_review.audit import signature_for_decision
+from polisyos.scientist.governance.human_review.decisions import persist_review_decision
+from polisyos.scientist.governance.human_review.models import HumanReviewDecision, ReviewAction
+from polisyos.scientist.governance.human_review.packets import build_review_packet, persist_review_packet
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -199,21 +199,21 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
-from polisyos.scientist.policy_verified.models import (
+from polisyos.scientist.validation.policy_verified.models import (
     VerifiedPolicyReport,
     persist_verified_policy_report,
 )
-from polisyos.scientist.search.readiness import (
+from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
     persist_decision_readiness_contract,
 )
-from polisyos.scientist.search.voi_models import (
+from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
     VOIRunReport,
 )
-from polisyos.scientist.search.voi_scheduler import persist_voi_run_report
+from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
 
 
 def _artifact_id(ch: str) -> str:

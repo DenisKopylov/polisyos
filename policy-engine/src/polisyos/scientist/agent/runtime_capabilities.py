@@ -10,7 +10,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
+from polisyos.scientist.orchestration.engine.frontier_runtime import FrontierCapabilityStatus
 
 __all__ = [
     "AGENT_CAPABILITY_REGISTRY",

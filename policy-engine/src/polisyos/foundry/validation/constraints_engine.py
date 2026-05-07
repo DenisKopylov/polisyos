@@ -17,7 +17,7 @@ from polisyos.core.contracts.foundry import (
     ConstraintViolation,
     LoweredConstraint,
 )
-from polisyos.foundry.execute._models import get_state_path
+from polisyos.foundry.execute._internal.models import get_state_path
 from polisyos.foundry.runtime.numeric import (
     decimal_from_numeric,
     require_finite_numpy,

@@ -1,5 +1,8 @@
 # Runtime Operations
 
+- Owner: `team-runtime`
+- Artifact type: `runtime-operations-contracts`
+
 `ops/runtime/` records deployment-facing runtime contracts that are not Python
 source code: health/readiness, rollback, telemetry, and compatibility
 expectations for operators.

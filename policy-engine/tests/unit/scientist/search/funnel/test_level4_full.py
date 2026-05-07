@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.funnel.level4_full import Level4FullFidelity
+from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 
 
 class _StubWorkflowEngine:

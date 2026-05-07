@@ -38,10 +38,10 @@ function read(relativePath: string) {
 }
 
 function main() {
-  const printCss = read("frontend/runtime-dashboard/src/styles/print.css");
+  const printCss = read("apps/runtime-dashboard/src/styles/print.css");
   const exportDoc = read("docs/brand/PRINT_AND_EXPORT.md");
   const visualSpec = read(
-    "frontend/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
   );
 
   for (const selector of REQUIRED_PRINT_SELECTORS) {
@@ -75,7 +75,7 @@ function main() {
   for (const snapshot of REQUIRED_PRINT_SNAPSHOTS) {
     const snapshotPath = path.join(
       getPolicyEngineRoot(),
-      "frontend/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots",
+      "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots",
       snapshot,
     );
     const snapshotStat = fs.statSync(snapshotPath);
@@ -87,9 +87,9 @@ function main() {
   }
 
   for (const filePath of [
-    "frontend/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
-    "frontend/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.tsx",
-    "frontend/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.test.ts",
+    "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.test.ts",
   ]) {
     const source = read(filePath);
     if (

@@ -32,23 +32,23 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.autotune.models import (
+from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
     persist_benchmark_evaluation,
 )
-from polisyos.scientist.backtesting.adversarial import (
+from polisyos.scientist.methods.backtesting.adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
     PHASE_D4_ROTATION_GROUP,
     STRATEGIC_GAMING_SUITE_ID,
     run_phase_d4_challenge_suites,
 )
-from polisyos.scientist.doe.stress_report import StressTestReport
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
 )
@@ -113,38 +113,38 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.replay.verification import ReplayRegistry, verify_and_persist_replay_bundle
-from polisyos.scientist.search.actionable_side_information import resolve_actionable_store
-from polisyos.scientist.search.adversarial import (
+from polisyos.scientist.methods.search.actionable_side_information import resolve_actionable_store
+from polisyos.scientist.methods.search.adversarial import (
     PlatformMetaEvaluationInput,
     PlatformMetaEvaluator,
     load_platform_meta_evaluation_report,
     persist_platform_meta_evaluation_report,
 )
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.search.calibration_report import (
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.calibration_report import (
     build_calibration_report,
     load_funnel_calibration_report,
     persist_funnel_calibration_report,
 )
-from polisyos.scientist.search.funnel.level0_static import Level0StaticValidator
-from polisyos.scientist.search.funnel.level1_heuristic import Level1CheapHeuristic
-from polisyos.scientist.search.funnel.level2_causal import Level2CausalPlausibility
-from polisyos.scientist.search.funnel.level3_medium import Level3MediumFidelity
-from polisyos.scientist.search.funnel.level4_full import Level4FullFidelity
-from polisyos.scientist.search.funnel.level5_refutation_governance import (
+from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
+from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
+from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
-from polisyos.scientist.search.funnel.level6_promotion import Level6PromotionStage
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
-from polisyos.scientist.search.lessons import LessonRegistry
-from polisyos.scientist.search.promotion_evidence import (
+from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
+from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
     load_promotion_evidence_bundle,
     persist_promotion_evidence_bundle,
 )
-from polisyos.scientist.search.stages import CorrelationTracker
-from polisyos.scientist.search.voi_scheduler import persist_voi_run_report
-from polisyos.scientist.workflows.engine_base import WorkflowEngine
+from polisyos.scientist.methods.search.stages import CorrelationTracker
+from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
+from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (

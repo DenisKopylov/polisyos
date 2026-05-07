@@ -1,6 +1,13 @@
 {
+  "compatibility": {
+    "breaking_change_requires_fragment": "true",
+    "compatibility_class": "schema-openapi-abi",
+    "deprecation_window": "2 minor releases",
+    "release_fragment_change_class": "schema-openapi-abi",
+    "version_owner": "team-fabric"
+  },
   "content_hash": "2aad7e79af114d6e6422467e0855cc8b7e92960f674a29f52e2a19c10b3700ee",
-  "generated_at": "2026-03-28T13:16:21+00:00",
+  "generated_at": "2026-05-06T07:43:21+00:00",
   "generator_version": "1.0.0",
   "models": {
     "edge_kind": {

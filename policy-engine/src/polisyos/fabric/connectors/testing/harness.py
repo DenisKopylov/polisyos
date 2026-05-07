@@ -14,7 +14,7 @@ Design decisions
 * Uses pytest fixtures, marks, and parametrize -- no custom runner.
 * connector_instance and connection_handle are pytest fixtures so subclasses
   can override them with DI wrappers.
-* All I/O methods are async; pytest asyncio auto mode handles async tests/fixtures
+* All I/O methods are async; pytest asyncio auto mode handles async test helpers
   without forcing sync compliance checks to carry asyncio marks.
 * Protocol compliance delegates to validate_protocol_compliance() from Phase 2.1.
 * Hash comparison in test_idempotency uses FetchResult.content_hash when present;

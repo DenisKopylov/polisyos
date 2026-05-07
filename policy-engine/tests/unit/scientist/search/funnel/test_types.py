@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelStageResult,
     TypedFailureCard,

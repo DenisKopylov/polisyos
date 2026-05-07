@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.search.voi_calibration import (
+from polisyos.scientist.methods.search.voi_calibration import (
     build_voi_calibration_report,
     compare_voi_to_static_baseline,
     validate_voi_default_enable,
 )
-from polisyos.scientist.search.voi_models import (
+from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
     VOIRunReport,

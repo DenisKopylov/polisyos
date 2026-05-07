@@ -11,8 +11,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._models import load_model
-from polisyos.foundry.execute._snapshots import (
+from polisyos.foundry.execute._internal.models import load_model
+from polisyos.foundry.execute._internal.snapshots import (
     _build_dataclass,
     _dataclass_type_hints,
     _decode_snapshot_leaf,

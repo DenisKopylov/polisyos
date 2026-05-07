@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_ml_methods
 from .advanced import GaussianProcessEstimator, NeuralODEEstimator, QuantileForestEstimator
@@ -58,12 +58,7 @@ from .uncertainty import (
 
 def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Register built-in ML methods into `registry` or the global singleton."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_ml_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("ml", registry)
 
 
 __all__ = [

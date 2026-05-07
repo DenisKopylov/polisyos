@@ -7,7 +7,7 @@ from polisyos.scientist.evals.datasets import (
     BenchmarkSplitName,
     entry_staleness_reasons,
 )
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistryEntry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistryEntry
 
 from .test_authority import _ref
 

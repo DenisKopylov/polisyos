@@ -49,8 +49,8 @@ Depends on: `polisyos.common.async_tools`, `polisyos.core.artifacts`,
 `polisyos.core.contracts`, `polisyos.core.security`,
 `polisyos.core.observability`, and local `routes/` plus `services/` packages.
 
-Depended on by: `polisyos.runtime`, `frontend/runtime-api-client`,
-`frontend/runtime-dashboard`, `frontend/runtime-reference-shell`, operator
+Depended on by: `polisyos.runtime`, `packages/runtime-api-client`,
+`apps/runtime-dashboard`, `apps/runtime-reference-shell`, operator
 runbooks, and runtime contract/drift checks.
 
 ## Common commands
@@ -61,17 +61,17 @@ Run commands from the repository root `policy-engine/`.
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js`
 
 ## Test/verification commands
 
 Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 - Smoke-tested:
   `uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`
@@ -90,9 +90,9 @@ Run commands from the repository root `policy-engine/`.
 - [Security and Compliance](../../../../docs/reference/security-compliance.md)
 - [Runtime API outage runbook](../../../../docs/runbooks/runtime-api-outage.md)
 - [Runtime graceful shutdown and stuck worker runbook](../../../../docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md)
-- [Runtime API client](../../../../frontend/runtime-api-client/README.md)
-- [Runtime dashboard](../../../../frontend/runtime-dashboard/README.md)
-- [Runtime reference shell](../../../../frontend/runtime-reference-shell/README.md)
+- [Runtime API client](../../../../packages/runtime-api-client/README.md)
+- [Runtime dashboard](../../../../apps/runtime-dashboard/README.md)
+- [Runtime reference shell](../../../../apps/runtime-reference-shell/README.md)
 
 ## Last updated date
 

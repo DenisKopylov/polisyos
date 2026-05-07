@@ -7,24 +7,24 @@ on:
       - ".github/workflows/design-wave1-evidence.yml"
       - "docs/brand/**"
       - "docs/compliance/**"
-      - "docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md"
-      - "frontend/runtime-dashboard/**"
+      - "release/design-wave1-release-notes.md"
+      - "apps/runtime-dashboard/**"
       - "schemas/runtime_api_v1.openapi.json"
       - "src/polisyos/runtime/http/**"
       - "tools/design/**"
-      - "tools/ops/runtime/**"
+      - "tools/ops_runners/runtime/**"
   push:
     branches: ["main", "master"]
     paths:
       - ".github/workflows/design-wave1-evidence.yml"
       - "docs/brand/**"
       - "docs/compliance/**"
-      - "docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md"
-      - "frontend/runtime-dashboard/**"
+      - "release/design-wave1-release-notes.md"
+      - "apps/runtime-dashboard/**"
       - "schemas/runtime_api_v1.openapi.json"
       - "src/polisyos/runtime/http/**"
       - "tools/design/**"
-      - "tools/ops/runtime/**"
+      - "tools/ops_runners/runtime/**"
 
 jobs:
   evidence:
@@ -46,8 +46,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
-          cache-dependency-path: frontend/runtime-dashboard/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install uv
         run: pip install uv
@@ -56,40 +56,40 @@ jobs:
         run: uv sync --frozen --extra docs --extra lint --extra test --extra runtime --extra ml
 
       - name: Install frontend dependencies
-        working-directory: frontend/runtime-dashboard
-        run: npm ci
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm install --frozen-lockfile
 
       - name: Lint frontend
-        working-directory: frontend/runtime-dashboard
-        run: npm run lint
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run lint
 
       - name: Typecheck frontend
-        working-directory: frontend/runtime-dashboard
-        run: npm run typecheck
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run typecheck
 
       - name: Verify glyph vocabulary
-        working-directory: frontend/runtime-dashboard
-        run: npm run test:glyph-vocabulary
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run test:glyph-vocabulary
 
       - name: Run accessibility suite
-        working-directory: frontend/runtime-dashboard
-        run: npm run test:a11y
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run test:a11y
 
       - name: Run Storybook tests
-        working-directory: frontend/runtime-dashboard
-        run: npm run test:storybook
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run test:storybook
 
       - name: Build Storybook archive
-        working-directory: frontend/runtime-dashboard
-        run: npm run build-storybook
+        working-directory: apps/runtime-dashboard
+        run: corepack pnpm run build-storybook
 
       - name: Verify Runtime API contract drift
-        run: uv run --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+        run: uv run --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 
       - name: Verify generated frontend API types
-        working-directory: frontend/runtime-dashboard
+        working-directory: apps/runtime-dashboard
         run: |
-          npm run generate:api
+          corepack pnpm run generate:api
           git diff --exit-code -- src/api/types.ts
 
       - name: Write evidence manifest
@@ -119,14 +119,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wave1-storybook-static
-          path: _build/frontend/runtime-dashboard/storybook-static
+          path: _build/apps/runtime-dashboard/storybook-static
           if-no-files-found: error
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         with:
           name: wave1-playwright-report
-          path: _build/frontend/runtime-dashboard/playwright-report
+          path: _build/apps/runtime-dashboard/playwright-report
           if-no-files-found: ignore
 
       - name: Upload visual report
@@ -134,8 +134,8 @@ jobs:
         with:
           name: wave1-visual-report
           path: |
-            _build/frontend/runtime-dashboard/test-results
-            _build/frontend/runtime-dashboard/playwright-report
+            _build/apps/runtime-dashboard/test-results
+            _build/apps/runtime-dashboard/playwright-report
           if-no-files-found: ignore
 
       - name: Upload contrast artifact

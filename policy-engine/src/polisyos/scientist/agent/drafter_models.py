@@ -10,7 +10,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.scientist.agent.protocols import DraftResult
-from polisyos.scientist.engine.convergence import ConvergenceConfig
+from polisyos.scientist.orchestration.engine.convergence import ConvergenceConfig
 
 
 def _as_bool(raw: str | None, default: bool = False) -> bool:

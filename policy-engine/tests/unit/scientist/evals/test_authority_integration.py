@@ -4,12 +4,12 @@ from polisyos.scientist.agent.promotion import build_agent_capability_promotion_
 from polisyos.scientist.agent.runtime_capabilities import AgentCapabilityId
 from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
 from polisyos.scientist.agent.tools.schema import ToolDefinition
-from polisyos.scientist.engine.frontier_runtime import (
+from polisyos.scientist.orchestration.engine.frontier_runtime import (
     FrontierRuntimeConfig,
     build_frontier_runtime_report,
 )
 from polisyos.scientist.evals.authority import BenchmarkAuthority, PromotionEvidenceRequest
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 
 from .test_authority import _ref
 

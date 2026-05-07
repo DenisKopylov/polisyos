@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -18,9 +19,9 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.run.context import RunContext
 from polisyos.runtime.replay import VerificationConfig, VerificationMode
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeOutcome
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.replay.backend import (
     list_dead_letters,
     load_dead_letter,

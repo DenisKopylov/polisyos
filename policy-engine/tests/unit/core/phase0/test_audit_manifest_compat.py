@@ -4,6 +4,7 @@ import json
 from typing import TYPE_CHECKING
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.audit import AuditPackageAssembler
 from polisyos.core.audit.assembler import AuditAssemblyError
@@ -128,7 +129,10 @@ def test_audit_assembler_recovers_pending_finalize_journal(
     assert journal_path.exists()
 
     assembler = AuditPackageAssembler(cas=store, runs_dir=runs_dir)
-    result = assembler.export("R_recover_for_audit")
+    result = assembler.export(
+        "R_recover_for_audit",
+        tmp_path / "audit_recovered_manifest",
+    )
 
     assert result.run_id == "R_recover_for_audit"
     assert result.archive_path.exists()

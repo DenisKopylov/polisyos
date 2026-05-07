@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.ir._validation import (
+from polisyos.ir._internal.validation import (
     ensure_non_empty_dotted_path,
     validate_selector_expr,
     validate_selector_predicate_shape,

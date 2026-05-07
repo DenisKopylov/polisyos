@@ -1,0 +1,67 @@
+# Phase 4C keeps Lex/Scholar on a local ratchet while the document and
+# retrieval-oriented surfaces are formatted. Ukrainian legal text fixtures,
+# validated dynamic SQL/table-name composition, and dynamically-composed SPO
+# extractors are tracked here instead of scattering inline suppressions.
+"src/polisyos/lex/**" = [
+  "ANN001",
+  "ANN201",
+  "ANN202",
+  "ANN401",
+  "B023",
+  "E501",
+  "N806",
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF012",
+  "S101",
+  "S105",
+  "S110",
+  "S112",
+  "S311",
+  "S314",
+  "S324",
+  "S608",
+  "SIM102",
+  "SIM105",
+  "SIM115",
+  "TC001",
+  "TC003",
+]
+# Phase 4 Data Forge cutover moved the accepted Lex batch runtime without
+# behavior changes. Keep its historical lint debt on the same explicit ratchet;
+# the legacy Lex offline package has been retired; this ratchet now
+# applies only to the canonical Data Forge legal batch runtime.
+"src/polisyos/data_forge/domains/legal/batch/**" = [
+  "ANN001",
+  "ANN201",
+  "ANN202",
+  "ANN401",
+  "B023",
+  "E501",
+  "N806",
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF012",
+  "S101",
+  "S105",
+  "S110",
+  "S112",
+  "S311",
+  "S314",
+  "S324",
+  "S608",
+  "SIM102",
+  "SIM105",
+  "SIM115",
+  "TC001",
+  "TC003",
+]
+"src/polisyos/data_forge/domains/legal/batch/deterministic_spo.py" = ["E402"]
+"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py" = ["E402", "F821"]
+"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_articles.py" = ["F821"]
+"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_subtypes.py" = ["F821"]
+"src/polisyos/scholar/**" = ["ANN001", "ANN202", "ANN401", "S310"]
+"tests/unit/lex/**" = ["E501", "PT011", "RUF001", "RUF002", "RUF003", "S608"]
+"tests/unit/scholar/**" = ["E501"]

@@ -11,6 +11,7 @@ id = "loose-root-calibration-canonical-shared-api"
 gate = "loose_files_gate"
 owner = "team-architecture"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "polisyos.calibration is explicitly accepted as the canonical shared calibration diagnostics package in ADR-RSR-0139; remaining root modules are a package-level API cleanup, not a Phase 5/6 decomposition blocker."
 match = { package = "calibration", message = "Top-level package has too many root .py files." }
 
@@ -19,6 +20,7 @@ id = "loose-root-common-shared-utilities"
 gate = "loose_files_gate"
 owner = "team-core-runtime"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "polisyos.common still exposes shared utilities at package root; the Core/Common runtime remediation plan owns the future split."
 match = { package = "common", message = "Top-level package has too many root .py files." }
 
@@ -27,6 +29,7 @@ id = "loose-root-fabric-follow-up"
 gate = "loose_files_gate"
 owner = "team-fabric"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Fabric root-module decomposition is intentionally left to FABRIC_BEST_IN_CLASS_PLAN; Repository Structure Remediation Phase 5/6 only decomposed scientist/foundry."
 match = { package = "fabric", message = "Top-level package has too many root .py files." }
 
@@ -35,6 +38,7 @@ id = "loose-root-ir-follow-up"
 gate = "loose_files_gate"
 owner = "team-ir"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "IR root-module split is a separate IR/public-surface cleanup and is outside the scientist/foundry decomposition closeout."
 match = { package = "ir", message = "Top-level package has too many root .py files." }
 
@@ -43,6 +47,7 @@ id = "loose-root-lex-follow-up"
 gate = "loose_files_gate"
 owner = "team-lex"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Lex keeps several root modules as production API seams after the 140K corpus run; future Lex consolidation will move internals without changing the finalized corpus artifacts."
 match = { package = "lex", message = "Top-level package has too many root .py files." }
 
@@ -51,14 +56,25 @@ id = "loose-root-scholar-follow-up"
 gate = "loose_files_gate"
 owner = "team-scholar"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Scholar root-module cleanup is a package-local follow-up and not a Repository Structure Remediation Phase 5/6 blocker."
 match = { package = "scholar", message = "Top-level package has too many root .py files." }
+
+[[exception]]
+id = "loose-root-scientist-wave6-timebox"
+gate = "loose_files_gate"
+owner = "team-scientist"
+sunset = "2026-09-01"
+issue = "docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md#scientist-taxonomy-and-facade-cleanup"
+reason = "Scientist root modules are retained as compatibility-facing package API follow-up while Wave 6 fail-closed import gates block any new hidden coupling."
+match = { package = "scientist", message = "Top-level package has too many root .py files." }
 
 [[exception]]
 id = "local-mypy-cache-during-active-refactor"
 gate = "cache_dir_gate"
 owner = "team-devx"
 sunset = "2026-06-15"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Local mypy cache may exist during the active decomposition/refactor window; CI should still prefer the canonical _cache umbrella."
 match = { name = ".mypy_cache", path = "policy-engine/.mypy_cache" }
 
@@ -67,14 +83,25 @@ id = "local-hypothesis-cache-during-active-refactor"
 gate = "cache_dir_gate"
 owner = "team-devx"
 sunset = "2026-06-15"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Local Hypothesis state is tolerated during the active architecture-test refactor window; it must not become committed production data."
 match = { name = ".hypothesis", path = "policy-engine/.hypothesis" }
+
+[[exception]]
+id = "local-cache-umbrella-during-wave6-verification"
+gate = "cache_dir_gate"
+owner = "team-devx"
+sunset = "2026-06-15"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#wave-6---fail-closed-gate-conversion"
+reason = "Local _cache directories can exist at workspace and product root while Wave 6 verification runs legacy structure inventories; they remain ignored local state and are not allowed as committed artifacts."
+match = { name = "_cache", message = "Cache/environment state appears at more than one workspace level." }
 
 [[exception]]
 id = "release-ledger-root-governance-data"
 gate = "build_output_gate"
 owner = "team-release"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "The root release ledger directory is governance evidence, not generated build output; later repository topology work may move it under ops/release."
 match = { path = "policy-engine/release" }
 
@@ -83,6 +110,7 @@ id = "release-fragments-root-governance-data"
 gate = "build_output_gate"
 owner = "team-release"
 sunset = "2026-09-01"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Release fragments are human-authored release governance inputs; they are temporarily tolerated at product root until ops/release consolidation."
 match = { path = "policy-engine/release-fragments" }
 
@@ -91,5 +119,6 @@ id = "workspace-tmp-local-artifact-staging"
 gate = "build_output_gate"
 owner = "team-devx"
 sunset = "2026-06-15"
+issue = "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md#phase-7-final-closeout"
 reason = "Workspace-level tmp is used for local/cloud artifact staging during the current migration; production outputs remain in GCS or _build."
 match = { path = "tmp" }

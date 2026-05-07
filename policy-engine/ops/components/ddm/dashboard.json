@@ -1,0 +1,13 @@
+{
+  "component": "ddm",
+  "owner": "team-architecture",
+  "aliases": ["ddm", "polisyos.ddm", "polisyos.ddm_15_7"],
+  "dashboards": [
+    {
+      "name": "SLO Overview",
+      "path": "ops/observability/grafana/dashboards/slo-overview.json",
+      "purpose": "Shared readiness and drift/degradation posture"
+    }
+  ]
+}
+

@@ -21,8 +21,8 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     persist_causal_graph_model,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.preflight import build_default_pipeline
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode

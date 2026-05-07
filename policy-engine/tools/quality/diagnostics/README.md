@@ -31,7 +31,8 @@
 ## Связи с репозиторием
 
 - `src/polisyos/*`: runtime-контракты, builtin-ноды, артефактные модели.
-- `schemas/snapshots/*`, `schemas/abi_models.py`: входы/выходы ABI слоя.
+- `schemas/snapshots/*`: committed ABI snapshot outputs.
+- `src/polisyos/schemas/abi_models.py`: Python ABI registry imported through `polisyos.*`.
 - `docs/reports/*`: основная точка вывода verification отчетов (SCM v3 evidence/matrix + logs).
 - `data/curated/*`, `data/databases/*`: входы для fabric/UDF локальных проверок.
 - `baseline/*.json` и benchmark artifacts: входы perf-regression сценариев.
@@ -39,8 +40,8 @@
 ## Типовой запуск
 
 ```bash
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
-PYTHONPATH=src:. uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check --changed-only --cache-dir _cache/polisyos-tools/cache --baseline-label ci --skip-if-unchanged
+uv run --extra ml polisyos-tools diagnostics gen-schema --check
+uv run --extra ml polisyos-tools diagnostics gen-schema --check --changed-only --cache-dir _cache/polisyos-tools/cache --baseline-label ci --skip-if-unchanged
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/abi_diff.py --baseline /tmp/baseline --current /tmp/current --format markdown
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_state_reads.py
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_scientist_node_version_bump.py --base-ref origin/main

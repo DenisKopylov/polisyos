@@ -53,15 +53,13 @@ def test_ensure_all_methods_registered_with_causal():
 
 
 def test_causal_import_is_guarded():
-    """Verify the try/except guard exists by inspecting source."""
-    import inspect
-
+    """Verify causal bootstrap remains lazy and partial-install guarded."""
     catalog = _reload_catalog()
-    source = inspect.getsource(catalog)
-    # The causal import should be wrapped in try/except
-    assert "try:" in source
-    assert "from .causal import ensure_causal_methods_registered" in source
-    assert "except ModuleNotFoundError" in source
+
+    assert catalog._FAMILY_BOOTSTRAPS["causal"] == ("causal", "ensure_causal_methods_registered")
+
+    with patch.object(catalog, "import_module", side_effect=ModuleNotFoundError("mocked")):
+        assert catalog._load_bootstrap("causal") is None
 
 
 def test_fallback_stub_returns_none():

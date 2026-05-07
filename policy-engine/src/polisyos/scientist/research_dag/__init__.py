@@ -1,106 +1,11 @@
-"""Research DAG public API for Scientist best-in-class Phase 1.2."""
+"""Compatibility shim for `polisyos.scientist.research_dag`.
 
-from polisyos.scientist.research_dag.builder import (
-    ResearchDAGBuilder,
-    sanitize_public_metadata,
-    stable_fingerprint,
-    untrusted_content_summary,
-)
-from polisyos.scientist.research_dag.comparison import (
-    ResearchTrajectoryComparisonReport,
-    compare_research_trajectories,
-    comparison_report_from_diff,
-    public_comparison_export,
-)
-from polisyos.scientist.research_dag.diff import ResearchDAGDiff, diff_research_dags
-from polisyos.scientist.research_dag.invalidation import (
-    SourceInvalidationEvent,
-    SourceInvalidationImpact,
-    append_invalidation_events_to_ledger,
-    claim_lifecycle_events_for_invalidation,
-    propagate_source_invalidation,
-    validate_source_invalidation_event,
-)
-from polisyos.scientist.research_dag.models import (
-    ResearchDAGArtifact,
-    ResearchDAGEdge,
-    ResearchDAGNode,
-    ResearchEdgeType,
-    ResearchNodeType,
-)
-from polisyos.scientist.research_dag.persistence import (
-    RESEARCH_DAG_KIND,
-    load_research_dag,
-    persist_research_dag,
-)
-from polisyos.scientist.research_dag.projections import (
-    REQUIRE_RESEARCH_DAG_FOR_PUBLICATION_FLAG,
-    RESEARCH_DAG_FEATURE_FLAG,
-    SELECTED_RESEARCH_DAG_WORKFLOWS,
-    is_research_dag_enabled,
-    is_research_dag_required_for_publication,
-    project_reflexive_memory_events_to_research_dag,
-    project_tool_call_result_to_research_node,
-    project_tool_loop_result_to_research_dag,
-    project_web_evidence_bundle_to_research_dag,
-    project_workflow_execution_to_research_dag,
-    validate_memory_influence_dag_attribution,
-)
-from polisyos.scientist.research_dag.replay import (
-    ReplayMode,
-    ResearchDAGReplay,
-    ResearchReplayPlan,
-    ResearchReplayStep,
-    legacy_replay_status,
-    legacy_research_dag_status,
-    plan_research_replay,
-    public_replay_export,
-    replay_research_path,
-)
+Canonical package: `polisyos.scientist.methods.research_dag`.
+Sunset: 2027-03-02.
+"""
 
-__all__ = [
-    "REQUIRE_RESEARCH_DAG_FOR_PUBLICATION_FLAG",
-    "RESEARCH_DAG_FEATURE_FLAG",
-    "RESEARCH_DAG_KIND",
-    "ReplayMode",
-    "ResearchDAGArtifact",
-    "ResearchDAGBuilder",
-    "ResearchDAGEdge",
-    "ResearchDAGDiff",
-    "ResearchDAGNode",
-    "ResearchDAGReplay",
-    "ResearchEdgeType",
-    "ResearchNodeType",
-    "ResearchReplayPlan",
-    "ResearchReplayStep",
-    "ResearchTrajectoryComparisonReport",
-    "SELECTED_RESEARCH_DAG_WORKFLOWS",
-    "SourceInvalidationEvent",
-    "SourceInvalidationImpact",
-    "append_invalidation_events_to_ledger",
-    "claim_lifecycle_events_for_invalidation",
-    "compare_research_trajectories",
-    "comparison_report_from_diff",
-    "diff_research_dags",
-    "is_research_dag_enabled",
-    "is_research_dag_required_for_publication",
-    "legacy_replay_status",
-    "legacy_research_dag_status",
-    "load_research_dag",
-    "plan_research_replay",
-    "persist_research_dag",
-    "project_reflexive_memory_events_to_research_dag",
-    "project_tool_call_result_to_research_node",
-    "project_tool_loop_result_to_research_dag",
-    "project_web_evidence_bundle_to_research_dag",
-    "project_workflow_execution_to_research_dag",
-    "propagate_source_invalidation",
-    "public_comparison_export",
-    "public_replay_export",
-    "replay_research_path",
-    "sanitize_public_metadata",
-    "stable_fingerprint",
-    "untrusted_content_summary",
-    "validate_memory_influence_dag_attribution",
-    "validate_source_invalidation_event",
-]
+from __future__ import annotations
+
+from polisyos.scientist.methods._compat import reexport_package as _reexport_package
+
+_reexport_package(__name__, "polisyos.scientist.methods.research_dag", globals())

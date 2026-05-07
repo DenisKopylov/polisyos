@@ -1,0 +1,55 @@
+# Phase 4B keeps Fabric on the same explicit ratchet model as the base layers:
+# formatting/import sorting is fail-closed now, while legacy dynamic connector
+# payloads, runtime Pydantic annotations, and generated SQL builders are
+# narrowed by local ignores instead of repo-wide rule suppression.
+"src/polisyos/fabric/**" = [
+  "ANN",
+  "E501",
+  "N818",
+  "SIM102",
+  "SIM117",
+  "TC001",
+  "TC002",
+  "TC003",
+  "UP046",
+  "UP047",
+]
+"src/polisyos/fabric/claims/conflicts/**" = ["S608"]
+"src/polisyos/fabric/connectors/cache/_store_index.py" = ["S608"]
+"src/polisyos/fabric/connectors/sources/eurostat.py" = ["N817"]
+"src/polisyos/fabric/connectors/sources/sql_query.py" = ["S608"]
+"src/polisyos/fabric/connectors/registry_core_parts.py" = ["SIM118"]
+"src/polisyos/fabric/connectors/testing/**" = ["S101", "S110", "SIM105"]
+"src/polisyos/fabric/connectors/transform/aggregator.py" = ["F402"]
+"src/polisyos/fabric/data_plane/cli.py" = ["T201"]
+"src/polisyos/fabric/docs/normalize.py" = ["S110"]
+"src/polisyos/fabric/quality/__init__.py" = ["S608"]
+"src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
+"src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
+"src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
+"src/polisyos/fabric/world_query/__init__.py" = ["S608"]
+"tests/unit/fabric/**" = [
+  "B017",
+  "E501",
+  "N801",
+  "N805",
+  "N806",
+  "PT011",
+  "PT012",
+  "PT018",
+  "PT019",
+  "RUF012",
+  "RUF001",
+  "RUF043",
+  "S105",
+  "S106",
+  "S108",
+  "S603",
+  "S608",
+  "SIM101",
+  "SIM108",
+  "SIM117",
+  "TC001",
+  "TC002",
+  "TC003",
+]

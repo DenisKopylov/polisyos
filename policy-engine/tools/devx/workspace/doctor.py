@@ -140,7 +140,7 @@ def _check_playwright() -> CheckResult:
         return CheckResult(
             "playwright",
             False,
-            f"Chromium launch smoke-check failed in frontend/runtime-dashboard ({exc})",
+            f"Chromium launch smoke-check failed in apps/runtime-dashboard ({exc})",
         )
     return CheckResult("playwright", True, "Chromium browser is launchable")
 
@@ -158,19 +158,26 @@ def _check_lockfiles() -> list[CheckResult]:
 
     try:
         _run_checked(
-            ["npm", "ci", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"],
-            cwd=str(FRONTEND_ROOT),
+            [
+                "corepack",
+                "pnpm",
+                "install",
+                "--frozen-lockfile",
+                "--lockfile-only",
+                "--ignore-scripts",
+            ],
+            cwd=str(PRODUCT_ROOT),
         )
     except subprocess.CalledProcessError as exc:
         results.append(
             CheckResult(
-                "package-lock",
+                "pnpm-lock",
                 False,
-                f"package-lock.json is stale or inconsistent ({exc})",
+                f"pnpm-lock.yaml is stale or inconsistent ({exc})",
             )
         )
     else:
-        results.append(CheckResult("package-lock", True, "package-lock.json matches package.json"))
+        results.append(CheckResult("pnpm-lock", True, "pnpm-lock.yaml matches package manifests"))
 
     return results
 
@@ -202,12 +209,12 @@ def _check_generated_contracts() -> list[CheckResult]:
                 "--extra",
                 "ml",
                 "python",
-                "tools/ops/runtime/check_runtime_api_contract.py",
+                "tools/ops_runners/runtime/check_runtime_api_contract.py",
             ],
         ),
         (
             "frontend-contracts",
-            ["npm", "run", "contracts:verify"],
+            ["corepack", "pnpm", "run", "contracts:verify"],
         ),
     ]
 

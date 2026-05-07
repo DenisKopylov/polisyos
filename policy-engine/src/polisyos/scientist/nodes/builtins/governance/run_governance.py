@@ -41,18 +41,18 @@ from polisyos.ir.governance.gate import (
     GateVerdict,
 )
 from polisyos.ir.refs import NormativeArbitrationResultRef
-from polisyos.scientist.claims.ledger import persist_claim_ledger
-from polisyos.scientist.claims.projections import project_governance_report_claims
-from polisyos.scientist.claims.validators import (
+from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
+from polisyos.scientist.evidence.claims.projections import project_governance_report_claims
+from polisyos.scientist.evidence.claims.validators import (
     is_claim_spine_enabled,
     is_fail_on_naked_claims_enabled,
     validate_state_claim_projection,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
 )
@@ -60,7 +60,7 @@ from polisyos.scientist.governance.pass_registry import (
     runtime_profile as build_runtime_profile,
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
-from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
+from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CLAIMS_REF,

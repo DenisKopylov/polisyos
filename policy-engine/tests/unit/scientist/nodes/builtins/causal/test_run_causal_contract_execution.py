@@ -10,8 +10,8 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.observation.causal_execution import load_causal_execution_bundle
 from polisyos.ir.refs import CausalExecutionBundleRef
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
     RunCausalContractExecutionNode,
 )

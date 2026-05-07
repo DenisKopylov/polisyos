@@ -1,4 +1,8 @@
-"""Compatibility shim for a Phase 5/6 decomposition module move."""
+"""Compatibility shim for legacy `polisyos.foundry.executor` imports.
+
+The canonical execution package is `polisyos.foundry.execute`; this package is
+kept only as a targeted helper re-export for callers that have not migrated yet.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +12,10 @@ from typing import Any
 __all__ = (
     "ApplyArtifacts",
     "ExecuteArtifacts",
+    "ExecutionStrictness",
+    "FailureCard",
+    "FailureKind",
+    "FailureSeverity",
     "apply_op",
     "apply_operator",
     "apply_ops_for_slot",
@@ -39,6 +47,10 @@ __all__ = (
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ApplyArtifacts": ("polisyos.foundry.execute.executor", "ApplyArtifacts"),
     "ExecuteArtifacts": ("polisyos.foundry.execute.executor", "ExecuteArtifacts"),
+    "ExecutionStrictness": ("polisyos.foundry.execute.executor", "ExecutionStrictness"),
+    "FailureCard": ("polisyos.foundry.execute.executor", "FailureCard"),
+    "FailureKind": ("polisyos.foundry.execute.executor", "FailureKind"),
+    "FailureSeverity": ("polisyos.foundry.execute.executor", "FailureSeverity"),
     "apply_op": ("polisyos.foundry.execute.executor", "apply_op"),
     "apply_operator": ("polisyos.foundry.execute.executor", "apply_operator"),
     "apply_ops_for_slot": ("polisyos.foundry.execute.executor", "apply_ops_for_slot"),

@@ -76,7 +76,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.safety import safe_path_segment
+from polisyos.fabric.quality.safety import safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,

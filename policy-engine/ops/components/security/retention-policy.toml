@@ -1,0 +1,9 @@
+[retention_policy]
+component = "security"
+owner = "team-security"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["security", "audits", "keys", "production_data"]
+default_class = "R3 Compliance"
+cleanup = "Security evidence and keys require manual approval; never promote private key material."
+

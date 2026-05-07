@@ -6,7 +6,7 @@ from enum import Enum
 
 from pydantic import Field, model_validator
 
-from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
 from polisyos.ir.governance.mechanism_semantics import MechanismSemanticsSpec
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 

@@ -18,8 +18,8 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.transportability import load_transportability_result
 from polisyos.ir.observation.causal_readiness import load_causal_readiness_bundle
 from polisyos.ir.refs import CausalReadinessBundleRef, TransportabilityResultRef
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
     _SPEC,
     RunCausalReadinessNode,

@@ -96,15 +96,15 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.skip_frontend:
             ensure_executable(
-                "npm",
+                "corepack",
                 reason="run frontend typecheck",
                 skip_hint="--skip-frontend",
             )
-            commands.extend(frontend_npm_runs("typecheck", label="npm typecheck"))
+            commands.extend(frontend_npm_runs("typecheck", label="pnpm typecheck"))
             commands.extend(
                 frontend_npm_runs(
                     "check:architecture",
-                    label="npm check:architecture",
+                    label="pnpm check:architecture",
                 )
             )
 

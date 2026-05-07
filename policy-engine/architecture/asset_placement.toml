@@ -1,0 +1,163 @@
+[asset_placement]
+version = 1
+status = "report_only"
+phase = "repository-best-in-class-phase-2.9"
+owner = "team-quality"
+directory_contracts_source = "architecture/directory_contracts.toml"
+test_ratchets_source = "architecture/test_ratchets.toml"
+generated_artifacts_source = "architecture/generated_artifacts.toml"
+local_runtime_state_source = "architecture/local_runtime_state.toml"
+validator_command = "uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors"
+cleanup_command = "uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run"
+gate_conversion_phase = "wave-6.2"
+classification_policy = "Product data, test data, golden snapshots, examples, local reports, and generated benchmark reports are separately reviewable classes."
+promotion_rules = [
+  "Product seed assets must live under package-owned assets/ or an explicitly registered runtime/product fixture root.",
+  "Test fixtures live under tests/_data or benchmark data roots after Phase 2.4.",
+  "Golden records live under tests/_golden or explicitly registered snapshot roots after Phase 2.4.",
+  "Examples keep assets inside installable examples/<example-name>/ projects.",
+  "Local reports stay ignored under .polisyos/reports, _build, or benchmarks/_reports until reviewed and promoted.",
+  "Promoted report evidence must land under docs/archive/reports, release evidence, or a registered generated-artifact family.",
+]
+
+[budgets]
+default_max_product_asset_file_bytes = 1048576
+default_max_product_asset_total_bytes = 10485760
+local_report_stale_days = 30
+benchmark_report_stale_days = 30
+allowed_product_asset_suffixes = [
+  ".csv",
+  ".json",
+  ".jsonl",
+  ".md",
+  ".toml",
+  ".txt",
+  ".yaml",
+  ".yml",
+]
+forbidden_product_asset_suffixes = [
+  ".arrow",
+  ".duckdb",
+  ".feather",
+  ".orc",
+  ".parquet",
+  ".pkl",
+  ".sqlite",
+  ".sqlite3",
+  ".xls",
+  ".xlsx",
+]
+
+[[asset_class]]
+id = "product_seed_assets"
+review_class = "product_data"
+owner = "team-data-forge"
+allowed_roots = ["src/polisyos/<package>/assets/", "src/polisyos/<package>/**/assets/"]
+registered_exception_roots = ["src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/"]
+allowed_suffixes = [".csv", ".json", ".jsonl", ".md", ".toml", ".yaml", ".yml"]
+max_file_bytes = 1048576
+max_total_bytes = 10485760
+commit_policy = "package_owned_assets_or_registered_product_fixtures_only"
+promotion_rule = "Register committed generated/product fixture outputs in architecture/generated_artifacts.toml or a package-local README/AUTHORING contract."
+
+[[asset_class]]
+id = "test_fixtures"
+review_class = "test_data"
+owner = "team-quality"
+allowed_roots = [
+  "tests/_data/",
+  "tests/contract/**/fixtures/",
+  "benchmarks/_data/",
+]
+legacy_roots_until_phase = []
+commit_policy = "small_reviewed_test_fixtures_only"
+promotion_rule = "Prefer tests/_data/<package>/ for shared raw data; keep package-local generated runtime fixture roots out of committed data."
+
+[[asset_class]]
+id = "golden_records"
+review_class = "golden_snapshot"
+owner = "team-quality"
+allowed_roots = [
+  "tests/_golden/",
+  "tests/contract/**/snapshots/",
+]
+legacy_roots_until_phase = []
+commit_policy = "reviewed_golden_or_registered_snapshot_only"
+promotion_rule = "Golden records are reviewed snapshots; generated local outputs are not goldens until promoted."
+
+[[asset_class]]
+id = "examples_tutorial_assets"
+review_class = "example_asset"
+owner = "team-docs"
+allowed_roots = ["examples/<example-name>/"]
+commit_policy = "installable_examples_only"
+promotion_rule = "Example assets stay inside a runnable examples/<example-name>/ project with README coverage."
+
+[[asset_class]]
+id = "local_reports"
+review_class = "local_report"
+owner = "team-docs"
+allowed_roots = ["docs/archive/reports/"]
+local_roots = [".polisyos/reports/", ".polisyos/audits/", "_build/**/audit/"]
+commit_policy = "ignored_until_reviewed"
+promotion_rule = "Commit only curated summaries or redacted evidence under docs/archive/reports or release evidence."
+
+[[asset_class]]
+id = "generated_benchmark_reports"
+review_class = "benchmark_report"
+owner = "team-quality"
+allowed_roots = ["docs/archive/reports/benchmarks/"]
+local_roots = ["benchmarks/_reports/", "_build/benchmark-results/"]
+commit_policy = "local_by_default_reviewed_baseline_only"
+promotion_rule = "Promote benchmark evidence through docs/archive/reports/benchmarks or architecture/generated_artifacts.toml."
+
+[[registered_product_fixture]]
+id = "catalog-relevant-topics-domain-fixtures"
+path = "src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/"
+owner = "team-data-forge"
+runtime_product_input = true
+rename_decision = "retain-fixtures-name-by-contract"
+contract_reason = "ADR-0137 declares this root as reviewed catalog fixtures used by academic topic selection defaults."
+source_contracts = [
+  "docs/adr/repository-structure-0137-production-data-fixtures.md",
+  "architecture/generated_artifacts.toml",
+]
+allowed_suffixes = [".csv"]
+max_file_bytes = 1048576
+max_total_bytes = 1048576
+promotion_rule = "Regenerate only through the catalog relevant-topics generated-artifact family and review diffs before commit."
+
+[[ambiguous_fixture_directory]]
+id = "data-forge-shadow-cache-fixtures"
+path_pattern = "tests/_data/data_forge/**/cache/"
+owner = "team-data-forge"
+class = "test_fixture_materialization"
+allowed_until_phase = "after-2.4"
+contract_reason = "Committed shadow fixtures preserve cache-shaped artifact paths for Data Forge pipeline replay tests under the Phase 2.4 tests/_data root."
+
+[[cleanup_surface]]
+id = "stale-local-reports"
+owner = "team-docs"
+paths = [".polisyos/reports/", "benchmarks/_reports/", "_build/**/audit/"]
+dry_run_command = "uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run"
+apply_command = "uv run polisyos-tools workspace clean-local-reports --stale-days 30 --apply"
+promotion_target = "docs/archive/reports/ or release evidence after redaction and owner review"
+automatic = true
+
+[[cleanup_surface]]
+id = "local-audit-reports"
+owner = "team-platform"
+paths = [".polisyos/audits/"]
+dry_run_command = "uv run polisyos-tools workspace clean-local-reports --include-audits --dry-run"
+apply_command = "manual approval only"
+promotion_target = "docs/archive/reports/ or incident/release evidence after redaction and owner approval"
+automatic = false
+
+[[cleanup_surface]]
+id = "source-adjacent-residue"
+owner = "team-devx"
+paths = ["**/.DS_Store", "**/__pycache__/", "src/*.egg-info/", "src/polisyos/**/fixtures/**/"]
+dry_run_command = "uv run polisyos-tools workspace clean-local-reports --include-residue --dry-run"
+apply_command = "uv run polisyos-tools workspace clean-local-reports --include-residue --apply"
+promotion_target = "none"
+automatic = true

@@ -1,0 +1,119 @@
+[package]
+id = "data_forge"
+module = "polisyos.data_forge"
+name = "data_forge"
+owner = "team-data-forge"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Asset-centric build-time Data Forge facade and read-only runtime data API."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "active_root_facade"
+layout_owner = "team-data-forge"
+source_root = "src/polisyos/data_forge"
+readme = "src/polisyos/data_forge/README.md"
+root_facade_policy = "top-level package exposes build-time facade plus read_api; runtime consumers may import only polisyos.data_forge.read_api"
+implementation_roots = [
+  "src/polisyos/data_forge/domains",
+  "src/polisyos/data_forge/extensions",
+  "src/polisyos/data_forge/kernel",
+  "src/polisyos/data_forge/read_api",
+]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.data_forge"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.scientist",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+runtime_allowed_submodules = ["polisyos.data_forge.read_api"]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_experimental"
+facade_mode = "lazy_facade"
+registry_owner = "team-data-forge"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.data_forge", "polisyos.data_forge.read_api"]
+major_subsystem = true
+notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, quality, and migration-test contracts; read_api is the only runtime import surface."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/data_forge"]
+contract_roots = ["tests/contract", "tests/unit/data_forge"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/data_forge"]
+minimum_expectations = [
+  "domain materialization changes keep fixture-backed golden or shadow coverage",
+  "read_api changes keep runtime-consumer import smoke tests",
+  "extension-domain changes keep offline example smoke coverage before fail-closed promotion",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/data_forge/slo.yaml", "ops/observability/slo/data_forge.yaml"]
+runbooks = [
+  "docs/runbooks/replay-or-restore.md",
+  "docs/runbooks/retained-artifact-recovery.md",
+  "docs/runbooks/broken-contract-generation.md",
+]
+runbook_expectation = "Data Forge source, lineage, schema, retained artifact, and domain materialization changes update the Data Forge component bundle."
+
+[observability]
+status = "covered"
+metrics_owner = "team-data-forge"
+metric_surfaces = ["ops/components/data_forge/runtime-contract.toml", "ops/observability/slo/data_forge.yaml"]
+trace_expectation = "Data Forge traces/logs carry dataset id, artifact ref, schema version, and promotion id for build-time source flows."
+
+[name_collisions]
+status = "declared"
+owner = "team-data-forge"
+registry = "architecture/name_registry.toml"
+allowed = ["domains", "runtime", "schemas"]
+
+[[allowed_name_collision]]
+name = "domains"
+scope = "package-local"
+reason = "Data Forge domains are build-time source domains and must not be imported by runtime consumers except through read_api outputs."
+owner = "team-data-forge"
+
+[exceptions]
+status = "none"
+owner = "team-data-forge"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "active"
+owner = "team-data-forge"
+extension_points = ["polisyos.data_forge_domains"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = ["polisyos.data_forge.domains.components:__polisyos_components__"]
+example_packages = ["examples/extensions/data_forge_domain"]

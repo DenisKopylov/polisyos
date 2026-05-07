@@ -16,11 +16,11 @@ from polisyos.ir.kernel.base import (
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from polisyos.ir.citations import FragmentLocator
+    from polisyos.ir.references import FragmentLocator
 else:
     from datetime import datetime
 
-    from polisyos.ir.citations import FragmentLocator
+    from polisyos.ir.references import FragmentLocator
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

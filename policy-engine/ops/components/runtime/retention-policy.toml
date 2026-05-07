@@ -1,0 +1,9 @@
+[retention_policy]
+component = "runtime"
+owner = "team-runtime"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["runs", "runtime", "idempotency", "audits", "control_plane_sqlite", "cas_cache"]
+default_class = "R1 Short operational"
+cleanup = "Runtime state, idempotency, and audit cleanup require owner approval; CAS cache cleanup uses dry-run first."
+

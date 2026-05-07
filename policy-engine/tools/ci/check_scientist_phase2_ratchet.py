@@ -11,16 +11,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_TARGETS = (
-    "src/polisyos/scientist/engine/async_executor.py",
-    "src/polisyos/scientist/engine/fan_out.py",
-    "src/polisyos/scientist/autotune/pareto.py",
+    "src/polisyos/scientist/orchestration/engine/async_executor.py",
+    "src/polisyos/scientist/orchestration/engine/fan_out.py",
+    "src/polisyos/scientist/methods/autotune/pareto.py",
     "src/polisyos/scientist/discovery/aggregator.py",
     "src/polisyos/scientist/discovery/output.py",
     "src/polisyos/scientist/discovery/portfolio.py",
     "src/polisyos/scientist/discovery/prior_miner.py",
     "src/polisyos/scientist/discovery/priors.py",
     "src/polisyos/scientist/discovery/workers/__init__.py",
-    "src/polisyos/scientist/llm/prompt_cache.py",
+    "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
     "src/polisyos/scientist/search/judge_stack.py",
     "src/polisyos/scientist/search/judge_thresholds.py",
     "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",

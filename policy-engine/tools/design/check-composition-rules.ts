@@ -5,15 +5,15 @@ import { getPolicyEngineRoot } from "./_a11yColor.ts";
 
 const policyEngineRoot = getPolicyEngineRoot();
 const WAVE2_COMPOSITION_SURFACES = [
-  "frontend/runtime-dashboard/src/app/layout",
-  "frontend/runtime-dashboard/src/features/artifacts/bureaucratic",
-  "frontend/runtime-dashboard/src/features/export/social",
-  "frontend/runtime-dashboard/src/features/runs/compare",
-  "frontend/runtime-dashboard/src/shared/charts",
-  "frontend/runtime-dashboard/src/shared/ui/counterfactual",
-  "frontend/runtime-dashboard/src/shared/ui/quantity",
-  "frontend/runtime-dashboard/src/shared/ui/trust-view",
-  "frontend/runtime-dashboard/src/styles",
+  "apps/runtime-dashboard/src/app/layout",
+  "apps/runtime-dashboard/src/features/artifacts/bureaucratic",
+  "apps/runtime-dashboard/src/features/export/social",
+  "apps/runtime-dashboard/src/features/runs/compare",
+  "apps/runtime-dashboard/src/shared/charts",
+  "apps/runtime-dashboard/src/shared/ui/counterfactual",
+  "apps/runtime-dashboard/src/shared/ui/quantity",
+  "apps/runtime-dashboard/src/shared/ui/trust-view",
+  "apps/runtime-dashboard/src/styles",
 ];
 const FORBIDDEN_PATTERNS: Array<{
   pattern: RegExp;
@@ -106,13 +106,13 @@ function main() {
   }
 
   assertNoRawSourceLeak(
-    "frontend/runtime-dashboard/src/features/export/social/OGCard.tsx",
+    "apps/runtime-dashboard/src/features/export/social/OGCard.tsx",
   );
   assertNoRawSourceLeak(
-    "frontend/runtime-dashboard/src/features/export/social/EmailSummary.tsx",
+    "apps/runtime-dashboard/src/features/export/social/EmailSummary.tsx",
   );
   assertNoRawSourceLeak(
-    "frontend/runtime-dashboard/src/features/export/social/generate-og.ts",
+    "apps/runtime-dashboard/src/features/export/social/generate-og.ts",
   );
 
   assertNoForbiddenCompositionTokens();

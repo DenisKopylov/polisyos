@@ -1,41 +1,11 @@
-"""Public kernel budgets module API."""
+"""Compatibility shim for `polisyos.scientist.kernel.budgets`.
+
+Canonical module: `polisyos.scientist.orchestration.kernel.budgets`.
+Sunset: 2026-12-31.
+"""
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from polisyos.scientist._internal.compat import alias_module as _alias_module
 
-
-class ComputeBudget(BaseModel):
-    """Compute budget public type."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    max_llm_calls: float = Field(default=3.0, ge=0)
-    max_sim_runs: float = Field(default=1.0, ge=0)
-    max_wall_time_s: float = Field(default=120.0, ge=0)
-
-
-class EvidenceBudget(BaseModel):
-    """Evidence budget public type."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    max_queries: int = Field(default=10, ge=0)
-
-
-class LegitimacyBudget(BaseModel):
-    """Legitimacy budget public type."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    require_human_gate: bool = False
-    notes: list[str] = Field(default_factory=list)
-
-
-class ComplexityBudget(BaseModel):
-    """Complexity budget public type."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    max_interventions: int = Field(default=10, ge=0)
-    max_scenarios: int = Field(default=10, ge=0)
+_alias_module(__name__, "polisyos.scientist.orchestration.kernel.budgets", globals())

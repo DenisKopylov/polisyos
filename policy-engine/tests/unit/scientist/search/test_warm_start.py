@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.search.controller import (
+from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
 )
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     GDPGrowthObjective,
     InequalityObjective,
 )
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 # ---------------------------------------------------------------------------
 # Fixtures

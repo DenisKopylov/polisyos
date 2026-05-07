@@ -14,8 +14,8 @@ from polisyos.lex.knowledge.types import (
     LegalSourceAnchor,
     LegalSourceBundle,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import RunSourceGapReviewNode
@@ -31,7 +31,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
-from polisyos.scientist.policy_verified import (
+from polisyos.scientist.validation.policy_verified import (
     LegalCandidatePack,
     LegalSourcePack,
     PolicyRequestFrame,
@@ -47,7 +47,7 @@ from polisyos.scientist.policy_verified import (
     persist_source_verification_report,
     persist_verified_policy_report,
 )
-from polisyos.scientist.policy_verified.service import (
+from polisyos.scientist.validation.policy_verified.service import (
     _build_legal_toolkit,
     _load_cross_graph_profile,
     _load_research_intent,
@@ -180,7 +180,7 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
             )
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service._build_legal_toolkit",
+        "polisyos.scientist.validation.policy_verified.service._build_legal_toolkit",
         lambda ctx_arg, state_arg: _RecoveryToolkit(),
     )
 
@@ -374,7 +374,7 @@ def test_build_legal_toolkit_uses_nested_evidence_sources(monkeypatch, tmp_path)
             captured["openai_api_key"] = openai_api_key
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.LegalKnowledgeGraph",
+        "polisyos.scientist.validation.policy_verified.service.LegalKnowledgeGraph",
         FakeLegalKnowledgeGraph,
     )
 
@@ -399,7 +399,7 @@ def test_load_research_intent_assertion_is_not_swallowed(monkeypatch, tmp_path) 
         raise AssertionError("intent-ref-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.ResearchIntentRef.model_validate",
+        "polisyos.scientist.validation.policy_verified.service.ResearchIntentRef.model_validate",
         _boom,
     )
 
@@ -417,7 +417,7 @@ def test_build_legal_toolkit_assertion_is_not_swallowed(monkeypatch, tmp_path) -
         raise AssertionError("legal-toolkit-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.LegalKnowledgeGraph",
+        "polisyos.scientist.validation.policy_verified.service.LegalKnowledgeGraph",
         _boom,
     )
 
@@ -447,7 +447,7 @@ def test_load_cross_graph_profile_assertion_is_not_swallowed(monkeypatch, tmp_pa
         raise AssertionError("cross-graph-profile-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.CrossGraphEvidenceProfile.model_validate",
+        "polisyos.scientist.validation.policy_verified.service.CrossGraphEvidenceProfile.model_validate",
         _boom,
     )
 
@@ -461,7 +461,7 @@ def test_parse_json_object_assertion_is_not_swallowed(monkeypatch: pytest.Monkey
         raise AssertionError("json-parse-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.json.loads",
+        "polisyos.scientist.validation.policy_verified.service.json.loads",
         _boom,
     )
 
@@ -476,7 +476,7 @@ def test_maybe_verify_with_llm_assertion_is_not_swallowed(monkeypatch: pytest.Mo
             raise AssertionError("llm-verifier-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service.create_traced_gateway_client",
+        "polisyos.scientist.validation.policy_verified.service.create_traced_gateway_client",
         lambda **kwargs: _FailingClient(),
     )
 

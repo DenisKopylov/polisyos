@@ -1,0 +1,12 @@
+[component_runtime_contract]
+component = "data_forge"
+owner = "team-data-forge"
+aliases = ["data_forge", "polisyos.data_forge", "polisyos.data_forge.read_api"]
+source_readme = "src/polisyos/data_forge/README.md"
+runtime_contract_links = [
+  "architecture/public_surface.toml",
+  "architecture/runtime_state_layout.toml",
+  "docs/reference/generated-artifacts.md",
+]
+release_gate_mode = "report_only"
+

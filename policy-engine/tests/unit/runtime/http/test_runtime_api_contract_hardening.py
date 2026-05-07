@@ -11,7 +11,7 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
 
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
-from tools.ops.runtime import generate_runtime_client
+from tools.ops_runners.runtime import generate_runtime_client
 
 
 def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
@@ -113,7 +113,7 @@ def test_committed_runtime_client_matches_generator() -> None:
     expected_ts = generate_runtime_client._render_ts(spec, operations)
     expected_js = generate_runtime_client._render_js(operations)
 
-    client_root = repo_root / "frontend" / "runtime-api-client"
+    client_root = repo_root / "packages" / "runtime-api-client"
     committed_ts = (client_root / "runtimeApiClient.ts").read_text(encoding="utf-8")
     committed_js = (client_root / "runtimeApiClient.js").read_text(encoding="utf-8")
 

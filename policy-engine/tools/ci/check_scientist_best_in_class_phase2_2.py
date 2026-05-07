@@ -24,19 +24,19 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/research_dag/replay.py"),
-    Path("src/polisyos/scientist/research_dag/comparison.py"),
-    Path("src/polisyos/scientist/research_dag/invalidation.py"),
-    Path("src/polisyos/scientist/research_dag/diff.py"),
+    Path("src/polisyos/scientist/methods/research_dag/replay.py"),
+    Path("src/polisyos/scientist/methods/research_dag/comparison.py"),
+    Path("src/polisyos/scientist/methods/research_dag/invalidation.py"),
+    Path("src/polisyos/scientist/methods/research_dag/diff.py"),
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_2.py"),
-    Path("tests/unit/scientist/research_dag/test_replay_plan.py"),
-    Path("tests/unit/scientist/research_dag/test_comparison.py"),
-    Path("tests/unit/scientist/research_dag/test_invalidation.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_2.py"),
+    Path("tests/unit/scientist/methods/research_dag/test_replay_plan.py"),
+    Path("tests/unit/scientist/methods/research_dag/test_comparison.py"),
+    Path("tests/unit/scientist/methods/research_dag/test_invalidation.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_2.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "ResearchReplayPlan",
@@ -68,23 +68,23 @@ INDEX_TOKENS: tuple[str, ...] = (
 )
 MKDOCS_TOKENS: tuple[str, ...] = ("reference/scientist/research-dag-replay.md",)
 INTEGRATION_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("src/polisyos/scientist/research_dag/replay.py"): (
+    Path("src/polisyos/scientist/methods/research_dag/replay.py"): (
         "ResearchReplayPlan",
         "ReplayMode",
         "legacy_minimal",
         "public_replay_export",
     ),
-    Path("src/polisyos/scientist/research_dag/comparison.py"): (
+    Path("src/polisyos/scientist/methods/research_dag/comparison.py"): (
         "ResearchTrajectoryComparisonReport",
         "changed_queries",
         "changed_snippets",
     ),
-    Path("src/polisyos/scientist/research_dag/invalidation.py"): (
+    Path("src/polisyos/scientist/methods/research_dag/invalidation.py"): (
         "SourceInvalidationEvent",
         "propagate_source_invalidation",
         "ClaimLifecycleAction.MARKED_STALE",
     ),
-    Path("src/polisyos/scientist/claims/lifecycle.py"): ("MARKED_STALE",),
+    Path("src/polisyos/scientist/evidence/claims/lifecycle.py"): ("MARKED_STALE",),
 }
 
 

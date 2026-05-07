@@ -10,7 +10,7 @@ from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 
 if TYPE_CHECKING:
-    from polisyos.ir.citations import FragmentLocator
+    from polisyos.ir.references import FragmentLocator
 
 _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
 _ID_RE = re.compile(ID_PATTERN)

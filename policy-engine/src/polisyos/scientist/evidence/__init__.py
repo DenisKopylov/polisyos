@@ -7,13 +7,17 @@ from typing import Any
 
 __all__ = [
     "EvidenceCachePolicy",
+    "EvidenceSourcesConfig",
     "EvidenceVerificationResult",
+    "LLMCallRecord",
     "SafeFetchPolicy",
     "SnippetLedgerEntry",
     "SnippetLedgerValidation",
+    "RunProvenanceDAG",
     "assert_web_evidence_bundle_valid",
     "build_blocked_fetch_result",
     "build_claim_support_links",
+    "build_path_source_status",
     "build_snippet_ledger",
     "build_url_fetch_cache",
     "cap_tool_int",
@@ -21,11 +25,16 @@ __all__ = [
     "detect_prompt_injection",
     "evaluate_content_type",
     "evaluate_fetch_request",
+    "from_prov_json",
+    "merge_evidence_sources_payload",
     "neutralize_instruction_markers",
+    "normalize_evidence_sources_config",
     "sanitize_untrusted_page_text",
     "score_source_quality",
     "score_web_evidence_bundle_sources",
     "stable_snippet_id",
+    "to_prov_json",
+    "update_source_status",
     "validate_claim_support_links",
     "validate_snippet_spans",
     "verify_web_evidence_bundle",
@@ -34,6 +43,20 @@ __all__ = [
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "EvidenceCachePolicy": ("polisyos.scientist.evidence.cache", "EvidenceCachePolicy"),
     "build_url_fetch_cache": ("polisyos.scientist.evidence.cache", "build_url_fetch_cache"),
+    "EvidenceSourcesConfig": ("polisyos.scientist.evidence.sources", "EvidenceSourcesConfig"),
+    "build_path_source_status": (
+        "polisyos.scientist.evidence.sources",
+        "build_path_source_status",
+    ),
+    "merge_evidence_sources_payload": (
+        "polisyos.scientist.evidence.sources",
+        "merge_evidence_sources_payload",
+    ),
+    "normalize_evidence_sources_config": (
+        "polisyos.scientist.evidence.sources",
+        "normalize_evidence_sources_config",
+    ),
+    "update_source_status": ("polisyos.scientist.evidence.sources", "update_source_status"),
     "build_claim_support_links": (
         "polisyos.scientist.evidence.claim_support",
         "build_claim_support_links",
@@ -100,6 +123,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.evidence.verifier",
         "verify_web_evidence_bundle",
     ),
+    "LLMCallRecord": ("polisyos.scientist.evidence.provenance", "LLMCallRecord"),
+    "RunProvenanceDAG": ("polisyos.scientist.evidence.provenance", "RunProvenanceDAG"),
+    "from_prov_json": ("polisyos.scientist.evidence.provenance", "from_prov_json"),
+    "to_prov_json": ("polisyos.scientist.evidence.provenance", "to_prov_json"),
 }
 
 

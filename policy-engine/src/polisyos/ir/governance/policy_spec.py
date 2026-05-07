@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import Field, model_validator
 
-from polisyos.ir._validation import (
+from polisyos.ir._internal.validation import (
     ensure_non_empty_dotted_path,
     ensure_unique_ids,
     validate_selector_expr,

@@ -9,20 +9,20 @@ from polisyos.core.contracts.scientist import (
     PolicyOptionSetRef,
     PolicyRequestFrameRef,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_OPTION_SET_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.policy_verified import (
+from polisyos.scientist.validation.policy_verified import (
     load_policy_option_set,
     load_policy_request_frame,
 )
-from polisyos.scientist.policy_verified.service import formalize_policy_option_set
+from polisyos.scientist.validation.policy_verified.service import formalize_policy_option_set
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_formalize_verified_policy@1.0.0"),

@@ -10,9 +10,9 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.engine.budget import BudgetState
-from polisyos.scientist.llm.budget_enforcer import LLMBudgetEnforcer
-from polisyos.scientist.llm.factory import create_traced_gateway_client
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
     ConstraintSatisfactionReport,
@@ -29,7 +29,7 @@ from polisyos.scientist.policy_design.prompts import (
     build_policy_translator_user_payload,
     get_policy_translator_prompt,
 )
-from polisyos.scientist.search.readiness import DecisionReadinessContract
+from polisyos.scientist.methods.search.readiness import DecisionReadinessContract
 
 
 class PolicyTranslatorConfig(BaseModel):

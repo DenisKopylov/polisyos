@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.search.funnel.level0_static import Level0StaticValidator
+from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
 
 
 def _make_candidate(**overrides):

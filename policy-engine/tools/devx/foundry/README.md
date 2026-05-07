@@ -14,7 +14,7 @@ breaking/non-breaking API changes.
   `src/polisyos/foundry/methods/{base,registry,composer}.pyi`.
 
 - Baseline artifact:
-  `tests/unit/foundry/fixtures/signature_baseline.json`.
+  `tests/_golden/foundry/signature_baseline.json`.
 
 ## Public Entrypoints
 
@@ -41,13 +41,13 @@ breaking/non-breaking API changes.
 | `uv run polisyos-tools foundry generate-stubs --dry-run`            | Проверить stub generation без записи `.pyi` файлов.                  | `smoke-tested` (команда запускается, но текущая env-конфигурация не исполняет `mypy.stubgen`) |
 | `uv run polisyos-tools foundry update-signature-baseline --dry-run` | Проверить signature diff без переписи baseline fixture.              | `smoke-tested` (сейчас падает на `RegistrySnapshot`/`.items()` mismatch)                      |
 | `uv run polisyos-tools foundry generate-stubs`                      | Записать regenerated `.pyi` stubs в `src/polisyos/foundry/methods/`. | `conceptual` (изменяет checked-in artifacts)                                                  |
-| `uv run polisyos-tools foundry update-signature-baseline`           | Обновить `tests/unit/foundry/fixtures/signature_baseline.json`.           | `conceptual` (изменяет checked-in artifact)                                                   |
+| `uv run polisyos-tools foundry update-signature-baseline`           | Обновить `tests/_golden/foundry/signature_baseline.json`.           | `conceptual` (изменяет checked-in artifact)                                                   |
 
 ## Test And Verification
 
 | Command                                                                                            | What it verifies                                                   | Status         |
 | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------- |
-| `uv run pytest -q tests/unit/foundry/contracts/test_signature_compat.py tests/tools/test_phase4_consolidation.py` | Signature drift contract и zoned-tooling compatibility.            | `conceptual`   |
+| `uv run pytest -q tests/unit/foundry/contracts/test_signature_compat.py tests/repo_quality/tools/test_phase4_consolidation.py` | Signature drift contract и zoned-tooling compatibility.            | `conceptual`   |
 | `uv run polisyos-tools list --by-zone`                                                             | Foundry tooling category корректно зарегистрирована в unified CLI. | `smoke-tested` |
 
 ## Reference Docs

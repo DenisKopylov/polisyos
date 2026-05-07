@@ -32,6 +32,7 @@ AUTHORED_PYTHON_LINT_SCOPE: tuple[str, ...] = tuple(
     path for path in AUTHORED_PYTHON_FORMAT_SCOPE if path not in PHASE8_LIMITED_PYTHON_SCOPE
 )
 AUTHORED_PYTHON_SCOPE = AUTHORED_PYTHON_FORMAT_SCOPE
+MYPY_CONFIG = "architecture/tooling/mypy/generated.ini"
 PYTHON_BASE_LAYERS: tuple[tuple[str, str, str], ...] = (
     ("common", "src/polisyos/common", "tests/unit/common"),
     ("ir", "src/polisyos/ir", "tests/unit/ir"),
@@ -50,7 +51,7 @@ REGO_SCOPE: tuple[str, ...] = (
 HELM_CHART_DIRS: tuple[str, ...] = tuple(
     sorted(
         chart_file.parent.relative_to(PRODUCT_ROOT).as_posix()
-        for chart_file in (PRODUCT_ROOT / "ops" / "helm").glob("*/Chart.yaml")
+        for chart_file in (PRODUCT_ROOT / "ops" / "cloud" / "helm").glob("*/Chart.yaml")
     )
 )
 _SKIP_SEGMENTS = {
@@ -165,15 +166,19 @@ def uv_run(label: str, *args: str, cwd: Path = PRODUCT_ROOT) -> CommandSpec:
 
 
 def npm_run(label: str, *args: str, workspace: Path | None = None) -> CommandSpec:
-    """Return a CommandSpec for a frontend npm script."""
+    """Return a CommandSpec for a frontend pnpm script."""
 
     cwd = FRONTEND_WORKSPACES[0] if workspace is None else workspace
     workspace_label = cwd.relative_to(PRODUCT_ROOT).as_posix()
-    return CommandSpec(label=f"{label} [{workspace_label}]", argv=("npm", "run", *args), cwd=cwd)
+    return CommandSpec(
+        label=f"{label} [{workspace_label}]",
+        argv=("corepack", "pnpm", "run", *args),
+        cwd=cwd,
+    )
 
 
 def frontend_npm_runs(script: str, *, label: str) -> list[CommandSpec]:
-    """Return one npm command per frontend workspace."""
+    """Return one pnpm command per frontend workspace."""
 
     return [npm_run(label, script, workspace=workspace) for workspace in FRONTEND_WORKSPACES]
 

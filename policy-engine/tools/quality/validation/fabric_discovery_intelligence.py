@@ -51,7 +51,7 @@ from tools.quality.validation.fabric_source_contracts import (  # noqa: E402
 )
 
 REPORT_SCHEMA_VERSION = "fabric.discovery_intelligence_report.v1"
-DEFAULT_EVAL_PATH = REPO_ROOT / "tests" / "fixtures" / "fabric_discovery_eval.json"
+DEFAULT_EVAL_PATH = REPO_ROOT / "tests" / "_data" / "fabric" / "discovery_eval.json"
 
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:

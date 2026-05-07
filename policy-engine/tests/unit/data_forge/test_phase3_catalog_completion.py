@@ -24,7 +24,7 @@ from polisyos.data_forge.read_api.catalog import (
     select_catalog_source_modules,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "non_lex_split"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "non_lex_split"
 CATALOG_BASELINE_ROOT = FIXTURES_ROOT / "catalog"
 CATALOG_CANDIDATE_ROOT = FIXTURES_ROOT / "catalog_candidate"
 

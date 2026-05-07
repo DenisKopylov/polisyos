@@ -209,7 +209,7 @@ def _build_parser() -> argparse.ArgumentParser:
         default="summary-json",
     )
     metric_validate.add_argument("--output", default=None)
-    metric_validate.add_argument("--cas-root", default=".polisyos")
+    metric_validate.add_argument("--cas-root", default=".polisyos/cas")
 
     cmd_lex = components.add_parser("lex")
     lex_sub = cmd_lex.add_subparsers(dest="lex_command")
@@ -229,7 +229,7 @@ def _build_parser() -> argparse.ArgumentParser:
     impact.add_argument("--profile", choices=["fast", "mvp", "strict"], default="strict")
     impact.add_argument("--format", choices=["json", "md"], default="md")
     impact.add_argument("--output", default=None)
-    impact.add_argument("--cas-root", default=".polisyos")
+    impact.add_argument("--cas-root", default=".polisyos/cas")
 
     cmd_scientist = components.add_parser("scientist")
     scientist_sub = cmd_scientist.add_subparsers(dest="scientist_command")
@@ -238,13 +238,13 @@ def _build_parser() -> argparse.ArgumentParser:
     burn_in.add_argument("--config", required=True, help="JSON config path")
     burn_in.add_argument("--output", default=None)
     burn_in.add_argument("--format", choices=["json"], default="json")
-    burn_in.add_argument("--cas-root", default=".polisyos")
+    burn_in.add_argument("--cas-root", default=".polisyos/cas")
 
     calibration_report = scientist_sub.add_parser("calibration-report")
     calibration_report.add_argument("--config", required=True, help="JSON config path")
     calibration_report.add_argument("--output", default=None)
     calibration_report.add_argument("--format", choices=["json", "md"], default="md")
-    calibration_report.add_argument("--cas-root", default=".polisyos")
+    calibration_report.add_argument("--cas-root", default=".polisyos/cas")
 
     sensitivity = scientist_sub.add_parser("sensitivity")
     sensitivity_sub = sensitivity.add_subparsers(dest="scientist_sensitivity_command")
@@ -252,13 +252,13 @@ def _build_parser() -> argparse.ArgumentParser:
     sensitivity_run.add_argument("--config", required=True, help="JSON config path")
     sensitivity_run.add_argument("--output", default=None)
     sensitivity_run.add_argument("--format", choices=["json"], default="json")
-    sensitivity_run.add_argument("--cas-root", default=".polisyos")
+    sensitivity_run.add_argument("--cas-root", default=".polisyos/cas")
 
     stress_test = scientist_sub.add_parser("stress-test")
     stress_test.add_argument("--config", required=True, help="JSON config path")
     stress_test.add_argument("--output", default=None)
     stress_test.add_argument("--format", choices=["json"], default="json")
-    stress_test.add_argument("--cas-root", default=".polisyos")
+    stress_test.add_argument("--cas-root", default=".polisyos/cas")
 
     provider_verify = scientist_sub.add_parser("provider-verify")
     provider_verify.add_argument(
@@ -295,7 +295,7 @@ def _build_parser() -> argparse.ArgumentParser:
     agent_smoke.add_argument("--format", choices=["json"], default="json")
 
     agent_eval = scientist_sub.add_parser("agent-eval")
-    agent_eval.add_argument("--cas-root", default=".polisyos")
+    agent_eval.add_argument("--cas-root", default=".polisyos/cas")
     agent_eval.add_argument(
         "--model-id",
         default="qwen/qwen3-235b-a22b-instruct-2507-fp8",
@@ -322,7 +322,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     cmd_replay = components.add_parser("replay")
     cmd_replay.add_argument("packet_ref", help="DecisionPacket ref (sha256:<hex> or <hex>)")
-    cmd_replay.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_replay.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
     cmd_replay.add_argument(
         "--mode",
         choices=["bit_exact", "ci_bounded", "skip"],
@@ -373,7 +373,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     cmd_resume = components.add_parser("resume")
     cmd_resume.add_argument("run_id", help="Run ID to resume (e.g. R_abc123)")
-    cmd_resume.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_resume.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
     cmd_resume.add_argument(
         "--checkpoint-policy",
         choices=["off", "strict", "best_effort"],
@@ -408,7 +408,7 @@ def _build_parser() -> argparse.ArgumentParser:
     cmd_sign = components.add_parser("sign")
     cmd_sign.add_argument("artifact_ref", nargs="?", help="Artifact ref (sha256:<hex> or <hex>)")
     cmd_sign.add_argument("--all", action="store_true", help="Sign all artifacts in CAS")
-    cmd_sign.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_sign.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
     cmd_sign.add_argument("--key", default=None, help="Path to private Ed25519 key (PEM)")
     cmd_sign.add_argument("--identity", default=None, help="Signer identity hint")
     cmd_sign.add_argument("--workers", type=int, default=8, help="Workers for --all")
@@ -422,7 +422,7 @@ def _build_parser() -> argparse.ArgumentParser:
     cmd_verify = components.add_parser("verify")
     cmd_verify.add_argument("artifact_ref", nargs="?", help="Artifact ref (sha256:<hex> or <hex>)")
     cmd_verify.add_argument("--all", action="store_true", help="Verify all artifacts in CAS")
-    cmd_verify.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_verify.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
     cmd_verify.add_argument(
         "--public-key",
         action="append",
@@ -455,7 +455,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     audit_export = audit_sub.add_parser("export")
     audit_export.add_argument("run_id")
-    audit_export.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    audit_export.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
     audit_export.add_argument(
         "--runs-dir",
         default=".polisyos/runs",
@@ -534,7 +534,7 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_verify.add_argument("--json", action="store_true")
 
     audit_runtime_query = audit_sub.add_parser("runtime-query")
-    audit_runtime_query.add_argument("--cas-root", default=".polisyos")
+    audit_runtime_query.add_argument("--cas-root", default=".polisyos/cas")
     audit_runtime_query.add_argument(
         "--stream",
         choices=["access", "mutation", "all"],
@@ -557,7 +557,7 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_runtime_query.add_argument("--json", action="store_true")
 
     audit_runtime_retention = audit_sub.add_parser("runtime-retention")
-    audit_runtime_retention.add_argument("--cas-root", default=".polisyos")
+    audit_runtime_retention.add_argument("--cas-root", default=".polisyos/cas")
     audit_runtime_retention.add_argument("--retention-days", type=int, required=True)
     audit_runtime_retention.add_argument("--archive-dir", default=None)
     audit_runtime_retention.add_argument("--dry-run", action="store_true")

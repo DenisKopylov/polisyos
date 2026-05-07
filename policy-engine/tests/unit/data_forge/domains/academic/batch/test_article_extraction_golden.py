@@ -145,7 +145,7 @@ async def _fake_fetch_full_text(work, **kwargs):  # type: ignore[no-untyped-def]
 
 
 def test_article_extraction_known_article_golden(monkeypatch, tmp_path: Path) -> None:
-    fixtures_root = Path(__file__).resolve().parents[6] / "tests" / "fixtures" / "phase0"
+    fixtures_root = Path(__file__).resolve().parents[5] / "_data" / "phase0"
     input_payload = _load_fixture(fixtures_root / "known_article_input.json")
     expected = _load_fixture(fixtures_root / "known_article_expected_result.json")
 

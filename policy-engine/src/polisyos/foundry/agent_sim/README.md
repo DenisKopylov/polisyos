@@ -4,11 +4,12 @@
 dynamics, population turnover, graph spillovers, distribution-aware metrics,
 and training-heavy policy simulation workflows.
 
-- Last updated: 2026-05-03
+- Last updated: 2026-05-05
 
 Truth-centric synthetic world generation now lives in
 `polisyos.foundry.agent_sim.world`. The former `polisyos.synthetic_world` root
-is a wrapper-only compatibility facade until 2026-10-01.
+is a wrapper-only compatibility facade until 2026-10-01; first-party behavior
+tests and examples use the Foundry world import directly.
 
 ## Purpose
 

@@ -1,0 +1,60 @@
+"src/polisyos/common/*" = ["T201"] # Разрешаем print в утилитах для отладки
+"src/polisyos/common/serialization.py" = ["ANN401"]
+"src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
+"src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
+"src/polisyos/ir/observation/governance.py" = ["S106"]
+"src/polisyos/ir/analytics/latent_bridge_synthesis.py" = ["S105"]
+"src/polisyos/ir/analytics/survey_quality.py" = ["S105"]
+"src/polisyos/runtime/http/errors.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control_plane_store.py" = [
+  "ANN401",
+  "C416",
+  "E501",
+  "I001",
+  "S608",
+  "SIM117",
+  "SIM118",
+  "TC006",
+  "UP017",
+  "UP035",
+]
+# Phase 5B runtime ratchet: these dynamic edges sit at HTTP, CAS payload,
+# observability, and framework-extension boundaries. The list stays explicit so
+# newly added runtime modules enter Ruff fail-closed.
+"src/polisyos/runtime/__init__.py" = ["ANN401"]
+"src/polisyos/runtime/api.py" = ["ANN401"]
+"src/polisyos/runtime/http/app.py" = ["ANN401"]
+"src/polisyos/runtime/http/container.py" = ["ANN401"]
+"src/polisyos/runtime/http/csrf.py" = ["ANN401"]
+"src/polisyos/runtime/http/dev_identity_middleware.py" = ["ANN401"]
+"src/polisyos/runtime/http/fail_closed_middleware.py" = ["ANN401"]
+"src/polisyos/runtime/http/mutation_policy.py" = ["ANN401"]
+"src/polisyos/runtime/http/openapi_contract.py" = ["ANN401"]
+"src/polisyos/runtime/http/resilience.py" = ["ANN401"]
+"src/polisyos/runtime/http/response_policies.py" = ["ANN401"]
+"src/polisyos/runtime/http/routes/review.py" = ["ANN401"]
+"src/polisyos/runtime/http/routes/runs.py" = ["ANN401", "B008"]
+"src/polisyos/runtime/http/security.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/artifact_inspector.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control_registry_providers.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/debug.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/feedback.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/mobility.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/run_index.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/sae_spatial_service.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
+# Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
+"src/polisyos/runtime/manifest.py" = ["TC001"]
+"src/polisyos/runtime/replay.py" = ["ANN401"]
+# FastAPI requires dependency factories in endpoint defaults; the route modules
+# keep B008 suppressed while runtime API contract tests police the surface.
+"src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]
+"src/polisyos/runtime/http/routes/control.py" = ["B008"]
+"src/polisyos/runtime/http/routes/debug.py" = ["B008"]
+"src/polisyos/runtime/http/routes/lineage.py" = ["B008"]
+"src/polisyos/runtime/http/routes/mobility.py" = ["B008"]
+"tests/unit/ir/analytics/test_evidence_bundle.py" = ["S106"]
+"tests/unit/ir/test_public_surface.py" = ["S603"]
+"tests/unit/ir/test_schema_catalog.py" = ["S603"]

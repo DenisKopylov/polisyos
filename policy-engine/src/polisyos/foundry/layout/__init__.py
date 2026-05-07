@@ -14,11 +14,11 @@ __all__ = (
 )
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "SlotFamily": ("polisyos.foundry.methods.layout", "SlotFamily"),
-    "SlotFamilyManifest": ("polisyos.foundry.methods.layout", "SlotFamilyManifest"),
-    "SlotLayout": ("polisyos.foundry.methods.layout", "SlotLayout"),
-    "build_slot_family_manifest": ("polisyos.foundry.methods.layout", "build_slot_family_manifest"),
-    "build_slot_layout": ("polisyos.foundry.methods.layout", "build_slot_layout"),
+    "SlotFamily": ("polisyos.foundry.methods.compiler.layout", "SlotFamily"),
+    "SlotFamilyManifest": ("polisyos.foundry.methods.compiler.layout", "SlotFamilyManifest"),
+    "SlotLayout": ("polisyos.foundry.methods.compiler.layout", "SlotLayout"),
+    "build_slot_family_manifest": ("polisyos.foundry.methods.compiler.layout", "build_slot_family_manifest"),
+    "build_slot_layout": ("polisyos.foundry.methods.compiler.layout", "build_slot_layout"),
 }
 
 

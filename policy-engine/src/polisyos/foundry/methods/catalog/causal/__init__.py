@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -272,12 +272,7 @@ from .twin_network_query import TwinNetworkQuery
 
 def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Register all built-in causal methods into `registry` or the global singleton."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_causal_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("causal", registry)
 
 
 __all__ = [

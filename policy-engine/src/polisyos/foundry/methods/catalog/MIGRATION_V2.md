@@ -11,7 +11,7 @@ Foundry V2 завершает breaking cleanup старого method surface.
 
 ## Что использовать вместо этого
 
-- Для bootstrap/runtime: `polisyos.core.components.bootstrap.build_components_index(...)` и `polisyos.foundry.methods.components_bridge.bootstrap_method_registry_from_components(...)`.
+- Для bootstrap/runtime: `polisyos.core.components.bootstrap.build_components_index(...)` и `polisyos.foundry.methods.components.bridge.bootstrap_method_registry_from_components(...)`.
 - Для публичного flat API:
   - `from polisyos.foundry.methods.causal import SyntheticControlMethod`
   - `from polisyos.foundry.methods.optimization import ResourceLP`

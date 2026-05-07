@@ -1,0 +1,9 @@
+[retention_policy]
+component = "lex"
+owner = "team-lex"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["search_registry", "production_data", "cas", "reports"]
+default_class = "R1 Short operational"
+cleanup = "Legal graph and registry outputs are retained while active; production snapshots require owner approval before cleanup."
+

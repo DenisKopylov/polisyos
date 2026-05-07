@@ -7,9 +7,9 @@ import copy
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
-from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
-from polisyos.scientist.engine.retry import RetryPolicy
-from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
+from polisyos.scientist.orchestration.engine.retry import RetryPolicy
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 pytestmark = pytest.mark.property
 

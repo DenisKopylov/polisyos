@@ -15,7 +15,7 @@ from polisyos.core.contracts.foundry import (
     ExecuteResult,
 )
 from polisyos.core.security.tee import AttestationResult, AttestationStatus
-from polisyos.scientist.engine.context import FoundryPort
+from polisyos.scientist.orchestration.engine.context import FoundryPort
 
 
 class TestDefaultFoundryPortCompile:

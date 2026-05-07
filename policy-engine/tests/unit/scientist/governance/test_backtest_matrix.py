@@ -4,7 +4,7 @@ import json
 
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
 
 

@@ -12,26 +12,26 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.scientist.autotune.models import BenchmarkSplitManifest
-from polisyos.scientist.backtesting.adversarial import AdversarialGenerator
-from polisyos.scientist.doe.designs import (
+from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
+from polisyos.scientist.methods.backtesting.adversarial import AdversarialGenerator
+from polisyos.scientist.methods.doe.designs import (
     AdversarialPlan,
     AdversarialStrategy,
     ScenarioSweep,
 )
-from polisyos.scientist.doe.designs import (
+from polisyos.scientist.methods.doe.designs import (
     ParameterSpec as DOEParameterSpec,
 )
-from polisyos.scientist.doe.stress_report import StressTestReport
-from polisyos.scientist.engine.budget import BudgetState
-from polisyos.scientist.llm.budget_enforcer import LLMBudgetEnforcer
-from polisyos.scientist.llm.factory import create_traced_gateway_client
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.prompts import (
     build_policy_adversary_user_payload,
     get_policy_adversary_prompt,
 )
-from polisyos.scientist.search.adversarial import run_stress_test
-from polisyos.scientist.search.objective import CompositeObjective
+from polisyos.scientist.methods.search.adversarial import run_stress_test
+from polisyos.scientist.methods.search.objective import CompositeObjective
 
 
 class ScenarioAttackSurface(BaseModel):

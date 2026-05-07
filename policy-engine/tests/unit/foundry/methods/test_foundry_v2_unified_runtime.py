@@ -4,7 +4,7 @@ import pytest
 from polisyos.foundry._registry import MECHANISM_REGISTRY, get_mechanism_descriptor
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.foundry.methods.registry import MethodRegistry
 
 

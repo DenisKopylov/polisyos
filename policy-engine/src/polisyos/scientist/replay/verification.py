@@ -15,7 +15,7 @@ from polisyos.runtime.replay import (
     CompletenessLevel,
     measure_replayable_audit_bundle,
 )
-from polisyos.scientist.autotune.models import default_search_registry_root
+from polisyos.scientist.methods.autotune.models import default_search_registry_root
 
 REPLAY_VERIFICATION_REPORT_SCHEMA_NAME = "polisyos.scientist.replay.ReplayVerificationReport"
 

@@ -1,0 +1,13 @@
+{
+  "component": "runtime",
+  "owner": "team-runtime",
+  "aliases": ["runtime", "polisyos.runtime"],
+  "dashboards": [
+    {
+      "name": "Runtime Operability",
+      "path": "ops/observability/grafana/dashboards/runtime-operability.json",
+      "purpose": "Runtime API, control-plane, queue, cache, and routing health"
+    }
+  ]
+}
+

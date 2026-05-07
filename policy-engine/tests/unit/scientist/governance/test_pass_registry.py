@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.scientist.governance.pass_entrypoints import builtin_governance_pass_factories
 from polisyos.scientist.governance.pass_registry import (
     RUNTIME_ALLOWED_PASS_IDS,
     build_governance_pipeline,
@@ -57,6 +60,23 @@ def test_runtime_profile_filters_to_runtime_allowed_pass_ids() -> None:
     assert "causal_frontier_leakage" in filtered.pass_ids
     assert "transportability_required" in filtered.pass_ids
     assert "schema" not in filtered.pass_ids
+
+
+def test_governance_pass_reference_matches_runtime_registry() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    doc = repo_root / "docs/reference/scientist/governance-passes.md"
+    rows: dict[str, bool] = {}
+    for line in doc.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| `"):
+            continue
+        parts = [part.strip() for part in line.strip().strip("|").split("|")]
+        if len(parts) != 4 or parts[0] == "`pass_id`":
+            continue
+        pass_id = parts[0].strip("`")
+        rows[pass_id] = parts[3] == "Yes"
+
+    assert rows.keys() == builtin_governance_pass_factories().keys()
+    assert {pass_id for pass_id, allowed in rows.items() if allowed} == RUNTIME_ALLOWED_PASS_IDS
 
 
 def test_load_governance_passes_fails_fast_on_duplicate_pass_id(monkeypatch) -> None:

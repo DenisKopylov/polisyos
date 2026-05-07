@@ -20,7 +20,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import (
+from polisyos.ir._internal.validation import (
     ensure_confidence_interval,
     ensure_disjoint_sets,
     ensure_finite_numeric,

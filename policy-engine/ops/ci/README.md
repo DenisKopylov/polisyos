@@ -1,5 +1,8 @@
 # CI Operations
 
+- Owner: `team-devx`
+- Artifact type: `ci-template-control-plane`
+
 `ops/ci/` stores CI support material that is not directly executed by GitHub.
 
 - `templates/workflows/`: inactive product workflow templates retained for

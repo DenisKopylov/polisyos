@@ -9,8 +9,8 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile
 from polisyos.ir.analytics.decision_layer import load_optimization_ambiguity_certificate
 from polisyos.ir.analytics.distributional import DistributionalReport
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.evidence.sources import (
     EvidenceSourcesConfig,
     normalize_evidence_sources_config,
@@ -34,7 +34,7 @@ from polisyos.scientist.policy_design.phase3 import (
     phase3_ambiguity_required,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 
 
 @dataclass(frozen=True)

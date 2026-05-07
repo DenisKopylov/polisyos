@@ -36,7 +36,7 @@ from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
-from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -79,13 +79,13 @@ from polisyos.scientist.policy_design.output import (
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.search import (
+from polisyos.scientist.methods.search import (
     ActionableSideInformation,
     persist_actionable_side_information,
 )
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 
 
 def _passing_judge_verdict() -> dict[str, object]:
@@ -690,8 +690,8 @@ def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.run.context import RunContext
-    from polisyos.scientist.engine.context import ExecutionContext
-    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -736,8 +736,8 @@ def test_decision_packet_records_degraded_path_for_invalid_policy_bundle(tmp_pat
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.run.context import RunContext
-    from polisyos.scientist.engine.context import ExecutionContext
-    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref

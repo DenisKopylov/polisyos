@@ -342,21 +342,21 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                         "ignored": _is_ignored(git_root, path),
                     }
                 )
-    frontend_root = repo_root / "frontend"
-    for app_dir in sorted(frontend_root.glob("*")) if frontend_root.exists() else []:
-        if not app_dir.is_dir():
-            continue
-        for name in FRONTEND_BUILD_OUTPUT_NAMES:
-            path = app_dir / name
-            if path.exists():
-                build_outputs.append(
-                    {
-                        "name": name,
-                        "scope": "frontend_workspace",
-                        "path": _rel(path, git_root),
-                        "ignored": _is_ignored(git_root, path),
-                    }
-                )
+    for workspace_root in (repo_root / "apps", repo_root / "packages"):
+        for app_dir in sorted(workspace_root.glob("*")) if workspace_root.exists() else []:
+            if not app_dir.is_dir():
+                continue
+            for name in FRONTEND_BUILD_OUTPUT_NAMES:
+                path = app_dir / name
+                if path.exists():
+                    build_outputs.append(
+                        {
+                            "name": name,
+                            "scope": "frontend_workspace",
+                            "path": _rel(path, git_root),
+                            "ignored": _is_ignored(git_root, path),
+                        }
+                    )
 
     pyproject_path = repo_root / "pyproject.toml"
     pyproject_lines = pyproject_path.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -418,7 +418,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
                 path = root / name
                 lockfiles.append({"name": name, "path": _rel(path, git_root)})
 
-    runtime_dashboard_src = frontend_root / "runtime-dashboard" / "src"
+    runtime_dashboard_src = repo_root / "apps" / "runtime-dashboard" / "src"
     frontend_source_duplicates = [
         {
             "pair": "lib_vs_shared_lib",
@@ -501,6 +501,22 @@ def _load_package_layout(repo_root: Path) -> dict[str, Any]:
             defaults.get("allowed_root_py_files", DEFAULT_ALLOWED_ROOT_PY)
         ),
     }
+
+
+def _load_registered_python_shim_sources(repo_root: Path) -> set[str]:
+    payload = _load_toml(repo_root / "architecture" / "shims.toml")
+    sources: set[str] = set()
+    for shim in payload.get("shim", []):
+        source_path = str(shim.get("source_path", "")).strip()
+        if shim.get("type") != "python_reexport" or not source_path.endswith(".py"):
+            continue
+        path = repo_root / source_path
+        try:
+            relative = path.resolve().relative_to(repo_root.resolve()).as_posix()
+        except ValueError:
+            relative = source_path
+        sources.add(relative)
+    return sources
 
 
 def _missing_fields(entry: dict[str, Any], required_fields: tuple[str, ...]) -> list[str]:
@@ -600,10 +616,13 @@ def gate_empty_namespace(inventory: dict[str, Any]) -> list[dict[str, Any]]:
 
 def gate_loose_files(repo_root: Path, inventory: dict[str, Any]) -> list[dict[str, Any]]:
     layout = _load_package_layout(repo_root)
+    registered_python_shims = _load_registered_python_shim_sources(repo_root)
     findings: list[dict[str, Any]] = []
     allowed = set(layout["allowed_root_py_files"])
     for entry in inventory["loose_root_modules"]:
-        modules = entry["modules"]
+        modules = [
+            module for module in entry["modules"] if module["path"] not in registered_python_shims
+        ]
         non_allowed = [module for module in modules if Path(module["path"]).name not in allowed]
         if len(modules) > layout["max_root_py_files"]:
             findings.append(

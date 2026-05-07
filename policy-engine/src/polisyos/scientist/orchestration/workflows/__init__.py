@@ -1,0 +1,142 @@
+"""Stable workflow-factory facade for built-in Scientist DAG variants.
+
+Exports include the supported workflow specs, runner helpers, and engine
+protocols used by `run_experiment()` and external orchestration wrappers.
+Symbols are lazily imported to avoid pulling LangGraph and node registries into
+processes that only need to inspect the package surface.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.workflows.builder import (
+        build_default_registry,
+        build_execution_context,
+        build_registry_with_builtin_nodes,
+        resolve_workflow_id,
+        run_causal_full_workflow,
+        run_default_workflow,
+        run_discovery_workflow,
+        run_policy_design_workflow,
+        run_selected_workflow,
+    )
+    from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
+    from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
+    from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
+    from polisyos.scientist.orchestration.workflows.engine_langgraph import (
+        LangGraphEngine,
+        LangGraphEngineFactory,
+    )
+    from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+    from polisyos.scientist.orchestration.workflows.policy_design import policy_design_workflow_spec
+
+__all__ = [
+    "LangGraphEngine",
+    "LangGraphEngineFactory",
+    "SimpleLoopEngine",
+    "WorkflowEngine",
+    "WorkflowEngineFactory",
+    "build_default_registry",
+    "build_execution_context",
+    "build_registry_with_builtin_nodes",
+    "causal_full_workflow_spec",
+    "default_workflow_spec",
+    "discovery_workflow_spec",
+    "policy_design_workflow_spec",
+    "resolve_workflow_id",
+    "run_causal_full_workflow",
+    "run_default_workflow",
+    "run_discovery_workflow",
+    "run_policy_design_workflow",
+    "run_selected_workflow",
+]
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve workflow helpers and engine types on demand.
+
+    Args:
+        name: Exported symbol requested from `polisyos.scientist.orchestration.workflows`.
+
+    Returns:
+        The resolved workflow factory, runner helper, or engine class.
+
+    Raises:
+        AttributeError: If the requested name is not part of the stable facade.
+    """
+    if name in {
+        "build_default_registry",
+        "build_execution_context",
+        "build_registry_with_builtin_nodes",
+        "resolve_workflow_id",
+        "run_discovery_workflow",
+        "run_causal_full_workflow",
+        "run_default_workflow",
+        "run_policy_design_workflow",
+        "run_selected_workflow",
+    }:
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+            resolve_workflow_id,
+            run_causal_full_workflow,
+            run_default_workflow,
+            run_discovery_workflow,
+            run_policy_design_workflow,
+            run_selected_workflow,
+        )
+
+        return {
+            "build_default_registry": build_default_registry,
+            "build_execution_context": build_execution_context,
+            "build_registry_with_builtin_nodes": build_registry_with_builtin_nodes,
+            "resolve_workflow_id": resolve_workflow_id,
+            "run_discovery_workflow": run_discovery_workflow,
+            "run_causal_full_workflow": run_causal_full_workflow,
+            "run_default_workflow": run_default_workflow,
+            "run_policy_design_workflow": run_policy_design_workflow,
+            "run_selected_workflow": run_selected_workflow,
+        }[name]
+    if name in {
+        "default_workflow_spec",
+        "causal_full_workflow_spec",
+        "discovery_workflow_spec",
+        "policy_design_workflow_spec",
+    }:
+        from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+        from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
+        from polisyos.scientist.orchestration.workflows.policy_design import policy_design_workflow_spec
+
+        return {
+            "default_workflow_spec": default_workflow_spec,
+            "causal_full_workflow_spec": causal_full_workflow_spec,
+            "discovery_workflow_spec": discovery_workflow_spec,
+            "policy_design_workflow_spec": policy_design_workflow_spec,
+        }[name]
+    if name in {"WorkflowEngine", "WorkflowEngineFactory"}:
+        from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
+
+        return {
+            "WorkflowEngine": WorkflowEngine,
+            "WorkflowEngineFactory": WorkflowEngineFactory,
+        }[name]
+    if name == "SimpleLoopEngine":
+        from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+
+        return SimpleLoopEngine
+    if name in {"LangGraphEngine", "LangGraphEngineFactory"}:
+        from polisyos.scientist.orchestration.workflows.engine_langgraph import (
+            LangGraphEngine,
+            LangGraphEngineFactory,
+        )
+
+        return {
+            "LangGraphEngine": LangGraphEngine,
+            "LangGraphEngineFactory": LangGraphEngineFactory,
+        }[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

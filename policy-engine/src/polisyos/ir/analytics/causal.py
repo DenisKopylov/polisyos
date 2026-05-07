@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir._internal.validation import ensure_confidence_interval, ensure_finite_numeric
 from polisyos.ir.analytics.administrative_missingness import (
     AdministrativeMissingnessClass,
     MissingnessAssessmentReport,
@@ -34,7 +34,7 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import (
+from polisyos.ir.references import (
     BridgePlausibilityReportRef,
     CausalEffectReportRef,
     DataReadinessReportRef,

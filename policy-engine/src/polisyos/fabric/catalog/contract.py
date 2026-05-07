@@ -13,7 +13,7 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.fabric.connectors.contracts.schema import normalize_unit_id
-from polisyos.fabric.finite import ensure_finite_float
+from polisyos.fabric.quality.finite import ensure_finite_float
 
 
 class DataType(str, Enum):

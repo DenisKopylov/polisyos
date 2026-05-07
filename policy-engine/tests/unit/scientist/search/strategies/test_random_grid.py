@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.strategies.errors import StrategyExhaustedError
-from polisyos.scientist.search.strategies.grid import GridSearchStrategy
-from polisyos.scientist.search.strategies.random import RandomSearchStrategy
-from polisyos.scientist.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
+from polisyos.scientist.methods.search.strategies.grid import GridSearchStrategy
+from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
 
 
 def test_random_strategy_deterministic_seed(simple_space: SearchSpace) -> None:

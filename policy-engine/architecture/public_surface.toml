@@ -1,6 +1,13 @@
 [public_surface]
 version = 1
 internal_rule = "Any polisyos module path not listed in this manifest is internal by default."
+version_owner = "team-architecture"
+deprecation_window = "2 minor releases for public_stable removals; compatibility package rows use their explicit shim sunset date."
+release_fragment_change_class = "python-public-api"
+inventory = "architecture/public_surface_inventory.json"
+inventory_regenerate_command = "uv run polisyos-tools quality public-surface snapshot --all"
+inventory_review_owner = "team-architecture"
+inventory_review_policy = "Public-surface release fragments must declare surface_classification and set public_surface_inventory_reviewed=true after the committed inventory is regenerated or reviewed."
 
 [[package]]
 module = "polisyos.common"
@@ -31,9 +38,9 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/ir/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.ir"]
+supported_entrypoints = ["polisyos.ir", "polisyos.ir.api"]
 major_subsystem = true
-notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts."
+notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
 
 [[package]]
 module = "polisyos.fabric"
@@ -42,7 +49,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/fabric/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.fabric"]
+supported_entrypoints = ["polisyos.fabric", "polisyos.fabric.api"]
 major_subsystem = true
 notes = "Connector-backed ingestion, world queries, and catalog surfaces."
 
@@ -154,12 +161,12 @@ notes = "Canonical unversioned drift/degradation monitor surface. It is register
 module = "polisyos.ddm_15_7"
 classification = "compatibility"
 facade_mode = "eager_exports"
-owner = "team-scientist"
+owner = "team-architecture"
 readme = "src/polisyos/ddm_15_7/README.md"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.ddm_15_7"]
 major_subsystem = false
-notes = "Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01."
+notes = "Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only."
 
 [[package]]
 module = "polisyos.foundry.agent_sim.world"

@@ -18,7 +18,7 @@ import jax
 import numpy as np
 
 from polisyos.core.canon import content_hash, streaming_hash
-from polisyos.foundry.methods.specialization import BackendSpec
+from polisyos.foundry.methods.compiler.specialization import BackendSpec
 
 try:  # JAX >= 0.4
     from jax.tree_util import tree_flatten_with_path

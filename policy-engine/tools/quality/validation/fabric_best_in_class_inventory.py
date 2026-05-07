@@ -363,7 +363,8 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "src"
         / "polisyos"
         / "fabric"
-        / "processing_guarantees.py",
+        / "processing_guarantees"
+        / "__init__.py",
         "processing_guarantee_schema": repo_root
         / "schemas"
         / "fabric"
@@ -396,7 +397,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_discovery_intelligence.py",
-        "discovery_eval_fixture": repo_root / "tests" / "fixtures" / "fabric_discovery_eval.json",
+        "discovery_eval_fixture": repo_root / "tests" / "_data" / "fabric" / "discovery_eval.json",
         "discovery_intelligence_doc": repo_root
         / "docs"
         / "reference"
@@ -435,7 +436,12 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "testing"
         / "conformance.py",
         "scorecard": repo_root / "src" / "polisyos" / "fabric" / "connectors" / "scorecard.py",
-        "decision_data": repo_root / "src" / "polisyos" / "fabric" / "decision_data.py",
+        "decision_data": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "decision_data"
+        / "__init__.py",
         "trust_envelope_schema": repo_root / "schemas" / "fabric" / "trust_envelope.schema.json",
         "decision_data_coverage": repo_root
         / "tools"
@@ -447,8 +453,18 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quality"
         / "validation"
         / "fabric_decision_data_coverage.json",
-        "product_integration": repo_root / "src" / "polisyos" / "fabric" / "product_integration.py",
-        "compatibility": repo_root / "src" / "polisyos" / "fabric" / "compatibility.py",
+        "product_integration": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "product_integration"
+        / "__init__.py",
+        "compatibility": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "_internal"
+        / "compatibility.py",
         "product_integration_validator": repo_root
         / "tools"
         / "quality"
@@ -460,22 +476,22 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "fabric"
         / "product-api-integration.md",
         "runtime_openapi": repo_root / "schemas" / "runtime_api_v1.openapi.json",
-        "runtime_client_ts": repo_root / "frontend" / "runtime-api-client" / "runtimeApiClient.ts",
+        "runtime_client_ts": repo_root / "packages" / "runtime-api-client" / "runtimeApiClient.ts",
         "dashboard_fixture_registry": repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "test"
         / "contracts"
         / "runtimeContractFixtures.ts",
         "dashboard_validators": repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "api"
         / "validators.ts",
         "dashboard_fabric_decision_adapter": repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "shared"
@@ -483,14 +499,14 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "quantity"
         / "fabric-decision-data.ts",
         "dashboard_fabric_decision_hook": repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "api"
         / "hooks"
         / "useRunFabricDecisionData.ts",
         "dashboard_fixture_dir": repo_root
-        / "frontend"
+        / "apps"
         / "runtime-dashboard"
         / "src"
         / "test"
@@ -511,9 +527,19 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "connectors"
         / "profiles"
         / "builtin_profiles.py",
-        "quality": repo_root / "src" / "polisyos" / "fabric" / "quality.py",
-        "fitness_report": repo_root / "src" / "polisyos" / "fabric" / "fitness_report.py",
-        "observability": repo_root / "src" / "polisyos" / "fabric" / "observability.py",
+        "quality": repo_root / "src" / "polisyos" / "fabric" / "quality" / "__init__.py",
+        "fitness_report": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "fitness_report"
+        / "__init__.py",
+        "observability": repo_root
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "observability"
+        / "__init__.py",
         "core_metrics_base": repo_root
         / "src"
         / "polisyos"
@@ -567,10 +593,10 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "data_plane"
         / "replay_store.py",
         "quarantine": repo_root / "src" / "polisyos" / "fabric" / "data_plane" / "quarantine.py",
-        "evidence": repo_root / "src" / "polisyos" / "fabric" / "evidence.py",
+        "evidence": repo_root / "src" / "polisyos" / "fabric" / "evidence" / "__init__.py",
         "lineage": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "lineage.py",
         "provo": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "export_provo.py",
-        "world_query": repo_root / "src" / "polisyos" / "fabric" / "world_query.py",
+        "world_query": repo_root / "src" / "polisyos" / "fabric" / "world_query" / "__init__.py",
         "snapshots": repo_root / "src" / "polisyos" / "fabric" / "world" / "store" / "snapshots.py",
         "world_segments": repo_root
         / "src"
@@ -651,6 +677,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "src"
         / "polisyos"
         / "scientist"
+        / "methods"
         / "search"
         / "readiness.py",
         "scholar_provenance": repo_root / "src" / "polisyos" / "scholar" / "provenance.py",
@@ -676,7 +703,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         "column_mask": repo_root / "src" / "polisyos" / "fabric" / "security" / "column_mask.py",
         "pii_stage": repo_root / "src" / "polisyos" / "fabric" / "pii" / "stage.py",
         "fabric_facade": repo_root / "src" / "polisyos" / "fabric" / "__init__.py",
-        "ir_connectors": repo_root / "src" / "polisyos" / "ir" / "connectors.py",
+        "ir_connectors": repo_root / "src" / "polisyos" / "ir" / "connectors" / "__init__.py",
     }
 
 
@@ -689,9 +716,9 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
             "tests/unit/fabric/data_plane/test_processing_guarantees.py",
-            "tests/tools/test_fabric_schema_governance.py",
-            "tests/tools/test_fabric_source_contracts.py",
-            "tests/tools/test_fabric_processing_guarantees.py",
+            "tests/repo_quality/tools/test_fabric_schema_governance.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
         ],
         "evidence": [
             "tests/unit/fabric/data_plane/test_record_replay.py",
@@ -703,8 +730,8 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/unit/fabric/test_ingestion_quarantine.py",
             "tests/unit/fabric/test_provenance.py",
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
-            "tests/tools/test_fabric_source_contracts.py",
-            "tests/tools/test_fabric_processing_guarantees.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
         ],
         "semantics": [
             "tests/unit/fabric/test_quality_indicators.py",
@@ -714,9 +741,9 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/unit/fabric/test_discovery_intelligence.py",
             "tests/unit/fabric/test_entity_resolution.py",
-            "tests/tools/test_fabric_schema_governance.py",
-            "tests/tools/test_fabric_source_contracts.py",
-            "tests/tools/test_fabric_discovery_intelligence.py",
+            "tests/repo_quality/tools/test_fabric_schema_governance.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
         ],
         "world": [
             "tests/unit/fabric/test_world_time_travel.py",
@@ -742,10 +769,10 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
             "tests/unit/runtime/http/test_lineage_api.py",
             "tests/unit/runtime/http/test_lineage_routes.py",
-            "tests/tools/test_fabric_source_contracts.py",
-            "tests/tools/test_fabric_decision_data_coverage.py",
-            "tests/tools/test_fabric_discovery_intelligence.py",
-            "tests/tools/test_fabric_product_integration.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_decision_data_coverage.py",
+            "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
+            "tests/repo_quality/tools/test_fabric_product_integration.py",
             "tests/unit/fabric/test_product_integration.py",
             "tests/unit/runtime/http/test_fabric_integration_routes.py",
             "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
@@ -861,15 +888,15 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests/unit/fabric/connectors/test_contract_system.py",
             "tests/unit/fabric/connectors/test_schema_system.py",
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
-            "tests/tools/test_fabric_schema_governance.py",
-            "tests/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_schema_governance.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
         ],
     )
     source_platform_tests = _existing_paths(
         repo_root,
         [
             "tests/unit/fabric/connectors/test_source_contract_v2.py",
-            "tests/tools/test_fabric_source_contracts.py",
+            "tests/repo_quality/tools/test_fabric_source_contracts.py",
         ],
     )
     processing_tests = _existing_paths(
@@ -879,7 +906,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests/unit/fabric/data_plane/test_streaming_runtime.py",
             "tests/unit/fabric/data_plane/test_benchmarks.py",
             "tests/unit/fabric/data_plane/test_orchestrator.py",
-            "tests/tools/test_fabric_processing_guarantees.py",
+            "tests/repo_quality/tools/test_fabric_processing_guarantees.py",
         ],
     )
     discovery_tests = _existing_paths(
@@ -887,7 +914,7 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
         [
             "tests/unit/fabric/test_discovery_intelligence.py",
             "tests/unit/fabric/test_entity_resolution.py",
-            "tests/tools/test_fabric_discovery_intelligence.py",
+            "tests/repo_quality/tools/test_fabric_discovery_intelligence.py",
         ],
     )
     profile_tests = _existing_paths(
@@ -953,14 +980,14 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             "tests/unit/fabric/test_decision_data_envelope.py",
             "tests/unit/runtime/http/test_lineage_routes.py",
             "tests/unit/runtime/http/test_temporal_routes.py",
-            "tests/tools/test_fabric_decision_data_coverage.py",
+            "tests/repo_quality/tools/test_fabric_decision_data_coverage.py",
         ],
     )
     product_integration_tests = _existing_paths(
         repo_root,
         [
             "tests/unit/runtime/http/test_fabric_integration_routes.py",
-            "tests/tools/test_fabric_product_integration.py",
+            "tests/repo_quality/tools/test_fabric_product_integration.py",
             "tests/unit/fabric/test_product_integration.py",
             "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
             "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
@@ -2428,9 +2455,9 @@ def _build_surfaces(repo_root: Path) -> tuple[list[dict[str, Any]], dict[str, An
             tests=_existing_paths(
                 repo_root,
                 [
-                    "frontend/runtime-dashboard/src/test/contracts/contractFixtures.test.ts",
-                    "frontend/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
-                    "frontend/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+                    "apps/runtime-dashboard/src/test/contracts/contractFixtures.test.ts",
+                    "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+                    "apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
                 ],
             ),
             docs=["docs/reference/fabric/product-api-integration.md"],
@@ -3144,7 +3171,7 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
             "uv run python tools/quality/validation/fabric_wave2_strict_closure.py --check",
             "uv run python tools/quality/validation/fabric_best_in_class_inventory.py --check",
             "uv run bash tools/quality/validation/run_fabric_best_in_class_inventory.sh",
-            "uv run pytest tests/tools/test_fabric_best_in_class_inventory.py -q",
+            "uv run pytest tests/repo_quality/tools/test_fabric_best_in_class_inventory.py -q",
             "```",
             "",
         ]

@@ -1,0 +1,13 @@
+{
+  "component": "ir",
+  "owner": "team-ir",
+  "aliases": ["ir", "polisyos.ir", "polisyos.ir.api"],
+  "dashboards": [
+    {
+      "name": "SLO Overview",
+      "path": "ops/observability/grafana/dashboards/slo-overview.json",
+      "purpose": "Schema catalog and compatibility reliability posture"
+    }
+  ]
+}
+

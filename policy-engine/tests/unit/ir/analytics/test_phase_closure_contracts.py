@@ -18,7 +18,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 def test_phase_manifests_cover_all_first_occurrence_document_stages() -> None:
     document_stage_entries, duplicate_document_stages = parse_research_plan_stage_index(
-        _REPO_ROOT / "docs/archive/plans/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
+        _REPO_ROOT / "docs/plans/archive/CAUSAL_ENGINE_RESEARCH_RESULT_PLAN.md"
     )
 
     manifest_stage_ids = {stage.stage_id for stage in all_stage_declarations()}

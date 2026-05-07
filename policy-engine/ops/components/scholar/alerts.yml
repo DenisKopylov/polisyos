@@ -1,0 +1,9 @@
+component: scholar
+owner: team-scholar
+status: draft
+alerts: []
+exception:
+  reason: Scholar has provider/freshness SLOs and runbooks but no dedicated Prometheus alert family in Phase 4.9.
+  review_by: 2026-08-01
+  runbook: docs/runbooks/cache-rebuild-storm.md
+

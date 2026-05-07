@@ -1,0 +1,13 @@
+{
+  "component": "lex",
+  "owner": "team-lex",
+  "aliases": ["lex", "polisyos.lex"],
+  "dashboards": [
+    {
+      "name": "Knowledge Freshness",
+      "path": "ops/observability/grafana/dashboards/knowledge-freshness.json",
+      "purpose": "NormPack and legal knowledge freshness"
+    }
+  ]
+}
+

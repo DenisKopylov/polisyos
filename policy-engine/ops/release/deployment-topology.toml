@@ -1,0 +1,168 @@
+[deployment_topology]
+version = 1
+status = "contract_only"
+owner = "team-release"
+mode = "fail_closed"
+source_of_truth = "architecture/component_observability.toml, architecture/runbook_coverage.toml, ops/release/promotion-gates.toml, and deployment manifests"
+environment_order = ["local", "staging", "production"]
+topology_policy = "release promotion is evaluated per deployment unit; every unit declares owner, artifact roots, targets, rollback runbooks, and required promotion gates"
+breaking_change_policy = "runtime-state, API schema, IR schema, and persisted artifact breaking changes require migration/runbook docs before staging-to-production promotion"
+
+[[deployment_unit]]
+id = "control_plane"
+owner = "team-platform"
+artifact_roots = [
+  "ops/policy",
+  "ops/cloud/helm",
+  "ops/security",
+  "ops/release",
+]
+deployment_targets = ["kubernetes policy/control-plane", "OPA bundles", "identity and mTLS baseline"]
+release_evidence = [
+  "ops/security/sbom.toml",
+  "ops/security/secrets-baseline.toml",
+  "ops/release/commit-policy.toml",
+]
+rollback_runbooks = [
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+  "docs/runbooks/cas-opa-outage.md",
+]
+required_gates = [
+  "security_sbom_provenance",
+  "policy_bundle_tests",
+  "runbook_alert_coverage",
+  "breaking_migration_runbook_docs",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]
+
+[[deployment_unit]]
+id = "runtime_api"
+owner = "team-runtime"
+artifact_roots = [
+  "src/polisyos/runtime",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client",
+]
+deployment_targets = ["runtime API service", "generated API clients"]
+release_evidence = [
+  "ops/runtime/runtime-contracts.toml",
+  "ops/observability/slo/runtime.yaml",
+]
+rollback_runbooks = [
+  "docs/runbooks/runtime-api-outage.md",
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+]
+required_gates = [
+  "runtime_api_contract",
+  "api_schema_compatibility",
+  "runtime_state_migration_review",
+  "runtime_slo_error_budget",
+  "breaking_migration_runbook_docs",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]
+
+[[deployment_unit]]
+id = "data_plane"
+owner = "team-data-forge"
+artifact_roots = [
+  "src/polisyos/data_forge",
+  "src/polisyos/fabric",
+  "schemas/fabric",
+  "schemas/manifests",
+]
+deployment_targets = ["data ingestion workers", "artifact stores", "source contract registry"]
+release_evidence = [
+  "ops/observability/slo/data_forge.yaml",
+  "ops/observability/slo/fabric.yaml",
+]
+rollback_runbooks = [
+  "docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md",
+  "docs/runbooks/replay-or-restore.md",
+]
+required_gates = [
+  "data_plane_slo_error_budget",
+  "db_migration_review",
+  "runtime_state_migration_review",
+  "breaking_migration_runbook_docs",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]
+
+[[deployment_unit]]
+id = "frontend"
+owner = "team-frontend"
+artifact_roots = [
+  "apps/runtime-dashboard",
+  "apps/runtime-reference-shell",
+]
+deployment_targets = ["runtime dashboard", "reference shell"]
+release_evidence = [
+  "apps/runtime-dashboard/src/api/types.ts",
+  "packages/runtime-api-client/runtimeApiClient.ts",
+]
+rollback_runbooks = ["docs/runbooks/canary-rollback-or-promotion-failure.md"]
+required_gates = [
+  "runtime_api_contract",
+  "frontend_client_drift",
+  "docs_and_runbook_links",
+  "breaking_migration_runbook_docs",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]
+
+[[deployment_unit]]
+id = "cli"
+owner = "team-devx"
+artifact_roots = [
+  "packages/cli",
+  "tools/registry.py",
+  "docs/reference/cli.md",
+]
+deployment_targets = ["CLI package", "operator command surface"]
+release_evidence = [
+  "docs/reference/tools.md",
+  "ops/release/commit-policy.toml",
+]
+rollback_runbooks = [
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+  "docs/runbooks/dependency-upgrade-regression.md",
+]
+required_gates = [
+  "cli_command_surface",
+  "docs_and_runbook_links",
+  "security_sbom_provenance",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]
+
+[[deployment_unit]]
+id = "python_packages"
+owner = "team-architecture"
+artifact_roots = [
+  "src/polisyos/core",
+  "src/polisyos/ir",
+  "src/polisyos/foundry",
+  "src/polisyos/lex",
+  "src/polisyos/scholar",
+  "src/polisyos/scientist",
+]
+deployment_targets = ["Python distributions", "extension contracts", "internal package releases"]
+release_evidence = [
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/component_observability.toml",
+]
+rollback_runbooks = [
+  "docs/runbooks/dependency-upgrade-regression.md",
+  "docs/runbooks/broken-contract-generation.md",
+]
+required_gates = [
+  "package_public_surface",
+  "ir_migration_review",
+  "component_observability_coverage",
+  "breaking_migration_runbook_docs",
+  "compatibility_release_metadata",
+  "operability_release_supply_chain",
+]

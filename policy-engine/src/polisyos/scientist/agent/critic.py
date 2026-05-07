@@ -23,7 +23,7 @@ from polisyos.scientist.agent.protocols import (
     CritiqueSeverity,
     ProblemFrame,
 )
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 _COMMON_WORDS = {
     "the",

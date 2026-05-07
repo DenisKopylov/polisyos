@@ -1,0 +1,174 @@
+[package]
+id = "foundry"
+module = "polisyos.foundry"
+name = "foundry"
+owner = "team-foundry"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Domain-neutral compile, execute, methods, validation, runtime, agent simulation, and welfare surface."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "resolved_root_facade"
+layout_owner = "team-foundry"
+source_root = "src/polisyos/foundry"
+readme = "src/polisyos/foundry/README.md"
+root_facade_policy = "root .py stays facade plus blueprint-approved internal registry helpers"
+implementation_roots = [
+  "src/polisyos/foundry/compile",
+  "src/polisyos/foundry/execute",
+  "src/polisyos/foundry/runtime",
+  "src/polisyos/foundry/methods",
+  "src/polisyos/foundry/validation",
+  "src/polisyos/foundry/contracts",
+  "src/polisyos/foundry/mechanisms",
+  "src/polisyos/foundry/agent_sim",
+  "src/polisyos/foundry/welfare",
+  "src/polisyos/foundry/_internal",
+]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "resolved_root_facade"
+
+[boundaries]
+public_facade = "polisyos.foundry"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.scientist",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = [
+  "polisyos.foundry",
+  "polisyos.foundry.api",
+  "polisyos.foundry.compile",
+  "polisyos.foundry.execute",
+]
+major_subsystem = true
+notes = "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/foundry"]
+contract_roots = ["tests/contract", "tests/unit/foundry/contracts"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/foundry"]
+minimum_expectations = [
+  "method catalog changes keep golden and property coverage",
+  "compile/execute facade changes keep public facade tests",
+  "validation closure changes keep phase acceptance fixtures",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/foundry/slo.yaml", "ops/observability/slo/foundry.yaml"]
+runbooks = [
+  "docs/runbooks/benchmark-regression-triage.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+  "docs/runbooks/artifact-corruption-recovery.md",
+]
+runbook_expectation = "Foundry method-registry, execution degradation, cache, and artifact recovery changes update the Foundry operability bundle before fail-closed conversion."
+
+[observability]
+status = "report_only"
+metrics_owner = "team-foundry"
+metric_surfaces = [
+  "src/polisyos/foundry/methods/observability.py",
+  "docs/reference/foundry/observability-reproducibility.md",
+]
+trace_expectation = "Method dispatch, runtime execution, and validation reports include method id, determinism tier, seed manifest, and artifact lineage."
+
+[name_collisions]
+status = "declared"
+owner = "team-foundry"
+registry = "architecture/name_registry.toml"
+allowed = ["runtime", "validation", "contracts"]
+
+[[allowed_name_collision]]
+name = "runtime"
+scope = "package-local"
+reason = "Foundry runtime is compute runtime, not Runtime API/control-plane runtime."
+owner = "team-foundry"
+
+[[allowed_name_collision]]
+name = "validation"
+scope = "package-local"
+reason = "Foundry validation validates method closure and acceptance, distinct from Scientist validation."
+owner = "team-foundry"
+
+[[allowed_name_collision]]
+name = "contracts"
+scope = "package-local"
+reason = "Foundry contracts model compute and mechanism surfaces; core contracts remain cross-package ABI."
+owner = "team-foundry"
+
+[exceptions]
+status = "declared"
+owner = "team-foundry"
+registries = ["architecture/module_size_budget.toml", "architecture/static_analysis_overrides.toml"]
+
+[[exception]]
+id = "foundry-catalog-module-size"
+owner = "team-foundry"
+kind = "module_size_ratchet"
+reason = "Foundry method catalog contains the largest current modules and is covered by explicit shrinking budgets."
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/module_size_budget.toml"
+
+[[exception]]
+id = "foundry-static-analysis-ratchet"
+owner = "team-foundry"
+kind = "mypy_ruff_ratchet"
+reason = "Phase 4D keeps Foundry on explicit mypy and Ruff ratchets while method families are hardened vertically."
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/static_analysis_overrides.toml"
+
+[sunsets]
+status = "declared"
+owner = "team-architecture"
+
+[[sunset]]
+id = "foundry-aggregate-mirror"
+owner = "team-architecture"
+date = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+condition = "legacy aggregate gates read generated package-contract output instead of hand-edited TOML"
+
+[extension_host]
+status = "active"
+owner = "team-foundry"
+extension_points = ["polisyos.foundry_methods"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = ["polisyos.foundry.methods.components:__polisyos_components__"]
+example_packages = ["examples/extensions/foundry_method"]

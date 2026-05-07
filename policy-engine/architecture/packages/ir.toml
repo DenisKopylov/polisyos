@@ -1,0 +1,158 @@
+[package]
+id = "ir"
+module = "polisyos.ir"
+name = "ir"
+owner = "team-ir"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Schema-first policy, governance, analytics, observation, reference, and canonicalization contracts."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "resolved_root_facade"
+layout_owner = "team-ir"
+source_root = "src/polisyos/ir"
+readme = "src/polisyos/ir/README.md"
+root_facade_policy = "root .py is limited to __init__.py and api.py; implementation lives in contract packages, references, schemas, units, or _internal"
+implementation_roots = [
+  "src/polisyos/ir/analytics",
+  "src/polisyos/ir/artifacts",
+  "src/polisyos/ir/canon",
+  "src/polisyos/ir/connectors",
+  "src/polisyos/ir/fact_log",
+  "src/polisyos/ir/governance",
+  "src/polisyos/ir/kernel",
+  "src/polisyos/ir/linker",
+  "src/polisyos/ir/loaders",
+  "src/polisyos/ir/migrations",
+  "src/polisyos/ir/observation",
+  "src/polisyos/ir/passes",
+  "src/polisyos/ir/predicate",
+  "src/polisyos/ir/queries",
+  "src/polisyos/ir/references",
+  "src/polisyos/ir/registry_fragments",
+  "src/polisyos/ir/schemas",
+  "src/polisyos/ir/trinity",
+  "src/polisyos/ir/types",
+  "src/polisyos/ir/units",
+  "src/polisyos/ir/world",
+  "src/polisyos/ir/_internal",
+]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "resolved_root_facade"
+
+[boundaries]
+public_facade = "polisyos.ir"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.data_forge.read_api",
+]
+forbidden_dependencies = [
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.scientist",
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.berl",
+  "polisyos.calibration",
+  "polisyos.ddm",
+  "polisyos.synthetic_world",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.ir", "polisyos.ir.api"]
+major_subsystem = true
+notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/ir"]
+contract_roots = ["tests/contract", "tests/unit/core/contracts"]
+integration_required = false
+integration_roots = []
+property_required = true
+property_roots = ["tests/property/ir"]
+minimum_expectations = [
+  "root facade changes keep the IR closeout test and public-surface tests",
+  "schema catalog changes keep generated reference docs current",
+  "reference and canonicalization changes keep compatibility shim smoke coverage",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/components/ir/slo.yaml", "ops/observability/slo/ir.yaml"]
+runbooks = [
+  "docs/runbooks/broken-contract-generation.md",
+  "docs/runbooks/dependency-upgrade-regression.md",
+]
+runbook_expectation = "IR schema catalog, migration, and compatibility changes update the IR operability bundle before fail-closed promotion."
+
+[observability]
+status = "report_only"
+metrics_owner = "team-ir"
+metric_surfaces = [
+  "src/polisyos/ir/schema_catalog",
+  "docs/reference/ir/schema-catalog.md",
+]
+trace_expectation = "IR contract loading and schema catalog generation remain deterministic and expose schema/ref identity in generated artifacts."
+
+[name_collisions]
+status = "declared"
+owner = "team-ir"
+registry = "architecture/name_registry.toml"
+allowed = ["schemas"]
+
+[[allowed_name_collision]]
+name = "schemas"
+scope = "package-local"
+reason = "IR schemas is the reflection catalog home and remains distinct from the top-level polisyos.schemas ABI package."
+owner = "team-ir"
+
+[exceptions]
+status = "declared"
+owner = "team-ir"
+registries = ["architecture/shims.toml"]
+
+[[exception]]
+id = "ir-compatibility-shim-packages"
+owner = "team-ir"
+kind = "compatibility_shim"
+reason = "Phase 3.2 keeps old public module paths as package shims while implementations move behind root facade packages."
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/shims.toml"
+
+[sunsets]
+status = "declared"
+owner = "team-architecture"
+
+[[sunset]]
+id = "ir-aggregate-mirror"
+owner = "team-architecture"
+date = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+condition = "legacy aggregate gates read generated package-contract output instead of hand-edited TOML"
+
+[extension_host]
+status = "none"
+owner = "team-ir"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "IR is an ABI/schema surface, not an extension host in Phase 5.8."

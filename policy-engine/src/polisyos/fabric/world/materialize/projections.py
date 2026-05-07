@@ -12,7 +12,7 @@ import pandas as pd
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.safety import quote_sql_identifier
+from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
     validate_conflict_set_id,

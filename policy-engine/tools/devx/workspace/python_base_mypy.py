@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 
 from ._common import run_command
-from ._repo_hygiene import PYTHON_BASE_LAYERS, uv_run
+from ._repo_hygiene import MYPY_CONFIG, PYTHON_BASE_LAYERS, uv_run
 
 _LAYER_NAMES = tuple(layer for layer, _, _ in PYTHON_BASE_LAYERS)
 
@@ -42,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
             uv_run(
                 f"mypy {layer_name}",
                 "mypy",
+                "--config-file",
+                MYPY_CONFIG,
                 source_dir,
             )
         )

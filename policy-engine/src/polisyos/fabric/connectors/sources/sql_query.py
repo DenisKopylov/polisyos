@@ -26,7 +26,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.safety import UnsafeFilterExpressionError, quote_sql_identifier
+from polisyos.fabric.quality.safety import UnsafeFilterExpressionError, quote_sql_identifier
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,

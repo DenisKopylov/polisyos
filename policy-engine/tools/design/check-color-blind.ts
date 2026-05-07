@@ -48,7 +48,7 @@ function main() {
   const patternSource = fs.readFileSync(
     path.join(
       policyEngineRoot,
-      "frontend/runtime-dashboard/src/shared/charts/patterns/UncertaintyPatterns.tsx",
+      "apps/runtime-dashboard/src/shared/charts/patterns/UncertaintyPatterns.tsx",
     ),
     "utf8",
   );

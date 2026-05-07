@@ -31,12 +31,19 @@ if str(TESTS_ROOT) not in sys.path:
     sys.path.insert(0, str(TESTS_ROOT))
 
 pytest_plugins = (
-    "fixtures.artifacts",
-    "fixtures.observability",
+    "_helpers.artifacts",
+    "_helpers.observability",
 )
 
 QUARANTINE_REGISTRY = TESTS_ROOT / "quarantine.toml"
-PRIMARY_TAXONOMY_MARKERS = ("unit", "contract", "property", "integration", "performance")
+PRIMARY_TAXONOMY_MARKERS = (
+    "unit",
+    "contract",
+    "property",
+    "integration",
+    "performance",
+    "repo_quality",
+)
 
 
 @dataclass(frozen=True)
@@ -90,6 +97,8 @@ def _infer_primary_marker(item: pytest.Item) -> str:
 
     if _path_startswith(item, "tests/contract"):
         return "contract"
+    if _path_startswith(item, "tests/repo_quality"):
+        return "repo_quality"
     if item.get_closest_marker("benchmark") or _path_startswith(item, "tests/performance"):
         return "performance"
     if (

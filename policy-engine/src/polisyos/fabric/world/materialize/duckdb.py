@@ -17,7 +17,7 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import content_hash
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.safety import quote_sql_identifier
+from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store.segments import load_world_fact_manifests

@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 
 import pytest
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.engine.protocol import NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.guards import (
     StateMutationGuard,
     StateMutationViolation,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.scientist.engine.protocol import NodeError
+from polisyos.scientist.orchestration.engine.protocol import NodeError
 
 
 class NodeParamError(Exception):

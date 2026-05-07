@@ -64,7 +64,7 @@ const SHOULD_WRITE = process.argv.includes("--write");
 const policyEngineRoot = getPolicyEngineRoot();
 const outputPath = path.join(policyEngineRoot, "docs/compliance/A11Y_CONTRAST.md");
 const runtimeDashboardRequire = createRequire(
-  path.join(policyEngineRoot, "frontend/runtime-dashboard/package.json"),
+  path.join(policyEngineRoot, "apps/runtime-dashboard/package.json"),
 );
 const axeCore = runtimeDashboardRequire("axe-core") as {
   commons: {
@@ -250,13 +250,13 @@ function buildMarkdown() {
   return [
     "# WCAG 2.2 AA Contrast Matrix",
     "",
-    "> Auto-generated from `frontend/runtime-dashboard/src/styles.css` by",
+    "> Auto-generated from `apps/runtime-dashboard/src/styles.css` by",
     "> `policy-engine/tools/design/check-contrast.ts` using `axe-core` color utilities.",
     "> Manual edits are not permitted.",
     "",
     `- Status: Generated`,
     `- Owner: Denis Kopylov`,
-    `- Source: \`frontend/runtime-dashboard/src/styles.css\``,
+    `- Source: \`apps/runtime-dashboard/src/styles.css\``,
     `- Generator: \`policy-engine/tools/design/check-contrast.ts\``,
     "",
     "## Light Theme Tokens",
@@ -309,7 +309,7 @@ function main() {
   const current = fs.readFileSync(outputPath, "utf8");
   if (current !== markdown) {
     throw new Error(
-      "A11Y_CONTRAST.md is out of date. Run `node --experimental-strip-types ../../tools/design/check-contrast.ts --write` from frontend/runtime-dashboard.",
+      "A11Y_CONTRAST.md is out of date. Run `node --experimental-strip-types ../../tools/design/check-contrast.ts --write` from apps/runtime-dashboard.",
     );
   }
 

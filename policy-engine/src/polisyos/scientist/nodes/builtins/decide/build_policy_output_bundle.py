@@ -15,12 +15,12 @@ from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.doe.stress_report import StressTestReport
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )
@@ -63,14 +63,14 @@ from polisyos.scientist.policy_design.schema import (
     load_policy_candidate_schema,
 )
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.search.judge_stack import (
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
     JudgeVerdict,
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
-from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
-from polisyos.scientist.search.readiness import (
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import (
     DecisionReadinessContract,
     load_decision_readiness_contract,
 )

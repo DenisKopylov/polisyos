@@ -26,7 +26,7 @@ INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 REFERENCE_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
 ADR_INDEX_DOC = Path("docs/adr/index.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 ADR_FILES: tuple[Path, ...] = (
     Path("docs/adr/0129-scientist-claim-ledger.md"),
@@ -39,7 +39,7 @@ REQUIRED_FILES: tuple[Path, ...] = (
     REFERENCE_DOC,
     Path("tools/ci/check_scientist_best_in_class_phase2_0.py"),
     Path("tests/unit/scientist/orchestrator_v2/test_compatibility_contracts.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase2_0.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase2_0.py"),
 )
 
 ADR_REQUIRED_TOKENS: tuple[str, ...] = (
@@ -287,7 +287,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.scientist.claims.validators import legacy_claim_ledger_status
-        from polisyos.scientist.orchestrator.decision_card import DecisionCard
+        from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
         from polisyos.scientist.research_dag.replay import legacy_research_dag_status
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase2_0_import_failed:{exc.__class__.__name__}:{exc}"]

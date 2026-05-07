@@ -3,26 +3,26 @@ from __future__ import annotations
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
-from polisyos.scientist.search.adversarial import (
+from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy, ParameterSpec
+from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
     PlatformMetaEvaluationInput,
     PlatformMetaEvaluator,
     run_stress_test,
 )
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.search.sentinels import (
+from polisyos.scientist.methods.search.sentinels import (
     SentinelCandidate,
     SentinelKind,
     SentinelObservation,
     SentinelSet,
 )
-from polisyos.scientist.search.stages import CorrelationTracker, StageResult
+from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:

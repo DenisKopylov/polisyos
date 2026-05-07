@@ -553,7 +553,7 @@ class Calibrator:
             ).run()
             ```
         """
-        from polisyos.scientist.autotune.calibration import apply_calibration_meta_overrides
+        from polisyos.scientist.methods.autotune.calibration import apply_calibration_meta_overrides
 
         cfg = apply_calibration_meta_overrides(
             self.inputs.config,

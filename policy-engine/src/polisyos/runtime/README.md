@@ -15,9 +15,9 @@ clients, dashboards, and operator tooling.
   service layer.
 
 - `docs/reference/api/index.md` for the committed runtime API surface.
-- `tools/ops/runtime/check_runtime_api_contract.py` for OpenAPI drift checks.
+- `tools/ops_runners/runtime/check_runtime_api_contract.py` for OpenAPI drift checks.
 
-## Public entrypoints
+## Public API
 
 - Supported package entrypoint: `polisyos.runtime`
 - Lazy exports from `src/polisyos/runtime/__init__.py`: `ReplayStrategy`,
@@ -29,14 +29,32 @@ clients, dashboards, and operator tooling.
   inputs. Use its README when working on HTTP wiring, security middleware, or
   generated-client drift.
 
+## Internal Layout
+
+- `__init__.py` and `replay.py` own the root replay facade.
+- [`http/`](http/README.md) owns the FastAPI app, route/service layout,
+  OpenAPI inputs, middleware, and generated-client compatibility surface.
+- [`extensions/`](extensions/) owns runtime extension ABI helpers.
+- Runtime-state migrations and retention policy live under
+  [`../../../ops/migrations/runtime_state/README.md`](../../../ops/migrations/runtime_state/README.md)
+  and [`../../../architecture/local_runtime_state.toml`](../../../architecture/local_runtime_state.toml).
+
+## Extension Points
+
+Runtime middleware plugins use the `polisyos.runtime_middlewares` entry-point
+group declared in
+[architecture/extension_points.toml](../../../architecture/extension_points.toml).
+HTTP service behavior should be exposed through routes and OpenAPI contracts,
+not by deep-importing service internals.
+
 ## Depends on / depended on by
 
 Depends on: `polisyos.common`, `polisyos.core.contracts`,
 `polisyos.core.artifacts`, `polisyos.core.security`, and the
 `polisyos.runtime.http` subpackage for API assembly.
 
-Depended on by: `frontend/runtime-api-client`,
-`frontend/runtime-dashboard`, `frontend/runtime-reference-shell`, runtime
+Depended on by: `packages/runtime-api-client`,
+`apps/runtime-dashboard`, `apps/runtime-reference-shell`, runtime
 runbooks, contract checks, and control-plane tooling.
 
 ## Common commands
@@ -50,23 +68,39 @@ Run commands from the repository root `policy-engine/`.
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
 
 - Conceptual regeneration:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js`
 
-## Test/verification commands
+## Tests
 
 Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
-  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py`
+  `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 - Smoke-tested:
   `uv run pytest -q tests/unit/runtime/test_replay_runtime.py tests/unit/runtime/test_replay_input_bindings_completeness.py`
 
 - Smoke-tested:
   `uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_api_maturity.py`
+
+## Operability Links
+
+- [Runtime component SLO](../../../ops/components/runtime/slo.yaml)
+- [Runtime component runbooks](../../../ops/components/runtime/runbooks.md)
+- [Runtime API outage runbook](../../../docs/runbooks/runtime-api-outage.md)
+- [Runtime graceful shutdown and stuck worker runbook](../../../docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md)
+- [Deploy runtime how-to](../../../docs/how-to/deploy-runtime.md)
+
+## Known Shims/Deprecations
+
+There are no active package-local root shims for `polisyos.runtime` in
+[architecture/shims.toml](../../../architecture/shims.toml) as of 2026-05-06.
+`runtime/http/services/control.py` and `runtime/http/openapi_contract.py` are
+tracked in [architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
+with owner `team-runtime` and sunset `2026-12-31`.
 
 ## Reference docs
 
@@ -76,8 +110,8 @@ Run commands from the repository root `policy-engine/`.
 - [Control Plane API](../../../docs/reference/api/control.md)
 - [Artifact Inspection API](../../../docs/reference/api/artifacts.md)
 - [Generated Artifacts](../../../docs/reference/generated-artifacts.md)
-- [Runtime API client](../../../frontend/runtime-api-client/README.md)
-- [Runtime dashboard](../../../frontend/runtime-dashboard/README.md)
-- [Runtime reference shell](../../../frontend/runtime-reference-shell/README.md)
+- [Runtime API client](../../../packages/runtime-api-client/README.md)
+- [Runtime dashboard](../../../apps/runtime-dashboard/README.md)
+- [Runtime reference shell](../../../apps/runtime-reference-shell/README.md)
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-06

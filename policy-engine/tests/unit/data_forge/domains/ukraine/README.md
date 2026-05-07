@@ -12,7 +12,7 @@ slice currently contains `6` `test_*.py` files.
 
 ## Where To Start
 
-- [`../../../../tools/ops/ukraine_data/README.md`](../../../../tools/ops/ukraine_data/README.md)
+- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
 - `test_orchestrator.py` and `test_server.py` for end-to-end wiring issues.
 - `test_cli.py` for command-surface regressions.
 
@@ -29,7 +29,7 @@ slice currently contains `6` `test_*.py` files.
 
 ### Depends On
 
-- [`../../../../tools/ops/ukraine_data/README.md`](../../../../tools/ops/ukraine_data/README.md)
+- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
 - `src/polisyos/data_forge/domains/ukraine/adapters.py`
 - `src/polisyos/data_forge/domains/ukraine/builders/`
 - `src/polisyos/data_forge/domains/ukraine/orchestrator.py`
@@ -65,7 +65,7 @@ uv run pytest --collect-only tests/unit/data_forge/domains/ukraine -q
 
 ## Reference Docs
 
-- [`../../../../tools/ops/ukraine_data/README.md`](../../../../tools/ops/ukraine_data/README.md)
+- [`../../../../tools/ops_runners/ukraine_data/README.md`](../../../../tools/ops_runners/ukraine_data/README.md)
 - [`../../../TESTING_POLICY.md`](../../../TESTING_POLICY.md)
 - [`../../../README.md`](../../../README.md)
 

@@ -17,7 +17,7 @@ from polisyos.ir.governance.mechanism_semantics import (
     MechanismUtilityModelKind,
     MechanismUtilityModelSpec,
 )
-from polisyos.scientist.verification.ic import (
+from polisyos.scientist.validation.verification.ic import (
     load_ic_conformance_report,
     promote_ic_certificate_to_runtime,
     verify_ic_implementation_conformance,

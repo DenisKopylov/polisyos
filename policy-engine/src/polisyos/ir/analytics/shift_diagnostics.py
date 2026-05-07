@@ -6,10 +6,10 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ShiftDiagnosticReportRef
+from polisyos.ir.references import ShiftDiagnosticReportRef
 
 SeverityBucket = Literal["none", "low", "moderate", "high", "severe", "unassessable"]
 ShiftStatus = Literal[

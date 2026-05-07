@@ -5,17 +5,17 @@ from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components._cli_scientist import _cmd_scientist_burn_in
-from polisyos.scientist.search.cold_start import BurnInConfig, run_burn_in
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.cold_start import BurnInConfig, run_burn_in
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
     UncertaintyEnvelope,
 )
-from polisyos.scientist.search.lessons import LessonRegistry
-from polisyos.scientist.search.stages import CorrelationTracker
+from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.stages import CorrelationTracker
 
 
 def _make_stage_result(

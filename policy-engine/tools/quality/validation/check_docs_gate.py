@@ -27,11 +27,23 @@ REPO_ROOT = repo_root_from(__file__)
 IMPACT_NOTE = "docs/reference/documentation-inventory.md"
 
 TOOLS_REFERENCE_PATTERNS = ("tools/**",)
+DOCS_LIFECYCLE_PATTERNS = (
+    "docs/adr/**",
+    "docs/plans/**",
+    "docs/archive/**",
+    "architecture/tooling/mkdocs/**",
+    "mkdocs.yml",
+)
+EXTENSION_EXAMPLE_PATTERNS = (
+    "architecture/extension_points.toml",
+    "examples/extensions/**",
+)
 DOCS_OR_README_PATTERNS = (
     "docs/**",
     "mkdocs.yml",
     "README.md",
-    "frontend/**/README.md",
+    "apps/**/README.md",
+    "packages/*/README.md",
     "src/polisyos/**/README.md",
     "tools/**/README.md",
 )
@@ -51,10 +63,10 @@ SEMANTIC_DOCSTRING_PATTERNS = (
     "src/polisyos/runtime/http/**/*.py",
 )
 FRONTEND_API_PATTERNS = (
-    "frontend/runtime-api-client/**",
-    "frontend/runtime-dashboard/src/api/**",
-    "frontend/runtime-dashboard/src/test/contracts/**",
-    "frontend/runtime-reference-shell/**",
+    "packages/runtime-api-client/**",
+    "apps/runtime-dashboard/src/api/**",
+    "apps/runtime-dashboard/src/test/contracts/**",
+    "apps/runtime-reference-shell/**",
 )
 RUNTIME_EVIDENCE_PATTERNS = (
     "schemas/runtime_api_v1.openapi.json",
@@ -63,8 +75,8 @@ RUNTIME_EVIDENCE_PATTERNS = (
     "docs/how-to/use-control-plane.md",
     "docs/runbooks/runtime-api-outage.md",
     "frontend/README.md",
-    "frontend/runtime-api-client/README.md",
-    "frontend/runtime-dashboard/README.md",
+    "packages/runtime-api-client/README.md",
+    "apps/runtime-dashboard/README.md",
     IMPACT_NOTE,
 )
 FABRIC_CONNECTOR_PATTERNS = ("src/polisyos/fabric/connectors/**",)
@@ -87,9 +99,9 @@ FOUNDRY_EVIDENCE_PATTERNS = (
 )
 FRONTEND_EVIDENCE_PATTERNS = (
     "frontend/README.md",
-    "frontend/runtime-api-client/README.md",
-    "frontend/runtime-dashboard/README.md",
-    "frontend/runtime-reference-shell/README.md",
+    "packages/runtime-api-client/README.md",
+    "apps/runtime-dashboard/README.md",
+    "apps/runtime-reference-shell/README.md",
     "docs/how-to/onboarding/frontend-engineer.md",
     "docs/runbooks/broken-contract-generation.md",
     "docs/reference/generated-artifacts.md",
@@ -147,6 +159,21 @@ GATE_COMMANDS: dict[str, GateCommand] = {
             "docs/reference/tools.md",
         ),
     ),
+    "docs_lifecycle": GateCommand(
+        key="docs_lifecycle",
+        label="verify docs lifecycle, ADR index, nav, and README/AUTHORING coverage",
+        argv=("uv", "run", "polisyos-tools", "validation", "check-docs-lifecycle"),
+    ),
+    "extension_examples": GateCommand(
+        key="extension_examples",
+        label="verify installable extension examples and entry-point discovery",
+        argv=("uv", "run", "polisyos-tools", "validation", "check-extension-examples"),
+    ),
+    "tool_configs": GateCommand(
+        key="tool_configs",
+        label="verify generated MkDocs/Ruff/mypy config drift",
+        argv=("uv", "run", "polisyos-tools", "workspace", "tool-configs", "--check"),
+    ),
     "public_surface": GateCommand(
         key="public_surface",
         label="verify public-surface and README freshness guardrails",
@@ -176,20 +203,13 @@ GATE_COMMANDS: dict[str, GateCommand] = {
             "--extra",
             "ml",
             "python",
-            "tools/ops/runtime/check_runtime_api_contract.py",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py",
         ),
     ),
     "docs_accuracy": GateCommand(
         key="docs_accuracy",
         label="verify docs freshness baseline",
-        argv=(
-            "uv",
-            "run",
-            "polisyos-tools",
-            "workspace",
-            "repository-sota-closeout",
-            "--skip-generated-checks",
-        ),
+        argv=("uv", "run", "polisyos-tools", "validation", "check-docs-freshness-baseline"),
     ),
     "semantic_docstrings": GateCommand(
         key="semantic_docstrings",
@@ -453,6 +473,13 @@ def build_gate_plan(changed_paths: Sequence[str]) -> GatePlan:
 
     if _has_changed(changed_paths, TOOLS_REFERENCE_PATTERNS):
         add_command("tools_reference")
+    if _has_changed(changed_paths, DOCS_LIFECYCLE_PATTERNS):
+        add_command("docs_lifecycle")
+    if _has_changed(changed_paths, EXTENSION_EXAMPLE_PATTERNS):
+        add_command("docs_lifecycle")
+        add_command("extension_examples")
+    if _has_changed(changed_paths, ("architecture/tooling/**", "mkdocs.yml", "mypy.ini", "ruff.toml")):
+        add_command("tool_configs")
 
     docs_or_readme_changed = _has_changed(changed_paths, DOCS_OR_README_PATTERNS)
     facade_changed = _has_changed(changed_paths, FACADE_PATTERNS)

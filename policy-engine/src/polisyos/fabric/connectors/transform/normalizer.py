@@ -26,7 +26,7 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
-from polisyos.fabric.finite import is_finite_number
+from polisyos.fabric.quality.finite import is_finite_number
 
 __all__ = ["NormalizationTransform"]
 

@@ -59,9 +59,9 @@ def connectors_root() -> Path:
 
 @pytest.fixture(scope="session")
 def fixtures_root(connectors_root: Path) -> Path:
-    """Absolute path to tests/unit/fabric/connectors/fixtures/."""
-    root = connectors_root / "fixtures"
-    root.mkdir(exist_ok=True)
+    """Absolute path to connector runtime replay fixtures under tests/_data."""
+    root = connectors_root.parents[2] / "_data" / "fabric" / "connectors" / "runtime"
+    root.mkdir(parents=True, exist_ok=True)
     return root
 
 

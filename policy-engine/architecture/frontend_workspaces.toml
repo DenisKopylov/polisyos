@@ -7,14 +7,14 @@ workspace_manager = "pnpm"
 workspace_manifest = "pnpm-workspace.yaml"
 root_package_json = "package.json"
 root_lockfile = "pnpm-lock.yaml"
-source_of_truth = "pnpm-workspace.yaml, package.json, frontend/** package manifests, packages/* package manifests plus schemas/runtime_api_v1.openapi.json"
+source_of_truth = "pnpm-workspace.yaml, package.json, apps/* package manifests, packages/* package manifests plus schemas/runtime_api_v1.openapi.json"
 generated_output_ignore_policy = "local generated outputs stay ignored unless registered as committed baselines in architecture/generated_artifacts.toml"
 
 [[workspace]]
 id = "runtime-api-client"
-path = "frontend/runtime-api-client"
+path = "packages/runtime-api-client"
 owner = "team-runtime"
-package_json = "frontend/runtime-api-client/package.json"
+package_json = "packages/runtime-api-client/package.json"
 lockfile = "pnpm-lock.yaml"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 public_entrypoints = [
@@ -28,10 +28,10 @@ generated_outputs = [
 ]
 ignored_outputs = [
   "node_modules/",
-  "../../_build/frontend/runtime-api-client/coverage/",
-  "../../_build/frontend/runtime-api-client/dist/",
-  "../../_build/frontend/runtime-api-client/.tmp/",
-  "../../_cache/frontend/runtime-api-client/eslint/.eslintcache",
+  "../../_build/packages/runtime-api-client/coverage/",
+  "../../_build/packages/runtime-api-client/dist/",
+  "../../_build/packages/runtime-api-client/.tmp/",
+  "../../_cache/packages/runtime-api-client/eslint/.eslintcache",
 ]
 build_commands = ["pnpm --filter @polisyos/runtime-api-client run build"]
 test_commands = ["pnpm --filter @polisyos/runtime-api-client test", "pnpm --filter @polisyos/runtime-api-client run contracts:verify"]
@@ -39,9 +39,9 @@ drift_commands = ["pnpm --filter @polisyos/runtime-api-client run generate", "pn
 
 [[workspace]]
 id = "runtime-dashboard"
-path = "frontend/runtime-dashboard"
+path = "apps/runtime-dashboard"
 owner = "team-frontend"
-package_json = "frontend/runtime-dashboard/package.json"
+package_json = "apps/runtime-dashboard/package.json"
 lockfile = "pnpm-lock.yaml"
 source_of_truth = "schemas/runtime_api_v1.openapi.json and src/polisyos/runtime/http/**"
 public_entrypoints = [
@@ -53,14 +53,14 @@ schema_inputs = ["schemas/runtime_api_v1.openapi.json"]
 generated_outputs = ["src/api/types.ts"]
 ignored_outputs = [
   "node_modules/",
-  "../../_build/frontend/runtime-dashboard/coverage/",
-  "../../_build/frontend/runtime-dashboard/dist/",
-  "../../_build/frontend/runtime-dashboard/output/",
-  "../../_build/frontend/runtime-dashboard/playwright-report/",
-  "../../_build/frontend/runtime-dashboard/storybook-static/",
-  "../../_build/frontend/runtime-dashboard/test-results/",
-  "../../_build/frontend/runtime-dashboard/.tmp/",
-  "../../_cache/frontend/runtime-dashboard/eslint/.eslintcache",
+  "../../_build/apps/runtime-dashboard/coverage/",
+  "../../_build/apps/runtime-dashboard/dist/",
+  "../../_build/apps/runtime-dashboard/output/",
+  "../../_build/apps/runtime-dashboard/playwright-report/",
+  "../../_build/apps/runtime-dashboard/storybook-static/",
+  "../../_build/apps/runtime-dashboard/test-results/",
+  "../../_build/apps/runtime-dashboard/.tmp/",
+  "../../_cache/apps/runtime-dashboard/eslint/.eslintcache",
 ]
 build_commands = ["pnpm --filter @polisyos/runtime-dashboard run build", "pnpm --filter @polisyos/runtime-dashboard run typecheck"]
 test_commands = ["pnpm --filter @polisyos/runtime-dashboard run test:components", "pnpm --filter @polisyos/runtime-dashboard run test:contracts"]
@@ -73,23 +73,23 @@ drift_commands = [
 
 [[workspace]]
 id = "runtime-reference-shell"
-path = "frontend/runtime-reference-shell"
+path = "apps/runtime-reference-shell"
 owner = "team-runtime"
-package_json = "frontend/runtime-reference-shell/package.json"
+package_json = "apps/runtime-reference-shell/package.json"
 lockfile = "pnpm-lock.yaml"
-source_of_truth = "frontend/runtime-api-client/runtimeApiClient.js"
+source_of_truth = "packages/runtime-api-client/runtimeApiClient.js"
 public_entrypoints = [
   "index.html",
   "app.js",
 ]
-schema_inputs = ["frontend/runtime-api-client/runtimeApiClient.js"]
+schema_inputs = ["packages/runtime-api-client/runtimeApiClient.js"]
 generated_outputs = []
 ignored_outputs = [
   "node_modules/",
-  "../../_build/frontend/runtime-reference-shell/coverage/",
-  "../../_build/frontend/runtime-reference-shell/dist/",
-  "../../_build/frontend/runtime-reference-shell/.tmp/",
-  "../../_cache/frontend/runtime-reference-shell/eslint/.eslintcache",
+  "../../_build/apps/runtime-reference-shell/coverage/",
+  "../../_build/apps/runtime-reference-shell/dist/",
+  "../../_build/apps/runtime-reference-shell/.tmp/",
+  "../../_cache/apps/runtime-reference-shell/eslint/.eslintcache",
 ]
 build_commands = ["pnpm --filter @polisyos/runtime-reference-shell run build"]
 test_commands = ["pnpm --filter @polisyos/runtime-reference-shell test"]
@@ -109,7 +109,7 @@ schema_inputs = []
 generated_outputs = []
 ignored_outputs = [
   "node_modules/",
-  "../../_cache/frontend/cli/eslint/.eslintcache",
+  "../../_cache/packages/cli/eslint/.eslintcache",
 ]
 build_commands = ["pnpm --filter @polisyos/cli run build"]
 test_commands = ["pnpm --filter @polisyos/cli test"]

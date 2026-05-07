@@ -19,34 +19,34 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
-from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
-from polisyos.scientist.discovery.output import (
+from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
+from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,
     DiscoveryArtifactBuildInput,
     load_discovery_artifact_bundle,
 )
-from polisyos.scientist.discovery.portfolio import (
+from polisyos.scientist.methods.discovery.portfolio import (
     GraphDiscoveryPortfolioRunner,
     PortfolioRunnerConfig,
     run_discovery_method,
 )
-from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
-from polisyos.scientist.discovery.priors import GraphPriorBuilder
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery.prior_miner import PriorMiner, PriorMinerConfig
+from polisyos.scientist.methods.discovery.priors import GraphPriorBuilder
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     GraphHypothesis,
     edge_key_for_edge,
     graph_hypothesis_from_report,
 )
-from polisyos.scientist.discovery.stability import BootstrapStabilityAnalyzer
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.stability import BootstrapStabilityAnalyzer
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (

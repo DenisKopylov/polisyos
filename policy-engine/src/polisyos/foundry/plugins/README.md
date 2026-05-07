@@ -1,17 +1,24 @@
 # Plugins (`polisyos.foundry.plugins`)
 
-`polisyos.foundry.plugins` is the domain-plugin layer on top of
+`polisyos.foundry.plugins` is the legacy domain-plugin layer on top of
 `polisyos.foundry.agent_sim`: it packages mechanisms, rewards, objectives,
 observations, and composite orchestration into reusable simulation domains.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-06
+- Sunset status: compatibility surface. New Foundry method extensions must use
+  `polisyos.foundry.extensions` and the `polisyos.foundry_methods` entry-point
+  group; `polisyos.plugins` remains only for existing domain-simulation plugins.
 
 ## Purpose
 
 Use plugins when you want to assemble higher-level domain simulations rather
 than operate directly on the low-level agent-sim runtime. This package owns the
-plugin contract, discovery/registration path, composite execution, and the
+legacy domain-plugin contract, discovery/registration path, composite execution, and the
 `PolisySimulator` orchestration facade.
+
+Do not use this package to publish Foundry methods. Method authors should
+follow `src/polisyos/foundry/methods/AUTHORING.md` and the installable example
+under `examples/extensions/foundry_method/`.
 
 ## Where to Start
 

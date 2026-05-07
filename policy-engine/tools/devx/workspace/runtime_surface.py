@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 
 from ._common import run_command
-from ._repo_hygiene import uv_run
+from ._repo_hygiene import MYPY_CONFIG, uv_run
 
 RUNTIME_SCOPE = ("src/polisyos/runtime", "tests/unit/runtime")
 RUNTIME_SOURCE_SCOPE = ("src/polisyos/runtime",)
@@ -58,7 +58,13 @@ def main(argv: list[str] | None = None) -> int:
     if not args.skip_types:
         commands.extend(
             [
-                uv_run("mypy runtime source", "mypy", *RUNTIME_SOURCE_SCOPE),
+                uv_run(
+                    "mypy runtime source",
+                    "mypy",
+                    "--config-file",
+                    MYPY_CONFIG,
+                    *RUNTIME_SOURCE_SCOPE,
+                ),
                 uv_run(
                     "basedpyright runtime source",
                     "basedpyright",
@@ -74,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
             uv_run(
                 "runtime API contract",
                 "python",
-                "tools/ops/runtime/check_runtime_api_contract.py",
+                "tools/ops_runners/runtime/check_runtime_api_contract.py",
             )
         )
 

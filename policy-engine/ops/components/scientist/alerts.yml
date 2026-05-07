@@ -1,0 +1,44 @@
+component: scientist
+owner: team-scientist
+status: draft
+alerts:
+  - name: SLO_DagSuccessRateBreach
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: SLO_DagSuccessRateCritical
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: SLO_DagLatencyP99High
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: HighLLMCost
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: HighLLMCostCritical
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: AgentErrorSpike
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: AgentErrorSpikeCritical
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: GovernancePassSlowdown
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: ScientistNodeP95LatencyHigh
+    source: ops/observability/prometheus/rules/scientist-alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: ScientistWorkflowFailRate
+    source: ops/observability/prometheus/rules/scientist-alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: ScientistBudgetNearExhaustion
+    source: ops/observability/prometheus/rules/scientist-alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: ScientistTierQueueDepthHigh
+    source: ops/observability/prometheus/rules/scientist-alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: ScientistSemaphoreWaitHigh
+    source: ops/observability/prometheus/rules/scientist-alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+

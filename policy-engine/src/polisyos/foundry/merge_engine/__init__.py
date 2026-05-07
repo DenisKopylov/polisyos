@@ -18,15 +18,15 @@ __all__ = (
 )
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "JAXMergeEngine": ("polisyos.foundry.methods.merge_engine", "JAXMergeEngine"),
-    "MergeConflict": ("polisyos.foundry.methods.merge_engine", "MergeConflict"),
-    "MergeConflictContract": ("polisyos.foundry.methods.merge_engine", "MergeConflictContract"),
-    "MergeConflictError": ("polisyos.foundry.methods.merge_engine", "MergeConflictError"),
-    "MergeConflictKind": ("polisyos.foundry.methods.merge_engine", "MergeConflictKind"),
-    "MergeEngine": ("polisyos.foundry.methods.merge_engine", "MergeEngine"),
-    "MergeRecord": ("polisyos.foundry.methods.merge_engine", "MergeRecord"),
-    "MergeReport": ("polisyos.foundry.methods.merge_engine", "MergeReport"),
-    "MergeReportContract": ("polisyos.foundry.methods.merge_engine", "MergeReportContract"),
+    "JAXMergeEngine": ("polisyos.foundry.methods.components.merge_engine", "JAXMergeEngine"),
+    "MergeConflict": ("polisyos.foundry.methods.components.merge_engine", "MergeConflict"),
+    "MergeConflictContract": ("polisyos.foundry.methods.components.merge_engine", "MergeConflictContract"),
+    "MergeConflictError": ("polisyos.foundry.methods.components.merge_engine", "MergeConflictError"),
+    "MergeConflictKind": ("polisyos.foundry.methods.components.merge_engine", "MergeConflictKind"),
+    "MergeEngine": ("polisyos.foundry.methods.components.merge_engine", "MergeEngine"),
+    "MergeRecord": ("polisyos.foundry.methods.components.merge_engine", "MergeRecord"),
+    "MergeReport": ("polisyos.foundry.methods.components.merge_engine", "MergeReport"),
+    "MergeReportContract": ("polisyos.foundry.methods.components.merge_engine", "MergeReportContract"),
 }
 
 

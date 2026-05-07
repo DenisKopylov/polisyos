@@ -1,27 +1,29 @@
-"""LLM call provenance record."""
+"""Compatibility shim for `polisyos.scientist.evidence.provenance.llm_provenance`."""
 
 from __future__ import annotations
 
-from datetime import datetime
-from decimal import Decimal
+from polisyos.scientist.evidence._shim import (
+    install_module_shim,
+    shim_dir,
+    shim_getattr,
+)
 
-from pydantic import BaseModel, ConfigDict, Field
+install_module_shim(
+    globals(),
+    legacy_module=__name__,
+    canonical_module="polisyos.scientist.evidence.provenance.llm_provenance",
+    shim_id="scientist.provenance.llm_provenance-to-evidence.provenance.llm_provenance",
+    sunset_date="2026-11-30",
+    migration_hint=(
+        "Use polisyos.scientist.evidence.provenance.llm_provenance for new imports."
+    ),
+    public_names=("LLMCallRecord",),
+)
 
 
-class LLMCallRecord(BaseModel):
-    """Records provenance metadata for a single LLM API call."""
+def __getattr__(name: str):
+    return shim_getattr(globals(), name)
 
-    model_config = ConfigDict(extra="forbid")
 
-    call_id: str
-    model_id: str
-    temperature: float
-    seed: int | None = None
-    system_prompt_hash: str
-    input_tokens: int = Field(ge=0)
-    output_tokens: int = Field(ge=0)
-    cost_usd: Decimal | None = None
-    trace_id: str | None = None
-    span_id: str | None = None
-    node_alias: str | None = None
-    timestamp: datetime
+def __dir__() -> list[str]:
+    return shim_dir(globals())

@@ -55,8 +55,8 @@ from polisyos.ir.refs import (
     WelfareBundleRef,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_FISCAL_FEEDBACK_LINK_REF,
     ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,

@@ -22,8 +22,8 @@ from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.ir.analytics.backtest import BacktestScenario, persist_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contracts import ObservationFamily
-from polisyos.scientist.backtesting.orchestrator import BacktestOrchestrator, _collapse_modes
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
+from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator, _collapse_modes
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 
 
 class BacktestKind(str, Enum):

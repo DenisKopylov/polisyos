@@ -22,10 +22,10 @@ from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope as IRUncertain
 from polisyos.scientist.agent.constraint_context import extract_budget_envelope
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope as SearchUncertaintyEnvelope,
 )
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyType,
 )
 
@@ -186,7 +186,7 @@ class PolicyEvaluationVector(BaseModel):
         return axes
 
     def as_legacy_objectives(self) -> list[Any]:
-        from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
+        from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
         channels = [
             *self.primary.values(),

@@ -6,9 +6,9 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.search.voi_scheduler import (
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.methods.search.voi_scheduler import (
     PredictiveVOIScheduler,
     VOIModelSnapshot,
     VOITrainingConfig,

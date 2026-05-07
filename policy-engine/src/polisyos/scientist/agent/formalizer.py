@@ -30,8 +30,8 @@ from polisyos.ir.model_spec import (
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 ZERO_ARTIFACT_REF = f"sha256:{'0' * 64}"
 _ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")

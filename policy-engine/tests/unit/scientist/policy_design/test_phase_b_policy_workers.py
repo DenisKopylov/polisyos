@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.scientist.autotune.models import BenchmarkSplitManifest
-from polisyos.scientist.doe.designs import ParameterSpec as DOEParameterSpec
-from polisyos.scientist.engine.budget import BudgetState
+from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
+from polisyos.scientist.methods.doe.designs import ParameterSpec as DOEParameterSpec
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.policy_design.adversary import (
     ScenarioAdversaryConfig,
     ScenarioAdversaryWorker,
@@ -25,8 +25,8 @@ from polisyos.scientist.policy_design.translator import (
     TranslatorCompliancePass,
     TranslatorInputBundle,
 )
-from polisyos.scientist.search.objective import CompositeObjective, GDPGrowthObjective
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 
 from .test_phase_b_output import _candidate, _evaluation_vector
 

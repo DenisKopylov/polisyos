@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
-from polisyos.foundry.methods.consensus import (
+from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+from polisyos.foundry.methods.components.consensus import (
     ConsensusTarget,
     EstimandSpec,
     run_cross_method_consensus,

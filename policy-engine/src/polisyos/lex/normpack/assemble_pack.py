@@ -18,6 +18,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+    ENTRY_POINT_GROUP_LEX_NORMPACKS,
     ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
     ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
 )
@@ -826,6 +827,7 @@ def assemble_norm_pack(
 
     components_index, _ = build_components_index(
         groups=[
+            ENTRY_POINT_GROUP_LEX_NORMPACKS,
             ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
             ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
             ENTRY_POINT_GROUP_LEX_EXTRACTORS,

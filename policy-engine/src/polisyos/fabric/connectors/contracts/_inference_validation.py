@@ -20,7 +20,7 @@ from polisyos.fabric.connectors.contracts.schema import (
     SchemaType,
     SemanticType,
 )
-from polisyos.fabric.finite import is_finite_number
+from polisyos.fabric.quality.finite import is_finite_number
 
 from ._inference_config import InferenceConfig, SchemaHints
 from ._inference_engine import SchemaInference
@@ -349,7 +349,7 @@ def _coerce_decimal(value: Any) -> Decimal | None:
     if isinstance(value, Decimal):
         return value if value.is_finite() else None
     if isinstance(value, str):
-        from polisyos.fabric._numeric_parsing import parse_decimal_text
+        from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
 
         return parse_decimal_text(value)
     try:

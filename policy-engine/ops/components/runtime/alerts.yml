@@ -1,0 +1,41 @@
+component: runtime
+owner: team-runtime
+status: draft
+alerts:
+  - name: SLO_RuntimeApiAvailabilityBreach
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: SLO_RuntimeApiLatencyP95High
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: SLO_RuntimeApiLatencyP99High
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: SLO_ControlPlaneAdmissionBreach
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: SLO_ControlPlaneAdmissionLatencyP95High
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: RuntimeDependencyCircuitOpen
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: RuntimeRateLimitSaturation
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: ControlPlaneQueueLagHigh
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
+  - name: RuntimeCacheRebuildStorm
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/cache-rebuild-storm.md
+  - name: RuntimeCacheStalenessHigh
+    source: ops/observability/prometheus/rules/runtime_operability_alerts.yml
+    runbook: docs/runbooks/cache-rebuild-storm.md
+  - name: CellRoutingErrorRateHigh
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+  - name: CellRoutingLatencyHigh
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/runtime-api-outage.md
+

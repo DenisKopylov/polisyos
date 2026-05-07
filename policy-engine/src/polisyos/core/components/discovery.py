@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -48,8 +48,12 @@ ENTRY_POINT_GROUP_FABRIC_CONNECTORS = "polisyos.fabric_connectors"
 ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS = "polisyos.scholar_extractors"
 ENTRY_POINT_GROUP_LEX_EXTRACTORS = "polisyos.lex_extractors"
 ENTRY_POINT_GROUP_LEX_EVALUATORS = "polisyos.lex_evaluators"
+ENTRY_POINT_GROUP_SCIENTIST_GOVERNANCE_PASSES = "polisyos.scientist_governance_passes"
 ENTRY_POINT_GROUP_SCIENTIST_NODES = "polisyos.scientist_nodes"
+ENTRY_POINT_GROUP_DATA_FORGE_DOMAINS = "polisyos.data_forge_domains"
+ENTRY_POINT_GROUP_LEX_NORMPACKS = "polisyos.lex_normpacks"
 ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS = "polisyos.norm_pack_providers"
+ENTRY_POINT_GROUP_RUNTIME_MIDDLEWARES = "polisyos.runtime_middlewares"
 
 LEGACY_ENTRY_POINT_GROUP = "polisyos.components"
 ENTRY_POINT_GROUP = LEGACY_ENTRY_POINT_GROUP  # backwards compatibility
@@ -63,12 +67,26 @@ ENTRY_POINT_KIND_BY_GROUP: dict[str, ComponentKind] = {
     ENTRY_POINT_GROUP_LEX_EXTRACTORS: ComponentKind.LEX_EXTRACTOR,
     ENTRY_POINT_GROUP_LEX_EVALUATORS: ComponentKind.LEX_EVALUATOR,
     ENTRY_POINT_GROUP_SCIENTIST_NODES: ComponentKind.SCIENTIST_NODE,
+    ENTRY_POINT_GROUP_DATA_FORGE_DOMAINS: ComponentKind.DATA_FORGE_DOMAIN,
+    ENTRY_POINT_GROUP_LEX_NORMPACKS: ComponentKind.NORM_PACK_PROVIDER,
     ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS: ComponentKind.NORM_PACK_PROVIDER,
+    ENTRY_POINT_GROUP_RUNTIME_MIDDLEWARES: ComponentKind.RUNTIME_MIDDLEWARE,
 }
 
 DEFAULT_ENTRY_POINT_GROUPS: tuple[str, ...] = tuple(sorted(ENTRY_POINT_KIND_BY_GROUP.keys()))
+EXTENSION_ENTRY_POINT_GROUPS: tuple[str, ...] = (
+    ENTRY_POINT_GROUP_FABRIC_CONNECTORS,
+    ENTRY_POINT_GROUP_SCIENTIST_GOVERNANCE_PASSES,
+    ENTRY_POINT_GROUP_FOUNDRY_METHODS,
+    ENTRY_POINT_GROUP_SCIENTIST_NODES,
+    ENTRY_POINT_GROUP_DATA_FORGE_DOMAINS,
+    ENTRY_POINT_GROUP_LEX_NORMPACKS,
+    ENTRY_POINT_GROUP_RUNTIME_MIDDLEWARES,
+)
 DEFAULT_DEV_SCAN_ROOT: Path | None = None
 DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
+BuiltinComponentLoader = Callable[[], object]
+BuiltinLoaderSpec = BuiltinComponentLoader | tuple[str, BuiltinComponentLoader]
 
 
 @dataclass(slots=True, frozen=True)
@@ -152,11 +170,30 @@ class _DevPathSource:
         return iter(_discover_dev_path(self.path, errors=self.errors))
 
 
+@dataclass(slots=True)
+class _BuiltinLoaderSource:
+    name: str
+    loader: BuiltinComponentLoader
+    errors: list[DiscoveryError] = field(default_factory=list)
+
+    def discover(self) -> Iterator[DiscoveredComponent]:
+        self.errors.clear()
+        return iter(
+            _discover_builtin_loader(
+                name=self.name,
+                loader=self.loader,
+                errors=self.errors,
+            )
+        )
+
+
 def _source_kind(source: object) -> str:
     if isinstance(source, _EntryPointSource):
         return "entry_point"
     if isinstance(source, _DevPathSource):
         return "dev_scan"
+    if isinstance(source, _BuiltinLoaderSource):
+        return "builtin_loader"
     return type(source).__name__
 
 
@@ -165,6 +202,8 @@ def _source_location(source: object) -> str | None:
         return source.group
     if isinstance(source, _DevPathSource):
         return str(source.path)
+    if isinstance(source, _BuiltinLoaderSource):
+        return source.name
     return None
 
 
@@ -174,6 +213,7 @@ def discover_components(
     include_legacy_group: bool = False,
     include_dev_scan: bool = True,
     dev_scan_paths: Sequence[Path | str] | None = None,
+    builtin_loaders: Sequence[BuiltinLoaderSpec] | None = None,
     precedence: DiscoveryPrecedencePolicy | None = None,
     duplicate_policy: DuplicatePolicy = DuplicatePolicy.WARN,
 ) -> DiscoveryReport:
@@ -187,6 +227,9 @@ def discover_components(
         include_dev_scan: Scan local development roots after entry points.
         dev_scan_paths: Optional explicit roots/files to scan instead of
             `POLISYOS_PACKS_PATHS`.
+        builtin_loaders: Optional in-process loaders for built-in components.
+            Builtins registered this way use the same materialization,
+            duplicate handling, and provenance path as external components.
         precedence: Duplicate precedence policy. By default dev scans override
             entry-point declarations for the same `component_id`.
         duplicate_policy: Collector-level handling for duplicate discoveries.
@@ -201,9 +244,12 @@ def discover_components(
     if include_legacy_group and LEGACY_ENTRY_POINT_GROUP not in selected_groups:
         selected_groups.append(LEGACY_ENTRY_POINT_GROUP)
 
-    sources: list[_EntryPointSource | _DevPathSource] = [
+    sources: list[_EntryPointSource | _DevPathSource | _BuiltinLoaderSource] = [
         _EntryPointSource(group=group) for group in selected_groups
     ]
+    sources.extend(
+        _BuiltinLoaderSource(*_coerce_builtin_loader_spec(spec)) for spec in builtin_loaders or ()
+    )
     if include_dev_scan:
         paths = list(dev_scan_paths) if dev_scan_paths is not None else _default_dev_scan_paths()
         sources.extend(_DevPathSource(path=Path(base)) for base in paths)
@@ -373,41 +419,42 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
             )
             continue
 
-        component = _materialize_component(loaded)
-        if component is None:
+        components = _materialize_components(loaded)
+        if not components:
             errors.append(
                 DiscoveryError(
                     source="entry_point",
                     item=ep.name,
                     error_type="InvalidEntryPoint",
-                    message="Entry point must expose Component or zero-arg factory",
+                    message="Entry point must expose Component, iterable of Components, or factory",
                     details={"group": group},
                 )
             )
             continue
 
-        metadata_obj = component.metadata
-        if expected_kind is not None and metadata_obj.kind != expected_kind:
-            errors.append(
-                DiscoveryError(
-                    source="entry_point",
-                    item=ep.name,
-                    error_type="KindMismatch",
-                    message=(
-                        f"entry point group {group!r} expects kind={expected_kind.value!r}, "
-                        f"got {metadata_obj.kind.value!r}"
-                    ),
+        for component in components:
+            metadata_obj = component.metadata
+            if expected_kind is not None and metadata_obj.kind != expected_kind:
+                errors.append(
+                    DiscoveryError(
+                        source="entry_point",
+                        item=ep.name,
+                        error_type="KindMismatch",
+                        message=(
+                            f"entry point group {group!r} expects kind={expected_kind.value!r}, "
+                            f"got {metadata_obj.kind.value!r}"
+                        ),
+                    )
+                )
+                continue
+
+            discovered.append(
+                DiscoveredComponent(
+                    metadata=metadata_obj,
+                    component=component,
+                    source=source,
                 )
             )
-            continue
-
-        discovered.append(
-            DiscoveredComponent(
-                metadata=metadata_obj,
-                component=component,
-                source=source,
-            )
-        )
 
     return discovered
 
@@ -488,6 +535,69 @@ def _discover_dev_path(path: Path, *, errors: list[DiscoveryError]) -> list[Disc
     return discovered
 
 
+def _coerce_builtin_loader_spec(spec: BuiltinLoaderSpec) -> tuple[str, BuiltinComponentLoader]:
+    if isinstance(spec, tuple):
+        return spec
+    return f"{spec.__module__}:{getattr(spec, '__qualname__', spec.__name__)}", spec
+
+
+def _discover_builtin_loader(
+    *,
+    name: str,
+    loader: BuiltinComponentLoader,
+    errors: list[DiscoveryError],
+) -> list[DiscoveredComponent]:
+    discovered: list[DiscoveredComponent] = []
+    source = DiscoverySourceInfo(
+        source_type="builtin_loader",
+        location=name,
+    )
+
+    try:
+        declared = loader()
+    except _DISCOVERY_BOUNDARY_ERRORS as exc:
+        errors.append(
+            DiscoveryError(
+                source="builtin_loader",
+                item=name,
+                error_type=type(exc).__name__,
+                message=str(exc),
+                details={"traceback": format_traceback()},
+            )
+        )
+        return discovered
+
+    for idx, item in enumerate(_iter_loader_items(declared)):
+        component = _materialize_component(item)
+        if component is None:
+            errors.append(
+                DiscoveryError(
+                    source="builtin_loader",
+                    item=f"{name}:{idx}",
+                    error_type="InvalidDeclaration",
+                    message="builtin loader item must be Component or factory",
+                )
+            )
+            continue
+        discovered.append(
+            DiscoveredComponent(
+                metadata=component.metadata,
+                component=component,
+                source=source,
+            )
+        )
+
+    return discovered
+
+
+def _iter_loader_items(declared: object) -> list[object]:
+    if isinstance(declared, Component) or callable(declared):
+        return [declared]
+    if isinstance(declared, Iterable):
+        return list(declared)
+    return [declared]
+
+
 def _module_name_for_path(path: Path) -> str:
     return discovery_module_name(
         path,
@@ -520,6 +630,24 @@ def _load_module_from_file(
         sys.modules.pop(module_name, None)
 
     return module
+
+
+def _materialize_components(value: object) -> list[Component]:
+    if isinstance(value, Component):
+        return [value]
+    if callable(value):
+        try:
+            value = value()
+        except (AttributeError, ImportError, RuntimeError, TypeError, ValueError) as exc:
+            logger.warning("Component factory materialization failed: %s", exc)
+            return []
+
+    components: list[Component] = []
+    for item in _iter_loader_items(value):
+        component = _materialize_component(item)
+        if component is not None:
+            components.append(component)
+    return components
 
 
 def _materialize_component(value: object) -> Component | None:

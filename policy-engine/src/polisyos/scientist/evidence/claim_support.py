@@ -7,13 +7,13 @@ from typing import Any, Literal
 
 from polisyos.scholar.search.models import ClaimSupportLink, SourceSnippet, WebEvidenceBundle
 from polisyos.scholar.search.scoring import detect_conflict_score, lexical_support_score
-from polisyos.scientist.claims.models import (
+from polisyos.scientist.evidence.claims.models import (
     ClaimRecord,
 )
-from polisyos.scientist.claims.models import (
+from polisyos.scientist.evidence.claims.models import (
     ClaimSupportStatus as RuntimeClaimSupportStatus,
 )
-from polisyos.scientist.search.voi_models import (
+from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
     VOIDecisionType,
     stable_voi_decision_id,

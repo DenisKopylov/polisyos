@@ -23,14 +23,14 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_response_bundle,
 )
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _run_and_register_phase_d4_challenge_suites,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:

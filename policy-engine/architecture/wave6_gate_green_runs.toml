@@ -1,0 +1,134 @@
+[wave6_gate_green_runs]
+version = 1
+wave = "6"
+status = "completed"
+completed_on = 2026-05-06
+owner = "team-architecture"
+active_source_move_report_only_blockers = []
+notes = "Wave 6 converted stable report-only gates to fail-closed guardrails. Each converted family has two recorded green runs or an owner/date exception."
+
+[[gate]]
+id = "phase6.1.package-import-gates"
+owner = "team-architecture"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/package_import_gates.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/quality/validation/check_package_import_gates.py"
+
+[[gate]]
+id = "phase6.2.directory-health"
+owner = "team-quality"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/directory_health.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/quality/validation/directory_health.py"
+
+[[gate]]
+id = "phase6.2.test-ratchets"
+owner = "team-quality"
+command = "uv run python tools/quality/testing/report_test_ratchets.py --fail-on-regression"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/test_ratchets.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/quality/testing/report_test_ratchets.py"
+
+[[gate]]
+id = "phase6.3.operability-release-gates"
+owner = "team-release"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/operability_release_supply_chain_gates.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/ops_runners/release/check_operability_release_gates.py"
+
+[[gate]]
+id = "phase6.4.docs-lifecycle"
+owner = "team-docs"
+command = "uv run polisyos-tools validation check-docs-lifecycle"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "docs/adr/index.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/quality/validation/check_docs_lifecycle.py"
+
+[[gate]]
+id = "phase6.4.extension-examples"
+owner = "team-docs"
+command = "uv run polisyos-tools validation check-extension-examples"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "examples/extensions/README.md"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "tools/quality/validation/check_extension_examples.py"
+
+[[gate]]
+id = "phase6.5.exception-sunset-cleanup"
+owner = "team-architecture"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+status = "two_consecutive_green_runs"
+
+  [[gate.green_run]]
+  sequence = 1
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/repository_sota_gates.toml"
+
+  [[gate.green_run]]
+  sequence = 2
+  ran_on = 2026-05-06
+  result = "passed"
+  evidence = "architecture/shims.toml"

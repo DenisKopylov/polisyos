@@ -159,7 +159,7 @@ run_suite validated_dispatch \
   tests/unit/foundry/methods/backends/test_validated_dispatch.py
 
 run_suite synthetic_world_registry \
-  tests/unit/synthetic_world/test_seed_worlds.py
+  tests/unit/foundry/agent_sim/world/test_seed_worlds.py
 
 run_benchmark
 run_validator

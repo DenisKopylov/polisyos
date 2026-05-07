@@ -78,7 +78,7 @@ from polisyos.foundry.methods.backends.protocol import (
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
 )
-from polisyos.foundry.methods.registry import MethodRegistry, get_registry
+from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [
     "ChainCheckpoint",

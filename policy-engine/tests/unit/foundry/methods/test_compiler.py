@@ -34,7 +34,7 @@ from polisyos.foundry.methods.composer import (
 )
 from polisyos.foundry.methods.exceptions import ParameterValidationError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.foundry.methods.specialization import (
+from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
     ShapeSpec,
     build_specialization,

@@ -19,7 +19,7 @@ from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.governance.game_design import MechanismConstraintType
-from polisyos.scientist.verification.ic import (
+from polisyos.scientist.validation.verification.ic import (
     evaluate_incentive_compatibility,
     load_ic_certificate,
     load_ic_negative_certificate,

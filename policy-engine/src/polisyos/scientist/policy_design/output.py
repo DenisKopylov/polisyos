@@ -41,10 +41,10 @@ from polisyos.ir.refs import (
     OptimizationAmbiguityCertificateRef,
     WelfareBundleRef,
 )
-from polisyos.scientist.claims.export import blocked_claim_summary, claim_ledger_summary
-from polisyos.scientist.claims.ledger import load_claim_ledger, persist_claim_ledger
-from polisyos.scientist.claims.projections import project_policy_artifact_bundle_claims
-from polisyos.scientist.doe.stress_report import StressTestReport
+from polisyos.scientist.evidence.claims.export import blocked_claim_summary, claim_ledger_summary
+from polisyos.scientist.evidence.claims.ledger import load_claim_ledger, persist_claim_ledger
+from polisyos.scientist.evidence.claims.projections import project_policy_artifact_bundle_claims
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.phase3 import (
@@ -56,15 +56,15 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     RolloutStep,
 )
-from polisyos.scientist.search.artifact_minimality import (
+from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
-from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
-from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
-from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
-from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 
 
 class TradeoffRow(BaseModel):

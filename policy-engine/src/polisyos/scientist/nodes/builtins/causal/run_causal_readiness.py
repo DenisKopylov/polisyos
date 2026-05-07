@@ -2,7 +2,7 @@
 
 `RunCausalReadinessNode` sits after graph reconciliation and cross-graph
 evidence compilation. It reads C4a bundles from `state.params`, executes the
-pure runners in `polisyos.scientist.causal.readiness`, and persists a unified
+pure runners in `polisyos.scientist.methods.causal.readiness`, and persists a unified
 `CausalReadinessBundle` plus primary transport/strategic artifacts for later
 governance passes.
 """
@@ -35,17 +35,17 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
 )
 from polisyos.ir.refs import ArtifactRefModel, CausalGraphModelRef
-from polisyos.scientist.causal.readiness import (
+from polisyos.scientist.methods.causal.readiness import (
     CounterfactualQueryRunner,
     ProxyIdentificationRunner,
     StrategicResponseRunner,
     TransportabilityChecker,
     build_interference_readiness_entries,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,

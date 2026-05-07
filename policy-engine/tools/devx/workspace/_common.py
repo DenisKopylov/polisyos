@@ -46,9 +46,9 @@ def git_root_from(start: Path) -> Path:
 
 GIT_ROOT = git_root_from(PRODUCT_ROOT)
 FRONTEND_WORKSPACES: tuple[Path, ...] = (
-    PRODUCT_ROOT / "frontend" / "runtime-dashboard",
-    PRODUCT_ROOT / "frontend" / "runtime-api-client",
-    PRODUCT_ROOT / "frontend" / "runtime-reference-shell",
+    PRODUCT_ROOT / "apps" / "runtime-dashboard",
+    PRODUCT_ROOT / "packages" / "runtime-api-client",
+    PRODUCT_ROOT / "apps" / "runtime-reference-shell",
 )
 FRONTEND_ROOT = FRONTEND_WORKSPACES[0]
 PYTHON_BASELINE = "3.14"

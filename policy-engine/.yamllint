@@ -6,12 +6,12 @@ ignore: |
   .pytest_cache/
   .mypy_cache/
   .ruff_cache/
-  frontend/runtime-dashboard/node_modules/
+  apps/runtime-dashboard/node_modules/
   docs/archive/
-  ops/helm/*/templates/
-  ops/helm/*/tests/
-  policy-engine/ops/helm/*/templates/
-  policy-engine/ops/helm/*/tests/
+  ops/cloud/helm/*/templates/
+  ops/cloud/helm/*/tests/
+  policy-engine/ops/cloud/helm/*/templates/
+  policy-engine/ops/cloud/helm/*/tests/
   data/raw/
   benchmark-results/
   coverage/

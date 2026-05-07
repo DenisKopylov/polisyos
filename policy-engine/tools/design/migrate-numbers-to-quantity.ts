@@ -3,7 +3,7 @@ import path from "node:path";
 
 const SHOULD_WRITE = process.argv.includes("--write");
 const args = process.argv.slice(2).filter((arg) => arg !== "--write");
-const roots = args.length > 0 ? args : ["frontend/runtime-dashboard/src"];
+const roots = args.length > 0 ? args : ["apps/runtime-dashboard/src"];
 const policyEngineRoot = findPolicyEngineRoot();
 const JSX_NUMBER_RE = />\s*\{(-?\d+(?:\.\d+)?)\}\s*</gu;
 const QUANTITY_IMPORT = 'import { Quantity } from "@/shared/ui/quantity";';
@@ -18,7 +18,7 @@ function findPolicyEngineRoot() {
   while (cursor !== path.dirname(cursor)) {
     if (
       fs.existsSync(path.join(cursor, "pyproject.toml")) &&
-      fs.existsSync(path.join(cursor, "frontend/runtime-dashboard"))
+      fs.existsSync(path.join(cursor, "apps/runtime-dashboard"))
     ) {
       return cursor;
     }

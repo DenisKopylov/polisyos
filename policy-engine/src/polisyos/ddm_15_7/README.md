@@ -1,6 +1,6 @@
 # polisyos.ddm_15_7
 
-- Last updated: 2026-05-03
+- Last updated: 2026-05-05
 
 Compatibility facade for `polisyos.ddm`.
 
@@ -10,6 +10,16 @@ the root wrapper and this README until the 2026-10-01 shim sunset.
 
 Use `polisyos.ddm` for new imports. Deep `polisyos.ddm_15_7.*` imports are
 not supported as public compatibility surface.
+
+## Compatibility Contract
+
+- Owner: `team-architecture`
+- Target: `polisyos.ddm` (`src/polisyos/ddm`)
+- Sunset: 2026-10-01
+- Shim: `ddm-15-7-rename`
+- Issue: `docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-ddm`
+- ADR: `docs/adr/repository-structure-0135-versioning-out-of-package-names.md`
+- Coverage: root facade smoke test only under `tests/unit/ddm_15_7/`
 
 ## Entry Points
 

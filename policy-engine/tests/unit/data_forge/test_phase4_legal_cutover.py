@@ -13,7 +13,7 @@ from polisyos.data_forge.read_api.legal import (
     load_lex_shadow_bundle,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "legal_shadow"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "legal_shadow"
 BASELINE_ROOT = FIXTURES_ROOT / "baseline"
 CANDIDATE_ROOT = FIXTURES_ROOT / "candidate"
 ACCEPTED_ROOT_DESCRIPTOR = FIXTURES_ROOT / "accepted_artifact_root.json"
@@ -82,7 +82,7 @@ def test_legal_shadow_diff_reports_no_changes_for_identical_outputs() -> None:
 
 
 def test_legal_cloud_runner_imports_data_forge_batch_runtime() -> None:
-    runner = importlib.import_module("tools.ops.cloud.run_lex_from_manifest")
+    runner = importlib.import_module("tools.ops_runners.cloud.run_lex_from_manifest")
 
     assert runner.BatchConfig.__module__ == "polisyos.data_forge.domains.legal.batch.config"
     assert (

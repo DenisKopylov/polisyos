@@ -1,0 +1,9 @@
+[retention_policy]
+component = "ddm"
+owner = "team-architecture"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["decision_validity", "reports", "cas"]
+default_class = "R1 Short operational"
+cleanup = "Drift/degradation evidence follows decision-validity retention when it affects promotion or incident review."
+

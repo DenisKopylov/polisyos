@@ -1,0 +1,31 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 1,
+      "settings": {
+        "preset": "desktop"
+      },
+      "url": [
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/runs",
+        "http://127.0.0.1:4173/compose",
+        "http://127.0.0.1:4173/runs/R_core_api_001/overview",
+        "http://127.0.0.1:4173/evidence?runId=R_core_api_001&focus=promotion&promotionId=promotion_fixture_001"
+      ]
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": [
+          "warn",
+          {
+            "minScore": 0.7
+          }
+        ]
+      }
+    },
+    "upload": {
+      "outputDir": "../../_build/apps/runtime-dashboard/lighthouse-report",
+      "target": "filesystem"
+    }
+  }
+}

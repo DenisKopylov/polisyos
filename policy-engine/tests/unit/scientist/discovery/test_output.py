@@ -25,8 +25,8 @@ from polisyos.ir.analytics.causal_discovery import (
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.refs import ArtifactRefModel
-from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
-from polisyos.scientist.discovery.output import (
+from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
+from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,
     DiscoveryArtifactBuildInput,
     SeedVariationStatus,
@@ -42,27 +42,27 @@ from polisyos.scientist.discovery.output import (
     load_source_discovery_reports_for_bundle,
     merge_latent_discovery_hypotheses,
 )
-from polisyos.scientist.discovery.portfolio import PortfolioCandidate, PortfolioRunResult
-from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
-from polisyos.scientist.discovery.priors import GraphPriorBuilder, PriorKnowledgeBundle
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery.portfolio import PortfolioCandidate, PortfolioRunResult
+from polisyos.scientist.methods.discovery.prior_miner import PriorMiner, PriorMinerConfig
+from polisyos.scientist.methods.discovery.priors import GraphPriorBuilder, PriorKnowledgeBundle
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
     graph_hypothesis_from_report,
 )
-from polisyos.scientist.discovery.stability import (
+from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
     BootstrapStabilityConfig,
     BootstrapStabilityReport,
     HypothesisStabilitySummary,
 )
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
 )
-from polisyos.scientist.search import (
+from polisyos.scientist.methods.search import (
     ActionableSideInformation,
     persist_actionable_side_information,
 )

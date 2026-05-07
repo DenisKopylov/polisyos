@@ -20,7 +20,7 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
-from polisyos.fabric.finite import ensure_probability, is_finite_number
+from polisyos.fabric.quality.finite import ensure_probability, is_finite_number
 
 __all__ = [
     "ImputationStrategy",

@@ -6,7 +6,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.governance.gate import GateContext, GateVerdict
-from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
+from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
 
 
 def test_gate_protocol_persists_request_and_decision(tmp_path) -> None:

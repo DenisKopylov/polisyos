@@ -1,0 +1,13 @@
+{
+  "component": "core",
+  "owner": "team-core",
+  "aliases": ["core", "polisyos.core"],
+  "dashboards": [
+    {
+      "name": "Executive Overview",
+      "path": "ops/observability/grafana/dashboards/executive-overview.json",
+      "purpose": "Artifact integrity, audit, and tenant-boundary posture"
+    }
+  ]
+}
+

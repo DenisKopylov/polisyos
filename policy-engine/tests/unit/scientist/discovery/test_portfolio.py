@@ -10,12 +10,12 @@ from polisyos.ir.analytics.causal_discovery import (
     DimensionRegime,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-from polisyos.scientist.discovery import portfolio as portfolio_module
-from polisyos.scientist.discovery.portfolio import (
+from polisyos.scientist.methods.discovery import portfolio as portfolio_module
+from polisyos.scientist.methods.discovery.portfolio import (
     GraphDiscoveryPortfolioRunner,
     PortfolioRunnerConfig,
 )
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery.schema import (
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
 )

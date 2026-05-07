@@ -22,7 +22,9 @@ from polisyos.ir.connectors import (
     VersionStrategy,
 )
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "sdmx"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parents[4] / "_data" / "fabric" / "connectors" / "sources" / "sdmx"
+)
 _NOW = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
 
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.scientist.engine.protocol import NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 class StateMutationViolation(Exception):

@@ -1,6 +1,11 @@
 # Import Exceptions Registry
 
-Реестр временных исключений import-policy. Все исключения должны существовать в `architecture/imports/exceptions.toml` и иметь owner + expiry.
+Реестр временных исключений import-policy. Все исключения должны существовать в `architecture/imports/exceptions.toml` и иметь owner + expiry + issue/ADR reference.
+
+Phase 3.4 synthetic-world shim collapse does not add an import exception:
+first-party consumers use `polisyos.foundry.agent_sim.world`, and the
+wrapper-only `polisyos.synthetic_world` facade is covered by
+`architecture/imports/policy.toml` until the 2026-10-01 sunset.
 
 | id                                                   | owner           | reason                                                                                                          | added_on   | expires    | status |
 | ---------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------- | ---------- | ---------- | ------ |
@@ -13,6 +18,7 @@
 | `E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-LEX-001`      | `team-data-forge` | Phase 5 keeps existing Ukraine release intervention compilation behavior while Lex-facing payload contracts are extracted | 2026-05-01 | 2026-07-30 | active |
 | `E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-SCIENTIST-001` | `team-data-forge` | Phase 5 keeps existing Ukraine calibration governance behavior while Scientist governance facades are extracted | 2026-05-01 | 2026-07-30 | active |
 | `E-2026-04-FABRIC-WORLD-DEEP-001`                    | `team-polisyos` | Fabric benchmarks and observability still call world materialization/segment helpers before facade extraction   | 2026-04-17 | 2026-07-01 | active |
+| `E-2026-05-FOUNDRY-CALIBRATION-CONTINUOUS-001`       | `team-foundry` | Foundry econometrics advanced methods still reuse Calibration continuous contracts until the calibration facade or method-owned adapter is extracted | 2026-05-01 | 2026-07-30 | active |
 | `E-2026-05-FOUNDRY-FABRIC-QUALITY-001`               | `team-polisyos` | Foundry calibration and uncertainty quality bridges import Fabric product-integration helpers until the quality facade is extracted | 2026-05-01 | 2026-07-30 | active |
 | `E-2026-04-FOUNDRY-LEX-001`                          | `team-polisyos` | foundry agent_sim wiring/contracts.py imports lex interventions for mechanism wiring                            | 2026-04-02 | 2026-07-01 | active |
 | `E-2026-04-FOUNDRY-SCIENTIST-001`                    | `team-polisyos` | foundry calibrator and composition_failure_cards import scientist autotune/search types                         | 2026-04-02 | 2026-07-01 | active |
@@ -28,6 +34,5 @@
 | `E-2026-04-IR-SCHEMAS-REFLECTION-001`                | `team-polisyos` | IR schema catalog reflects the repo-local ABI registry package used by schema generation                        | 2026-04-17 | 2026-07-01 | active |
 | `E-2026-04-LEX-FOUNDRY-001`                          | `team-polisyos` | lex/interventions.py imports foundry causal-engine and DTR for intervention compilation pipeline                | 2026-04-02 | 2026-07-01 | active |
 | `E-2026-04-LEX-SCIENTIST-001`                        | `team-polisyos` | lex modules import scientist policy_design/search for intervention-to-policy linking                            | 2026-04-02 | 2026-07-01 | active |
-| `E-2026-04-RUNTIME-FOUNDRY-PRIVATE-001`              | `team-polisyos` | runtime replay resolves Foundry execution posture before that helper is exposed through a public Foundry facade | 2026-04-17 | 2026-07-01 | active |
-| `E-2026-04-SCIENTIST-FABRIC-PRIVATE-001`             | `team-polisyos` | Scientist Fabric adapter depends on the connector bridge while a public Fabric execution port is extracted      | 2026-04-17 | 2026-07-01 | active |
 | `E-2026-04-SCIENTIST-FOUNDRY-PRIVATE-001`            | `team-polisyos` | scientist search dtr.py imports foundry causal _common private module for DTR shared utilities                  | 2026-04-02 | 2026-07-01 | active |
+| `E-2026-05-SCIENTIST-RUNTIME-REPLAY-001`             | `team-scientist` | Scientist replay backend and verification still reuse Runtime replay contracts until replay ownership is split behind a Scientist-safe facade | 2026-05-01 | 2026-07-30 | active |

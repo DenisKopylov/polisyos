@@ -27,7 +27,7 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._models import ExecutionStrictness
+from polisyos.foundry.execute.executor import ExecutionStrictness
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import (
     apply_state_delta_and_snapshot,
@@ -244,7 +244,7 @@ def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(
             return _IncomeReader()
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry.execute._graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr("polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory)
 
     writer_payload = _scheduled_payload(store)
     reader_payload = _scheduled_payload(store)
@@ -370,7 +370,7 @@ def test_independent_writers_keep_batched_merge_semantics(tmp_path, monkeypatch)
             return _DependentDelta(2.0)
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry.execute._graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr("polisyos.foundry.execute._internal.graph.create_mechanism_from_spec", _fake_factory)
 
     left_payload = _scheduled_payload(store)
     right_payload = _scheduled_payload(store)

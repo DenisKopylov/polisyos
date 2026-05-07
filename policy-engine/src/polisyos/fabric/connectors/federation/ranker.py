@@ -17,7 +17,7 @@ from polisyos.fabric.connectors.federation.types import (
     RankingWeights,
 )
 from polisyos.fabric.connectors.quality.report import DataQualityReport
-from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
+from polisyos.fabric.quality.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.temporal import utc_now
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 

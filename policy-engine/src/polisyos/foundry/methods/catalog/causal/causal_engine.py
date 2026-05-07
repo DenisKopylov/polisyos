@@ -30,6 +30,9 @@ from polisyos.foundry.methods.catalog._phase1_artifacts import (
     is_government_dataset,
     resolve_dataset_context,
 )
+from polisyos.foundry.methods.catalog.causal._causal_engine_contracts import (
+    DataReadinessBlockedError,
+)
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
     do_operator,
@@ -251,15 +254,6 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.mgraph import MGraphMetadata
     from polisyos.ir.analytics.proximal import ProximalMediationCertificate
     from polisyos.ir.analytics.recoverability import JointDecisionCertificate
-
-
-class DataReadinessBlockedError(RuntimeError):
-    """Typed pre-execution failure raised when an estimation path is not ready."""
-
-    def __init__(self, report: DataReadinessReport, *, reason: str) -> None:
-        self.report = report
-        self.reason = reason
-        super().__init__(reason)
 
 
 class CausalEngine:
@@ -7177,15 +7171,6 @@ class CausalEngine:
             treatment="treatment",
             outcome="outcome",
         )
-        from polisyos.foundry.methods.catalog.causal.causal_rl import (
-            CausalBandit,
-        )
-        from polisyos.foundry.methods.catalog.causal.dtr import (
-            ALearningDTR,
-            DoublyRobustDTR,
-            OutcomeWeightedLearning,
-            QLearningDTR,
-        )
         from polisyos.foundry.methods.catalog.causal.g_computation import (
             ICEGFormula,
             LTMLEEstimator,
@@ -8647,7 +8632,7 @@ def _ensure_readiness_registry(registry: Any) -> Any | None:
             register_causal_methods,
         )
         from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-        from polisyos.foundry.methods.registry import MethodRegistry
+        from polisyos.foundry.methods.selection.registry import MethodRegistry
     except Exception:
         return None
 

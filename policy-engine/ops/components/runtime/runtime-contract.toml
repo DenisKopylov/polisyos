@@ -1,0 +1,12 @@
+[component_runtime_contract]
+component = "runtime"
+owner = "team-runtime"
+aliases = ["runtime", "polisyos.runtime"]
+source_readme = "src/polisyos/runtime/README.md"
+runtime_contract_links = [
+  "ops/runtime/runtime-contracts.toml",
+  "schemas/runtime_api_v1.openapi.json",
+  "architecture/runtime_state_layout.toml",
+]
+release_gate_mode = "report_only"
+

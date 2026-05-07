@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_mechanism_methods
 from .runtime import (
@@ -17,12 +17,7 @@ from .runtime import (
 
 def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with mechanism methods used by compile and execute pipelines."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_mechanism_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("mechanism", registry)
 
 
 __all__ = [

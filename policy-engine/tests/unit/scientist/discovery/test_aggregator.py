@@ -1,18 +1,18 @@
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
-from polisyos.scientist.discovery.schema import (
+from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
+from polisyos.scientist.methods.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
 )
-from polisyos.scientist.discovery.stability import (
+from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
     BootstrapStabilityConfig,
     BootstrapStabilityReport,
     HypothesisStabilitySummary,
 )
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )

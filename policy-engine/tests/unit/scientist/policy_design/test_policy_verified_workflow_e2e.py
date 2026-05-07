@@ -11,14 +11,14 @@ from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceAnchor, LegalSourceBundle
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
-from polisyos.scientist.policy_verified import (
+from polisyos.scientist.validation.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
-from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
-from polisyos.scientist.workflows.builder import run_selected_workflow
+from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack, LegalSourcePack
+from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 
 
 def _passing_judge_verdict() -> dict[str, object]:
@@ -136,7 +136,7 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
             )
 
     monkeypatch.setattr(
-        "polisyos.scientist.policy_verified.service._build_legal_toolkit",
+        "polisyos.scientist.validation.policy_verified.service._build_legal_toolkit",
         lambda ctx, state: _FakeLegalToolkit(),
     )
 

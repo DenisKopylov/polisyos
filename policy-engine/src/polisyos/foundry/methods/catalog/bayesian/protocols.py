@@ -1692,7 +1692,7 @@ class PosteriorResult(BaseModel):
     def to_consensus_target(self, query: Any) -> Any:
         """Expose this posterior on the canonical cross-method consensus surface."""
 
-        from polisyos.foundry.methods.consensus import target_from_posterior_result
+        from polisyos.foundry.methods.components.consensus import target_from_posterior_result
 
         return target_from_posterior_result(self, query)
 

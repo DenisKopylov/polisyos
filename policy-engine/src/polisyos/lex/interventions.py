@@ -57,7 +57,7 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchCoordinator,
     PolicySearchLevel,
 )
-from polisyos.scientist.search.controller import SearchIteration, SearchResult, SearchStatus
+from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts import ArtifactStore, InputRef

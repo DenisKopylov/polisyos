@@ -5,7 +5,8 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from contextvars import ContextVar
 
-from opentelemetry.context import attach, detach
+from opentelemetry.context import Context, attach, detach
+
 from polisyos.core.observability import (
     TracedExecutorWrapper,
     extract_headers,
@@ -54,13 +55,17 @@ class TestContextPropagation:
 
         wrapped = with_trace_context(capture_trace_id)
 
-        with tracer.start_as_current_span("parent-one"):
-            first_trace_id = tracer.get_current_trace_id()
-            wrapped()
+        token = attach(Context())
+        try:
+            with tracer.start_as_current_span("parent-one"):
+                first_trace_id = tracer.get_current_trace_id()
+                wrapped()
 
-        with tracer.start_as_current_span("parent-two"):
-            second_trace_id = tracer.get_current_trace_id()
-            wrapped()
+            with tracer.start_as_current_span("parent-two"):
+                second_trace_id = tracer.get_current_trace_id()
+                wrapped()
+        finally:
+            detach(token)
 
         assert results == [first_trace_id, second_trace_id]
         assert first_trace_id != second_trace_id

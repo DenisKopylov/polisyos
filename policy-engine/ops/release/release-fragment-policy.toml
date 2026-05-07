@@ -15,12 +15,28 @@ required_fields = [
   "evidence",
 ]
 allowed_types = [
-  "feature",
-  "fix",
+  "added",
+  "changed",
+  "deprecated",
+  "removed",
+  "fixed",
   "security",
-  "docs",
-  "ops",
-  "migration",
-  "deprecation",
+]
+structured_compatibility_table = "compatibility_change"
+structured_compatibility_required_fields = [
+  "id",
+  "change_class",
+  "impact",
+  "surface",
+  "owner",
+  "version_owner",
+  "deprecation_window",
+  "release_note",
+]
+generated_client_compatibility_values = [
+  "not_applicable",
+  "declared_compatible",
+  "requires_regeneration",
+  "breaking_requires_consumer_action",
 ]
 baseline_command = "manual review: validate release fragments against this policy before release candidate cut"

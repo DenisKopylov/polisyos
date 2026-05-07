@@ -26,7 +26,7 @@ from polisyos.fabric.connectors.federation.types import (
     ConflictResolutionError,
     MergeLogEntry,
 )
-from polisyos.fabric.finite import is_finite_number
+from polisyos.fabric.quality.finite import is_finite_number
 
 logger = get_logger(__name__)
 

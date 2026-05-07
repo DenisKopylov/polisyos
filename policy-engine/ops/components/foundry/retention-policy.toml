@@ -1,0 +1,9 @@
+[retention_policy]
+component = "foundry"
+owner = "team-foundry"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["cas", "reports", "production_data"]
+default_class = "R1 Short operational"
+cleanup = "Benchmark and simulation outputs are rebuildable unless promoted as release evidence or incident archive."
+

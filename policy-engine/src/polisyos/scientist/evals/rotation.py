@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evals.challenge_factory import GeneratedChallenge
 from polisyos.scientist.evals.challenge_packs import ChallengePack, ChallengePackKind
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistryEntry
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistryEntry
 
 __all__ = [
     "ChallengePackLineage",

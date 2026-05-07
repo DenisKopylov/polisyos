@@ -22,14 +22,14 @@ REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/agent/promotion.py"),
     Path("src/polisyos/scientist/agent/tool_contracts.py"),
     Path("src/polisyos/scientist/agent/supervisor_eval.py"),
-    Path("src/polisyos/scientist/frontier_runtime.py"),
+    Path("src/polisyos/scientist/orchestration/engine/frontier_runtime.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/agent/test_runtime_capabilities.py"),
     Path("tests/unit/scientist/agent/test_tool_contracts.py"),
     Path("tests/unit/scientist/agent/test_supervisor_eval.py"),
     Path("tests/unit/scientist/agent/test_promotion.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase1_4.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase1_4.py"),
 )
 CAPABILITY_IDS: tuple[str, ...] = (
     "tool_loop",
@@ -91,7 +91,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
         from polisyos.scientist.agent.tools.schema import ToolDefinition
-        from polisyos.scientist.engine.frontier_runtime import FrontierCapabilityStatus
+        from polisyos.scientist.orchestration.engine.frontier_runtime import FrontierCapabilityStatus
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase1_4_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -181,7 +181,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
     )
 
     integration_tokens = {
-        Path("src/polisyos/scientist/frontier_runtime.py"): (
+        Path("src/polisyos/scientist/orchestration/engine/frontier_runtime.py"): (
             "summarize_agent_promotion_frontier_status",
         ),
         Path("src/polisyos/scientist/agent/promotion.py"): (

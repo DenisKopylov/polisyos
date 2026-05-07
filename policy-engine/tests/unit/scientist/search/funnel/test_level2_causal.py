@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.scientist.search.funnel.level2_causal import Level2CausalPlausibility
-from polisyos.scientist.search.funnel.types import CheapSignalVector, FunnelStageResult
+from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
 
 
 def _make_candidate(**overrides):
@@ -75,7 +75,7 @@ class TestLevel2CausalPlausibility:
 
     def test_uncertainty_envelope_has_structural(self):
         result = self.stage.evaluate(_make_candidate(), {})
-        from polisyos.scientist.search.funnel.types import UncertaintyType
+        from polisyos.scientist.methods.search.funnel.types import UncertaintyType
 
         assert UncertaintyType.STRUCTURAL in result.uncertainty_envelope.uncertainties
 
@@ -166,7 +166,7 @@ class TestLevel2Identifiability:
     def test_hedge_found_returns_zero_and_blocker(self):
         stage = Level2CausalPlausibility()
 
-        from polisyos.scientist.search.funnel.types import TypedFailureCard
+        from polisyos.scientist.methods.search.funnel.types import TypedFailureCard
 
         blocker = TypedFailureCard(
             judge_name="L2_causal",

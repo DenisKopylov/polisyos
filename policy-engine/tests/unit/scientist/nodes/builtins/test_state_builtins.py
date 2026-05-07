@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.engine.builtins.emit_artifact import EmitArtifactNode
-from polisyos.scientist.engine.builtins.set_state import SetStateNode
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.builtins.emit_artifact import EmitArtifactNode
+from polisyos.scientist.orchestration.engine.builtins.set_state import SetStateNode
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 
 def test_set_state_uses_copy_on_write_for_params(
@@ -24,7 +24,7 @@ def test_set_state_uses_copy_on_write_for_params(
         return branch_state(base_state, write_paths=write_paths)
 
     monkeypatch.setattr(
-        "polisyos.scientist.engine.builtins.set_state.branch_state",
+        "polisyos.scientist.orchestration.engine.builtins.set_state.branch_state",
         _spy_branch,
     )
 
@@ -56,7 +56,7 @@ def test_emit_artifact_uses_copy_on_write_for_artifacts_index(
         return branch_state(base_state, write_paths=write_paths)
 
     monkeypatch.setattr(
-        "polisyos.scientist.engine.builtins.emit_artifact.branch_state",
+        "polisyos.scientist.orchestration.engine.builtins.emit_artifact.branch_state",
         _spy_branch,
     )
 

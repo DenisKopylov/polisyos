@@ -1,0 +1,378 @@
+[directory_health]
+version = 1
+status = "active"
+phase = "repository-best-in-class-phase-6.2"
+owner = "team-quality"
+mode = "fail_closed"
+directory_contracts_source = "architecture/directory_contracts.toml"
+test_ratchets_source = "architecture/test_ratchets.toml"
+asset_placement_source = "architecture/asset_placement.toml"
+generated_artifacts_source = "architecture/generated_artifacts.toml"
+validator_command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+dashboard_command = "uv run polisyos-tools validation directory-health --format markdown"
+top_level_path_moves_active = false
+top_level_fail_closed_policy = "active: all top-level directory and loose-file regressions require explicit dated exceptions."
+regression_policy = "Directory health metrics may not move in the wrong direction unless architecture/directory_health.toml records a time-bounded health_exception."
+
+[thresholds]
+high_volume_tracked_files = 20
+high_volume_child_directories = 10
+feature_module_file_threshold = 25
+dashboard_largest_subtree_limit = 10
+frontend_subtree_doc_roots = [
+  "apps",
+  "packages",
+  "frontend",
+]
+source_residue_roots = [
+  "src",
+  "docs",
+  "schemas",
+  "tests",
+]
+allowed_non_product_init_roots = [
+  "benchmarks",
+  "examples",
+  "tests",
+  "tools",
+]
+allowed_root_loose_files = [
+  ".editorconfig",
+  ".env.example",
+  ".gitignore",
+  ".markdownlint-cli2.jsonc",
+  ".nvmrc",
+  ".pre-commit-config.yaml",
+  ".python-version",
+  ".taplo.toml",
+  ".yamllint",
+  "CHANGELOG-DESIGN.md",
+  "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "Dockerfile.reproducible",
+  "README.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+  "basedpyright.toml",
+  "install.sh",
+  "jax_bootstrap.py",
+  "migrate.py",
+  "mkdocs.yml",
+  "mutmut.cfg",
+  "mypy.ini",
+  "package.json",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "pyproject.toml",
+  "pytest.ini",
+  "ruff.toml",
+  "uv.lock",
+  "uv.toml",
+]
+data_only_roots = [
+  "data",
+  "tests/_data",
+  "tests/_golden",
+  "benchmarks/_data",
+]
+data_only_directory_names = [
+  "__fixtures__",
+  "_data",
+  "_golden",
+  "assets",
+  "fixtures",
+]
+registered_frontend_fixture_roots = [
+  "apps/runtime-dashboard/src/test/contracts/fixtures",
+  "frontend/runtime-dashboard/src/test/contracts/fixtures",
+]
+ignored_empty_directory_roots = [
+  ".git",
+  ".hypothesis",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  "_build",
+  "_cache",
+  "node_modules",
+  "apps/runtime-dashboard/node_modules",
+]
+feature_owner_file_names = [
+  "README.md",
+  "AUTHORING.md",
+  "OWNER",
+  "OWNERS",
+  "owner.toml",
+]
+
+[[gate]]
+id = "mirror-ratio"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_no_regression"
+command = "uv run python tools/quality/testing/report_test_ratchets.py --fail-on-regression"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "no-regression"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_no_regression"
+command = "uv run python tools/quality/testing/report_test_ratchets.py --fail-on-regression"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "property-test"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_no_regression"
+command = "uv run python tools/quality/testing/report_test_ratchets.py --fail-on-regression"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "fixture-golden"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_contract"
+command = "uv run pytest tests/repo_quality/architecture/test_test_ratchets_contract.py -q"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "repo-quality"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_contract"
+command = "uv run pytest tests/repo_quality/architecture/test_test_topology_contract.py -q"
+evidence = "architecture/test_topology.toml"
+
+[[gate]]
+id = "pytest-root"
+area = "tests"
+owner = "team-quality"
+mode = "fail_closed_contract"
+command = "uv run pytest tests/repo_quality/architecture/test_test_ratchets_contract.py -q"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "benchmark-role"
+area = "benchmarks"
+owner = "team-quality"
+mode = "fail_closed_contract"
+command = "uv run pytest tests/repo_quality/architecture/test_test_ratchets_contract.py -q"
+evidence = "architecture/test_ratchets.toml"
+
+[[gate]]
+id = "top-level-directory-contract"
+area = "directory_closure"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/directory_contracts.toml"
+
+[[gate]]
+id = "top-level-loose-file-allow-list"
+area = "directory_closure"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/directory_health.toml"
+
+[[gate]]
+id = "forbidden-lifecycle-commits"
+area = "directory_closure"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/directory_contracts.toml"
+
+[[gate]]
+id = "source-local-residue"
+area = "directory_closure"
+owner = "team-devx"
+mode = "ratchet_from_current_count"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/asset_placement.toml"
+
+[[gate]]
+id = "non-product-init-files"
+area = "directory_closure"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/directory_contracts.toml"
+
+[[gate]]
+id = "product-imports-tests-benchmarks"
+area = "directory_closure"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/directory_contracts.toml"
+
+[[gate]]
+id = "data-only-pytest-collectable"
+area = "directory_closure"
+owner = "team-quality"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/asset_placement.toml"
+
+[[gate]]
+id = "frontend-src-fixture-registration"
+area = "directory_closure"
+owner = "team-frontend"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/generated_artifacts.toml"
+
+[[gate]]
+id = "generated-api-placement"
+area = "directory_closure"
+owner = "team-frontend"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/generated_artifacts.toml"
+
+[[gate]]
+id = "empty-ui-component-directory"
+area = "directory_closure"
+owner = "team-frontend"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "architecture/frontend_workspaces.toml"
+
+[[gate]]
+id = "feature-module-owner-threshold"
+area = "directory_closure"
+owner = "team-frontend"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation directory-health --fail-on-regression"
+evidence = "docs/reference/frontend/workspace-contract.md"
+
+[[metric_baseline]]
+id = "top_level_directory_contract_coverage_percent"
+direction = "not_decrease"
+value = 100.0
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "high_volume_subtree_documentation_coverage_percent"
+direction = "not_decrease"
+value = 100.0
+owner = "team-docs"
+
+[[metric_baseline]]
+id = "non_product_python_root_count"
+direction = "not_increase"
+value = 7
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "source_local_residue_count"
+direction = "not_increase"
+value = 677
+owner = "team-devx"
+
+[[metric_baseline]]
+id = "product_asset_count"
+direction = "not_decrease"
+value = 15
+owner = "team-data-forge"
+
+[[metric_baseline]]
+id = "test_fixture_count"
+direction = "not_decrease"
+value = 108
+owner = "team-quality"
+
+[[metric_baseline]]
+id = "golden_record_count"
+direction = "not_decrease"
+value = 14
+owner = "team-quality"
+
+[[metric_baseline]]
+id = "example_asset_count"
+direction = "not_decrease"
+value = 1
+owner = "team-docs"
+
+[[metric_baseline]]
+id = "empty_directory_count_outside_ignored_roots"
+direction = "not_increase"
+value = 7
+owner = "team-devx"
+
+[[metric_baseline]]
+id = "undocumented_frontend_subtree_count"
+direction = "not_increase"
+value = 0
+owner = "team-frontend"
+
+[[metric_baseline]]
+id = "archive_report_promotion_backlog"
+direction = "not_increase"
+value = 153
+owner = "team-docs"
+
+[[metric_baseline]]
+id = "max_directory_depth"
+direction = "not_increase"
+value = 8
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "closure_top_level_loose_file_count"
+direction = "not_increase"
+value = 0
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "closure_forbidden_lifecycle_commit_count"
+direction = "not_increase"
+value = 0
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "closure_non_product_init_count"
+direction = "not_increase"
+value = 0
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "closure_forbidden_product_import_count"
+direction = "not_increase"
+value = 0
+owner = "team-architecture"
+
+[[metric_baseline]]
+id = "closure_data_only_pytest_count"
+direction = "not_increase"
+value = 0
+owner = "team-quality"
+
+[[metric_baseline]]
+id = "closure_unregistered_frontend_fixture_count"
+direction = "not_increase"
+value = 0
+owner = "team-frontend"
+
+[[metric_baseline]]
+id = "closure_unregistered_generated_api_count"
+direction = "not_increase"
+value = 0
+owner = "team-frontend"
+
+[[metric_baseline]]
+id = "closure_empty_ui_component_directory_count"
+direction = "not_increase"
+value = 0
+owner = "team-frontend"
+
+[[metric_baseline]]
+id = "closure_over_threshold_feature_without_owner_count"
+direction = "not_increase"
+value = 0
+owner = "team-frontend"

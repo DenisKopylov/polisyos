@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.search.benchmark_registry import FrontierBenchmarkBundle
+from polisyos.scientist.methods.search.benchmark_registry import FrontierBenchmarkBundle
 
 __all__ = [
     "BenchmarkContaminationFinding",

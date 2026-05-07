@@ -32,7 +32,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
-from polisyos.ir.refs import EstimandASTRef
+from polisyos.ir.references import EstimandASTRef
 
 _ESTIMAND_CANON_SPEC = CanonSpec(forbid_floats=False)
 _ESTIMAND_SCHEMA_NAME = "ir.estimand_ast"

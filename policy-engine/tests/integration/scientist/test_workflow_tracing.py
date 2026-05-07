@@ -46,7 +46,7 @@ def _put_data_snapshot(
 
 def test_full_workflow_trace_consistency(in_memory_exporter, monkeypatch, tmp_path):
     store = FileSystemCAS(tmp_path)
-    monkeypatch.setattr("polisyos.scientist.workflows.builder.DEFAULT_CAS_ROOT", tmp_path)
+    monkeypatch.setattr("polisyos.scientist.orchestration.workflows.builder.DEFAULT_CAS_ROOT", tmp_path)
 
     registry_bundle = build_default_registry_bundle(store)
     base_state = GlobalState.empty(n_agents=5, n_firms=2)

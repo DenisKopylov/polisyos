@@ -1,0 +1,13 @@
+{
+  "component": "data_forge",
+  "owner": "team-data-forge",
+  "aliases": ["data_forge", "polisyos.data_forge", "polisyos.data_forge.read_api"],
+  "dashboards": [
+    {
+      "name": "SLO Overview",
+      "path": "ops/observability/grafana/dashboards/slo-overview.json",
+      "purpose": "Pipeline duration, cache hit rate, schema, and drift posture"
+    }
+  ]
+}
+

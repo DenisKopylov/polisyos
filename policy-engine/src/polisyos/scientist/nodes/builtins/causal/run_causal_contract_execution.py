@@ -23,11 +23,11 @@ from polisyos.ir.observation.causal_execution import (
 )
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.lex.interventions import TemporalInterventionSequenceCompiler
-from polisyos.scientist.causal.execution import BoundsEstimationRunner
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.methods.causal.execution import BoundsEstimationRunner
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_BOUNDS_BUNDLE_REF,

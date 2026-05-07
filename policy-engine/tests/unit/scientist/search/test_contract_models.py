@@ -3,17 +3,17 @@ from __future__ import annotations
 import pytest
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.search.failure_cards import TypedFailureCard
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+from polisyos.scientist.methods.search.funnel.types import (
     TypedFailureCard as ReexportedTypedFailureCard,
 )
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope as ReexportedUncertaintyEnvelope,
 )
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyType as ReexportedUncertaintyType,
 )
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,

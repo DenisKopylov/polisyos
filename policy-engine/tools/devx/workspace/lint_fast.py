@@ -61,8 +61,8 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if not args.skip_frontend:
-        ensure_executable("npm", reason="run frontend ESLint", skip_hint="--skip-frontend")
-        commands[1:1] = frontend_npm_runs("lint", label="npm lint")
+        ensure_executable("corepack", reason="run frontend ESLint", skip_hint="--skip-frontend")
+        commands[1:1] = frontend_npm_runs("lint", label="pnpm lint")
 
     for command in commands:
         run_command(command)

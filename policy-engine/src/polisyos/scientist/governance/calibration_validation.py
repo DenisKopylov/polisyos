@@ -25,7 +25,7 @@ from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkI
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport
+from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.governance.accountability import (
     GovernanceAccountabilityInput,
     build_governance_accountability_artifact,
@@ -339,8 +339,8 @@ class CalibrationValidationLessonPublisher:
         bundle_input: CalibrationValidationRunnerInput,
         bundle: CalibrationValidationBundle,
     ) -> ArtifactRef | None:
-        from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonTrustLevel
-        from polisyos.scientist.search.transfer_context import resolve_transfer_context
+        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonTrustLevel
+        from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
         registry = bundle_input.lesson_registry
         if registry is None or not hasattr(registry, "record_local"):

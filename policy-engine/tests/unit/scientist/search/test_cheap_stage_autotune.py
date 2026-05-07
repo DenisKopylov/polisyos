@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.autotune import (
+from polisyos.scientist.methods.autotune import (
     ChampionRegistry,
     persist_benchmark_evaluation,
     persist_benchmark_suite,
     persist_mutation_artifact,
 )
-from polisyos.scientist.autotune.cheap_stage import (
+from polisyos.scientist.methods.autotune.cheap_stage import (
     CheapStageBenchmarkEvaluator,
     CheapStageRuntimeLoader,
     CheapStageTuningConfig,

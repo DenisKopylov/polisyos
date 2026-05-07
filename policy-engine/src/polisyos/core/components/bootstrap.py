@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .discovery import discover_components
+from .discovery import BuiltinLoaderSpec, discover_components
 from .registry import ComponentEntry, ComponentRegistry, DuplicateComponentIdPolicy
 
 
@@ -48,6 +48,7 @@ def build_components_index(
     include_legacy_group: bool = False,
     include_dev_scan: bool = True,
     dev_scan_paths: Sequence[Path | str] | None = None,
+    builtin_loaders: Sequence[BuiltinLoaderSpec] | None = None,
     duplicate_policy: DuplicateComponentIdPolicy = DuplicateComponentIdPolicy.WARN,
 ) -> tuple[ComponentRegistry, Any]:
     """Discover components once and materialize a deterministic component index."""
@@ -56,6 +57,7 @@ def build_components_index(
         include_legacy_group=include_legacy_group,
         include_dev_scan=include_dev_scan,
         dev_scan_paths=dev_scan_paths,
+        builtin_loaders=builtin_loaders,
     )
 
     index = ComponentRegistry()
@@ -130,11 +132,21 @@ def bootstrap_plugin_registries(
         )
 
     if bootstrap_nodes:
-        node_module = importlib.import_module("polisyos.scientist.engine.registry")
+        node_module = importlib.import_module("polisyos.scientist.orchestration.engine.registry")
         node_registry_cls = node_module.NodeRegistry
         discover_nodes = node_module.discover_nodes
         registry = node_registry_cls()
-        node_report = discover_nodes(registry, components_index=components_index)
+        node_report = discover_nodes(
+            registry,
+            include_entry_points=False,
+            include_builtin_nodes=True,
+            include_dev_scan=False,
+        )
+        indexed_node_report = discover_nodes(registry, components_index=components_index)
+        node_report.registered.extend(indexed_node_report.registered)
+        node_report.duplicates.extend(indexed_node_report.duplicates)
+        node_report.errors.extend(indexed_node_report.errors)
+        node_report.discovery_errors.extend(indexed_node_report.discovery_errors)
         report.domains["nodes"] = _as_domain_report(node_report)
 
     return report

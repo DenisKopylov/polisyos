@@ -19,7 +19,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import StressTestReportRef
-from polisyos.scientist.doe.stress_report import StressTestReport, Vulnerability, VulnerabilityType
+from polisyos.scientist.methods.doe.stress_report import StressTestReport, Vulnerability, VulnerabilityType
 
 
 class StressScenarioKind(str, Enum):

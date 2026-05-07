@@ -11,6 +11,7 @@ enforcement, observability, tenant/RLS migrations и infrastructure artifacts
 - Kubernetes packaging: `ops/cloud/helm/README.md`.
 - Policy-as-code: `ops/policy/README.md`.
 - Metrics/alerts: `ops/observability/prometheus/README.md`.
+- Component operability bundles: `ops/components/README.md`.
 - SQL tenant isolation chain: `ops/migrations/README.md`.
 - Confidential node-pool module: `ops/cloud/terraform/README.md`.
 - Локальная observability sandbox: `ops/docker/observability.compose.yml`.
@@ -25,6 +26,45 @@ enforcement, observability, tenant/RLS migrations и infrastructure artifacts
 | `migrations/*.sql`                        | Forward/rollback SQL chain для tenant/RLS hardening.                |
 | `cloud/terraform/modules/confidential_nodepool` | AKS confidential workload scheduling baseline.                |
 | `cloud/helm/install-linkerd.sh`           | Вспомогательный install helper для strict mTLS path.                |
+
+## Top-Level Taxonomy
+
+`ops/**` is the declarative/control-plane side of operations. Executable
+operational runners live in `tools/ops_runners/**`.
+
+| Folder | Owner | Artifact type | Contract |
+| --- | --- | --- | --- |
+| `ci/` | `team-devx` | `ci-template-control-plane` | Inactive CI and GitHub template sources. |
+| `cloud/` | `team-ops` | `cloud-infrastructure-contracts` | Helm, Terraform, GCP launch, and cloud deployment assets. |
+| `components/` | `team-ops` | `component-operability-bundles` | Component-first SLO, alert, dashboard, runbook, runtime-contract, and retention bundles. |
+| `deploy/` | `team-ops` | `deployment-contracts` | Cross-environment deployment topology and support contracts. |
+| `docker/` | `team-ops` | `local-runtime-infrastructure` | Compose and Docker assets for local/operational infrastructure. |
+| `migrations/` | `team-ops` | `migration-contracts` | SQL and future classed migration source-of-truth contracts. |
+| `observability/` | `team-ops` | `observability-contracts` | SLOs, alerts, dashboards, and telemetry baselines. |
+| `policy/` | `team-security` | `policy-as-code` | Runtime authorization and deploy gate Rego policies. |
+| `release/` | `team-ops` | `release-policy-contracts` | Release fragment, commit, topology, and promotion gate baselines. |
+| `runtime/` | `team-runtime` | `runtime-operations-contracts` | Runtime deployment-facing compatibility and recovery contracts. |
+| `security/` | `team-security` | `security-baseline-contracts` | Secret, vulnerability, and SBOM baseline policy. |
+
+## Operability Organization
+
+Phase 1.6 selects component-first operability bundles as the target shape:
+
+```text
+ops/components/<component>/
+  README.md
+  slo.yaml
+  alerts.yml
+  dashboard.json
+  runbooks.md
+  runtime-contract.toml
+  retention-policy.toml
+```
+
+Phase 4.9 creates the physical `ops/components/**` draft tree. Its
+machine-readable index is `ops/components/index.toml`; the legacy aggregate
+coverage mirrors remain in `architecture/component_observability.toml` and
+`architecture/runbook_coverage.toml` for Wave 6 gate conversion.
 
 ## Depends On / Depended On By
 
@@ -61,6 +101,7 @@ enforcement, observability, tenant/RLS migrations и infrastructure artifacts
 ## Reference Docs
 
 - [Helm README](./cloud/helm/README.md)
+- [Component Operability Bundles](./components/README.md)
 - [Policy README](./policy/README.md)
 - [Prometheus README](./observability/prometheus/README.md)
 - [Grafana README](./observability/grafana/README.md)
@@ -80,8 +121,8 @@ enforcement, observability, tenant/RLS migrations и infrastructure artifacts
 - `ops/policy/policies/*.rego` и `ops/cloud/helm/polisyos-cell/policies/*.rego` должны
   оставаться синхронными: chart пакует копию runtime/deploy policies.
 
-- `migrations/003_rls_disable_rollback.sql` — только emergency rollback после
-  `003_rls_enable.sql`, не часть forward chain.
+- `migrations/db/003_rls_disable_rollback.sql` — только emergency rollback
+  после `003_rls_enable.sql`, не часть forward chain.
 
 - `ops/docker/observability.compose.yml` полезен для локального smoke-check, но не
   покрывает весь production-like deployment path.

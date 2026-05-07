@@ -1,0 +1,58 @@
+[tool_config_split]
+version = 1
+status = "active"
+owner = "team-devx"
+phase = "repository-best-in-class-phase-5.5"
+check_command = "uv run polisyos-tools workspace tool-configs --check"
+description = "Root tool configs are policy stubs; generated operational configs are assembled from small, reviewable fragments."
+dead_override_report_command = "uv run python tools/ops_runners/reports/dead_overrides.py"
+
+[mypy]
+root_config = "mypy.ini"
+base_config = "architecture/tooling/mypy/base.ini"
+generated_config = "architecture/tooling/mypy/generated.ini"
+invocation_policy = "Repo commands that need historical package overrides must pass --config-file architecture/tooling/mypy/generated.ini."
+override_fragments = [
+  "architecture/tooling/mypy/overrides/10-ir.ini",
+  "architecture/tooling/mypy/overrides/20-fabric.ini",
+  "architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini",
+  "architecture/tooling/mypy/overrides/40-foundry.ini",
+  "architecture/tooling/mypy/overrides/50-data-forge-legacy.ini",
+  "architecture/tooling/mypy/overrides/60-scientist.ini",
+  "architecture/tooling/mypy/overrides/70-core.ini",
+]
+
+[ruff]
+root_config = "ruff.toml"
+base_config = "architecture/tooling/ruff/base.toml"
+generated_config = "architecture/tooling/ruff/generated.toml"
+root_policy = "Root ruff.toml extends the generated operational config and keeps only loader/cache policy."
+per_file_ignore_fragments = [
+  "architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml",
+  "architecture/tooling/ruff/per-file-ignores/20-core.toml",
+  "architecture/tooling/ruff/per-file-ignores/30-foundry.toml",
+  "architecture/tooling/ruff/per-file-ignores/40-data-forge.toml",
+  "architecture/tooling/ruff/per-file-ignores/50-fabric.toml",
+  "architecture/tooling/ruff/per-file-ignores/60-lex-scholar.toml",
+  "architecture/tooling/ruff/per-file-ignores/70-scientist.toml",
+  "architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml",
+  "architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+]
+
+[mkdocs]
+root_config = "mkdocs.yml"
+base_config = "architecture/tooling/mkdocs/base.yml"
+exclude_docs_fragment = "architecture/tooling/mkdocs/exclude_docs.yml"
+not_in_nav_fragment = "architecture/tooling/mkdocs/not_in_nav.yml"
+generated_config = "architecture/tooling/mkdocs/generated.yml"
+root_policy = "Root mkdocs.yml inherits the generated config assembled from docs nav fragments."
+nav_fragments = [
+  "architecture/tooling/mkdocs/nav/00-home.yml",
+  "architecture/tooling/mkdocs/nav/10-tutorials.yml",
+  "architecture/tooling/mkdocs/nav/20-how-to.yml",
+  "architecture/tooling/mkdocs/nav/30-reference.yml",
+  "architecture/tooling/mkdocs/nav/40-explanation.yml",
+  "architecture/tooling/mkdocs/nav/50-contracts.yml",
+  "architecture/tooling/mkdocs/nav/60-runbooks.yml",
+  "architecture/tooling/mkdocs/nav/70-adrs.yml",
+]

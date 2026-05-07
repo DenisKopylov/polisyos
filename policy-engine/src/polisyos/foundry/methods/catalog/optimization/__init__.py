@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.extensions.registry import bootstrap_builtin_foundry_method_family
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 from ._registry_boot import register_optimization_methods
 from .advanced_stochastic import (
@@ -53,12 +53,7 @@ from .sequential import (
 
 def ensure_optimization_methods_registered(registry: MethodRegistry | None = None) -> None:
     """Populate `registry` with optimization methods for planners and catalog snapshots."""
-    reg = registry if registry is not None else MethodRegistry.get_instance()
-    for method_class in register_optimization_methods():
-        try:
-            reg.register(method_class)
-        except MethodAlreadyRegisteredError:
-            continue
+    bootstrap_builtin_foundry_method_family("optimization", registry)
 
 
 __all__ = [

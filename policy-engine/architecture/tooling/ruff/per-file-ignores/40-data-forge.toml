@@ -1,0 +1,172 @@
+# Phase 4A legacy data-package ratchet. These entries are intentionally
+# per-file rather than package-wide globs so legacy data packages do not gain
+# new blanket ignores.
+"src/polisyos/data_forge/domains/academic/batch/article_extractor.py" = ["ANN401", "E501", "N806", "S101"]
+"src/polisyos/data_forge/domains/academic/batch/benchmark.py" = ["ANN401", "E501", "S110", "S608"]
+"src/polisyos/data_forge/domains/academic/batch/best_snapshot.py" = ["ANN001", "ANN401", "E501", "S107", "S608"]
+"src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py" = ["ANN401", "E501", "SIM115"]
+"src/polisyos/data_forge/domains/academic/batch/cli.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/config.py" = ["S105"]
+"src/polisyos/data_forge/domains/academic/batch/dedup.py" = ["ANN401"]
+"src/polisyos/data_forge/domains/academic/batch/doc_normalize.py" = ["E501", "S314"]
+"src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py" = ["E501", "S608"]
+"src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/graph_builder.py" = ["B007", "E501"]
+"src/polisyos/data_forge/domains/academic/batch/llm_extractor.py" = ["ANN401", "S101", "S324"]
+"src/polisyos/data_forge/domains/academic/batch/numeric_extract.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/parser.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/pipeline.py" = ["ANN001"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/prompts/screening.py" = ["E501"]
+"src/polisyos/data_forge/domains/academic/batch/qc.py" = ["E501", "S310"]
+"src/polisyos/data_forge/domains/academic/batch/resolve_extract.py" = [
+  "ANN401",
+  "E501",
+  "N806",
+  "S110",
+  "S311",
+  "SIM102",
+  "SIM113",
+]
+"src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py" = ["E501", "N806", "SIM102"]
+"src/polisyos/data_forge/domains/academic/batch/topic_select.py" = ["E501", "S101"]
+"src/polisyos/data_forge/domains/academic/batch/transport_score.py" = ["E501", "S608"]
+"src/polisyos/data_forge/domains/academic/knowledge/__init__.py" = ["ANN202"]
+"src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py" = ["S106"]
+"src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py" = ["ANN001", "ANN202"]
+"src/polisyos/data_forge/domains/academic/knowledge/skg_query.py" = ["E501", "S112", "S608"]
+"src/polisyos/data_forge/domains/academic/knowledge/skg_store.py" = ["ANN401", "E501"]
+"src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py" = ["ANN401"]
+"src/polisyos/data_forge/domains/academic/knowledge/store.py" = ["E501", "S608"]
+"src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py" = ["S101"]
+"src/polisyos/data_forge/domains/academic/openalex/client.py" = ["S101"]
+"src/polisyos/data_forge/domains/catalog/batch/__init__.py" = ["E501"]
+"src/polisyos/data_forge/domains/catalog/batch/benchmark.py" = ["E501", "S112", "S608"]
+"src/polisyos/data_forge/domains/catalog/batch/checkpoints.py" = ["ANN401"]
+"src/polisyos/data_forge/domains/catalog/batch/cli.py" = ["E501"]
+"src/polisyos/data_forge/domains/catalog/batch/config.py" = ["SIM102"]
+"src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py" = [
+  "ANN401",
+  "B007",
+  "B020",
+  "E501",
+  "F402",
+  "N806",
+  "RUF034",
+  "S101",
+  "S608",
+  "SIM117",
+]
+"src/polisyos/data_forge/domains/catalog/batch/graph_builder.py" = ["E501"]
+"src/polisyos/data_forge/domains/catalog/batch/harvester.py" = ["ANN401", "E501", "S314", "SIM102", "SIM117"]
+"src/polisyos/data_forge/domains/catalog/batch/interpolation.py" = ["S608"]
+"src/polisyos/data_forge/domains/catalog/batch/normalizer.py" = ["ANN401", "E501", "RUF001", "SIM115"]
+"src/polisyos/data_forge/domains/catalog/batch/publish.py" = ["E501", "S608"]
+"src/polisyos/data_forge/domains/catalog/batch/qc.py" = ["E501", "S310", "S608"]
+"src/polisyos/data_forge/domains/catalog/batch/source_registry.py" = ["ANN401"]
+"src/polisyos/data_forge/domains/catalog/knowledge/__init__.py" = ["E501"]
+"src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py" = ["ANN401", "SIM102"]
+"src/polisyos/data_forge/domains/catalog/knowledge/registry.py" = ["ANN401", "RUF059", "SIM102"]
+"src/polisyos/data_forge/domains/catalog/knowledge/search.py" = ["E501", "SIM102"]
+"src/polisyos/data_forge/domains/catalog/knowledge/store.py" = ["E501", "S608"]
+"src/polisyos/data_forge/domains/ukraine/adapters.py" = [
+  "E501",
+  "S314",
+  "S603",
+  "S608",
+  "SIM102",
+]
+"src/polisyos/data_forge/domains/ukraine/builders/__init__.py" = ["F403", "F405"]
+"src/polisyos/data_forge/domains/ukraine/builders/calibration.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "F403",
+  "F405",
+  "RUF001",
+  "S110",
+  "S324",
+  "S608",
+  "TC001",
+]
+"src/polisyos/data_forge/domains/ukraine/builders/common.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "RUF001",
+  "S110",
+  "S324",
+  "S608",
+  "TC001",
+]
+"src/polisyos/data_forge/domains/ukraine/builders/demography.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "F403",
+  "F405",
+  "RUF001",
+  "S110",
+]
+"src/polisyos/data_forge/domains/ukraine/builders/release.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "F403",
+  "F405",
+  "RUF001",
+  "S110",
+  "S324",
+  "S608",
+]
+"src/polisyos/data_forge/domains/ukraine/builders/sources.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "F403",
+  "F405",
+  "RUF001",
+  "S110",
+  "S324",
+  "S608",
+  "TC001",
+]
+"src/polisyos/data_forge/domains/ukraine/models.py" = ["E501"]
+"src/polisyos/data_forge/domains/ukraine/orchestrator.py" = ["E501"]
+"src/polisyos/data_forge/domains/ukraine/server.py" = ["S603"]
+"src/polisyos/data_forge/domains/ukraine/sharding.py" = ["RUF001"]
+"tests/unit/data_forge/domains/academic/batch/test_article_extraction_golden.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_benchmark.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_doc_normalize.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_fulltext_resolver.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_parser.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_qc.py" = ["PT017"]
+"tests/unit/data_forge/domains/academic/batch/test_run2_pipeline_upgrades.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/batch/test_transport_score.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/knowledge/test_canonical_resolver.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py" = ["E501"]
+"tests/unit/data_forge/domains/academic/knowledge/test_types.py" = ["B017", "PT011"]
+"tests/unit/data_forge/domains/catalog/batch/test_benchmark.py" = ["E501"]
+"tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py" = ["E501"]
+"tests/unit/data_forge/domains/catalog/batch/test_harvester_sampling.py" = ["E501"]
+"tests/unit/data_forge/domains/catalog/batch/test_pipeline.py" = ["PT017"]
+"tests/unit/data_forge/domains/catalog/batch/test_publish.py" = ["PT017"]
+"tests/unit/data_forge/domains/catalog/batch/test_qc.py" = ["E501", "PT017"]
+"tests/unit/data_forge/domains/catalog/knowledge/test_registry.py" = ["E501"]
+"tests/unit/data_forge/domains/catalog/knowledge/test_store.py" = ["E501"]
+"tests/unit/data_forge/domains/catalog/knowledge/test_types.py" = ["B017", "PT011"]
+"tests/integration/test_phase0_quality_validation.py" = ["E501"]
+"tests/unit/data_forge/domains/ukraine/test_adapters.py" = ["E501", "RUF001"]
+"tests/unit/data_forge/domains/ukraine/test_builders.py" = ["RUF043"]

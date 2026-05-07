@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.foundry.methods.merge_engine import MergeConflictKind
+from polisyos.foundry.methods.components.merge_engine import MergeConflictKind
 from polisyos.ir.kernel import ConflictResolution, MergeRuleKind
 
 if TYPE_CHECKING:

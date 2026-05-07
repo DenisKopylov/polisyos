@@ -1,0 +1,11 @@
+component: calibration
+owner: team-foundry
+status: draft
+alerts:
+  - name: CalibrationDiverging
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: CalibrationStuck
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+

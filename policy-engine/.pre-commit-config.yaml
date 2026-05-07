@@ -90,7 +90,7 @@ repos:
     hooks:
       - id: shfmt
         args: ["-i", "2", "-ci", "-sr", "-d"]
-        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|apps/runtime-dashboard/scripts/)
         types_or: [shell]
 
   - repo: local
@@ -100,11 +100,17 @@ repos:
         entry: uvx --from shellcheck-py==0.11.0.1 shellcheck
         language: system
         args: ["--severity=warning"]
-        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        files: ^policy-engine/(install\.sh|tools/|ops/|benchmarks/|apps/runtime-dashboard/scripts/)
         types_or: [shell]
       - id: repository-sota-closeout
         name: Repository SOTA closeout contract
         entry: bash -lc 'cd policy-engine && uv run polisyos-tools workspace repository-sota-closeout --contract-only'
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: tool-config-split
+        name: Tool config split drift
+        entry: bash -lc 'cd policy-engine && uv run polisyos-tools workspace tool-configs --check'
         language: system
         pass_filenames: false
         always_run: true

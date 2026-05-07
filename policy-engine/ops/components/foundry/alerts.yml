@@ -1,0 +1,20 @@
+component: foundry
+owner: team-foundry
+status: draft
+alerts:
+  - name: SLO_SimulationNanRateBreach
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: SimulationStall
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: JITRecompilationStorm
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/cache-rebuild-storm.md
+  - name: JITRecompilationStormCritical
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/cache-rebuild-storm.md
+  - name: LowCacheHitRatio
+    source: ops/observability/prometheus/alerts.yml
+    runbook: docs/runbooks/cache-rebuild-storm.md
+

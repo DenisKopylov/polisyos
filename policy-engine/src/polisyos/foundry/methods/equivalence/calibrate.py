@@ -41,7 +41,7 @@ from polisyos.foundry.methods.equivalence.verify import (
     runtime_envelope_from_results,
     verify_backend_equivalence,
 )
-from polisyos.foundry.methods.registry import MethodRegistry, get_registry
+from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 
 @dataclass(frozen=True, slots=True)

@@ -3,6 +3,14 @@
 `methods/catalog/causal` - canonical causal-method family for discovery,
 estimation, transportability, policy learning, diagnostics and strategic response.
 
+## Purpose
+
+Use this package when a Foundry or Scientist workflow needs a registered causal
+method, estimator, diagnostic, or graph-discovery helper. The package is a
+catalog family, not a public subsystem facade: stable access flows through
+method registration, the exported causal names in `__init__.py`, and the
+broader `polisyos.foundry.methods` facade.
+
 ## Role in System
 
 - **Depends on:** `polisyos.foundry.methods`, `polisyos.ir.analytics.causal`
@@ -43,8 +51,67 @@ estimation, transportability, policy learning, diagnostics and strategic respons
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../../docs/reference/foundry/index.md)
 
+## Internal Layout
+
+- `__init__.py` exposes the supported causal family import surface and delegates
+  registration to `_registry_boot.py`.
+- `protocols.py`, `_common.py`, and helper contract modules define shared input
+  and result shapes. Keep cross-method payloads here only when multiple causal
+  families consume them.
+- `causal_engine.py`, `id_engine.py`, `constraint_discovery.py`,
+  `interference.py`, and `invariance_tests.py` are high-complexity modules
+  tracked in `architecture/module_size_budget.toml`.
+- Method modules are grouped by concept: identification, estimation,
+  diagnostics, discovery, transportability, fairness, policy learning,
+  recourse, strategic response, and space-time DSCM.
+- Optional backend adapters such as `_econml_adapter.py` and
+  `_sklearn_compat.py` must degrade by explicit capability contract.
+
+## Extension Points
+
+- External causal methods use the parent `polisyos.foundry_methods` extension
+  point declared in
+  [architecture/extension_points.toml](../../../../../../architecture/extension_points.toml).
+- Builtin causal methods must register through `_registry_boot.py` and provide
+  method metadata compatible with the parent registry snapshot and capability
+  matrix.
+- Authoring rules live in [AUTHORING.md](AUTHORING.md) and the parent
+  [catalog/AUTHORING.md](../AUTHORING.md).
+
+## Tests
+
+- Package-local tests live in
+  [tests/unit/foundry/methods/catalog/causal/](../../../../../../tests/unit/foundry/methods/catalog/causal/).
+- Use characterization tests before splitting high-complexity modules, for
+  example `test_id_engine_characterization.py` for symbolic ID behavior.
+- Run the parent Foundry Methods suite when changing registration metadata:
+
+```bash
+uv run pytest tests/unit/foundry/methods/catalog/causal -q
+uv run pytest tests/unit/foundry/methods/test_registry.py tests/unit/foundry/methods/test_testing_infra.py -q
+```
+
+## Operability Links
+
+- [Foundry component SLO](../../../../../../ops/components/foundry/slo.yaml)
+- [Foundry component runbooks](../../../../../../ops/components/foundry/runbooks.md)
+- [Causal engine architecture](../../../../../../docs/reference/foundry/causal-engine-architecture.md)
+- [Run causal analysis how-to](../../../../../../docs/how-to/run-causal-analysis.md)
+- [Benchmark regression triage runbook](../../../../../../docs/runbooks/benchmark-regression-triage.md)
+
+## Known Shims/Deprecations
+
+- There are no package-local compatibility shims for `catalog/causal` in
+  `architecture/shims.toml` as of 2026-05-06.
+- High-complexity modules in this family are covered by
+  [architecture/module_size_budget.toml](../../../../../../architecture/module_size_budget.toml)
+  with owner `team-foundry` and sunset `2026-12-31`.
+- Renaming a method ID, moving an import path, or extracting one of the
+  budgeted modules requires a deprecation record, compatibility tests, and a
+  registry snapshot check before deletion.
+
 ## Current State
 
-- Last updated: 2026-04-25
+- Last updated: 2026-05-06
 - Files: 98 Python files
 - Exports: 164

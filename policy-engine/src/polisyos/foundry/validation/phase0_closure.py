@@ -41,7 +41,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.bayesian.protocols import PosteriorResult
-from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.foundry.methods.equivalence import (
     ComparatorKind,
     CrossBackendEquivalenceCertificate,

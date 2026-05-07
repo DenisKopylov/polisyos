@@ -182,7 +182,7 @@ class RAGConfig(BaseModel):
     max_few_shot_chars: int = Field(default=6000, ge=400, le=20000)
     max_entries: int = Field(default=10_000, ge=100)
     freeze_snapshot_per_run: bool = True
-    cas_root: str = ".polisyos"
+    cas_root: str = ".polisyos/cas"
 
     @classmethod
     def from_env(cls) -> RAGConfig:

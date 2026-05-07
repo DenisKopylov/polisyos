@@ -5,18 +5,18 @@ from typing import Any
 import pytest
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.portfolio import PolicyPortfolio
-from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.objective import (
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.search.portfolio import (
+from polisyos.scientist.methods.search.portfolio import (
     PortfolioCombination,
     PortfolioSearchMode,
     PortfolioSearchSpace,
 )
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
 class _NoopObjective:

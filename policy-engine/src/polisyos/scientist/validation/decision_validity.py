@@ -26,7 +26,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityTransition,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
-from polisyos.scientist.engine.operational_monitoring import get_operational_monitor
+from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore

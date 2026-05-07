@@ -47,8 +47,8 @@ from polisyos.ir.model_spec import FidelityLevel, ModelSpec
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveChannelValue,
     ObjectiveDirection,
@@ -64,18 +64,18 @@ from polisyos.scientist.policy_design.output import (
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.search.judge_stack import JudgeVerdict
-from polisyos.scientist.search.readiness import (
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
+from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
     DecisionReadinessEvaluator,
 )
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
 )
-from polisyos.scientist.verification.ic import load_ic_certificate, verify_incentive_compatibility
+from polisyos.scientist.validation.verification.ic import load_ic_certificate, verify_incentive_compatibility
 
 
 def _ctx(tmp_path, *, run_id: str) -> ExecutionContext:

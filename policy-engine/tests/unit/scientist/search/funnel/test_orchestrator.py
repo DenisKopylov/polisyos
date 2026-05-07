@@ -6,23 +6,23 @@ from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.search.funnel.level5_refutation_governance import (
+from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
-from polisyos.scientist.search.funnel.level6_promotion import Level6PromotionStage
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
-from polisyos.scientist.search.funnel.types import (
+from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
     UncertaintyEnvelope,
 )
-from polisyos.scientist.search.lessons import LessonRegistry
-from polisyos.scientist.search.voi_scheduler import PredictiveVOIScheduler
+from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:

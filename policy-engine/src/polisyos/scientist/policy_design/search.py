@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.scientist.llm.factory import create_traced_gateway_client
+from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.critic import ConstraintCritic, ConstraintCriticInput
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
@@ -33,22 +33,22 @@ from polisyos.scientist.policy_design.translator import (
     TranslatorCompliancePass,
     TranslatorInputBundle,
 )
-from polisyos.scientist.search.controller import SearchIteration, SearchResult, SearchStatus
-from polisyos.scientist.search.lessons import (
+from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
+from polisyos.scientist.methods.search.lessons import (
     LessonCard,
     LessonKind,
     LessonRegistry,
     LessonTrustLevel,
 )
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.search.stopping import MaxIterations
-from polisyos.scientist.search.strategies.adapter import StrategyAdapter
-from polisyos.scientist.search.strategies.codec import _get_path, _set_path
-from polisyos.scientist.search.strategies.multi_objective import MOBayesianOptimizer
-from polisyos.scientist.search.strategies.space import SearchSpace
-from polisyos.scientist.search.strategies.types import ParameterBounds, ParameterType
-from polisyos.scientist.search.transfer_context import resolve_transfer_context
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
+from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
 
 class PolicySearchLevel(str, Enum):

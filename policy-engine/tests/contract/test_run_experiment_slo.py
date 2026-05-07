@@ -6,7 +6,7 @@ from contextlib import contextmanager
 
 import polisyos.scientist as scientist_api
 import pytest
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 class _FakeSpan:
@@ -80,13 +80,13 @@ def test_run_experiment_records_slo_success(monkeypatch) -> None:
         state = final_state
         report = type("Report", (), {"status": "ok"})
 
-    stub_pkg = types.ModuleType("polisyos.scientist.workflows")
-    stub_builder = types.ModuleType("polisyos.scientist.workflows.builder")
+    stub_pkg = types.ModuleType("polisyos.scientist.orchestration.workflows")
+    stub_builder = types.ModuleType("polisyos.scientist.orchestration.workflows.builder")
     stub_builder.resolve_workflow_id = lambda _initial_state: "scientist_default"  # type: ignore[attr-defined]
     stub_builder.run_selected_workflow = lambda _initial_state, **_kwargs: _Result()  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows", stub_pkg)
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", stub_builder)
+    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows", stub_pkg)
+    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder)
 
     result = scientist_api.run_experiment({"run_id": "R_test"})
     assert result["run_id"] == "R_test"
@@ -105,13 +105,13 @@ def test_run_experiment_records_slo_error(monkeypatch) -> None:
     def _raise(_initial_state, **_kwargs):
         raise RuntimeError("boom")
 
-    stub_pkg = types.ModuleType("polisyos.scientist.workflows")
-    stub_builder = types.ModuleType("polisyos.scientist.workflows.builder")
+    stub_pkg = types.ModuleType("polisyos.scientist.orchestration.workflows")
+    stub_builder = types.ModuleType("polisyos.scientist.orchestration.workflows.builder")
     stub_builder.resolve_workflow_id = lambda _initial_state: "scientist_default"  # type: ignore[attr-defined]
     stub_builder.run_selected_workflow = _raise  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows", stub_pkg)
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", stub_builder)
+    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows", stub_pkg)
+    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder)
 
     with pytest.raises(RuntimeError, match="boom"):
         scientist_api.run_experiment({"run_id": "R_fail"})

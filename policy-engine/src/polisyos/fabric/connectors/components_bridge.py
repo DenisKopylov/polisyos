@@ -84,7 +84,12 @@ def bootstrap_connector_registry_from_components(
             )
             continue
 
-        fqid = getattr(connector_class.metadata, "fully_qualified_id", None)
+        connector_metadata = getattr(connector_class, "metadata", None)
+        if connector_metadata is None:
+            report.errors.append(f"{component_id}: connector class must declare metadata")
+            continue
+
+        fqid = getattr(connector_metadata, "fully_qualified_id", None)
         fqid_str = str(fqid) if fqid is not None else ""
         if fqid_str != component_id:
             report.errors.append(

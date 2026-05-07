@@ -19,7 +19,7 @@ from polisyos.foundry.methods.catalog.sensitivity.specification import Specifica
 from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
 from polisyos.ir.analytics.transportability import TransportabilityResult, TransportabilityStatus
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport
+from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.search.strategies.resource_arbiter import (
+from polisyos.scientist.methods.search.strategies.resource_arbiter import (
     ResourceArbiter,
     ResourceMode,
     ResourcePolicy,

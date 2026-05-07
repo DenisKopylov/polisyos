@@ -281,7 +281,7 @@ def _cmd_scientist_provider_verify(args: Any) -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
-    from polisyos.scientist.llm import run_gonka_provider_smoke
+    from polisyos.scientist.orchestration.llm import run_gonka_provider_smoke
 
     try:
         report = asyncio.run(

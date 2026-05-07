@@ -1,9 +1,17 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 
 import pytest
-from polisyos.core.components import ComponentEntry, ComponentRegistry
+from polisyos.core.components import (
+    Capability,
+    ComponentEntry,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+    ComponentRegistry,
+)
 from polisyos.core.components.discovery import DiscoverySourceInfo
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -83,6 +91,19 @@ class _TestConnector(BaseConnector[dict[str, str]]):
         )
 
 
+class _ConnectorWithoutMetadata:
+    def fetch_preview(self) -> list[dict[str, int]]:
+        return [{"value": 1}]
+
+
+@dataclass(frozen=True)
+class _ComponentWithoutConnectorMetadata:
+    metadata: ComponentMetadata
+
+    def create(self) -> _ConnectorWithoutMetadata:
+        return _ConnectorWithoutMetadata()
+
+
 @pytest.fixture
 def _clean_registry() -> None:
     ConnectorRegistry.reset_instance()
@@ -113,6 +134,37 @@ def test_connector_components_bridge_registers_component_connector(_clean_regist
     assert report.errors == []
     assert report.registered == ["test.bridge@1.0.0"]
     assert registry.get("test.bridge@1.0.0") is not None
+
+
+def test_connector_components_bridge_reports_missing_connector_metadata(
+    _clean_registry,
+) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    metadata = ComponentMetadata(
+        component_id=ComponentId.parse("test.missing_metadata@1.0.0"),
+        kind=ComponentKind.FABRIC_CONNECTOR,
+        abi_targets={"fabric_connectors_api": ">=2.2.0,<3.0.0"},
+        domains=["test"],
+        jurisdictions=[],
+        tags=["test"],
+        capabilities=Capability.FABRIC_CONNECTOR | Capability.FABRIC_QUERY,
+        deps=[],
+    )
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=metadata,
+            component=_ComponentWithoutConnectorMetadata(metadata=metadata),
+            source=DiscoverySourceInfo(source_type="dev_scan", location="tests"),
+        )
+    )
+
+    report = bootstrap_connector_registry_from_components(index, registry)
+
+    assert report.registered == []
+    assert report.errors == [
+        "test.missing_metadata@1.0.0: connector class must declare metadata"
+    ]
 
 
 def test_connector_components_bridge_reports_duplicates_on_second_bootstrap(

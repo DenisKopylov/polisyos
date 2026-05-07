@@ -48,7 +48,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
-from polisyos.foundry.methods._logging import get_foundry_logger
+from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
@@ -57,8 +57,8 @@ from polisyos.foundry.methods.backends.chain_executor import (
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.exceptions import MethodContractError
-from polisyos.foundry.methods.io import materialize_method_input, validate_value_for_slot
-from polisyos.foundry.methods.registry import MethodRegistry, get_registry
+from polisyos.foundry.methods.components.io import materialize_method_input, validate_value_for_slot
+from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 _log = get_foundry_logger("foundry.backends.async_chain")
 

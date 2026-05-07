@@ -12,6 +12,15 @@ required_shared_fields = ["name", "allowed_in", "semantic_axis", "disambiguation
 required_rename_backlog_fields = ["name", "packages", "locations", "action", "owner", "target_phase", "sunset"]
 
 [[shared_name]]
+name = "_internal"
+allowed_in = ["fabric", "foundry", "ir", "scientist"]
+semantic_axis = "private implementation capsules under each bounded context"
+disambiguation = "qualified imports required; _internal directories are package-private and must not be imported across package boundaries"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
 name = "adapters"
 allowed_in = ["berl", "runtime", "scientist"]
 semantic_axis = "package-owned integration adapters"
@@ -31,11 +40,11 @@ sunset = "none"
 
 [[shared_name]]
 name = "artifacts"
-allowed_in = ["core", "ir"]
-semantic_axis = "artifact contracts and IR artifact projections"
+allowed_in = ["core", "foundry", "ir"]
+semantic_axis = "artifact contracts, Foundry method artifact helpers, and IR artifact projections"
 disambiguation = "qualified imports required"
 owner = "team-architecture"
-target_phase = "1C"
+target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
@@ -75,6 +84,15 @@ target_phase = "1C"
 sunset = "none"
 
 [[shared_name]]
+name = "canon"
+allowed_in = ["core", "ir"]
+semantic_axis = "canonicalization primitives versus IR canonical schema/model helpers"
+disambiguation = "qualified imports required; core/canon owns reusable primitives and ir/canon owns IR-specific projections"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
 name = "claims"
 allowed_in = ["fabric", "scientist"]
 semantic_axis = "claim storage/processing versus scientist claim reasoning"
@@ -90,6 +108,42 @@ semantic_axis = "package-specific compile steps"
 disambiguation = "qualified imports required"
 owner = "team-architecture"
 target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "compiler"
+allowed_in = ["core", "foundry"]
+semantic_axis = "core compiler primitives versus Foundry method compiler helpers"
+disambiguation = "qualified imports required; core/compiler owns reusable primitives and foundry/methods/compiler stays method-catalog local"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
+name = "components"
+allowed_in = ["core", "foundry"]
+semantic_axis = "core component discovery/metadata primitives versus Foundry method component registration"
+disambiguation = "qualified imports required; core/components owns reusable component primitives and foundry/methods/components stays method-catalog local"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
+name = "config"
+allowed_in = ["data_forge", "fabric"]
+semantic_axis = "pipeline-local configuration schemas versus Fabric package configuration"
+disambiguation = "qualified imports required; data_forge config remains nested under kernel pipeline and fabric/config owns Fabric package settings"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
+name = "connectors"
+allowed_in = ["fabric", "ir"]
+semantic_axis = "Fabric executable connector implementations versus IR connector bridge contracts"
+disambiguation = "qualified imports required; fabric/connectors is the runtime connector surface and ir/connectors is schema/interoperability glue"
+owner = "team-architecture"
+target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
@@ -165,12 +219,30 @@ target_phase = "1C"
 sunset = "none"
 
 [[shared_name]]
+name = "evidence"
+allowed_in = ["fabric", "scientist"]
+semantic_axis = "Fabric evidence materialization versus Scientist evidence reasoning and review"
+disambiguation = "qualified imports required; Fabric owns evidence data-plane assets and Scientist owns decision/evaluation workflows"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
+name = "extensions"
+allowed_in = ["data_forge", "fabric", "foundry", "lex", "runtime", "scientist"]
+semantic_axis = "package-local extension contracts backed by architecture/extension_points.toml"
+disambiguation = "qualified imports required; extension packages expose only their package-owned plugin contracts"
+owner = "team-architecture"
+target_phase = "4.8"
+sunset = "none"
+
+[[shared_name]]
 name = "governance"
 allowed_in = ["core", "foundry", "ir", "scientist"]
 semantic_axis = "policy enforcement / decision audit"
-disambiguation = "qualified imports required"
+disambiguation = "qualified imports required; Scientist continuous governance and human review live below polisyos.scientist.governance, not as new first-level Scientist packages"
 owner = "team-architecture"
-target_phase = "1C"
+target_phase = "1C/4.6"
 sunset = "none"
 
 [[shared_name]]
@@ -234,6 +306,15 @@ semantic_axis = "migration helpers per owning package"
 disambiguation = "qualified imports required"
 owner = "team-architecture"
 target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "observability"
+allowed_in = ["core", "fabric"]
+semantic_axis = "canonical core observability APIs plus Fabric telemetry adapter/contract"
+disambiguation = "imports of cross-component telemetry must go through polisyos.core.observability; Fabric-specific telemetry stays under polisyos.fabric.observability"
+owner = "team-observability"
+target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
@@ -301,11 +382,11 @@ sunset = "none"
 
 [[shared_name]]
 name = "registry"
-allowed_in = ["core", "foundry"]
-semantic_axis = "core security/runtime registries and Foundry method/runtime registries"
-disambiguation = "qualified imports required; each registry is package-local and must not become a cross-package singleton"
+allowed_in = ["core", "fabric", "foundry"]
+semantic_axis = "core registry primitives, Fabric manifest registry facade, and Foundry method/runtime registries"
+disambiguation = "qualified imports required; core registry primitives are canonical and package registries remain bounded-context adapters/facades, not cross-package singletons"
 owner = "team-architecture"
-target_phase = "7"
+target_phase = "4.8/7"
 sunset = "none"
 
 [[shared_name]]
@@ -320,10 +401,19 @@ sunset = "none"
 [[shared_name]]
 name = "search"
 allowed_in = ["scholar", "scientist"]
-semantic_axis = "search workflows per research package"
-disambiguation = "qualified imports required"
+semantic_axis = "Scholar owns literature/source search; Scientist search is canonical under methods/search with a time-boxed first-level compatibility shim"
+disambiguation = "qualified imports required; new Scientist imports use polisyos.scientist.methods.search"
 owner = "team-architecture"
-target_phase = "1C"
+target_phase = "1C/4.7"
+sunset = "none"
+
+[[shared_name]]
+name = "schemas"
+allowed_in = ["data_forge", "ir", "schemas"]
+semantic_axis = "canonical schema package plus package-owned schema helpers"
+disambiguation = "qualified imports required; src/polisyos/schemas is the schema package and nested schema directories stay package-local"
+owner = "team-architecture"
+target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
@@ -359,25 +449,25 @@ allowed_in = ["core", "foundry"]
 semantic_axis = "core observability trace support and Foundry runtime trace helpers"
 disambiguation = "qualified imports required; trace helpers remain bounded-context specific"
 owner = "team-architecture"
-target_phase = "7"
+target_phase = "4.8/7"
 sunset = "none"
 
 [[shared_name]]
 name = "types"
-allowed_in = ["fabric", "foundry"]
-semantic_axis = "package-local type aliases and protocols"
+allowed_in = ["fabric", "foundry", "ir"]
+semantic_axis = "package-local connector, method, and IR type aliases/protocols"
 disambiguation = "qualified imports required"
 owner = "team-architecture"
-target_phase = "1C"
+target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
 name = "validation"
 allowed_in = ["foundry", "scientist"]
-semantic_axis = "validation per bounded context"
-disambiguation = "qualified imports required"
+semantic_axis = "validation per bounded context; Scientist owns decision validity, policy verified, and verification below polisyos.scientist.validation"
+disambiguation = "qualified imports required; no separate Scientist first-level verification or policy_verified boundary"
 owner = "team-architecture"
-target_phase = "1C"
+target_phase = "1C/4.6"
 sunset = "none"
 
 [[shared_name]]
@@ -406,10 +496,10 @@ locations = [
   "src/polisyos/foundry/discovery",
   "src/polisyos/scientist/discovery",
 ]
-action = "Resolve merge-versus-bounded-context decision before scientist/foundry decomposition moves."
-replacement = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md#discovery"
+action = "Scientist discovery moved to src/polisyos/scientist/methods/discovery in Phase 4.7; src/polisyos/scientist/discovery remains a time-boxed compatibility shim while core/foundry merge-versus-bounded-context decisions continue separately."
+replacement = "src/polisyos/scientist/methods/discovery for Scientist; docs/plans/active/DECOMPOSITION_BLUEPRINT.md#discovery for remaining core/foundry backlog"
 owner = "team-architecture"
-target_phase = "3A/5/6"
+target_phase = "3A/5/6; scientist closed in 4.7"
 sunset = "2026-10-01"
 
 [[rename_backlog]]

@@ -22,7 +22,7 @@ from polisyos.scientist.agent.protocols import (
     TaskPriority,
     TaskStatus,
 )
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.protocols import CriticAgent, DrafterAgent, FormalizerAgent

@@ -1,0 +1,13 @@
+[component_runtime_contract]
+component = "ir"
+owner = "team-ir"
+aliases = ["ir", "polisyos.ir", "polisyos.ir.api", "polisyos.ir.public_surface", "polisyos.ir.schema_catalog"]
+source_readme = "src/polisyos/ir/README.md"
+package_contract = "architecture/packages/ir.toml"
+runtime_contract_links = [
+  "architecture/imports/reports.toml",
+  "ops/migrations/migration-contracts.toml",
+  "docs/reference/ir/schema-catalog.md",
+]
+release_gate_mode = "report_only"
+

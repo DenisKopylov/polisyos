@@ -1,0 +1,9 @@
+[retention_policy]
+component = "berl"
+owner = "team-architecture"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = ["reports", "cas", "scientist_memory"]
+default_class = "R1 Short operational"
+cleanup = "Explanation reliability reports follow Scientist validation retention unless promoted as release evidence."
+

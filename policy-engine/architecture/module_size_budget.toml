@@ -1,0 +1,329 @@
+[module_size_budget]
+version = 1
+status = "report_only"
+owner = "team-architecture"
+phase = "repository-best-in-class-phase-1.3"
+default_warning_lines = 1000
+default_fail_closed_target_lines = 2500
+fail_closed_not_before = "2026-10-01"
+ratchet_period = "2026-Q2..2026-Q4"
+report_only_command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size"
+phase_4_3_overlay = "characterization-tests-and-god-module-budgets"
+requires_current_lines = true
+requires_extraction_sequence = true
+requires_risk_notes = true
+description = "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/causal_engine.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 10231
+current_lines = 10216
+warning_lines = 1000
+report_only_limit_lines = 10216
+next_ratchet_lines = 9180
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split identification, transport, diagnostics, and execution helpers into catalog-local modules"
+shrink_plan = "Phase 5.4 extracted the typed data-readiness failure contract to src/polisyos/foundry/methods/catalog/causal/_causal_engine_contracts.py while preserving the causal_engine re-export surface. Continue characterizing orchestration outputs before extracting causal query contracts, graph transforms, estimand compilation, diagnostics, execution adapters, and serialization in separate reviewed moves."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "estimand compilation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Highest Foundry review risk: public orchestration behavior spans identification, readiness gates, artifact persistence, and executor wiring; split only after coverage pins cross-surface outputs."
+characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py"
+package = "data_forge"
+owner = "team-data-forge"
+baseline_lines = 8236
+current_lines = 7993
+warning_lines = 1000
+report_only_limit_lines = 7993
+next_ratchet_lines = 7200
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract source adapters, normalization policy, and checkpoint publication flows"
+shrink_plan = "Phase 5.4 extracted ingest stats, observation contracts, fetch/write contracts, support sketches, and writer runtime metrics to src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py while keeping the core_sources_ingest import surface compatible. Continue with validation, normalization transforms, execution adapters, and serialization once source-adapter owners schedule the next split."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "execution adapters", "serialization"]
+risk_notes = "Cross-package split is deferred until Data Forge ownership is ready because ingestion changes can alter catalog fixture semantics and checkpoint publication contracts."
+characterization_tests = ["tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/interference.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 5769
+current_lines = 5712
+warning_lines = 1000
+report_only_limit_lines = 5712
+next_ratchet_lines = 5050
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split estimands, exposure mappings, diagnostics, and result assembly"
+shrink_plan = "Phase 5.4 extracted graph/result contract models and topology planning dataclasses to src/polisyos/foundry/methods/catalog/causal/_interference_contracts.py while preserving the interference module aliases. Continue with validation, exposure graph transforms, estimand compilation, diagnostics, execution adapters, and serialization."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "estimand compilation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Network, spatial, partial, and bipartite estimators share helper state; extraction must preserve public method registration and report schema compatibility."
+characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/id_engine.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 5045
+current_lines = 4948
+warning_lines = 1000
+report_only_limit_lines = 4948
+next_ratchet_lines = 4500
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split symbolic reduction, optional backends, and result conversion"
+shrink_plan = "Phase 5.4 extracted dataclass contracts to src/polisyos/foundry/methods/catalog/causal/_id_contracts.py while preserving the id_engine re-export surface. Continue characterizing ID/IDC status, formulas, proof rules, and hedge certificates before extracting validation, graph transforms, estimand compilation, diagnostics, optional backend adapters, and serialization."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "estimand compilation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Symbolic ID is high semantic risk: small graph-transform changes can alter latex estimands, proof traces, and negative certificates consumed by Foundry and IR surfaces."
+characterization_tests = ["tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py"]
+
+[[budget]]
+path = "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"
+package = "scientist"
+owner = "team-scientist"
+baseline_lines = 4684
+current_lines = 4653
+warning_lines = 1000
+report_only_limit_lines = 4653
+next_ratchet_lines = 4100
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract packet schema assembly, evidence joins, and governance annotations"
+shrink_plan = "Phase 5.4 extracted decision-packet build request and claim-ledger attachment contracts to src/polisyos/scientist/nodes/builtins/decide/_decision_packet_contracts.py while preserving private aliases used by the node. Continue with validation, evidence transforms, diagnostics, and serialization."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "diagnostics", "serialization"]
+risk_notes = "Physical split waits for Scientist owners because packet assembly is tied to evidence joins, governance annotations, and replay expectations."
+characterization_tests = ["tests/unit/scientist/nodes/builtins/decide/test__decision_packet_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/data_forge/domains/academic/batch/resolve_extract.py"
+package = "data_forge"
+owner = "team-data-forge"
+baseline_lines = 4622
+current_lines = 4530
+warning_lines = 1000
+report_only_limit_lines = 4530
+next_ratchet_lines = 4000
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split extraction orchestration, resolver clients, and output normalization"
+shrink_plan = "Phase 5.4 extracted resolve/extract stats, routing items, eligibility decisions, and provider responses to src/polisyos/data_forge/domains/academic/batch/_resolve_extract_contracts.py while preserving the resolve_extract import surface. Continue with validation, graph transforms, execution adapters, and serialization when owners schedule the next Data Forge extraction."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "execution adapters", "serialization"]
+risk_notes = "Owner-ready split is required because resolver client behavior and normalized academic outputs feed downstream reproducibility fixtures."
+characterization_tests = ["tests/unit/data_forge/domains/academic/batch/test__resolve_extract_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/runtime/http/services/control.py"
+package = "runtime"
+owner = "team-runtime"
+baseline_lines = 4114
+current_lines = 3953
+warning_lines = 1000
+report_only_limit_lines = 3953
+next_ratchet_lines = 3400
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split route service logic from admission, run lifecycle, and response shaping"
+shrink_plan = "Phase 5.4 extracted control-plane coercion, artifact-ref helpers, data-source key contracts, feature-flag helpers, and model-id normalization to src/polisyos/runtime/http/services/_control_contracts.py while preserving the control service aliases. Continue with request validation, lifecycle diagnostics, execution adapters, and response serialization without changing route semantics."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Physical split waits for Runtime owners because control-plane admission, run lifecycle, and response shaping are externally visible API behavior."
+characterization_tests = ["tests/unit/runtime/http/services/test__control_contracts.py"]
+
+[[budget]]
+path = "src/polisyos/data_forge/domains/legal/batch/graph_builder.py"
+package = "data_forge"
+owner = "team-data-forge"
+baseline_lines = 3881
+current_lines = 3881
+warning_lines = 1000
+report_only_limit_lines = 3881
+next_ratchet_lines = 3400
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract legal graph transforms and persistence adapters"
+shrink_plan = "Track legal graph-builder debt until Data Forge owners are ready; split contracts, validation, graph transforms, execution adapters, and serialization around stable graph fixtures."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "execution adapters", "serialization"]
+risk_notes = "Legal graph output is fixture-sensitive; splitting before owner readiness can silently alter graph persistence and downstream catalog behavior."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/invariance_tests.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 3658
+current_lines = 3658
+warning_lines = 1000
+report_only_limit_lines = 3658
+next_ratchet_lines = 3200
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split tests, diagnostics, and transportability scoring"
+shrink_plan = "Split invariant-test contracts, validation, graph transforms, diagnostics, execution adapters, and serialization after characterization locks transportability scoring outputs."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Large causal helper above threshold; extraction must keep test diagnostics and transportability scoring stable across existing Foundry callers."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 3435
+current_lines = 3435
+warning_lines = 1000
+report_only_limit_lines = 3435
+next_ratchet_lines = 3000
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract discovery operators, validators, and result models"
+shrink_plan = "Split discovery models/contracts, validation, graph transforms, diagnostics, execution adapters, and serialization after behavior is pinned by discovery characterization tests."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Discovery helpers are algorithmically coupled; arbitrary line chunks could change operator ordering and diagnostic interpretation."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/bayesian/advanced.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 3210
+current_lines = 3210
+warning_lines = 1000
+report_only_limit_lines = 3210
+next_ratchet_lines = 2900
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split model families and posterior diagnostics"
+shrink_plan = "Split Bayesian model contracts, validation, diagnostics, execution adapters, and serialization once direct model-family characterization exists."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Model-family extraction must preserve posterior diagnostics and method registration behavior."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/selection/advisor.py"
+legacy_path = "src/polisyos/foundry/methods/selection.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 3114
+current_lines = 3114
+warning_lines = 1000
+report_only_limit_lines = 3114
+next_ratchet_lines = 2800
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract scoring, compatibility filtering, and explainability helpers"
+shrink_plan = "Characterize advisor selection outputs, then split selection contracts, validation, diagnostics, execution adapters, and serialization around cohesive scoring and compatibility responsibilities."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Selection behavior is review-sensitive because scoring, compatibility filtering, and explanations are coupled in user-facing advisor outputs."
+
+[[budget]]
+path = "src/polisyos/ir/analytics/strategic.py"
+package = "ir"
+owner = "team-ir"
+baseline_lines = 3085
+current_lines = 3085
+warning_lines = 1000
+report_only_limit_lines = 3085
+next_ratchet_lines = 2750
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split strategic model contracts from analytics helpers"
+shrink_plan = "Split IR strategic contracts, validation, diagnostics, and serialization after direct tests cover public analytics schemas."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "serialization"]
+risk_notes = "Strategic analytics are schema-heavy; extraction must preserve IR compatibility and serialized model behavior."
+
+[[budget]]
+path = "src/polisyos/runtime/http/openapi_contract.py"
+package = "runtime"
+owner = "team-runtime"
+baseline_lines = 2866
+current_lines = 2866
+warning_lines = 1000
+report_only_limit_lines = 2866
+next_ratchet_lines = 2600
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split OpenAPI normalization, examples, and compatibility assertions"
+shrink_plan = "Keep Runtime OpenAPI debt budgeted; split contracts, validation, diagnostics, execution adapters, and serialization with direct OpenAPI snapshot tests."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "OpenAPI split is externally visible and must not change examples, compatibility assertions, or generated client expectations."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/ml/uncertainty.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 2824
+current_lines = 2824
+warning_lines = 1000
+report_only_limit_lines = 2824
+next_ratchet_lines = 2600
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split uncertainty model families and diagnostics"
+shrink_plan = "Split uncertainty contracts, validation, diagnostics, execution adapters, and serialization after model-family behavior is characterized."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Uncertainty helpers bridge model-family behavior and diagnostics; direct tests are required before moving responsibilities."
+
+[[budget]]
+path = "src/polisyos/scientist/validation/fairness_audit.py"
+package = "scientist"
+owner = "team-scientist"
+baseline_lines = 2743
+current_lines = 2743
+warning_lines = 1000
+report_only_limit_lines = 2743
+next_ratchet_lines = 2550
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "split audit metrics, threshold policies, and report assembly"
+shrink_plan = "Keep Scientist fairness audit budget-aware; split metric contracts, validation, diagnostics, and serialization when Scientist owners are ready."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "serialization"]
+risk_notes = "Fairness audit split waits for owners because threshold policy and report assembly influence governance decisions."
+
+[[budget]]
+path = "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+package = "scientist"
+owner = "team-scientist"
+baseline_lines = 2733
+current_lines = 2733
+warning_lines = 1000
+report_only_limit_lines = 2733
+next_ratchet_lines = 2550
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "extract welfare propagation kernels and artifact serialization"
+shrink_plan = "Track Scientist welfare propagation until owners schedule extraction; split contracts, validation, diagnostics, execution kernels, and serialization behind direct replay tests."
+extraction_sequence = ["models/contracts", "validation", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Propagation and artifact serialization are replay-sensitive; physical split waits for Scientist owner readiness."
+
+[[budget]]
+path = "src/polisyos/foundry/methods/catalog/causal/missing_data.py"
+package = "foundry"
+owner = "team-foundry"
+baseline_lines = 2520
+current_lines = 2520
+warning_lines = 1000
+report_only_limit_lines = 2520
+next_ratchet_lines = 2500
+target_lines = 2500
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
+strategy = "trim module below the default fail-closed target first"
+shrink_plan = "Trim below the default target first, then split missing-data contracts, validation, graph transforms, diagnostics, execution adapters, and serialization if debt remains."
+extraction_sequence = ["models/contracts", "validation", "graph transforms", "diagnostics", "execution adapters", "serialization"]
+risk_notes = "Near-threshold causal helper; avoid broad extraction until a small trim can remove it from the god-module budget."

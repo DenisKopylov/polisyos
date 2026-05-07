@@ -5,8 +5,8 @@ from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components.cli import main
-from polisyos.scientist.engine.checkpoint import create_checkpoint, update_checkpoint_head
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.checkpoint import create_checkpoint, update_checkpoint_head
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _seed_checkpoint(cas_root: Path, run_id: str) -> None:

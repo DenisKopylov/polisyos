@@ -8,7 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from fixtures.c7_synthetic_data import (
+from _helpers.c7_synthetic_data import (
     build_c7_synthetic_fixture,
     expected_compile_all_artifact_keys,
     persist_c7_synthetic_snapshot,
@@ -72,15 +72,15 @@ from polisyos.ir.refs import (
     StrategicPayoffTableRef,
 )
 from polisyos.runtime.replay import measure_replayable_audit_bundle
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.causal import (
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.causal import (
     BoundsEstimationRunner,
     ProxyIdentificationRunner,
     StrategicResponseRunner,
     TransportabilityChecker,
 )
 from polisyos.scientist.compute import run_c7_advanced_suite
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
@@ -97,7 +97,7 @@ from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
 )
-from polisyos.scientist.search.lessons import LessonQuery, LessonRegistry
+from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry
 
 pytestmark = [
     pytest.mark.integration,
@@ -198,7 +198,7 @@ def _run_measurement_aware_calibration(panel) -> dict[str, object]:
 
 def _strategic_payload() -> dict[str, object]:
     from polisyos.ir.analytics.strategic import FiniteStrategicPayoffTable, StrategicSCM
-    from polisyos.scientist.kernel.budgets import ComputeBudget
+    from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
     def _artifact(seed: str, *, kind: str) -> ArtifactRefModel:
         return ArtifactRefModel(

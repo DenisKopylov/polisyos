@@ -5,16 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_REQUEST_FRAME_REF
-from polisyos.scientist.policy_verified import (
+from polisyos.scientist.validation.policy_verified import (
     persist_policy_request_frame,
 )
-from polisyos.scientist.policy_verified.service import build_policy_request_frame
-from polisyos.scientist.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
+from polisyos.scientist.validation.policy_verified.service import build_policy_request_frame
+from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_plan_policy_request@1.0.0"),

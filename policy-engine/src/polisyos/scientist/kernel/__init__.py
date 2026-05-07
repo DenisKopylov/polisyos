@@ -1,4 +1,11 @@
-"""Kernel orchestration utilities (phase FSM + guards)."""
+"""Compatibility shim for `polisyos.scientist.kernel`.
 
-from .fsm import ALLOWED_TRANSITIONS, KernelState, Phase
-from .guards import advance_phase
+Canonical package: `polisyos.scientist.orchestration.kernel`.
+Sunset: 2026-12-31.
+"""
+
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
+
+_reexport_package(__name__, "polisyos.scientist.orchestration.kernel", globals())

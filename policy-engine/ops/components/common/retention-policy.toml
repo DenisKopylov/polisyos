@@ -1,0 +1,9 @@
+[retention_policy]
+component = "common"
+owner = "team-core"
+global_policy = "docs/reference/operations/retention-and-recovery.md"
+runtime_state_layout = "architecture/runtime_state_layout.toml"
+state_slots = []
+default_class = "R0 Ephemeral"
+cleanup = "No standalone state; follow the owning dependent component retention policy."
+

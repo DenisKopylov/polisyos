@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.search.strategies._deps import fit_gpytorch_mll
-from polisyos.scientist.search.strategies.multi_objective import MOBayesianOptimizer, MOConfig
-from polisyos.scientist.search.strategies.space import SearchSpace
-from polisyos.scientist.search.strategies.types import Evaluation
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
+from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer, MOConfig
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import Evaluation
 
 
 def _make_eval(idx: int, x: float, y: float, space: SearchSpace) -> Evaluation:

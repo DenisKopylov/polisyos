@@ -1,6 +1,13 @@
 {
-  "content_hash": "61ac0cfe7f454530ad45bda3be6ddec0553a5041ab6d601ea197416a14d37811",
-  "generated_at": "2026-05-03T08:03:46+00:00",
+  "compatibility": {
+    "breaking_change_requires_fragment": "true",
+    "compatibility_class": "persisted-artifact-format",
+    "deprecation_window": "2 minor releases",
+    "release_fragment_change_class": "persisted-artifact-format",
+    "version_owner": "team-ir"
+  },
+  "content_hash": "5aa0cb9bcb42aa8b2c9bac13657afa345c08a2b983ced6caec0547040bd45782",
+  "generated_at": "2026-05-06T07:43:21+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -539,8 +546,8 @@
       "priority": "p1",
       "schema_file": "hte_result.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "ab590725ec389c5d8c3d7ca73512a507e6e6d49c5012a22169e97b7faf5e1c3c",
-      "sha256_semantic": "affaf635d1d959d21ad41bd1410d544ae24d07af1d3921824d57ebe8499190e4",
+      "sha256_full": "f6adb9ae7fb2e83e64e2774aea018936e5bd551f72673e888ea85708e54bd69d",
+      "sha256_semantic": "f43b01f9a2ec97502f6dcc8fa134d593053f82401d42f11ccd2163208bc4ac5e",
       "version_field": "schema_version"
     },
     "identification_mode": {

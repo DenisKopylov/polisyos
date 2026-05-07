@@ -21,7 +21,7 @@ from polisyos.fabric.quality import (
     compute_quality_indicators,
     get_cached_quality_indicators,
 )
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 _QUALITY_GATE_ERRORS = (
     AttributeError,

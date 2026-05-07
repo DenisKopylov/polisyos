@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import Field, model_validator
 
-from polisyos.ir._validation import ensure_finite_numeric, ensure_interval_monotonicity
+from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_interval_monotonicity
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 if TYPE_CHECKING:

@@ -5,7 +5,7 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-05-06
 
 ## Purpose
 
@@ -16,8 +16,9 @@ and agent-sim tooling.
 
 ## Where to Start
 
-- [quickstart.py](quickstart.py) for the smallest compile/execute path that
-  writes real CAS artifacts.
+- [quickstart/__init__.py](quickstart/__init__.py) for the public quickstart
+  import path and [_quickstart.py](_quickstart.py) for the smallest
+  compile/execute path that writes real CAS artifacts.
 
 - [compile/api.py](compile/api.py) for the public `compile()` contract and
   failure semantics.
@@ -40,7 +41,7 @@ and agent-sim tooling.
 - [plugins/README.md](plugins/README.md) for plugin-driven domain simulation on
   top of `agent_sim`.
 
-## Public Entrypoints
+## Public API
 
 | Entrypoint          | Description                                                                                                |
 | ------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -51,6 +52,27 @@ and agent-sim tooling.
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
 deep-importing ad hoc internals.
+
+## Internal Layout
+
+- [`api.py`](api.py), [`__init__.py`](__init__.py), [`compile/`](compile/),
+  and [`execute/`](execute/) own the stable public compile/execute surface.
+- [`contracts/`](contracts/README.md) owns runtime state, patch, and fidelity
+  contracts used by compilation and execution.
+- [`methods/`](methods/README.md) owns reusable method ABI, registries, and
+  catalog families.
+- [`agent_sim/`](agent_sim/README.md), [`calibration/`](calibration/README.md),
+  [`uncertainty/`](uncertainty/README.md), and domain helpers are
+  implementation surfaces unless exported by the root facade.
+- [`execute/_internal/`](execute/_internal/) is private executor support.
+
+## Extension Points
+
+- External reusable methods use `polisyos.foundry_methods`; see
+  [methods/README.md](methods/README.md) and
+  [architecture/extension_points.toml](../../../architecture/extension_points.toml).
+- Domain simulation plugins are documented in [plugins/README.md](plugins/README.md)
+  and build on `agent_sim` rather than the root facade.
 
 ## Depends On / Depended On By
 
@@ -79,7 +101,7 @@ with TemporaryDirectory(prefix="foundry-docs-") as tmp:
 PY
 ```
 
-## Test / Verification Commands
+## Tests
 
 ```bash
 uv run pytest tests/unit/foundry/facade/test_quickstart.py \
@@ -89,6 +111,28 @@ uv run pytest tests/unit/foundry/facade/test_quickstart.py \
 uv run pytest tests/unit/foundry/runtime/test_executor_fail_semantics.py \
   tests/unit/foundry/runtime/test_nan_guard_public.py -q
 ```
+
+Package test ownership is documented in
+[tests/unit/foundry/README.md](../../../tests/unit/foundry/README.md). Run the
+methods suite when changes touch `methods/` registration, dispatch, or catalog
+metadata.
+
+## Operability Links
+
+- [Foundry component SLO](../../../ops/components/foundry/slo.yaml)
+- [Foundry component runbooks](../../../ops/components/foundry/runbooks.md)
+- [Foundry observability and reproducibility](../../../docs/reference/foundry/observability-reproducibility.md)
+- [Replay or restore runbook](../../../docs/runbooks/replay-or-restore.md)
+- [Benchmark regression triage runbook](../../../docs/runbooks/benchmark-regression-triage.md)
+
+## Known Shims/Deprecations
+
+- `polisyos.synthetic_world` is a compatibility facade for
+  `polisyos.foundry.agent_sim.world`; see
+  [architecture/shims.toml](../../../architecture/shims.toml).
+- Root public exports stay intentionally narrow. Promote new compile/execute
+  API through `api.py`, public-surface docs, and a compatibility note before
+  removing old import paths.
 
 ## Reference Docs
 

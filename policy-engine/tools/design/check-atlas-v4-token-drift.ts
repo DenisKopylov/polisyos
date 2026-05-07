@@ -26,23 +26,23 @@ const DARK_THEME_ADR_PATH = path.join(
 );
 const STORYBOOK_REFERENCE_PATH = path.join(
   POLICY_ENGINE_ROOT,
-  "frontend/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+  "apps/runtime-dashboard/src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
 );
 const PACKAGE_JSON_PATH = path.join(
   POLICY_ENGINE_ROOT,
-  "frontend/runtime-dashboard/package.json",
+  "apps/runtime-dashboard/package.json",
 );
 const STYLES_PATH = path.join(
   POLICY_ENGINE_ROOT,
-  "frontend/runtime-dashboard/src/styles.css",
+  "apps/runtime-dashboard/src/styles.css",
 );
 const LIGHT_THEME_PATH = path.join(
   POLICY_ENGINE_ROOT,
-  "frontend/runtime-dashboard/src/styles/theme-light.css",
+  "apps/runtime-dashboard/src/styles/theme-light.css",
 );
 const DARK_THEME_PATH = path.join(
   POLICY_ENGINE_ROOT,
-  "frontend/runtime-dashboard/src/styles/theme-dark.css",
+  "apps/runtime-dashboard/src/styles/theme-dark.css",
 );
 
 const allowedDifferences = new Map<string, string>();
@@ -327,7 +327,7 @@ function assertPackageScripts() {
     );
   }
 
-  if (!scripts["design:polish"]?.includes("npm run design:atlas-v4")) {
+  if (!scripts["design:polish"]?.includes("corepack pnpm run design:atlas-v4")) {
     failures.push("package.json design:polish must run design:atlas-v4 first");
   }
 

@@ -13,7 +13,7 @@ from pathlib import Path
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
-DEFAULT_DASHBOARD_ROOT = REPO_ROOT / "frontend" / "runtime-dashboard"
+DEFAULT_DASHBOARD_ROOT = REPO_ROOT / "apps" / "runtime-dashboard"
 DEFAULT_QUARANTINE_PATH = REPO_ROOT / "tests" / "quarantine.toml"
 TEST_CALL_START = re.compile(
     r"\btest(?:\.(?:only|skip|fixme|fail|slow))?\(\s*([\"'`])",

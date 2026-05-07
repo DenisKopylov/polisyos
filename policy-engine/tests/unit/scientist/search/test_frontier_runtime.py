@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.scientist.engine.frontier_runtime import (
+from polisyos.scientist.orchestration.engine.frontier_runtime import (
     FrontierCapabilityStatus,
     FrontierRuntimeConfig,
     build_frontier_runtime_report,

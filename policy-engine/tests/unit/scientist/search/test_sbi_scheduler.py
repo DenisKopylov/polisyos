@@ -11,9 +11,9 @@ from polisyos.ir.refs import (
     ProofBundleRef,
     SimulationCalibrationReceiptRef,
 )
-from polisyos.scientist.search import ProofAwareSBIScheduler as FacadeScheduler
-from polisyos.scientist.search import build_cp_basis_design_plan
-from polisyos.scientist.search.sbi_scheduler import (
+from polisyos.scientist.methods.search import ProofAwareSBIScheduler as FacadeScheduler
+from polisyos.scientist.methods.search import build_cp_basis_design_plan
+from polisyos.scientist.methods.search.sbi_scheduler import (
     CPBASISConfig,
     ProofAwareSBIScheduler,
     ProofGateReceipt,

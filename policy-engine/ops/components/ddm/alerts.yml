@@ -1,0 +1,9 @@
+component: ddm
+owner: team-architecture
+status: draft
+alerts: []
+exception:
+  reason: DDM owns no Prometheus alert family in Phase 4.9.
+  review_by: 2026-08-01
+  runbook: docs/runbooks/benchmark-regression-triage.md
+

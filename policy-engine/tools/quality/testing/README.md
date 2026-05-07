@@ -18,7 +18,7 @@ uv run python tools/quality/testing/local_integration_stack.py smoke
 - поднимает fixture-backed Runtime API на `127.0.0.1:8000`;
 - поднимает dashboard dev server на `127.0.0.1:5173`;
 - проверяет `/health`, корневую страницу dashboard и proxy health на `/api/v1/health`;
-- в режиме `smoke` запускает `npm run test:e2e:smoke` и затем корректно останавливает стек.
+- в режиме `smoke` запускает `corepack pnpm run test:e2e:smoke` и затем корректно останавливает стек.
 
 ### Test economics report
 

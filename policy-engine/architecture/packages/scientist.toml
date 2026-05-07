@@ -1,0 +1,250 @@
+[package]
+id = "scientist"
+module = "polisyos.scientist"
+name = "scientist"
+owner = "team-scientist"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Workflow orchestration, Scientist methods, governance, validation, replay, and decision-grade policy production."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "resolved_root_facade"
+layout_owner = "team-scientist"
+source_root = "src/polisyos/scientist"
+readme = "src/polisyos/scientist/README.md"
+root_facade_policy = "root package remains a public facade; orchestration, methods, governance, and validation implementation lives under explicit hubs; old first-level search/discovery/research_dag and governance-adjacent packages are compatibility shims only"
+canonical_first_level_root_cap = 18
+canonical_first_level_roots = [
+  "src/polisyos/scientist/_internal",
+  "src/polisyos/scientist/adapters",
+  "src/polisyos/scientist/agent",
+  "src/polisyos/scientist/compute",
+  "src/polisyos/scientist/cross_graph",
+  "src/polisyos/scientist/evals",
+  "src/polisyos/scientist/evidence",
+  "src/polisyos/scientist/extensions",
+  "src/polisyos/scientist/feedback",
+  "src/polisyos/scientist/governance",
+  "src/polisyos/scientist/methods",
+  "src/polisyos/scientist/nodes",
+  "src/polisyos/scientist/orchestration",
+  "src/polisyos/scientist/policy_design",
+  "src/polisyos/scientist/provenance",
+  "src/polisyos/scientist/publishing",
+  "src/polisyos/scientist/replay",
+  "src/polisyos/scientist/validation",
+]
+ignored_first_level_roots = ["__pycache__"]
+implementation_roots = [
+  "src/polisyos/scientist/compute",
+  "src/polisyos/scientist/evidence",
+  "src/polisyos/scientist/feedback",
+  "src/polisyos/scientist/orchestration",
+  "src/polisyos/scientist/methods",
+  "src/polisyos/scientist/nodes",
+  "src/polisyos/scientist/governance",
+  "src/polisyos/scientist/validation",
+  "src/polisyos/scientist/publishing",
+  "src/polisyos/scientist/replay",
+]
+methods_roots = [
+  "src/polisyos/scientist/methods/autotune",
+  "src/polisyos/scientist/methods/backtesting",
+  "src/polisyos/scientist/methods/causal",
+  "src/polisyos/scientist/methods/doe",
+  "src/polisyos/scientist/methods/search",
+  "src/polisyos/scientist/methods/discovery",
+  "src/polisyos/scientist/methods/research_dag",
+  "src/polisyos/scientist/methods/advanced.py",
+]
+governance_roots = [
+  "src/polisyos/scientist/governance",
+  "src/polisyos/scientist/governance/continuous",
+  "src/polisyos/scientist/governance/human_review",
+]
+validation_roots = [
+  "src/polisyos/scientist/validation",
+  "src/polisyos/scientist/validation/decision_validity.py",
+  "src/polisyos/scientist/validation/policy_verified",
+  "src/polisyos/scientist/validation/verification",
+]
+compatibility_shim_roots = [
+  "src/polisyos/scientist/claims",
+  "src/polisyos/scientist/autotune",
+  "src/polisyos/scientist/backtesting",
+  "src/polisyos/scientist/causal",
+  "src/polisyos/scientist/doe",
+  "src/polisyos/scientist/engine",
+  "src/polisyos/scientist/kernel",
+  "src/polisyos/scientist/llm",
+  "src/polisyos/scientist/memory",
+  "src/polisyos/scientist/orchestrator",
+  "src/polisyos/scientist/workflows",
+  "src/polisyos/scientist/compute/advanced_methods.py",
+  "src/polisyos/scientist/search",
+  "src/polisyos/scientist/discovery",
+  "src/polisyos/scientist/research_dag",
+  "src/polisyos/scientist/workflows/selection.py",
+  "src/polisyos/scientist/continuous_governance",
+  "src/polisyos/scientist/human_review",
+  "src/polisyos/scientist/policy_verified",
+  "src/polisyos/scientist/verification",
+  "src/polisyos/scientist/decision_validity.py",
+  "src/polisyos/scientist/error_semantics.py",
+  "src/polisyos/scientist/evidence_sources.py",
+  "src/polisyos/scientist/feedback_utils.py",
+  "src/polisyos/scientist/frontier_runtime.py",
+  "src/polisyos/scientist/latent_separation.py",
+  "src/polisyos/scientist/llm_cycle.py",
+  "src/polisyos/scientist/publisher.py",
+  "src/polisyos/scientist/reliability_scorecard.py",
+  "src/polisyos/scientist/remediation_status.py",
+  "src/polisyos/scientist/replay_backend.py",
+]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "resolved_root_facade"
+
+[boundaries]
+public_facade = "polisyos.scientist"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+  "polisyos.core",
+  "polisyos.fabric",
+  "polisyos.foundry",
+  "polisyos.lex",
+  "polisyos.scholar",
+  "polisyos.data_forge.read_api",
+  "polisyos.berl",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_stable"
+facade_mode = "lazy_facade"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.scientist"]
+major_subsystem = true
+notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/scientist"]
+contract_roots = ["tests/contract"]
+integration_required = true
+integration_roots = ["tests/integration/scientist"]
+property_required = true
+property_roots = ["tests/property/scientist"]
+minimum_expectations = [
+  "workflow and node changes keep replay/idempotency coverage",
+  "methods/search/discovery/research_dag changes keep canonical import and compatibility shim coverage",
+  "governance and validation changes keep pass behavior, human review, continuous governance, and compatibility shim coverage",
+  "public facade changes refresh public-surface inventory",
+]
+
+[slo_runbook]
+status = "covered"
+slo_files = ["ops/observability/slo/scientist.yaml"]
+runbooks = [
+  "docs/runbooks/replay-or-restore.md",
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+]
+runbook_expectation = "Workflow, replay, checkpoint, and governance outages have an operator-facing recovery path before fail-closed promotion."
+
+[observability]
+status = "report_only"
+metrics_owner = "team-scientist"
+metric_surfaces = [
+  "ops/observability/slo/scientist.yaml",
+  "docs/reference/scientist/wave2-runtime-contracts.md",
+]
+trace_expectation = "Workflow runs, node executions, search promotions, and replay artifacts include run id, workflow id, node id, and artifact lineage."
+
+[name_collisions]
+status = "declared"
+owner = "team-scientist"
+registry = "architecture/name_registry.toml"
+allowed = ["validation", "governance", "runtime"]
+
+[[allowed_name_collision]]
+name = "validation"
+scope = "package-local"
+reason = "Scientist validation is decision-grade validation, distinct from Foundry method closure validation."
+owner = "team-scientist"
+canonical_roots = ["src/polisyos/scientist/validation"]
+
+[[allowed_name_collision]]
+name = "governance"
+scope = "package-local"
+reason = "Scientist governance is workflow/promotion governance and does not replace core governance primitives."
+owner = "team-scientist"
+canonical_roots = ["src/polisyos/scientist/governance"]
+
+[[allowed_name_collision]]
+name = "runtime"
+scope = "submodule names and docs only"
+reason = "Scientist runtime references workflow execution runtime and must not import Runtime API private modules."
+owner = "team-scientist"
+
+[exceptions]
+status = "declared"
+owner = "team-scientist"
+registries = ["architecture/module_size_budget.toml", "architecture/static_analysis_overrides.toml"]
+
+[[exception]]
+id = "scientist-module-size-ratchet"
+owner = "team-scientist"
+kind = "module_size_ratchet"
+reason = "Scientist node/search/validation modules are covered by explicit shrinking budgets before fail-closed module-size enforcement."
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/module_size_budget.toml"
+
+[[exception]]
+id = "scientist-static-analysis-ratchet"
+owner = "team-scientist"
+kind = "mypy_ruff_ratchet"
+reason = "Phase 5A records current Scientist mypy debt by module and keeps new checks report-only in Phase 1.3."
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/static_analysis_overrides.toml"
+
+[sunsets]
+status = "declared"
+owner = "team-architecture"
+
+[[sunset]]
+id = "scientist-aggregate-mirror"
+owner = "team-architecture"
+date = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+condition = "legacy aggregate gates read generated package-contract output instead of hand-edited TOML"
+
+[extension_host]
+status = "active"
+owner = "team-scientist"
+extension_points = ["polisyos.scientist_governance_passes", "polisyos.scientist_nodes"]
+registry = "architecture/extension_points.toml"
+builtin_loaders = [
+  "polisyos.scientist.governance.pass_entrypoints:builtin_governance_pass_factories",
+  "polisyos.scientist.nodes.components:__polisyos_components__",
+]
+example_packages = [
+  "examples/extensions/scientist_governance_pass",
+  "examples/extensions/scientist_node",
+]

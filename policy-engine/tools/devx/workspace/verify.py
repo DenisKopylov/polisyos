@@ -207,7 +207,7 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 "--extra",
                 "ml",
                 "python",
-                "tools/ops/runtime/check_runtime_api_contract.py",
+                "tools/ops_runners/runtime/check_runtime_api_contract.py",
             ),
             cwd=PRODUCT_ROOT,
         ),

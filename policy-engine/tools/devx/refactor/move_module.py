@@ -28,7 +28,7 @@ from tools.lib.imports import repo_root_from
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
 PYTHON_REWRITE_ROOTS = ("src", "tests", "tools")
-TEXT_REWRITE_ROOTS = ("frontend/runtime-api-client/scripts",)
+TEXT_REWRITE_ROOTS = ("packages/runtime-api-client/scripts",)
 SHIMS_PATH = REPO_ROOT / "architecture" / "shims.toml"
 
 

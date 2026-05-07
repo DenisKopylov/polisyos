@@ -44,9 +44,9 @@ from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import CompiledLexIntervention
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,

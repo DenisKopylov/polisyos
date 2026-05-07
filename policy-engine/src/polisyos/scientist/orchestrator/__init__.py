@@ -1,31 +1,11 @@
-"""Scientist orchestrator public exports."""
+"""Compatibility shim for `polisyos.scientist.orchestrator`.
+
+Canonical package: `polisyos.scientist.orchestration.orchestrator`.
+Sunset: 2026-12-31.
+"""
 
 from __future__ import annotations
 
-import importlib
-from typing import Any
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
 
-__all__ = [
-    "DecisionCard",
-    "IssuesSummary",
-    "KeyMetric",
-]
-
-_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "DecisionCard": ("polisyos.scientist.orchestrator.decision_card", "DecisionCard"),
-    "IssuesSummary": ("polisyos.scientist.orchestrator.decision_card", "IssuesSummary"),
-    "KeyMetric": ("polisyos.scientist.orchestrator.decision_card", "KeyMetric"),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.scientist.orchestrator' has no attribute {name!r}")
-    module_name, attr_name = _LAZY_IMPORTS[name]
-    value = getattr(importlib.import_module(module_name), attr_name)
-    globals()[name] = value
-    return value
-
-
-def __dir__() -> list[str]:
-    return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))
+_reexport_package(__name__, "polisyos.scientist.orchestration.orchestrator", globals())

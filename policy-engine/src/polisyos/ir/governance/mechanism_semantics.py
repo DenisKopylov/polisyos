@@ -9,7 +9,7 @@ from typing import Annotated
 
 from pydantic import BeforeValidator, Field, model_validator
 
-from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir._internal.validation import ensure_unique_ids
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 

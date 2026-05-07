@@ -10,7 +10,7 @@ from polisyos.data_forge.read_api.legal import (
     load_lex_shadow_bundle,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "legal_shadow"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "legal_shadow"
 BASELINE_ROOT = FIXTURES_ROOT / "baseline"
 CANDIDATE_ROOT = FIXTURES_ROOT / "candidate"
 

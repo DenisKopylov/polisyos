@@ -23,7 +23,7 @@ from polisyos.data_forge.read_api.academic import (
     select_academic_batch_stages,
 )
 
-FIXTURES_ROOT = Path(__file__).resolve().parent / "fixtures" / "non_lex_split"
+FIXTURES_ROOT = Path(__file__).resolve().parents[2] / "_data" / "data_forge" / "non_lex_split"
 ACADEMIC_BASELINE_ROOT = FIXTURES_ROOT / "academic"
 ACADEMIC_CANDIDATE_ROOT = FIXTURES_ROOT / "academic_candidate"
 

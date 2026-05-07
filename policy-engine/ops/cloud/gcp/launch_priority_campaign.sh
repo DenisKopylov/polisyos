@@ -56,7 +56,7 @@ resolve_bundle() {
 build_manifests() {
   local cmd=(
     python3
-    "${WORKSPACE_ROOT}/policy-engine/tools/ops/cloud/build_priority_manifests.py"
+    "${WORKSPACE_ROOT}/policy-engine/tools/ops_runners/cloud/build_priority_manifests.py"
     --snapshot-label "${SNAPSHOT_LABEL}"
     --campaign-label "${CAMPAIGN_LABEL}"
     --output-root "${LOCAL_MANIFEST_ROOT}"

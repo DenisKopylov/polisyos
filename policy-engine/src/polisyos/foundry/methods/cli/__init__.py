@@ -19,7 +19,7 @@ Usage::
     polisyos-foundry validate --all
     polisyos-foundry catalog --namespace causal
     polisyos-foundry release-acceptance --manifest-path bundle/release_manifest.json --runtime-bundle-dir bundle/runtime --method-contract-bundle-dir bundle/contracts --store-root .foundry-release-cas --json
-    polisyos-foundry compat --baseline tests/unit/foundry/fixtures/signature_baseline.json
+    polisyos-foundry compat --baseline tests/_golden/foundry/signature_baseline.json
 """
 
 from __future__ import annotations
@@ -107,7 +107,7 @@ def _cmd_validate(args: argparse.Namespace) -> int:
 
 def _cmd_catalog(args: argparse.Namespace) -> int:
     from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
 
     try:
         ensure_all_methods_registered()
@@ -139,7 +139,7 @@ def _cmd_compat(args: argparse.Namespace) -> int:
     from pathlib import Path
 
     from polisyos.foundry.methods.catalog import ensure_all_methods_registered
-    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
 
     try:
         ensure_all_methods_registered()
@@ -181,13 +181,13 @@ def _cmd_compat(args: argparse.Namespace) -> int:
 
 
 def _load_catalog_snapshot():
-    from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+    from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 
     return build_method_catalog_snapshot(run_id="cli")
 
 
 def _cmd_capabilities(args: argparse.Namespace) -> int:
-    from polisyos.foundry.methods.catalog_snapshot import build_method_capability_matrix
+    from polisyos.foundry.methods.catalog.snapshot import build_method_capability_matrix
 
     snapshot = _load_catalog_snapshot()
     rows = build_method_capability_matrix(snapshot, runnable_only=args.runnable_only)
@@ -225,7 +225,7 @@ def _cmd_capabilities(args: argparse.Namespace) -> int:
 
 
 def _cmd_evidence(args: argparse.Namespace) -> int:
-    from polisyos.foundry.methods.catalog_snapshot import build_method_operator_evidence
+    from polisyos.foundry.methods.catalog.snapshot import build_method_operator_evidence
 
     snapshot = _load_catalog_snapshot()
     if args.namespace or args.family:
@@ -429,7 +429,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_compat = sub.add_parser("compat", help="Check for breaking signature changes")
     p_compat.add_argument(
         "--baseline",
-        default="tests/unit/foundry/fixtures/signature_baseline.json",
+        default="tests/_golden/foundry/signature_baseline.json",
         help="Path to signature baseline JSON",
     )
 

@@ -20,8 +20,8 @@ from polisyos.scientist.evals.challenge_factory import (
     promote_generated_challenge,
     register_challenge_pack_with_benchmark_registry,
 )
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 
 def _ref(seed: str, *, kind: str = "scientist.challenge_case") -> ArtifactRef:

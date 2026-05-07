@@ -1,15 +1,11 @@
-"""Scientist compatibility exports for shared calibration curve diagnostics."""
+"""Compatibility shim for `polisyos.scientist.backtesting.calibration_curve`.
+
+Canonical module: `polisyos.scientist.methods.backtesting.calibration_curve`.
+Sunset: 2026-12-31.
+"""
 
 from __future__ import annotations
 
-from polisyos.calibration.curve import (
-    CalibrationPoint,
-    CalibrationResult,
-    compute_calibration_curve,
-)
+from polisyos.scientist._internal.compat import alias_module as _alias_module
 
-__all__ = [
-    "CalibrationPoint",
-    "CalibrationResult",
-    "compute_calibration_curve",
-]
+_alias_module(__name__, "polisyos.scientist.methods.backtesting.calibration_curve", globals())

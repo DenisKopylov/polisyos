@@ -14,13 +14,13 @@ toolchain rather than the Python unified CLI.
 | Entrypoint                               | Purpose                                                                                  |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `uv run python tools/design/adr_lint.py` | Lint the curated Wave 1 ADR set for template shape and approved status.                  |
-| `npm run a11y:contrast`                  | Validate required token contrast pairs and check the generated contrast matrix artifact. |
-| `npm run a11y:contrast:write`            | Regenerate `docs/compliance/A11Y_CONTRAST.md` from the current token set.                |
-| `npm run a11y:motion`                    | Verify reduced-motion guards remain wired into the dashboard.                            |
-| `npm run a11y:color-blind`               | Run deterministic color-blind separation checks for critical semantic pairs.             |
+| `corepack pnpm run a11y:contrast`                  | Validate required token contrast pairs and check the generated contrast matrix artifact. |
+| `corepack pnpm run a11y:contrast:write`            | Regenerate `docs/compliance/A11Y_CONTRAST.md` from the current token set.                |
+| `corepack pnpm run a11y:motion`                    | Verify reduced-motion guards remain wired into the dashboard.                            |
+| `corepack pnpm run a11y:color-blind`               | Run deterministic color-blind separation checks for critical semantic pairs.             |
 
-All `npm run a11y:*` commands are executed from
-`frontend/runtime-dashboard/package.json` and call the `tools/design/*.ts`
+All `corepack pnpm run a11y:*` commands are executed from
+`apps/runtime-dashboard/package.json` and call the `tools/design/*.ts`
 scripts via `node --experimental-strip-types`.
 
 ## Scope

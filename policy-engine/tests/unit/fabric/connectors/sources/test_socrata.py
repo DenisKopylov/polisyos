@@ -13,7 +13,9 @@ from polisyos.fabric.connectors.sources.socrata import SocrataConnector
 from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.ir.connectors import ConnectorCapability
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "socrata"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parents[4] / "_data" / "fabric" / "connectors" / "sources" / "socrata"
+)
 
 
 def _run_async(coro):

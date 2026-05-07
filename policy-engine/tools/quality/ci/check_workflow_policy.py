@@ -20,6 +20,7 @@ USES_RE = re.compile(r"(?m)^\s*uses:\s*(?P<target>[^\s#]+)")
 RUN_BLOCK_RE = re.compile(r"^(?P<indent>\s*)run:\s*(?P<inline>.*)$")
 SHA_PIN_RE = re.compile(r"^[0-9a-f]{40}$")
 UNTRUSTED_EXPR_RE = re.compile(r"\$\{\{\s*(github\.event\.(pull_request|issue)|github\.head_ref)")
+LEGACY_OPS_RUNNER_PATH = "tools/" "ops/"
 LEGACY_CI_PATHS: dict[str, str] = {
     **LEGACY_ENTRYPOINTS,
     "policy-engine/scripts/": "use `polisyos-tools` commands directly",
@@ -33,15 +34,16 @@ LEGACY_CI_PATHS: dict[str, str] = {
     "policy-engine/gcp/": "use `ops/cloud/gcp/`",
     "policy-engine/.github/": "use root `.github/` or `ops/ci/templates/`",
     "tools/benchmarks/": "use `tools/research/benchmarks/`",
-    "tools/calibration/": "use `tools/ops/calibration/`",
-    "tools/cloud/": "use `tools/ops/cloud/`",
-    "tools/data/": "use `tools/ops/data/`",
+    LEGACY_OPS_RUNNER_PATH: "use `tools/ops_runners/`",
+    "tools/calibration/": "use `tools/ops_runners/calibration/`",
+    "tools/cloud/": "use `tools/ops_runners/cloud/`",
+    "tools/data/": "use `tools/ops_runners/data/`",
     "tools/diagnostics/": "use `tools/quality/diagnostics/`",
     "tools/lint/": "use `tools/quality/lint/`",
-    "tools/release/": "use `tools/ops/release/`",
-    "tools/runtime/": "use `tools/ops/runtime/`",
+    "tools/release/": "use `tools/ops_runners/release/`",
+    "tools/runtime/": "use `tools/ops_runners/runtime/`",
     "tools/testing/": "use `tools/quality/testing/`",
-    "tools/ukraine_data/": "use `tools/ops/ukraine_data/`",
+    "tools/ukraine_data/": "use `tools/ops_runners/ukraine_data/`",
     "tools/validation/": "use `tools/quality/validation/`",
     "tools/workspace/": "use `tools/devx/workspace/`",
 }

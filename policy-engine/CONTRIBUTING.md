@@ -18,7 +18,8 @@ If you need the manual path instead of the repo-local scripts:
 ```bash
 uv sync --frozen --extra lint --extra test --extra runtime
 uv run pre-commit install
-cd frontend/runtime-dashboard && npm ci --ignore-scripts && npm run playwright:install
+corepack pnpm install --frozen-lockfile --ignore-scripts
+cd apps/runtime-dashboard && corepack pnpm run playwright:install
 ```
 
 Optional dependency groups in `pyproject.toml`:
@@ -75,7 +76,7 @@ System notes:
 Common fixtures and helpers:
 
 - `runtime_api_env` and `build_runtime_api_env()` for FastAPI/runtime integration coverage.
-- `store`, `cas_root`, and artifact helpers from `tests/fixtures/artifacts.py` for CAS-oriented
+- `store`, `cas_root`, and artifact helpers from `tests/_helpers/artifacts.py` for CAS-oriented
   tests.
 
 - `in_memory_exporter`, `test_tracer`, and `test_tracer_provider` for observability assertions.

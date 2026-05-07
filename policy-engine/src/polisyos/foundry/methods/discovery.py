@@ -42,11 +42,12 @@ from polisyos.foundry.methods.exceptions import (
     MethodAlreadyRegisteredError,
     MethodDefinitionError,
 )
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 __all__ = [
     "DISCOVERY_MODULE_PREFIX",
     "ENTRY_POINT_GROUP",
+    "LEGACY_ENTRY_POINT_GROUP",
     "DiscoveryError",
     "DiscoveryReport",
     "DiscoverySource",
@@ -62,8 +63,11 @@ __all__ = [
 # Constants
 # =============================================================================
 
-ENTRY_POINT_GROUP = "polisyos.methods"
-"""Standard entry point group for PolicyOS method plugins."""
+ENTRY_POINT_GROUP = "polisyos.foundry_methods"
+"""Standard entry point group for Foundry method plugins."""
+
+LEGACY_ENTRY_POINT_GROUP = "polisyos.methods"
+"""Deprecated pre-Phase-5.1 entry point group."""
 
 DISCOVERY_MODULE_PREFIX = "_polisyos_discovery_"
 """Prefix for dynamically imported dev-scan modules."""
@@ -252,9 +256,10 @@ class EntryPointSource:
     Discover methods via Python entry points.
 
     Entry points can reference:
-    1. A function (callable) with no required arguments returning method class(es)
-    2. A module to scan for method classes
-    3. A method class directly
+    1. A `FoundryMethodPlugin` object with `metadata` and `create()`
+    2. A function (callable) with no required arguments returning plugin(s) or method class(es)
+    3. A module to scan for method classes
+    4. A method class directly
     """
 
     def __init__(self, group: str = ENTRY_POINT_GROUP) -> None:
@@ -315,12 +320,15 @@ class EntryPointSource:
         loaded = ep.load()
 
         if isinstance(loaded, type):
-            if is_foundry_method(loaded):
-                yield loaded
+            yield from _iter_method_classes(loaded)
             return
 
         if inspect.ismodule(loaded):
             yield from self._scan_module(loaded)
+            return
+
+        if _is_method_plugin(loaded):
+            yield from _iter_method_classes(loaded)
             return
 
         if callable(loaded):
@@ -335,21 +343,7 @@ class EntryPointSource:
         if result is None:
             return
 
-        if isinstance(result, type) and is_foundry_method(result):
-            yield result
-            return
-
-        if isinstance(result, (list, tuple, set, frozenset)):
-            for item in result:
-                if isinstance(item, type) and is_foundry_method(item):
-                    yield item
-            return
-
-        if isinstance(result, Iterable) and not isinstance(result, (str, bytes)):
-            for item in result:
-                if isinstance(item, type) and is_foundry_method(item):
-                    yield item
-            return
+        yield from _iter_method_classes(result)
 
     def _scan_module(self, module: ModuleType) -> Iterator[type[FoundryMethod]]:
         module_name = getattr(module, "__name__", "")
@@ -796,6 +790,26 @@ def _callable_accepts_no_args(func: Callable[..., Any]) -> bool:
         if param.default is inspect._empty:
             return False
     return True
+
+
+def _iter_method_classes(value: Any) -> Iterator[type[FoundryMethod]]:
+    if isinstance(value, type):
+        if is_foundry_method(value):
+            yield value
+        return
+
+    if _is_method_plugin(value):
+        created = value.create()
+        yield from _iter_method_classes(created)
+        return
+
+    if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
+        for item in value:
+            yield from _iter_method_classes(item)
+
+
+def _is_method_plugin(value: Any) -> bool:
+    return hasattr(value, "metadata") and callable(getattr(value, "create", None))
 
 
 @contextlib.contextmanager

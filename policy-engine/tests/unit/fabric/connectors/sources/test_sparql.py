@@ -13,7 +13,9 @@ from polisyos.fabric.connectors.types import FetchError
 from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.ir.connectors import ConnectorCapability
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "sparql"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parents[4] / "_data" / "fabric" / "connectors" / "sources" / "sparql"
+)
 
 
 def _run_async(coro):

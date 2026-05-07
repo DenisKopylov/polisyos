@@ -8,7 +8,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 pytestmark = pytest.mark.property
 

@@ -15,6 +15,7 @@ DEFAULT_SCOPE = (
     "src/polisyos/core",
     "src/polisyos/runtime",
 )
+MYPY_CONFIG = "architecture/tooling/mypy/generated.ini"
 DEFAULT_MYPY_ARGS = ("--strict",)
 
 
@@ -88,6 +89,8 @@ def _run_mypy_for_file(path: Path) -> tuple[int, str]:
             sys.executable,
             "-m",
             "mypy",
+            "--config-file",
+            MYPY_CONFIG,
             *DEFAULT_MYPY_ARGS,
             str(path.relative_to(PRODUCT_ROOT)),
         ],

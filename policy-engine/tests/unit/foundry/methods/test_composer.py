@@ -24,7 +24,7 @@ from polisyos.foundry.methods.composer import (
     MethodNode,
 )
 from polisyos.foundry.methods.exceptions import CyclicDependencyError, MethodNotFoundError
-from polisyos.foundry.methods.linker import LinkResult
+from polisyos.foundry.methods.components.linker import LinkResult
 from polisyos.foundry.methods.registry import MethodRegistry
 
 # =============================================================================

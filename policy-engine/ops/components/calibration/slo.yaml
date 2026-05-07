@@ -1,0 +1,8 @@
+service: calibration
+version: 1
+owner: team-foundry
+status: exception
+exception_reason: Calibration alerts are covered by Foundry/Scientist runbooks until calibration becomes a standalone public-stable component.
+exception_expires: 2026-08-01
+objectives: []
+

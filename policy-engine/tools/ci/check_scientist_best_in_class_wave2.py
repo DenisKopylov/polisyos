@@ -29,7 +29,7 @@ READINESS_DOC = Path("docs/reference/scientist/best-in-class-readiness.md")
 INVENTORY_DOC = Path("docs/reference/scientist/scientist-capability-inventory.md")
 SCIENTIST_INDEX_DOC = Path("docs/reference/scientist/index.md")
 WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
-MKDOCS_CONFIG = Path("mkdocs.yml")
+MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 PHASE_GATE_MODULES: tuple[tuple[str, str], ...] = (
     ("phase2_0", "tools.ci.check_scientist_best_in_class_phase2_0"),
@@ -47,7 +47,7 @@ REQUIRED_FILES: tuple[Path, ...] = (
     MATURITY_DOC,
     MIGRATION_DOC,
     Path("tools/ci/check_scientist_best_in_class_wave2.py"),
-    Path("tests/tools/test_scientist_best_in_class_wave2.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_wave2.py"),
 )
 ACCEPTANCE_TOKENS: tuple[str, ...] = (
     "Wave 2 acceptance",
@@ -274,9 +274,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ClaimSupportStatus,
             ClaimType,
         )
-        from polisyos.scientist.continuous_governance import DecisionValidityStatus
-        from polisyos.scientist.continuous_governance.monitors import build_drift_monitor_event
-        from polisyos.scientist.continuous_governance.reissue import (
+        from polisyos.scientist.governance.continuous import DecisionValidityStatus
+        from polisyos.scientist.governance.continuous.monitors import build_drift_monitor_event
+        from polisyos.scientist.governance.continuous.reissue import (
             ReissuePacket,
             build_reissue_packet,
         )
@@ -286,13 +286,13 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             promote_generated_challenge,
             register_challenge_pack_with_benchmark_registry,
         )
-        from polisyos.scientist.human_review.models import ReviewRiskTier
-        from polisyos.scientist.human_review.oversight_policy import HumanReviewRequirement
-        from polisyos.scientist.human_review.voi_escalation import (
+        from polisyos.scientist.governance.human_review.models import ReviewRiskTier
+        from polisyos.scientist.governance.human_review.oversight_policy import HumanReviewRequirement
+        from polisyos.scientist.governance.human_review.voi_escalation import (
             build_human_escalation_voi_decision,
             validate_human_escalation_voi_decision,
         )
-        from polisyos.scientist.memory import (
+        from polisyos.scientist.orchestration.memory import (
             MemoryApplicabilityContext,
             MemoryContaminationPolicy,
             MemoryVisibility,
@@ -300,7 +300,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             assert_reusable_memory_clean,
             retrieve_reflexive_lessons,
         )
-        from polisyos.scientist.orchestrator.publisher import (
+        from polisyos.scientist.orchestration.orchestrator.publisher import (
             DecisionGradeExport,
             OutputAudience,
             assert_decision_grade_exports_consistent,

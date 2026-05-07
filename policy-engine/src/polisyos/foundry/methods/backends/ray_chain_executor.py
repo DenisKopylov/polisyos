@@ -46,7 +46,7 @@ from typing import Any
 from uuid import UUID
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods._logging import get_foundry_logger
+from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
@@ -64,7 +64,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     resolve_route_determinism_tier,
 )
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 _log = get_foundry_logger("foundry.backends.ray_chain")
 

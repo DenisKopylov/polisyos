@@ -7,7 +7,7 @@ import jax.numpy as jnp
 import pytest
 from polisyos.foundry.calibration.pure_executor import PreparedNode, StaticBundle
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._models import ExecutionStrictness
+from polisyos.foundry.execute.executor import ExecutionStrictness
 from polisyos.foundry.runtime import (
     NaNDetectedError,
     build_compiled_step,

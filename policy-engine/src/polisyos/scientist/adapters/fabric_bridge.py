@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.fabric._connector_bridge import ConnectorRegistryLike
+    from polisyos.fabric.api import ConnectorRegistryLike
 
 logger = get_logger(__name__)
 

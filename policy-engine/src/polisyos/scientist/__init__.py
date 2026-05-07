@@ -13,13 +13,24 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__all__ = ["ExperimentState", "get_metrics", "get_tracer", "run_experiment"]
+__all__ = [
+    "ExperimentState",
+    "build_governance_pipeline",
+    "discover_scientist_nodes",
+    "get_metrics",
+    "get_tracer",
+    "load_governance_passes",
+    "run_experiment",
+]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "run_experiment": ("polisyos.scientist.api", "run_experiment"),
-    "ExperimentState": ("polisyos.scientist.engine.state", "ExperimentState"),
+    "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
+    "build_governance_pipeline": ("polisyos.scientist.api", "build_governance_pipeline"),
+    "discover_scientist_nodes": ("polisyos.scientist.api", "discover_scientist_nodes"),
     "get_metrics": ("polisyos.core.observability", "get_metrics"),
     "get_tracer": ("polisyos.core.observability", "get_tracer"),
+    "load_governance_passes": ("polisyos.scientist.api", "load_governance_passes"),
+    "run_experiment": ("polisyos.scientist.api", "run_experiment"),
 }
 
 

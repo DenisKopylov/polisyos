@@ -1,0 +1,17 @@
+service: lex
+version: 1
+owner: team-lex
+objectives:
+  - name: lex_normpack_assembly_success_rate
+    sli: rate(polisyos_lex_normpack_assemblies_total{status="success"}[30m]) / rate(polisyos_lex_normpack_assemblies_total[30m])
+    threshold: ">= 0.99"
+    window: 28d
+    owner: team-lex
+    runbook: docs/runbooks/lex-production-140k.md
+  - name: lex_knowledge_freshness_seconds
+    sli: max(polisyos_lex_knowledge_freshness_seconds)
+    threshold: "< 86400s"
+    window: 7d
+    owner: team-lex
+    runbook: docs/runbooks/cache-rebuild-storm.md
+

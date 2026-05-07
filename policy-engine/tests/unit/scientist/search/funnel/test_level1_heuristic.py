@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.search.funnel.level1_heuristic import (
+from polisyos.scientist.methods.search.funnel.level1_heuristic import (
     Level1CheapHeuristic,
     _candidate_structure_hash,
 )
-from polisyos.scientist.search.funnel.types import FunnelStageResult
-from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonRegistry
-from polisyos.scientist.search.transfer_context import TransferContext
+from polisyos.scientist.methods.search.funnel.types import FunnelStageResult
+from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonRegistry
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 def _make_candidate(**overrides):

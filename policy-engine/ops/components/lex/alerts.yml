@@ -1,0 +1,9 @@
+component: lex
+owner: team-lex
+status: draft
+alerts: []
+exception:
+  reason: Lex has component SLOs and recovery runbooks but no dedicated Prometheus alert family in Phase 4.9.
+  review_by: 2026-08-01
+  runbook: docs/runbooks/lex-production-140k.md
+

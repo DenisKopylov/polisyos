@@ -1,0 +1,8 @@
+component: fabric
+owner: team-fabric
+status: draft
+alerts:
+  - name: SLO_ConnectorErrorRateBreach
+    source: ops/observability/prometheus/slo_alerts.yml
+    runbook: docs/runbooks/fabric-quarantine-dlq-and-data-plane-recovery.md
+

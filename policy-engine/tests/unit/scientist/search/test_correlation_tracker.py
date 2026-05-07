@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.search.stages import CorrelationTracker, StageResult
+from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 
 
 def _stage_result(*, score: float, passed: bool, stage_name: str) -> StageResult:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
+
 from polisyos.scientist.evidence.sources import (
     EvidenceSourcesConfig,
     merge_evidence_sources_payload,

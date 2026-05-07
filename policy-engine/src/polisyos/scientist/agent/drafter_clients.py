@@ -10,7 +10,7 @@ from typing import Any
 from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_drafter_prompt
 from polisyos.scientist.agent.protocols import CritiqueReport, DraftResult, ProblemFrame
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 
 class MockLLM:

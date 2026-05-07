@@ -64,6 +64,8 @@ _KIND_CAPABILITY = {
     ComponentKind.LEX_EVALUATOR: Capability.LEX_EVALUATOR,
     ComponentKind.SCIENTIST_NODE: Capability.SCIENTIST_NODE,
     ComponentKind.NORM_PACK_PROVIDER: Capability.NORM_PACK_PROVIDER,
+    ComponentKind.DATA_FORGE_DOMAIN: Capability.DATA_FORGE_DOMAIN,
+    ComponentKind.RUNTIME_MIDDLEWARE: Capability.RUNTIME_MIDDLEWARE,
 }
 
 _TYPE_CAPABILITIES = set(_KIND_CAPABILITY.values())
@@ -77,6 +79,8 @@ _REQUIRED_ABI_KEYS: dict[ComponentKind, tuple[tuple[str, ...], ...]] = {
     ComponentKind.LEX_EVALUATOR: (("ir_abi",), ("world_abi",)),
     ComponentKind.NORM_PACK_PROVIDER: (("ir_abi",), ("world_abi",)),
     ComponentKind.SCIENTIST_NODE: (),
+    ComponentKind.DATA_FORGE_DOMAIN: (("data_forge_domain_api",),),
+    ComponentKind.RUNTIME_MIDDLEWARE: (("runtime_middleware_api",),),
 }
 
 

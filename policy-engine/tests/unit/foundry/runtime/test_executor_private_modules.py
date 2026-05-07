@@ -20,20 +20,20 @@ from polisyos.core.contracts.foundry import (
     StateDelta,
 )
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._graph import (
+from polisyos.foundry.execute._internal.graph import (
     _append_method_patch_records,
     _append_patch_map_records,
     _build_state_delta_ops,
     _incoming_dependencies,
     _mask_barrier_targets,
 )
-from polisyos.foundry.execute._models import (
+from polisyos.foundry.execute._internal.models import (
     get_state_path,
     load_tensor,
     put_tensor,
     set_state_path,
 )
-from polisyos.foundry.execute._ops import (
+from polisyos.foundry.execute._internal.ops import (
     apply_op,
     apply_operator,
     apply_ops_for_slot,
@@ -44,16 +44,16 @@ from polisyos.foundry.execute._ops import (
     selector_field_values,
     validate_ops_compatibility,
 )
-from polisyos.foundry.execute._ops import (
+from polisyos.foundry.execute._internal.ops import (
     check_constraints as check_executor_constraints,
 )
-from polisyos.foundry.execute._patching import (
+from polisyos.foundry.execute._internal.patching import (
     _merge_patch_records,
     apply_patch_map,
     apply_patch_records,
     apply_state_delta_and_snapshot,
 )
-from polisyos.foundry.execute._posture import resolve_execution_posture
+from polisyos.foundry.execute._internal.posture import resolve_execution_posture
 from polisyos.foundry.methods.exceptions import (
     ContractViolationError,
     SelectorCoercionError,
@@ -533,7 +533,7 @@ def test_resolve_execution_posture_records_environment_fingerprint_probe_failure
         raise RuntimeError("probe failed")
 
     monkeypatch.setattr(
-        "polisyos.foundry.execute._posture.EnvironmentFingerprint.capture",
+        "polisyos.foundry.execute._internal.posture.EnvironmentFingerprint.capture",
         _raise_capture,
     )
     exec_plan = ExecPlan(

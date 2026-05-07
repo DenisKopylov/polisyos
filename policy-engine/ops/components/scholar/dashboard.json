@@ -1,0 +1,13 @@
+{
+  "component": "scholar",
+  "owner": "team-scholar",
+  "aliases": ["scholar", "polisyos.scholar"],
+  "dashboards": [
+    {
+      "name": "Knowledge Freshness",
+      "path": "ops/observability/grafana/dashboards/knowledge-freshness.json",
+      "purpose": "Provider/search health and evidence freshness"
+    }
+  ]
+}
+

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from polisyos.scientist.search.controller import SearchConfig, SearchController, SearchIteration
-from polisyos.scientist.search.diversity import ExclusionListBuilder, enrich_context_with_diversity
-from polisyos.scientist.search.objective import CompositeObjective, GDPGrowthObjective
-from polisyos.scientist.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController, SearchIteration
+from polisyos.scientist.methods.search.diversity import ExclusionListBuilder, enrich_context_with_diversity
+from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
 def test_exclusion_list_builder_extracts_unique_mechanisms() -> None:

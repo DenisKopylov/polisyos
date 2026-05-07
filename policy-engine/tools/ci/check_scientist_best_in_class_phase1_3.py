@@ -42,7 +42,7 @@ REQUIRED_TEST_FILES: tuple[Path, ...] = (
     Path("tests/unit/scientist/evidence/test_scholar_search_tools.py"),
     Path("tests/unit/scientist/evidence/test_research_dag_projection.py"),
     Path("tests/unit/scientist/evidence/test_decision_packet_web_evidence.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase1_3.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase1_3.py"),
 )
 REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
     Path("tests/unit/scientist/evidence/test_safe_fetch.py"): (
@@ -196,7 +196,7 @@ def _build_payload(repo_root: Path) -> dict[str, object]:
             "fetch_safety_events",
             "source_quality_signals",
         ),
-        Path("src/polisyos/scientist/research_dag/projections.py"): (
+        Path("src/polisyos/scientist/methods/research_dag/projections.py"): (
             "project_web_evidence_bundle_to_research_dag",
             "scholar.web_evidence_bundle",
         ),

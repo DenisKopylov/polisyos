@@ -57,7 +57,7 @@ SOURCE_SCORECARD_SNAPSHOT = (
     REPO_ROOT / "schemas" / "snapshots" / "fabric" / "source_scorecards.json"
 )
 SOURCE_PLATFORM_DOC = REPO_ROOT / "docs" / "reference" / "fabric" / "source-platform.md"
-SOURCE_REPLAY_FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "fabric" / "source_contracts"
+SOURCE_REPLAY_FIXTURE_DIR = REPO_ROOT / "tests" / "_data" / "fabric" / "shared" / "source_contracts"
 GENERATED_AT_DT = datetime(2026, 4, 27, tzinfo=UTC)
 
 
@@ -376,7 +376,7 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
         "| `schemas/fabric/source_scorecard.schema.json` | Source scorecard schema |",
         "| `schemas/snapshots/fabric/source_contracts_v2.json` | Production SourceContract snapshot |",
         "| `schemas/snapshots/fabric/source_scorecards.json` | Generated source scorecards |",
-        "| `tests/fixtures/fabric/source_contracts/*.replay.json` | Deterministic production replay fixtures |",
+        "| `tests/_data/fabric/shared/source_contracts/*.replay.json` | Deterministic production replay fixtures |",
         "| `tools/quality/validation/fabric_source_contracts.py` | CI report/fail-closed gate |",
         "",
         "## CI Gate",
@@ -469,7 +469,7 @@ def render_source_platform_markdown(report: dict[str, Any] | None = None) -> str
             "",
             "- `tests/unit/fabric/connectors/test_source_contract_v2.py` validates the model,",
             "  scaffold, conformance harness, scorecards, and generated snapshots.",
-            "- `tests/tools/test_fabric_source_contracts.py` validates CI report/check",
+            "- `tests/repo_quality/tools/test_fabric_source_contracts.py` validates CI report/check",
             "  behavior and source-platform docs generation.",
         ]
     )

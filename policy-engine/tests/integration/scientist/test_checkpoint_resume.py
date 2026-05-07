@@ -9,18 +9,18 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
-from polisyos.scientist.engine.checkpoint import (
+from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     resolve_latest_checkpoint,
     resume_from_checkpoint,
 )
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
-from polisyos.scientist.engine.registry import NodeRegistry
-from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -426,7 +426,7 @@ def test_resume_uses_configured_distributed_runner_with_pruned_workflow(
 
     capturing_runner = _CapturingRunner()
     monkeypatch.setattr(
-        "polisyos.scientist.engine.runner.config.build_workflow_runner",
+        "polisyos.scientist.orchestration.engine.runner.config.build_workflow_runner",
         lambda config: capturing_runner,
     )
 

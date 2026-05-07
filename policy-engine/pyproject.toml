@@ -242,6 +242,8 @@ dev = [
 "safety" = "polisyos.scientist.governance.pass_entrypoints:safety_pass_factory"
 "equity" = "polisyos.scientist.governance.pass_entrypoints:equity_pass_factory"
 "cross_graph_evidence" = "polisyos.scientist.governance.pass_entrypoints:cross_graph_evidence_pass_factory"
+"fabric_trust" = "polisyos.scientist.governance.pass_entrypoints:fabric_trust_gate_pass_factory"
+"incentive_compatibility" = "polisyos.scientist.governance.pass_entrypoints:incentive_compatibility_pass_factory"
 "literature_gate" = "polisyos.scientist.governance.pass_entrypoints:literature_gate_pass_factory"
 "legal" = "polisyos.scientist.governance.pass_entrypoints:legal_pass_factory"
 "confidence" = "polisyos.scientist.governance.pass_entrypoints:confidence_pass_factory"
@@ -249,6 +251,20 @@ dev = [
 "human_review_required" = "polisyos.scientist.governance.pass_entrypoints:human_review_required_pass_factory"
 "quality" = "polisyos.scientist.governance.pass_entrypoints:quality_gate_pass_factory"
 "normative_arbitration" = "polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory"
+"strategic_response" = "polisyos.scientist.governance.pass_entrypoints:strategic_response_pass_factory"
+
+[project.entry-points."polisyos.foundry_methods"]
+"polisyos.foundry.builtin_catalog" = "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+
+[project.entry-points."polisyos.scientist_nodes"]
+# External packages declare one ComponentProvider per Scientist node here.
+# Builtins are registered through polisyos.scientist.nodes.components:builtin_node_components.
+
+[project.entry-points."polisyos.data_forge_domains"]
+
+[project.entry-points."polisyos.lex_normpacks"]
+
+[project.entry-points."polisyos.runtime_middlewares"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/polisyos", "tools"]

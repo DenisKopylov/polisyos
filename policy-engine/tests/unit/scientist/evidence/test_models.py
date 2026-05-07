@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.scholar.search.models import (
     ClaimSupportLink,
     FetchSafetyEvent,
@@ -11,7 +13,6 @@ from polisyos.scholar.search.models import (
     SourceSnippet,
     WebEvidenceBundle,
 )
-from pydantic import ValidationError
 
 
 def _brief() -> ResearchBrief:

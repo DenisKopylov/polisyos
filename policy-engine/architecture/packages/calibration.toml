@@ -1,0 +1,119 @@
+[package]
+id = "calibration"
+module = "polisyos.calibration"
+name = "calibration"
+owner = "team-scientist"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Canonical shared calibration diagnostics, recalibration, and validation-report API."
+legacy_aggregate_mirrors = [
+  "architecture/package_boundaries.toml",
+  "architecture/package_layout.toml",
+  "architecture/public_surface.toml",
+  "architecture/import_contracts.toml",
+  "architecture/test_topology.toml",
+]
+
+[layout]
+status = "resolved"
+layout_owner = "team-scientist"
+source_root = "src/polisyos/calibration"
+readme = "src/polisyos/calibration/README.md"
+root_facade_policy = "small eager-export facade for shared diagnostics; Foundry and DDM calibration contexts remain package-specific"
+implementation_roots = ["src/polisyos/calibration"]
+legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_status = "resolved"
+
+[boundaries]
+public_facade = "polisyos.calibration"
+allowed_dependencies = [
+  "polisyos.common",
+  "polisyos.ir",
+]
+forbidden_dependencies = [
+  "polisyos.runtime",
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_experimental"
+facade_mode = "eager_exports"
+registry_owner = "team-scientist"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.calibration"]
+major_subsystem = false
+notes = "Canonical shared calibration diagnostics, recalibration, and validation-report API. Foundry and DDM calibration contexts remain package-specific."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/calibration"]
+contract_roots = ["tests/contract"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "shared calibration API changes keep unit coverage",
+  "Foundry or Scientist calibration behavior remains covered in the owning package slice",
+]
+
+[slo_runbook]
+status = "exception"
+slo_files = ["ops/components/calibration/slo.yaml"]
+runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
+runbook_expectation = "Calibration alerts map to Foundry/Scientist triage until calibration becomes a standalone public-stable component."
+
+[observability]
+status = "exception"
+metrics_owner = "team-foundry"
+metric_surfaces = ["ops/components/calibration/runtime-contract.toml"]
+trace_expectation = "Calibration traces/logs carry calibration_run_id, method_id, and artifact_ref when emitted by Foundry or Scientist flows."
+
+[name_collisions]
+status = "declared"
+owner = "team-scientist"
+registry = "architecture/name_registry.toml"
+allowed = ["calibration"]
+
+[[allowed_name_collision]]
+name = "calibration"
+scope = "canonical package plus package-local contexts"
+reason = "polisyos.calibration is canonical for generic diagnostics; Foundry, DDM, and Scientist calibration usages stay bounded-context specific."
+owner = "team-scientist"
+
+[exceptions]
+status = "declared"
+owner = "team-scientist"
+registries = ["architecture/static_analysis_overrides.toml", "architecture/component_observability.toml"]
+
+[[exception]]
+id = "calibration-ruff-package-ratchet"
+owner = "team-scientist"
+kind = "lint_ratchet"
+reason = "Calibration compatibility ignores remain visible until package ownership is fully split."
+sunset = "2026-10-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/static_analysis_overrides.toml"
+
+[[exception]]
+id = "calibration-standalone-slo-deferred"
+owner = "team-scientist"
+kind = "slo_exception"
+reason = "Calibration is currently covered by Foundry/Scientist operability; add standalone SLO if promoted as a public-stable package."
+sunset = "2026-08-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+registry = "architecture/component_observability.toml"
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-scientist"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "Calibration is not an extension host in Phase 5.8."

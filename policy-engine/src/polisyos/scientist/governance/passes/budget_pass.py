@@ -8,7 +8,7 @@ from polisyos.core.governance.passes.base import (
     PassContext,
     ValidatorPass,
 )
-from polisyos.scientist.kernel.budgets import ComplexityBudget, ComputeBudget, EvidenceBudget
+from polisyos.scientist.orchestration.kernel.budgets import ComplexityBudget, ComputeBudget, EvidenceBudget
 
 
 class BudgetPass(ValidatorPass):

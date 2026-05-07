@@ -1,0 +1,12 @@
+{
+  "package": "foundry",
+  "scenario": "agent_sim_experiment_result",
+  "producer": "polisyos.foundry.agent_sim.experiment.ExperimentRun.log_artifact",
+  "expected_type": "polisyos.foundry.agent_sim.experiment.ExperimentResult",
+  "expected_fields": {
+    "config.name": "phase3a_agent_sim_canonical",
+    "metrics.reward": 1.0
+  },
+  "path": "tests/_data/checkpoint_compat/foundry/agent_sim_experiment_result.pkl",
+  "bytes": 520
+}

@@ -1,40 +1,30 @@
-"""Human oversight contracts for Scientist release packets."""
+"""Compatibility shim for human review moved to governance.human_review."""
 
-from __future__ import annotations
-
-from polisyos.scientist.human_review.decisions import (
-    human_review_status,
-    load_review_decision,
-    persist_review_decision,
-    review_decision_summary,
-)
-from polisyos.scientist.human_review.models import (
+from polisyos.scientist.governance.human_review import (
     FundamentalRightsChecklist,
     HumanReviewDecision,
     HumanReviewPacket,
+    HumanReviewRequirement,
     HumanReviewStatus,
+    HumanReviewValidationResult,
     ReviewAction,
     ReviewAssignment,
-    ReviewerSignature,
     ReviewRiskTier,
-)
-from polisyos.scientist.human_review.oversight_policy import (
-    HumanReviewRequirement,
-    HumanReviewValidationResult,
+    ReviewerSignature,
     apply_human_review_to_governance_report,
+    build_human_escalation_voi_decision,
+    build_review_packet,
     evaluate_human_review_requirement,
     human_review_section,
-    validate_human_reviewed_readiness,
-)
-from polisyos.scientist.human_review.packets import (
-    build_review_packet,
+    human_review_status,
+    load_review_decision,
     load_review_packet,
+    persist_review_decision,
     persist_review_packet,
+    review_decision_summary,
     review_packet_summary,
-)
-from polisyos.scientist.human_review.voi_escalation import (
-    build_human_escalation_voi_decision,
     validate_human_escalation_voi_decision,
+    validate_human_reviewed_readiness,
 )
 
 __all__ = [
@@ -49,8 +39,8 @@ __all__ = [
     "ReviewRiskTier",
     "ReviewerSignature",
     "apply_human_review_to_governance_report",
-    "build_review_packet",
     "build_human_escalation_voi_decision",
+    "build_review_packet",
     "evaluate_human_review_requirement",
     "human_review_section",
     "human_review_status",
@@ -60,6 +50,6 @@ __all__ = [
     "persist_review_packet",
     "review_decision_summary",
     "review_packet_summary",
-    "validate_human_reviewed_readiness",
     "validate_human_escalation_voi_decision",
+    "validate_human_reviewed_readiness",
 ]

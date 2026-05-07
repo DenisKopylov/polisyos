@@ -65,6 +65,7 @@ class ImportException:
     owner: str
     reason: str
     expires: datetime.date
+    issue: str | None
     source_glob: str
     import_root: str | None
     import_module_prefix: str | None
@@ -506,6 +507,7 @@ def read_exceptions(path: Path | None) -> list[ImportException]:
         owner = item.get("owner")
         reason = item.get("reason")
         expires_raw = item.get("expires")
+        issue = item.get("issue")
         source_glob = item.get("source_glob")
         import_root = item.get("import_root")
         import_module_prefix = item.get("import_module_prefix")
@@ -541,6 +543,7 @@ def read_exceptions(path: Path | None) -> list[ImportException]:
                 owner=owner,
                 reason=reason,
                 expires=expires,
+                issue=str(issue) if issue else None,
                 source_glob=source_glob,
                 import_root=import_root,
                 import_module_prefix=import_module_prefix,
@@ -834,6 +837,8 @@ def _canonical_exception_file(exceptions: list[ImportException]) -> str:
         lines.append(f"owner = {_render_toml_string(exception.owner)}")
         lines.append(f"reason = {_render_toml_string(exception.reason)}")
         lines.append(f"expires = {_render_toml_string(exception.expires.isoformat())}")
+        if exception.issue is not None:
+            lines.append(f"issue = {_render_toml_string(exception.issue)}")
         lines.append(f"source_glob = {_render_toml_string(exception.source_glob)}")
         if exception.import_root is not None:
             lines.append(f"import_root = {_render_toml_string(exception.import_root)}")

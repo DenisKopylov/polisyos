@@ -170,7 +170,7 @@ run_pytest_with_junit phase2_judges "$JUDGE_JUNIT" \
 
 run_suite phase2_closure_runtime_support \
   tests/unit/foundry/validation/test_phase2_closure.py \
-  tests/tools/test_scientist_phase2_gate.py \
+  tests/repo_quality/tools/test_scientist_phase2_gate.py \
   tests/unit/scientist/search/test_phase_b_policy_runtime.py \
   -k "phase2_closure or phase2_closure_report or phase2_benchmark_scope"
 

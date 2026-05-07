@@ -28,7 +28,7 @@ from polisyos.foundry.methods.base import (
     MethodMetadata,
     MethodSignature,
 )
-from polisyos.foundry.methods.specialization import specialization_from_signature_and_state
+from polisyos.foundry.methods.compiler.specialization import specialization_from_signature_and_state
 
 try:  # JAX >= 0.4
     from jax.tree_util import tree_flatten_with_path

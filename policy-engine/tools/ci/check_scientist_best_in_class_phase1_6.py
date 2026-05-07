@@ -19,13 +19,13 @@ TOOL_NAME = "ci.check-scientist-best-in-class-phase1-6"
 REFERENCE_DOC = Path("docs/reference/scientist/human-oversight.md")
 ACTIVE_PLAN_DOC = Path("docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md")
 REQUIRED_PACKAGE_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/human_review/__init__.py"),
-    Path("src/polisyos/scientist/human_review/models.py"),
-    Path("src/polisyos/scientist/human_review/queue.py"),
-    Path("src/polisyos/scientist/human_review/decisions.py"),
-    Path("src/polisyos/scientist/human_review/packets.py"),
-    Path("src/polisyos/scientist/human_review/oversight_policy.py"),
-    Path("src/polisyos/scientist/human_review/audit.py"),
+    Path("src/polisyos/scientist/governance/human_review/__init__.py"),
+    Path("src/polisyos/scientist/governance/human_review/models.py"),
+    Path("src/polisyos/scientist/governance/human_review/queue.py"),
+    Path("src/polisyos/scientist/governance/human_review/decisions.py"),
+    Path("src/polisyos/scientist/governance/human_review/packets.py"),
+    Path("src/polisyos/scientist/governance/human_review/oversight_policy.py"),
+    Path("src/polisyos/scientist/governance/human_review/audit.py"),
 )
 REQUIRED_INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/governance/report.py"),
@@ -34,13 +34,13 @@ REQUIRED_INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/nodes/builtins/state_keys.py"),
 )
 REQUIRED_TEST_FILES: tuple[Path, ...] = (
-    Path("tests/unit/scientist/human_review/test_models.py"),
-    Path("tests/unit/scientist/human_review/test_persistence.py"),
-    Path("tests/unit/scientist/human_review/test_queue.py"),
-    Path("tests/unit/scientist/human_review/test_oversight_policy.py"),
-    Path("tests/unit/scientist/human_review/test_governance_integration.py"),
-    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"),
-    Path("tests/tools/test_scientist_best_in_class_phase1_6.py"),
+    Path("tests/unit/scientist/governance/human_review/test_models.py"),
+    Path("tests/unit/scientist/governance/human_review/test_persistence.py"),
+    Path("tests/unit/scientist/governance/human_review/test_queue.py"),
+    Path("tests/unit/scientist/governance/human_review/test_oversight_policy.py"),
+    Path("tests/unit/scientist/governance/human_review/test_governance_integration.py"),
+    Path("tests/unit/scientist/governance/human_review/test_decision_packet_integration.py"),
+    Path("tests/repo_quality/tools/test_scientist_best_in_class_phase1_6.py"),
 )
 REFERENCE_TOKENS: tuple[str, ...] = (
     "HumanReviewPacket",
@@ -68,22 +68,22 @@ INTEGRATION_TOKENS: dict[Path, tuple[str, ...]] = {
     ),
 }
 NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
-    Path("tests/unit/scientist/human_review/test_models.py"): (
+    Path("tests/unit/scientist/governance/human_review/test_models.py"): (
         "override_reason",
         "stop_release",
     ),
-    Path("tests/unit/scientist/human_review/test_oversight_policy.py"): (
+    Path("tests/unit/scientist/governance/human_review/test_oversight_policy.py"): (
         "human_reviewed_readiness_without_review_ref",
         "explanation_insufficient",
         "REQUEST_RERUN",
         "INTERRUPT_RELEASE",
     ),
-    Path("tests/unit/scientist/human_review/test_decision_packet_integration.py"): (
+    Path("tests/unit/scientist/governance/human_review/test_decision_packet_integration.py"): (
         "governance_human_gate",
         "missing_human_review_packet_ref",
         "human_review_validation_failed",
     ),
-    Path("tests/unit/scientist/human_review/test_governance_integration.py"): (
+    Path("tests/unit/scientist/governance/human_review/test_governance_integration.py"): (
         "test_run_governance_includes_review_refs_from_state",
     ),
 }
@@ -102,21 +102,21 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     notes: list[str] = []
     try:
         from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.scientist.human_review.audit import signature_for_decision
-        from polisyos.scientist.human_review.decisions import (
+        from polisyos.scientist.governance.human_review.audit import signature_for_decision
+        from polisyos.scientist.governance.human_review.decisions import (
             human_review_status,
             persist_review_decision,
         )
-        from polisyos.scientist.human_review.models import (
+        from polisyos.scientist.governance.human_review.models import (
             HumanReviewDecision,
             HumanReviewStatus,
             ReviewAction,
         )
-        from polisyos.scientist.human_review.oversight_policy import (
+        from polisyos.scientist.governance.human_review.oversight_policy import (
             evaluate_human_review_requirement,
             validate_human_reviewed_readiness,
         )
-        from polisyos.scientist.human_review.packets import (
+        from polisyos.scientist.governance.human_review.packets import (
             build_review_packet,
             load_review_packet,
             persist_review_packet,

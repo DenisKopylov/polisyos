@@ -14,7 +14,7 @@ from polisyos.ir.analytics.interference import (
 )
 from polisyos.ir.analytics.strategic import StrategicFallbackMode
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.discovery.utility_judge import (
+from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )

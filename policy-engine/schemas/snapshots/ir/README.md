@@ -9,7 +9,7 @@
 
 ## Источники
 
-- Реестр: `schemas/abi_models.py` (entries с `module="ir"`).
+- Реестр: `src/polisyos/schemas/abi_models.py` (entries с `module="ir"`).
 - Генератор: `tools/quality/diagnostics/gen_schema.py`.
 - Проверка совместимости: `tools/quality/diagnostics/abi_diff.py`.
 

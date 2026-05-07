@@ -15,9 +15,9 @@ const args = process.argv.slice(2);
 const verbose = args.includes("--verbose");
 const roots = args.filter((arg) => arg !== "--verbose");
 const policyEngineRoot = findPolicyEngineRoot();
-const scanRoots = roots.length > 0 ? roots : ["frontend/runtime-dashboard/src"];
+const scanRoots = roots.length > 0 ? roots : ["apps/runtime-dashboard/src"];
 const require = createRequire(
-  path.join(policyEngineRoot, "frontend/runtime-dashboard/package.json"),
+  path.join(policyEngineRoot, "apps/runtime-dashboard/package.json"),
 );
 const { classifyLine, lineHasClassificationComment } = require(
   "./eslint-plugin-local/rules/quantity-classifier.cjs",
@@ -30,7 +30,7 @@ function findPolicyEngineRoot() {
   while (cursor !== path.dirname(cursor)) {
     if (
       fs.existsSync(path.join(cursor, "pyproject.toml")) &&
-      fs.existsSync(path.join(cursor, "frontend/runtime-dashboard"))
+      fs.existsSync(path.join(cursor, "apps/runtime-dashboard"))
     ) {
       return cursor;
     }

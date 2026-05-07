@@ -17,8 +17,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.metric_validation_report import load_metric_validation_report
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_metric_validation import RunMetricValidationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,

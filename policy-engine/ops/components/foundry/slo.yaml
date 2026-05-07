@@ -1,0 +1,23 @@
+service: foundry
+version: 1
+owner: team-foundry
+objectives:
+  - name: foundry_simulation_nan_rate
+    sli: polisyos:slo_simulation_nan_rate:rate5m
+    threshold: "< 0.001"
+    window: 28d
+    owner: team-foundry
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: foundry_method_dispatch_error_rate
+    sli: rate(polisyos_foundry_method_dispatch_total{status="error"}[5m]) / rate(polisyos_foundry_method_dispatch_total[5m])
+    threshold: "< 0.01"
+    window: 28d
+    owner: team-foundry
+    runbook: docs/runbooks/benchmark-regression-triage.md
+  - name: foundry_cache_hit_rate
+    sli: rate(polisyos_foundry_cache_hits_total[5m]) / rate(polisyos_foundry_cache_requests_total[5m])
+    threshold: ">= 0.60"
+    window: 7d
+    owner: team-foundry
+    runbook: docs/runbooks/cache-rebuild-storm.md
+

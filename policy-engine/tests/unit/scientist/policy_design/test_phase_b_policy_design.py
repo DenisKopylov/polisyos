@@ -69,7 +69,7 @@ from polisyos.scientist.policy_design.schema import (
     RolloutStep,
     TargetPopulationSpec,
 )
-from polisyos.scientist.search.uncertainty import (
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,

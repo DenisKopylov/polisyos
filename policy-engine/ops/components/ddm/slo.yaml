@@ -1,0 +1,8 @@
+service: ddm
+version: 1
+owner: team-architecture
+status: exception
+exception_reason: DDM behavior is currently contract/unit scoped and ddm_15_7 is a wrapper-only compatibility alias; add a standalone SLO if promoted to public-stable operations.
+exception_expires: 2026-08-01
+objectives: []
+

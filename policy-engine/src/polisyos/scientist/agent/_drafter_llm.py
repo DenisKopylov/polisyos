@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.llm import estimate_cost, extract_llm_response_data
-from polisyos.scientist.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm import TracedLLMClient
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.protocols import DrafterAgent

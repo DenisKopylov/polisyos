@@ -17,7 +17,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec
-from polisyos.fabric.safety import validate_sql_identifier
+from polisyos.fabric.quality.safety import validate_sql_identifier
 
 
 class ChangeType(str, Enum):

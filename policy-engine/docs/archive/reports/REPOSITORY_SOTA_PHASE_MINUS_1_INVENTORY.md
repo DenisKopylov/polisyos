@@ -401,9 +401,9 @@ presence and header/freshness baseline without running regeneration.
 
 Missing mixed-policy outputs:
 
-- `frontend/runtime-dashboard/dist/bundle-stats.json`
-- `frontend/runtime-dashboard/npm-audit-report.json`
-- `frontend/runtime-dashboard/npm-audit-summary.md`
+- `apps/runtime-dashboard/dist/bundle-stats.json`
+- `apps/runtime-dashboard/npm-audit-report.json`
+- `apps/runtime-dashboard/npm-audit-summary.md`
 
 Untracked schema candidates observed in the worktree:
 
@@ -538,7 +538,7 @@ Active plan entries:
 - `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`
 - `docs/plans/active/DATA_FORGE_CUTOVER_READINESS.md`
 - `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md`
-- `docs/plans/active/DESIGN_WAVE1_RELEASE_NOTES.md`
+- `release/design-wave1-release-notes.md`
 - `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`
 - `docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md`
 - `docs/archive/reports/REPOSITORY_SOTA_PHASE_MINUS_1_5_CLASSIFICATION.md`
@@ -551,7 +551,7 @@ Accepted plans currently contain only `.gitkeep`.
 Top-level `docs/*.md` still contains many plan/audit/architecture files that
 need lifecycle classification in later phases, including:
 
-- `docs/archive/plans/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md`
+- `docs/plans/archive/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md`
 - `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
 - `docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`
 - `docs/plans/active/UKRAINE_FUNDING_INTELLIGENCE_PLAN.md`
@@ -604,9 +604,9 @@ Observed local/generated frontend outputs:
 
 Tracked/generated frontend artifacts already registered:
 
-- `frontend/runtime-api-client/runtimeApiClient.ts`
-- `frontend/runtime-api-client/runtimeApiClient.js`
-- `frontend/runtime-dashboard/src/api/types.ts`
+- `packages/runtime-api-client/runtimeApiClient.ts`
+- `packages/runtime-api-client/runtimeApiClient.js`
+- `apps/runtime-dashboard/src/api/types.ts`
 
 ## Ops Inventory
 
@@ -686,7 +686,7 @@ and acceptance evidence. This table records the Phase -1 baseline only.
 | Top-level docs | `policy-engine/docs/*.md` | `docs/plans/*`, `docs/archive/*`, `docs/reference/*`, `docs/how-to/*`, or `docs/explanation/*` | `team-docs` | Low | Docs lifecycle classification, link check, docs freshness baseline. |
 | Legacy test mirrors | `tests/academic`, `tests/datasets`, `tests/ukraine_data`, legacy `tests/unit/lex` paths | `tests/data_forge`, `tests/unit`, `tests/integration`, or compatibility suites | `team-quality` | Medium | Test collection baseline, mapping to source package, compatibility coverage. |
 | Data Forge domain sources | deleted legacy source roots and new `src/polisyos/data_forge/domains/*` | target domain layout under `data_forge` | `team-data-forge` | High | Golden/replay/differential evidence, import graph baseline, rollback notes. |
-| Generated frontend outputs | `frontend/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results`, `output`, `.tmp` | ignored generated-output policy or registered generated artifacts | `team-frontend` | Medium | Generated-artifact registry decision and drift check. |
+| Generated frontend outputs | `apps/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results`, `output`, `.tmp` | ignored generated-output policy or registered generated artifacts | `team-frontend` | Medium | Generated-artifact registry decision and drift check. |
 | Production data | `policy-engine/production_data/*` | ignored local runtime data or explicit release artifact registry | `team-data-forge` | High | Retention class, artifact manifest, size/PII classification, rollback note. |
 
 ## Acceptance Evidence

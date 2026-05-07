@@ -17,11 +17,10 @@
     },
     {
       "check_id": "repo-root-coherence",
-      "detail": "Root and product READMEs still agree on the workspace gateway vs canonical product-root split.",
+      "detail": "Product README and ADR-RSR-0130 agree on the collapsed product-root workspace boundary.",
       "evidence": [
-        "/Users/deniskopylov/polisyos/README.md",
         "/Users/deniskopylov/polisyos/policy-engine/README.md",
-        "/Users/deniskopylov/polisyos/policy-engine/docs/adr/0096-canonical-product-root-and-workspace-boundary.md"
+        "/Users/deniskopylov/polisyos/policy-engine/docs/adr/repository-structure-0130-workspace-boundary.md"
       ],
       "kind": "automated",
       "status": "pass",
@@ -75,9 +74,9 @@
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/release-policy.md",
         "/Users/deniskopylov/polisyos/policy-engine/release-fragments/README.md",
         "/Users/deniskopylov/polisyos/policy-engine/release-fragments/template.toml",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/stage_release_snapshot.py",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/build_release_notes.py",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/ops/release/run_release_canary.py"
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops_runners/release/stage_release_snapshot.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops_runners/release/build_release_notes.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ops_runners/release/run_release_canary.py"
       ],
       "kind": "automated",
       "status": "pass",
@@ -106,11 +105,11 @@
       "check_id": "bootstrap-doctor-quality",
       "detail": "Bootstrap, doctor, verify, ci-parity, acceptance-audit, and the contributor journey docs are in place.",
       "evidence": [
-        "/Users/deniskopylov/polisyos/policy-engine/scripts/bootstrap",
-        "/Users/deniskopylov/polisyos/policy-engine/scripts/doctor",
-        "/Users/deniskopylov/polisyos/policy-engine/scripts/verify",
-        "/Users/deniskopylov/polisyos/policy-engine/scripts/ci-parity",
-        "/Users/deniskopylov/polisyos/policy-engine/scripts/acceptance-audit",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/bootstrap.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/doctor.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/verify.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/ci_parity.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/acceptance_audit.py",
         "/Users/deniskopylov/polisyos/policy-engine/tools/devx/workspace/README.md",
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/install.md",
         "/Users/deniskopylov/polisyos/policy-engine/docs/reference/contributor-start-here.md",
@@ -124,7 +123,7 @@
       "check_id": "dependency-freshness",
       "detail": "Dependency freshness is covered by Renovate, nightly workflow audits, and repo-tracked docs.",
       "evidence": [
-        "/Users/deniskopylov/polisyos/renovate.json",
+        "/Users/deniskopylov/polisyos/.github/renovate.json",
         "/Users/deniskopylov/polisyos/.github/workflows/frontend-nightly.yml",
         "/Users/deniskopylov/polisyos/policy-engine/tools/ci/check_action_freshness.py",
         "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/operate-ci-cd-platform.md"
@@ -151,7 +150,7 @@
       "evidence": [
         "/Users/deniskopylov/polisyos/policy-engine/docs/reference/configuration-profiles.md",
         "/Users/deniskopylov/polisyos/policy-engine/.env.example",
-        "/Users/deniskopylov/polisyos/policy-engine/frontend/runtime-dashboard/.env.example"
+        "/Users/deniskopylov/polisyos/policy-engine/apps/runtime-dashboard/.env.example"
       ],
       "kind": "automated",
       "status": "pass",
@@ -163,7 +162,7 @@
       "evidence": [
         "/Users/deniskopylov/polisyos/policy-engine/docs/reference/generated-artifacts.md",
         "/Users/deniskopylov/polisyos/policy-engine/architecture/generated_artifacts.toml",
-        "/Users/deniskopylov/polisyos/policy-engine/tools/architecture/guardrails.py"
+        "/Users/deniskopylov/polisyos/policy-engine/tools/devx/architecture/guardrails.py"
       ],
       "kind": "automated",
       "status": "pass",
@@ -175,7 +174,7 @@
       "evidence": [
         "/Users/deniskopylov/polisyos/.github/workflows/frontend-nightly.yml",
         "/Users/deniskopylov/polisyos/.github/workflows/release.yml",
-        "/Users/deniskopylov/polisyos/SECURITY.md"
+        "/Users/deniskopylov/polisyos/policy-engine/SECURITY.md"
       ],
       "kind": "automated",
       "status": "pass",
@@ -217,7 +216,7 @@
       "check_id": "manual.clean_machine_bootstrap",
       "detail": "Re-clone the repo on a clean machine and run polisyos-tools workspace bootstrap -> polisyos-tools workspace doctor -> polisyos-tools workspace verify. Notes: Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: polisyos-tools workspace bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine.",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
       ],
       "kind": "manual",
@@ -228,7 +227,7 @@
       "check_id": "manual.backend_walkthrough",
       "detail": "Follow docs/how-to/onboarding/backend-engineer.md on a representative contributor path. Notes: Backend walkthrough passed from clean checkout ccde518 on Hetzner: polisyos-tools workspace verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist.",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
       ],
       "kind": "manual",
@@ -239,7 +238,7 @@
       "check_id": "manual.frontend_walkthrough",
       "detail": "Follow docs/how-to/onboarding/frontend-engineer.md on a representative contributor path. Notes: Frontend walkthrough passed from clean checkout ccde518 as part of polisyos-tools workspace verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests).",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
       ],
       "kind": "manual",
@@ -250,7 +249,7 @@
       "check_id": "manual.platform_walkthrough",
       "detail": "Follow docs/how-to/onboarding/platform-ops-engineer.md and exercise bootstrap/doctor/verify surfaces. Notes: Platform walkthrough passed from clean checkout ccde518: full polisyos-tools workspace verify --skip-doctor --pytest-workers 16 was green, and ops/docker/observability.compose.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down.",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
       ],
       "kind": "manual",
@@ -261,7 +260,7 @@
       "check_id": "manual.release_dry_run",
       "detail": "Exercise the local release-note/version/canary path or the GitHub release workflow dry run. Notes: Release version validation, curated release-note build with metadata JSON, and live runtime canary all passed from clean checkout ccde518. The canary and release-notes artifacts were written to /tmp/polisyos-release-*.{md,json} on the Hetzner runner.",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md",
         "docs/archive/reports/platform-release-dry-run-notes.md",
         "docs/archive/reports/platform-release-dry-run-notes.json",
@@ -276,7 +275,7 @@
       "check_id": "manual.incident_tabletop",
       "detail": "Walk one critical operational path from alert to runbook to postmortem follow-up. Notes: Reviewed the runtime alert-to-runbook path through observability-topology.md and runtime-api-outage.md, including timeline capture, rollback, escalation, and postmortem sections.",
       "evidence": [
-        "docs/archive/reports/platform-acceptance.manual.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/archive/reports/platform-acceptance.manual.toml",
         "docs/archive/reports/platform-acceptance-manual.md"
       ],
       "kind": "manual",

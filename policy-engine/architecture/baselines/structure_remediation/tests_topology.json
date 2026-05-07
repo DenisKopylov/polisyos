@@ -32,13 +32,13 @@
     {
       "conftest_count": 0,
       "name": "fixtures",
-      "path": "tests/fixtures",
+      "path": "tests/_data",
       "test_file_count": 1
     },
     {
       "conftest_count": 0,
       "name": "golden",
-      "path": "tests/golden",
+      "path": "tests/_golden",
       "test_file_count": 0
     },
     {

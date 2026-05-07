@@ -76,7 +76,7 @@ The most likely cleanup candidates after cloud verification are:
 | `/Users/deniskopylov/polisyos/policy-engine/.venv` | 1.7 GB | Rebuildable environment | Do not archive. |
 | `/Users/deniskopylov/polisyos/policy-engine/.venv_codex` | 1.2 GB | Rebuildable environment | Do not archive. |
 | `/Users/deniskopylov/polisyos/policy-engine/frontend` | 862 MB | Frontend mostly dependencies | Keep source; do not preserve `node_modules`. |
-| `/Users/deniskopylov/polisyos/policy-engine/frontend/runtime-dashboard/node_modules` | 821 MB | Rebuildable dependency cache | Delete/rebuild via package manager. |
+| `/Users/deniskopylov/polisyos/policy-engine/apps/runtime-dashboard/node_modules` | 821 MB | Rebuildable dependency cache | Delete/rebuild via package manager. |
 | `/Users/deniskopylov/polisyos/policy-engine/.mypy_cache` | 530 MB | Cache | Delete. |
 | `/Users/deniskopylov/polisyos/policy-engine/src` | 85 MB | Code | Keep in git. |
 | `/Users/deniskopylov/polisyos/policy-engine/tests` | 68 MB | Tests | Keep in git. |
@@ -256,7 +256,7 @@ These should not be moved to Google Drive as project data:
 - Python virtual environments:
   `.venv`, `.venv_codex`, `.venv-spatial-tests`
 - Node dependencies:
-  `frontend/runtime-dashboard/node_modules`
+  `apps/runtime-dashboard/node_modules`
 - type/test caches:
   `.mypy_cache`, `.pytest_cache`, `.ruff_cache`, `.hypothesis`
 - Playwright/storybook/coverage outputs if not needed for reports

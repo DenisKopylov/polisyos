@@ -871,42 +871,42 @@
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/coverage",
+      "path": "policy-engine/apps/runtime-dashboard/coverage",
       "severity": "warning"
     },
     {
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/dist",
+      "path": "policy-engine/apps/runtime-dashboard/dist",
       "severity": "warning"
     },
     {
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/playwright-report",
+      "path": "policy-engine/apps/runtime-dashboard/playwright-report",
       "severity": "warning"
     },
     {
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/output",
+      "path": "policy-engine/apps/runtime-dashboard/output",
       "severity": "warning"
     },
     {
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/storybook-static",
+      "path": "policy-engine/apps/runtime-dashboard/storybook-static",
       "severity": "warning"
     },
     {
       "gate": "build_output_gate",
       "ignored": true,
       "message": "Generated/build output is outside canonical _build/ umbrella.",
-      "path": "policy-engine/frontend/runtime-dashboard/test-results",
+      "path": "policy-engine/apps/runtime-dashboard/test-results",
       "severity": "warning"
     }
   ],

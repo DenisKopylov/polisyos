@@ -2,7 +2,7 @@ Phase 3A full-suite baseline status
 ===================================
 
 Command requested by the original Phase 3A plan:
-  uv run pytest tests/unit tests/integration tests/property tests/contract tests/golden -q
+  uv run pytest tests/unit tests/integration tests/property tests/contract tests/_golden -q
 
 Local status:
   not completed

@@ -760,8 +760,8 @@
         "src/polisyos/runtime/http/routes/artifacts.py",
         "schemas/runtime_api_v1.openapi.json",
         "tools/ops/runtime/generate_runtime_client.py",
-        "frontend/runtime-api-client/runtimeApiClient.ts",
-        "frontend/runtime-api-client/runtimeApiClient.js"
+        "packages/runtime-api-client/runtimeApiClient.ts",
+        "packages/runtime-api-client/runtimeApiClient.js"
       ],
       "docs_evidence": [
         "docs/adr/0100-runtime-api-versioning-and-deprecation-policy.md",
@@ -769,7 +769,7 @@
         "docs/reference/api/artifacts.md",
         "docs/reference/api/runs.md",
         "docs/reference/api/index.md",
-        "frontend/runtime-api-client/README.md"
+        "packages/runtime-api-client/README.md"
       ],
       "id": "WS-2D",
       "ops_evidence": [],

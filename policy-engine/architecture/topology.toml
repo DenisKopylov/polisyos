@@ -5,6 +5,133 @@ owner = "team-polisyos"
 description = "Allowed single-root product topology after Phase 2A workspace-boundary collapse. Guardrails should read this file instead of hardcoding path policy."
 
 # ---------------------------------------------------------------------------
+# Outer repository wrapper decision (Wave 1.1).
+# ---------------------------------------------------------------------------
+
+[repository_root_decision]
+selected_option = "B"
+selected_option_label = "honest_wrapper_monorepo"
+status = "accepted"
+decision_record = "docs/adr/0146-product-root-decision.md"
+product_root_from_outer = "policy-engine"
+effective_product_root = "."
+outer_git_root_role = "GitHub control plane and repository wrapper only."
+option_a_status = "deferred_repository_migration"
+option_c_status = "rejected_preserves_drift"
+renovate_target = ".github/renovate.json"
+rollback_scope = "path/workflow/Renovate/ignore/docs/control-plane contract changes only"
+rollback_excludes = [
+  "source package moves",
+  "public API moves",
+  "JavaScript workspace relocation",
+]
+
+[repository_root_decision.outer_root_allow_list]
+owner = "repository-owners"
+mode = "fail_closed"
+paths = [
+  ".github/**",
+  ".gitignore",
+  ".gitattributes",
+  ".editorconfig",
+  "policy-engine/**",
+]
+
+[[repository_root_decision.rejected_outer_path_class]]
+class = "product_source"
+examples = ["src/**", "apps/**", "packages/**", "tools/**", "ops/**"]
+target = "policy-engine/"
+
+[[repository_root_decision.rejected_outer_path_class]]
+class = "product_docs_and_release_inputs"
+examples = ["docs/**", "release/**", "release-fragments/**", "schemas/**"]
+target = "policy-engine/"
+
+[[repository_root_decision.rejected_outer_path_class]]
+class = "package_manifests_and_lockfiles"
+examples = ["pyproject.toml", "uv.lock", "package.json", "pnpm-lock.yaml"]
+target = "policy-engine/"
+
+[[repository_root_decision.rejected_outer_path_class]]
+class = "wrong_root_local_state"
+examples = ["_build/**", "_cache/**", ".polisyos/**", "tmp/**", "data/**", ".venv/**"]
+target = "policy-engine/_build, policy-engine/_cache, policy-engine/.polisyos, or ignored local cleanup"
+
+[[repository_root_decision.cleanup_candidate]]
+path = "_cache/ruff/**"
+lifecycle = "generated_ignored"
+retention_policy = "wrong-root cache residue; cleanup in Wave 2 after dry-run confirmation"
+promotion_target = "none"
+
+[[repository_root_decision.cleanup_candidate]]
+path = "tmp/phase3a_*"
+lifecycle = "scratch_ignored"
+retention_policy = "wrong-root scratch/evidence residue; promote reviewed evidence before deletion"
+promotion_target = "policy-engine/docs/archive/reports/**"
+
+[[repository_root_decision.cleanup_candidate]]
+path = "future wrong-root residue"
+lifecycle = "scratch_ignored"
+retention_policy = "fail report-only root topology gate, then clean or move to product-local ignored roots"
+promotion_target = "policy-engine/_build/.tmp, policy-engine/_cache, or policy-engine/.polisyos as appropriate"
+
+[[repository_root_decision.root_topology_gate_requirement]]
+id = "no-product-source-outside-product-root"
+mode = "fail_closed"
+requirement = "No product source, tests, docs, release inputs, package manifests, schemas, frontend workspaces, tools, or ops source may live outside policy-engine/."
+
+[[repository_root_decision.root_topology_gate_requirement]]
+id = "outer-root-allow-list"
+mode = "fail_closed"
+requirement = "Outer root paths are limited to GitHub/Git control-plane files, optional editor metadata, and policy-engine/."
+
+[[repository_root_decision.root_topology_gate_requirement]]
+id = "no-wrong-root-local-state"
+mode = "fail_closed"
+requirement = "No cache, runtime, build, scratch, local data, virtualenv, or local report path may be created at the outer root."
+
+[[repository_root_decision.root_topology_gate_requirement]]
+id = "product-commands-run-from-product-root"
+mode = "fail_closed"
+requirement = "Documented product commands run from policy-engine/ or a declared product sub-root; CI product jobs use working-directory: policy-engine or a declared product sub-root."
+
+[[repository_root_decision.update_requirement]]
+target = "architecture/topology.toml"
+owner = "team-architecture"
+wave = "Wave 1.1"
+requirement = "Record Option B, allow-list, rejected path classes, cleanup model, gates, Renovate placement, and rollback boundaries."
+
+[[repository_root_decision.update_requirement]]
+target = ".gitignore"
+owner = "repository-owners"
+wave = "Wave 1.1"
+requirement = "Explicitly ignore outer-root _cache/ and _build/ as wrong-root residue while keeping product-local ignores."
+
+[[repository_root_decision.update_requirement]]
+target = "docs/reference/repository-topology.md"
+owner = "team-docs"
+wave = "Wave 1.1"
+requirement = "Document the split between outer Git control plane and policy-engine product root."
+
+[[repository_root_decision.update_requirement]]
+target = ".github/workflows/**"
+owner = "repository-owners"
+wave = "Wave 2.8"
+requirement = "Keep product jobs rooted in policy-engine/ and reserve outer-root jobs for GitHub control-plane audits."
+
+[[repository_root_decision.update_requirement]]
+target = "tools/devx/workspace doctor"
+owner = "team-devx"
+wave = "Wave 2.1"
+requirement = "Report wrong-root residue and product commands that assume the outer Git root."
+
+[[repository_root_decision.update_requirement]]
+target = "rollback checklist"
+owner = "team-release"
+wave = "Wave 2.1"
+requirement = "Rollback path/workflow/control-plane changes separately from source package or JavaScript workspace moves."
+
+# ---------------------------------------------------------------------------
 # Repository topology (policy-engine is the only product/workspace root).
 # ---------------------------------------------------------------------------
 
@@ -67,6 +194,13 @@ owner = "team-design"
 [[path]]
 scope = "repo_root"
 path = "frontend"
+category = "docs"
+commit_policy = "committed"
+owner = "team-frontend"
+
+[[path]]
+scope = "repo_root"
+path = "apps"
 category = "source"
 commit_policy = "committed_except_generated_outputs"
 owner = "team-frontend"

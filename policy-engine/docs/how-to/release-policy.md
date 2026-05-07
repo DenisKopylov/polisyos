@@ -26,17 +26,19 @@ as a new version rather than replacing an existing artifact.
 cd policy-engine
 uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref origin/main
 uv run polisyos-tools workspace ci-parity --skip-browser
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops/runtime/check_runtime_api_contract.py
+uv run python tools/quality/validation/control_plane_supply_chain_contracts.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 ```
 
 ## Release Prep Workflow
 
 Before a release tag is created:
 
-1. Update `pyproject.toml` and `frontend/runtime-dashboard/package.json` to the
+1. Update `pyproject.toml` and `apps/runtime-dashboard/package.json` to the
    target version.
 2. Freeze the selected `release-fragments/unreleased/` entries into
-   `_build/release-fragments/<version>/`.
+   `_build/release-fragments/<version>/`. This is generated/archive output,
+   not release source.
 3. Review the generated release notes for compatibility, migration,
    schema/runtime/API, and limitation coverage.
 4. Re-run the docs drift gate and confirm the rollback path in
@@ -53,6 +55,89 @@ Before a release tag is created:
 
 The release workflow validates the versioned snapshot, not the mutable
 `unreleased/` directory.
+
+## Promotion Topology And Migration Gates
+
+Release promotion uses the topology in
+`ops/release/deployment-topology.toml` and the staging/production gates in
+`ops/release/promotion-gates.toml`.
+
+Breaking runtime-state, API schema, IR schema, or persisted artifact changes
+must not promote from staging to production until the release evidence contains:
+
+- the affected class entry in `ops/migrations/migration-contracts.toml`;
+- current operator guidance in `ops/migrations/<class>/README.md`;
+- `docs/runbooks/migration-release-promotion.md` coverage for the operator
+  action, rollback, and follow-up;
+- release notes or migration-guide text for the affected consumer/operator.
+
+Python migration helpers are operator-facing only through their
+`helper_binding` entries in `ops/migrations/migration-contracts.toml`. If a
+helper changes behavior, update the binding and the owning class README in the
+same release candidate.
+
+## Supply-Chain Release Controls
+
+The Phase 5.9 source of truth for release trust controls is
+`architecture/control_plane_supply_chain.toml`. Release candidates and
+dependency-lock changes must satisfy these expectations:
+
+- release candidates generate a CycloneDX SBOM, vulnerability report, policy
+  evidence, keyless signatures, and build provenance attestations through
+  `.github/workflows/release.yml`;
+- dependency-lock changes require SBOM refresh evidence or an explicit
+  non-commit release-SBOM rationale tied to the `release-sbom` generated
+  artifact family in `architecture/generated_artifacts.toml`; the trigger
+  paths are `.github/renovate.json`, `uv.lock`, and `pnpm-lock.yaml`;
+- Python wheels, source distributions, runtime dashboard bundles, and checksum
+  manifests have provenance/signing targets where release tooling supports
+  them;
+- dependency and security scan gates run before release canary, signing,
+  attestation, and publication;
+- OpenSSF Scorecard, SBOM, SLSA provenance, and signed-artifact evidence are
+  reported through
+  `docs/archive/reports/supply-chain-control-crosswalk.json`.
+
+The generated SBOM output stays under `_build/release/sbom/` or CI release
+artifacts; it is not committed directly unless a later contract explicitly
+promotes a reviewed evidence file.
+
+Regenerate the crosswalk whenever release phases, artifact expectations,
+workflow write permissions, or external control mappings change:
+
+```bash
+uv run python tools/quality/validation/control_plane_supply_chain_contracts.py \
+  --crosswalk-json docs/archive/reports/supply-chain-control-crosswalk.json
+```
+
+## Release Path Lifecycle
+
+The Phase 1.2 lifecycle decision defines the release path split:
+
+| Path | Lifecycle | Rule |
+| --- | --- | --- |
+| `release/**` | `source_committed` | Committed release input, evidence templates, durable release ledgers, and owner-approved release evidence. |
+| `_build/release/**` | `generated_ignored` | Generated release-candidate output only. No release source file may live here. Default retention is 90 days unless promoted to release evidence. |
+| `release-fragments/unreleased/**` | `source_committed` | Committed release-note input while changes are still landing. |
+| `_build/release-fragments/**` | `generated_ignored` | Generated frozen/archive release-note output and ignored by git. |
+| `_build/scratch/**` | `scratch_ignored` | Local scratch only. Safe cleanup may remove it without release-owner review. |
+| `_cache/**` | `scratch_ignored` | Recomputable local cache. Safe cleanup may remove it without release-owner review. |
+| outer-root `_build/**`, `_cache/**`, `tmp/**`, `.tmp_*/` | `scratch_ignored` | Wrong-root residue. Remove instead of migrating into source roots. |
+
+Promotion from `_build/**` to a committed evidence target requires a reviewed
+PR that names the owner, generator, verifier, and target path. Do not hand-edit
+generated release output in `_build/**` as a source of truth.
+
+Lifecycle validation and cleanup use a dry-run first command:
+
+```bash
+uv run polisyos-tools workspace release-build-cache-lifecycle check
+uv run polisyos-tools workspace release-build-cache-lifecycle cleanup
+uv run polisyos-tools workspace release-build-cache-lifecycle cleanup --apply
+```
+
+The cleanup command refuses targets that contain tracked files and protects
+`release/**` plus `release-fragments/unreleased/**`.
 
 ## Version Namespaces
 
@@ -126,9 +211,9 @@ When a PR changes Runtime API shape or generated frontend contract surfaces, the
 same PR must update or verify:
 
 - `schemas/runtime_api_v1.openapi.json`
-- `frontend/runtime-api-client/runtimeApiClient.ts`
-- `frontend/runtime-api-client/runtimeApiClient.js`
-- `frontend/runtime-dashboard/src/api/types.ts`, when generated types change
+- `packages/runtime-api-client/runtimeApiClient.ts`
+- `packages/runtime-api-client/runtimeApiClient.js`
+- `apps/runtime-dashboard/src/api/types.ts`, when generated types change
 - runtime contract verification and frontend contract checks
 
 Generated artifacts must not drift from the committed OpenAPI source of truth.
@@ -197,6 +282,11 @@ A migration guide is required when a change:
 - changes config, secrets, deployment steps, or operational runbooks in a way
   that operators must act on before or during rollout.
 
+For breaking runtime-state, API schema, IR schema, or persisted artifact
+changes, this is also a promotion gate: update the owning `ops/migrations/`
+class README and [Migration Release Promotion](../runbooks/migration-release-promotion.md)
+before approving production promotion.
+
 ## Public Surface Classification Linkage
 
 Public-surface classification and compatibility classification are related, but
@@ -246,6 +336,21 @@ expectation.
 
 - If runtime or schema checks disagree with the intended version story, treat
   that as a contract mismatch and resolve it before publication.
+
+## Compatibility Release Gates
+
+Phase 5.10 keeps compatibility release gates report-only. Before promoting a
+release candidate, run:
+
+```bash
+uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors
+```
+
+Breaking compatibility changes must be represented by structured
+`[[compatibility_change]]` entries in the selected release fragments. Those
+entries carry the compatibility class, owner, version owner, deprecation window,
+linked migration/runbook docs, generated-client compatibility, and public-surface
+inventory review status when relevant.
 
 ## Troubleshooting
 

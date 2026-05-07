@@ -9,7 +9,9 @@ data/**
 # Ephemeral artifacts
 _build/
 _cache/
-.polisyos/
+.polisyos/*
+!.polisyos/
+!.polisyos/SCHEMA.md
 .polisyos-tools/
 .venv/
 .venv-*/
@@ -61,6 +63,7 @@ _cache/
 *.pyc
 *.py[cod]
 *.egg-info/
+/src/*.egg-info/
 
 # Local environment and editor state
 .env
@@ -77,20 +80,20 @@ _cache/
 
 # Local frontend dependencies
 node_modules/
-frontend/runtime-api-client/node_modules/
-frontend/runtime-dashboard/node_modules/
-frontend/runtime-dashboard/dist/
-frontend/runtime-dashboard/coverage/
-frontend/runtime-dashboard/playwright-report/
-frontend/runtime-dashboard/storybook-static/
-frontend/runtime-dashboard/test-results/
-frontend/runtime-dashboard/.tmp/
-frontend/runtime-dashboard/.eslintcache
-frontend/runtime-dashboard/.env
-frontend/runtime-dashboard/.env.local
-frontend/runtime-dashboard/.env.*.local
-!frontend/runtime-dashboard/.env.example
-frontend/runtime-reference-shell/node_modules/
+packages/runtime-api-client/node_modules/
+apps/runtime-dashboard/node_modules/
+apps/runtime-dashboard/dist/
+apps/runtime-dashboard/coverage/
+apps/runtime-dashboard/playwright-report/
+apps/runtime-dashboard/storybook-static/
+apps/runtime-dashboard/test-results/
+apps/runtime-dashboard/.tmp/
+apps/runtime-dashboard/.eslintcache
+apps/runtime-dashboard/.env
+apps/runtime-dashboard/.env.local
+apps/runtime-dashboard/.env.*.local
+!apps/runtime-dashboard/.env.example
+apps/runtime-reference-shell/node_modules/
 packages/*/node_modules/
 
 # Local data/table artifacts
@@ -112,8 +115,8 @@ packages/*/node_modules/
 *.pkl
 !data/academic_gold/claim_gold.jsonl
 !src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/*.csv
-!tests/unit/data_forge/fixtures/non_lex_split/**/*.duckdb
-!tests/fixtures/checkpoint_compat/**/*.pkl
+!tests/_data/data_forge/non_lex_split/**/*.duckdb
+!tests/_data/checkpoint_compat/**/*.pkl
 
 # Local audit bundles and accidental shell redirection artifacts
 *.polisyos-audit.tar.gz

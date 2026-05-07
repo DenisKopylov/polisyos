@@ -121,30 +121,30 @@ jobs:
         uses: ./.github/actions/setup-runtime-dashboard
 
       - name: Build dashboard for bundle budgets
-        working-directory: policy-engine/frontend/runtime-dashboard
+        working-directory: policy-engine/apps/runtime-dashboard
         env:
           VITE_RUNTIME_API_URL: http://127.0.0.1:8000
           VITE_DISABLE_RUNS_LIVE: "true"
           VITE_SENTRY_RELEASE: ${{ github.sha }}
-        run: npm run build
+        run: corepack pnpm run build
 
       - name: Check bundle budgets
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run check:bundle
+        working-directory: policy-engine/apps/runtime-dashboard
+        run: corepack pnpm run check:bundle
 
       - name: Start fixture runtime API
         run: |
-          mkdir -p _build/frontend/runtime-dashboard/.tmp
-          PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file _build/frontend/runtime-dashboard/.tmp/fixture-runtime.json &
+          mkdir -p _build/apps/runtime-dashboard/.tmp
+          PYTHONPATH=src:. uv run --extra runtime-http python apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file _build/apps/runtime-dashboard/.tmp/fixture-runtime.json &
           echo $! > /tmp/runtime-dashboard-fixture.pid
 
       - name: Start dashboard preview server
-        working-directory: policy-engine/frontend/runtime-dashboard
+        working-directory: policy-engine/apps/runtime-dashboard
         env:
           VITE_RUNTIME_API_URL: http://127.0.0.1:8000
           VITE_DISABLE_RUNS_LIVE: "true"
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 &
+          corepack pnpm run preview -- --host 127.0.0.1 --port 4173 &
           echo $! > /tmp/runtime-dashboard-preview.pid
 
       - name: Wait for Lighthouse services
@@ -164,13 +164,13 @@ jobs:
           done
 
       - name: Run Lighthouse CI
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run lighthouse:ci
+        working-directory: policy-engine/apps/runtime-dashboard
+        run: corepack pnpm run lighthouse:ci
 
       - name: Summarize Lighthouse report
         if: always()
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run lighthouse:report
+        working-directory: policy-engine/apps/runtime-dashboard
+        run: corepack pnpm run lighthouse:report
 
       - name: Upload nightly frontend benchmark artifacts
         if: always()
@@ -178,9 +178,9 @@ jobs:
         with:
           name: nightly-frontend-benchmarks
           path: |
-            policy-engine/frontend/runtime-dashboard/lighthouse-report
-            policy-engine/frontend/runtime-dashboard/lighthouse-summary.md
-            policy-engine/_build/frontend/runtime-dashboard/dist/security
+            policy-engine/apps/runtime-dashboard/lighthouse-report
+            policy-engine/apps/runtime-dashboard/lighthouse-summary.md
+            policy-engine/_build/apps/runtime-dashboard/dist/security
           if-no-files-found: warn
           retention-days: 30
 
@@ -212,7 +212,7 @@ jobs:
           "${{ steps.tools.outputs.bin }}/grype" sbom:/tmp/nightly-sbom.cdx.json -o json > /tmp/nightly-grype.json
 
       - name: Evaluate vulnerability policy
-        run: python3 policy-engine/tools/ops/release/evaluate_vuln_report.py --report /tmp/nightly-grype.json --exceptions policy-engine/release/cve-exceptions.toml --summary /tmp/nightly-vulnerability-policy.md
+        run: python3 policy-engine/tools/ops_runners/release/evaluate_vuln_report.py --report /tmp/nightly-grype.json --exceptions policy-engine/release/cve-exceptions.toml --summary /tmp/nightly-vulnerability-policy.md
 
       - name: Upload supply-chain audit artifacts
         if: always()
@@ -232,7 +232,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: policy-engine/frontend/runtime-dashboard
+        working-directory: policy-engine/apps/runtime-dashboard
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -240,11 +240,13 @@ jobs:
       - name: Setup runtime dashboard
         uses: ./.github/actions/setup-runtime-dashboard
 
-      - name: Run full npm audit
-        run: npm audit --audit-level=high --json > npm-audit-raw.json || true
+      - name: Run full pnpm audit
+        run: |
+          mkdir -p ../../_build/apps/runtime-dashboard/audit
+          corepack pnpm audit --audit-level=high --json > ../../_build/apps/runtime-dashboard/audit/pnpm-audit-raw.json || true
 
       - name: Summarize nightly dependency audit
-        run: npm run audit:ci
+        run: corepack pnpm run audit:ci
 
       - name: Upload frontend dependency audit artifacts
         if: always()
@@ -252,9 +254,9 @@ jobs:
         with:
           name: nightly-frontend-dependency-audit
           path: |
-            policy-engine/frontend/runtime-dashboard/npm-audit-raw.json
-            policy-engine/frontend/runtime-dashboard/npm-audit-report.json
-            policy-engine/frontend/runtime-dashboard/npm-audit-summary.md
+            policy-engine/_build/apps/runtime-dashboard/audit/pnpm-audit-raw.json
+            policy-engine/_build/apps/runtime-dashboard/audit/pnpm-audit-report.json
+            policy-engine/_build/apps/runtime-dashboard/audit/pnpm-audit-summary.md
           if-no-files-found: warn
           retention-days: 30
 

@@ -61,7 +61,12 @@
     },
     {
       "description": "Frontend build and lint tooling moves weekly",
-      "matchFileNames": ["policy-engine/frontend/runtime-dashboard/package.json"],
+      "matchFileNames": [
+        "policy-engine/apps/runtime-dashboard/package.json",
+        "policy-engine/apps/runtime-reference-shell/package.json",
+        "policy-engine/packages/cli/package.json",
+        "policy-engine/packages/runtime-api-client/package.json"
+      ],
       "matchPackageNames": [
         "@eslint/js",
         "@lhci/cli",
@@ -109,7 +114,7 @@
     },
     {
       "description": "Playwright and Storybook stay in their own weekly batch",
-      "matchFileNames": ["policy-engine/frontend/runtime-dashboard/package.json"],
+      "matchFileNames": ["policy-engine/apps/runtime-dashboard/package.json"],
       "matchPackageNames": [
         "@axe-core/playwright",
         "@playwright/test",

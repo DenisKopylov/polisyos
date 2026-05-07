@@ -1,6 +1,6 @@
 # Repository Topology
 
-Freshness: 2026-05-03
+Freshness: 2026-05-05
 
 Owner: `@platform-owners`
 Backup owner: `@docs-owners`
@@ -10,20 +10,22 @@ Source of truth:
 - `architecture/repository_sota_gates.toml`
 - `architecture/data_policy.toml`
 - `architecture/local_runtime_state.toml`
-- `tests/architecture/test_repository_sota_phase3_topology_cleanup.py`
-- `tests/architecture/test_repository_public_polish.py`
+- `tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py`
+- `tests/repo_quality/architecture/test_repository_public_polish.py`
 - `docs/plans/accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md`
 
 PolicyOS uses a collapsed product-root workspace: this `policy-engine/`
 directory is the only product/workspace root modeled by
-`architecture/topology.toml`. The outer Git repository root is a
-repo-control-plane shell for GitHub-native files such as `.github/`, root
-`.gitignore`, and Renovate configuration; ignored editor/agent state may exist
-locally but is not product workspace state. Active GitHub workflows live only
-at the outer repository-root `.github/`, product workflow templates live under
-`ops/ci/templates/`, and product-root legacy surfaces such as `.github/`,
-`cloud_deploy/`, `deploy/`, `docker/`, `gcp/`, and `scripts/` are forbidden
-paths inside `policy-engine/`.
+`architecture/topology.toml`. ADR-0146 selects the Option B wrapper topology:
+the outer Git repository root is a repo-control-plane shell for GitHub-native
+files such as `.github/`, root `.gitignore`, `.gitattributes`, optional editor
+metadata, and `.github/renovate.json`. Product source, product docs,
+tests, ops contracts, tools, release inputs, package manifests, runtime-state
+contracts, and generated-output contracts belong under `policy-engine/`. Active
+GitHub workflows live only at the outer repository-root `.github/`, product
+workflow templates live under `ops/ci/templates/`, and product-root legacy
+surfaces such as `.github/`, `cloud_deploy/`, `deploy/`, `docker/`, `gcp/`, and
+`scripts/` are forbidden paths inside `policy-engine/`.
 
 ## Product Root
 
@@ -36,7 +38,9 @@ paths inside `policy-engine/`.
 | `ops/` | Runtime, cloud, CI templates, deployment, observability, security, release, and migration configuration. |
 | `docs/` | Published docs, lifecycle-managed plans, ADRs, runbooks, and archived evidence. |
 | `schemas/` | JSON Schema and generated-schema source contracts. |
-| `frontend/` | Frontend workspaces and generated-client consumers. |
+| `apps/` | JavaScript application workspaces. |
+| `packages/` | Shared JavaScript packages, including the generated runtime API client and CLI workspace. |
+| `frontend/` | Legacy handoff path that points contributors to `apps/` and `packages/`. |
 | `data/` | Committed fixtures, tiny examples, contracts, manifests, and registry entries only. |
 | `design/` | Product-level design concepts and implementation handoff assets. |
 | `.polisyos/` | Ignored local runtime state, caches, temporary outputs, and operator scratch state. |
@@ -48,7 +52,7 @@ Active top-level tool namespaces are limited to:
 - `tools/lib`
 - `tools/devx`
 - `tools/ci`
-- `tools/ops`
+- `tools/ops_runners`
 - `tools/quality`
 - `tools/research`
 - `tools/design`
@@ -73,17 +77,19 @@ The physical test taxonomy is:
 
 | Path | Use |
 | --- | --- |
-| `tests/architecture` | Repository contracts, topology, import/public-surface policy, closeout gates. |
+| `tests/repo_quality/architecture` | Repository contracts, topology, import/public-surface policy, closeout gates. |
 | `tests/unit/<package>` | Unit tests mirroring `src/polisyos/<package>`. |
 | `tests/property` | Hypothesis, invariants, and property-style contract checks. |
 | `tests/contract` | Cross-package contract fixtures and compatibility evidence. |
 | `tests/integration` | Multi-component integration coverage. |
 | `tests/e2e` | End-to-end product flows. |
-| `tests/golden` | Golden, replay, and differential baselines. |
+| `tests/_golden` | Golden, replay, and differential baselines. |
+| `tests/_data` | JSON, binary, and scenario data used by tests. |
+| `tests/_helpers` | Python helper modules and reusable pytest fixtures. |
 | `tests/performance` | Benchmarks and performance regressions. |
-| `tests/tools` | Tooling behavior and command integration. |
-| `tests/lint` | Lint policy tests. |
-| `tests/fixtures` | Reusable committed fixture material. |
+| `tests/repo_quality` | Repository-quality checks that are not product contract tests. |
+| `tests/repo_quality/tools` | Tooling behavior and command integration. |
+| `tests/repo_quality/lint` | Lint policy tests. |
 | `tests/unit/data_forge` | Data Forge fixture and artifact behavior. |
 
 ## Ops
@@ -122,7 +128,7 @@ Published docs use Diataxis-style homes:
 | `docs/adr/` | Accepted decisions and supersession notes. |
 | `docs/plans/active/` | Work that is still under review or implementation. |
 | `docs/plans/accepted/` | Approved plans with active implementation or accepted closeout evidence. |
-| `docs/archive/plans/` and `docs/archive/reports/` | Historical plans, reports, and baseline evidence. |
+| `docs/plans/archive/` and `docs/archive/reports/` | Historical plans, reports, and baseline evidence. |
 
 The top-level `docs/` directory remains minimal and allowlisted. New audits,
 plans, handoffs, and closeout evidence should not land in the docs root.
@@ -138,7 +144,10 @@ Bulk data and local runtime outputs stay outside committed product state:
   state root and is governed by `architecture/local_runtime_state.toml`;
 - generated outputs must either be registered in
   `architecture/generated_artifacts.toml` or ignored by the documented local
-  output policy.
+  output policy;
+- product seed assets, test fixtures, golden records, examples, local reports,
+  and generated benchmark reports are separated by
+  `architecture/asset_placement.toml`.
 
 ## Validation
 
@@ -146,10 +155,11 @@ Use these gates when topology, docs, tools, ops, data, or generated-artifact
 surfaces change:
 
 ```bash
-uv run pytest tests/architecture/test_repository_sota_phase3_topology_cleanup.py -q
-uv run pytest tests/architecture/test_repository_public_polish.py -q
+uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q
+uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q
 uv run polisyos-tools workspace repository-sota-closeout --contract-only
 uv run polisyos-tools workspace repository-sota-closeout
+uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors
 uv run polisyos-tools docs --output docs/reference/tools.md --check
 uv run mkdocs build --strict
 ```

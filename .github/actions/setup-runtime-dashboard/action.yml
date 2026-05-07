@@ -3,7 +3,7 @@ description: Setup Node and install runtime dashboard dependencies.
 
 inputs:
   install-deps:
-    description: Whether to run npm ci.
+    description: Whether to run pnpm install.
     required: false
     default: "true"
   install-playwright:
@@ -17,7 +17,7 @@ inputs:
   working-directory:
     description: Runtime dashboard working directory.
     required: false
-    default: "policy-engine/frontend/runtime-dashboard"
+    default: "policy-engine/apps/runtime-dashboard"
 
 runs:
   using: composite
@@ -26,17 +26,17 @@ runs:
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: ${{ inputs.node-version }}
-        cache: "npm"
-        cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
+        cache: "pnpm"
+        cache-dependency-path: policy-engine/pnpm-lock.yaml
 
-    - name: Install dashboard dependencies
+    - name: Install workspace dependencies
       if: inputs.install-deps == 'true'
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: npm ci --ignore-scripts
+      working-directory: policy-engine
+      run: corepack pnpm install --frozen-lockfile
 
     - name: Install Playwright browsers
       if: inputs.install-playwright == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: npx playwright install --with-deps chromium
+      run: corepack pnpm exec playwright install --with-deps chromium

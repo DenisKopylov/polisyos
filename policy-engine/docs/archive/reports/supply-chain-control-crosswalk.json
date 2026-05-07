@@ -1,0 +1,299 @@
+{
+  "controls": [
+    {
+      "control": "OpenSSF Scorecard",
+      "evidence": ".github/workflows/frontend-nightly.yml",
+      "external_control_refs": [
+        "Branch-Protection",
+        "Code-Review",
+        "Dangerous-Workflow",
+        "Dependency-Update-Tool",
+        "Pinned-Dependencies",
+        "Security-Policy",
+        "Signed-Releases",
+        "Token-Permissions",
+        "Vulnerabilities"
+      ],
+      "external_standard": "OpenSSF Scorecard",
+      "mapped_phase_gates": [],
+      "owner": "team-security",
+      "reference_urls": [
+        "https://scorecard.dev/",
+        "https://github.com/ossf/scorecard/blob/main/docs/checks.md"
+      ],
+      "release_phase": "scheduled and dependency/security review",
+      "reporting_artifact": "nightly-scorecard"
+    },
+    {
+      "control": "SLSA provenance",
+      "evidence": ".github/workflows/release.yml",
+      "external_control_refs": [
+        "Build provenance exists for release subjects",
+        "Provenance is distributed with release artifacts",
+        "Release consumers can verify artifact provenance"
+      ],
+      "external_standard": "SLSA Build Track",
+      "mapped_phase_gates": [
+        {
+          "checks": [
+            "operability release gate",
+            "release immutability check",
+            "artifact size policy",
+            "release SBOM generation",
+            "vulnerability scan and policy evaluation",
+            "release canary",
+            "keyless signing",
+            "build provenance attestation"
+          ],
+          "generated_artifact_family": "release-sbom",
+          "phase": "release_candidate",
+          "provenance_required": true,
+          "sbom_required": true,
+          "signed_artifacts_required": true
+        }
+      ],
+      "owner": "team-security",
+      "reference_urls": [
+        "https://slsa.dev/spec/latest/",
+        "https://slsa.dev/spec/v1.2/provenance"
+      ],
+      "release_phase": "release_candidate",
+      "reporting_artifact": "build provenance attestations"
+    },
+    {
+      "control": "SBOM",
+      "evidence": "ops/security/sbom.toml",
+      "external_control_refs": [
+        "CycloneDX JSON SBOM generated for release candidates",
+        "Dependency-lock changes refresh SBOM evidence",
+        "Vulnerability report evaluated before release promotion"
+      ],
+      "external_standard": "Release SBOM policy",
+      "mapped_phase_gates": [
+        {
+          "checks": [
+            "OSV or equivalent dependency vulnerability scan",
+            "SBOM refresh or explicit release-sbom non-commit evidence",
+            "dependency update grouping follows .github/renovate.json"
+          ],
+          "generated_artifact_family": "release-sbom",
+          "phase": "dependency_lock_change",
+          "provenance_required": false,
+          "sbom_required": true,
+          "signed_artifacts_required": false
+        },
+        {
+          "checks": [
+            "operability release gate",
+            "release immutability check",
+            "artifact size policy",
+            "release SBOM generation",
+            "vulnerability scan and policy evaluation",
+            "release canary",
+            "keyless signing",
+            "build provenance attestation"
+          ],
+          "generated_artifact_family": "release-sbom",
+          "phase": "release_candidate",
+          "provenance_required": true,
+          "sbom_required": true,
+          "signed_artifacts_required": true
+        }
+      ],
+      "owner": "team-security",
+      "reference_urls": [
+        "https://cyclonedx.org/specification/overview/",
+        "https://scorecard.dev/"
+      ],
+      "release_phase": "dependency_lock_change and release_candidate",
+      "reporting_artifact": "release-supply-chain"
+    },
+    {
+      "control": "Signed artifacts",
+      "evidence": ".github/workflows/release.yml",
+      "external_control_refs": [
+        "Signed-Releases",
+        "Keyless release artifact signing",
+        "Release certificates published with artifacts"
+      ],
+      "external_standard": "OpenSSF Scorecard / Sigstore release signing",
+      "mapped_phase_gates": [
+        {
+          "checks": [
+            "operability release gate",
+            "release immutability check",
+            "artifact size policy",
+            "release SBOM generation",
+            "vulnerability scan and policy evaluation",
+            "release canary",
+            "keyless signing",
+            "build provenance attestation"
+          ],
+          "generated_artifact_family": "release-sbom",
+          "phase": "release_candidate",
+          "provenance_required": true,
+          "sbom_required": true,
+          "signed_artifacts_required": true
+        }
+      ],
+      "owner": "team-release",
+      "reference_urls": [
+        "https://scorecard.dev/",
+        "https://docs.sigstore.dev/"
+      ],
+      "release_phase": "release_candidate",
+      "reporting_artifact": "release-signatures"
+    }
+  ],
+  "external_reference_baseline": {
+    "OpenSSF Scorecard": {
+      "external_standard": "OpenSSF Scorecard",
+      "reference_urls": [
+        "https://scorecard.dev/",
+        "https://github.com/ossf/scorecard/blob/main/docs/checks.md"
+      ]
+    },
+    "SBOM": {
+      "external_standard": "Release SBOM policy",
+      "reference_urls": [
+        "https://cyclonedx.org/specification/overview/",
+        "https://scorecard.dev/"
+      ]
+    },
+    "SLSA provenance": {
+      "external_standard": "SLSA Build Track",
+      "reference_urls": [
+        "https://slsa.dev/spec/latest/",
+        "https://slsa.dev/spec/v1.2/provenance"
+      ]
+    },
+    "Signed artifacts": {
+      "external_standard": "OpenSSF Scorecard / Sigstore release signing",
+      "reference_urls": [
+        "https://scorecard.dev/",
+        "https://docs.sigstore.dev/"
+      ]
+    }
+  },
+  "generated_by": "uv run python tools/quality/validation/control_plane_supply_chain_contracts.py --crosswalk-json docs/archive/reports/supply-chain-control-crosswalk.json",
+  "release_artifact_contracts": [
+    {
+      "artifact_type": "python-wheel",
+      "evidence_workflow": ".github/workflows/release.yml",
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-release",
+      "patterns": [
+        "policy_engine-*.whl"
+      ],
+      "provenance_target": "GitHub build provenance attestation",
+      "sbom_required": true,
+      "signing_target": "cosign keyless sign-blob where release tooling supports it"
+    },
+    {
+      "artifact_type": "python-sdist",
+      "evidence_workflow": ".github/workflows/release.yml",
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-release",
+      "patterns": [
+        "policy_engine-*.tar.gz"
+      ],
+      "provenance_target": "GitHub build provenance attestation",
+      "sbom_required": true,
+      "signing_target": "cosign keyless sign-blob where release tooling supports it"
+    },
+    {
+      "artifact_type": "runtime-dashboard-bundle",
+      "evidence_workflow": ".github/workflows/release.yml",
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-frontend",
+      "patterns": [
+        "runtime-dashboard-dist-*.tar.gz"
+      ],
+      "provenance_target": "GitHub build provenance attestation",
+      "sbom_required": true,
+      "signing_target": "cosign keyless sign-blob where release tooling supports it"
+    },
+    {
+      "artifact_type": "checksum-manifest",
+      "evidence_workflow": ".github/workflows/release.yml",
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-release",
+      "patterns": [
+        "SHA256SUMS"
+      ],
+      "provenance_target": "GitHub build provenance attestation",
+      "sbom_required": true,
+      "signing_target": "cosign keyless sign-blob where release tooling supports it"
+    }
+  ],
+  "release_phase_gates": [
+    {
+      "checks": [
+        "Fast PR / Gate",
+        "Standard PR / Gate",
+        "workflow policy gate"
+      ],
+      "dependency_scan_policy": "Dependency/security scan evidence may be scheduled or path-triggered unless lockfiles or release workflows change.",
+      "owner": "team-platform",
+      "phase": "pull_request",
+      "scan_gates": [
+        "workflow policy gate",
+        "standard PR dependency-sensitive checks when lockfiles or release workflows change"
+      ]
+    },
+    {
+      "checks": [
+        "OSV or equivalent dependency vulnerability scan",
+        "SBOM refresh or explicit release-sbom non-commit evidence",
+        "dependency update grouping follows .github/renovate.json"
+      ],
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-security",
+      "phase": "dependency_lock_change",
+      "sbom_required": true,
+      "scan_gates": [
+        "OSV or equivalent dependency vulnerability scan",
+        "repository or release-candidate SBOM generation",
+        "Grype or equivalent vulnerability policy evaluation"
+      ],
+      "trigger_paths": [
+        ".github/renovate.json",
+        "policy-engine/uv.lock",
+        "policy-engine/pnpm-lock.yaml"
+      ]
+    },
+    {
+      "checks": [
+        "operability release gate",
+        "release immutability check",
+        "artifact size policy",
+        "release SBOM generation",
+        "vulnerability scan and policy evaluation",
+        "release canary",
+        "keyless signing",
+        "build provenance attestation"
+      ],
+      "generated_artifact_family": "release-sbom",
+      "owner": "team-release",
+      "phase": "release_candidate",
+      "provenance_required": true,
+      "sbom_required": true,
+      "scan_gates": [
+        "release SBOM generation",
+        "Grype vulnerability scan from generated SBOM",
+        "CVE exception policy evaluation",
+        "release canary before signing/publishing"
+      ],
+      "signed_artifacts_required": true,
+      "trigger_paths": [
+        "v* tags",
+        "workflow_dispatch tag input",
+        "policy-engine/release/**",
+        "policy-engine/release-fragments/**"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source_contract": "architecture/control_plane_supply_chain.toml",
+  "status": "policy_defined"
+}

@@ -10,8 +10,8 @@ Data Forge consolidation record. The repository-wide SOTA contract now lives in
 plan lives in `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`. Mandatory
 architecture decisions are tracked in ADR-0111 through ADR-0120, and Phase 0
 machine-readable contracts start in `architecture/topology.toml`,
-`architecture/package_boundaries.toml`,
-`architecture/import_contracts.toml`, and
+`architecture/packages/boundaries.toml`,
+`architecture/imports/contracts.toml`, and
 `architecture/migration_shims.toml`.
 
 **Status note (2026-05-02):** this historical plan has been superseded by the
@@ -1993,7 +1993,7 @@ phase is intentionally low-risk and should not change runtime behavior.
 | Inventory duplicate tool homes   | Compare `tools/*`, `tools/ops/*`, `tools/quality/*`, `tools/research/*`, `scripts/`, and ops directories for duplicate command names and owners                                                                                        |
 | Classify loose files             | Apply the disposition matrix in Section 2.4.10 to every top-level file in repository root and `policy-engine/`                                                                                                                         |
 | Classify files                   | Use categories: source, docs, test fixture, generated committed artifact, local data, runtime state, build output, cache, scratch                                                                                                      |
-| Draft package boundary ledger    | Add an import-boundary appendix or `architecture/package_boundaries.toml` covering owner, allowed dependencies, public facade, and sunset exceptions for each package                                                                  |
+| Draft package boundary ledger    | Add an import-boundary appendix or `architecture/packages/boundaries.toml` covering owner, allowed dependencies, public facade, and sunset exceptions for each package                                                                  |
 | Confirm ignored plan files       | Add explicit `.gitignore` exceptions for source-of-truth plans that must be reviewed                                                                                                                                                   |
 | Draft topology registry          | Add `architecture/topology.toml` with allowed top-level paths, category, owner, commit policy, and sunset phase                                                                                                                        |
 | Add topology gate                | Extend `tools/architecture/guardrails.py` to flag unknown top-level paths and product source under repository root                                                                                                                     |

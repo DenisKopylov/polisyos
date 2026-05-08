@@ -20,13 +20,13 @@ from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
-DEFAULT_PUBLIC_MANIFEST = REPO_ROOT / "architecture" / "public_surface.toml"
-DEFAULT_PUBLIC_JSON = REPO_ROOT / "architecture" / "public_surface_inventory.json"
+DEFAULT_PUBLIC_MANIFEST = REPO_ROOT / "architecture" / "public_surface" / "contract.toml"
+DEFAULT_PUBLIC_JSON = REPO_ROOT / "architecture" / "public_surface" / "inventory.json"
 DEFAULT_PUBLIC_MD = REPO_ROOT / "docs" / "reference" / "public-surface.md"
 DEFAULT_GENERATED_MANIFEST = REPO_ROOT / "architecture" / "generated_artifacts.toml"
 DEFAULT_GENERATED_MD = REPO_ROOT / "docs" / "reference" / "generated-artifacts.md"
-DEFAULT_DEEP_IMPORT_BASELINE = REPO_ROOT / "architecture" / "deep_import_baseline.json"
-DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "guardrail_exceptions.toml"
+DEFAULT_DEEP_IMPORT_BASELINE = REPO_ROOT / "architecture" / "baselines" / "imports" / "deep_import.json"
+DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails.toml"
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
@@ -571,7 +571,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
     lines = [
         "# Public Surface",
         "",
-        "> Generated from `architecture/public_surface.toml` and package facades under `src/polisyos/**/__init__.py`.",
+        "> Generated from `architecture/public_surface/contract.toml` and package facades under `src/polisyos/**/__init__.py`.",
         "",
         "Canonical regeneration command:",
         "",

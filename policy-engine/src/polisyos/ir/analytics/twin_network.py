@@ -28,8 +28,8 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import TwinNetworkResultRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import TwinNetworkResultRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_queries import InterventionSpec

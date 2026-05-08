@@ -22,7 +22,7 @@ from polisyos.fabric.connectors.base import (
     SourceConnector,
 )
 from polisyos.fabric.connectors.types import SchemaError
-from polisyos.fabric.temporal import FutureTimestampError, ensure_aware_utc, utc_age
+from polisyos.fabric.data_plane.temporal import FutureTimestampError, ensure_aware_utc, utc_age
 from polisyos.ir.connectors import ConnectorCapability
 
 from .contract import ConnectorSchemaContract

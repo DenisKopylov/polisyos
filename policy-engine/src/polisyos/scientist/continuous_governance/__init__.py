@@ -1,5 +1,7 @@
-"""Compatibility shim for continuous governance moved to governance.continuous."""
+"""Compatibility shim for `polisyos.scientist.continuous_governance`."""
 
-from polisyos.scientist.governance.continuous import __all__ as __all__
-from polisyos.scientist.governance.continuous import __dir__ as __dir__
-from polisyos.scientist.governance.continuous import __getattr__ as __getattr__
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
+
+_reexport_package(__name__, "polisyos.scientist.governance.continuous", globals())

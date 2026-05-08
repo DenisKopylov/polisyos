@@ -26,7 +26,7 @@ implementation, runtime glue, and migration compatibility in one namespace.
 3. Root `.py` files are limited to facade modules: `__init__.py`, `api.py`, and
    `_api.py` by default.
 4. Exceptions require owner, target phase, and sunset in
-   `architecture/package_layout.toml`.
+   `architecture/packages/layout.toml`.
 
 ## Consequences
 
@@ -35,7 +35,7 @@ net before source moves begin.
 
 ## Concrete Impact
 
-- Contract: `architecture/package_layout.toml`.
+- Contract: `architecture/packages/layout.toml`.
 - Gate: `loose_files_gate`.
 - Baseline: `loose_root_modules.json`.
 - Owner: `team-architecture`.

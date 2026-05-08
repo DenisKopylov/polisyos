@@ -5,13 +5,26 @@ from __future__ import annotations
 
 import argparse
 import sys
+import textwrap
 
 from ._common import FRONTEND_ROOT, PRODUCT_ROOT, CommandSpec, run_command, uv_command
+
+LAST_MILE_CI_PARITY_HELP = """
+Last-mile CI-parity gates:
+  - workspace verify fail-fast last-mile gates
+  - directory_health.py no-regression ratchet
+  - report_test_ratchets.py mirror/property/helper topology ratchets
+  - architecture_report_only_contracts.py phase6-1 and module-size contracts
+  - check_extension_examples.py install/discovery/smoke coverage
+  - generate_adr_index.py --check when docs checks are enabled
+"""
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run a local validation pass that approximates the main CI jobs.",
+        epilog=textwrap.dedent(LAST_MILE_CI_PARITY_HELP).strip(),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--skip-doctor", action="store_true", help="Skip workstation preflight.")
     parser.add_argument("--backend-only", action="store_true", help="Skip frontend parity checks.")
@@ -49,7 +62,8 @@ def _build_parser() -> argparse.ArgumentParser:
 def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
     command = [
         sys.executable,
-        "tools/devx/workspace/doctor.py",
+        "-m",
+        "tools.devx.workspace.doctor",
     ]
     for surface in surfaces:
         command.extend(["--surface", surface])
@@ -63,7 +77,8 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
             label="verify backend fast gate",
             argv=(
                 sys.executable,
-                "tools/devx/workspace/verify.py",
+                "-m",
+                "tools.devx.workspace.verify",
                 "--backend-only",
                 "--skip-doctor",
             ),
@@ -79,6 +94,8 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
                 cwd=PRODUCT_ROOT,
             )
         )
+
+    commands.extend(_last_mile_policy_commands(skip_docs=skip_docs))
 
     if not skip_docs:
         commands.extend(
@@ -135,6 +152,99 @@ def _backend_commands(*, skip_runtime_http: bool, skip_docs: bool) -> list[Comma
             ]
         )
 
+    return commands
+
+
+def _last_mile_policy_commands(*, skip_docs: bool) -> list[CommandSpec]:
+    uv = uv_command()
+    commands = [
+        CommandSpec(
+            label="check directory health ratchet",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/directory_health.py",
+                "--repo-root",
+                ".",
+                "--json-output",
+                "_build/.tmp/last-mile/directory-health.json",
+                "--markdown-output",
+                "_build/.tmp/last-mile/directory-health.md",
+                "--fail-on-regression",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check test ratchets and helper topology",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/testing/report_test_ratchets.py",
+                "--format",
+                "json",
+                "--output",
+                "_build/.tmp/last-mile/test-ratchets.json",
+                "--fail-on-regression",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check architecture phase6-1 report-only contracts",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/architecture_report_only_contracts.py",
+                "--report",
+                "phase6-1",
+                "--json-output",
+                "_build/.tmp/last-mile/architecture-phase6-1.json",
+                "--fail-on-contract-errors",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check validator module-size budget",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/architecture_report_only_contracts.py",
+                "--report",
+                "module-size",
+                "--json-output",
+                "_build/.tmp/last-mile/module-size.json",
+                "--fail-on-contract-errors",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check extension example installability",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/check_extension_examples.py",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+    ]
+    if not skip_docs:
+        commands.append(
+            CommandSpec(
+                label="check ADR thematic index freshness",
+                argv=(
+                    *uv,
+                    "run",
+                    "python",
+                    "tools/quality/validation/generate_adr_index.py",
+                    "--check",
+                ),
+                cwd=PRODUCT_ROOT,
+            )
+        )
     return commands
 
 

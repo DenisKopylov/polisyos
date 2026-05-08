@@ -8,11 +8,11 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Canonical shared calibration diagnostics, recalibration, and validation-report API."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
-  "architecture/test_topology.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -22,7 +22,7 @@ source_root = "src/polisyos/calibration"
 readme = "src/polisyos/calibration/README.md"
 root_facade_policy = "small eager-export facade for shared diagnostics; Foundry and DDM calibration contexts remain package-specific"
 implementation_roots = ["src/polisyos/calibration"]
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved"
 
 [boundaries]
@@ -87,7 +87,7 @@ owner = "team-scientist"
 [exceptions]
 status = "declared"
 owner = "team-scientist"
-registries = ["architecture/static_analysis_overrides.toml", "architecture/component_observability.toml"]
+registries = ["architecture/tooling/static_analysis_overrides.toml", "architecture/component_observability.toml"]
 
 [[exception]]
 id = "calibration-ruff-package-ratchet"
@@ -96,7 +96,7 @@ kind = "lint_ratchet"
 reason = "Calibration compatibility ignores remain visible until package ownership is fully split."
 sunset = "2026-10-01"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/static_analysis_overrides.toml"
+registry = "architecture/tooling/static_analysis_overrides.toml"
 
 [[exception]]
 id = "calibration-standalone-slo-deferred"

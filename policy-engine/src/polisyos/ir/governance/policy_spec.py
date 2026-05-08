@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from polisyos.ir.governance.selector_expr import SelectorExpr
     from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
     from polisyos.ir.kernel.values import ParamValue
-    from polisyos.ir.types import TranslatableString
+    from polisyos.ir.model_layer.types import TranslatableString
 else:
     from polisyos.ir.governance.game_design import MechanismDesignSpec
     from polisyos.ir.governance.policy_composition import PolicyCompositionPlan
@@ -36,7 +36,7 @@ else:
     from polisyos.ir.governance.selector_expr import SelectorExpr
     from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
     from polisyos.ir.kernel.values import ParamValue
-    from polisyos.ir.types import TranslatableString
+    from polisyos.ir.model_layer.types import TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"

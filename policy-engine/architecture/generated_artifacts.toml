@@ -294,8 +294,8 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
-source_of_truth = "architecture/public_surface.toml and src/polisyos/**/__init__.py public exports"
-outputs = ["architecture/public_surface_inventory.json", "architecture/public_surface/"]
+source_of_truth = "architecture/public_surface/contract.toml and src/polisyos/**/__init__.py public exports"
+outputs = ["architecture/public_surface/inventory.json", "architecture/public_surface/"]
 regenerate_commands = ["uv run polisyos-tools quality public-surface snapshot --all"]
 commit_policy = "committed"
 freshness_rule = "Regenerate whenever supported public entrypoints, __all__, or public signatures change."
@@ -320,10 +320,10 @@ promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "warn"
 source_of_truth = "architecture/packages/*.toml"
 outputs = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/test_topology.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/tests/topology.toml",
 ]
 regenerate_commands = [
   "mirror package-contract changes into legacy aggregate TOML until the aggregate generator replaces hand-edits",
@@ -364,7 +364,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "docs/archive/reports/architecture/ when reviewed as durable evidence"
 stale_output_behavior = "ignored_by_policy"
-source_of_truth = "architecture/imports/reports.toml, architecture/import_contracts.toml, architecture/imports/policy.toml, architecture/imports/exceptions.toml, architecture/deep_import_baseline.json, architecture/dynamic_imports.toml, architecture/imports/lazy.toml, architecture/package_boundaries.toml, architecture/package_layout.toml, architecture/public_surface.toml, architecture/public_surface_inventory.json, architecture/name_registry.toml, and architecture/shims.toml"
+source_of_truth = "architecture/imports/reports.toml, architecture/imports/contracts.toml, architecture/imports/policy.toml, architecture/imports/exceptions.toml, architecture/baselines/imports/deep_import.json, architecture/imports/dynamic.toml, architecture/imports/lazy.toml, architecture/packages/boundaries.toml, architecture/packages/layout.toml, architecture/public_surface/contract.toml, architecture/public_surface/inventory.json, architecture/name_registry.toml, and architecture/shims.toml"
 outputs = [
   "_build/reports/architecture/import-boundary-report.json",
   "_build/reports/architecture/dependency-graph-report.json",
@@ -392,7 +392,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "docs/archive/reports/architecture/ when reviewed as durable evidence"
 stale_output_behavior = "ignored_by_policy"
-source_of_truth = "architecture/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, architecture/tooling/ruff/generated.toml, and inline noqa/type-ignore comments"
+source_of_truth = "architecture/tooling/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, architecture/tooling/ruff/generated.toml, and inline noqa/type-ignore comments"
 outputs = ["_build/reports/architecture/static-analysis-overrides.json"]
 regenerate_commands = [
   "uv run python tools/quality/validation/architecture_report_only_contracts.py --report static-analysis-overrides --json-output _build/reports/architecture/static-analysis-overrides.json",
@@ -776,7 +776,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "none; promote only curated tiny fixtures through data policy"
 stale_output_behavior = "ignored_by_policy"
-source_of_truth = "architecture/data_policy.toml"
+source_of_truth = "architecture/policies/data.toml"
 outputs = [
   "data/bronze/",
   "data/silver/",

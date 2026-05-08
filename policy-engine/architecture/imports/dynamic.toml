@@ -1,0 +1,2404 @@
+[dynamic_imports]
+version = 1
+status = "fail_closed"
+owner = "team-architecture"
+phase = "3A"
+review_owner = "team-architecture"
+reviewed_at = "2026-05-06"
+review_expires = "2026-08-04"
+exception_policy = "Dynamic imports must declare owner, target or allowed_targets, verifier, and notes; unresolved plugin slots require a dated owner review."
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+adr = "docs/adr/repository-structure-0141-dynamic-import-registry.md"
+notes = "Every allowed target must resolve; empty target lists are audited dynamic/plugin slots."
+extension_points = "architecture/extension_points.toml"
+new_entry_required_fields = ["owner", "target_or_allowed_targets", "verifier"]
+target_semantics = "target names the intended import, extension point, or builtin loader; allowed_targets lists concrete importable modules."
+verifier_semantics = "verifier names the gate, smoke test, or owner review that proves the dynamic edge remains intentional."
+
+[[pattern]]
+id = "dynamic-69f4211849d2"
+pattern = "fixtures.runtime_http"
+source_file = "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+line = 29
+call = "importlib.import_module"
+owner = "team-frontend"
+target = "fixtures.runtime_http"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-459252109d7c"
+pattern = "f'{__name__}.{name}'"
+source_file = "src/polisyos/common/__init__.py"
+line = 36
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "f'{__name__}.{name}'"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-848fd6ca70bf"
+pattern = "f'{__name__}.{name}'"
+source_file = "src/polisyos/core/__init__.py"
+line = 68
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "f'{__name__}.{name}'"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-d5d9e46d26c8"
+pattern = "google.cloud.storage"
+source_file = "src/polisyos/core/artifacts/backends/gcs_store.py"
+line = 75
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "google.cloud.storage"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-a1488aa1321a"
+pattern = "boto3"
+source_file = "src/polisyos/core/artifacts/backends/s3_store.py"
+line = 79
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "boto3"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-9f302d7809ed"
+pattern = "polisyos.core.audit"
+source_file = "src/polisyos/core/components/_cli_audit.py"
+line = 22
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.core.audit"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.core.audit"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d051e7e1e1d5"
+pattern = "polisyos.core.audit"
+source_file = "src/polisyos/core/components/_cli_audit.py"
+line = 77
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.core.audit"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.core.audit"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-cb0aebf6fe93"
+pattern = "polisyos.runtime.http.compliance"
+source_file = "src/polisyos/core/components/_cli_audit.py"
+line = 113
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.runtime.http.compliance"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.runtime.http.compliance"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-b1620c3f7ac7"
+pattern = "polisyos.runtime.http.compliance"
+source_file = "src/polisyos/core/components/_cli_audit.py"
+line = 154
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.runtime.http.compliance"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.runtime.http.compliance"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-2819bf90e919"
+pattern = "polisyos.lex.api"
+source_file = "src/polisyos/core/components/_cli_lex.py"
+line = 31
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.api"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.api"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-71be1301be26"
+pattern = "polisyos.lex.types"
+source_file = "src/polisyos/core/components/_cli_lex.py"
+line = 32
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.types"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.types"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d4acbd83a9e1"
+pattern = "polisyos.lex.simulator"
+source_file = "src/polisyos/core/components/_cli_lex.py"
+line = 62
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.simulator"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.simulator"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-daca6156b080"
+pattern = "polisyos.lex.simulator.cli"
+source_file = "src/polisyos/core/components/_cli_lex.py"
+line = 63
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.simulator.cli"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.simulator.cli"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-af0259544936"
+pattern = "polisyos.core.governance.profiles"
+source_file = "src/polisyos/core/components/_cli_lex.py"
+line = 64
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.core.governance.profiles"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.core.governance.profiles"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-91fa7a3392e8"
+pattern = "polisyos.runtime.replay"
+source_file = "src/polisyos/core/components/_cli_replay.py"
+line = 25
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.runtime.replay"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.runtime.replay"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-5d142696bc5f"
+pattern = "polisyos.scientist.replay.backend"
+source_file = "src/polisyos/core/components/_cli_replay.py"
+line = 161
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.replay.backend"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.replay.backend"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-af53267cca2f"
+pattern = "polisyos.scientist.engine.checkpoint"
+source_file = "src/polisyos/core/components/_cli_replay.py"
+line = 218
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.engine.checkpoint"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.engine.checkpoint"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-39807cf40e35"
+pattern = "polisyos.scholar.api"
+source_file = "src/polisyos/core/components/_cli_scholar.py"
+line = 19
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scholar.api"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scholar.api"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-70f96b777fab"
+pattern = "polisyos.scientist.methods.search.objective"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 128
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.objective"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.objective"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-5da145e2740b"
+pattern = "polisyos.scientist.methods.search.objective"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 132
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.objective"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.objective"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-c35a8b0c72cb"
+pattern = "polisyos.scientist.methods.doe.designs"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 149
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.doe.designs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.doe.designs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-389e228ef81c"
+pattern = "polisyos.scientist.methods.doe.sampling"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 150
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.doe.sampling"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.doe.sampling"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-75051f022647"
+pattern = "polisyos.scientist.methods.doe.analysis"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 151
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.doe.analysis"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.doe.analysis"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-335b35691598"
+pattern = "polisyos.scientist.methods.doe.designs"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 217
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.doe.designs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.doe.designs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-e24bc2573874"
+pattern = "polisyos.scientist.methods.search.objective"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 218
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.objective"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.objective"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d88258f114e3"
+pattern = "polisyos.scientist.methods.search.adversarial"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 219
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.adversarial"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.adversarial"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-2f7686b8207a"
+pattern = "polisyos.scientist.methods.search.cold_start"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 365
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.cold_start"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.cold_start"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d85f2901f6eb"
+pattern = "polisyos.scientist.methods.search.lessons"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 366
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.lessons"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.lessons"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-6f44f209048c"
+pattern = "polisyos.scientist.methods.search.sentinels"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 367
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.sentinels"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.sentinels"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-323a7f54d21b"
+pattern = "polisyos.scientist.methods.search.stages"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 368
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.stages"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.stages"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-8bfb79fe9aa8"
+pattern = "polisyos.scientist.methods.search.calibration_report"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 425
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.calibration_report"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.calibration_report"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-3627ac87970d"
+pattern = "polisyos.scientist.methods.search.cold_start"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 426
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.cold_start"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.cold_start"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-38d3ad6b17a5"
+pattern = "polisyos.scientist.methods.search.lessons"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 427
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.lessons"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.lessons"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-af35f75554ff"
+pattern = "polisyos.scientist.methods.search.sentinels"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 428
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.sentinels"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.sentinels"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-635ad8e69900"
+pattern = "polisyos.scientist.methods.search.stages"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 429
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.search.stages"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.stages"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-2f1538a9b8e7"
+pattern = "polisyos.scientist.methods.backtesting.cli"
+source_file = "src/polisyos/core/components/_cli_scientist.py"
+line = 494
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.backtesting.cli"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.backtesting.cli"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-0b33ce4d6901"
+pattern = "polisyos.fabric.connectors.components_bridge"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 92
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.fabric.connectors.components_bridge"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.fabric.connectors.components_bridge"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-ce85acde76c0"
+pattern = "polisyos.foundry.methods.components_bridge"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 103
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.foundry.methods.components_bridge"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.foundry.methods.components_bridge"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-db84029eaf92"
+pattern = "polisyos.lex.legal_evaluation.evaluator_registry"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 112
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.legal_evaluation.evaluator_registry"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.legal_evaluation.evaluator_registry"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-91d0e355bce3"
+pattern = "polisyos.fabric.claims.extractor_registry"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 121
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.fabric.claims.extractor_registry"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.fabric.claims.extractor_registry"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-a984f367c4ba"
+pattern = "polisyos.lex.normpack.provider_registry"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 128
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.lex.normpack.provider_registry"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.lex.normpack.provider_registry"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-4820cb1c5210"
+pattern = "polisyos.scientist.orchestration.engine.registry"
+source_file = "src/polisyos/core/components/bootstrap.py"
+line = 135
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.orchestration.engine.registry"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.orchestration.engine.registry"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-743de4c19cc8"
+pattern = "relative_module"
+source_file = "src/polisyos/core/components/cli_parts.py"
+line = 25
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "relative_module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-f20561d53e48"
+pattern = "polisyos.scientist.methods.backtesting.cli"
+source_file = "src/polisyos/core/components/cli_parts.py"
+line = 320
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.methods.backtesting.cli"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.backtesting.cli"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-5ae6af81d396"
+pattern = "list_entry_points(group=group)"
+source_file = "src/polisyos/core/components/discovery.py"
+line = 389
+call = "list_entry_points"
+owner = "team-architecture"
+target = "list_entry_points(group=group)"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-af6dfd85d167"
+pattern = "_LAZY_IMPORTS[name]"
+source_file = "src/polisyos/core/contracts/__init__.py"
+line = 802
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "_LAZY_IMPORTS[name]"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-c658bf29f676"
+pattern = "metadata.entry_points(group=group)"
+source_file = "src/polisyos/core/discovery/base.py"
+line = 118
+call = "metadata.entry_points"
+owner = "team-architecture"
+target = "metadata.entry_points(group=group)"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-65acac84222f"
+pattern = "metadata.entry_points()"
+source_file = "src/polisyos/core/discovery/base.py"
+line = 125
+call = "metadata.entry_points"
+owner = "team-architecture"
+target = "metadata.entry_points()"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-e69c165d71e3"
+pattern = "scipy.optimize"
+source_file = "src/polisyos/core/evaluation/mcda_robustness.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "scipy.optimize"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-d97cfdbf4650"
+pattern = "socket"
+source_file = "src/polisyos/core/observability/config.py"
+line = 131
+call = "__import__"
+owner = "team-architecture"
+target = "socket"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-4d70800816e0"
+pattern = "boto3"
+source_file = "src/polisyos/core/security/audit_sink.py"
+line = 449
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "boto3"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-3d832686c5b1"
+pattern = "pandas"
+source_file = "src/polisyos/core/security/db_backend.py"
+line = 22
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "pandas"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-bde4598e09d7"
+pattern = "psycopg"
+source_file = "src/polisyos/core/security/db_backend.py"
+line = 72
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "psycopg"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-3f1e45076ed1"
+pattern = "cryptography.hazmat.primitives.serialization"
+source_file = "src/polisyos/core/security/slsa/fulcio.py"
+line = 101
+call = "__import__"
+owner = "team-architecture"
+target = "cryptography.hazmat.primitives.serialization"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-fb2162ca1334"
+pattern = "module_name"
+source_file = "src/polisyos/data_forge/domains/academic/knowledge/__init__.py"
+line = 38
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-dc679367512e"
+pattern = "json"
+source_file = "src/polisyos/data_forge/domains/legal/contracts.py"
+line = 223
+call = "__import__"
+owner = "team-architecture"
+target = "json"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-ff67e92dbca9"
+pattern = "os"
+source_file = "src/polisyos/data_forge/domains/ukraine/server.py"
+line = 39
+call = "__import__"
+owner = "team-architecture"
+target = "os"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-a0d84feccfb4"
+pattern = "os"
+source_file = "src/polisyos/data_forge/domains/ukraine/server.py"
+line = 120
+call = "__import__"
+owner = "team-architecture"
+target = "os"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-23c9e5564aac"
+pattern = "self.__dict__['_target_fqn']"
+source_file = "src/polisyos/fabric/__init__.py"
+line = 87
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "self.__dict__['_target_fqn']"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-22b2c7ffe52b"
+pattern = "polisyos.fabric.world"
+source_file = "src/polisyos/fabric/__init__.py"
+line = 293
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.fabric.world"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.fabric.world"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d195e6f526f3"
+pattern = "module_name"
+source_file = "src/polisyos/fabric/__init__.py"
+line = 298
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-3dc1a382c7ae"
+pattern = "list_entry_points(group=ENTRY_POINT_GROUP)"
+source_file = "src/polisyos/fabric/connectors/discovery.py"
+line = 208
+call = "list_entry_points"
+owner = "team-architecture"
+target = "list_entry_points(group=ENTRY_POINT_GROUP)"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-f20f38ce68f3"
+pattern = "module_path"
+source_file = "src/polisyos/fabric/connectors/discovery.py"
+line = 301
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_path"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-a1558a2bd9e9"
+pattern = "datetime"
+source_file = "src/polisyos/fabric/connectors/testing/simulator.py"
+line = 439
+call = "__import__"
+owner = "team-architecture"
+target = "datetime"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-1cfecc5aba1f"
+pattern = "datetime"
+source_file = "src/polisyos/fabric/connectors/testing/simulator.py"
+line = 440
+call = "__import__"
+owner = "team-architecture"
+target = "datetime"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-f7b9d44d40cb"
+pattern = "module_name"
+source_file = "src/polisyos/fabric/data_plane/__init__.py"
+line = 132
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-fda87cc7c342"
+pattern = "module_name"
+source_file = "src/polisyos/fabric/data_plane/cli.py"
+line = 36
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-2cd31c1edde5"
+pattern = "cloudpickle"
+source_file = "src/polisyos/fabric/data_plane/orchestrator.py"
+line = 753
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "cloudpickle"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-537633b9aa56"
+pattern = "name"
+source_file = "src/polisyos/fabric/data_plane/orchestrator.py"
+line = 762
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-f0c1d685fb7f"
+pattern = "yaml"
+source_file = "src/polisyos/fabric/ingestion/ingestion.py"
+line = 138
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "yaml"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-73b1f0d1535c"
+pattern = "pandas"
+source_file = "src/polisyos/fabric/ingestion/ingestion.py"
+line = 445
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "pandas"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-0ddc9e304395"
+pattern = "pandas"
+source_file = "src/polisyos/fabric/ingestion/ingestion.py"
+line = 647
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "pandas"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-4180ebdc8451"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/__init__.py"
+line = 39
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-0a242b225746"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/__init__.py"
+line = 63
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-bf0c1ffbeebe"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/_registry.py"
+line = 316
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-c4737b6745a7"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/agent_metrics/__init__.py"
+line = 32
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-e9e1d4c4e7fd"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/agent_sim/__init__.py"
+line = 430
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-125151490d57"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/agents/__init__.py"
+line = 30
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-341744e6105a"
+pattern = "pathlib"
+source_file = "src/polisyos/foundry/calibration/dp_ci.py"
+line = 20
+call = "__import__"
+owner = "team-foundry"
+target = "pathlib"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-986631136ffa"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/compile/__init__.py"
+line = 26
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-5c5d2a4887fc"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/compile/__init__.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-480b9c6aedf9"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/conflict_checker/__init__.py"
+line = 35
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-23745b3ee38b"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/constraints_engine/__init__.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-1d8abb896419"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/contracts/__init__.py"
+line = 54
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-4a061686ae14"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/cost_model/__init__.py"
+line = 27
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-4e71ce555605"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/coupling/__init__.py"
+line = 78
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-c9d227fb2484"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/execute/__init__.py"
+line = 22
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a0a6db98ed20"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/execute/__init__.py"
+line = 28
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-0b49a5437260"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/executor/__init__.py"
+line = 93
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-f048e996e38b"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/extensions/__init__.py"
+line = 50
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-b7c9757d9577"
+pattern = "polisyos.foundry._registry"
+source_file = "src/polisyos/foundry/extensions/registry.py"
+line = 147
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "polisyos.foundry._registry"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.foundry._registry"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-26d4fa122022"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/layout/__init__.py"
+line = 29
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-dfd39cd62d6f"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/loss/__init__.py"
+line = 19
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-892f9cbbfd93"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/mechanism_design/__init__.py"
+line = 45
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-be520c590057"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/merge_engine/__init__.py"
+line = 37
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-5228889f54b2"
+pattern = "os"
+source_file = "src/polisyos/foundry/methods/backends/runtime_fingerprint.py"
+line = 188
+call = "__import__"
+owner = "team-foundry"
+target = "os"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-e8d65e5c3eea"
+pattern = "os"
+source_file = "src/polisyos/foundry/methods/catalog/bayesian/advanced.py"
+line = 119
+call = "__import__"
+owner = "team-foundry"
+target = "os"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-6122ec8f8889"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py"
+line = 227
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-27e7507f7ef5"
+pattern = "dagma.linear"
+source_file = "src/polisyos/foundry/methods/catalog/causal/dagma_discovery.py"
+line = 63
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "dagma.linear"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-82f2c9ba32a7"
+pattern = "dagma"
+source_file = "src/polisyos/foundry/methods/catalog/causal/dagma_discovery.py"
+line = 65
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "dagma"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-bce00cf70444"
+pattern = "dagma"
+source_file = "src/polisyos/foundry/methods/catalog/causal/dagma_discovery.py"
+line = 99
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "dagma"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-618fe47b1d61"
+pattern = "y0"
+source_file = "src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py"
+line = 132
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "y0"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-e3cd9c3da133"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py"
+line = 164
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-1adb5092e5fd"
+pattern = "pathlib"
+source_file = "src/polisyos/foundry/methods/catalog/survey/causal_frontier_io.py"
+line = 14
+call = "__import__"
+owner = "team-foundry"
+target = "pathlib"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-33c99ff172c3"
+pattern = "args.module"
+source_file = "src/polisyos/foundry/methods/cli/validator.py"
+line = 427
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "args.module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-59ae67c3e121"
+pattern = "package_name"
+source_file = "src/polisyos/foundry/methods/compiler/hot_reload.py"
+line = 473
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "package_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-7d819991fc22"
+pattern = "importlib.metadata.entry_points(group=self._group)"
+source_file = "src/polisyos/foundry/methods/discovery.py"
+line = 305
+call = "importlib.metadata.entry_points"
+owner = "team-foundry"
+target = "importlib.metadata.entry_points(group=self._group)"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-4dbfae81da3f"
+pattern = "importlib.metadata.entry_points()"
+source_file = "src/polisyos/foundry/methods/discovery.py"
+line = 308
+call = "importlib.metadata.entry_points"
+owner = "team-foundry"
+target = "importlib.metadata.entry_points()"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-84fe124ba71a"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/methods/discovery.py"
+line = 515
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-e8a76a889da4"
+pattern = "mod"
+source_file = "src/polisyos/foundry/methods/selection/cache.py"
+line = 245
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "mod"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-ad764febca87"
+pattern = "pathlib"
+source_file = "src/polisyos/foundry/methods/selection/registry.py"
+line = 183
+call = "__import__"
+owner = "team-foundry"
+target = "pathlib"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-9cca23b15def"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/patch_vm/__init__.py"
+line = 19
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-dbd30a153df3"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/plugins/discovery.py"
+line = 51
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-c4e786a89437"
+pattern = "LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP"
+source_file = "src/polisyos/foundry/plugins/discovery.py"
+line = 74
+call = "pkg_resources.iter_entry_points"
+owner = "team-foundry"
+target = "LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-000bfc8312eb"
+pattern = "dist.project_name.replace('-', '_')"
+source_file = "src/polisyos/foundry/plugins/discovery.py"
+line = 86
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "dist.project_name.replace('-', '_')"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-c2ee9b46c80f"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/profiles/__init__.py"
+line = 23
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-dc051db25f8f"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/queue/__init__.py"
+line = 27
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-5ac790f363fa"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/quickstart/__init__.py"
+line = 59
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-2510516d2ee2"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/registry/__init__.py"
+line = 58
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-e07377a77ea6"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/release_acceptance/__init__.py"
+line = 36
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a790c79b5c89"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/social_weights/__init__.py"
+line = 34
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-2e6aac8fac32"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/specs/__init__.py"
+line = 27
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-1941f438e89c"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/trace/__init__.py"
+line = 23
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-440126ede700"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/utils/__init__.py"
+line = 29
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-63d71aa6dc6d"
+pattern = "pathlib"
+source_file = "src/polisyos/foundry/validation/phase2_closure.py"
+line = 18
+call = "__import__"
+owner = "team-foundry"
+target = "pathlib"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-96d4f5e72ae6"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/validation/phase2_closure.py"
+line = 267
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-02d24ccfec3b"
+pattern = "os"
+source_file = "src/polisyos/foundry/validation/phase2_closure.py"
+line = 630
+call = "__import__"
+owner = "team-foundry"
+target = "os"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-dc8766515d01"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/welfare_bounds/__init__.py"
+line = 43
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-c8425c33321b"
+pattern = "module_name"
+source_file = "src/polisyos/ir/__init__.py"
+line = 980
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-7d1b679d89d1"
+pattern = "f'{__name__}.{name}'"
+source_file = "src/polisyos/ir/analytics/__init__.py"
+line = 23
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "f'{__name__}.{name}'"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-b80e40bbd62f"
+pattern = "self._target_fqn"
+source_file = "src/polisyos/ir/api.py"
+line = 70
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "self._target_fqn"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-6b34d15f7163"
+pattern = "target_fqn"
+source_file = "src/polisyos/ir/api.py"
+line = 98
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "target_fqn"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-a3db9afa902a"
+pattern = "module_name"
+source_file = "src/polisyos/ir/api.py"
+line = 173
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-050968dde662"
+pattern = "module_name"
+source_file = "src/polisyos/ir/governance/__init__.py"
+line = 413
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-3bd2213905b1"
+pattern = "module_name"
+source_file = "src/polisyos/ir/observation/__init__.py"
+line = 678
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-de8c0c9d0c88"
+pattern = "_IR_PACKAGE"
+source_file = "src/polisyos/ir/schemas/catalog.py"
+line = 257
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "_IR_PACKAGE"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-60d418dbc7d2"
+pattern = "root.__path__"
+source_file = "src/polisyos/ir/schemas/catalog.py"
+line = 259
+call = "pkgutil.walk_packages"
+owner = "team-architecture"
+target = "root.__path__"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-73a4e1e5203b"
+pattern = "module_info.name"
+source_file = "src/polisyos/ir/schemas/catalog.py"
+line = 262
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_info.name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-6d63c8ad52d3"
+pattern = "package"
+source_file = "src/polisyos/ir/schemas/catalog.py"
+line = 285
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "package"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-76b0296f15aa"
+pattern = "module_name"
+source_file = "src/polisyos/lex/__init__.py"
+line = 185
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-277146031ec0"
+pattern = "module_name"
+source_file = "src/polisyos/lex/knowledge/__init__.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-55ccf4f5799f"
+pattern = "module_name"
+source_file = "src/polisyos/runtime/__init__.py"
+line = 65
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-562418e51772"
+pattern = "psycopg"
+source_file = "src/polisyos/runtime/http/services/control_plane_store.py"
+line = 1318
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "psycopg"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-a8fa11aa13bb"
+pattern = "module_name"
+source_file = "src/polisyos/scholar/__init__.py"
+line = 63
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-80ff16bd5d62"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/__init__.py"
+line = 52
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-33b90f87c141"
+pattern = "canonical_name"
+source_file = "src/polisyos/scientist/_internal/compat.py"
+line = 30
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "canonical_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-be854c7162fa"
+pattern = "canonical_name"
+source_file = "src/polisyos/scientist/_internal/compat.py"
+line = 53
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "canonical_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-e838d8d92441"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/_internal/shims.py"
+line = 45
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-ea2cff8d870a"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/agent/__init__.py"
+line = 465
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-67d826bf2ff4"
+pattern = "name"
+source_file = "src/polisyos/scientist/agent/code_verifier.py"
+line = 509
+call = "__import__"
+owner = "team-scientist"
+target = "name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-33f7e936ab3b"
+pattern = "polisyos.scientist.methods.advanced"
+source_file = "src/polisyos/scientist/compute/__init__.py"
+line = 34
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.advanced"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.advanced"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-1f93163f026e"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/evidence/__init__.py"
+line = 137
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-f23c4af758d2"
+pattern = "canonical_module"
+source_file = "src/polisyos/scientist/evidence/_shim.py"
+line = 22
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "canonical_module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-750bd4847235"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/feedback/__init__.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a0b43b7849e8"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/governance/__init__.py"
+line = 270
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-074e2563bfcb"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/governance/continuous/__init__.py"
+line = 174
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a230436f1215"
+pattern = "list_entry_points(group=ENTRY_POINT_GROUP_GOVERNANCE_PASSES)"
+source_file = "src/polisyos/scientist/governance/pass_registry.py"
+line = 65
+call = "list_entry_points"
+owner = "team-scientist"
+target = "list_entry_points(group=ENTRY_POINT_GROUP_GOVERNANCE_PASSES)"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
+
+[[pattern]]
+id = "dynamic-59264d50a0f0"
+pattern = "canonical_name"
+source_file = "src/polisyos/scientist/methods/_compat.py"
+line = 30
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "canonical_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-e0319cc1b72a"
+pattern = "canonical_name"
+source_file = "src/polisyos/scientist/methods/_compat.py"
+line = 53
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "canonical_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-0df9ff9a96ab"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/advanced.py"
+line = 380
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a65723385671"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/autotune/__init__.py"
+line = 129
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a9a066fa04bc"
+pattern = "polisyos.scientist.methods.backtesting.composition_bridge"
+source_file = "src/polisyos/scientist/methods/backtesting/__init__.py"
+line = 64
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.backtesting.composition_bridge"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.backtesting.composition_bridge"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-2aa58f1efaba"
+pattern = "polisyos.scientist.methods.backtesting.temporal"
+source_file = "src/polisyos/scientist/methods/backtesting/__init__.py"
+line = 76
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.backtesting.temporal"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.backtesting.temporal"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-b6a9675caf3c"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/causal/__init__.py"
+line = 57
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a2f851ad6e1f"
+pattern = "polisyos.scientist.methods.search.contracts"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 344
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.search.contracts"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.contracts"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-b6864952cfd4"
+pattern = "polisyos.scientist.methods.search.portfolio"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 357
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.search.portfolio"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.portfolio"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-bc2550a64c39"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 379
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-9d5f2594eef0"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 409
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-ca8ae74c968d"
+pattern = "polisyos.scientist.methods.search.sbi_scheduler"
+source_file = "src/polisyos/scientist/methods/search/__init__.py"
+line = 425
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "polisyos.scientist.methods.search.sbi_scheduler"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.methods.search.sbi_scheduler"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-4be2f234033c"
+pattern = "f'{__name__}.{module_name}'"
+source_file = "src/polisyos/scientist/nodes/builtins/decide/__init__.py"
+line = 31
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "f'{__name__}.{module_name}'"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-e2b57ebf361c"
+pattern = "polisyos.scientist.policy_design.objectives"
+source_file = "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py"
+line = 268
+call = "__import__"
+owner = "team-scientist"
+target = "polisyos.scientist.policy_design.objectives"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.policy_design.objectives"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-d3544b278bb1"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/orchestration/llm/__init__.py"
+line = 81
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-a374c2a24221"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/orchestration/orchestrator/__init__.py"
+line = 25
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-1f43bf5619bd"
+pattern = "_PUBLISHER_MODULE"
+source_file = "src/polisyos/scientist/publishing/__init__.py"
+line = 33
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "_PUBLISHER_MODULE"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-407e33a7724a"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/replay/__init__.py"
+line = 90
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-0c5119b77b63"
+pattern = "module_name"
+source_file = "src/polisyos/scientist/validation/__init__.py"
+line = 414
+call = "importlib.import_module"
+owner = "team-scientist"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-b00665c47aa9"
+pattern = "tools.ci.check_scientist_best_in_class_wave1"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_0.py"
+line = 244
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_wave1"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-de28d2d587bd"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_0"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_1.py"
+line = 97
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_0"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-65b2ef3fd84a"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_1"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_2.py"
+line = 101
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_1"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-719a4df094d7"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_2"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_3.py"
+line = 88
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_2"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-577ff25697ba"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_3"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_4.py"
+line = 90
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_3"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-4f582b33b821"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_4"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_5.py"
+line = 103
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_4"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-33a4228af16c"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_5"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_6.py"
+line = 105
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_5"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-81bf19874782"
+pattern = "tools.ci.check_scientist_best_in_class_phase2_6"
+source_file = "tools/ci/check_scientist_best_in_class_phase2_7.py"
+line = 98
+call = "importlib.import_module"
+owner = "team-devx"
+target = "tools.ci.check_scientist_best_in_class_phase2_6"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-069d24d05a8c"
+pattern = "module_name"
+source_file = "tools/ci/check_scientist_best_in_class_wave1.py"
+line = 110
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-f2dfd70617f4"
+pattern = "module_name"
+source_file = "tools/ci/check_scientist_best_in_class_wave2.py"
+line = 197
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-96587834e41e"
+pattern = "module_name"
+source_file = "tools/lib/compat.py"
+line = 17
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-1b65eabd4098"
+pattern = "module_name"
+source_file = "tools/lib/compat.py"
+line = 35
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-b6a62ff04a22"
+pattern = "spec.module"
+source_file = "tools/lib/runner.py"
+line = 143
+call = "importlib.import_module"
+owner = "team-devx"
+target = "spec.module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-f7776ec6f3bf"
+pattern = "module_name"
+source_file = "tools/ops_runners/cloud/gcp_preflight.py"
+line = 98
+call = "__import__"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-4c1044ce8d7b"
+pattern = "mod"
+source_file = "tools/ops_runners/experiments/run_msme_deadline_suite.py"
+line = 1773
+call = "__import__"
+owner = "team-devx"
+target = "mod"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-f9a4e7de62ba"
+pattern = "module"
+source_file = "tools/ops_runners/experiments/run_msme_e2e_showcase.py"
+line = 1384
+call = "__import__"
+owner = "team-devx"
+target = "module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-c4a260706ab1"
+pattern = "candidate"
+source_file = "tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py"
+line = 1683
+call = "__import__"
+owner = "team-devx"
+target = "candidate"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-27c741ecf6a2"
+pattern = "module"
+source_file = "tools/ops_runners/experiments/run_msme_grand_tournament_v2.py"
+line = 1833
+call = "__import__"
+owner = "team-devx"
+target = "module"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-a3398eb6d1fb"
+pattern = "module_path"
+source_file = "tools/quality/diagnostics/gen_schema.py"
+line = 161
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_path"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-086c97cfcd24"
+pattern = "cls.__module__"
+source_file = "tools/quality/diagnostics/gen_schema.py"
+line = 169
+call = "importlib.import_module"
+owner = "team-devx"
+target = "cls.__module__"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-3e4b2fa1b049"
+pattern = "module_name"
+source_file = "tools/quality/diagnostics/gen_schema.py"
+line = 297
+call = "importlib.import_module"
+owner = "team-devx"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-2f09c607e7b4"
+pattern = "__path__"
+source_file = "tools/quality/lint/rules/__init__.py"
+line = 65
+call = "pkgutil.iter_modules"
+owner = "team-devx"
+target = "__path__"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-c59d0179c2af"
+pattern = "f'{__name__}.{module_info.name}'"
+source_file = "tools/quality/lint/rules/__init__.py"
+line = 68
+call = "importlib.import_module"
+owner = "team-devx"
+target = "f'{__name__}.{module_info.name}'"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "Tooling dynamic import; inventoried but no decomposition target."

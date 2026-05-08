@@ -55,7 +55,7 @@ class ErrorEnvelope:
 
 
 def _default_metrics() -> SupportsRecordDegradedPath:
-    from polisyos.core.observability import get_metrics
+    from polisyos.scientist._adapters.observability import get_metrics
 
     return cast("SupportsRecordDegradedPath", get_metrics())
 

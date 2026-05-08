@@ -28,7 +28,7 @@ from polisyos.core.contracts.control import (
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 from .executor import ExecutePlanResult, FetchExecutor
 from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, ExploreLaneLimits

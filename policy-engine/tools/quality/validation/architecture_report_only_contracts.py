@@ -101,7 +101,13 @@ def build_report(
             contract_errors.extend(_validate_package_contracts(repo_root))
         contract_errors.extend(_validate_package_mirrors(repo_root))
     if selected("module-size"):
-        findings.extend(_validate_module_size_budget(repo_root))
+        module_size_findings = _validate_module_size_budget(repo_root)
+        contract_errors.extend(
+            finding for finding in module_size_findings if finding.severity == "error"
+        )
+        findings.extend(
+            finding for finding in module_size_findings if finding.severity != "error"
+        )
     if selected("generated-artifacts"):
         contract_errors.extend(_validate_generated_artifact_contracts(repo_root))
     if selected("extension-points"):
@@ -148,7 +154,7 @@ def build_report(
         contract_errors.extend(
             _validate_list_contract(
                 repo_root,
-                relative_path="architecture/test_ratchets.toml",
+                relative_path="architecture/tests/ratchets.toml",
                 header="test_ratchets",
                 entries="ratchet",
                 required_fields=("id", "owner", "package", "contract", "required_roots", "mode"),
@@ -258,7 +264,12 @@ def _relative(path: Path, repo_root: Path) -> str:
 
 
 def _package_contract_paths(repo_root: Path) -> list[Path]:
-    return sorted((repo_root / "architecture" / "packages").glob("*.toml"))
+    aggregate_stems = {"boundaries", "layout"}
+    return sorted(
+        path
+        for path in (repo_root / "architecture" / "packages").glob("*.toml")
+        if path.stem not in aggregate_stems
+    )
 
 
 def _load_package_contracts(repo_root: Path) -> list[tuple[Path, dict[str, Any]]]:
@@ -268,8 +279,8 @@ def _load_package_contracts(repo_root: Path) -> list[tuple[Path, dict[str, Any]]
 def _aggregate_package_modules(repo_root: Path) -> list[str]:
     modules: set[str] = set()
     for relative_path in (
-        "architecture/package_boundaries.toml",
-        "architecture/public_surface.toml",
+        "architecture/packages/boundaries.toml",
+        "architecture/public_surface/contract.toml",
     ):
         data = _read_toml(repo_root / relative_path)
         modules.update(
@@ -277,7 +288,7 @@ def _aggregate_package_modules(repo_root: Path) -> list[str]:
             for item in data.get("package", [])
             if str(item.get("module", "")).strip()
         )
-    test_topology = _read_toml(repo_root / "architecture" / "test_topology.toml")
+    test_topology = _read_toml(repo_root / "architecture" / "tests" / "topology.toml")
     modules.update(
         f"polisyos.{str(item.get('name', '')).strip()}"
         for item in test_topology.get("package", [])
@@ -520,25 +531,25 @@ def _validate_package_mirrors(repo_root: Path) -> list[Finding]:
     errors: list[Finding] = []
     boundaries = {
         str(item.get("module")): item
-        for item in _read_toml(repo_root / "architecture" / "package_boundaries.toml").get(
+        for item in _read_toml(repo_root / "architecture" / "packages" / "boundaries.toml").get(
             "package", []
         )
     }
     public_surface = {
         str(item.get("module")): item
-        for item in _read_toml(repo_root / "architecture" / "public_surface.toml").get(
+        for item in _read_toml(repo_root / "architecture" / "public_surface" / "contract.toml").get(
             "package", []
         )
     }
     layout = {
         str(item.get("name")): item
-        for item in _read_toml(repo_root / "architecture" / "package_layout.toml").get(
+        for item in _read_toml(repo_root / "architecture" / "packages" / "layout.toml").get(
             "package", []
         )
     }
     test_topology = {
         str(item.get("name")): item
-        for item in _read_toml(repo_root / "architecture" / "test_topology.toml").get(
+        for item in _read_toml(repo_root / "architecture" / "tests" / "topology.toml").get(
             "package", []
         )
     }
@@ -805,11 +816,12 @@ def _validate_module_size_budget(repo_root: Path) -> list[Finding]:
     findings: list[Finding] = []
     data = _read_toml(repo_root / "architecture" / "module_size_budget.toml")
     header = data.get("module_size_budget", {})
+    validation_header = data.get("validation_tooling_size_budget", {})
     if int(header.get("default_warning_lines", 0)) != 1000:
         findings.append(
             Finding(
                 "module-size",
-                "report_only",
+                "error",
                 "architecture/module_size_budget.toml",
                 "default warning line budget is not 1000",
                 str(header.get("default_warning_lines")),
@@ -825,8 +837,51 @@ def _validate_module_size_budget(repo_root: Path) -> list[Finding]:
                 str(header.get("default_fail_closed_target_lines")),
             )
         )
-    for budget in data.get("budget", []):
+    if not validation_header:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                "architecture/module_size_budget.toml",
+                "validation tooling size budget is missing",
+            )
+        )
+    else:
+        findings.extend(_validate_validation_tooling_defaults(validation_header))
+
+    budgets = data.get("budget", [])
+    validation_scope = [
+        str(item)
+        for item in validation_header.get("scope", [])
+        if str(item).strip()
+    ]
+    budget_by_path = {
+        str(budget.get("path", "")): budget
+        for budget in budgets
+        if str(budget.get("path", "")).strip()
+    }
+    if validation_header:
+        findings.extend(
+            _validate_validation_tooling_budget_coverage(
+                repo_root,
+                budget_by_path=budget_by_path,
+                validation_header=validation_header,
+                validation_scope=validation_scope,
+            )
+        )
+
+    for budget in budgets:
         relative = str(budget.get("path", ""))
+        if _matches_any_validation_scope(relative, validation_scope):
+            findings.extend(
+                _validate_validation_tooling_budget_entry(
+                    repo_root,
+                    budget,
+                    validation_header=validation_header,
+                    validation_scope=validation_scope,
+                )
+            )
+            continue
         path = repo_root / relative
         subject = relative or "architecture/module_size_budget.toml"
         for field in (
@@ -913,9 +968,250 @@ def _validate_module_size_budget(repo_root: Path) -> list[Finding]:
     return findings
 
 
+def _validate_validation_tooling_defaults(header: dict[str, Any]) -> list[Finding]:
+    findings: list[Finding] = []
+    subject = "architecture/module_size_budget.toml"
+    scope = header.get("scope", [])
+    if scope != ["tools/quality/validation/**/*.py"]:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling size budget must cover tools/quality/validation/**/*.py",
+                str(scope),
+            )
+        )
+    if int(header.get("warning_lines", 0)) != 1000:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling warning line budget is not 1000",
+                str(header.get("warning_lines")),
+            )
+        )
+    if int(header.get("fail_closed_lines", 0)) != 2000:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling fail-closed line budget is not 2000",
+                str(header.get("fail_closed_lines")),
+            )
+        )
+    return findings
+
+
+def _validate_validation_tooling_budget_coverage(
+    repo_root: Path,
+    *,
+    budget_by_path: dict[str, dict[str, Any]],
+    validation_header: dict[str, Any],
+    validation_scope: list[str],
+) -> list[Finding]:
+    findings: list[Finding] = []
+    warning = int(validation_header.get("require_budget_above_lines", 0)) or int(
+        validation_header.get("warning_lines", 1000)
+    )
+    for path in _validation_tooling_paths(repo_root, validation_scope):
+        relative = _relative(path, repo_root)
+        logical_lines = _count_lines(path)
+        if logical_lines <= warning or relative in budget_by_path:
+            continue
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                relative,
+                "validation tooling above warning threshold lacks a module-size budget",
+                f"logical_lines={logical_lines} warning={warning}",
+            )
+        )
+    return findings
+
+
+def _validate_validation_tooling_budget_entry(
+    repo_root: Path,
+    budget: dict[str, Any],
+    *,
+    validation_header: dict[str, Any],
+    validation_scope: list[str],
+) -> list[Finding]:
+    findings: list[Finding] = []
+    relative = str(budget.get("path", ""))
+    path = repo_root / relative
+    subject = relative or "architecture/module_size_budget.toml"
+    if not _matches_any_validation_scope(relative, validation_scope):
+        return findings
+    warning = int(validation_header.get("warning_lines", 1000))
+    fail_closed = int(validation_header.get("fail_closed_lines", 2000))
+    if int(budget.get("warning_lines", 0)) != warning:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling budget warning_lines must match validation default",
+                str(budget.get("warning_lines")),
+            )
+        )
+    if int(budget.get("fail_closed_lines", 0)) != fail_closed:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling budget fail_closed_lines must match validation default",
+                str(budget.get("fail_closed_lines")),
+            )
+        )
+    if not path.exists():
+        findings.append(Finding("module-size", "error", subject, "budgeted module is missing"))
+        return findings
+
+    current_lines = _count_lines(path)
+    current_budget = int(budget.get("current_lines", 0))
+    baseline = int(budget.get("baseline_lines", 0))
+    limit = int(budget.get("report_only_limit_lines", 0))
+    if current_budget and current_lines > current_budget:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling grew above its ratcheted current_lines budget",
+                f"current={current_lines} budget={current_budget}",
+            )
+        )
+    if limit and current_lines > limit:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling grew above its report_only_limit_lines ratchet",
+                f"current={current_lines} limit={limit}",
+            )
+        )
+    if current_lines <= warning:
+        return findings
+
+    if not str(budget.get("owner", "")).startswith("team-"):
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling above warning threshold must declare a team owner",
+                str(budget.get("owner", "")),
+            )
+        )
+    if not baseline:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling above warning threshold must pin baseline_lines",
+            )
+        )
+    elif current_lines > baseline:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling grew above its pinned baseline",
+                f"current={current_lines} baseline={baseline}",
+            )
+        )
+    if limit != baseline:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling above warning threshold must use a no-growth ratchet",
+                f"baseline={baseline} report_only_limit_lines={limit}",
+            )
+        )
+    extraction_sequence = budget.get("extraction_sequence", [])
+    if (
+        not isinstance(extraction_sequence, list)
+        or not extraction_sequence
+        or any(not str(item).strip() for item in extraction_sequence)
+    ):
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling above warning threshold must declare extraction sequence",
+            )
+        )
+    target_date = str(budget.get("target_date", ""))
+    if not target_date:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling above warning threshold must declare extraction target date",
+            )
+        )
+    elif not _valid_future_or_today(target_date):
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling extraction target date must be today or future",
+                target_date,
+            )
+        )
+    target = int(budget.get("target_lines", 0))
+    if target and target > warning:
+        findings.append(
+            Finding(
+                "module-size",
+                "error",
+                subject,
+                "validation tooling extraction target must be at or below warning threshold",
+                str(target),
+            )
+        )
+    return findings
+
+
+def _validation_tooling_paths(repo_root: Path, validation_scope: list[str]) -> list[Path]:
+    paths: set[Path] = set()
+    for pattern in validation_scope:
+        paths.update(path for path in repo_root.glob(pattern) if path.is_file())
+    return sorted(paths)
+
+
+def _matches_any_validation_scope(relative: str, validation_scope: list[str]) -> bool:
+    return any(_matches_validation_scope(relative, pattern) for pattern in validation_scope)
+
+
+def _matches_validation_scope(relative: str, pattern: str) -> bool:
+    if fnmatch.fnmatch(relative, pattern):
+        return True
+    if pattern == "tools/quality/validation/**/*.py":
+        return relative.startswith("tools/quality/validation/") and relative.endswith(".py")
+    return False
+
+
 def _count_lines(path: Path) -> int:
-    with path.open("rb") as handle:
-        return sum(1 for _line in handle)
+    with path.open(encoding="utf-8") as handle:
+        return sum(
+            1
+            for line in handle
+            if line.strip() and not line.lstrip().startswith("#")
+        )
 
 
 def _validate_generated_artifact_contracts(repo_root: Path) -> list[Finding]:
@@ -1131,7 +1427,7 @@ def _validate_extension_points_contract(repo_root: Path) -> list[Finding]:
 
 
 def _validate_directory_contracts(repo_root: Path) -> list[Finding]:
-    relative_path = "architecture/directory_contracts.toml"
+    relative_path = "architecture/policies/directory_contracts.toml"
     path = repo_root / relative_path
     if not path.exists():
         return [Finding("directory-contracts", "error", relative_path, "contract file is missing")]
@@ -1286,7 +1582,7 @@ def _validate_directory_contracts(repo_root: Path) -> list[Finding]:
     ):
         if asset_id not in asset_classes:
             errors.append(Finding("directory-contracts", "error", asset_id, "missing asset class"))
-    ratchets = _read_toml(repo_root / "architecture" / "test_ratchets.toml")
+    ratchets = _read_toml(repo_root / "architecture" / "tests" / "ratchets.toml")
     fixture_policy = ratchets.get("fixture_policy", {})
     test_fixtures = asset_classes.get("test_fixtures", {})
     golden_records = asset_classes.get("golden_records", {})
@@ -1480,7 +1776,7 @@ def _summarize_dynamic_imports(repo_root: Path) -> list[Finding]:
         Finding(
             "dynamic-imports",
             "report_only",
-            "architecture/dynamic_imports.toml",
+            "architecture/imports/dynamic.toml",
             "dynamic import registry summary",
             (
                 f"patterns={summary['pattern_count']} "
@@ -1491,7 +1787,7 @@ def _summarize_dynamic_imports(repo_root: Path) -> list[Finding]:
 
 
 def _dynamic_imports_summary(repo_root: Path) -> dict[str, Any]:
-    data = _read_toml(repo_root / "architecture" / "dynamic_imports.toml")
+    data = _read_toml(repo_root / "architecture" / "imports" / "dynamic.toml")
     patterns = data.get("pattern", [])
     missing_targets = [
         str(item.get("id", "unknown"))
@@ -1514,7 +1810,7 @@ def _dynamic_imports_summary(repo_root: Path) -> dict[str, Any]:
 
 
 def _validate_dynamic_imports_contract(repo_root: Path) -> list[Finding]:
-    relative_path = "architecture/dynamic_imports.toml"
+    relative_path = "architecture/imports/dynamic.toml"
     path = repo_root / relative_path
     if not path.exists():
         return [Finding("dynamic-imports", "error", relative_path, "contract file is missing")]
@@ -1695,7 +1991,7 @@ def _validate_shim_expiry_contract(repo_root: Path) -> list[Finding]:
 
 
 def _load_public_surface_packages(repo_root: Path) -> dict[str, set[str]]:
-    data = _read_toml(repo_root / "architecture" / "public_surface.toml")
+    data = _read_toml(repo_root / "architecture" / "public_surface" / "contract.toml")
     packages: dict[str, set[str]] = {}
     for item in data.get("package", []):
         module = str(item.get("module", "")).strip()
@@ -1727,7 +2023,7 @@ def _is_public_target(
 
 
 def _load_deep_import_baseline(repo_root: Path) -> dict[str, dict[str, str]]:
-    path = repo_root / "architecture" / "deep_import_baseline.json"
+    path = repo_root / "architecture" / "baselines" / "imports" / "deep_import.json"
     if not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -1797,7 +2093,7 @@ def _validate_import_exception_metadata(repo_root: Path) -> list[Finding]:
                 )
             )
 
-    guardrail_path = repo_root / "architecture" / "guardrail_exceptions.toml"
+    guardrail_path = repo_root / "architecture" / "exceptions" / "guardrails.toml"
     if not guardrail_path.exists():
         return errors
     for exception in _read_toml(guardrail_path).get("exception", []):
@@ -1860,7 +2156,7 @@ def _registered_import_exception_id(
             continue
         return exception.exception_id
 
-    guardrail_path = repo_root / "architecture" / "guardrail_exceptions.toml"
+    guardrail_path = repo_root / "architecture" / "exceptions" / "guardrails.toml"
     if not guardrail_path.exists():
         return ""
     data = _read_toml(guardrail_path)
@@ -1941,7 +2237,7 @@ def _collect_hidden_import_edges(repo_root: Path) -> dict[str, dict[str, Any]]:
 def _boundary_packages(repo_root: Path) -> dict[str, dict[str, Any]]:
     return {
         str(item.get("module", "")).strip(): item
-        for item in _read_toml(repo_root / "architecture" / "package_boundaries.toml").get(
+        for item in _read_toml(repo_root / "architecture" / "packages" / "boundaries.toml").get(
             "package", []
         )
         if str(item.get("module", "")).strip()
@@ -2123,7 +2419,7 @@ def _build_import_boundary_summary(repo_root: Path) -> dict[str, Any]:
     )
     return {
         "mode": "report_only",
-        "baseline": "architecture/deep_import_baseline.json",
+        "baseline": "architecture/baselines/imports/deep_import.json",
         "rule": _import_boundary_rule(),
         "current_hidden_edge_count": len(current_edges),
         "baseline_hidden_edge_count": len(baseline_edges),
@@ -2169,7 +2465,7 @@ def _import_boundary_findings(summary: dict[str, Any]) -> list[Finding]:
             Finding(
                 "public-surface-import-contract",
                 "report_only",
-                "architecture/package_boundaries.toml",
+                "architecture/packages/boundaries.toml",
                 "public surface and import contracts drift",
                 f"drift_count={contract['drift_count']}",
             )
@@ -2244,10 +2540,10 @@ def _public_surface_import_contract_summary(repo_root: Path) -> dict[str, Any]:
         "import_contract_drift_count": len(import_contract_errors),
         "inventory_drift_count": len(inventory_errors),
         "source_contracts": [
-            "architecture/public_surface.toml",
-            "architecture/public_surface_inventory.json",
-            "architecture/package_boundaries.toml",
-            "architecture/import_contracts.toml",
+            "architecture/public_surface/contract.toml",
+            "architecture/public_surface/inventory.json",
+            "architecture/packages/boundaries.toml",
+            "architecture/imports/contracts.toml",
         ],
     }
 
@@ -2256,7 +2552,7 @@ def _validate_public_surface_import_contracts(repo_root: Path) -> list[Finding]:
     errors: list[Finding] = []
     public_packages = _load_public_surface_packages(repo_root)
     package_modules = sorted(public_packages, key=len, reverse=True)
-    boundaries = _read_toml(repo_root / "architecture" / "package_boundaries.toml")
+    boundaries = _read_toml(repo_root / "architecture" / "packages" / "boundaries.toml")
     for package in boundaries.get("package", []):
         subject = str(package.get("module", ""))
         entrypoints = public_packages.get(subject, {subject})
@@ -2293,7 +2589,7 @@ def _validate_public_surface_import_contracts(repo_root: Path) -> list[Finding]:
                         )
                     )
 
-    import_contracts = _read_toml(repo_root / "architecture" / "import_contracts.toml")
+    import_contracts = _read_toml(repo_root / "architecture" / "imports" / "contracts.toml")
     for contract in import_contracts.get("importlinter", {}).get("contracts", []):
         for ignored in contract.get("ignore_imports", []):
             ignored = str(ignored)
@@ -2317,9 +2613,9 @@ def _validate_public_surface_import_contracts(repo_root: Path) -> list[Finding]:
 
 
 def _validate_public_surface_inventory_contract(repo_root: Path) -> list[Finding]:
-    manifest_path = repo_root / "architecture" / "public_surface.toml"
-    inventory_path = repo_root / "architecture" / "public_surface_inventory.json"
-    relative_path = "architecture/public_surface_inventory.json"
+    manifest_path = repo_root / "architecture" / "public_surface" / "contract.toml"
+    inventory_path = repo_root / "architecture" / "public_surface" / "inventory.json"
+    relative_path = "architecture/public_surface/inventory.json"
     if not inventory_path.exists():
         return [
             Finding(
@@ -2468,14 +2764,14 @@ def _validate_static_analysis_overrides(repo_root: Path) -> list[Finding]:
     from tools.ops_runners.reports import dead_overrides
 
     findings: list[Finding] = []
-    data = _read_toml(repo_root / "architecture" / "static_analysis_overrides.toml")
+    data = _read_toml(repo_root / "architecture" / "tooling" / "static_analysis_overrides.toml")
     header = data.get("static_analysis_overrides", {})
     if header.get("status") != "report_only":
         findings.append(
             Finding(
                 "static-analysis-overrides",
                 "report_only",
-                "architecture/static_analysis_overrides.toml",
+                "architecture/tooling/static_analysis_overrides.toml",
                 "status must remain report_only in Phase 1.3",
                 str(header.get("status")),
             )
@@ -2697,13 +2993,22 @@ def _summary(repo_root: Path) -> dict[str, Any]:
     return {
         "package_contract_count": len(packages),
         "package_contracts": [
-            data.get("package", {}).get("id", _relative(path, repo_root)) for path, data in packages
+            _package_contract_summary_id(path, data, repo_root) for path, data in packages
         ],
         "report_only_gate_count": len(gates),
         "module_size_budget_count": len(module_budget.get("budget", [])),
         "static_analysis_counts": _inline_override_counts(repo_root),
         "dead_override_report": dead_overrides.build_report(repo_root)["summary"],
     }
+
+
+def _package_contract_summary_id(path: Path, data: dict[str, Any], repo_root: Path) -> str:
+    package = data.get("package", {})
+    if isinstance(package, dict):
+        return str(package.get("id", _relative(path, repo_root)))
+    if isinstance(package, list) and package and isinstance(package[0], dict):
+        return str(package[0].get("id", _relative(path, repo_root)))
+    return _relative(path, repo_root)
 
 
 def _phase6_1_summary() -> dict[str, Any]:

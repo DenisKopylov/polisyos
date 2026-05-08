@@ -102,8 +102,11 @@ jobs:
       - name: Check fail-closed package import gates
         run: uv run polisyos-tools validation check-package-import-gates --fail-closed
 
+      - name: Check last-mile inventory baseline
+        run: uv run python tools/quality/validation/repository_last_mile_inventory.py --json-output _build/.tmp/last-mile/inventory.json --check
+
       - name: Enforce Foundry purity
-        run: uv run python tools/quality/lint/lint_foundry.py --repo-root .
+        run: uv run python -m tools.quality.lint.lint_foundry --repo-root .
 
       - name: Check Scientist state reads
         run: uv run python tools/quality/diagnostics/check_state_reads.py
@@ -120,11 +123,20 @@ jobs:
       - name: Check schema snapshots
         run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
 
+      - name: Check schemas pure-data closure
+        run: |
+          mkdir -p _build/.tmp/last-mile
+          find schemas \( -name '*.py' -o -name '__pycache__' \) -print | tee _build/.tmp/last-mile/schemas-python-residue.txt
+          test ! -s _build/.tmp/last-mile/schemas-python-residue.txt
+
       - name: Check Repository SOTA contract closeout
         run: uv run polisyos-tools workspace repository-sota-closeout --contract-only
 
       - name: Check extension example installability
         run: uv run polisyos-tools validation check-extension-examples
+
+      - name: Check validator module-size budget
+        run: uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size --json-output _build/.tmp/last-mile/module-size.json --fail-on-contract-errors
 
       - name: Check tool config split drift
         run: uv run polisyos-tools workspace tool-configs --check
@@ -167,6 +179,9 @@ jobs:
 
       - name: Check docs lifecycle gates
         run: uv run polisyos-tools validation check-docs-lifecycle
+
+      - name: Check ADR thematic index freshness
+        run: uv run python tools/quality/validation/generate_adr_index.py --check
 
       - name: Check tool config split drift
         run: uv run polisyos-tools workspace tool-configs --check

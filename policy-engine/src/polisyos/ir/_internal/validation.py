@@ -11,7 +11,7 @@ import math
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, TypeVar
 
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Sequence

@@ -8,7 +8,7 @@ from typing import Any
 
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 

@@ -37,6 +37,108 @@ FORBIDDEN_TOOL_ROOTS = {
     "validation",
     "workspace",
 }
+SCHEMA_PURITY_SNIPPET = """
+from pathlib import Path
+
+root = Path("schemas")
+output = Path("_build/.tmp/last-mile/schemas-python-residue.txt")
+output.parent.mkdir(parents=True, exist_ok=True)
+matches = []
+if root.exists():
+    for path in sorted(root.rglob("*")):
+        if path.name == "__pycache__" or path.suffix == ".py":
+            matches.append(path.as_posix())
+output.write_text("\\n".join(matches) + ("\\n" if matches else ""), encoding="utf-8")
+if matches:
+    print("\\n".join(matches))
+    raise SystemExit(1)
+"""
+LAST_MILE_GATE_OWNERSHIP: tuple[dict[str, str], ...] = (
+    {
+        "id": "repository-structure",
+        "owner": "repository-sota-closeout",
+        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
+        "needle": "repository_structure_phase0.py",
+    },
+    {
+        "id": "repository-last-mile-inventory",
+        "owner": "workspace verify",
+        "source_path": "tools/devx/workspace/verify.py",
+        "needle": "repository_last_mile_inventory.py",
+    },
+    {
+        "id": "shell-package-closure",
+        "owner": "workspace verify",
+        "source_path": "tools/devx/workspace/verify.py",
+        "needle": "check-package-import-gates",
+    },
+    {
+        "id": "cross-cutting-name-collision",
+        "owner": "workspace verify",
+        "source_path": "tools/devx/workspace/verify.py",
+        "needle": "repository_last_mile_inventory.py",
+    },
+    {
+        "id": "schema-purity",
+        "owner": "workspace verify",
+        "source_path": "tools/devx/workspace/verify.py",
+        "needle": "schemas-python-residue.txt",
+    },
+    {
+        "id": "directory-health",
+        "owner": "workspace ci-parity",
+        "source_path": "tools/devx/workspace/ci_parity.py",
+        "needle": "directory_health.py",
+    },
+    {
+        "id": "test-ratchets-helper-topology",
+        "owner": "workspace ci-parity",
+        "source_path": "tools/devx/workspace/ci_parity.py",
+        "needle": "report_test_ratchets.py",
+    },
+    {
+        "id": "extension-examples",
+        "owner": "workspace ci-parity",
+        "source_path": "tools/devx/workspace/ci_parity.py",
+        "needle": "check_extension_examples.py",
+    },
+    {
+        "id": "adr-thematic-index",
+        "owner": "workspace ci-parity",
+        "source_path": "tools/devx/workspace/ci_parity.py",
+        "needle": "generate_adr_index.py",
+    },
+    {
+        "id": "validator-module-size",
+        "owner": "workspace ci-parity",
+        "source_path": "tools/devx/workspace/ci_parity.py",
+        "needle": "module-size",
+    },
+    {
+        "id": "dead-overrides",
+        "owner": "repository-sota-closeout",
+        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
+        "needle": "dead_overrides.py",
+    },
+    {
+        "id": "operability-release",
+        "owner": "release workflow",
+        "source_path": "../.github/workflows/release.yml",
+        "needle": "check-operability-release-gates",
+    },
+    {
+        "id": "compatibility-release",
+        "owner": "release workflow",
+        "source_path": "../.github/workflows/release.yml",
+        "needle": "check-compatibility-release-gates",
+    },
+    {
+        "id": "acceptance-audit",
+        "owner": "workspace acceptance-audit",
+        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
+        "needle": "acceptance-audit",
+    },
+)
 
 
 @dataclass(frozen=True)
@@ -183,7 +285,7 @@ def _check_future_date_field(
 
 def _check_gate_registry() -> list[Finding]:
     findings: list[Finding] = []
-    data = _read_toml("architecture/repository_sota_gates.toml")
+    data = _read_toml("architecture/gates/repository_sota.toml")
     header = data.get("repository_sota_gates", {})
     if header.get("status") != "fail_closed":
         findings.append(
@@ -282,7 +384,7 @@ def _check_final_topology_contract() -> list[Finding]:
 
 def _check_ops_modes() -> list[Finding]:
     findings: list[Finding] = []
-    ops = _read_toml("architecture/ops_baselines.toml")
+    ops = _read_toml("architecture/baselines/ops.toml")
     for baseline in ops.get("baseline", []):
         baseline_id = str(baseline.get("id", "unknown"))
         if baseline.get("mode") != "fail_closed":
@@ -356,7 +458,7 @@ def _path_pattern_exists(path: str) -> bool:
 
 def _check_docs_freshness_contract() -> list[Finding]:
     findings: list[Finding] = []
-    baseline = _read_toml("architecture/docs_freshness_exceptions.toml")[
+    baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
     ]
     if baseline.get("mode") != "fail_closed_baseline":
@@ -435,7 +537,7 @@ def _check_complexity_exceptions() -> list[Finding]:
     findings: list[Finding] = []
     today = dt.date.today()
     max_expiry = today + dt.timedelta(days=MAX_COMPLEXITY_EXCEPTION_DAYS)
-    payload = _read_toml("architecture/complexity_exceptions.toml")
+    payload = _read_toml("architecture/exceptions/complexity.toml")
     if payload.get("complexity_exceptions", {}).get("status") != "active":
         findings.append(Finding("complexity", "complexity exceptions registry must be active"))
     for idx, exception in enumerate(payload.get("exception", []), start=1):
@@ -580,7 +682,7 @@ def _check_structure_remediation_exception_metadata() -> list[Finding]:
 def _check_dynamic_import_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/dynamic_imports.toml")
+    payload = _read_toml("architecture/imports/dynamic.toml")
     header = payload.get("dynamic_imports", {})
     _check_required_fields(
         findings,
@@ -650,8 +752,15 @@ def _check_package_contract_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
     for path in sorted(_resolve("architecture/packages").glob("*.toml")):
+        if path.stem in {"boundaries", "layout"}:
+            continue
         payload = _read_toml(str(path.relative_to(REPO_ROOT)))
-        package_name = str(payload.get("package", {}).get("name", path.stem))
+        package_header = payload.get("package", {})
+        package_name = (
+            str(package_header.get("name", path.stem))
+            if isinstance(package_header, dict)
+            else path.stem
+        )
         for idx, exception in enumerate(payload.get("exception", []), start=1):
             subject = str(exception.get("id", "")).strip() or f"{package_name}.exception[{idx}]"
             _check_required_fields(
@@ -687,7 +796,7 @@ def _check_package_contract_exception_metadata() -> list[Finding]:
 def _check_test_ratchet_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/test_ratchets.toml")
+    payload = _read_toml("architecture/tests/ratchets.toml")
     for idx, exception in enumerate(payload.get("pytest_universe_exception", []), start=1):
         subject = str(exception.get("id", "")).strip() or f"pytest_universe_exception[{idx}]"
         _check_required_fields(
@@ -756,7 +865,7 @@ def _check_test_ratchet_exception_metadata() -> list[Finding]:
 def _check_test_topology_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/test_topology.toml")
+    payload = _read_toml("architecture/tests/topology.toml")
     for idx, exception in enumerate(payload.get("source_package_exception", []), start=1):
         subject = str(exception.get("name", "")).strip() or f"source_package_exception[{idx}]"
         _check_required_fields(
@@ -779,7 +888,7 @@ def _check_test_topology_exception_metadata() -> list[Finding]:
 def _check_static_override_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/static_analysis_overrides.toml")
+    payload = _read_toml("architecture/tooling/static_analysis_overrides.toml")
     for idx, override in enumerate(payload.get("override_scope", []), start=1):
         subject = str(override.get("id", "")).strip() or f"override_scope[{idx}]"
         _check_required_fields(
@@ -876,7 +985,7 @@ def _check_slo_runbook_exception_metadata() -> list[Finding]:
 def _check_directory_contract_exception_policy() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/directory_contracts.toml")
+    payload = _read_toml("architecture/policies/directory_contracts.toml")
     header = payload.get("directory_contracts", {})
     local_docs = payload.get("local_documentation_requirement", {})
     if not str(header.get("exception_policy_issue", "")).strip():
@@ -990,7 +1099,7 @@ def _check_control_plane_exception_metadata() -> list[Finding]:
 def _check_guardrail_exception_metadata() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/guardrail_exceptions.toml")
+    payload = _read_toml("architecture/exceptions/guardrails.toml")
     for idx, exception in enumerate(payload.get("exception", []), start=1):
         subject = str(exception.get("id", "")).strip() or f"guardrail_exception[{idx}]"
         _check_required_fields(
@@ -1010,7 +1119,7 @@ def _check_guardrail_exception_metadata() -> list[Finding]:
 def _check_public_surface_compatibility_sunsets() -> list[Finding]:
     findings: list[Finding] = []
     gate = "phase6.5-exceptions"
-    payload = _read_toml("architecture/public_surface.toml")
+    payload = _read_toml("architecture/public_surface/contract.toml")
     for package in payload.get("package", []):
         if package.get("classification") != "compatibility":
             continue
@@ -1042,7 +1151,7 @@ def _check_package_boundary_shim_refs() -> list[Finding]:
         for shim in _read_toml("architecture/shims.toml").get("shim", [])
         if shim.get("id")
     }
-    for package in _read_toml("architecture/package_boundaries.toml").get("package", []):
+    for package in _read_toml("architecture/packages/boundaries.toml").get("package", []):
         if not package.get("compatibility_shim"):
             continue
         subject = str(package.get("module", "compatibility-shim"))
@@ -1060,7 +1169,7 @@ def _check_non_expired_named_sunsets() -> list[Finding]:
     for relative_path, section_name, subject_field in (
         ("architecture/name_registry.toml", "shared_name", "name"),
         ("architecture/name_registry.toml", "rename_backlog", "name"),
-        ("architecture/cross_cutting_concerns.toml", "concern", "name"),
+        ("architecture/policies/cross_cutting_concerns.toml", "concern", "name"),
     ):
         payload = _read_toml(relative_path)
         for idx, item in enumerate(payload.get(section_name, []), start=1):
@@ -1104,6 +1213,31 @@ def _check_wiring() -> list[Finding]:
             continue
         if needle not in path.read_text(encoding="utf-8"):
             findings.append(Finding("wiring", f"{relative_path} does not invoke {needle}"))
+    findings.extend(_check_last_mile_gate_ownership())
+    return findings
+
+
+def _check_last_mile_gate_ownership() -> list[Finding]:
+    findings: list[Finding] = []
+    for gate in LAST_MILE_GATE_OWNERSHIP:
+        gate_id = gate["id"]
+        owner = gate["owner"]
+        relative_path = gate["source_path"]
+        needle = gate["needle"]
+        path = _resolve(relative_path)
+        if not path.exists():
+            findings.append(
+                Finding("last-mile-wiring", f"{gate_id} owner file missing", relative_path)
+            )
+            continue
+        if needle not in path.read_text(encoding="utf-8"):
+            findings.append(
+                Finding(
+                    "last-mile-wiring",
+                    f"{gate_id} is not wired through {owner}",
+                    f"{relative_path} missing {needle}",
+                )
+            )
     return findings
 
 
@@ -1250,6 +1384,167 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
                 "-q",
             ],
         ),
+        (
+            "repository-structure",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/repository_structure_phase0.py",
+                "gate",
+                "--gate",
+                "all",
+                "--mode",
+                "fail-closed",
+                "--json",
+            ],
+        ),
+        (
+            "last-mile-inventory",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/repository_last_mile_inventory.py",
+                "--json-output",
+                "_build/.tmp/last-mile/inventory.json",
+                "--check",
+            ],
+        ),
+        (
+            "package-import-gates",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/check_package_import_gates.py",
+                "--fail-closed",
+                "--json-output",
+                "_build/.tmp/last-mile/package-import-gates.json",
+            ],
+        ),
+        (
+            "directory-health",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/directory_health.py",
+                "--repo-root",
+                ".",
+                "--json-output",
+                "_build/.tmp/last-mile/directory-health.json",
+                "--markdown-output",
+                "_build/.tmp/last-mile/directory-health.md",
+                "--fail-on-regression",
+            ],
+        ),
+        (
+            "test-ratchets-helper-topology",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/testing/report_test_ratchets.py",
+                "--format",
+                "json",
+                "--output",
+                "_build/.tmp/last-mile/test-ratchets.json",
+                "--fail-on-regression",
+            ],
+        ),
+        (
+            "dead-overrides",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/ops_runners/reports/dead_overrides.py",
+                "--json-output",
+                "_build/.tmp/last-mile/dead-overrides.json",
+            ],
+        ),
+        (
+            "extension-examples",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/check_extension_examples.py",
+            ],
+        ),
+        (
+            "adr-thematic-index",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/generate_adr_index.py",
+                "--check",
+            ],
+        ),
+        (
+            "validator-module-size",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/quality/validation/architecture_report_only_contracts.py",
+                "--report",
+                "module-size",
+                "--json-output",
+                "_build/.tmp/last-mile/module-size.json",
+                "--fail-on-contract-errors",
+            ],
+        ),
+        (
+            "schema-purity",
+            [
+                "uv",
+                "run",
+                "python",
+                "-c",
+                SCHEMA_PURITY_SNIPPET.strip(),
+            ],
+        ),
+        (
+            "operability-release",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/ops_runners/release/check_operability_release_gates.py",
+                "--json-output",
+                "_build/.tmp/last-mile/operability-release-gates.json",
+                "--fail-closed",
+            ],
+        ),
+        (
+            "compatibility-release",
+            [
+                "uv",
+                "run",
+                "python",
+                "tools/ops_runners/release/check_compatibility_release_gates.py",
+                "--json-output",
+                "_build/.tmp/last-mile/compatibility-release-gates.json",
+                "--fail-on-contract-errors",
+            ],
+        ),
+        (
+            "acceptance-audit",
+            [
+                "uv",
+                "run",
+                "polisyos-tools",
+                "workspace",
+                "acceptance-audit",
+                "--json-output",
+                "_build/.tmp/last-mile/platform-acceptance.json",
+                "--summary",
+                "_build/.tmp/last-mile/platform-acceptance.md",
+            ],
+        ),
     ]
     for gate, command in commands:
         completed = subprocess.run(
@@ -1275,7 +1570,7 @@ def _compact_output(completed: subprocess.CompletedProcess[str], *, limit: int =
 
 def _run_docs_freshness_gate() -> list[Finding]:
     findings: list[Finding] = []
-    baseline = _read_toml("architecture/docs_freshness_exceptions.toml")[
+    baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
     ]
     expires, error = _parse_date(

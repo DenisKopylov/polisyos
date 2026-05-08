@@ -15,9 +15,13 @@ def _read_toml(path: str) -> dict[str, Any]:
 def test_phase2_3_schema_and_contract_register_runtime_root_entries() -> None:
     local = _read_toml("architecture/local_runtime_state.toml")
     layout = _read_toml("architecture/runtime_state_layout.toml")
-    schema = RUNTIME_ROOT / "SCHEMA.md"
+    schema = REPO_ROOT / local["local_runtime_state"]["schema_document"]
 
     assert schema.exists()
+    assert (
+        local["local_runtime_state"]["schema_document"]
+        == layout["runtime_state_layout"]["schema_document"]
+    )
     assert local["local_runtime_state"]["schema_document_status"] == "present"
     assert layout["runtime_state_layout"]["schema_document_status"] == "present"
     assert layout["runtime_state_layout"]["default_gate_mode"] == "fail_closed"
@@ -41,13 +45,22 @@ def test_phase2_3_schema_and_contract_register_runtime_root_entries() -> None:
     } <= local_registered
     assert {"artifacts", "cas_cache", "cas-readme-check", "live_gonka_smoke.json"} <= legacy
 
-    physical = {path.name for path in RUNTIME_ROOT.iterdir()} - {"SCHEMA.md"}
+    physical = (
+        {path.name for path in RUNTIME_ROOT.iterdir()} - {"SCHEMA.md"}
+        if RUNTIME_ROOT.exists()
+        else set()
+    )
     assert physical <= local_registered, sorted(physical - local_registered)
     assert physical.isdisjoint(legacy), sorted(physical & legacy)
 
     schema_text = schema.read_text(encoding="utf-8")
     for entry in sorted(physical | {"facts", "idempotency", "keys", "scholar_cache", "state"}):
-        assert f"`{entry}" in schema_text or f"`{entry}/`" in schema_text
+        assert (
+            f"`{entry}" in schema_text
+            or f"`{entry}/`" in schema_text
+            or f"`.polisyos/{entry}" in schema_text
+            or f"`.polisyos/{entry}/`" in schema_text
+        )
 
 
 def test_phase2_3_every_state_class_has_layout_slot_and_cleanup_policy() -> None:

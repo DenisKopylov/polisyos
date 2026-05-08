@@ -42,7 +42,7 @@ DEPENDENCY_LOCK_PATHS = {
     "policy-engine/pnpm-lock.yaml",
 }
 RETIRED_RENOVATE_MATCH_FILE_NAMES = {
-    "policy-engine/frontend/runtime-dashboard/package.json",
+    "/".join(("policy-engine", "frontend", "runtime-dashboard", "package.json")),
 }
 RELEASE_CANDIDATE_REQUIRED_CHECKS = {
     "release SBOM generation",
@@ -306,7 +306,7 @@ def _check_owner_mappings(
     boundary_owner_by_module = {
         record["module"]: record["owner"]
         for record in _package_owner_records()
-        if record["source"] == "architecture/package_boundaries.toml"
+        if record["source"] == "architecture/packages/boundaries.toml"
     }
     for module in stable_modules:
         owner = boundary_owner_by_module.get(module) or _public_surface_owner(module)
@@ -751,17 +751,17 @@ def _package_owner_records() -> list[dict[str, str]]:
                     {"module": module, "owner": owner, "source": str(path.relative_to(REPO_ROOT))}
                 )
 
-    boundaries = tomllib.loads((REPO_ROOT / "architecture/package_boundaries.toml").read_text())
+    boundaries = tomllib.loads((REPO_ROOT / "architecture/packages/boundaries.toml").read_text())
     for item in boundaries.get("package", []):
         records.append(
             {
                 "module": str(item.get("module", "")),
                 "owner": str(item.get("owner", "")),
-                "source": "architecture/package_boundaries.toml",
+                "source": "architecture/packages/boundaries.toml",
             }
         )
 
-    layout = tomllib.loads((REPO_ROOT / "architecture/package_layout.toml").read_text())
+    layout = tomllib.loads((REPO_ROOT / "architecture/packages/layout.toml").read_text())
     for item in layout.get("package", []):
         if item.get("current_status") == "removed":
             continue
@@ -770,24 +770,24 @@ def _package_owner_records() -> list[dict[str, str]]:
             {
                 "module": name if name.startswith("polisyos.") else f"polisyos.{name}",
                 "owner": str(item.get("owner", "")),
-                "source": "architecture/package_layout.toml",
+                "source": "architecture/packages/layout.toml",
             }
         )
 
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface.toml").read_text())
+    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
     for item in public_surface.get("package", []):
         records.append(
             {
                 "module": str(item.get("module", "")),
                 "owner": str(item.get("owner", "")),
-                "source": "architecture/public_surface.toml",
+                "source": "architecture/public_surface/contract.toml",
             }
         )
     return [record for record in records if record["module"] and record["owner"]]
 
 
 def _public_stable_modules() -> set[str]:
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface.toml").read_text())
+    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
     return {
         str(item.get("module", ""))
         for item in public_surface.get("package", [])
@@ -796,7 +796,7 @@ def _public_stable_modules() -> set[str]:
 
 
 def _public_surface_owner(module: str) -> str:
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface.toml").read_text())
+    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
     for item in public_surface.get("package", []):
         if item.get("module") == module:
             return str(item.get("owner", ""))

@@ -8092,7 +8092,7 @@
             "type": "string"
           },
           "lineage": {
-            "$ref": "#/components/schemas/polisyos__fabric__decision_data__LineageRef"
+            "$ref": "#/components/schemas/polisyos__fabric__evidence__decision_data__LineageRef"
           },
           "metadata": {
             "additionalProperties": true,
@@ -8109,7 +8109,7 @@
             "$ref": "#/components/schemas/SourceContractRef"
           },
           "time": {
-            "$ref": "#/components/schemas/polisyos__fabric__decision_data__TemporalRef"
+            "$ref": "#/components/schemas/polisyos__fabric__evidence__decision_data__TemporalRef"
           },
           "value": {
             "anyOf": [
@@ -8232,7 +8232,7 @@
           "temporal_scope": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/polisyos__fabric__decision_data__TemporalRef"
+                "$ref": "#/components/schemas/polisyos__fabric__evidence__decision_data__TemporalRef"
               },
               {
                 "type": "null"
@@ -8562,7 +8562,7 @@
             "title": "Semantic Type"
           },
           "unit": {
-            "$ref": "#/components/schemas/polisyos__fabric__decision_data__UnitRef"
+            "$ref": "#/components/schemas/polisyos__fabric__evidence__decision_data__UnitRef"
           }
         },
         "required": [
@@ -17261,7 +17261,7 @@
         "title": "UnitRef",
         "type": "object"
       },
-      "polisyos__fabric__decision_data__LineageRef": {
+      "polisyos__fabric__evidence__decision_data__LineageRef": {
         "additionalProperties": false,
         "description": "Lineage reference rich enough for compact UI and lazy full graph loading.",
         "properties": {
@@ -17368,7 +17368,7 @@
         "title": "LineageRef",
         "type": "object"
       },
-      "polisyos__fabric__decision_data__TemporalRef": {
+      "polisyos__fabric__evidence__decision_data__TemporalRef": {
         "additionalProperties": false,
         "description": "Temporal scope echoed by every Fabric trust envelope.",
         "properties": {
@@ -17433,7 +17433,7 @@
         "title": "TemporalRef",
         "type": "object"
       },
-      "polisyos__fabric__decision_data__UnitRef": {
+      "polisyos__fabric__evidence__decision_data__UnitRef": {
         "additionalProperties": false,
         "description": "Unit identity for a Fabric decision quantity.",
         "properties": {

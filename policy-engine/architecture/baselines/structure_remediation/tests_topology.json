@@ -14,7 +14,7 @@
     {
       "conftest_count": 0,
       "name": "architecture",
-      "path": "tests/architecture",
+      "path": "tests/repo_quality/architecture",
       "test_file_count": 17
     },
     {

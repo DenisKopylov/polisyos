@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import subprocess
@@ -467,8 +468,19 @@ def test_run_all_temporal_filters_execute_single_suite(tmp_path: Path, suite_id:
 
 
 def test_honest_cli_supports_unified_benchmark_contract(tmp_path: Path, monkeypatch):
-    from benchmarks.honest_comparison import run_honest_benchmark as honest_cli
-    from benchmarks.honest_comparison.metrics import AggregatedMetrics
+    for module_name in (
+        "benchmarks.honest_comparison.run_honest_benchmark",
+        "benchmarks.honest_comparison.metrics",
+        "benchmarks.honest_comparison",
+    ):
+        sys.modules.pop(module_name, None)
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    benchmarks_pkg.__path__ = [str(REPO_ROOT / "benchmarks")]
+    importlib.invalidate_caches()
+
+    honest_cli = importlib.import_module("benchmarks.honest_comparison.run_honest_benchmark")
+    metrics = importlib.import_module("benchmarks.honest_comparison.metrics")
+    AggregatedMetrics = metrics.AggregatedMetrics
 
     raw_result = {
         "metrics": {

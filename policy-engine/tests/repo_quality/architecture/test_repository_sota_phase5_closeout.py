@@ -22,7 +22,7 @@ def test_phase5_repository_sota_closeout_command_is_registered() -> None:
 
 
 def test_phase5_gate_registry_is_fail_closed_and_evidence_backed() -> None:
-    contract = _read_toml("architecture/repository_sota_gates.toml")
+    contract = _read_toml("architecture/gates/repository_sota.toml")
     header = contract["repository_sota_gates"]
     gates = {gate["id"]: gate for gate in contract["gate"]}
 
@@ -71,7 +71,7 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
         assert _has_issue_or_adr(exception)
         assert _date(exception["expires"]) >= today
 
-    complexity = _read_toml("architecture/complexity_exceptions.toml")
+    complexity = _read_toml("architecture/exceptions/complexity.toml")
     assert complexity["complexity_exceptions"]["status"] == "active"
     for exception in complexity["exception"]:
         path = exception["path"]
@@ -83,7 +83,7 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
         assert _has_issue_or_adr(exception)
         assert _date(exception["expires"]) >= today
 
-    docs = _read_toml("architecture/docs_freshness_exceptions.toml")["docs_freshness_exceptions"]
+    docs = _read_toml("architecture/exceptions/docs_freshness.toml")["docs_freshness_exceptions"]
     assert docs["owner"]
     assert docs["reason"]
     assert docs["issue"]
@@ -113,7 +113,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
     assert documented_ids == import_ids
     assert "issue/ADR" in import_docs
 
-    dynamic_imports = _read_toml("architecture/dynamic_imports.toml")
+    dynamic_imports = _read_toml("architecture/imports/dynamic.toml")
     dynamic_header = dynamic_imports["dynamic_imports"]
     _assert_fields(
         dynamic_header,
@@ -126,6 +126,8 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
         assert _contract_path_exists(pattern["source_file"]), pattern["id"]
 
     for package_contract in sorted((REPO_ROOT / "architecture/packages").glob("*.toml")):
+        if package_contract.stem in {"boundaries", "layout"}:
+            continue
         payload = tomllib.loads(package_contract.read_text(encoding="utf-8"))
         for exception in payload.get("exception", []):
             _assert_fields(exception, ("id", "owner", "kind", "reason", "sunset", "registry"))
@@ -137,7 +139,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
             assert _has_issue_or_adr(sunset), sunset["id"]
             assert _date(sunset["date"]) >= today
 
-    test_topology = _read_toml("architecture/test_topology.toml")
+    test_topology = _read_toml("architecture/tests/topology.toml")
     for exception in test_topology.get("source_package_exception", []):
         _assert_fields(
             exception, ("name", "source_path", "classification", "owner", "reason", "sunset")
@@ -146,7 +148,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
         assert _date(exception["sunset"]) >= today
         assert _contract_path_exists(exception["source_path"]), exception["name"]
 
-    for override in _read_toml("architecture/static_analysis_overrides.toml")["override_scope"]:
+    for override in _read_toml("architecture/tooling/static_analysis_overrides.toml")["override_scope"]:
         _assert_fields(override, ("id", "owner", "expectation", "sunset", "issue"))
         assert _date(override["sunset"]) >= today
 
@@ -155,7 +157,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
         assert _has_issue_or_adr(budget), budget["path"]
         assert _date(budget["sunset"]) >= today
 
-    ratchets = _read_toml("architecture/test_ratchets.toml")
+    ratchets = _read_toml("architecture/tests/ratchets.toml")
     for exception in ratchets.get("pytest_universe_exception", []):
         _assert_fields(exception, ("id", "owner", "reason", "expires", "issue"))
         assert _date(exception["expires"]) >= today
@@ -180,7 +182,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
             assert _date(component["slo_exception_expires"]) >= today
             assert _contract_path_exists(component["slo_exception"]), component["component"]
 
-    directory_contracts = _read_toml("architecture/directory_contracts.toml")
+    directory_contracts = _read_toml("architecture/policies/directory_contracts.toml")
     assert directory_contracts["directory_contracts"]["exception_policy_issue"]
     accepted_fields = set(
         directory_contracts["local_documentation_requirement"]["accepted_exception_fields"]
@@ -226,7 +228,7 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
 
 
 def test_phase5_ops_security_release_and_observability_modes_are_fail_closed() -> None:
-    ops = _read_toml("architecture/ops_baselines.toml")
+    ops = _read_toml("architecture/baselines/ops.toml")
     for baseline in ops["baseline"]:
         assert baseline["mode"] == "fail_closed", baseline["id"]
 

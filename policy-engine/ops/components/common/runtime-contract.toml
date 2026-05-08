@@ -4,7 +4,7 @@ owner = "team-core"
 aliases = ["common", "polisyos.common"]
 source_readme = "src/polisyos/common/README.md"
 runtime_contract_links = [
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "architecture/runtime_state_layout.toml",
 ]
 release_gate_mode = "report_only"

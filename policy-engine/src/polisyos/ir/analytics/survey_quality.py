@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from polisyos.ir.artifacts.contracts import ArtifactStore
     from polisyos.ir.artifacts.refs import InputRef
-    from polisyos.ir.references import SurveyQualityCertificateRef
+    from polisyos.ir.registry.refs import SurveyQualityCertificateRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -360,8 +360,8 @@ def persist_survey_quality_certificate(
     """Persist a survey-quality certificate and return its typed artifact ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.canon import CanonSpec
-    from polisyos.ir.references import SurveyQualityCertificateRef
+    from polisyos.ir.model_layer.canon import CanonSpec
+    from polisyos.ir.registry.refs import SurveyQualityCertificateRef
 
     ref = put_json_artifact(
         store,

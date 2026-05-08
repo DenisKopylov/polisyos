@@ -25,7 +25,7 @@ from polisyos.fabric.security import (
     resolve_artifact_governance,
     validate_artifact_governance,
 )
-from polisyos.fabric.temporal import parse_datetime_utc, utc_now
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.world.materialize.sql import (
     sql_insert_missing_nodes,
     sql_update_world_nodes,

@@ -15,7 +15,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 @pytest.fixture(scope="session")
 def release_gate_golden_registry() -> GoldenRegistry:
-    return GoldenRegistry(_REPO_ROOT / "tests" / "unit" / "foundry" / "golden")
+    return GoldenRegistry(_REPO_ROOT / "tests" / "_golden" / "foundry" / "methods")
 
 
 @pytest.fixture(scope="session")

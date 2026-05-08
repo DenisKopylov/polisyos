@@ -10,7 +10,10 @@ from pathlib import Path
 from tools.lib.fs import atomic_write_text
 from tools.lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
 
-from .rules import RuleContext, RuleFix, RuleViolation, iter_rules
+if __package__:
+    from .rules import RuleContext, RuleFix, RuleViolation, iter_rules
+else:  # pragma: no cover - exercised by direct script entrypoints.
+    from tools.quality.lint.rules import RuleContext, RuleFix, RuleViolation, iter_rules
 
 STANDARD_BANNED_IMPORT_ROOTS = {
     "duckdb",
@@ -59,8 +62,16 @@ ZONE_MAP: dict[str, str] = {
     "plugins/": "infra",
     "agent_sim/": "infra",
     "runtime/": "infra",
+    "extensions/": "infra",
     "methods/testing/": "infra",
     "methods/cli/": "infra",
+    "methods/artifacts/": "infra",
+    "methods/bayesian/": "infra",
+    "methods/causal/": "infra",
+    "methods/compiler/": "infra",
+    "methods/econometrics/": "infra",
+    "methods/lifecycle/": "infra",
+    "methods/selection/": "infra",
     "agents.py": "infra",
     "quickstart.py": "infra",
     "_quickstart.py": "infra",

@@ -4,7 +4,7 @@ owner = "team-data-forge"
 aliases = ["data_forge", "polisyos.data_forge", "polisyos.data_forge.read_api"]
 source_readme = "src/polisyos/data_forge/README.md"
 runtime_contract_links = [
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "architecture/runtime_state_layout.toml",
   "docs/reference/generated-artifacts.md",
 ]

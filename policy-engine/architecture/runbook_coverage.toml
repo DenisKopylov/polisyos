@@ -19,6 +19,20 @@ preferred_bundle_shape = [
   "runtime-contract.toml",
   "retention-policy.toml",
 ]
+phase_6_6_completeness_gate = "fail_closed"
+phase_6_6_plan_window_start = "2026-05-07"
+phase_6_6_plan_completion_target = "2026-05-31"
+phase_6_6_exception_minimum_days_after_completion = 90
+required_public_stable_bundle_files = [
+  "README.md",
+  "alerts.yml",
+  "dashboard.json",
+  "retention-policy.toml",
+  "runbooks.md",
+  "runtime-contract.toml",
+  "slo.yaml",
+]
+exception_policy = "SLO exceptions require owner, reason, expiration, and an action plan due inside the last-mile plan window unless the exception expires at least 90 days after the plan completion target."
 
 [[coverage]]
 id = "fabric-ingestion-recovery"
@@ -124,6 +138,9 @@ escalation = "team-core primary; team-platform joins for shared dependency or mi
 slo_exception = "ops/components/common/slo.yaml"
 slo_exception_reason = "Component `common` has an explicit SLO exception mirrored in ops/components/common/slo.yaml."
 slo_exception_expires = "2026-08-01"
+slo_exception_owner = "team-core"
+slo_exception_action_plan = "Decide whether Common exposes standalone runtime traffic; if yes, replace the exception with a present SLO bundle, otherwise keep coverage delegated to dependent public-stable components."
+slo_exception_action_due = "2026-05-31"
 slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -301,6 +318,9 @@ escalation = "team-security primary; team-platform joins for identity, policy, o
 slo_exception = "ops/components/security/slo.yaml"
 slo_exception_reason = "Component `security` has an explicit SLO exception mirrored in ops/components/security/slo.yaml."
 slo_exception_expires = "2026-08-01"
+slo_exception_owner = "team-security"
+slo_exception_action_plan = "Close the Wave 6 security SLO ownership decision; either promote security to a present component SLO or keep security alerts governed by release/security gates."
+slo_exception_action_due = "2026-05-31"
 slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -313,6 +333,9 @@ escalation = "team-foundry primary; team-scientist joins when decision validity 
 slo_exception = "ops/components/calibration/slo.yaml"
 slo_exception_reason = "Component `calibration` has an explicit SLO exception mirrored in ops/components/calibration/slo.yaml."
 slo_exception_expires = "2026-08-01"
+slo_exception_owner = "team-foundry"
+slo_exception_action_plan = "Resolve Foundry versus Scientist calibration ownership; promote calibration to a present SLO if it becomes a public-stable component."
+slo_exception_action_due = "2026-05-31"
 slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -325,6 +348,9 @@ escalation = "team-architecture primary; team-scientist joins when explanation r
 slo_exception = "ops/components/berl/slo.yaml"
 slo_exception_reason = "Component `berl` has an explicit SLO exception mirrored in ops/components/berl/slo.yaml."
 slo_exception_expires = "2026-08-01"
+slo_exception_owner = "team-architecture"
+slo_exception_action_plan = "Resolve BERL's standalone operational surface decision after the last-mile bridge tests; either promote to a present BERL SLO or keep BERL covered by Scientist component operations."
+slo_exception_action_due = "2026-05-31"
 slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -340,6 +366,9 @@ escalation = "team-architecture primary; team-scientist joins for drift/degradat
 slo_exception = "ops/components/ddm/slo.yaml"
 slo_exception_reason = "Component `ddm` has an explicit SLO exception mirrored in ops/components/ddm/slo.yaml."
 slo_exception_expires = "2026-08-01"
+slo_exception_owner = "team-architecture"
+slo_exception_action_plan = "Finish the DDM shim and package-version policy decision; create a present DDM SLO only if DDM remains a standalone operational surface."
+slo_exception_action_due = "2026-05-31"
 slo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[alert_mapping]]

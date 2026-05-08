@@ -1,6 +1,6 @@
 """Public contracts distributional module API."""
 
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalAssumptionCardRef,
     DistributionalBoundsBundleRef,
     DistributionalDualCertificateRef,

@@ -1,0 +1,74 @@
+{
+  "contract": "architecture/tests/ratchets.toml",
+  "duplicated_fixture_factories": [
+    {
+      "factory_hash": "b034b816108d",
+      "fixture": "cas_store",
+      "id": "cas_store:b034b816108d",
+      "instances": [
+        {
+          "fixture": "cas_store",
+          "line": 13,
+          "path": "tests/unit/scientist/governance/conftest.py"
+        },
+        {
+          "fixture": "cas_store",
+          "line": 14,
+          "path": "tests/unit/scientist/nodes/conftest.py"
+        }
+      ]
+    }
+  ],
+  "forbidden_reverse_imports": [],
+  "generated_at": "2026-05-07T00:00:00+00:00",
+  "layer_local_conftest_files": [
+    "tests/contract/conftest.py",
+    "tests/property/foundry/methods/conftest.py",
+    "tests/repo_quality/conftest.py",
+    "tests/unit/berl/conftest.py",
+    "tests/unit/calibration/conftest.py",
+    "tests/unit/common/conftest.py",
+    "tests/unit/core/conftest.py",
+    "tests/unit/data_forge/conftest.py",
+    "tests/unit/ddm/conftest.py",
+    "tests/unit/fabric/conftest.py",
+    "tests/unit/fabric/connectors/conftest.py",
+    "tests/unit/foundry/agent_sim/conftest.py",
+    "tests/unit/foundry/calibration/conftest.py",
+    "tests/unit/foundry/conftest.py",
+    "tests/unit/foundry/method_regression/conftest.py",
+    "tests/unit/foundry/methods/conftest.py",
+    "tests/unit/ir/conftest.py",
+    "tests/unit/lex/conftest.py",
+    "tests/unit/runtime/conftest.py",
+    "tests/unit/runtime/http/conftest.py",
+    "tests/unit/scholar/conftest.py",
+    "tests/unit/scientist/conftest.py",
+    "tests/unit/scientist/governance/conftest.py",
+    "tests/unit/scientist/nodes/conftest.py",
+    "tests/unit/scientist/orchestration/kernel/conftest.py",
+    "tests/unit/scientist/search/conftest.py",
+    "tests/unit/scientist/search/strategies/conftest.py"
+  ],
+  "owner": "team-quality",
+  "schema_version": 1,
+  "shared_helper_files": [
+    "tests/_helpers/artifacts.py",
+    "tests/_helpers/c7_synthetic_data.py",
+    "tests/_helpers/causal_scm_fixtures.py",
+    "tests/_helpers/mirror_contracts.py",
+    "tests/_helpers/observability.py",
+    "tests/_helpers/runtime_http.py",
+    "tests/_helpers/scientist_runtime.py",
+    "tests/_helpers/search_strategies.py"
+  ],
+  "status": "active_baseline",
+  "summary": {
+    "duplicated_fixture_factories": 1,
+    "forbidden_reverse_imports": 0,
+    "layer_local_conftest_files": 27,
+    "shared_helper_files": 8,
+    "unused_helpers": 0
+  },
+  "unused_helpers": []
+}

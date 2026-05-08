@@ -8,12 +8,12 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Domain-neutral compile, execute, methods, validation, runtime, agent simulation, and welfare surface."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
   "architecture/generated_artifacts.toml",
-  "architecture/test_topology.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -34,7 +34,7 @@ implementation_roots = [
   "src/polisyos/foundry/welfare",
   "src/polisyos/foundry/_internal",
 ]
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
 
 [boundaries]
@@ -134,7 +134,7 @@ owner = "team-foundry"
 [exceptions]
 status = "declared"
 owner = "team-foundry"
-registries = ["architecture/module_size_budget.toml", "architecture/static_analysis_overrides.toml"]
+registries = ["architecture/module_size_budget.toml", "architecture/tooling/static_analysis_overrides.toml"]
 
 [[exception]]
 id = "foundry-catalog-module-size"
@@ -152,7 +152,7 @@ kind = "mypy_ruff_ratchet"
 reason = "Phase 4D keeps Foundry on explicit mypy and Ruff ratchets while method families are hardened vertically."
 sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/static_analysis_overrides.toml"
+registry = "architecture/tooling/static_analysis_overrides.toml"
 
 [sunsets]
 status = "declared"

@@ -25,5 +25,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-11-30",
     migration_hint="Use polisyos.scientist.replay.backend for new imports.",
-    shim_id="scientist.replay_backend-to-replay.backend",
+    shim_id="decomp-scientist-replay_backend",
 )

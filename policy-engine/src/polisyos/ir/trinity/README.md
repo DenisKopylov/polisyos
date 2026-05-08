@@ -32,7 +32,7 @@
 ## Depends on / depended on by
 
 - Depends on: [`../governance/README.md`](../governance/README.md), [`../model_spec.py`](../model_spec.py), `polisyos.ir.kernel.base`.
-- Depended on by: `polisyos.ir.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry.compile`, `polisyos.scientist.agent`, `polisyos.lex`.
+- Depended on by: `polisyos.ir.loading.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry.compile`, `polisyos.scientist.agent`, `polisyos.lex`.
 
 ## Common commands
 

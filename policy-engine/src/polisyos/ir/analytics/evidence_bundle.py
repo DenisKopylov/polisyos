@@ -22,8 +22,8 @@ from polisyos.ir.artifacts import (
     get_json_artifact,
     put_json_artifact,
 )
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import (
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import (
     BoundsBundleRef,
     DataReadinessReportRef,
     EvidenceBundleRef,

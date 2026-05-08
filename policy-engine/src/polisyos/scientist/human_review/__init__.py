@@ -1,55 +1,7 @@
-"""Compatibility shim for human review moved to governance.human_review."""
+"""Compatibility shim for `polisyos.scientist.human_review`."""
 
-from polisyos.scientist.governance.human_review import (
-    FundamentalRightsChecklist,
-    HumanReviewDecision,
-    HumanReviewPacket,
-    HumanReviewRequirement,
-    HumanReviewStatus,
-    HumanReviewValidationResult,
-    ReviewAction,
-    ReviewAssignment,
-    ReviewRiskTier,
-    ReviewerSignature,
-    apply_human_review_to_governance_report,
-    build_human_escalation_voi_decision,
-    build_review_packet,
-    evaluate_human_review_requirement,
-    human_review_section,
-    human_review_status,
-    load_review_decision,
-    load_review_packet,
-    persist_review_decision,
-    persist_review_packet,
-    review_decision_summary,
-    review_packet_summary,
-    validate_human_escalation_voi_decision,
-    validate_human_reviewed_readiness,
-)
+from __future__ import annotations
 
-__all__ = [
-    "FundamentalRightsChecklist",
-    "HumanReviewDecision",
-    "HumanReviewPacket",
-    "HumanReviewRequirement",
-    "HumanReviewStatus",
-    "HumanReviewValidationResult",
-    "ReviewAction",
-    "ReviewAssignment",
-    "ReviewRiskTier",
-    "ReviewerSignature",
-    "apply_human_review_to_governance_report",
-    "build_human_escalation_voi_decision",
-    "build_review_packet",
-    "evaluate_human_review_requirement",
-    "human_review_section",
-    "human_review_status",
-    "load_review_decision",
-    "load_review_packet",
-    "persist_review_decision",
-    "persist_review_packet",
-    "review_decision_summary",
-    "review_packet_summary",
-    "validate_human_escalation_voi_decision",
-    "validate_human_reviewed_readiness",
-]
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
+
+_reexport_package(__name__, "polisyos.scientist.governance.human_review", globals())

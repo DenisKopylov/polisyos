@@ -30,7 +30,7 @@ from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
 )
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable

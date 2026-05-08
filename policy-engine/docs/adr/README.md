@@ -35,14 +35,18 @@ not renumber historical ADRs.
 and stale-link report after ADR changes:
 
 ```bash
-python3 tools/quality/validation/generate_adr_index.py
+uv run python tools/quality/validation/generate_adr_index.py
 ```
+
+Every ADR row in `index.toml` must carry a stable `topic` classification.
+New ADR files without a topic row fail the ADR generator and docs lifecycle
+gate.
 
 Repository closeout wiring is checked with
 `uv run polisyos-tools workspace repository-sota-closeout --contract-only`.
 
 Generated outputs:
 
-- `docs/adr/index.md`
-- `docs/adr/by-topic.md`
+- [Status index](index.md)
+- [ADRs by topic](by-topic.md)
 - `docs/archive/reports/ADR_STALE_LINK_REPORT.md`

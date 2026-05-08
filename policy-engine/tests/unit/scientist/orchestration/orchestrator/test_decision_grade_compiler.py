@@ -16,7 +16,7 @@ from polisyos.scientist.evidence.claims.models import (
     ClaimType,
 )
 from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
-from polisyos.scientist.orchestration.orchestrator.publisher import (
+from polisyos.scientist.publishing.publisher import (
     DecisionGradeExport,
     OutputAudience,
     OutputOmissionRecord,

@@ -13,12 +13,12 @@ from typing import TYPE_CHECKING, Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.fabric.fact_writer import write_fact_segment
+from polisyos.fabric.evidence.fact_writer import write_fact_segment
 from polisyos.fabric.io.atomic import append_text_locked, atomic_write_text, file_lock
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.temporal import parse_datetime_utc
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.fabric.world.providers import resolve_world_observability
-from polisyos.ir.fact_log import Fact, FactProvenance, FactSegmentManifest
+from polisyos.ir.loading.fact_log import Fact, FactProvenance, FactSegmentManifest
 from polisyos.ir.kernel.base import ID_PATTERN
 
 if TYPE_CHECKING:

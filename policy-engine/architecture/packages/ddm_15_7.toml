@@ -8,10 +8,10 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Wrapper-only compatibility facade for polisyos.ddm until the versioned package-name shim sunsets."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
 ]
 
 [layout]
@@ -21,7 +21,7 @@ source_root = "src/polisyos/ddm_15_7"
 readme = "src/polisyos/ddm_15_7/README.md"
 root_facade_policy = "wrapper-only compatibility facade to polisyos.ddm; no implementation subpackages"
 implementation_roots = []
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "compatibility_shim"
 
 [boundaries]
@@ -43,11 +43,11 @@ registry_owner = "team-architecture"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.ddm_15_7"]
 major_subsystem = false
-notes = "Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only."
+notes = "Wrapper-only compatibility facade for polisyos.ddm until 2026-07-31; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only."
 
 [tests]
 status = "compatibility_smoke"
-unit_roots = ["tests/unit/ddm_15_7"]
+unit_roots = ["tests/unit/ddm"]
 contract_roots = ["tests/contract"]
 integration_required = false
 integration_roots = []
@@ -89,7 +89,7 @@ id = "ddm-15-7-rename"
 owner = "team-architecture"
 kind = "compatibility_shim"
 reason = "Remove version/problem number from the Python package name."
-sunset = "2026-10-01"
+sunset = "2026-07-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 registry = "architecture/shims.toml"
 
@@ -100,7 +100,7 @@ owner = "team-architecture"
 [[sunset]]
 id = "ddm-15-7-rename"
 owner = "team-architecture"
-date = "2026-10-01"
+date = "2026-07-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 condition = "public imports use polisyos.ddm and wrapper-only compatibility tests can be removed"
 

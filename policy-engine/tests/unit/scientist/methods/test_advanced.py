@@ -12,7 +12,7 @@ from _helpers.c7_synthetic_data import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.registry import MethodRegistry, registry_scope
 from polisyos.ir.observation.bundles import (
     BilevelProblemBundle,
     SobolDiagnosticsBundle,
@@ -170,6 +170,24 @@ def test_c7_adapter_uses_injected_method_registry(tmp_path, monkeypatch) -> None
     assert store.has(result.bundle_ref.artifact_id)
     assert result.method_result_refs
     assert result.method_evidence_refs
+
+
+def test_c7_adapter_loader_skips_private_placeholder_methods(tmp_path) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_registry_private")
+
+    with registry_scope() as registry:
+        result = BilevelOptimizationAdapter(
+            store,
+            MethodBackend(registry_provider=lambda: registry),
+            method_registry=registry,
+        ).run(fixture.advanced_inputs)
+
+        registered_fqns = {signature.fqn for signature in registry.list_all()}
+
+    assert store.has(result.bundle_ref.artifact_id)
+    assert "optimization.bilevel.bilevel@1.1.0" in registered_fqns
+    assert ".bilevel@0.0.0" not in registered_fqns
 
 
 def test_bilevel_c7_bundle_roundtrip_with_new_params(tmp_path) -> None:

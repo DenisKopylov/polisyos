@@ -148,9 +148,18 @@ def test_phase2_production_entrypoints_target_new_facades() -> None:
     cloud_runner = (
         REPO_ROOT / "tools" / "ops_runners" / "cloud" / "run_lex_from_manifest.py"
     ).read_text(encoding="utf-8")
-    runtime_control = (
-        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py"
-    ).read_text(encoding="utf-8")
+    runtime_control_paths = (
+        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py",
+        REPO_ROOT
+        / "src"
+        / "polisyos"
+        / "runtime"
+        / "http"
+        / "services"
+        / "control"
+        / "run_lifecycle.py",
+    )
+    runtime_control = "\n".join(path.read_text(encoding="utf-8") for path in runtime_control_paths)
 
     assert project["scripts"]["ukraine-data"] == "polisyos.data_forge.domains.ukraine.cli:main"
     assert "polisyos.data_forge.domains.legal.batch" in cloud_runner

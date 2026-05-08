@@ -59,7 +59,7 @@ explicit approval flag.
 
 ## Benchmark Requirement
 
-Frontier claims must cite `polisyos.scientist.search.benchmark_registry` or a
+Frontier claims must cite `polisyos.scientist.methods.search.benchmark_registry` or a
 stored benchmark pack reference before they cite SOTA readiness. If
 `benchmark_pack_ref` is missing, `FrontierRuntimeReport.default_enable_eligible`
 must remain false even when a feature flag is enabled.
@@ -76,7 +76,7 @@ implemented. They must remain behind a feature flag until:
 ## Source Of Truth
 
 - Runtime report builder: `polisyos.scientist.frontier_runtime`
-- Frontier benchmark registry: `polisyos.scientist.search.benchmark_registry`
+- Frontier benchmark registry: `polisyos.scientist.methods.search.benchmark_registry`
 - Runtime promotion gate: `polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime`
 - Tests: `tests/unit/scientist/search/test_frontier_runtime.py`
 - Related acceptance surfaces: [phase4-acceptance.md](phase4-acceptance.md), [remediation-status.md](remediation-status.md)

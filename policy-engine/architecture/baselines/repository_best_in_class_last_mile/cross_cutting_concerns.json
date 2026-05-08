@@ -1,0 +1,484 @@
+{
+  "concerns": [
+    {
+      "adapter_policy": "Package adapters may translate local metric, log, and SLO vocabulary to polisyos.core.observability; they must not define competing cross-package telemetry APIs.",
+      "canonical_home": "polisyos.core.observability",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "package",
+          "package": "core",
+          "path": "src/polisyos/core/observability"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/kernel/observability.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/_adapters/observability.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/lifecycle/observability.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/observability.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/_adapters/observability.py"
+        }
+      ],
+      "name": "observability",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Package adapters may translate local resources to core identity, authorization, audit, and quota primitives; non-core packages must not define global security context APIs.",
+      "canonical_home": "polisyos.core.security",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "package",
+          "package": "core",
+          "path": "src/polisyos/core/security"
+        },
+        {
+          "kind": "package",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/security"
+        },
+        {
+          "kind": "module",
+          "package": "runtime",
+          "path": "src/polisyos/runtime/http/security.py"
+        },
+        {
+          "kind": "module",
+          "package": "scholar",
+          "path": "src/polisyos/scholar/search/security.py"
+        }
+      ],
+      "name": "security",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Package registries may adapt domain records to core registry primitives; they must stay package-qualified and must not act as process-wide registry singletons.",
+      "canonical_home": "polisyos.core.registry",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/artifacts/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/components/registry.py"
+        },
+        {
+          "kind": "package",
+          "package": "core",
+          "path": "src/polisyos/core/registry"
+        },
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/security/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/catalog/knowledge/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/catalog/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/kernel/schemas/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/_internal/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/catalog/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/connectors/bindings/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/connectors/contracts/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/connectors/profiles/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/connectors/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/extensions/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/selection/registry.py"
+        },
+        {
+          "kind": "package",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/registry"
+        },
+        {
+          "kind": "package",
+          "package": "ir",
+          "path": "src/polisyos/ir/registry"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/agent/tools/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/autotune/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/engine/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/llm/profiles/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/methods/autotune/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/engine/registry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/llm/profiles/registry.py"
+        }
+      ],
+      "name": "registry",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Plugin and entry-point discovery use polisyos.core.discovery; domain discovery workflows must live under package-specific semantic groups such as scientist.methods.discovery.",
+      "canonical_home": "polisyos.core.discovery",
+      "decision": "rename_or_sunset",
+      "implementation_locations": [
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/components/discovery.py"
+        },
+        {
+          "kind": "package",
+          "package": "core",
+          "path": "src/polisyos/core/discovery"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/catalog/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/connectors/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/extensions/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/plugins/discovery.py"
+        },
+        {
+          "kind": "package",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/discovery"
+        },
+        {
+          "kind": "package",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/methods/discovery"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/workflows/discovery.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/workflows/discovery.py"
+        }
+      ],
+      "name": "discovery",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Package config modules may adapt local schema and environment details to polisyos.common.config helpers; new reusable configuration parsing belongs in the canonical common module.",
+      "canonical_home": "polisyos.common.config",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "module",
+          "package": "common",
+          "path": "src/polisyos/common/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/artifacts/backends/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/observability/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "core",
+          "path": "src/polisyos/core/security/slsa/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/academic/batch/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/catalog/batch/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/legal/batch/config.py"
+        },
+        {
+          "kind": "package",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/kernel/pipeline/config"
+        },
+        {
+          "kind": "package",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/config"
+        },
+        {
+          "kind": "module",
+          "package": "fabric",
+          "path": "src/polisyos/fabric/config/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/feedback/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/uncertainty/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/engine/locks/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/engine/runner/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/engine/locks/config.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/engine/runner/config.py"
+        }
+      ],
+      "name": "configuration",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Tracing adapters may emit package-local spans, records, or replay hooks through polisyos.core.trace; new package trace roots are not canonical APIs.",
+      "canonical_home": "polisyos.core.trace",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "package",
+          "package": "core",
+          "path": "src/polisyos/core/trace"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/runtime/trace.py"
+        },
+        {
+          "kind": "package",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/trace"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/nodes/builtins/tracing.py"
+        }
+      ],
+      "name": "tracing",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Telemetry adapters may bind Scientist engine and governance events to polisyos.core.observability metrics and logs; package telemetry modules must not become separate observability stacks.",
+      "canonical_home": "polisyos.core.observability",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/engine/telemetry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/governance/telemetry.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/orchestration/engine/telemetry.py"
+        }
+      ],
+      "name": "telemetry",
+      "proposed_before_wave": "1.5"
+    },
+    {
+      "adapter_policy": "Package calibration modules may adapt local drift, search, and governance artifacts to polisyos.calibration diagnostics; reusable diagnostics move to the canonical package.",
+      "canonical_home": "polisyos.calibration",
+      "decision": "canonical_interface_plus_package_adapters",
+      "implementation_locations": [
+        {
+          "kind": "package",
+          "package": "calibration",
+          "path": "src/polisyos/calibration"
+        },
+        {
+          "kind": "module",
+          "package": "data_forge",
+          "path": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+        },
+        {
+          "kind": "package",
+          "package": "ddm",
+          "path": "src/polisyos/ddm/calibration"
+        },
+        {
+          "kind": "package",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/calibration"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/catalog/causal/calibration.py"
+        },
+        {
+          "kind": "module",
+          "package": "foundry",
+          "path": "src/polisyos/foundry/methods/catalog/microsim/calibration.py"
+        },
+        {
+          "kind": "module",
+          "package": "ir",
+          "path": "src/polisyos/ir/analytics/calibration.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/autotune/calibration.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/governance/calibration.py"
+        },
+        {
+          "kind": "module",
+          "package": "scientist",
+          "path": "src/polisyos/scientist/methods/autotune/calibration.py"
+        }
+      ],
+      "name": "calibration",
+      "proposed_before_wave": "1.5"
+    }
+  ],
+  "contract": "architecture/policies/cross_cutting_concerns.toml",
+  "findings": [],
+  "schema_version": "repository.last_mile_inventory.phase0_4.cross_cutting_concerns.v1"
+}

@@ -125,11 +125,11 @@ class _CallableObjective:
 
     @property
     def direction(self) -> Any:
-        objective_module = importlib.import_module("polisyos.scientist.search.objective")
+        objective_module = importlib.import_module("polisyos.scientist.methods.search.objective")
         return objective_module.OptimizationDirection.MINIMIZE
 
     def evaluate(self, results: dict[str, Any]) -> Any:
-        objective_module = importlib.import_module("polisyos.scientist.search.objective")
+        objective_module = importlib.import_module("polisyos.scientist.methods.search.objective")
         value = float(results.get("stress_objective", 0.0))
         return objective_module.ObjectiveValue(
             name=self._name,
@@ -146,9 +146,9 @@ def _cmd_scientist_sensitivity_run(args: Any) -> int:
         return 2
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    doe_designs = importlib.import_module("polisyos.scientist.doe.designs")
-    doe_sampling = importlib.import_module("polisyos.scientist.doe.sampling")
-    doe_analysis = importlib.import_module("polisyos.scientist.doe.analysis")
+    doe_designs = importlib.import_module("polisyos.scientist.methods.doe.designs")
+    doe_sampling = importlib.import_module("polisyos.scientist.methods.doe.sampling")
+    doe_analysis = importlib.import_module("polisyos.scientist.methods.doe.analysis")
 
     plan_data = payload.get("plan", payload)
     try:
@@ -214,9 +214,9 @@ def _cmd_scientist_stress_test(args: Any) -> int:
         return 2
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    doe_designs = importlib.import_module("polisyos.scientist.doe.designs")
-    search_objective = importlib.import_module("polisyos.scientist.search.objective")
-    search_adversarial = importlib.import_module("polisyos.scientist.search.adversarial")
+    doe_designs = importlib.import_module("polisyos.scientist.methods.doe.designs")
+    search_objective = importlib.import_module("polisyos.scientist.methods.search.objective")
+    search_adversarial = importlib.import_module("polisyos.scientist.methods.search.adversarial")
 
     plan_data = payload.get("plan", payload)
     try:
@@ -362,10 +362,10 @@ def _cmd_scientist_burn_in(args: Any) -> int:
         return 2
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    search_cold_start = importlib.import_module("polisyos.scientist.search.cold_start")
-    search_lessons = importlib.import_module("polisyos.scientist.search.lessons")
-    search_sentinels = importlib.import_module("polisyos.scientist.search.sentinels")
-    search_stages = importlib.import_module("polisyos.scientist.search.stages")
+    search_cold_start = importlib.import_module("polisyos.scientist.methods.search.cold_start")
+    search_lessons = importlib.import_module("polisyos.scientist.methods.search.lessons")
+    search_sentinels = importlib.import_module("polisyos.scientist.methods.search.sentinels")
+    search_stages = importlib.import_module("polisyos.scientist.methods.search.stages")
 
     try:
         config = search_cold_start.BurnInConfig.model_validate(payload)
@@ -422,11 +422,11 @@ def _cmd_scientist_calibration_report(args: Any) -> int:
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
     cas = build_cli_filesystem_cas(Path(args.cas_root))
-    search_calibration = importlib.import_module("polisyos.scientist.search.calibration_report")
-    search_cold_start = importlib.import_module("polisyos.scientist.search.cold_start")
-    search_lessons = importlib.import_module("polisyos.scientist.search.lessons")
-    search_sentinels = importlib.import_module("polisyos.scientist.search.sentinels")
-    search_stages = importlib.import_module("polisyos.scientist.search.stages")
+    search_calibration = importlib.import_module("polisyos.scientist.methods.search.calibration_report")
+    search_cold_start = importlib.import_module("polisyos.scientist.methods.search.cold_start")
+    search_lessons = importlib.import_module("polisyos.scientist.methods.search.lessons")
+    search_sentinels = importlib.import_module("polisyos.scientist.methods.search.sentinels")
+    search_stages = importlib.import_module("polisyos.scientist.methods.search.stages")
 
     tracker = search_stages.CorrelationTracker()
     tracker_ref = payload.get("correlation_tracker_ref")
@@ -491,7 +491,7 @@ def _cmd_scientist_calibration_report(args: Any) -> int:
 
 def _cmd_scientist_backtest(args: Any) -> int:
     try:
-        backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
+        backtesting_cli = importlib.import_module("polisyos.scientist.methods.backtesting.cli")
         code, rendered = cast(
             "tuple[int, str | None]",
             backtesting_cli.run_backtest_command(args),

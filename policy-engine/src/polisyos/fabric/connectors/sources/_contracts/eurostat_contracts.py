@@ -14,6 +14,8 @@ from polisyos.fabric.connectors.contracts import (
     make_field_id,
 )
 
+from ._governance import FIELD_ID_MAJOR_BUMP_APPROVAL
+
 _SCHEMA_ID = "eurostat.data.generic"
 
 
@@ -23,7 +25,7 @@ def _field_id(name: str) -> str:
 
 EUROSTAT_GENERIC_SCHEMA = DataSchema(
     schema_id=_SCHEMA_ID,
-    version=SchemaVersion(1, 0, 0),
+    version=SchemaVersion(2, 0, 0),
     fields=(
         FieldSpec(
             name="dataset_id",
@@ -101,6 +103,7 @@ EUROSTAT_GENERIC_CONTRACT = ConnectorSchemaContract(
     },
     description="Wildcard contract for normalized Eurostat JSON-stat datasets.",
     created_by="phase16",
+    approval=FIELD_ID_MAJOR_BUMP_APPROVAL,
 )
 
 EUROSTAT_CONTRACTS = (EUROSTAT_GENERIC_CONTRACT,)

@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Claim Ledger](claim-ledger.md), [Res
 
 Owner: `@scientist-owners`  
 Backup owner: `@platform-owners`  
-Source of truth: `src/polisyos/scientist/publisher.py`, `src/polisyos/scientist/orchestration/orchestrator/decision_card.py`, `src/polisyos/scientist/evidence/claims/export.py`, `tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py`.
+Source of truth: `src/polisyos/scientist/publishing/publisher.py`, `src/polisyos/scientist/orchestration/orchestrator/decision_card.py`, `src/polisyos/scientist/evidence/claims/export.py`, `tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py`, `tools/ci/check_scientist_best_in_class_phase2_7.py`, and `tests/repo_quality/tools/test_scientist_best_in_class_phase2_7.py`.
 
 The Phase 2.7 decision-grade compiler turns governed research artifacts into
 audience-specific outputs without losing provenance. Public summary, reviewer
@@ -15,9 +15,9 @@ Ledger and Research DAG refs.
 
 | Contract | Module | Role |
 | --- | --- | --- |
-| `OutputAudience` | `publisher.py` | Four output tiers: `public`, `reviewer`, `expert`, `machine`. |
-| `OutputOmissionRecord` | `publisher.py` | Required record when a field, blocker or internal detail is intentionally hidden from one audience. |
-| `DecisionGradeExport` | `publisher.py` | Versioned export with `claims_ref`, `research_dag_ref`, payload and omissions. |
+| `OutputAudience` | `publishing/publisher.py` | Four output tiers: `public`, `reviewer`, `expert`, `machine`. |
+| `OutputOmissionRecord` | `publishing/publisher.py` | Required record when a field, blocker or internal detail is intentionally hidden from one audience. |
+| `DecisionGradeExport` | `publishing/publisher.py` | Versioned export with `claims_ref`, `research_dag_ref`, payload and omissions. |
 | `ClaimExportAudience.EXPERT` | `evidence/claims/export.py` | Expert claim export mode; blockers and superseded claims remain visible. |
 | `TrustProvenanceSummary` | `orchestration/orchestrator/decision_card.py` | Frontend decision-card hook for claim count, blocked count, Research DAG status and governance status. |
 

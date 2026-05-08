@@ -84,4 +84,4 @@ uv run pytest tests/unit/scientist/causal/test_causal_evaluation_node.py tests/u
 
 ::: polisyos.scientist.nodes.builtins
 
-::: polisyos.scientist.engine.protocol
+::: polisyos.scientist.orchestration.engine.protocol

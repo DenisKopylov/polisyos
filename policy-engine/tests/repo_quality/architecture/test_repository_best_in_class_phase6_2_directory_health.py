@@ -30,6 +30,7 @@ DIRECTORY_GATE_IDS = {
     "generated-api-placement",
     "empty-ui-component-directory",
     "feature-module-owner-threshold",
+    "phase-local-junk-residue",
 }
 
 REQUIRED_DASHBOARD_METRICS = {
@@ -46,11 +47,12 @@ REQUIRED_DASHBOARD_METRICS = {
     "archive_report_promotion_backlog",
     "max_directory_depth",
     "closure_non_product_init_count",
+    "closure_phase_local_junk_count",
 }
 
 
 def test_phase6_2_gate_conversion_contract_covers_tests_benchmarks_and_directories() -> None:
-    contract = _read_toml("architecture/directory_health.toml")
+    contract = _read_toml("architecture/policies/directory_health.toml")
     header = contract["directory_health"]
     gates = {gate["id"]: gate for gate in contract["gate"]}
 
@@ -76,10 +78,10 @@ def test_phase6_2_gate_conversion_contract_covers_tests_benchmarks_and_directori
 
 
 def test_phase6_2_durable_roots_for_tests_fixtures_goldens_and_benchmarks() -> None:
-    ratchets = _read_toml("architecture/test_ratchets.toml")
+    ratchets = _read_toml("architecture/tests/ratchets.toml")
     fixture_policy = ratchets["fixture_policy"]
     benchmark_policy = ratchets["benchmark_policy"]
-    topology = _read_toml("architecture/test_topology.toml")["test_topology"]
+    topology = _read_toml("architecture/tests/topology.toml")["test_topology"]
 
     for key in ("shared_fixture_root", "shared_golden_root", "shared_helper_root"):
         assert _path_exists(fixture_policy[key]), key
@@ -95,7 +97,7 @@ def test_phase6_2_durable_roots_for_tests_fixtures_goldens_and_benchmarks() -> N
 
 
 def test_phase6_2_directory_health_dashboard_metrics_are_regression_baselined() -> None:
-    contract = _read_toml("architecture/directory_health.toml")
+    contract = _read_toml("architecture/policies/directory_health.toml")
     baselines = {metric["id"]: metric for metric in contract["metric_baseline"]}
     report = directory_health.build_report(REPO_ROOT)
     metrics = report["dashboard"]["metrics"]
@@ -113,6 +115,7 @@ def test_phase6_2_directory_health_dashboard_metrics_are_regression_baselined() 
     assert metrics["closure_unregistered_generated_api_count"] == 0
     assert metrics["closure_empty_ui_component_directory_count"] == 0
     assert metrics["closure_over_threshold_feature_without_owner_count"] == 0
+    assert metrics["closure_phase_local_junk_count"] == 0
 
     for metric_id, baseline in baselines.items():
         assert baseline["owner"], metric_id

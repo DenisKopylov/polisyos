@@ -157,7 +157,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 | Change                                    | Start here                                                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public package facade / supported imports | `architecture/public_surface.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
+| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
 | Generated contract artifact               | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator                                                   |
 | New connector                             | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md`                              |
 | New governance pass                       | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
@@ -184,5 +184,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 ## License
 
-This repository does not yet ship a standalone `LICENSE` file. Until a license text is published,
-treat the project as proprietary / internal-use only.
+The product-root license is published at [`LICENSE`](LICENSE). Treat the
+project as proprietary / internal-use only unless that file grants a broader
+right.

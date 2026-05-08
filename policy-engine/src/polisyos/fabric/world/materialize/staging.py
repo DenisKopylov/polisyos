@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from polisyos.ir.fact_log import FactSegmentManifest
+from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 from .errors import WorldSchemaError

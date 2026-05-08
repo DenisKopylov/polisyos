@@ -27,11 +27,11 @@ if TYPE_CHECKING:
         MoneyValue,
         RateValue,
     )
-    from polisyos.ir.types import EntityType, OptimizationDirection, TranslatableString
+    from polisyos.ir.model_layer.types import EntityType, OptimizationDirection, TranslatableString
 else:
     from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
     from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-    from polisyos.ir.types import EntityType, OptimizationDirection, TranslatableString
+    from polisyos.ir.model_layer.types import EntityType, OptimizationDirection, TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"

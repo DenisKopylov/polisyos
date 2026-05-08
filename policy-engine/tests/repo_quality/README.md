@@ -26,5 +26,5 @@ uv run pytest tests/repo_quality -q
 
 ## Redirects
 
-Legacy `tests/architecture`, `tests/lint`, and `tests/tools` roots are redirects
-only. Do not add collectable tests there.
+The old architecture-test root has been removed. Legacy `tests/lint` and
+`tests/tools` roots remain redirects only. Do not add collectable tests there.

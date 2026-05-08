@@ -1,6 +1,6 @@
 # Public Surface
 
-> Generated from `architecture/public_surface.toml` and package facades under `src/polisyos/**/__init__.py`.
+> Generated from `architecture/public_surface/contract.toml` and package facades under `src/polisyos/**/__init__.py`.
 
 Canonical regeneration command:
 
@@ -759,7 +759,7 @@ ShiftRiskEvent
 - Owner: `team-architecture`
 - README: `src/polisyos/ddm_15_7/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-10-01; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only.
+- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-07-31; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only.
 - Summary: Compatibility facade for :mod:`polisyos.ddm`.
 
 <details><summary>Supported exports (17)</summary>
@@ -835,7 +835,7 @@ phase0_seed_world_specs
 - Owner: `team-foundry`
 - README: `src/polisyos/synthetic_world/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-10-01.
+- Notes: Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-07-31.
 - Summary: Compatibility facade for :mod:`polisyos.foundry.agent_sim.world`.
 
 <details><summary>Supported exports (23)</summary>

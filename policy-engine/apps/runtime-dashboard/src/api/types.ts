@@ -4801,7 +4801,7 @@ export interface components {
        * @enum {string}
        */
       kind: "quantity" | "authored_text" | "fact" | "event" | "claim";
-      lineage: components["schemas"]["polisyos__fabric__decision_data__LineageRef"];
+      lineage: components["schemas"]["polisyos__fabric__evidence__decision_data__LineageRef"];
       /** Metadata */
       metadata?: {
         [key: string]: unknown;
@@ -4809,7 +4809,7 @@ export interface components {
       quality: components["schemas"]["QualityRef"];
       replay: components["schemas"]["ReplayRef"];
       source_contract: components["schemas"]["SourceContractRef"];
-      time: components["schemas"]["polisyos__fabric__decision_data__TemporalRef"];
+      time: components["schemas"]["polisyos__fabric__evidence__decision_data__TemporalRef"];
       /** Value */
       value:
         | components["schemas"]["FabricQuantityValue"]
@@ -4886,7 +4886,7 @@ export interface components {
       /** Source Kind */
       source_kind: string;
       temporal_scope?:
-        | components["schemas"]["polisyos__fabric__decision_data__TemporalRef"]
+        | components["schemas"]["polisyos__fabric__evidence__decision_data__TemporalRef"]
         | null;
     };
     /**
@@ -5000,7 +5000,7 @@ export interface components {
       point?: number | null;
       /** Semantic Type */
       semantic_type?: string | null;
-      unit: components["schemas"]["polisyos__fabric__decision_data__UnitRef"];
+      unit: components["schemas"]["polisyos__fabric__evidence__decision_data__UnitRef"];
     };
     /**
      * FabricReplayRunResponse
@@ -8535,7 +8535,7 @@ export interface components {
      * LineageRef
      * @description Lineage reference rich enough for compact UI and lazy full graph loading.
      */
-    polisyos__fabric__decision_data__LineageRef: {
+    polisyos__fabric__evidence__decision_data__LineageRef: {
       /** Compact Summary Ref */
       compact_summary_ref?: string | null;
       /** Export Links */
@@ -8567,7 +8567,7 @@ export interface components {
      * TemporalRef
      * @description Temporal scope echoed by every Fabric trust envelope.
      */
-    polisyos__fabric__decision_data__TemporalRef: {
+    polisyos__fabric__evidence__decision_data__TemporalRef: {
       /** Branch */
       branch?: string | null;
       /** Scenario Id */
@@ -8583,7 +8583,7 @@ export interface components {
      * UnitRef
      * @description Unit identity for a Fabric decision quantity.
      */
-    polisyos__fabric__decision_data__UnitRef: {
+    polisyos__fabric__evidence__decision_data__UnitRef: {
       /** Code */
       code: string;
       /** Display */

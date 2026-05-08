@@ -84,7 +84,7 @@ def test_phase1_2_generated_artifact_families_have_lifecycle_fields() -> None:
 
 
 def test_phase1_5_dynamic_import_registry_entries_have_targets_and_verifiers() -> None:
-    payload = _read_toml(REPO_ROOT / "architecture/dynamic_imports.toml")
+    payload = _read_toml(REPO_ROOT / "architecture/imports/dynamic.toml")
     patterns = payload["pattern"]
 
     assert patterns
@@ -95,7 +95,7 @@ def test_phase1_5_dynamic_import_registry_entries_have_targets_and_verifiers() -
 
 
 def test_phase1_8_directory_contracts_cover_roots_and_match_fixture_transition() -> None:
-    payload = _read_toml(REPO_ROOT / "architecture/directory_contracts.toml")
+    payload = _read_toml(REPO_ROOT / "architecture/policies/directory_contracts.toml")
     contracts = {row["path"]: row for row in payload["contract"]}
 
     assert {
@@ -138,7 +138,7 @@ def test_phase1_8_directory_contracts_cover_roots_and_match_fixture_transition()
         ):
             assert contract[field], (path, field)
 
-    ratchets = _read_toml(REPO_ROOT / "architecture/test_ratchets.toml")
+    ratchets = _read_toml(REPO_ROOT / "architecture/tests/ratchets.toml")
     fixture_policy = ratchets["fixture_policy"]
     asset_classes = {row["id"]: row for row in payload["asset_class"]}
 

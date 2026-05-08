@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generated_at": "2026-05-06T11:05:27.695668+00:00",
+  "generated_at": "2026-05-08T10:06:27.735639+00:00",
   "collector": "tools.quality.validation.decomposition_preflight.collect_import_graph",
   "collector_mode": "internal_ast_import_graph",
   "pydeps_available": false,
   "import_linter_available": false,
   "notes": "Phase 3A uses a deterministic AST import graph collector because pydeps/import-linter are not required dev dependencies in this workspace.",
-  "module_count": 1424,
-  "edge_count": 3539,
+  "module_count": 1446,
+  "edge_count": 3616,
   "cycles": [
     {
       "id": "cycle-a4951a692d2a",
@@ -49,14 +49,6 @@
       "modules": [
         "polisyos.scientist.methods.search.judge_stack",
         "polisyos.scientist.methods.search.readiness"
-      ]
-    },
-    {
-      "id": "cycle-0322a3ed4ee7",
-      "modules": [
-        "polisyos.foundry.methods.catalog.causal._registry_boot",
-        "polisyos.foundry.methods.catalog.causal.causal_engine",
-        "polisyos.foundry.methods.catalog.causal.symbolic_identify"
       ]
     },
     {
@@ -147,7 +139,7 @@
       ]
     },
     {
-      "id": "cycle-439f560d1f69",
+      "id": "cycle-bdd9b47d05e5",
       "modules": [
         "polisyos.scientist.nodes.builtins",
         "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
@@ -164,7 +156,6 @@
         "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs",
         "polisyos.scientist.nodes.builtins.data.build_data_snapshot",
         "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-        "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
         "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle",
         "polisyos.scientist.nodes.builtins.decide.policy_runtime_request",
         "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
@@ -2445,187 +2436,271 @@
     },
     {
       "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "target": "polisyos.foundry.methods.catalog.causal"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.discovery"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.estimation"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.identification"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog._phase1_artifacts"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal._causal_engine_contracts"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal._registry_boot"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.actual_causality"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.admg_ops"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.bounds"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.bounds_engine"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.causal_fairness"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.ctf_transport"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.cyclic_id"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.data_fusion"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.diagnostics"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.dtr"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.estimand_compiler"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.event_process_weighting"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.fairness"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.frontier"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.g_computation"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.g_estimation"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.gcm_fit"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.id_engine"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.interference"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.local_independence_id"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.lp_bounds"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.measurement_error"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.mediation"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.missing_data"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.ncm_engine"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.path_specific"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.path_specific_identify"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.proof_trace_composability"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.protocols"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.proximal_identify"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.proximal_mediation"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.quality_aggregator"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.query_validator"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.recoverability_engine"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.schema_resolver"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.sensitivity_bounds"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.sensitivity_metrics"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target": "polisyos.foundry.methods.catalog.causal.sigma_calculus"
-    },
-    {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.structural_time_series"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.catalog.causal.twin_network_query"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.exceptions"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts",
       "target": "polisyos.foundry.methods.selection.registry"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.discovery",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.discovery",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.estimand_compiler"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.ctf_transport"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.interference"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.measurement_error"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.path_specific_identify"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.proximal_mediation"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.recoverability_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.sigma_calculus"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.actual_causality"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.bounds"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.bounds_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_engine.artifacts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.causal_fairness"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.data_fusion"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.fairness"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.interference"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.lp_bounds"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.mediation"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.missing_data"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.ncm_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.path_specific"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.protocols"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.causal_engine.sensitivity",
+      "target": "polisyos.foundry.methods.catalog.causal.sensitivity_bounds"
     },
     {
       "source": "polisyos.foundry.methods.catalog.causal.causal_fairness",
@@ -3125,18 +3200,74 @@
     },
     {
       "source": "polisyos.foundry.methods.catalog.causal.id_engine",
+      "target": "polisyos.foundry.methods.catalog.causal"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.core"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.api",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.transport"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.core",
       "target": "polisyos.foundry.methods.catalog.causal._id_contracts"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.id_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.core",
       "target": "polisyos.foundry.methods.catalog.causal.admg_ops"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.id_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.core",
       "target": "polisyos.foundry.methods.catalog.causal.pag_completion"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.id_engine",
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "target": "polisyos.foundry.methods.catalog.causal._id_contracts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "target": "polisyos.foundry.methods.catalog.causal.admg_ops"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.core"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.transport"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "target": "polisyos.foundry.methods.catalog.causal._id_contracts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "target": "polisyos.foundry.methods.catalog.causal.admg_ops"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine.core"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.id_engine.transport",
       "target": "polisyos.foundry.methods.catalog.causal.sigma_calculus"
     },
     {
@@ -3149,22 +3280,78 @@
     },
     {
       "source": "polisyos.foundry.methods.catalog.causal.interference",
+      "target": "polisyos.foundry.methods.catalog.causal"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
       "target": "polisyos.foundry.methods.base"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.interference",
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
       "target": "polisyos.foundry.methods.catalog.causal._interference_contracts"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.interference",
-      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
+      "target": "polisyos.foundry.methods.catalog.causal.interference"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.interference",
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
+      "target": "polisyos.foundry.methods.catalog.causal.interference.estimation"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
+      "target": "polisyos.foundry.methods.catalog.causal.interference.identification"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
       "target": "polisyos.foundry.methods.catalog.causal.protocols"
     },
     {
-      "source": "polisyos.foundry.methods.catalog.causal.interference",
+      "source": "polisyos.foundry.methods.catalog.causal.interference.api",
+      "target": "polisyos.foundry.methods.catalog.network.generative_protocols"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.base"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal._interference_contracts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.interference"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.interference.identification"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.catalog.causal.protocols"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.estimation",
+      "target": "polisyos.foundry.methods.catalog.network.generative_protocols"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.identification",
+      "target": "polisyos.foundry.methods.base"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.identification",
+      "target": "polisyos.foundry.methods.catalog.causal._interference_contracts"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.id_engine"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.identification",
+      "target": "polisyos.foundry.methods.catalog.causal.protocols"
+    },
+    {
+      "source": "polisyos.foundry.methods.catalog.causal.interference.identification",
       "target": "polisyos.foundry.methods.catalog.network.generative_protocols"
     },
     {
@@ -6977,27 +7164,27 @@
     },
     {
       "source": "polisyos.scientist.continuous_governance",
-      "target": "polisyos.scientist.governance.continuous"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.continuous_governance.incident",
-      "target": "polisyos.scientist.governance.continuous.incident"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.continuous_governance.invalidation",
-      "target": "polisyos.scientist.governance.continuous.invalidation"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.continuous_governance.monitors",
-      "target": "polisyos.scientist.governance.continuous.monitors"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.continuous_governance.reissue",
-      "target": "polisyos.scientist.governance.continuous.reissue"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.continuous_governance.reports",
-      "target": "polisyos.scientist.governance.continuous.reports"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.cross_graph",
@@ -8029,35 +8216,35 @@
     },
     {
       "source": "polisyos.scientist.human_review",
-      "target": "polisyos.scientist.governance.human_review"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.audit",
-      "target": "polisyos.scientist.governance.human_review.audit"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.decisions",
-      "target": "polisyos.scientist.governance.human_review.decisions"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.models",
-      "target": "polisyos.scientist.governance.human_review.models"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.oversight_policy",
-      "target": "polisyos.scientist.governance.human_review.oversight_policy"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.packets",
-      "target": "polisyos.scientist.governance.human_review.packets"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.queue",
-      "target": "polisyos.scientist.governance.human_review.queue"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.human_review.voi_escalation",
-      "target": "polisyos.scientist.governance.human_review.voi_escalation"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.kernel",
@@ -10649,139 +10836,7 @@
     },
     {
       "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.audit"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.export"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.ledger"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.lifecycle"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.projections"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.readiness"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.claims.validators"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.evidence.safe_fetch"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.feedback.core"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.calibration_validation"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.continuous.reports"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.human_review.decisions"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.human_review.oversight_policy"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.human_review.packets"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.governance.report"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.methods.research_dag.projections"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.methods.research_dag.replay"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.methods.search.readiness"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.methods.search.voi_scheduler"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.nodes.builtins"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.nodes.builtins.decide._decision_packet_contracts"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet_support"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.nodes.builtins.errors"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.nodes.builtins.state_keys"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.orchestration.engine.context"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.orchestration.engine.error_semantics"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.orchestration.engine.protocol"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.orchestration.engine.state"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.orchestration.engine.state_branching"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.policy_design.output"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.policy_design.phase3"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.validation.decision_validity"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.validation.phase5_preflight"
-    },
-    {
-      "source": "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
-      "target": "polisyos.scientist.validation.policy_verified"
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.api"
     },
     {
       "source": "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle",
@@ -10894,6 +10949,238 @@
     {
       "source": "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report",
       "target": "polisyos.scientist.validation.policy_verified.service"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.api"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.api",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.api",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.api",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.api",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.evidence.claims.validators"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.governance.report"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.methods.research_dag.projections"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.methods.research_dag.replay"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.decide._decision_packet_contracts"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet_support"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.errors"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.nodes.builtins.state_keys"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.orchestration.engine.context"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.orchestration.engine.protocol"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.orchestration.engine.state"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.orchestration.engine.state_branching"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.policy_design.output"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.validation.decision_validity"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.validation.phase5_preflight"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.builder",
+      "target": "polisyos.scientist.validation.policy_verified"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.audit"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.export"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.ledger"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.lifecycle"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.projections"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.readiness"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.claims.validators"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.evidence.safe_fetch"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.feedback.core"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.calibration_validation"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.continuous.reports"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.human_review.decisions"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.human_review.oversight_policy"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.human_review.packets"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.governance.report"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.methods.search.readiness"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.methods.search.voi_scheduler"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.nodes.builtins.decide._decision_packet_contracts"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet_support"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.nodes.builtins.state_keys"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.orchestration.engine.context"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.orchestration.engine.state"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment",
+      "target": "polisyos.scientist.policy_design.phase3"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization",
+      "target": "polisyos.scientist.nodes.builtins.state_keys"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization",
+      "target": "polisyos.scientist.orchestration.engine.context"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.serialization",
+      "target": "polisyos.scientist.orchestration.engine.state"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation",
+      "target": "polisyos.scientist.nodes.builtins.decide.decision_packet_support"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation",
+      "target": "polisyos.scientist.nodes.builtins.state_keys"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation",
+      "target": "polisyos.scientist.orchestration.engine.context"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation",
+      "target": "polisyos.scientist.orchestration.engine.error_semantics"
+    },
+    {
+      "source": "polisyos.scientist.nodes.builtins.decide.decision_packet.validation",
+      "target": "polisyos.scientist.orchestration.engine.state"
     },
     {
       "source": "polisyos.scientist.nodes.builtins.decide.decision_packet_support",
@@ -12560,6 +12847,10 @@
       "target": "polisyos.scientist.orchestration.engine.errors"
     },
     {
+      "source": "polisyos.scientist.orchestration.engine.error_semantics",
+      "target": "polisyos.scientist._adapters.observability"
+    },
+    {
       "source": "polisyos.scientist.orchestration.engine.executor",
       "target": "polisyos.scientist.methods.research_dag.persistence"
     },
@@ -13329,35 +13620,7 @@
     },
     {
       "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.evidence.claims.export"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.evidence.claims.lifecycle"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.evidence.claims.models"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.governance.continuous.reports"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.governance.human_review.models"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.governance.human_review.packets"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.methods.research_dag.models"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist.methods.research_dag.replay"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.orchestration.workflows",
@@ -13797,15 +14060,15 @@
     },
     {
       "source": "polisyos.scientist.policy_verified",
-      "target": "polisyos.scientist.validation.policy_verified"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.policy_verified.models",
-      "target": "polisyos.scientist.validation.policy_verified.models"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.policy_verified.service",
-      "target": "polisyos.scientist.validation.policy_verified.service"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.provenance",
@@ -13826,6 +14089,38 @@
     {
       "source": "polisyos.scientist.publisher",
       "target": "polisyos.scientist._internal.shims"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.evidence.claims.export"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.evidence.claims.lifecycle"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.evidence.claims.models"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.governance.continuous.reports"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.governance.human_review.models"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.governance.human_review.packets"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.methods.research_dag.models"
+    },
+    {
+      "source": "polisyos.scientist.publishing.publisher",
+      "target": "polisyos.scientist.methods.research_dag.replay"
     },
     {
       "source": "polisyos.scientist.reliability_scorecard",
@@ -14284,16 +14579,20 @@
       "target": "polisyos.foundry.mechanisms.design"
     },
     {
+      "source": "polisyos.scientist.verification",
+      "target": "polisyos.scientist._internal.compat"
+    },
+    {
       "source": "polisyos.scientist.verification.ic",
-      "target": "polisyos.scientist.validation.verification.ic"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.verification.ic.conformance",
-      "target": "polisyos.scientist.validation.verification.ic.conformance"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.verification.ic.service",
-      "target": "polisyos.scientist.validation.verification.ic.service"
+      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.workflows",

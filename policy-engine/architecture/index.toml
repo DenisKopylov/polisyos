@@ -1,0 +1,109 @@
+[architecture_index]
+version = 1
+status = "active"
+owner = "team-architecture"
+phase = "repository-best-in-class-last-mile-phase-6.1"
+root_toml_post_merge_baseline = 34
+gate_index = "architecture/gates/index.toml"
+taxonomy_rule = "Top-level TOML files must not use a domain prefix already assigned to a matching architecture subdirectory unless the file is a canonical root contract and this index lists the exception."
+
+[[taxonomy_domain]]
+id = "gates"
+directory = "architecture/gates"
+top_level_prefixes = ["gate"]
+description = "Fail-closed, report-only, release, and repository gate source contracts."
+
+[[taxonomy_domain]]
+id = "packages"
+directory = "architecture/packages"
+top_level_prefixes = ["package"]
+description = "Package layout, boundary, and per-package source contracts."
+
+[[taxonomy_domain]]
+id = "imports"
+directory = "architecture/imports"
+top_level_prefixes = ["import", "dynamic_imports", "deep_import"]
+description = "Static import, dynamic import, lazy import, report, and import exception contracts."
+
+[[taxonomy_domain]]
+id = "public_surface"
+directory = "architecture/public_surface"
+top_level_prefixes = ["public_surface"]
+description = "Public Python surface contracts and generated public-surface inventories."
+
+[[taxonomy_domain]]
+id = "tests"
+directory = "architecture/tests"
+top_level_prefixes = ["test"]
+description = "Test topology, ratchets, fixture, helper, and benchmark-test contracts."
+
+[[taxonomy_domain]]
+id = "baselines"
+directory = "architecture/baselines"
+top_level_prefixes = ["baseline", "ops_baselines"]
+description = "Reviewed JSON, text, and TOML baselines used by gates and closeout reports."
+
+[[taxonomy_domain]]
+id = "tooling"
+directory = "architecture/tooling"
+top_level_prefixes = ["tool", "tooling", "static_analysis"]
+description = "Generated and split tool configuration source fragments plus tooling metadata."
+
+[[taxonomy_domain]]
+id = "exceptions"
+directory = "architecture/exceptions"
+top_level_prefixes = [
+  "exception",
+  "complexity_exceptions",
+  "docs_freshness_exceptions",
+  "guardrail_exceptions",
+]
+description = "Owner-approved exception ledgers with rationales, expiry, and evidence."
+
+[[taxonomy_domain]]
+id = "policies"
+directory = "architecture/policies"
+top_level_prefixes = ["policy", "data_policy", "directory", "cross_cutting"]
+description = "Repository policy contracts that are not gate source contracts."
+
+[[top_level_contract]]
+path = "architecture/topology.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Repository-wide topology source of truth, not a subdirectory family member."
+
+[[top_level_contract]]
+path = "architecture/generated_artifacts.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Repository-wide generated artifact registry shared by packages, docs, schemas, and tools."
+
+[[top_level_contract]]
+path = "architecture/name_registry.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Repository-wide name and rename registry."
+
+[[top_level_contract]]
+path = "architecture/shims.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Repository-wide compatibility shim registry and sunset source of truth."
+
+[[top_level_contract]]
+path = "architecture/runtime_state_layout.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Runtime-state layout source of truth shared by source, ops, release, and migrations."
+
+[[top_level_contract]]
+path = "architecture/local_runtime_state.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Local runtime-state policy spans runtime, ops, and workspace hygiene."
+
+[[top_level_contract]]
+path = "architecture/module_size_budget.toml"
+domain = "repository"
+canonical_root_contract = true
+reason = "Repository-wide module-size and validation-tooling budget registry."

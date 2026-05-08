@@ -1,4 +1,7 @@
 """Compatibility shim for policy-verified models."""
 
-from polisyos.scientist.validation.policy_verified.models import *  # noqa: F403
-from polisyos.scientist.validation.policy_verified.models import __all__ as __all__
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import alias_module as _alias_module
+
+_alias_module(__name__, "polisyos.scientist.validation.policy_verified.models", globals())

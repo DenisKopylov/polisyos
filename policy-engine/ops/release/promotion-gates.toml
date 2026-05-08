@@ -194,8 +194,8 @@ owner = "team-architecture"
 stage = "staging"
 applies_to = ["python_packages"]
 required_evidence = [
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
 ]
 command = "uv run pytest tests/repo_quality/architecture/test_public_api_facades.py tests/repo_quality/architecture/test_public_surface_snapshot.py"
 blocks = "Python package promotion"
@@ -218,7 +218,7 @@ owner = "team-architecture"
 stage = "staging"
 applies_to = ["control_plane", "runtime_api", "data_plane", "frontend", "cli", "python_packages"]
 required_evidence = [
-  "architecture/compatibility_release_gates.toml",
+  "architecture/gates/compatibility_release.toml",
   "ops/release/release-fragment-policy.toml",
   "release-fragments/template.toml",
   "release-fragments/unreleased",
@@ -233,7 +233,7 @@ owner = "team-security"
 stage = "production"
 applies_to = ["control_plane", "runtime_api", "data_plane", "frontend", "cli", "python_packages"]
 required_evidence = [
-  "architecture/operability_release_supply_chain_gates.toml",
+  "architecture/gates/operability_release_supply_chain.toml",
   "architecture/runbook_coverage.toml",
   "architecture/component_observability.toml",
   "architecture/control_plane_supply_chain.toml",

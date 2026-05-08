@@ -128,7 +128,7 @@ metadata.
 ## Known Shims/Deprecations
 
 - `polisyos.synthetic_world` is a compatibility facade for
-  `polisyos.foundry.agent_sim.world`; see
+  `polisyos.foundry.agent_sim.world` until 2026-07-31; see
   [architecture/shims.toml](../../../architecture/shims.toml).
 - Root public exports stay intentionally narrow. Promote new compile/execute
   API through `api.py`, public-surface docs, and a compatibility note before

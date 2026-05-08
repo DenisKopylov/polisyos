@@ -1,4 +1,4 @@
-"""Canonical Scientist publishing facade."""
+"""Canonical Scientist publishing package."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ __all__ = (
     "publish_decision",
 )
 
-_PUBLISHER_MODULE = "polisyos.scientist.orchestration.orchestrator.publisher"
+_PUBLISHER_MODULE = "polisyos.scientist.publishing.publisher"
 
 
 def __getattr__(name: str) -> Any:

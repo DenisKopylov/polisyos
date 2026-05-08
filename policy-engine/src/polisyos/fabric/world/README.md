@@ -51,7 +51,7 @@ mechanics behind time travel and recovery workflows.
   Kuzu materializers, and `polisyos.fabric.data_plane.quarantine`.
 
 - Depended on by: `polisyos.fabric.docs`, `polisyos.fabric.claims`,
-  `polisyos.fabric.world_query`, `polisyos.lex`, `polisyos.scholar`, and
+  `polisyos.fabric.world.query`, `polisyos.lex`, `polisyos.scholar`, and
   runtime consumers reading materialized world tables.
 
 ## Common Commands

@@ -16,7 +16,7 @@ resolve an in-repository FQN has an explicit whitelist.
 
 ## Decision
 
-1. `architecture/dynamic_imports.toml` is the source of truth for dynamic import
+1. `architecture/imports/dynamic.toml` is the source of truth for dynamic import
    patterns found in `src/`, `tools/`, and frontend runtime-api-client scripts.
 2. Each entry records `pattern`, `source_file`, `line`, `call`, `owner`,
    `allowed_targets`, and notes.

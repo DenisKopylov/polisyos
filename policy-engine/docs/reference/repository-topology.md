@@ -7,8 +7,8 @@ Backup owner: `@docs-owners`
 Source of truth:
 
 - `architecture/topology.toml`
-- `architecture/repository_sota_gates.toml`
-- `architecture/data_policy.toml`
+- `architecture/gates/repository_sota.toml`
+- `architecture/policies/data.toml`
 - `architecture/local_runtime_state.toml`
 - `tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py`
 - `tests/repo_quality/architecture/test_repository_public_polish.py`

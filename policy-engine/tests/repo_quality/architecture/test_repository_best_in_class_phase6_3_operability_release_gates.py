@@ -14,7 +14,7 @@ WORKSPACE_ROOT = REPO_ROOT.parent
 
 
 def test_phase6_3_operability_release_gate_contract_is_fail_closed() -> None:
-    contract = _read_toml("architecture/operability_release_supply_chain_gates.toml")
+    contract = _read_toml("architecture/gates/operability_release_supply_chain.toml")
     header = contract["operability_release_supply_chain_gates"]
     gate_ids = {item["id"]: item for item in contract["gate"]}
 

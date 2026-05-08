@@ -18,8 +18,8 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Runtime dashboard contract fixtures` | `generated_committed` | `committed` | `manual_review` | `team-polisyos` | `apps/runtime-dashboard/src/test/contracts/fixtures` |
 | `Benchmark reports and bundle stats` | `generated_ignored` | `mixed` | `manual_review` | `team-polisyos` | `benchmarks/_reports`<br/>`_build/apps/runtime-dashboard/dist/bundle-stats.json` |
 | `Audit and evidence artifacts` | `generated_ignored` | `mixed` | `manual_review` | `team-polisyos` | `docs/archive/reports`<br/>`_build/apps/runtime-dashboard/audit/pnpm-audit-report.json`<br/>`_build/apps/runtime-dashboard/audit/pnpm-audit-summary.md` |
-| `Public surface inventory` | `generated_committed` | `committed` | `automated` | `team-architecture` | `architecture/public_surface_inventory.json`<br/>`architecture/public_surface` |
-| `Architecture package contract aggregate mirrors` | `generated_committed` | `committed` | `automated_report_only` | `team-architecture` | `architecture/package_boundaries.toml`<br/>`architecture/package_layout.toml`<br/>`architecture/public_surface.toml`<br/>`architecture/test_topology.toml` |
+| `Public surface inventory` | `generated_committed` | `committed` | `automated` | `team-architecture` | `architecture/public_surface/inventory.json`<br/>`architecture/public_surface` |
+| `Architecture package contract aggregate mirrors` | `generated_committed` | `committed` | `automated_report_only` | `team-architecture` | `architecture/packages/boundaries.toml`<br/>`architecture/packages/layout.toml`<br/>`architecture/public_surface/contract.toml`<br/>`architecture/tests/topology.toml` |
 | `Architecture report-only contract reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture` |
 | `Architecture import-boundary and dependency-graph reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture/import-boundary-report.json`<br/>`_build/reports/architecture/dependency-graph-report.json`<br/>`_build/reports/architecture/dynamic-import-registry-report.json`<br/>`_build/reports/architecture/phase6-1-package-import-gates.json` |
 | `Architecture mypy and Ruff override report` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture/static-analysis-overrides.json` |
@@ -298,7 +298,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard run audit:ci
 
 - Family id: `public-surface-inventory`
 - Lifecycle: `generated_committed`
-- Source of truth: architecture/public_surface.toml and src/polisyos/**/__init__.py public exports
+- Source of truth: architecture/public_surface/contract.toml and src/polisyos/**/__init__.py public exports
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
@@ -310,7 +310,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard run audit:ci
 - Approval owner: `team-architecture`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Outputs:
-  - `architecture/public_surface_inventory.json`
+  - `architecture/public_surface/inventory.json`
   - `architecture/public_surface`
 
 Canonical regeneration commands:
@@ -335,10 +335,10 @@ uv run polisyos-tools quality public-surface snapshot --all
 - Approval owner: `team-architecture`
 - Related workflow/config: `tools/quality/validation/architecture_report_only_contracts.py`
 - Outputs:
-  - `architecture/package_boundaries.toml`
-  - `architecture/package_layout.toml`
-  - `architecture/public_surface.toml`
-  - `architecture/test_topology.toml`
+  - `architecture/packages/boundaries.toml`
+  - `architecture/packages/layout.toml`
+  - `architecture/public_surface/contract.toml`
+  - `architecture/tests/topology.toml`
 
 Canonical regeneration commands:
 
@@ -375,7 +375,7 @@ uv run python tools/quality/validation/architecture_report_only_contracts.py --j
 
 - Family id: `architecture-import-dependency-reports`
 - Lifecycle: `generated_ignored`
-- Source of truth: architecture/imports/reports.toml, architecture/import_contracts.toml, architecture/imports/policy.toml, architecture/imports/exceptions.toml, architecture/deep_import_baseline.json, architecture/dynamic_imports.toml, architecture/imports/lazy.toml, architecture/package_boundaries.toml, architecture/package_layout.toml, architecture/public_surface.toml, architecture/public_surface_inventory.json, architecture/name_registry.toml, and architecture/shims.toml
+- Source of truth: architecture/imports/reports.toml, architecture/imports/contracts.toml, architecture/imports/policy.toml, architecture/imports/exceptions.toml, architecture/baselines/imports/deep_import.json, architecture/imports/dynamic.toml, architecture/imports/lazy.toml, architecture/packages/boundaries.toml, architecture/packages/layout.toml, architecture/public_surface/contract.toml, architecture/public_surface/inventory.json, architecture/name_registry.toml, and architecture/shims.toml
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: docs/archive/reports/architecture/ when reviewed as durable evidence
@@ -405,7 +405,7 @@ uv run python tools/quality/validation/architecture_report_only_contracts.py --r
 
 - Family id: `architecture-static-analysis-override-report`
 - Lifecycle: `generated_ignored`
-- Source of truth: architecture/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, architecture/tooling/ruff/generated.toml, and inline noqa/type-ignore comments
+- Source of truth: architecture/tooling/static_analysis_overrides.toml, architecture/tooling/tool_config_split.toml, architecture/tooling/mypy/generated.ini, architecture/tooling/ruff/generated.toml, and inline noqa/type-ignore comments
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: docs/archive/reports/architecture/ when reviewed as durable evidence
@@ -796,7 +796,7 @@ manual review: refresh tiny gold fixtures or catalog YAML alongside the source s
 
 - Family id: `local-medallion-data-lake`
 - Lifecycle: `generated_ignored`
-- Source of truth: architecture/data_policy.toml
+- Source of truth: architecture/policies/data.toml
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: none; promote only curated tiny fixtures through data policy

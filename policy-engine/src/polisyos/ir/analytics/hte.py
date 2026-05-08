@@ -14,8 +14,8 @@ from polisyos.ir._internal.validation import (
     ensure_unique_ids,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import HTEResultRef, PolicyRecommendationRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import HTEResultRef, PolicyRecommendationRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal import CausalMethod

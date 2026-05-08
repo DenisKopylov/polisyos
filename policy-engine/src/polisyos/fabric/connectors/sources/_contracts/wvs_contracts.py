@@ -15,6 +15,8 @@ from polisyos.fabric.connectors.contracts import (
     make_field_id,
 )
 
+from ._governance import FIELD_ID_MAJOR_BUMP_APPROVAL
+
 _SCHEMA_ID = "wvs.wave7.generic"
 
 
@@ -24,7 +26,7 @@ def _field_id(name: str) -> str:
 
 WVS_GENERIC_SCHEMA = DataSchema(
     schema_id=_SCHEMA_ID,
-    version=SchemaVersion(1, 0, 0),
+    version=SchemaVersion(2, 0, 0),
     fields=(
         FieldSpec(
             name="country_code",
@@ -128,6 +130,7 @@ WVS_GENERIC_CONTRACT = ConnectorSchemaContract(
     },
     description="Wildcard contract for WVS wave-based indicator observations.",
     created_by="phase0b",
+    approval=FIELD_ID_MAJOR_BUMP_APPROVAL,
 )
 
 WVS_CONTRACTS = (WVS_GENERIC_CONTRACT,)

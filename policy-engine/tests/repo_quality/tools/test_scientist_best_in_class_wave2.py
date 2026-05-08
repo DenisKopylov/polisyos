@@ -18,7 +18,7 @@ from polisyos.scientist.orchestration.memory import (
     MemoryContaminationPolicy,
     assert_reusable_memory_clean,
 )
-from polisyos.scientist.orchestration.orchestrator.publisher import (
+from polisyos.scientist.publishing.publisher import (
     DecisionGradeExport,
     OutputAudience,
 )

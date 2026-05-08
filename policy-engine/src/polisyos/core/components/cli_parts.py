@@ -317,7 +317,7 @@ def _build_parser() -> argparse.ArgumentParser:
     reflexion_replay_eval.add_argument("--output", default=None)
     reflexion_replay_eval.add_argument("--format", choices=["json"], default="json")
 
-    backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
+    backtesting_cli = importlib.import_module("polisyos.scientist.methods.backtesting.cli")
     backtesting_cli.add_backtest_subparser(scientist_sub)
 
     cmd_replay = components.add_parser("replay")

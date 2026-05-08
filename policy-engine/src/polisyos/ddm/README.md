@@ -6,10 +6,9 @@ Canonical Drift-and-Degradation Monitor package for readiness, incident, shift,
 calibration, and root-cause evidence contracts.
 
 The old `polisyos.ddm_15_7` package is a wrapper-only compatibility facade
-until 2026-10-01. Schema IDs, YAML contract IDs, and policy IDs that still
+until 2026-07-31. Schema IDs, YAML contract IDs, and policy IDs that still
 contain `ddm_15_7` are compatibility identifiers, not Python package names.
-DDM behavior tests live under `tests/unit/ddm`; `tests/unit/ddm_15_7` is
-reserved for one facade smoke test until the shim sunset.
+DDM behavior tests and the root facade smoke test live under `tests/unit/ddm`.
 
 ## Example
 

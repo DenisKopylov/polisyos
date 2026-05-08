@@ -34,9 +34,9 @@ must close before Phase 5/6 decomposition begins.
 Phase 4A must update these architecture contracts in the same implementation
 change as the source moves:
 
-- `architecture/package_boundaries.toml`
-- `architecture/import_contracts.toml`
-- `architecture/public_surface.toml`
+- `architecture/packages/boundaries.toml`
+- `architecture/imports/contracts.toml`
+- `architecture/public_surface/contract.toml`
 - `architecture/name_registry.toml`
 - `architecture/shims.toml`
 - generated public-surface reference docs and inventories

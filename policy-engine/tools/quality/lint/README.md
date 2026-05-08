@@ -37,8 +37,8 @@
 PYTHONPATH=src:. uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml
 PYTHONPATH=src:. uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml --changed-only --cache-dir _cache/polisyos-tools/cache --baseline-label ci --skip-if-unchanged
 PYTHONPATH=src:. uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml --fix
-PYTHONPATH=src:. uv run python tools/quality/lint/lint_foundry.py --repo-root .
-PYTHONPATH=src:. uv run python tools/quality/lint/lint_foundry.py --repo-root . --fix
+PYTHONPATH=src:. uv run python -m tools.quality.lint.lint_foundry --repo-root .
+PYTHONPATH=src:. uv run python -m tools.quality.lint.lint_foundry --repo-root . --fix
 PYTHONPATH=src:. uv run python tools/quality/lint/check_scholar_imports.py
 PYTHONPATH=src:. uv run python tools/quality/lint/compare_baseline.py --current .arch-freeze/current/summary.json --mode dry-run
 ```

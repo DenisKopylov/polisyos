@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import ValidationReportRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ValidationReportRef
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

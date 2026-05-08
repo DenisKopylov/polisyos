@@ -20,7 +20,7 @@ families, dispatch, lifecycle helpers, and method selection.
 
 The public boundary is the package facade and documented API modules. `_internal`
 and backend helper modules are private unless exported by README and
-`architecture/public_surface.toml`.
+`architecture/public_surface/contract.toml`.
 
 ## Naming Convention
 

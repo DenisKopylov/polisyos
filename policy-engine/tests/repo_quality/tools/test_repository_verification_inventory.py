@@ -41,9 +41,7 @@ def test_phase04_inventory_covers_verification_surfaces() -> None:
     assert roles["tests/repo_quality/tools"] == "repository_quality"
 
     property_coverage = payload["property_coverage"]
-    assert {"fabric", "lex", "data_forge"}.issubset(
-        set(property_coverage["missing_data_contract_heavy_packages"])
-    )
+    assert property_coverage["missing_data_contract_heavy_packages"] == []
 
     benchmarks = payload["benchmarks"]
     assert benchmarks["benchmark_root"]["py_file_count"] > 0

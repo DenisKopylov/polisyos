@@ -62,12 +62,12 @@ Notes:
 | Gate | Mode | Evidence |
 | --- | --- | --- |
 | `empty_namespace_gate` | fail-closed | `architecture/baselines/structure_remediation/foundry_methods_empty_placeholders.json` |
-| `loose_files_gate` | fail-closed | `architecture/package_layout.toml`, `architecture/exceptions/structure_remediation.toml` |
+| `loose_files_gate` | fail-closed | `architecture/packages/layout.toml`, `architecture/exceptions/structure_remediation.toml` |
 | `name_collision_gate` | fail-closed | `architecture/name_registry.toml` |
 | `pyproject_size_gate` | fail-closed, <= 300 lines | `architecture/baselines/structure_remediation/pyproject_sections.json` |
 | `cache_dir_gate` | fail-closed | `architecture/baselines/structure_remediation/cache_and_env_paths.json`, `architecture/exceptions/structure_remediation.toml` |
 | `build_output_gate` | fail-closed | `architecture/baselines/structure_remediation/build_outputs.json`, `architecture/exceptions/structure_remediation.toml` |
-| `dynamic_imports_gate` | fail-closed | `architecture/dynamic_imports.toml` |
+| `dynamic_imports_gate` | fail-closed | `architecture/imports/dynamic.toml` |
 | `pickle_compat_gate` | fail-closed | `tests/fixtures/checkpoint_compat` |
 | `public_surface_snapshot_gate` | fail-closed | `architecture/baselines/structure_remediation/public_surface_pre_decomp.json` |
 | `import_cycles_gate` | fail-closed | `architecture/imports/lazy.toml` |
@@ -80,8 +80,8 @@ Verified commands:
 - `uv run python tools/quality/validation/decomposition_preflight.py gate`.
 - `uv run pytest tests/unit/scientist tests/integration/scientist tests/property/scientist tests/contract -q`.
 - `uv run pytest tests/unit/foundry tests/property/foundry tests/contract -q`.
-- `POLISYOS_RUN_IMPORT_TIME_GATE=1 uv run pytest tests/architecture/test_decomposition_preflight_gates.py -q`.
-- `uv run pytest tests/contract/test_pickle_compat.py tests/architecture/test_public_surface_snapshot.py tests/architecture/test_decomposition_preflight_gates.py tests/architecture/test_repository_structure_phase1a.py tests/architecture/test_repository_structure_phase1c.py -q`.
+- `POLISYOS_RUN_IMPORT_TIME_GATE=1 uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q`.
+- `uv run pytest tests/contract/test_pickle_compat.py tests/repo_quality/architecture/test_public_surface_snapshot.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py tests/repo_quality/architecture/test_repository_structure_phase1a.py tests/repo_quality/architecture/test_repository_structure_phase1c.py -q`.
 
 ## Remaining Exceptions
 

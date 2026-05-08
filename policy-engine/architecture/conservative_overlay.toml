@@ -64,7 +64,7 @@ forbidden_actions = ["move", "rename", "delete", "rewrite", "normalize"]
 
 [[gate_mode]]
 gate = "import-linter"
-source = "architecture/import_contracts.toml"
+source = "architecture/imports/contracts.toml"
 protected_surface_mode = "report_only"
 reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 
@@ -88,7 +88,7 @@ reason = "Historical report-only mode retained as evidence; no active freeze con
 
 [[gate_mode]]
 gate = "complexity"
-source = "architecture/complexity_exceptions.toml"
+source = "architecture/exceptions/complexity.toml"
 protected_surface_mode = "report_only"
 reason = "Historical report-only mode retained as evidence; no active freeze constraint."
 

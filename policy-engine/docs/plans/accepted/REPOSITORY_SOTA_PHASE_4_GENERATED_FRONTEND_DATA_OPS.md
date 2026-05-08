@@ -23,9 +23,9 @@ Phase 4 closes non-Python governance gaps without moving source topology:
 | --- | --- |
 | Generated registry | `architecture/generated_artifacts.toml` plus regenerated `docs/reference/generated-artifacts.md` |
 | Frontend contract | `architecture/frontend_workspaces.toml` and `docs/reference/frontend/workspace-contract.md` |
-| Data policy | `architecture/data_policy.toml` and `docs/reference/data-lake-policy.md` |
+| Data policy | `architecture/policies/data.toml` and `docs/reference/data-lake-policy.md` |
 | Runtime state | `architecture/local_runtime_state.toml` and `docs/reference/local-runtime-state.md` |
-| Ops baselines | `architecture/ops_baselines.toml` and `docs/reference/operations/ops-baselines.md` |
+| Ops baselines | `architecture/baselines/ops.toml` and `docs/reference/operations/ops-baselines.md` |
 | Security/release configs | `ops/security/secrets-baseline.toml`, `ops/release/*.toml` |
 | OTel/runtime configs | `ops/observability/otel/baseline.yaml`, `ops/runtime/runtime-contracts.toml` |
 | Migration contract | `ops/migrations/migration-contracts.toml` |

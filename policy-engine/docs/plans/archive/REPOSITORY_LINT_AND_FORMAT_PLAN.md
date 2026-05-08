@@ -85,7 +85,7 @@ archived: 2026-04-24
   расширения покрытия через baseline.
 
 - repo-specific guards через `tools/quality/lint/*`, `import_policy.toml`,
-  `architecture/package_boundaries.toml`.
+  `architecture/packages/boundaries.toml`.
 
 Практический вывод:
 
@@ -220,7 +220,7 @@ archived: 2026-04-24
 ## 5. Dependency model и где нужна последовательность
 
 Главный Python dependency DAG уже отражен в `import_policy.toml` и
-`architecture/package_boundaries.toml`. Для lint/format это означает:
+`architecture/packages/boundaries.toml`. Для lint/format это означает:
 
 1. `common -> ir -> core` - serial foundation для Python product code.
 2. После `core` можно параллелить несколько доменных полос:

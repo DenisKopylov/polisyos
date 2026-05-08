@@ -363,8 +363,8 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "src"
         / "polisyos"
         / "fabric"
-        / "processing_guarantees"
-        / "__init__.py",
+        / "quality"
+        / "processing_guarantees.py",
         "processing_guarantee_schema": repo_root
         / "schemas"
         / "fabric"
@@ -440,8 +440,8 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "src"
         / "polisyos"
         / "fabric"
-        / "decision_data"
-        / "__init__.py",
+        / "evidence"
+        / "decision_data.py",
         "trust_envelope_schema": repo_root / "schemas" / "fabric" / "trust_envelope.schema.json",
         "decision_data_coverage": repo_root
         / "tools"
@@ -538,8 +538,8 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "src"
         / "polisyos"
         / "fabric"
-        / "observability"
-        / "__init__.py",
+        / "_adapters"
+        / "observability.py",
         "core_metrics_base": repo_root
         / "src"
         / "polisyos"
@@ -596,7 +596,7 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         "evidence": repo_root / "src" / "polisyos" / "fabric" / "evidence" / "__init__.py",
         "lineage": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "lineage.py",
         "provo": repo_root / "src" / "polisyos" / "fabric" / "provenance" / "export_provo.py",
-        "world_query": repo_root / "src" / "polisyos" / "fabric" / "world_query" / "__init__.py",
+        "world_query": repo_root / "src" / "polisyos" / "fabric" / "world" / "query.py",
         "snapshots": repo_root / "src" / "polisyos" / "fabric" / "world" / "store" / "snapshots.py",
         "world_segments": repo_root
         / "src"

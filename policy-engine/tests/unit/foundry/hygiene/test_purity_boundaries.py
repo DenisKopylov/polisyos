@@ -32,8 +32,16 @@ def foundry_root(tmp_path: Path) -> Path:
         "methods/catalog/optimization",
         "methods/catalog/survey",
         "methods/backends",
+        "methods/artifacts",
+        "methods/bayesian",
+        "methods/causal",
+        "methods/compiler",
+        "methods/econometrics",
+        "methods/lifecycle",
+        "methods/selection",
         "methods/testing",
         "methods/cli",
+        "extensions",
         "plugins",
         "runtime",
         "agent_sim",
@@ -55,8 +63,16 @@ def foundry_root(tmp_path: Path) -> Path:
         "methods/backends/dispatch.py",
         "methods/backends/checkpointing.py",
         "methods/backends/ray_runner.py",
+        "methods/artifacts/_fingerprint.py",
+        "methods/bayesian/__init__.py",
+        "methods/causal/__init__.py",
+        "methods/compiler/hot_reload.py",
+        "methods/econometrics/__init__.py",
+        "methods/lifecycle/compat_matrix.py",
+        "methods/selection/cache.py",
         "methods/testing/helpers.py",
         "methods/cli/runner.py",
+        "extensions/registry.py",
         "methods/base.py",
         "methods/discovery.py",
         "methods/hot_reload.py",
@@ -138,6 +154,35 @@ def test_infra_zone_no_restrictions(foundry_root: Path) -> None:
         _policy_for_file(foundry_root / "methods" / "backends" / "ray_runner.py", foundry_root)
         == "infra"
     )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "artifacts" / "_fingerprint.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "bayesian" / "__init__.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "causal" / "__init__.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "compiler" / "hot_reload.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "econometrics" / "__init__.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "lifecycle" / "compat_matrix.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "selection" / "cache.py", foundry_root)
+        == "infra"
+    )
+    assert _policy_for_file(foundry_root / "extensions" / "registry.py", foundry_root) == "infra"
 
 
 def test_no_jax_zone_for_causal(foundry_root: Path) -> None:

@@ -10,6 +10,20 @@ observability_contract = "architecture/component_observability.toml"
 retention_policy_reference = "docs/reference/operations/retention-and-recovery.md"
 runtime_contract_reference = "ops/runtime/runtime-contracts.toml"
 compatibility_policy = "component aliases include package facade names and active compatibility roots so old and new caller language resolves to the same operability bundle"
+phase_6_6_completeness_gate = "fail_closed"
+phase_6_6_plan_window_start = "2026-05-07"
+phase_6_6_plan_completion_target = "2026-05-31"
+phase_6_6_exception_minimum_days_after_completion = 90
+required_public_stable_bundle_files = [
+  "README.md",
+  "alerts.yml",
+  "dashboard.json",
+  "retention-policy.toml",
+  "runbooks.md",
+  "runtime-contract.toml",
+  "slo.yaml",
+]
+exception_policy = "SLO exceptions require an explicit owner, reason, expiration date, and action plan due within the active last-mile plan window unless the exception expires at least 90 days after the plan completion target."
 
 [[component]]
 id = "common"
@@ -23,11 +37,14 @@ slo_file = "ops/components/common/slo.yaml"
 runbooks = ["docs/runbooks/dependency-upgrade-regression.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/common/retention-policy.toml"
 escalation = "team-core primary; team-platform joins for shared dependency or migration incidents"
 exception_reason = "Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic."
 exception_expires = "2026-08-01"
+exception_owner = "team-core"
+exception_action_plan = "Decide whether Common exposes standalone runtime traffic; if yes, replace the exception with a present SLO bundle, otherwise keep coverage delegated to dependent public-stable components."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component]]
@@ -43,7 +60,7 @@ legacy_slo_files = ["ops/observability/slo/core.yaml"]
 runbooks = ["docs/runbooks/artifact-corruption-recovery.md", "docs/runbooks/idempotency-incident.md", "docs/runbooks/mutation-audit-investigation.md", "docs/runbooks/cas-opa-outage.md"]
 alerts = ["AuditChainTamperDetected", "AuditSinkQueueBackpressure", "AuditColdTierWriteFailure", "ArtifactIntegrityFailuresDetected"]
 dashboards = ["ops/observability/grafana/dashboards/executive-overview.json"]
-runtime_contracts = ["architecture/public_surface.toml", "ops/runtime/runtime-contracts.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "ops/runtime/runtime-contracts.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/core/retention-policy.toml"
 escalation = "team-core primary; team-security joins immediately for audit, artifact integrity, or tenant-boundary incidents"
 
@@ -145,7 +162,7 @@ legacy_slo_files = ["ops/observability/slo/lex.yaml"]
 runbooks = ["docs/runbooks/lex-production-140k.md", "docs/runbooks/cache-rebuild-storm.md", "docs/runbooks/broken-contract-generation.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/lex/retention-policy.toml"
 escalation = "team-lex primary; team-scholar joins for provider/search dependency incidents"
 
@@ -162,7 +179,7 @@ legacy_slo_files = ["ops/observability/slo/scholar.yaml"]
 runbooks = ["docs/runbooks/docs-publication-failure.md", "docs/runbooks/cache-rebuild-storm.md", "docs/runbooks/lex-production-140k.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/knowledge-freshness.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/scholar/retention-policy.toml"
 escalation = "team-scholar primary; team-lex joins for search registry or norm-pack freshness incidents"
 
@@ -179,7 +196,7 @@ legacy_slo_files = ["ops/observability/slo/data_forge.yaml"]
 runbooks = ["docs/runbooks/replay-or-restore.md", "docs/runbooks/retained-artifact-recovery.md", "docs/runbooks/broken-contract-generation.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/data_forge/retention-policy.toml"
 escalation = "team-data-forge primary; team-fabric joins when source contracts or lineage are affected"
 
@@ -195,11 +212,14 @@ slo_file = "ops/components/berl/slo.yaml"
 runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/scientist-agents.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/berl/retention-policy.toml"
 escalation = "team-architecture primary; team-scientist joins when explanation reliability blocks validation"
 exception_reason = "BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet."
 exception_expires = "2026-08-01"
+exception_owner = "team-architecture"
+exception_action_plan = "Resolve BERL's standalone operational surface decision after the last-mile bridge tests; either promote to a present BERL SLO or keep BERL covered by Scientist component operations."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component]]
@@ -214,11 +234,14 @@ slo_file = "ops/components/ddm/slo.yaml"
 runbooks = ["docs/runbooks/benchmark-regression-triage.md", "docs/runbooks/replay-or-restore.md"]
 alerts = []
 dashboards = ["ops/observability/grafana/dashboards/slo-overview.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/shims.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/shims.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/ddm/retention-policy.toml"
 escalation = "team-architecture primary; team-scientist joins for drift/degradation readiness incidents"
 exception_reason = "DDM behavior is currently contract/unit scoped and ddm_15_7 is a wrapper-only compatibility alias; add a standalone SLO if promoted to public-stable operations."
 exception_expires = "2026-08-01"
+exception_owner = "team-architecture"
+exception_action_plan = "Finish the DDM shim and package-version policy decision; create a present DDM SLO only if DDM remains a standalone operational surface."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component]]
@@ -233,11 +256,14 @@ slo_file = "ops/components/calibration/slo.yaml"
 runbooks = ["docs/runbooks/benchmark-regression-triage.md"]
 alerts = ["CalibrationDiverging", "CalibrationStuck"]
 dashboards = ["ops/observability/grafana/dashboards/foundry-hpc.json"]
-runtime_contracts = ["architecture/public_surface.toml", "architecture/runtime_state_layout.toml"]
+runtime_contracts = ["architecture/public_surface/contract.toml", "architecture/runtime_state_layout.toml"]
 retention_policy = "ops/components/calibration/retention-policy.toml"
 escalation = "team-foundry primary; team-scientist joins when decision validity depends on calibration output"
 exception_reason = "Calibration alerts are covered by Foundry/Scientist runbooks until calibration becomes a standalone public-stable component."
 exception_expires = "2026-08-01"
+exception_owner = "team-foundry"
+exception_action_plan = "Resolve Foundry versus Scientist calibration ownership; promote calibration to a present SLO if it becomes a public-stable component."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component]]
@@ -257,5 +283,7 @@ retention_policy = "ops/components/security/retention-policy.toml"
 escalation = "team-security primary; team-platform joins for identity, policy, or infrastructure remediation"
 exception_reason = "Security owns alert response and compliance evidence, but Phase 4.9 does not introduce a standalone security SLO gate before Wave 6."
 exception_expires = "2026-08-01"
+exception_owner = "team-security"
+exception_action_plan = "Close the Wave 6 security SLO ownership decision; either promote security to a present component SLO or keep security alerts governed by release/security gates."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
-

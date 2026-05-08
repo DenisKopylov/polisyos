@@ -11,10 +11,10 @@ id = "packages"
 owner = "team-architecture"
 primary_paths = ["architecture/packages/*.toml"]
 legacy_paths = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/test_topology.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/tests/topology.toml",
 ]
 notes = "Per-package contract files are the primary edit point for new package architecture."
 
@@ -25,18 +25,18 @@ primary_paths = [
   "architecture/imports/policy.toml",
   "architecture/imports/exceptions.toml",
   "architecture/imports/reports.toml",
-  "architecture/import_contracts.toml",
-  "architecture/dynamic_imports.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/imports/dynamic.toml",
 ]
-legacy_paths = ["architecture/deep_import_baseline.json"]
+legacy_paths = ["architecture/baselines/imports/deep_import.json"]
 notes = "Import boundary, dependency graph, lazy import, and dynamic import reports."
 
 [[group]]
 id = "public_surface"
 owner = "team-architecture"
 primary_paths = [
-  "architecture/public_surface.toml",
-  "architecture/public_surface_inventory.json",
+  "architecture/public_surface/contract.toml",
+  "architecture/public_surface/inventory.json",
   "architecture/public_surface/",
 ]
 legacy_paths = []
@@ -47,9 +47,9 @@ id = "exceptions"
 owner = "team-architecture"
 primary_paths = [
   "architecture/exceptions/",
-  "architecture/guardrail_exceptions.toml",
-  "architecture/complexity_exceptions.toml",
-  "architecture/static_analysis_overrides.toml",
+  "architecture/exceptions/guardrails.toml",
+  "architecture/exceptions/complexity.toml",
+  "architecture/tooling/static_analysis_overrides.toml",
 ]
 legacy_paths = ["architecture/imports/exceptions.toml"]
 notes = "Time-boxed exceptions, override ledgers, and ratchet exemptions."
@@ -59,14 +59,14 @@ id = "policies"
 owner = "team-architecture"
 primary_paths = [
   "architecture/policies/",
-  "architecture/directory_contracts.toml",
+  "architecture/policies/directory_contracts.toml",
   "architecture/module_size_budget.toml",
   "architecture/extension_points.toml",
   "architecture/runtime_state_layout.toml",
-  "architecture/test_ratchets.toml",
+  "architecture/tests/ratchets.toml",
 ]
 legacy_paths = [
-  "architecture/data_policy.toml",
+  "architecture/policies/data.toml",
   "architecture/local_runtime_state.toml",
   "architecture/frontend_workspaces.toml",
 ]
@@ -77,8 +77,8 @@ id = "gates"
 owner = "team-architecture"
 primary_paths = [
   "architecture/gates/report_only.toml",
-  "architecture/repository_sota_gates.toml",
-  "architecture/structure_remediation_gates.toml",
+  "architecture/gates/repository_sota.toml",
+  "architecture/gates/structure_remediation.toml",
 ]
 legacy_paths = []
 notes = "Fail-closed gates stay in existing registries; Phase 1.3 gates are report-only first."
@@ -88,7 +88,7 @@ id = "baselines"
 owner = "team-architecture"
 primary_paths = [
   "architecture/baselines/",
-  "architecture/deep_import_baseline.json",
+  "architecture/baselines/imports/deep_import.json",
 ]
 legacy_paths = []
 notes = "Generated and manually approved baselines remain committed or local according to their family contracts."

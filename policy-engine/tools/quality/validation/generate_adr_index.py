@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,28 +32,214 @@ STATUS_LIST_RE = re.compile(r"(?im)^-\s*(?:\*\*)?Status(?:\*\*)?:\s*(?P<status>[
 RELATION_TOKEN_RE = re.compile(r"\b(?:ADR-(?:RSR-)?\d{3,4}|RSR-\d{4})\b")
 MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\((?P<target>[^)]+)\)")
 GENERATED_ON_RE = re.compile(r'^generated_on\s*=\s*"(?P<date>[^"]+)"$', flags=re.MULTILINE)
-STALE_REPORT_DATE_RE = re.compile(r"^Generated on (?P<date>\d{4}-\d{2}-\d{2}) from ", flags=re.MULTILINE)
+STALE_REPORT_DATE_RE = re.compile(
+    r"^Generated on (?P<date>\d{4}-\d{2}-\d{2}) from ", flags=re.MULTILINE
+)
 DEFAULT_GENERATED_ON = "source-controlled"
 
+TOPIC_DEFINITIONS: tuple[tuple[str, str], ...] = (
+    (
+        "repository-structure",
+        "Repository topology, package layout, import boundaries, docs governance, "
+        "and workspace hygiene.",
+    ),
+    (
+        "observation",
+        "Observability, causal evidence, scientist workflows, measurement, "
+        "confidence, and validity.",
+    ),
+    ("security", "Tenant isolation, signing, secrets, trust stores, and other security controls."),
+    (
+        "runtime-state",
+        "Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior.",
+    ),
+    ("schemas", "IR, API, schema, serialization, registry, metadata, and compatibility contracts."),
+    ("testing", "Test topology, fixtures, golden data, drift checks, and reproducibility gates."),
+    (
+        "release",
+        "Release trains, SemVer, versioning, deprecation, migration, and retraction policy.",
+    ),
+    ("frontend", "Frontend workspace, dashboard, UI language, themes, and authored text surfaces."),
+    (
+        "product-domain",
+        "Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts.",
+    ),
+)
+STABLE_TOPICS = tuple(topic for topic, _ in TOPIC_DEFINITIONS)
+TOPIC_DESCRIPTIONS = dict(TOPIC_DEFINITIONS)
+
 TOPIC_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("repository-structure", ("repository-structure", "workspace", "root", "package", "topology", "fixture", "codemod", "cycle", "decomposition")),
-    ("docs", ("docs", "documentation", "diataxis", "archive", "plan")),
-    ("release", ("release", "semver", "versioning", "deprecation")),
-    ("security", ("security", "secret", "tenant", "signing", "key-rotation", "trust-store", "fedramp")),
-    ("runtime", ("runtime", "rate-limiting", "idempotency", "audit-trail", "cas")),
-    ("frontend-design", ("design", "atlas", "janus", "glyph", "theme", "frontend", "dashboard")),
-    ("scientist", ("scientist", "claim", "research-dag", "voi", "node", "decision-packet", "readiness")),
-    ("fabric", ("fabric", "connector", "world", "wvs", "wgi", "wdi", "streaming")),
-    ("lex", ("lex", "legal", "law", "norm", "normpack")),
-    ("foundry", ("foundry", "method", "simulation", "estimator", "causal-estimator")),
-    ("data", ("data", "dataset", "lakehouse", "artifact", "knowledge", "skg", "snapshot")),
-    ("ir", ("ir", "schema", "trinity", "policy-surface", "analytics", "transport")),
-    ("causal", ("causal", "transportability", "sutva", "backdoor", "collider", "pag", "dag", "graph", "identification")),
-    ("architecture", ("architecture", "boundary", "import", "layered", "governance")),
+    (
+        "security",
+        ("security", "secret", "tenant", "signing", "key-rotation", "trust-store", "fedramp"),
+    ),
+    (
+        "frontend",
+        (
+            "frontend",
+            "dashboard",
+            "design",
+            "atlas",
+            "janus",
+            "glyph",
+            "theme",
+            "ui",
+            "authored-text",
+        ),
+    ),
+    (
+        "testing",
+        (
+            "test",
+            "testing",
+            "fixture",
+            "golden",
+            "differential",
+            "drift",
+            "reproducibility",
+            "hermetic",
+        ),
+    ),
+    ("release", ("release", "semver", "versioning", "deprecation", "migration", "retraction")),
+    (
+        "runtime-state",
+        (
+            "runtime",
+            "rate-limiting",
+            "idempotency",
+            "audit-trail",
+            "cas",
+            "checkpoint",
+            "resume",
+            "replay",
+            "lifecycle",
+            "snapshot",
+        ),
+    ),
+    (
+        "schemas",
+        (
+            "schema",
+            "schemas",
+            "ir",
+            "trinity",
+            "policy-surface",
+            "json",
+            "abi",
+            "registry",
+            "metadata",
+            "api",
+            "serialization",
+            "contract",
+        ),
+    ),
+    (
+        "repository-structure",
+        (
+            "repository-structure",
+            "workspace",
+            "root",
+            "package",
+            "topology",
+            "codemod",
+            "cycle",
+            "decomposition",
+            "architecture",
+            "boundary",
+            "import",
+            "layered",
+            "docs",
+            "documentation",
+            "diataxis",
+            "archive",
+            "plan",
+            "hygiene",
+        ),
+    ),
+    (
+        "observation",
+        (
+            "observation",
+            "observability",
+            "otel",
+            "scientist",
+            "claim",
+            "research-dag",
+            "voi",
+            "node",
+            "decision-packet",
+            "readiness",
+            "causal",
+            "estimate",
+            "estimator",
+            "transportability",
+            "sutva",
+            "backdoor",
+            "collider",
+            "pag",
+            "dag",
+            "graph",
+            "identification",
+            "confidence",
+            "uncertainty",
+            "refutation",
+            "e-value",
+            "proxy",
+            "survey",
+            "literature",
+        ),
+    ),
+    (
+        "product-domain",
+        (
+            "foundry",
+            "fabric",
+            "connector",
+            "world",
+            "synthetic-world",
+            "agent-sim",
+            "wvs",
+            "wgi",
+            "wdi",
+            "streaming",
+            "lex",
+            "legal",
+            "law",
+            "norm",
+            "normpack",
+            "data-forge",
+            "data",
+            "dataset",
+            "lakehouse",
+            "artifact",
+            "knowledge",
+            "skg",
+            "method",
+            "simulation",
+            "portfolio",
+            "calibration",
+        ),
+    ),
 )
 
+LEGACY_TOPIC_ALIASES = {
+    "causal": "observation",
+    "data": "product-domain",
+    "docs": "repository-structure",
+    "fabric": "product-domain",
+    "foundry": "product-domain",
+    "frontend-design": "frontend",
+    "ir": "schemas",
+    "lex": "product-domain",
+    "runtime": "runtime-state",
+    "scientist": "observation",
+}
+
 PACKAGE_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("polisyos.scientist", ("scientist", "claim", "research-dag", "voi", "node", "decision-packet")),
+    (
+        "polisyos.scientist",
+        ("scientist", "claim", "research-dag", "voi", "node", "decision-packet"),
+    ),
     ("polisyos.foundry", ("foundry", "method", "simulation", "estimator")),
     ("polisyos.fabric", ("fabric", "connector", "world", "wvs", "wgi", "wdi")),
     ("polisyos.lex", ("lex", "legal", "law", "norm", "normpack")),
@@ -88,6 +275,13 @@ def _markdown_files() -> list[Path]:
     return sorted(path for path in ADR_DIR.glob("*.md") if path.name not in SKIP_FILENAMES)
 
 
+def _display_path(path: Path) -> str:
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _status(text: str) -> str:
     match = STATUS_SECTION_RE.search(text) or STATUS_LIST_RE.search(text)
     if match is None:
@@ -107,7 +301,9 @@ def _id_and_title(path: Path, text: str) -> tuple[str, str]:
             return f"ADR-{raw_id}", title
         return raw_id, title
 
-    stem_match = re.match(r"(?P<id>\d{4}|ADR-\d{3}|repository-structure-\d{4})-(?P<slug>.+)", path.stem)
+    stem_match = re.match(
+        r"(?P<id>\d{4}|ADR-\d{3}|repository-structure-\d{4})-(?P<slug>.+)", path.stem
+    )
     if stem_match is not None:
         raw_id = stem_match.group("id")
         if raw_id.startswith("repository-structure-"):
@@ -123,7 +319,7 @@ def _classify_topic(path: Path, title: str) -> str:
     for topic, keywords in TOPIC_KEYWORDS:
         if _has_keyword(haystack, keywords):
             return topic
-    return "architecture"
+    return "product-domain"
 
 
 def _classify_package(path: Path, title: str) -> str:
@@ -141,6 +337,119 @@ def _has_keyword(haystack: str, keywords: tuple[str, ...]) -> bool:
         if needle in normalized:
             return True
     return False
+
+
+def _topic_error_prefix(path: str, row_number: int) -> str:
+    location = path if path else f"[[adr]] #{row_number}"
+    return f"{location}:"
+
+
+def _required_string(row: dict[str, object], field: str, row_number: int) -> str:
+    value = row.get(field)
+    if not isinstance(value, str) or not value.strip():
+        path = str(row.get("path", ""))
+        raise ValueError(f"{_topic_error_prefix(path, row_number)} ADR row missing `{field}`.")
+    return value.strip()
+
+
+def _string_array(row: dict[str, object], field: str, row_number: int) -> tuple[str, ...]:
+    value = row.get(field, [])
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        path = str(row.get("path", ""))
+        raise ValueError(
+            f"{_topic_error_prefix(path, row_number)} ADR row `{field}` must be a string array."
+        )
+    return tuple(value)
+
+
+def _normalize_topic(
+    topic: str,
+    *,
+    path: str,
+    title: str,
+    row_number: int,
+    allow_legacy_topics: bool,
+) -> str:
+    if not topic.strip():
+        raise ValueError(f"{_topic_error_prefix(path, row_number)} ADR row missing `topic`.")
+
+    normalized = topic.strip()
+    if normalized in STABLE_TOPICS:
+        return normalized
+
+    if allow_legacy_topics:
+        if normalized == "architecture":
+            return _classify_topic(Path(path), title)
+        if normalized in LEGACY_TOPIC_ALIASES:
+            return LEGACY_TOPIC_ALIASES[normalized]
+
+    expected = ", ".join(STABLE_TOPICS)
+    raise ValueError(
+        f"{_topic_error_prefix(path, row_number)} unknown ADR topic `{normalized}`; "
+        f"expected one of: {expected}."
+    )
+
+
+def load_index_entries(
+    path: Path = DEFAULT_TOML, *, allow_legacy_topics: bool = False
+) -> list[AdrEntry]:
+    with path.open("rb") as stream:
+        data = tomllib.load(stream)
+
+    rows = data.get("adr", [])
+    if not isinstance(rows, list):
+        raise ValueError(f"{path}: adr rows missing.")
+
+    entries: list[AdrEntry] = []
+    seen_ids: set[str] = set()
+    seen_paths: set[str] = set()
+    for row_number, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            raise ValueError(f"[[adr]] #{row_number}: ADR row must be a table.")
+
+        adr_id = _required_string(row, "id", row_number)
+        title = _required_string(row, "title", row_number)
+        status = _required_string(row, "status", row_number)
+        raw_topic = str(row.get("topic", ""))
+        package = _required_string(row, "package", row_number)
+        adr_path = _required_string(row, "path", row_number)
+
+        if adr_id in seen_ids:
+            raise ValueError(f"{adr_path}: duplicate ADR id `{adr_id}`.")
+        if adr_path in seen_paths:
+            raise ValueError(f"{adr_path}: duplicate ADR path.")
+        seen_ids.add(adr_id)
+        seen_paths.add(adr_path)
+
+        entries.append(
+            AdrEntry(
+                id=adr_id,
+                title=title,
+                status=status,
+                topic=_normalize_topic(
+                    raw_topic,
+                    path=adr_path,
+                    title=title,
+                    row_number=row_number,
+                    allow_legacy_topics=allow_legacy_topics,
+                ),
+                package=package,
+                path=adr_path,
+                supersedes=_string_array(row, "supersedes", row_number),
+                superseded_by=_string_array(row, "superseded_by", row_number),
+                related=_string_array(row, "related", row_number),
+            )
+        )
+
+    return sorted(entries, key=lambda entry: entry.id)
+
+
+def _index_entries_by_path(index_path: Path) -> dict[str, AdrEntry]:
+    if not index_path.is_file():
+        raise ValueError(
+            f"{_display_path(index_path)} is missing; add ADR rows with stable topics."
+        )
+    return {entry.path: entry for entry in load_index_entries(index_path, allow_legacy_topics=True)}
 
 
 def _normalize_token(token: str, known_ids: set[str]) -> str | None:
@@ -173,7 +482,8 @@ def _tokens_from_lines(text: str, labels: tuple[str, ...]) -> set[str]:
     return tokens
 
 
-def _entries() -> tuple[list[AdrEntry], list[StaleReference]]:
+def _entries(index_path: Path = DEFAULT_TOML) -> tuple[list[AdrEntry], list[StaleReference]]:
+    indexed_entries = _index_entries_by_path(index_path)
     raw: list[tuple[Path, str, str, str]] = []
     for path in _markdown_files():
         text = path.read_text(encoding="utf-8")
@@ -215,14 +525,22 @@ def _entries() -> tuple[list[AdrEntry], list[StaleReference]]:
             sorted(set(resolve_many(related_tokens)).union(supersedes).union(superseded_by))
         )
 
+        relative_path = (path.relative_to(REPO_ROOT)).as_posix()
+        indexed_entry = indexed_entries.get(relative_path)
+        if indexed_entry is None:
+            raise ValueError(
+                f"{relative_path}: ADR file is missing from docs/adr/index.toml; "
+                "add an [[adr]] row with a stable `topic` classification."
+            )
+
         entries.append(
             AdrEntry(
                 id=adr_id,
                 title=title,
                 status=_status(text),
-                topic=_classify_topic(path, title),
-                package=_classify_package(path, title),
-                path=(path.relative_to(REPO_ROOT)).as_posix(),
+                topic=indexed_entry.topic,
+                package=indexed_entry.package,
+                path=relative_path,
                 supersedes=supersedes,
                 superseded_by=superseded_by,
                 related=related,
@@ -244,7 +562,9 @@ def _entries() -> tuple[list[AdrEntry], list[StaleReference]]:
                         )
                     )
 
-    return sorted(entries, key=lambda entry: entry.id), sorted(set(stale), key=lambda item: (item.source, item.token, item.reason))
+    return sorted(entries, key=lambda entry: entry.id), sorted(
+        set(stale), key=lambda item: (item.source, item.token, item.reason)
+    )
 
 
 def _toml_string(value: str) -> str:
@@ -261,7 +581,7 @@ def render_toml(entries: list[AdrEntry], *, generated_on: str = DEFAULT_GENERATE
         "# Edit ADR Markdown files, then regenerate this index.",
         "",
         "[adr_index]",
-        'schema_version = 1',
+        "schema_version = 1",
         f"generated_on = {_toml_string(generated_on)}",
         'source = "docs/adr"',
         "",
@@ -291,7 +611,11 @@ def _link(entry: AdrEntry) -> str:
 
 
 def _table(entries: list[AdrEntry], *, include_topic: bool) -> list[str]:
-    headers = ["ADR", "Status", "Topic", "Package", "Title", "Related"] if include_topic else ["ADR", "Status", "Package", "Title", "Related"]
+    headers = (
+        ["ADR", "Status", "Topic", "Package", "Title", "Related"]
+        if include_topic
+        else ["ADR", "Status", "Package", "Title", "Related"]
+    )
     lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join("---" for _ in headers) + " |"]
     for entry in entries:
         related = ", ".join(entry.related) if entry.related else "-"
@@ -309,6 +633,8 @@ def render_index(entries: list[AdrEntry]) -> str:
         "# ADR Index",
         "",
         "> Generated from `docs/adr/index.toml`; do not hand-edit the tables.",
+        "",
+        "Theme navigation: [ADRs By Topic](by-topic.md).",
         "",
         "## Status Summary",
         "",
@@ -335,16 +661,20 @@ def render_by_topic(entries: list[AdrEntry]) -> str:
         "",
         "## Topic Summary",
         "",
-        "| Topic | Count |",
-        "| --- | --- |",
+        "| Topic | Description | Count |",
+        "| --- | --- | --- |",
     ]
-    for topic, count in sorted(topic_counts.items()):
-        lines.append(f"| `{topic}` | {count} |")
+    for topic in STABLE_TOPICS:
+        count = topic_counts.get(topic, 0)
+        if count:
+            lines.append(f"| `{topic}` | {TOPIC_DESCRIPTIONS[topic]} | {count} |")
     lines.extend(["", "## Topic Index", ""])
     by_topic: dict[str, list[AdrEntry]] = defaultdict(list)
     for entry in entries:
         by_topic[entry.topic].append(entry)
-    for topic in sorted(by_topic):
+    for topic in STABLE_TOPICS:
+        if topic not in by_topic:
+            continue
         lines.extend([f"### {topic}", "", *_table(by_topic[topic], include_topic=False), ""])
     return "\n".join(lines).rstrip() + "\n"
 
@@ -379,12 +709,20 @@ def main() -> int:
     parser.add_argument("--stale-report", type=Path, default=DEFAULT_STALE_REPORT)
     args = parser.parse_args()
 
-    entries, stale = _entries()
-    generated_on = _generated_on_for_run(args)
+    try:
+        entries, stale = _entries(args.toml)
+        generated_on = _generated_on_for_run(args)
+        index_entries = (
+            load_index_entries(args.toml, allow_legacy_topics=True) if args.check else entries
+        )
+    except ValueError as error:
+        print(f"ADR index error: {error}")
+        return 1
+
     outputs = {
         args.toml: render_toml(entries, generated_on=generated_on),
-        args.index: render_index(entries),
-        args.by_topic: render_by_topic(entries),
+        args.index: render_index(index_entries),
+        args.by_topic: render_by_topic(index_entries),
         args.stale_report: render_stale_report(stale, generated_on=generated_on),
     }
     changed: list[Path] = []
@@ -398,11 +736,11 @@ def main() -> int:
 
     if changed and args.check:
         for path in changed:
-            print(f"out of date: {path.relative_to(REPO_ROOT)}")
+            print(f"out of date: {_display_path(path)}")
         return 1
     if changed:
         for path in changed:
-            print(f"updated: {path.relative_to(REPO_ROOT)}")
+            print(f"updated: {_display_path(path)}")
     else:
         print("ADR indexes are up to date.")
     return 0

@@ -40,7 +40,7 @@ quality tests.
 
 - `tests/README.md`
 - `tests/FIXTURE_CATALOG.md`
-- `architecture/directory_contracts.toml`
+- `architecture/policies/directory_contracts.toml`
 
 ## Known Shims/Deprecations
 

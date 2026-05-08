@@ -16,10 +16,10 @@ from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 if TYPE_CHECKING:
     from polisyos.ir.governance.selector_expr import SelectorExpr, SelectorValue
-    from polisyos.ir.types import SelectorOperator
+    from polisyos.ir.model_layer.types import SelectorOperator
 else:
     from polisyos.ir.governance.selector_expr import SelectorExpr, SelectorValue
-    from polisyos.ir.types import SelectorOperator
+    from polisyos.ir.model_layer.types import SelectorOperator
 
 MAX_TEMPORAL_FORMULA_DEPTH = 24
 MAX_TEMPORAL_FORMULA_NODES = 128

@@ -21,5 +21,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-11-30",
     migration_hint="Use polisyos.scientist.evidence.sources for new imports.",
-    shim_id="scientist.evidence_sources-to-evidence.sources",
+    shim_id="decomp-scientist-evidence_sources",
 )

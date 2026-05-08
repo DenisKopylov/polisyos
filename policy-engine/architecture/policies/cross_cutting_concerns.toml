@@ -1,0 +1,772 @@
+[cross_cutting_concerns]
+version = 1
+status = "contract_only"
+owner = "team-architecture"
+phase = "repository-best-in-class-phase-4.8"
+source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-48---cross-cutting-concern-adapters-and-naming-hygiene"
+name_registry = "architecture/name_registry.toml"
+description = "Canonical ownership and adapter policy for shared concern names that appear across package boundaries."
+
+[defaults]
+allowed_decisions = [
+  "canonical_interface_plus_package_adapters",
+  "package_local_bounded_context",
+  "rename_or_sunset",
+]
+required_concern_fields = [
+  "name",
+  "decision",
+  "canonical_owner",
+  "semantic_axis",
+  "import_rule",
+  "public_status",
+  "sunset",
+]
+global_concepts_requiring_adapters = ["observability", "security"]
+adapter_rule = "Global concepts import their canonical interface from core/top-level packages and expose package-local adapters instead of duplicating the global contract."
+bounded_context_rule = "The same name may repeat only when the semantic axis documents why each package owns a different concept."
+rename_rule = "Unresolved global collisions must carry an owner, replacement direction, and sunset date in this contract or name_registry.toml."
+required_scoped_exception_fields = ["concern", "path", "owner", "rationale", "sunset"]
+
+[canonical_home_contract]
+phase = "repository-best-in-class-last-mile-phase-1.5"
+adr = "docs/adr/repository-structure-0148-cross-cutting-concern-canonical-homes.md"
+fail_closed = true
+adapter_module_pattern = "polisyos.<package>._adapters.<concern>"
+adapter_path_pattern = "src/polisyos/<package>/_adapters/<concern>.py"
+top_level_root_rule = "Only the canonical home may introduce a root concern file or first-level concern package. Non-canonical roots require a scoped exception with owner, rationale, and sunset."
+group_level_file_rule = "Files named after cross-cutting concerns below package groups must live under <package>/_adapters/<concern>.py or carry a scoped exception with owner, rationale, and sunset."
+blocked_file_names = [
+  "observability",
+  "telemetry",
+  "security",
+  "registry",
+  "discovery",
+  "configuration",
+  "config",
+  "tracing",
+  "trace",
+  "calibration",
+]
+protected_wave_roots = ["src/polisyos/fabric", "src/polisyos/ir"]
+
+[[concern]]
+name = "observability"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-observability"
+canonical_package = "polisyos.core.observability"
+canonical_interface = "polisyos.core.observability"
+canonical_home = "polisyos.core.observability"
+file_names = ["observability", "telemetry"]
+adapter_policy = "Package adapters may translate local metric, log, and SLO vocabulary to polisyos.core.observability; they must not define competing cross-package telemetry APIs."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "process-wide telemetry primitives versus package-local telemetry vocabulary"
+import_rule = "Cross-component telemetry imports use polisyos.core.observability; package-specific metric names, alert records, and SLO helpers stay behind package adapters."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric._adapters.observability", public_status = "public", sunset = "none" },
+  { package = "scientist", module = "polisyos.scientist._adapters.observability", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/core/artifacts/backends/config.py"
+owner = "team-core"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/core/artifacts/registry.py"
+owner = "team-core"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/core/components/discovery.py"
+owner = "team-core"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/core/components/registry.py"
+owner = "team-core"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/core/observability/config.py"
+owner = "team-core"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/core/security/registry.py"
+owner = "team-core"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/core/security/slsa/config.py"
+owner = "team-core"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/data_forge/domains/academic/batch/config.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/data_forge/domains/catalog/batch/config.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/data_forge/domains/catalog/knowledge/registry.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/data_forge/domains/catalog/registry.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py"
+owner = "team-data-forge"
+rationale = "Phase 4.2 core-source split uses registry.py for the bounded ingest source registry leaf, not the cross-package registry concern."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/data_forge/domains/legal/batch/config.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "observability"
+path = "src/polisyos/data_forge/kernel/observability.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped observability module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/data_forge/kernel/schemas/registry.py"
+owner = "team-data-forge"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/ddm/calibration"
+owner = "team-architecture"
+rationale = "Existing package-scoped calibration package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/fabric/config/config.py"
+owner = "team-fabric"
+rationale = "Fabric keeps package-local config models under the Phase 3.1 semantic config group."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/_internal/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/fabric/catalog/discovery.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/catalog/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/fabric/config"
+owner = "team-fabric"
+rationale = "Existing package-scoped config package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/connectors/bindings/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/connectors/contracts/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/fabric/connectors/discovery.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/connectors/profiles/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/fabric/connectors/registry.py"
+owner = "team-fabric"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "security"
+path = "src/polisyos/fabric/security"
+owner = "team-fabric"
+rationale = "Existing package-scoped security package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/foundry/calibration"
+owner = "team-foundry"
+rationale = "Existing package-scoped calibration package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/foundry/extensions/discovery.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/foundry/extensions/registry.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/foundry/feedback/config.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/foundry/methods/catalog/causal/calibration.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/foundry/methods/catalog/microsim/calibration.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/foundry/methods/discovery.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py"
+owner = "team-foundry"
+rationale = "Phase 4.1's causal-engine split uses discovery as the plan-specified domain orchestration module, not plugin entry-point discovery."
+sunset = "2026-12-31"
+
+[[scoped_exception]]
+concern = "observability"
+path = "src/polisyos/foundry/methods/lifecycle/observability.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped observability module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "observability"
+path = "src/polisyos/foundry/methods/observability.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped observability module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/foundry/methods/registry.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/foundry/methods/selection/registry.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/foundry/plugins/discovery.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/foundry/registry"
+owner = "team-foundry"
+rationale = "Existing package-scoped registry package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/ir/registry"
+owner = "team-ir"
+rationale = "IR registry is the semantic group for IR refs, registry fragments, and public-surface metadata; it is package-scoped and not a process-wide registry singleton."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "trace"
+path = "src/polisyos/foundry/runtime/trace.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped trace module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "trace"
+path = "src/polisyos/foundry/trace"
+owner = "team-foundry"
+rationale = "Existing package-scoped trace package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/foundry/uncertainty/config.py"
+owner = "team-foundry"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/ir/analytics/calibration.py"
+owner = "team-ir"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "security"
+path = "src/polisyos/runtime/http/security.py"
+owner = "team-runtime"
+rationale = "Existing package-scoped security module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "security"
+path = "src/polisyos/scholar/search/security.py"
+owner = "team-scholar"
+rationale = "Existing package-scoped security module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/agent/tools/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/scientist/autotune/calibration.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/autotune/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/scientist/discovery"
+owner = "team-scientist"
+rationale = "Existing package-scoped discovery package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/scientist/engine/locks/config.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/engine/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/scientist/engine/runner/config.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "telemetry"
+path = "src/polisyos/scientist/engine/telemetry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped telemetry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/scientist/governance/calibration.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "telemetry"
+path = "src/polisyos/scientist/governance/telemetry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped telemetry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/llm/profiles/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "calibration"
+path = "src/polisyos/scientist/methods/autotune/calibration.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/methods/autotune/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "tracing"
+path = "src/polisyos/scientist/nodes/builtins/tracing.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped tracing module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/scientist/orchestration/engine/locks/config.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/orchestration/engine/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "config"
+path = "src/polisyos/scientist/orchestration/engine/runner/config.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "telemetry"
+path = "src/polisyos/scientist/orchestration/engine/telemetry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped telemetry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "registry"
+path = "src/polisyos/scientist/orchestration/llm/profiles/registry.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/scientist/orchestration/workflows/discovery.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[scoped_exception]]
+concern = "discovery"
+path = "src/polisyos/scientist/workflows/discovery.py"
+owner = "team-scientist"
+rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
+sunset = "none"
+
+[[concern]]
+name = "security"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.security"
+canonical_interface = "polisyos.core.security"
+canonical_home = "polisyos.core.security"
+file_names = ["security"]
+adapter_policy = "Package adapters may translate local resources to core identity, authorization, audit, and quota primitives; non-core packages must not define global security context APIs."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "tenant identity, authorization, and audit primitives versus package-local data access enforcement"
+import_rule = "Cross-package security context and audit primitives import from polisyos.core.security; package security modules adapt those primitives to local resource models."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric.security.adapters", public_status = "public", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "registry"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.registry"
+canonical_interface = "polisyos.core.registry"
+canonical_home = "polisyos.core.registry"
+file_names = ["registry"]
+adapter_policy = "Package registries may adapt domain records to core registry primitives; they must stay package-qualified and must not act as process-wide registry singletons."
+proposed_before_wave = "1.5"
+public_status = "mixed"
+semantic_axis = "generic registry primitives versus package-owned registries for manifests and runtime mechanisms"
+import_rule = "Reusable registry primitives import from polisyos.core.registry; Fabric and Foundry registry facades are package-local and must not be imported as global singletons."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric._internal.registry", public_status = "private_facade", sunset = "none" },
+  { package = "foundry", module = "polisyos.foundry.registry", public_status = "compatibility_facade", sunset = "2026-10-01" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "discovery"
+decision = "rename_or_sunset"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.discovery"
+canonical_interface = "polisyos.core.discovery"
+canonical_home = "polisyos.core.discovery"
+file_names = ["discovery"]
+adapter_policy = "Plugin and entry-point discovery use polisyos.core.discovery; domain discovery workflows must live under package-specific semantic groups such as scientist.methods.discovery."
+proposed_before_wave = "1.5"
+public_status = "mixed"
+semantic_axis = "plugin/entry-point discovery primitives versus Scientist hypothesis discovery workflows"
+import_rule = "Plugin loading imports from polisyos.core.discovery; Scientist implementation imports use polisyos.scientist.methods.discovery, while polisyos.scientist.discovery is a sunset compatibility shim only."
+allowed_adapters = []
+sunset = "2026-10-01"
+unresolved_collisions = [
+  { package = "scientist", module = "polisyos.scientist.discovery", owner = "team-scientist", replacement = "polisyos.scientist.methods.discovery", sunset = "2026-10-01" },
+]
+
+[[concern]]
+name = "configuration"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-architecture"
+canonical_package = "polisyos.common.config"
+canonical_interface = "polisyos.common.config"
+canonical_home = "polisyos.common.config"
+file_names = ["configuration", "config"]
+adapter_policy = "Package config modules may adapt local schema and environment details to polisyos.common.config helpers; new reusable configuration parsing belongs in the canonical common module."
+proposed_before_wave = "1.5"
+public_status = "mixed"
+semantic_axis = "shared configuration parsing helpers versus package-local config schemas and runtime knobs"
+import_rule = "Reusable configuration parsing imports from polisyos.common.config; package-specific config remains under the owning package and must not expose global configuration state."
+allowed_adapters = [
+  { package = "data_forge", module = "polisyos.data_forge.kernel.pipeline.config", public_status = "private", sunset = "none" },
+  { package = "fabric", module = "polisyos.fabric.config", public_status = "package_api", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "tracing"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.trace"
+canonical_interface = "polisyos.core.trace"
+canonical_home = "polisyos.core.trace"
+file_names = ["tracing", "trace"]
+adapter_policy = "Tracing adapters may emit package-local spans, records, or replay hooks through polisyos.core.trace; new package trace roots are not canonical APIs."
+proposed_before_wave = "1.5"
+public_status = "mixed"
+semantic_axis = "canonical persisted trace records and sinks versus package runtime trace adapters"
+import_rule = "Persisted run traces import from polisyos.core.trace; package runtime tracing imports remain local adapters or compatibility facades."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.trace", public_status = "compatibility_facade", sunset = "2026-10-01" },
+  { package = "scientist", module = "polisyos.scientist.nodes.builtins.tracing", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "telemetry"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-observability"
+canonical_package = "polisyos.core.observability"
+canonical_interface = "polisyos.core.observability"
+canonical_home = "polisyos.core.observability"
+file_names = ["telemetry"]
+adapter_policy = "Telemetry adapters may bind Scientist engine and governance events to polisyos.core.observability metrics and logs; package telemetry modules must not become separate observability stacks."
+proposed_before_wave = "1.5"
+public_status = "private"
+semantic_axis = "runtime event emission and metrics vocabulary under the canonical observability interface"
+import_rule = "Telemetry emitters use polisyos.core.observability for shared metrics/log primitives and keep domain event naming package-local."
+allowed_adapters = [
+  { package = "scientist", module = "polisyos.scientist.engine.telemetry", public_status = "private", sunset = "none" },
+  { package = "scientist", module = "polisyos.scientist.governance.telemetry", public_status = "private", sunset = "none" },
+  { package = "scientist", module = "polisyos.scientist.orchestration.engine.telemetry", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "governance"
+decision = "package_local_bounded_context"
+canonical_owner = "team-architecture"
+canonical_package = ""
+canonical_interface = ""
+public_status = "package_local"
+semantic_axis = "core policy primitives, IR governance model/schema rules, and Scientist decision/pass governance"
+import_rule = "Governance imports must be package-qualified; cross-package callers use the owning package facade instead of deep-importing another package governance implementation."
+allowed_contexts = [
+  { package = "core", module = "polisyos.core.governance", owner = "team-core", public_status = "private" },
+  { package = "ir", module = "polisyos.ir.governance", owner = "team-ir", public_status = "private" },
+  { package = "scientist", module = "polisyos.scientist.governance", owner = "team-scientist", public_status = "package_api" },
+]
+allowed_adapters = []
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "contracts"
+decision = "package_local_bounded_context"
+canonical_owner = "team-architecture"
+canonical_package = ""
+canonical_interface = ""
+public_status = "package_local"
+semantic_axis = "package-owned Pydantic/schema contracts scoped to each bounded context"
+import_rule = "Contracts imports stay within the owning package or its public facade; shared product contracts move through polisyos.core.contracts only after a package-boundary contract change."
+allowed_contexts = [
+  { package = "berl", module = "polisyos.berl.contracts", owner = "team-architecture", public_status = "package_api" },
+  { package = "core", module = "polisyos.core.contracts", owner = "team-core", public_status = "public" },
+  { package = "ddm", module = "polisyos.ddm.contracts", owner = "team-architecture", public_status = "package_api" },
+  { package = "fabric", module = "polisyos.fabric.connectors.contracts", owner = "team-fabric", public_status = "package_api" },
+  { package = "foundry", module = "polisyos.foundry.contracts", owner = "team-foundry", public_status = "package_api" },
+]
+allowed_adapters = []
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "calibration"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-foundry"
+canonical_package = "polisyos.calibration"
+canonical_interface = "polisyos.calibration"
+canonical_home = "polisyos.calibration"
+file_names = ["calibration"]
+adapter_policy = "Package calibration modules may adapt local drift, search, and governance artifacts to polisyos.calibration diagnostics; reusable diagnostics move to the canonical package."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "generic calibration diagnostics versus drift, parameter, and governance calibration workflows"
+import_rule = "Generic calibration diagnostics import from polisyos.calibration; DDM, Foundry, and Scientist calibration modules adapt those diagnostics to local runtime artifacts."
+allowed_adapters = [
+  { package = "ddm", module = "polisyos.ddm.calibration", public_status = "package_api", sunset = "none" },
+  { package = "foundry", module = "polisyos.foundry.calibration", public_status = "package_api", sunset = "none" },
+  { package = "scientist", module = "polisyos.scientist.governance.calibration", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "runtime"
+decision = "rename_or_sunset"
+canonical_owner = "team-runtime"
+canonical_package = "polisyos.runtime"
+canonical_interface = "polisyos.runtime"
+public_status = "public"
+semantic_axis = "top-level product runtime/control plane versus package-local execution glue"
+import_rule = "External runtime imports use polisyos.runtime; nested runtime directories are private execution glue and must not expose cross-package runtime contracts."
+allowed_adapters = [
+  { package = "data_forge", module = "polisyos.data_forge.kernel.runtime", public_status = "private", sunset = "none" },
+]
+sunset = "2026-10-01"
+unresolved_collisions = [
+  { package = "foundry", module = "polisyos.foundry.runtime", owner = "team-foundry", replacement = "polisyos.foundry._runtime_glue or package facade fold-in", sunset = "2026-10-01" },
+]
+
+[[concern]]
+name = "trace"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.trace"
+canonical_interface = "polisyos.core.trace"
+canonical_home = "polisyos.core.trace"
+public_status = "public"
+semantic_axis = "canonical persisted trace records/sinks versus Foundry runtime trace slices"
+import_rule = "Persisted run trace records import from polisyos.core.trace; Foundry trace imports remain a compatibility facade over Foundry runtime tracing."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.trace", public_status = "compatibility_facade", sunset = "2026-10-01" },
+]
+sunset = "none"
+unresolved_collisions = []

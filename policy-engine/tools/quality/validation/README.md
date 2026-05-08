@@ -23,7 +23,7 @@ Operational rules:
 
 Repository structure gates live in
 `tools/quality/validation/repository_structure_phase0.py` and are wired by
-`architecture/structure_remediation_gates.toml`.
+`architecture/gates/structure_remediation.toml`.
 
 Regenerate the Phase 0 inventory:
 
@@ -118,7 +118,7 @@ uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run
 ## Directory Health
 
 Repository Best-In-Class Phase 6.2 is backed by
-`architecture/directory_health.toml` and the dashboard/ratchet validator in
+`architecture/policies/directory_health.toml` and the dashboard/ratchet validator in
 `tools/quality/validation/directory_health.py`.
 
 Run the regression gate:

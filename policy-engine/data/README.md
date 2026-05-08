@@ -12,6 +12,6 @@ Allowed committed homes:
 Bulk raw data, derived parquet/CSV outputs, local databases, run products, and
 temporary audit bundles must stay ignored under product-root local data
 locations such as `data/policy-engine-local/` or medallion zones declared in
-`architecture/data_policy.toml`.
+`architecture/policies/data.toml`.
 
-Source of truth: `architecture/data_policy.toml`.
+Source of truth: `architecture/policies/data.toml`.

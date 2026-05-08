@@ -4,7 +4,7 @@ owner = "team-architecture"
 aliases = ["ddm", "polisyos.ddm", "polisyos.ddm_15_7"]
 source_readme = "src/polisyos/ddm/README.md"
 runtime_contract_links = [
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "architecture/shims.toml",
   "architecture/runtime_state_layout.toml",
 ]

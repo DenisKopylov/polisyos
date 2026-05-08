@@ -108,6 +108,42 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: last-mile-inventory-baseline
+        name: Last-mile inventory baseline
+        entry: bash -lc 'cd policy-engine && uv run python tools/quality/validation/repository_last_mile_inventory.py --check'
+        language: system
+        pass_filenames: false
+        files: >-
+          (?x)^policy-engine/(
+            architecture/(baselines/repository_best_in_class_last_mile/|policies/cross_cutting_concerns\.toml|name_registry\.toml|gates/package_import\.toml|packages/.*\.toml)|
+            docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN\.md|
+            schemas/|
+            src/polisyos/|
+            tools/quality/validation/repository_last_mile_inventory\.py
+          )
+      - id: package-import-gates
+        name: Package import and shell-package gates
+        entry: bash -lc 'cd policy-engine && uv run polisyos-tools validation check-package-import-gates --fail-closed'
+        language: system
+        pass_filenames: false
+        files: >-
+          (?x)^policy-engine/(
+            architecture/(policies/directory_contracts\.toml|gates/package_import\.toml|packages/layout\.toml|packages/.*\.toml|imports/.*\.toml|public_surface/.*\.(toml|json))|
+            src/polisyos/|
+            tools/quality/validation/check_package_import_gates\.py
+          )
+      - id: adr-index-freshness
+        name: ADR thematic index freshness
+        entry: bash -lc 'cd policy-engine && uv run python tools/quality/validation/generate_adr_index.py --check'
+        language: system
+        pass_filenames: false
+        files: ^policy-engine/(docs/adr/.*\.md|tools/quality/validation/generate_adr_index\.py)$
+      - id: schemas-pure-data
+        name: Schemas pure-data closure
+        entry: bash -lc 'cd policy-engine && mkdir -p _build/.tmp/last-mile && find schemas \( -name "*.py" -o -name "__pycache__" \) -print | tee _build/.tmp/last-mile/schemas-python-residue.txt && test ! -s _build/.tmp/last-mile/schemas-python-residue.txt'
+        language: system
+        pass_filenames: false
+        always_run: true
       - id: tool-config-split
         name: Tool config split drift
         entry: bash -lc 'cd policy-engine && uv run polisyos-tools workspace tool-configs --check'

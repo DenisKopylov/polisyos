@@ -2,7 +2,7 @@
 
 The implementation moved to the unversioned package name during Repository
 Structure Remediation Phase 4A. Keep this root import available until the
-2026-10-01 shim sunset; deep ``polisyos.ddm_15_7.*`` imports are internal and
+2026-07-31 shim sunset; deep ``polisyos.ddm_15_7.*`` imports are internal and
 must migrate to ``polisyos.ddm.*``.
 """
 

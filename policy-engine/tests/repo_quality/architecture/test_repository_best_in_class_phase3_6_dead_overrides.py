@@ -15,7 +15,7 @@ def test_phase3_6_dead_override_gate_is_registered_report_only() -> None:
     assert gate["owner"] == "team-devx"
     assert gate["command"] == "uv run python tools/ops_runners/reports/dead_overrides.py"
     assert gate["source_contracts"] == [
-        "architecture/static_analysis_overrides.toml",
+        "architecture/tooling/static_analysis_overrides.toml",
         "architecture/tooling/tool_config_split.toml",
         "architecture/tooling/mypy/generated.ini",
         "architecture/tooling/ruff/generated.toml",
@@ -23,7 +23,7 @@ def test_phase3_6_dead_override_gate_is_registered_report_only() -> None:
         "ruff.toml",
     ]
 
-    static = _read_toml(REPO_ROOT / "architecture" / "static_analysis_overrides.toml")
+    static = _read_toml(REPO_ROOT / "architecture" / "tooling" / "static_analysis_overrides.toml")
     phase_gate = static["phase_3_6_dead_override_gate"]
     assert phase_gate["status"] == "report_only"
     assert phase_gate["required_exception_metadata"] == [

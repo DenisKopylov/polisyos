@@ -33,9 +33,9 @@ personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-i
 personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to the current repository owner until organization teams exist."
 owner_source_order = [
   "architecture/packages/*.toml",
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
   "docs/reference/ownership.md",
 ]
 required_public_surface_classifications = ["public_stable"]

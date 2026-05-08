@@ -145,11 +145,11 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             retrieve_reflexive_lessons,
             revoke_lesson,
         )
-        from polisyos.scientist.research_dag.projections import (
+        from polisyos.scientist.methods.research_dag.projections import (
             project_reflexive_memory_events_to_research_dag,
             validate_memory_influence_dag_attribution,
         )
-        from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonRegistry
+        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonRegistry
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_4_import_failed:{exc.__class__.__name__}:{exc}"]
 

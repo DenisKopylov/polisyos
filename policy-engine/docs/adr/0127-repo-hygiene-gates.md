@@ -20,11 +20,11 @@ classes of regressions.
 Adopt repo hygiene gates as first-class CI and pre-commit checks:
 
 1. Topology gate from `architecture/topology.toml`.
-2. Import-linter gate from `architecture/import_contracts.toml`.
+2. Import-linter gate from `architecture/imports/contracts.toml`.
 3. Shim sunset audit from `architecture/shims.toml`.
-4. Module-size and complexity gate from `architecture/complexity_exceptions.toml`.
+4. Module-size and complexity gate from `architecture/exceptions/complexity.toml`.
 5. Generated-artifact drift gate from `architecture/generated_artifacts.toml`.
-6. Public-surface snapshot gate from `architecture/public_surface.toml` and
+6. Public-surface snapshot gate from `architecture/public_surface/contract.toml` and
    `architecture/public_surface/*.json`.
 7. Secret scanning with gitleaks and optional trufflehog.
 8. Dependency and vulnerability checks with deptry, OSV, and SBOM generation.

@@ -8,12 +8,12 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Schema-first policy, governance, analytics, observation, reference, and canonicalization contracts."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
   "architecture/generated_artifacts.toml",
-  "architecture/test_topology.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -21,32 +21,28 @@ status = "resolved_root_facade"
 layout_owner = "team-ir"
 source_root = "src/polisyos/ir"
 readme = "src/polisyos/ir/README.md"
-root_facade_policy = "root .py is limited to __init__.py and api.py; implementation lives in contract packages, references, schemas, units, or _internal"
+root_facade_policy = "root .py is limited to __init__.py and api.py; implementation lives in semantic groups such as model_layer, loading, registry, analytics, schemas, or _internal"
 implementation_roots = [
   "src/polisyos/ir/analytics",
   "src/polisyos/ir/artifacts",
-  "src/polisyos/ir/canon",
   "src/polisyos/ir/connectors",
-  "src/polisyos/ir/fact_log",
+  "src/polisyos/ir/data",
   "src/polisyos/ir/governance",
   "src/polisyos/ir/kernel",
   "src/polisyos/ir/linker",
-  "src/polisyos/ir/loaders",
+  "src/polisyos/ir/loading",
+  "src/polisyos/ir/model_layer",
   "src/polisyos/ir/migrations",
   "src/polisyos/ir/observation",
   "src/polisyos/ir/passes",
-  "src/polisyos/ir/predicate",
-  "src/polisyos/ir/queries",
-  "src/polisyos/ir/references",
-  "src/polisyos/ir/registry_fragments",
+  "src/polisyos/ir/registry",
   "src/polisyos/ir/schemas",
   "src/polisyos/ir/trinity",
-  "src/polisyos/ir/types",
-  "src/polisyos/ir/units",
   "src/polisyos/ir/world",
   "src/polisyos/ir/_internal",
+  "src/polisyos/ir/_lazy_facade",
 ]
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
 
 [boundaries]
@@ -108,7 +104,8 @@ runbook_expectation = "IR schema catalog, migration, and compatibility changes u
 status = "report_only"
 metrics_owner = "team-ir"
 metric_surfaces = [
-  "src/polisyos/ir/schema_catalog",
+  "src/polisyos/ir/loading/schema_catalog.py",
+  "src/polisyos/ir/schemas/catalog.py",
   "docs/reference/ir/schema-catalog.md",
 ]
 trace_expectation = "IR contract loading and schema catalog generation remain deterministic and expose schema/ref identity in generated artifacts."
@@ -134,7 +131,7 @@ registries = ["architecture/shims.toml"]
 id = "ir-compatibility-shim-packages"
 owner = "team-ir"
 kind = "compatibility_shim"
-reason = "Phase 3.2 keeps old public module paths as package shims while implementations move behind root facade packages."
+reason = "Phase 3.2 keeps old public module paths as lazy aliases while implementations live under semantic IR groups."
 sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 registry = "architecture/shims.toml"

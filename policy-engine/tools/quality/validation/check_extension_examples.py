@@ -10,13 +10,13 @@ import subprocess
 import sys
 import tomllib
 from dataclasses import asdict, dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
 from tools.lib.imports import repo_root_from
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
 REPO_ROOT = repo_root_from(__file__)
 
@@ -29,10 +29,11 @@ class ExampleSpec:
     path: str
     group: str
     entry_point: str
-    component_id: str
-    kind: str
-    abi_key: str
     probe: str
+    component_id: str | None = None
+    kind: str | None = None
+    abi_key: str | None = None
+    pass_id: str | None = None
 
 
 EXAMPLES: tuple[ExampleSpec, ...] = (
@@ -41,60 +42,68 @@ EXAMPLES: tuple[ExampleSpec, ...] = (
         path="examples/extensions/fabric_connector",
         group="polisyos.fabric_connectors",
         entry_point="example.local_rows",
+        probe="fabric_connector",
         component_id="example.fabric_connector.local_rows@1.0.0",
         kind="fabric_connector",
         abi_key="fabric_connectors_api",
-        probe="fabric_connector",
     ),
     ExampleSpec(
         slug="foundry_method",
         path="examples/extensions/foundry_method",
         group="polisyos.foundry_methods",
         entry_point="example.weighted_average",
+        probe="foundry_method",
         component_id="example.summary.weighted_average@1.0.0",
         kind="foundry_method",
         abi_key="foundry_methods_api",
-        probe="foundry_method",
+    ),
+    ExampleSpec(
+        slug="scientist_governance_pass",
+        path="examples/extensions/scientist_governance_pass",
+        group="polisyos.scientist_governance_passes",
+        entry_point="example.audit_marker",
+        probe="scientist_governance_pass",
+        pass_id="example_audit_marker",  # noqa: S106 - governance pass identifier, not a secret.
     ),
     ExampleSpec(
         slug="scientist_node",
         path="examples/extensions/scientist_node",
         group="polisyos.scientist_nodes",
         entry_point="example.annotate_state",
+        probe="scientist_node",
         component_id="example.scientist_node.annotate_state@1.0.0",
         kind="scientist_node",
         abi_key="scientist_nodes_api",
-        probe="scientist_node",
     ),
     ExampleSpec(
         slug="data_forge_domain",
         path="examples/extensions/data_forge_domain",
         group="polisyos.data_forge_domains",
         entry_point="example.city_budget",
+        probe="data_forge_domain",
         component_id="example.data_forge_domain.city_budget@1.0.0",
         kind="data_forge_domain",
         abi_key="data_forge_domain_api",
-        probe="data_forge_domain",
     ),
     ExampleSpec(
         slug="lex_normpack",
         path="examples/extensions/lex_normpack",
         group="polisyos.lex_normpacks",
         entry_point="example.minimum_wage",
+        probe="lex_normpack",
         component_id="example.lex_normpack.minimum_wage@1.0.0",
         kind="norm_pack_provider",
         abi_key="ir_abi",
-        probe="lex_normpack",
     ),
     ExampleSpec(
         slug="runtime_middleware",
         path="examples/extensions/runtime_middleware",
         group="polisyos.runtime_middlewares",
         entry_point="example.response_header",
+        probe="runtime_middleware",
         component_id="example.runtime_middleware.response_header@1.0.0",
         kind="runtime_middleware",
         abi_key="runtime_middleware_api",
-        probe="runtime_middleware",
     ),
 )
 
@@ -143,7 +152,9 @@ def selected_examples(slugs: Sequence[str] = ()) -> tuple[ExampleSpec, ...]:
 def validate_pyproject(repo_root: Path, examples: Iterable[ExampleSpec]) -> list[str]:
     """Return structural example-package errors."""
     errors: list[str] = []
-    for example in examples:
+    selected = tuple(examples)
+    errors.extend(_validate_entry_point_coverage(repo_root, selected))
+    for example in selected:
         root = repo_root / example.path
         pyproject = root / "pyproject.toml"
         readme = root / "README.md"
@@ -168,6 +179,103 @@ def validate_pyproject(repo_root: Path, examples: Iterable[ExampleSpec]) -> list
                 f"got {sorted(declared_group)}"
             )
     return errors
+
+
+def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSpec]) -> list[str]:
+    """Return errors for public extension-point groups missing example coverage."""
+    architecture_path = repo_root / "architecture" / "extension_points.toml"
+    pyproject_path = repo_root / "pyproject.toml"
+    if not architecture_path.is_file() or not pyproject_path.is_file():
+        return []
+
+    architecture = tomllib.loads(architecture_path.read_text(encoding="utf-8"))
+    pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    project_entry_points = pyproject.get("project", {}).get("entry-points", {})
+    if not isinstance(project_entry_points, dict):
+        project_entry_points = {}
+
+    example_paths = {example.path for example in examples}
+    example_groups = {example.group for example in examples}
+    contract_groups: set[str] = set()
+    for row in architecture.get("extension_point", []):
+        if not isinstance(row, dict):
+            continue
+        group = _string_field(row, "entry_point_group") or _string_field(row, "name")
+        if group is not None:
+            contract_groups.add(group)
+        legacy_groups = row.get("legacy_entry_point_groups", [])
+        if isinstance(legacy_groups, list):
+            contract_groups.update(
+                str(item).strip() for item in legacy_groups if str(item).strip()
+            )
+
+    errors: list[str] = []
+    for group in sorted(project_entry_points):
+        if group not in contract_groups:
+            errors.append(
+                f"{group}: entry-point group in pyproject.toml must be declared in "
+                "architecture/extension_points.toml"
+            )
+
+    for row in architecture.get("extension_point", []):
+        if not isinstance(row, dict):
+            continue
+        group = _string_field(row, "entry_point_group") or _string_field(row, "name")
+        if group is None:
+            continue
+
+        if group not in project_entry_points:
+            errors.append(f"{group}: extension point is missing from pyproject.toml entry-points")
+            continue
+
+        if row.get("internal_only") is True:
+            if not _string_field(row, "owner"):
+                errors.append(f"{group}: internal_only exception requires owner")
+            if not _has_review_date(row):
+                errors.append(
+                    f"{group}: internal_only exception requires internal_only_review_date"
+                )
+            continue
+
+        example_package = _string_field(row, "example_package")
+        if example_package is None or not _is_extension_example_path(example_package):
+            errors.append(
+                f"{group}: public entry-point group must declare example_package "
+                "under examples/extensions/** or internal_only = true"
+            )
+            continue
+
+        if example_package not in example_paths or group not in example_groups:
+            errors.append(
+                f"{group}: example_package {example_package} is not covered by "
+                "tools/quality/validation/check_extension_examples.py"
+            )
+
+    return errors
+
+
+def _string_field(row: Mapping[str, object], key: str) -> str | None:
+    value = row.get(key)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _has_review_date(row: Mapping[str, object]) -> bool:
+    value = row.get("internal_only_review_date")
+    if isinstance(value, str):
+        return bool(value.strip())
+    return value is not None and hasattr(value, "isoformat")
+
+
+def _is_extension_example_path(value: str) -> bool:
+    parts = PurePosixPath(value).parts
+    return (
+        len(parts) >= 3
+        and parts[0] == "examples"
+        and parts[1] == "extensions"
+        and all(part not in {"", ".", ".."} for part in parts)
+    )
 
 
 def install_examples(repo_root: Path, examples: Iterable[ExampleSpec]) -> None:
@@ -209,11 +317,26 @@ def _command_ok(argv: Sequence[str]) -> bool:
 
 def verify_discovery(examples: Iterable[ExampleSpec]) -> None:
     """Run discovery in a fresh interpreter so installed entry points are visible."""
-    payload = json.dumps([asdict(example) for example in examples], sort_keys=True)
-    subprocess.run(  # noqa: S603
-        [sys.executable, "-c", _DISCOVERY_SNIPPET, payload],
-        check=True,
+    selected = tuple(examples)
+    component_examples = tuple(example for example in selected if example.component_id is not None)
+    governance_pass_examples = tuple(
+        example for example in selected if example.probe == "scientist_governance_pass"
     )
+    if component_examples:
+        payload = json.dumps([asdict(example) for example in component_examples], sort_keys=True)
+        subprocess.run(  # noqa: S603
+            [sys.executable, "-c", _COMPONENT_DISCOVERY_SNIPPET, payload],
+            check=True,
+        )
+    if governance_pass_examples:
+        payload = json.dumps(
+            [asdict(example) for example in governance_pass_examples],
+            sort_keys=True,
+        )
+        subprocess.run(  # noqa: S603
+            [sys.executable, "-c", _GOVERNANCE_PASS_DISCOVERY_SNIPPET, payload],
+            check=True,
+        )
 
 
 def run_example_tests(repo_root: Path, examples: Iterable[ExampleSpec]) -> None:
@@ -224,7 +347,7 @@ def run_example_tests(repo_root: Path, examples: Iterable[ExampleSpec]) -> None:
     subprocess.run([sys.executable, "-m", "pytest", "-q", *test_paths], cwd=repo_root, check=True)  # noqa: S603
 
 
-_DISCOVERY_SNIPPET = r"""
+_COMPONENT_DISCOVERY_SNIPPET = r"""
 from __future__ import annotations
 
 import asyncio
@@ -296,6 +419,39 @@ for group, group_specs in sorted(by_group.items()):
         _assert_probe(spec, item.component.create())
 
 print(f"discovered {len(specs)} extension examples")
+"""
+
+
+_GOVERNANCE_PASS_DISCOVERY_SNIPPET = r"""  # noqa: S105 - embedded probe code uses pass_id.
+from __future__ import annotations
+
+import json
+import sys
+
+from polisyos.core.governance.passes.base import PassContext, ValidatorPass
+from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.scientist.governance.pass_registry import load_governance_passes
+
+
+specs = json.loads(sys.argv[1])
+validators = load_governance_passes()
+by_pass_id = {validator.pass_id: validator for validator in validators}
+
+for spec in specs:
+    pass_id = spec["pass_id"]
+    validator = by_pass_id.get(pass_id)
+    assert validator is not None, f"{pass_id} not discovered in {spec['group']}"
+    assert isinstance(validator, ValidatorPass)
+    ctx = PassContext(
+        ir=None,
+        state={"example_governance_approved": True},
+        registry_bundle=None,
+        profile=ValidationProfile.fast(),
+        run_id="example-governance-discovery",
+    )
+    assert validator.validate(ctx) == []
+
+print(f"discovered {len(specs)} governance pass extension example(s)")
 """
 
 

@@ -4,9 +4,9 @@ Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 Additional reference: [Causal validity bundle](causal-validity.md), [WS-3A acceptance report](causal-validity-acceptance.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/causal/**`, `src/polisyos/scientist/nodes/builtins/causal/**`, and the linked causal-validity acceptance evidence
+Source of truth: `src/polisyos/scientist/methods/causal/**`, `src/polisyos/scientist/nodes/builtins/causal/**`, and the linked causal-validity acceptance evidence
 
-The `polisyos.scientist.causal` package provides pure runner-style APIs used by builtin nodes to transform observation-plane bundles into readiness entries, transportability artifacts, and bounded-execution outputs.
+The `polisyos.scientist.methods.causal` package provides pure runner-style APIs used by builtin nodes to transform observation-plane bundles into readiness entries, transportability artifacts, and bounded-execution outputs.
 
 ## Runner Catalog
 
@@ -103,8 +103,8 @@ uv run pytest tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.
 
 ## Execution API
 
-::: polisyos.scientist.causal
+::: polisyos.scientist.methods.causal
 
-::: polisyos.scientist.causal.execution
+::: polisyos.scientist.methods.causal.execution
 
-::: polisyos.scientist.causal.readiness
+::: polisyos.scientist.methods.causal.readiness

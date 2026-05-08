@@ -21,8 +21,7 @@ from tools.lib.imports import repo_root_from
 from tools.quality.validation import directory_hygiene_assets
 
 REPO_ROOT = repo_root_from(__file__)
-DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "directory_health.toml"
-DIRECTORY_CONTRACTS = REPO_ROOT / "architecture" / "directory_contracts.toml"
+DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "policies" / "directory_health.toml"
 GENERATED_ARTIFACTS = REPO_ROOT / "architecture" / "generated_artifacts.toml"
 DOC_FILENAMES = {"README.md", "AUTHORING.md", "index.md"}
 SKIP_DIR_NAMES = {
@@ -48,6 +47,10 @@ GENERATED_API_PATTERNS = (
     "*runtimeApiClient.js",
     "*src/api/types.ts",
 )
+PHASE_LOCAL_JUNK_PATTERN = "phase*-local-junk-*"
+PHASE_LOCAL_JUNK_EXCEPTION_KIND = "phase_local_junk_residue"
+PHASE_LOCAL_JUNK_SCRATCH_POLICY = "explicitly_ignored"
+SCHEMA_DATA_SUFFIXES = {".json", ".md", ".toml", ".yaml", ".yml"}
 
 
 @dataclass(frozen=True)
@@ -76,7 +79,9 @@ def build_report(
     repo_root = repo_root.resolve()
     contract_path = contract_path if contract_path.is_absolute() else repo_root / contract_path
     contract = _read_toml(contract_path)
-    directory_contracts = _read_toml(repo_root / "architecture" / "directory_contracts.toml")
+    directory_contracts = _read_toml(
+        repo_root / "architecture" / "policies" / "directory_contracts.toml"
+    )
     generated_artifacts = _read_toml(repo_root / "architecture" / "generated_artifacts.toml")
     hygiene = directory_hygiene_assets.build_report(repo_root)
 
@@ -414,6 +419,7 @@ def _validate_contract(
         "generated-api-placement",
         "empty-ui-component-directory",
         "feature-module-owner-threshold",
+        "phase-local-junk-residue",
     }
     for gate_id in sorted(required_gates - gate_ids):
         errors.append(Finding("contract", "error", gate_id, "missing Phase 6.2 gate"))
@@ -492,6 +498,7 @@ def _validate_contract(
         "closure_unregistered_generated_api_count",
         "closure_empty_ui_component_directory_count",
         "closure_over_threshold_feature_without_owner_count",
+        "closure_phase_local_junk_count",
     }
     for metric_id in sorted(required_metrics - baseline_ids):
         errors.append(Finding("contract", "error", metric_id, "missing metric baseline"))
@@ -520,6 +527,19 @@ def _validate_health_exceptions(contract: dict[str, Any]) -> list[Finding]:
                     "error",
                     subject,
                     "health exception must name metric, gate, or source_glob",
+                )
+            )
+        if (
+            exception.get("kind") == PHASE_LOCAL_JUNK_EXCEPTION_KIND
+            and exception.get("scratch_policy") != PHASE_LOCAL_JUNK_SCRATCH_POLICY
+        ):
+            errors.append(
+                Finding(
+                    "contract",
+                    "error",
+                    subject,
+                    "phase-local-junk exception must declare "
+                    '`scratch_policy = "explicitly_ignored"`',
                 )
             )
         expires = str(exception.get("expires", ""))
@@ -606,6 +626,8 @@ def _collect_closure_findings(
     findings.extend(_generated_api_findings(repo_root, generated_artifacts))
     findings.extend(_empty_ui_component_findings(repo_root, thresholds))
     findings.extend(_feature_owner_findings(repo_root, thresholds))
+    findings.extend(_schema_pure_data_findings(repo_root))
+    findings.extend(_phase_local_junk_findings(repo_root, contract))
     return findings
 
 
@@ -851,6 +873,109 @@ def _feature_owner_findings(repo_root: Path, thresholds: dict[str, Any]) -> list
     return findings
 
 
+def _schema_pure_data_findings(repo_root: Path) -> list[Finding]:
+    schema_root = repo_root / "schemas"
+    if not schema_root.exists():
+        return []
+    findings: list[Finding] = []
+    for path in sorted(item for item in schema_root.rglob("__pycache__") if item.is_dir()):
+        findings.append(
+            Finding(
+                "schema-only-root",
+                "blocker",
+                _rel(path, repo_root),
+                "top-level schemas/ must not contain Python code or cache residue",
+            )
+        )
+    for path in sorted(item for item in schema_root.rglob("*") if item.is_file()):
+        if "__pycache__" in path.parts:
+            continue
+        if (
+            path.name == "__init__.py"
+            or path.suffix == ".py"
+            or path.suffix in {".pyc", ".pyo"}
+        ):
+            findings.append(
+                Finding(
+                    "schema-only-root",
+                    "blocker",
+                    _rel(path, repo_root),
+                    "top-level schemas/ must not contain Python code or cache residue",
+                )
+            )
+        elif path.suffix not in SCHEMA_DATA_SUFFIXES:
+            findings.append(
+                Finding(
+                    "schema-only-root",
+                    "blocker",
+                    _rel(path, repo_root),
+                    "top-level schemas/ may contain only schema data, manifests, "
+                    "snapshots, and schema documentation",
+                )
+            )
+        if path.suffix == ".py":
+            for module in _schema_python_product_imports(path):
+                findings.append(
+                    Finding(
+                        "schema-only-root",
+                        "blocker",
+                        _rel(path, repo_root),
+                        "top-level schemas/ Python residue must not import product modules",
+                        module,
+                    )
+                )
+    return findings
+
+
+def _schema_python_product_imports(path: Path) -> list[str]:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=path.as_posix())
+    except SyntaxError:
+        return []
+    imports: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports.update(
+                alias.name
+                for alias in node.names
+                if alias.name == "polisyos" or alias.name.startswith("polisyos.")
+            )
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            if node.module == "polisyos" or node.module.startswith("polisyos."):
+                imports.add(node.module)
+    return sorted(imports)
+
+
+def _phase_local_junk_findings(repo_root: Path, contract: dict[str, Any]) -> list[Finding]:
+    exception_patterns = [
+        str(item.get("source_glob", "")).rstrip("/")
+        for item in contract.get("health_exception", [])
+        if item.get("kind") == PHASE_LOCAL_JUNK_EXCEPTION_KIND
+        and item.get("scratch_policy") == PHASE_LOCAL_JUNK_SCRATCH_POLICY
+        and item.get("source_glob")
+    ]
+    findings: list[Finding] = []
+    build_root = repo_root / "_build"
+    if not build_root.exists():
+        return findings
+    for directory in sorted(
+        path for path in build_root.glob(PHASE_LOCAL_JUNK_PATTERN) if path.is_dir()
+    ):
+        relative = _rel(directory, repo_root)
+        if _path_matches_any(relative, exception_patterns):
+            continue
+        findings.append(
+            Finding(
+                "phase-local-junk-residue",
+                "blocker",
+                relative,
+                "phase-local-junk build residue must be deleted or registered as a dated "
+                "scratch exception",
+            )
+        )
+    return findings
+
+
 def _build_dashboard(
     repo_root: Path,
     contract: dict[str, Any],
@@ -961,6 +1086,7 @@ def _closure_counts(findings: list[Finding]) -> dict[str, int]:
         "closure_over_threshold_feature_without_owner_count": by_check.get(
             "feature-module-owner-threshold", 0
         ),
+        "closure_phase_local_junk_count": by_check.get("phase-local-junk-residue", 0),
     }
 
 
@@ -1056,7 +1182,7 @@ def _high_volume_subtrees(repo_root: Path, thresholds: dict[str, Any]) -> list[d
 
 def _non_product_python_root_inventory(repo_root: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    contracts = _read_toml(repo_root / "architecture" / "directory_contracts.toml")
+    contracts = _read_toml(repo_root / "architecture" / "policies" / "directory_contracts.toml")
     roots = sorted(
         str(item.get("path", ""))
         for item in contracts.get("non_product_python_root", [])

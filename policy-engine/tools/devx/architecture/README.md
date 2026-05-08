@@ -11,10 +11,10 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 - Guardrails engine: `tools/devx/architecture/guardrails.py`.
 - Unified scaffold entrypoint: `tools/devx/architecture/scaffold.py`.
 - Source-of-truth manifests:
-  `architecture/public_surface.toml`,
+  `architecture/public_surface/contract.toml`,
   `architecture/generated_artifacts.toml`,
-  `architecture/deep_import_baseline.json`,
-  `architecture/guardrail_exceptions.toml`.
+  `architecture/baselines/imports/deep_import.json`,
+  `architecture/exceptions/guardrails.toml`.
 
 - Generated docs it owns:
   `docs/reference/public-surface.md`,

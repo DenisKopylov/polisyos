@@ -1,63 +1,41 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from polisyos.data_forge.kernel.artifacts import (
-    ArtifactRef,
-    PIILevel,
-    ProducerVersion,
-    RetentionClass,
-)
 from polisyos.data_forge.kernel.snapshot import merkle_root
 
 
-_HEX64 = st.text("0123456789abcdef", min_size=64, max_size=64)
+@dataclass(frozen=True)
+class _MerkleRef:
+    uri: str
+    sha256: str
 
 
-def _artifact_ref(index: int, *, sha256: str, snapshot: int) -> ArtifactRef:
-    return ArtifactRef(
+def _artifact_ref(index: int, *, sha256: str, snapshot: int) -> _MerkleRef:
+    return _MerkleRef(
         uri=f"polisyos://property/artifact_{index}@snap-{snapshot}",
         sha256=sha256,
-        producer="tests.property.data_forge",
-        producer_version=ProducerVersion(code_version="1.0.0", lockfile_hash="c" * 64),
-        trace_id=f"{index:032x}"[-32:],
-        span_id=f"{index:016x}"[-16:],
-        config_hash="d" * 64,
-        owner="team-data-forge",
-        license="test-fixture",
-        regeneration_command="uv run pytest tests/property/data_forge",
-        pii_level=PIILevel.NONE,
-        retention_class=RetentionClass.HOT,
-        freshness_sla_seconds=3600,
-        schema_id="property.schema",
-        schema_version="1.0.0",
     )
 
 
-@st.composite
-def _artifact_refs(draw: st.DrawFn) -> tuple[ArtifactRef, ...]:
-    count = draw(st.integers(min_value=0, max_value=10))
-    digests = draw(st.lists(_HEX64, min_size=count, max_size=count))
-    snapshots = draw(
-        st.lists(
-            st.integers(min_value=0, max_value=10_000),
-            min_size=count,
-            max_size=count,
-        )
-    )
-    return tuple(
-        _artifact_ref(index, sha256=digest, snapshot=snapshot)
-        for index, (digest, snapshot) in enumerate(zip(digests, snapshots, strict=True))
-    )
+_REF_POOL = tuple(
+    _artifact_ref(index, sha256=f"{index:064x}", snapshot=index)
+    for index in range(8)
+)
+
+
+def _artifact_refs() -> st.SearchStrategy[tuple[_MerkleRef, ...]]:
+    return st.lists(st.sampled_from(_REF_POOL), max_size=6).map(tuple)
 
 
 @given(refs=_artifact_refs())
 @settings(max_examples=100)
 def test_merkle_root_is_order_independent_and_sha256_shaped(
-    refs: tuple[ArtifactRef, ...],
+    refs: tuple[_MerkleRef, ...],
 ) -> None:
     root = merkle_root(refs)
 

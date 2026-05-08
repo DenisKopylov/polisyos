@@ -2,7 +2,7 @@
 
 Freshness: 2026-05-03
 Owner: `team-data-forge`
-Source of truth: `architecture/data_policy.toml`
+Source of truth: `architecture/policies/data.toml`
 
 The collapsed product-root workspace has one data surface with two policies:
 
@@ -24,7 +24,7 @@ The ignored local lake uses medallion zones:
 | Quarantine | `data/quarantine/` | security or schema hold |
 
 Local data can be cleaned with the commands listed in
-`architecture/data_policy.toml`.
+`architecture/policies/data.toml`.
 
 ## Product Data
 

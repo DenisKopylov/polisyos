@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from benchmarks.advanced import common as advanced_common
+from benchmarks import run_parallel
 from benchmarks.run_parallel import SuiteJob, _pick_launchable_job
 
 
@@ -60,7 +61,7 @@ def test_composition_catalog_preflight_reports_missing_repo_data(tmp_path, monke
 
 
 def test_parallel_scheduler_skips_heavy_job_when_budget_is_exhausted(monkeypatch) -> None:
-    monkeypatch.setattr("benchmarks.run_parallel.MEMORY_BUDGET_GIB", 16)
+    monkeypatch.setattr(run_parallel, "MEMORY_BUDGET_GIB", 16)
     pending = deque(
         [
             SuiteJob("heavy-2", "heavy", "/tmp/heavy-2.py", 14.0),

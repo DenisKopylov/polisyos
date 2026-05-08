@@ -25,7 +25,7 @@ from polisyos.fabric.connectors.contracts import (
     default_source_field_access_policies,
 )
 from polisyos.fabric.connectors.profiles.models import SourceProfile
-from polisyos.fabric.processing_guarantees import default_processing_contract_for_connector
+from polisyos.fabric.quality.processing_guarantees import default_processing_contract_for_connector
 from polisyos.ir.connectors import ConnectorMetadataSpec
 
 PROFILE_ID_BY_CONNECTOR_ID: dict[str, str] = {

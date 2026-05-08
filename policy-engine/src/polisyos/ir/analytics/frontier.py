@@ -19,13 +19,13 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import FrontierSketchRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import FrontierSketchRef
 
 if TYPE_CHECKING:
-    from ..refs import ArtifactRefModel
+    from polisyos.ir.registry.refs import ArtifactRefModel
 else:
-    from ..refs import ArtifactRefModel
+    from polisyos.ir.registry.refs import ArtifactRefModel
 
 StageClosureState = Literal["execution_grade", "narrow_accepted", "deferred_or_refuted"]
 ValidationSeverity = Literal["info", "error"]
@@ -1109,7 +1109,7 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                 ),
                 evidence_tests=_evidence_tests(
                     "tests/unit/ir/analytics/test_rough_path_semantics.py",
-                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/scientist/methods/backtesting/test_temporal.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1143,7 +1143,7 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "supported model-class scope."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/scientist/methods/backtesting/test_temporal.py",
                     "tests/unit/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
                 ),
             ),
@@ -1178,7 +1178,7 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                     "translations."
                 ),
                 evidence_tests=_evidence_tests(
-                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/scientist/methods/backtesting/test_temporal.py",
                     "tests/unit/foundry/methods/catalog/causal/test_temporal_estimand_compiler.py",
                 ),
             ),
@@ -1201,7 +1201,7 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                 ),
                 evidence_tests=_evidence_tests(
                     "tests/unit/ir/analytics/test_local_independence_contract.py",
-                    "tests/unit/scientist/backtesting/test_temporal.py",
+                    "tests/unit/scientist/methods/backtesting/test_temporal.py",
                 ),
             ),
             _stage_declaration_data(
@@ -1467,7 +1467,7 @@ PHASE3_CLOSURE_MANIFEST = PhaseClosureManifest.model_validate(
                 ),
                 evidence_tests=_evidence_tests(
                     "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
-                    "tests/unit/scientist/workflows/test_causal_full_workflow_guard.py",
+                    "tests/unit/scientist/orchestration/workflows/test_causal_full_workflow_guard.py",
                 ),
             ),
         ],

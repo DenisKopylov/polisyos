@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -88,6 +89,47 @@ NAV_REQUIRED_TOKENS = (
     "ADRs By Topic: adr/by-topic.md",
     "Authoring Contract: adr/AUTHORING.md",
 )
+KNOWN_REDIRECT_STUBS = (
+    "frontend",
+)
+REDIRECT_REQUIRED_FIELDS = (
+    "owner",
+    "target_path",
+    "reason",
+    "created_date",
+    "sunset_date",
+    "removal_gate",
+)
+REDIRECT_COMPATIBILITY_ADR_FIELD = "compatibility_adr"
+REDIRECT_MAX_LIFETIME_DAYS = 90
+REMOVED_REDIRECT_STUBS = {
+    "/".join(("tests", "architecture")): "/".join(
+        ("tests", "repo_quality", "architecture")
+    ),
+}
+STALE_DIRECT_REFERENCE_TARGETS = {
+    **REMOVED_REDIRECT_STUBS,
+    "/".join(("frontend", "runtime-dashboard")): "/".join(
+        ("apps", "runtime-dashboard")
+    ),
+    "/".join(("frontend", "runtime-api-client")): "/".join(
+        ("packages", "runtime-api-client")
+    ),
+}
+REFERENCE_SCAN_EXCLUDED_DIRS = frozenset(
+    (
+        ".git",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".venv",
+        "_build",
+        "_cache",
+        "__pycache__",
+        "node_modules",
+    )
+)
+REFERENCE_SCAN_EXCLUDED_FILENAMES = frozenset(("package-lock.json", "pnpm-lock.yaml"))
 
 
 @dataclass(frozen=True)
@@ -131,6 +173,61 @@ def _front_matter(path: Path) -> dict[str, str]:
         key, value = line.split(":", 1)
         data[key.strip()] = value.strip()
     return {}
+
+
+def _parse_iso_date(value: str) -> dt.date | None:
+    try:
+        return dt.date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _public_surface_contract(repo_root: Path) -> Path:
+    return repo_root / "architecture" / "public_surface" / "contract.toml"
+
+
+def _is_redirect_stub(path: Path) -> bool:
+    metadata = _front_matter(path)
+    if metadata.get("redirect_stub", "").lower() == "true":
+        return True
+    text = path.read_text(encoding="utf-8").lower()
+    relative = path.as_posix()
+    if relative.endswith("frontend/README.md"):
+        return "legacy handoff path" in text or "active javascript workspaces moved" in text
+    return False
+
+
+def _redirect_stub_directory(relative: str) -> str:
+    return f"{relative.removesuffix('/README.md')}/"
+
+
+def _compatibility_adr_finding(
+    repo_root: Path,
+    relative: str,
+    metadata: dict[str, str],
+) -> LifecycleFinding | None:
+    adr = metadata.get(REDIRECT_COMPATIBILITY_ADR_FIELD, "").strip()
+    if not adr:
+        return LifecycleFinding(
+            "redirect_stub",
+            relative,
+            "redirect stub sunset exceeds the 90-day policy without `compatibility_adr`.",
+        )
+    adr_path = repo_root / adr
+    if not adr.startswith("docs/adr/") or not adr_path.is_file():
+        return LifecycleFinding(
+            "redirect_stub",
+            relative,
+            "redirect stub `compatibility_adr` must reference an existing ADR.",
+        )
+    stub_directory = _redirect_stub_directory(relative)
+    if stub_directory not in adr_path.read_text(encoding="utf-8"):
+        return LifecycleFinding(
+            "redirect_stub",
+            relative,
+            f"redirect stub `compatibility_adr` must declare `{stub_directory}`.",
+        )
+    return None
 
 
 def check_adr_index(repo_root: Path) -> list[LifecycleFinding]:
@@ -250,6 +347,128 @@ def check_active_plans(repo_root: Path) -> list[LifecycleFinding]:
     return findings
 
 
+def check_redirect_stubs(repo_root: Path) -> list[LifecycleFinding]:
+    findings: list[LifecycleFinding] = []
+    readmes = {
+        repo_root / root / "README.md"
+        for root in KNOWN_REDIRECT_STUBS
+        if (repo_root / root / "README.md").is_file()
+    }
+    readmes.update(
+        path
+        for path in repo_root.rglob("README.md")
+        if _front_matter(path).get("redirect_stub", "").lower() == "true"
+    )
+
+    for readme in sorted(readmes):
+        if not _is_redirect_stub(readme):
+            continue
+        metadata = _front_matter(readme)
+        relative = _repo_path(repo_root, readme)
+        if not metadata.get("sunset_date"):
+            findings.append(
+                LifecycleFinding(
+                    "redirect_stub",
+                    relative,
+                    "redirect stub missing `sunset_date` metadata.",
+                )
+            )
+            continue
+        missing_required_field = False
+        for field in REDIRECT_REQUIRED_FIELDS:
+            if not metadata.get(field):
+                findings.append(
+                    LifecycleFinding(
+                        "redirect_stub",
+                        relative,
+                        f"redirect stub missing `{field}` metadata.",
+                    )
+                )
+                missing_required_field = True
+                break
+        if missing_required_field:
+            continue
+        created_date = _parse_iso_date(metadata.get("created_date", ""))
+        sunset_date = _parse_iso_date(metadata.get("sunset_date", ""))
+        if created_date is None:
+            findings.append(
+                LifecycleFinding(
+                    "redirect_stub",
+                    relative,
+                    "redirect stub has invalid `created_date` metadata.",
+                )
+            )
+            continue
+        if sunset_date is None:
+            findings.append(
+                LifecycleFinding(
+                    "redirect_stub",
+                    relative,
+                    "redirect stub has invalid `sunset_date` metadata.",
+                )
+            )
+            continue
+        if (sunset_date - created_date).days > REDIRECT_MAX_LIFETIME_DAYS:
+            compatibility_finding = _compatibility_adr_finding(repo_root, relative, metadata)
+            if compatibility_finding is not None:
+                findings.append(compatibility_finding)
+    return findings
+
+
+def _iter_reference_scan_files(repo_root: Path) -> Iterable[Path]:
+    for path in sorted(repo_root.rglob("*")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(repo_root)
+        if any(part in REFERENCE_SCAN_EXCLUDED_DIRS for part in relative.parts):
+            continue
+        if path.name in REFERENCE_SCAN_EXCLUDED_FILENAMES:
+            continue
+        yield path
+
+
+def check_removed_stub_references(repo_root: Path) -> list[LifecycleFinding]:
+    findings: list[LifecycleFinding] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def add_reference(relative: str, token: str, target: str) -> None:
+        message = f"stale direct reference `{token}`; use `{target}`."
+        key = ("removed_stub_reference", relative, message)
+        if key in seen:
+            return
+        seen.add(key)
+        findings.append(LifecycleFinding(key[0], relative, message))
+
+    for removed_path, target in REMOVED_REDIRECT_STUBS.items():
+        absolute = repo_root / removed_path
+        if absolute.exists():
+            findings.append(
+                LifecycleFinding(
+                    "removed_stub_path",
+                    removed_path,
+                    f"removed redirect stub directory still exists; use `{target}`.",
+                )
+            )
+            if absolute.is_file():
+                add_reference(_repo_path(repo_root, absolute), removed_path, target)
+            else:
+                for path in sorted(absolute.rglob("*")):
+                    if path.is_file():
+                        add_reference(_repo_path(repo_root, path), removed_path, target)
+
+    for path in _iter_reference_scan_files(repo_root):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        relative = _repo_path(repo_root, path)
+        for token, target in STALE_DIRECT_REFERENCE_TARGETS.items():
+            if token in text:
+                add_reference(relative, token, target)
+
+    return findings
+
+
 def check_archive_reports(repo_root: Path) -> list[LifecycleFinding]:
     findings: list[LifecycleFinding] = []
     legacy_archive_plans = repo_root / "docs" / "archive" / "plans"
@@ -324,7 +543,7 @@ def check_readme_authoring(repo_root: Path) -> list[LifecycleFinding]:
                     )
                 )
 
-    public_surface = _load_toml(repo_root / "architecture" / "public_surface.toml")
+    public_surface = _load_toml(_public_surface_contract(repo_root))
     for package in public_surface.get("package", []):
         if not isinstance(package, dict) or package.get("classification") != "public_stable":
             continue
@@ -372,6 +591,8 @@ def run_checks(repo_root: Path) -> list[LifecycleFinding]:
         check_adr_index(repo_root),
         check_docs_nav(repo_root),
         check_active_plans(repo_root),
+        check_redirect_stubs(repo_root),
+        check_removed_stub_references(repo_root),
         check_archive_reports(repo_root),
         check_readme_authoring(repo_root),
         check_extension_example_structure(repo_root),

@@ -16,7 +16,7 @@ The module defines the three proof-carrying artifacts required by the plan:
 
 This module is purely contractual: it stores and loads artifacts through the
 normal ``put_json_artifact`` / ``get_json_artifact`` boundary, and emits typed
-refs from :mod:`polisyos.ir.refs`. The solver that produces these artifacts
+refs from :mod:`polisyos.ir.registry.refs`. The solver that produces these artifacts
 lives under ``polisyos.foundry.methods.catalog.causal.recourse_manifold``.
 """
 
@@ -28,8 +28,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import (
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import (
     InterventionCostManifoldRef,
     OptimalRecourseInterventionBundleRef,
     OptimalRecourseInterventionQueryRef,

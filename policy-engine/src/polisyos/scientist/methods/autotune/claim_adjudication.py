@@ -37,7 +37,7 @@ from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
 
 CLAIM_ADJUDICATION_LOOP_ID = "claim_adjudication"
-_POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[4]
+_POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[5]
 DEFAULT_CLAIM_GOLD_PATH = _POLICY_ENGINE_ROOT / "data" / "academic_gold" / "claim_gold.jsonl"
 DEFAULT_CLAIM_GOLD_SPLIT_PATH = (
     _POLICY_ENGINE_ROOT / "data" / "academic_gold" / "claim_gold_split.json"

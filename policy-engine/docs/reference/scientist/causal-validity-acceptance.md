@@ -3,7 +3,7 @@
 Related reference: [Causal validity bundle](causal-validity.md).
 
 Owner: `@scientist-owners`
-Source of truth: `src/polisyos/scientist/causal/**`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, and the cited Scientist/Foundry regression tests on this page
+Source of truth: `src/polisyos/scientist/methods/causal/**`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, and the cited Scientist/Foundry regression tests on this page
 
 This report is the repo-tracked acceptance surface for WS-3A claim closure on
 the default Scientist path. Instead of a notebook-only artifact, the acceptance

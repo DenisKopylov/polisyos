@@ -187,7 +187,7 @@
       "evidence": {
         "non_replayable_reason": null,
         "replay_fixture": "tests/_data/fabric/shared/source_contracts/eurostat.data.generic.replay.json",
-        "source_contract_hash": "sha256:e937b8c4fd522fb7b6368cc54589ac4c6d1df61cef15d922f10357e9b12d0e2e"
+        "source_contract_hash": "sha256:fce6f21b7bf757ca11a9b7100278a72aeb15a1cc23044d6425521ab0706c179b"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -817,7 +817,7 @@
       "evidence": {
         "non_replayable_reason": null,
         "replay_fixture": "tests/_data/fabric/shared/source_contracts/sdmx.generic.replay.json",
-        "source_contract_hash": "sha256:ee2907dc32fe755e1de4686d060b05005d18df1afe202ec89e541fa395ee9fc3"
+        "source_contract_hash": "sha256:bf7278297ba8848e601100d081908371fec617e0ed0e563858bce70da517542c"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1267,7 +1267,7 @@
       "evidence": {
         "non_replayable_reason": null,
         "replay_fixture": "tests/_data/fabric/shared/source_contracts/ukons.datasets.generic.replay.json",
-        "source_contract_hash": "sha256:619c6c878fb227a3e282bc93db242a7c2a824af9057b979aef40df08e424ccc4"
+        "source_contract_hash": "sha256:e589fdadae010de7afef7d7bfc45e100f0a5d9f71c493606e80a0e2a64c8a88d"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1627,7 +1627,7 @@
       "evidence": {
         "non_replayable_reason": null,
         "replay_fixture": "tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json",
-        "source_contract_hash": "sha256:9e8b7f9d437d55eff890363bcd3330116981e8ac1fd948d3a04a0d0b3110a11e"
+        "source_contract_hash": "sha256:5dd7d405537386470eefc7a4a78f0fef610cc7f9eb5124ee9ded9126dea1ab81"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",
@@ -1717,7 +1717,7 @@
       "evidence": {
         "non_replayable_reason": null,
         "replay_fixture": "tests/_data/fabric/shared/source_contracts/wvs.wave7.generic.replay.json",
-        "source_contract_hash": "sha256:0ec02148ebd79531f89e91206afa521f5f4458ed82f41b12c351a7cdaaf7d36b"
+        "source_contract_hash": "sha256:e91968d0ab3b84d9cf0558edd0c410c89516dc6b3923e8b429d60563ec22ff0f"
       },
       "generated_at": "2026-04-27T00:00:00Z",
       "grade": "B",

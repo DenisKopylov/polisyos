@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from polisyos.ir.fact_log import FactSegmentManifest
+from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 
 @dataclass(frozen=True)

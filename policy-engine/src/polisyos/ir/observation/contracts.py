@@ -20,11 +20,11 @@ from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 if TYPE_CHECKING:
     from datetime import date
 
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
 else:
     from datetime import date
 
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

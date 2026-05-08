@@ -5,14 +5,16 @@
       "content_hash": "sha256:64ab9d69c26c4274c272ae0306defc2d3177a8f9806031edd097a12574a5c4e0",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -220,7 +222,7 @@
           "time_dimension": "time_period",
           "time_granularity": null,
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
@@ -228,21 +230,23 @@
       },
       "dataset_id": "*",
       "schema_id": "eurostat.data.generic",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "sdmx.generic": {
       "connector_id": "sdmx.source",
       "content_hash": "sha256:839e76c3fd794eee4aba20f505a21a6c42fe7cc8a531547db7d4290a67835053",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 500,
@@ -374,7 +378,7 @@
           "time_dimension": "time_period",
           "time_granularity": "quarterly",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
@@ -382,21 +386,23 @@
       },
       "dataset_id": "*",
       "schema_id": "sdmx.generic",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "ukons.datasets.generic": {
       "connector_id": "ukons.datasets",
       "content_hash": "sha256:3a33aec485b484b5f67f3fbf7005def3bd0fdc1d6cbb87bc0bd10966bb2e3001",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -579,7 +585,7 @@
           "time_dimension": "time_period",
           "time_granularity": null,
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
@@ -587,21 +593,23 @@
       },
       "dataset_id": "*",
       "schema_id": "ukons.datasets.generic",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "worldbank.wdi.generic": {
       "connector_id": "worldbank.wdi",
       "content_hash": "sha256:1c955f0a7558b90113fff96fa7e7c03edb79b6a81306ec3d05789824f4b40216",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 2000,
@@ -891,7 +899,7 @@
           "time_dimension": "year",
           "time_granularity": "annual",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
@@ -899,21 +907,23 @@
       },
       "dataset_id": "*",
       "schema_id": "worldbank.wdi.generic",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "wvs.wave7.generic": {
       "connector_id": "wvs.wave7",
       "content_hash": "sha256:194f88668ef76db93263492d1c33794a7100dc8697c6307fa2e77b0b6c527647",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -1205,7 +1215,7 @@
           "time_dimension": "survey_year",
           "time_granularity": "annual",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
@@ -1213,7 +1223,7 @@
       },
       "dataset_id": "*",
       "schema_id": "wvs.wave7.generic",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     }
   },
   "version": 1

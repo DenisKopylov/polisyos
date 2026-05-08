@@ -68,12 +68,12 @@ def test_phase1_5_extension_points_are_owned_versioned_and_discoverable() -> Non
 
 def test_phase1_5_dynamic_import_and_example_contracts_are_declared() -> None:
     extension_contract = _read_toml("architecture/extension_points.toml")
-    dynamic_imports = _read_toml("architecture/dynamic_imports.toml")["dynamic_imports"]
+    dynamic_imports = _read_toml("architecture/imports/dynamic.toml")["dynamic_imports"]
 
     policy = extension_contract["dynamic_import_policy"]
     assert policy["required_registry_fields"] == ["owner", "target", "verifier"]
     assert "entry-point group" in policy["plugin_discovery_rule"]
-    assert "architecture/dynamic_imports.toml" in policy["ad_hoc_import_rule"]
+    assert "architecture/imports/dynamic.toml" in policy["ad_hoc_import_rule"]
 
     assert dynamic_imports["extension_points"] == "architecture/extension_points.toml"
     assert dynamic_imports["new_entry_required_fields"] == [

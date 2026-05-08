@@ -16,7 +16,9 @@ IR-подсистеме.
 
 - [`__init__.py`](./__init__.py) — стабильный lazy facade и поддерживаемый root import surface.
 - [`api.py`](./api.py) — public-surface manifest и shared lazy-facade helpers.
-- [`loaders`](./loaders/__init__.py) — loader package, включая `load_policy()`.
+- [`model_layer`](./model_layer/README.md) — canonical model contracts: `ModelSpec`, canon, predicates, queries, types, and units.
+- [`loading`](./loading/README.md) — loader and load-time contracts, включая `load_policy()`.
+- [`registry`](./registry/README.md) — registry fragments, artifact refs, and public-surface metadata.
 - [`schemas`](./schemas/__init__.py) — reflection API, который питает generated reference pages.
 - [`trinity/README.md`](./trinity/README.md) — канонический payload `ProblemFrame + PolicySpec + ModelSpec`.
 - [`governance/README.md`](./governance/README.md) — authoring surface для `ProblemFrame` и `PolicySpec`.
@@ -28,7 +30,7 @@ IR-подсистеме.
 
 | Entrypoint                                                                | Use when                                                                     | Defined in                                               |
 | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `polisyos.ir.load_policy()`                                               | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes     | [`loaders`](./loaders/__init__.py)                       |
+| `polisyos.ir.load_policy()`                                               | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes     | [`loading/loaders.py`](./loading/loaders.py)             |
 | `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Нужны базовые Trinity contracts с root import path                           | [`__init__.py`](./__init__.py)                           |
 | `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Нужен reflection/catalog API для local discovery и generated docs            | [`schemas`](./schemas/__init__.py)                       |
 | `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Нужен базовый observation surface для record/panel payloads                  | [`observation/contracts.py`](./observation/contracts.py) |
@@ -40,19 +42,29 @@ IR-подсистеме.
 ## Internal Layout
 
 - [`api.py`](./api.py) and [`__init__.py`](./__init__.py) own the stable lazy
-  facade and public-surface helper metadata.
+  facade, lazy legacy import aliases, and public-surface helper metadata.
 - [`_internal/`](./_internal/) is private implementation code. Do not import it
   from other packages.
 - [`_lazy_facade/`](./_lazy_facade/) and
-  [`public_surface/`](./public_surface/) are compatibility wrappers that
-  re-export from `api.py` while the facade cleanup sunsets.
-- [`schemas/`](./schemas/__init__.py), [`loaders/`](./loaders/__init__.py),
+  `polisyos.ir.public_surface` are compatibility paths that route through
+  `api.py` / [`registry/public_surface.py`](./registry/public_surface.py) while
+  the facade cleanup sunsets.
+- [`model_layer/`](./model_layer/README.md) owns model-layer semantics:
+  canonicalization, `ModelSpec`, predicates, queries, shared types, and units.
+- [`loading/`](./loading/README.md) owns loaders, citations, fact-log,
+  migration-report, norm-pack, portfolio, and schema-catalog loading views.
+- [`registry/`](./registry/README.md) owns registry fragments, artifact refs,
+  and public-surface registry metadata. Citation refs live in
+  [`loading/citations.py`](./loading/citations.py); `polisyos.ir.references` is
+  compatibility-only and synthesized by `api.py`.
+- [`schemas/`](./schemas/__init__.py) remains schema wrapper and reflection code,
   [`trinity/`](./trinity/README.md), [`governance/`](./governance/README.md),
   [`observation/`](./observation/README.md), and
   [`analytics/`](./analytics/README.md) are the main public-adjacent contract
   owners.
-- Citation/reference compatibility is centralized under
-  [`references/`](./references/__init__.py).
+- [`analytics/`](./analytics/README.md) remains the analytics contract package;
+  it should import shared refs from `registry` and model primitives from
+  `model_layer`.
 
 ## Extension Points
 
@@ -111,7 +123,9 @@ analytics coverage is documented in
   `team-ir` and sunset `2026-12-31`.
 - Current wrapper-only import paths include `polisyos.ir.public_surface`,
   `polisyos.ir._lazy_facade`, `polisyos.ir.citations`,
-  `polisyos.ir.refs`, and `polisyos.ir.schema_catalog`.
+  `polisyos.ir.refs`, `polisyos.ir.references`, and
+  `polisyos.ir.schema_catalog`; these are served by lazy aliases registered in
+  `api.py`, not by physical shell packages.
 - The high-complexity `ir/analytics/strategic.py` budget is tracked in
   [architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
   with owner `team-ir` and sunset `2026-12-31`.

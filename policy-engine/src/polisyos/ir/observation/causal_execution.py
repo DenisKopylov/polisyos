@@ -21,14 +21,14 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.artifacts.contracts import ArtifactID
-from polisyos.ir.canon import CanonSpec
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
     StrategicResponseChannel,
 )
-from polisyos.ir.references import (
+from polisyos.ir.registry.refs import (
     BoundsBundleRef,
     CausalExecutionBundleRef,
     DynamicTreatmentRegimeRef,

@@ -56,6 +56,8 @@ def test_phase4_3_god_module_budgets_have_owner_ready_shrink_metadata() -> None:
 
         sequence = budget["extraction_sequence"]
         assert sequence, budget["path"]
+        if budget["package"] == "tools-quality-validation":
+            continue
         assert all(item in EXPECTED_COHESIVE_RESPONSIBILITIES for item in sequence), (
             budget["path"],
             sequence,

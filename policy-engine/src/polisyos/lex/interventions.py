@@ -1147,7 +1147,8 @@ class HierarchicalPolicySearchAdapter:
                     continue
                 bundles.append((structure.candidate_hash, bundle))
             state.narrative_variants = coordinator.run_narrative_search(bundles)
-        return HierarchicalSearchResult(state=state, shared_frontier=[])
+        state_payload = state.model_dump(mode="python") if hasattr(state, "model_dump") else state
+        return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
 
 
 def _resolve_param_key(param_path: str) -> str:

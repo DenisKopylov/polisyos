@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 import pytest
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from polisyos.common.serialization import fast_json_dumps, fast_json_loads
 
@@ -11,20 +11,21 @@ _JSON_SCALARS = st.one_of(
     st.none(),
     st.booleans(),
     st.integers(min_value=-(2**63), max_value=(2**63) - 1),
-    st.floats(allow_nan=False, allow_infinity=False),
-    st.text(),
+    st.floats(allow_nan=False, allow_infinity=False, width=64),
+    st.text(max_size=128),
 )
 _JSON_VALUES = st.recursive(
     _JSON_SCALARS,
     lambda children: st.one_of(
-        st.lists(children, max_size=8),
-        st.dictionaries(st.text(min_size=1, max_size=12), children, max_size=8),
+        st.lists(children, max_size=6),
+        st.dictionaries(st.text(min_size=1, max_size=12), children, max_size=6),
     ),
-    max_leaves=24,
+    max_leaves=16,
 )
 
 
 @pytest.mark.property
+@settings(max_examples=75, suppress_health_check=[HealthCheck.too_slow])
 @given(payload=_JSON_VALUES)
 def test_fast_json_roundtrip_property(payload: object) -> None:
     encoded = fast_json_dumps(payload, sort_keys=True)

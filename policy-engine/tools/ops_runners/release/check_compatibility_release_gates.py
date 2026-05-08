@@ -17,7 +17,7 @@ from tools.ops_runners.release.build_release_notes import (
 )
 
 REPO_ROOT = repo_root_from(__file__)
-DEFAULT_POLICY = REPO_ROOT / "architecture" / "compatibility_release_gates.toml"
+DEFAULT_POLICY = REPO_ROOT / "architecture" / "gates" / "compatibility_release.toml"
 
 
 @dataclass(frozen=True)

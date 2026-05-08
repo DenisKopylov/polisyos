@@ -17,4 +17,5 @@ install_lazy_module_shim(
     migration_hint=(
         "Use polisyos.scientist.orchestration.engine.error_semantics for new imports."
     ),
+    shim_id="decomp-scientist-error_semantics",
 )

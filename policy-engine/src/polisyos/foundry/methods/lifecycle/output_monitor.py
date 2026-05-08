@@ -47,6 +47,7 @@ import numpy as np
 __all__ = [
     "AnomalyFlag",
     "MethodOutputMonitor",
+    "_try_as_array",
     "get_output_monitor",
 ]
 

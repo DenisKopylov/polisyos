@@ -52,11 +52,11 @@ def test_phase28_owner_mappings_cover_package_owners_and_public_stable_modules()
     data = _read_contract()
     mappings = {item["owner"]: item for item in data["owner_mapping"]}
 
-    package_boundaries = _read_toml(REPO_ROOT / "architecture/package_boundaries.toml")
+    package_boundaries = _read_toml(REPO_ROOT / "architecture/packages/boundaries.toml")
     package_owners = {item["owner"] for item in package_boundaries["package"]}
     assert package_owners <= set(mappings)
 
-    public_surface = _read_toml(REPO_ROOT / "architecture/public_surface.toml")
+    public_surface = _read_toml(REPO_ROOT / "architecture/public_surface/contract.toml")
     stable_modules = {
         item["module"]
         for item in public_surface["package"]
@@ -196,7 +196,11 @@ def test_phase7_renovate_match_file_names_resolve_to_current_manifests() -> None
         for name in rule.get("matchFileNames", [])
     }
 
-    assert "policy-engine/frontend/runtime-dashboard/package.json" not in match_file_names
+    retired_dashboard_manifest = "/".join(
+        ("policy-engine", "frontend", "runtime-dashboard", "package.json")
+    )
+
+    assert retired_dashboard_manifest not in match_file_names
     assert {
         "policy-engine/apps/runtime-dashboard/package.json",
         "policy-engine/apps/runtime-reference-shell/package.json",

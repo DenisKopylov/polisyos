@@ -65,7 +65,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `source.connector_entrypoints` | `implemented` | `P1` | Production connector entry points | entrypoint_group=`polisyos.fabric_connectors`; entrypoint_count=11; entrypoints=11 | - |
 | `source.connector_public_exports` | `implemented` | `P1` | Concrete connector public exports | export_count=22; concrete_connector_count=20; concrete_connectors=20 | - |
 | `source.connector_sdk_authoring_helpers` | `implemented` | `P1` | Connector SDK authoring helpers | sdk_package=`src/polisyos/fabric/connectors/sdk`; profile_matrix=`build_source_profile_matrix` | - |
-| `source.connector_source_modules` | `implemented` | `P2` | Connector source module tree | source_tree=`src/polisyos/fabric/connectors/sources/**`; source_module_count=30; source_modules=30 | - |
+| `source.connector_source_modules` | `implemented` | `P2` | Connector source module tree | source_tree=`src/polisyos/fabric/connectors/sources/**`; source_module_count=31; source_modules=31 | - |
 | `source.entrypoint_coverage.direct_import_families` | `implemented` | `P2` | Governed production visibility for connector families | entrypoint_count=11; concrete_connector_count=20; governed_component_count=20; internal_support_only_count=9 | - |
 | `source.http_runtime_base_contract` | `not_applicable` | `P3` | Shared HTTP runtime as production source | non_connector_exports=2 | - |
 | `source.processing_guarantee_contracts` | `implemented` | `P1` | Processing guarantee, dedupe, and replay-retention contracts | processing_contract_count=20; dedupe_window_count=20; replay_retention_count=20; schema=`schemas/fabric/processing_guarantee.schema.json` | - |
@@ -97,7 +97,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `semantics.connector_quality_validators` | `implemented` | `P1` | Connector-level quality validators | quality_module_count=7; quality_modules=7 | - |
 | `semantics.fabric_quality_governance_evidence` | `implemented` | `P1` | Fabric quality evidence propagation | quality_evidence_builder=true; scientist_state_key=true | - |
 | `semantics.nl_to_dataset_resolution_eval` | `implemented` | `P1` | Explainable NL-to-dataset resolution and eval pack | eval_case_count=4; maximum_false_positive_failures=0; llm_calls=0 | - |
-| `semantics.quality_indicators` | `implemented` | `P1` | Metric-level quality indicators | quality_module=true; fitness_report_module=true; quality_tests=3 | - |
+| `semantics.quality_indicators` | `implemented` | `P1` | Metric-level quality indicators | quality_module=true; fitness_report_module=false; quality_tests=3 | - |
 | `semantics.schema_governance_snapshot_gate` | `implemented` | `P1` | Schema governance snapshot gate | validator=`tools/quality/validation/fabric_schema_governance.py`; contract_snapshot=`schemas/snapshots/fabric/connector_contract_registry.json` | - |
 | `semantics.semantic_dataset_catalog` | `implemented` | `P1` | SourceContract-backed semantic dataset catalog | source_contract_v2_count=20; embedding_model=`hashing-bow-dataset-v1`; llm_calls=0; candidate_evidence=true | - |
 | `semantics.source_quality_contract_coverage` | `implemented` | `P1` | Quality-contract coverage by source contract/profile | contract_count=5; source_contract_v2_count=20; profile_count=38; quality_validator_module_count=7 | Phase 6: propagate source quality states into decision-data envelopes. |

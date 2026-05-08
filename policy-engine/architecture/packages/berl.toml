@@ -8,11 +8,11 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Bounded Explanation Reliability Layer support package for Scientist validation evidence."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
-  "architecture/test_topology.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -27,7 +27,7 @@ implementation_roots = [
   "src/polisyos/berl/contracts",
   "src/polisyos/berl/metrics",
 ]
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "active"
 
 [boundaries]

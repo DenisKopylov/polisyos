@@ -15,7 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 
 def _normalize_surface_payload(value: Any) -> Any:

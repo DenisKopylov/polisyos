@@ -42,7 +42,7 @@ from polisyos.ir.observation.measurement import (
     SchemaRegimeRegistry,
     ShockCalendar,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

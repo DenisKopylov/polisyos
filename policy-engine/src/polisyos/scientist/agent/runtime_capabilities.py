@@ -128,7 +128,7 @@ AGENT_CAPABILITY_REGISTRY: tuple[AgentCapabilityFamily, ...] = (
         default_rule="shadow only until calibration and regret tests pass",
         frontier_status=FrontierCapabilityStatus.EXPERIMENTAL_NOT_WIRED,
         feature_flag="scientist.search.learned_routing",
-        owner_module="polisyos.scientist.search.strategies.advanced_policy",
+        owner_module="polisyos.scientist.methods.search.strategies.advanced_policy",
         required_evidence=[
             "offline validation",
             "calibration tests",
@@ -142,7 +142,7 @@ AGENT_CAPABILITY_REGISTRY: tuple[AgentCapabilityFamily, ...] = (
         default_rule="shadow only until calibration and regret tests pass",
         frontier_status=FrontierCapabilityStatus.EXPERIMENTAL_NOT_WIRED,
         feature_flag="scientist.search.learned_voi",
-        owner_module="polisyos.scientist.search.strategies.advanced_policy",
+        owner_module="polisyos.scientist.methods.search.strategies.advanced_policy",
         required_evidence=[
             "offline validation",
             "calibration tests",

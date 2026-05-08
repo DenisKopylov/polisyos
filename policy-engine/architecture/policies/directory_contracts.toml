@@ -1,0 +1,914 @@
+[directory_contracts]
+version = 1
+status = "active"
+phase = "repository-best-in-class-phase-1.8"
+owner = "team-architecture"
+description = "Top-level directory closure contract for the policy-engine repository root."
+exception_policy_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+topology_source = "architecture/topology.toml"
+generated_artifacts_source = "architecture/generated_artifacts.toml"
+local_runtime_state_source = "architecture/local_runtime_state.toml"
+data_policy_source = "architecture/policies/data.toml"
+asset_placement_source = "architecture/asset_placement.toml"
+data_root_local_state_naming_adr = "docs/adr/repository-structure-0147-data-root-local-state-naming.md"
+enforcement_mode = "contract_only"
+gate_conversion_phase = "wave-6.2"
+
+[high_volume_subtree_threshold]
+tracked_file_count_at_least = 20
+immediate_child_directory_count_greater_than = 10
+module_line_count_warning_source = "architecture/exceptions/complexity.toml:complexity_exceptions.default_max_module_lines"
+subtree_contains_committed_data_fixtures_or_golden = true
+applies_to_tracked_descendants = true
+local_documentation_requirement = "README.md, AUTHORING.md, generated index, or explicit owner/sunset exception."
+
+[local_documentation_requirement]
+applies_when = "high_volume_subtree_threshold"
+accepted_local_documents = ["README.md", "AUTHORING.md", "index.md", "generated index"]
+accepted_exception_fields = ["owner", "reason", "sunset", "promotion_or_cleanup_target", "issue_or_adr"]
+require_owner = true
+require_sunset_for_exceptions = true
+
+[single_file_shell_package_local_documentation]
+status = "fail_closed"
+owner = "team-architecture"
+applies_to = "Product package directories with exactly one non-test implementation module."
+accepted_local_documents = ["README.md"]
+required_markers = ["single module", "intentional"]
+explanation_requirement = "The local document must explain why the single-module package shape is intentional rather than a wrapper-only shell."
+
+[redirect_stub_sunset_policy]
+status = "active"
+owner = "team-docs"
+max_lifetime_days = 90
+known_redirect_stub_paths = ["frontend"]
+required_readme_front_matter = [
+  "owner",
+  "target_path",
+  "reason",
+  "created_date",
+  "sunset_date",
+  "removal_gate",
+]
+longer_compatibility_window_requires = "compatibility_adr"
+adr_declaration_rule = "A longer compatibility window must cite an existing docs/adr/ ADR that names the redirect directory path."
+
+[[file_kind]]
+id = "architecture_contract"
+description = "Machine-readable TOML, JSON, or Markdown architecture contracts and inventories."
+
+[[file_kind]]
+id = "baseline_evidence"
+description = "Reviewed JSON, text, or Markdown evidence baselines used by architecture and quality gates."
+
+[[file_kind]]
+id = "benchmark_source"
+description = "Python benchmark harness, suite, metric, comparator, or reporting source."
+
+[[file_kind]]
+id = "committed_data_fixture"
+description = "Small reviewed fixture, catalog, tiny gold example, or product seed record allowed by data policy."
+
+[[file_kind]]
+id = "documentation"
+description = "Markdown, TOML index, and supporting prose/reference material."
+
+[[file_kind]]
+id = "frontend_source"
+description = "TypeScript, JavaScript, CSS, HTML, package manifests, and frontend test source."
+
+[[file_kind]]
+id = "generated_committed"
+description = "Generated artifact committed only through architecture/generated_artifacts.toml."
+
+[[file_kind]]
+id = "ignored_generated_output"
+description = "Generated output, report, cache, dependency, or runtime artifact ignored by default."
+
+[[file_kind]]
+id = "ops_source"
+description = "Operational policy, CI template, release, security, migration, runtime, and observability source."
+
+[[file_kind]]
+id = "product_python_source"
+description = "Importable product Python source under src/polisyos."
+
+[[file_kind]]
+id = "release_input"
+description = "Committed release note, release manifest, changelog, or release fragment input."
+
+[[file_kind]]
+id = "schema_snapshot"
+description = "JSON Schema, OpenAPI, manifest schema, or generated schema snapshot."
+
+[[file_kind]]
+id = "test_source"
+description = "Pytest tests, test helpers, property tests, contract tests, and test-local config."
+
+[[child_directory_kind]]
+id = "architecture_baseline"
+description = "Reviewed architecture baseline or generated inventory with owner and regeneration path."
+
+[[child_directory_kind]]
+id = "archive"
+description = "Historical plans, evidence libraries, reports, incidents, postmortems, or frozen specs."
+
+[[child_directory_kind]]
+id = "build_output"
+description = "Ignored build, coverage, audit, bundle, site, distribution, or release output."
+
+[[child_directory_kind]]
+id = "cache"
+description = "Ignored cache that is safe to recreate from source or upstream inputs."
+
+[[child_directory_kind]]
+id = "config"
+description = "Tool, editor, container, lint, or workspace configuration."
+
+[[child_directory_kind]]
+id = "data_fixture"
+description = "Small committed data, fixtures, goldens, snapshots, or fixture registries."
+
+[[child_directory_kind]]
+id = "documentation_section"
+description = "Docs IA section, ADR set, plan lifecycle folder, runbook area, or reference section."
+
+[[child_directory_kind]]
+id = "example_project"
+description = "Installable example or tutorial with its own README and runnable entrypoint."
+
+[[child_directory_kind]]
+id = "frontend_workspace"
+description = "Application or JavaScript package workspace governed by pnpm workspace metadata."
+
+[[child_directory_kind]]
+id = "local_runtime_state"
+description = "Ignored local runtime state governed by architecture/local_runtime_state.toml."
+
+[[child_directory_kind]]
+id = "legacy_local_data_lake"
+description = "ADR-backed ignored raw, curated, and database local data lake retained under data/policy-engine-local for path compatibility."
+
+[[child_directory_kind]]
+id = "ops_domain"
+description = "Operational domain such as CI, cloud, docker, migrations, observability, release, runtime, or security."
+
+[[child_directory_kind]]
+id = "python_package"
+description = "Importable Python package under src/polisyos."
+
+[[child_directory_kind]]
+id = "release_lifecycle"
+description = "Committed release input area or ignored release output staging area."
+
+[[child_directory_kind]]
+id = "schema_domain"
+description = "Schema family, snapshot family, API schema family, manifest schema family, or codegen support area."
+
+[[child_directory_kind]]
+id = "test_layer"
+description = "Unit, integration, property, contract, e2e, performance, architecture, lint, or tooling test layer."
+
+[[retention_class]]
+id = "no_ignored_descendants"
+description = "No ignored descendants are expected except universal tool residue such as __pycache__ or .DS_Store."
+cleanup_policy = "Remove when discovered; do not promote."
+
+[[retention_class]]
+id = "source_adjacent_tool_caches"
+description = "Tool caches and residue under source-adjacent roots are local-only and may be deleted at any time."
+cleanup_policy = "Remove through repository hygiene cleanup; never commit."
+
+[[retention_class]]
+id = "benchmark_reports_mixed"
+description = "Benchmark reports are local by default and committed only as reviewed evidence or baselines."
+cleanup_policy = "Delete stale local reports; promote intentional evidence through generated artifact or archive routes."
+
+[[retention_class]]
+id = "frontend_generated_mixed"
+description = "Frontend generated outputs are local unless registered as committed clients, types, or baselines."
+cleanup_policy = "Clean workspace-local dist, coverage, Playwright, Storybook, and cache outputs."
+
+[[retention_class]]
+id = "local_build_output"
+description = "Ignored build and release output, generally recomputable from source."
+cleanup_policy = "Delete stale local outputs unless an artifact was externally published or promoted."
+
+[[retention_class]]
+id = "local_cache"
+description = "Ignored cache that has no source-of-truth role."
+cleanup_policy = "Delete at any time; rebuild from source or upstream inputs."
+
+[[retention_class]]
+id = "local_runtime_state"
+description = "Ignored runtime state governed by architecture/local_runtime_state.toml."
+cleanup_policy = "Use state-class cleanup commands and never delete production snapshots without explicit approval."
+
+[[retention_class]]
+id = "legacy_local_data_lake"
+description = "Ignored local data lake outputs under data/policy-engine-local retained as an ADR-backed naming exception."
+cleanup_policy = "Clean with architecture/policies/data.toml commands; promote only reduced fixtures, manifests, or reviewed evidence through registered data contracts."
+
+[[retention_class]]
+id = "local_environment"
+description = "Ignored virtualenv or dependency tree."
+cleanup_policy = "Delete and recreate from lockfiles or package managers."
+
+[[asset_class]]
+id = "product_seed_assets"
+allowed_roots = ["src/polisyos/<package>/assets/", "src/polisyos/<package>/**/assets/"]
+registered_exception_roots = ["src/polisyos/<package>/**/fixtures/"]
+owner = "team-architecture"
+commit_policy = "package_owned_assets_or_registered_product_fixtures_only"
+promotion_path = "architecture/generated_artifacts.toml or package-local README/AUTHORING.md"
+
+[[asset_class]]
+id = "test_fixtures"
+allowed_roots = [
+  "tests/_data/",
+  "tests/contract/**/fixtures/",
+  "benchmarks/_data/",
+]
+legacy_roots_until_phase = []
+owner = "team-quality"
+commit_policy = "small_reviewed_test_fixtures_only"
+current_wave1_roots = ["tests/_data/"]
+target_roots_source = "architecture/tests/ratchets.toml:fixture_policy.target_fixture_roots"
+promotion_path = "tests/_data/ or benchmarks/_data/"
+
+[[asset_class]]
+id = "golden_records"
+allowed_roots = [
+  "tests/_golden/",
+  "tests/contract/**/snapshots/",
+]
+legacy_roots_until_phase = []
+owner = "team-quality"
+commit_policy = "reviewed_golden_or_registered_snapshot_only"
+current_wave1_roots = ["tests/_golden/"]
+target_roots_source = "architecture/tests/ratchets.toml:fixture_policy.target_golden_roots"
+promotion_path = "tests/_golden/ or registered snapshot roots"
+
+[[asset_class]]
+id = "examples_tutorial_assets"
+allowed_roots = ["examples/<example-name>/"]
+owner = "team-docs"
+commit_policy = "installable_examples_only"
+promotion_path = "examples/<example-name>/README.md and example manifest"
+
+[[archive_class]]
+id = "accepted_plans"
+allowed_roots = ["docs/plans/accepted/"]
+owner = "team-docs"
+commit_policy = "committed_with_lifecycle"
+promotion_path = "docs/plans/accepted/"
+naming = "UPPER_SNAKE.md or kebab-case.md with front matter status and owner"
+retention = "until implementation is complete, then move to docs/plans/archive/"
+promotion_criteria = ["plan approved by owner", "irreversible decisions recorded as ADRs", "machine-readable contracts linked when topology or public behavior changes"]
+max_file_count = 100
+max_file_size_kib = 1024
+
+[[archive_class]]
+id = "historical_plans"
+allowed_roots = ["docs/plans/archive/"]
+owner = "team-docs"
+commit_policy = "committed_with_lifecycle"
+promotion_path = "docs/plans/archive/"
+naming = "preserve legacy filename when moved; new archive files use YYYY-MM-DD-kebab-case.md"
+retention = "indefinite while referenced by ADRs, reference docs, or reports; prune duplicates during docs lifecycle review"
+promotion_criteria = ["active or accepted plan is closed", "durable behavior has moved to ADR/reference/runbook/contracts", "front matter or archive banner records status and owner"]
+max_file_count = 300
+max_file_size_kib = 2048
+
+[[archive_class]]
+id = "release_evidence"
+allowed_roots = ["release/", "docs/archive/reports/release/"]
+local_roots = ["_build/release/"]
+owner = "team-release"
+commit_policy = "committed_inputs_or_external_release_artifacts"
+promotion_path = "release/ or docs/archive/reports/release/"
+naming = "release/<slug>.md or docs/archive/reports/release/YYYY-MM-DD-<slug>.(md|json|toml)"
+retention = "retain committed release inputs indefinitely; keep generated release outputs ignored until promoted"
+promotion_criteria = ["release owner review", "no secrets or local paths", "links to release fragment, ledger, or evidence template"]
+max_file_count = 200
+max_file_size_kib = 2048
+
+[[archive_class]]
+id = "local_audit_reports"
+allowed_roots = ["docs/archive/reports/"]
+local_roots = [".polisyos/reports/", "_build/**/audit/"]
+owner = "team-docs"
+commit_policy = "commit_reviewed_evidence_only"
+promotion_path = "docs/archive/reports/"
+naming = "YYYY-MM-DD-<topic>.<ext> for new reports; legacy uppercase reports are retained in place"
+retention = "retain curated reports while cited by plans, ADRs, release evidence, or gates; raw rerun logs stay local by default"
+promotion_criteria = ["owner named in report or adjacent README", "repro command or source inventory included", "raw output summarized or redacted", "large logs moved to ignored local roots"]
+max_file_count = 500
+max_file_size_kib = 2048
+
+[[archive_class]]
+id = "generated_benchmark_reports"
+allowed_roots = ["docs/archive/reports/benchmarks/"]
+local_roots = ["benchmarks/_reports/"]
+owner = "team-quality"
+commit_policy = "local_by_default_reviewed_baseline_only"
+promotion_path = "docs/archive/reports/benchmarks/ or architecture/generated_artifacts.toml"
+naming = "YYYY-MM-DD-<suite>-<profile>.(md|json|toml)"
+retention = "local benchmark reports are ignored; committed benchmark evidence is retained until superseded by a newer reviewed baseline"
+promotion_criteria = ["benchmark methodology and hardware/profile recorded", "summary is small enough for review", "raw run bundle remains ignored unless explicitly registered", "baseline promotion links to quality gate or generated-artifact contract"]
+max_file_count = 100
+max_file_size_kib = 1024
+
+[[archive_class]]
+id = "incident_postmortem_records"
+allowed_roots = ["docs/archive/incidents/", "docs/archive/postmortems/", "ops/incident/"]
+owner = "team-ops"
+commit_policy = "committed_reviewed_records"
+promotion_path = "docs/archive/incidents/ or docs/archive/postmortems/"
+naming = "YYYY-MM-DD-<incident-or-postmortem>.md"
+retention = "retain indefinitely unless security/legal review requires redaction or relocation"
+promotion_criteria = ["incident owner reviewed", "customer or secret data redacted", "runbook or follow-up links included"]
+max_file_count = 200
+max_file_size_kib = 1024
+
+[[non_product_python_root]]
+path = "tools"
+policy = "importable_internal_devx_tooling_if_documented"
+owner = "team-devx"
+allowed_reason = "Command implementations and helper libraries may use package-style imports for developer tooling."
+product_import_policy = "src/polisyos product code must not import tools."
+
+[[non_product_python_root]]
+path = "tests"
+policy = "pytest_helpers_only"
+owner = "team-quality"
+allowed_reason = "Package-style helpers are allowed only for pytest import-mode and shared fixture reasons."
+product_import_policy = "src/polisyos product code must not import tests."
+
+[[non_product_python_root]]
+path = "benchmarks"
+policy = "benchmark_tooling_only"
+owner = "team-quality"
+allowed_reason = "Benchmarks follow the Phase 1.4 benchmark decision; root importability is transitional and never a product API."
+product_import_policy = "src/polisyos product code must not import benchmarks."
+
+[[non_product_python_root]]
+path = "apps"
+policy = "frontend_workspace_local_tooling_only"
+owner = "team-frontend"
+allowed_reason = "Frontend workspaces may include local Python fixture servers and build helpers, but apps is not a product Python package root."
+product_import_policy = "src/polisyos product code must not import apps."
+
+[[non_product_python_root]]
+path = "examples"
+policy = "extension_example_tooling_only"
+owner = "team-developer-experience"
+allowed_reason = "Extension examples include installable sample packages and smoke-test helpers; examples is documentation and onboarding surface, not product API."
+product_import_policy = "src/polisyos product code must not import examples."
+
+[[non_product_python_root]]
+path = "ops"
+policy = "operations_contract_tooling_only"
+owner = "team-ops"
+allowed_reason = "Operations contracts may include migration or policy helpers, but ops is operational control-plane support, not product import surface."
+product_import_policy = "src/polisyos product code must not import ops."
+
+[[contract]]
+path = "architecture"
+status = "active"
+role = "Machine-readable repository architecture contracts, inventories, policies, and reviewed architecture baselines."
+owner = "team-architecture"
+lifecycle_class = "architecture_contract"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = [
+  "architecture_contract",
+  "baseline_evidence",
+  "documentation",
+  "generated_committed",
+]
+allowed_child_directory_kinds = ["architecture_baseline", "config", "documentation_section"]
+python_import_policy = "not_importable"
+generated_output_policy = "committed_generated_only_when_registered_in_architecture_generated_artifacts"
+committed_data_policy = "architecture_evidence_only_no_product_or_test_data"
+readme_index_requirement = "High-volume children need README.md, AUTHORING.md, generated index, or owner/sunset exception."
+max_root_loose_files = 80
+root_loose_file_policy = "Root loose files are limited to architecture contracts and reviewed inventories."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "architecture/generated_artifacts.toml or docs/archive/reports/"
+
+[[contract]]
+path = "benchmarks"
+status = "active_transitional"
+role = "Benchmark suites, comparators, harnesses, metrics, reports, and public evaluation evidence."
+owner = "team-quality"
+lifecycle_class = "benchmark_source_and_evidence"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = [
+  "benchmark_source",
+  "baseline_evidence",
+  "documentation",
+  "ignored_generated_output",
+]
+allowed_child_directory_kinds = ["data_fixture", "documentation_section"]
+python_import_policy = "benchmark_tooling_only_not_product_import_surface"
+generated_output_policy = "benchmark_reports_local_by_default_promote_only_as_reviewed_evidence"
+committed_data_policy = "benchmark_fixtures_only_no_bulk_local_data"
+readme_index_requirement = "Root README.md required before fail-closed gates; high-volume suites need README/AUTHORING/index or exception."
+max_root_loose_files = 32
+root_loose_file_policy = "Existing root benchmark modules are transitional; new suites should prefer subdirectories."
+ignored_descendant_retention = "benchmark_reports_mixed"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/benchmarks/ or architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "data"
+status = "active"
+role = "Allowlisted small product data fixtures, tiny gold examples, catalog registries, and ADR-backed ignored local data lake state."
+owner = "team-data-forge"
+lifecycle_class = "data_policy_root"
+topology_category = "test_fixture"
+topology_commit_policy = "committed_small_fixtures_only"
+allowed_file_kinds = ["committed_data_fixture", "documentation", "ignored_generated_output"]
+allowed_child_directory_kinds = ["data_fixture", "cache", "legacy_local_data_lake"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_medallion_and_policy_engine_local_outputs_ignored_unless_promoted_by_data_policy"
+committed_data_policy = "allowlist_only_via_architecture_data_policy"
+readme_index_requirement = "Root README.md required; every committed data subtree needs README or generated catalog."
+max_root_loose_files = 1
+root_loose_file_policy = "Only README.md may be loose at root; committed data must live under registered child roots."
+ignored_descendant_retention = "legacy_local_data_lake"
+evidence_or_generated_artifact_promotion_path = "architecture/policies/data.toml and architecture/generated_artifacts.toml"
+local_data_legacy_exception_adr = "docs/adr/repository-structure-0147-data-root-local-state-naming.md"
+
+[[local_data_root_exception]]
+id = "policy-engine-local-legacy-local-state"
+path = "data/policy-engine-local"
+status = "accepted_legacy_local_state_name"
+owner = "team-data-forge"
+adr = "docs/adr/repository-structure-0147-data-root-local-state-naming.md"
+data_policy_source = "architecture/policies/data.toml"
+asset_placement_source = "architecture/asset_placement.toml"
+commit_policy = "ignored_local_state_except_root_readme"
+allowed_committed_files = ["data/policy-engine-local/README.md"]
+allowed_ignored_children = [
+  "data/policy-engine-local/raw/",
+  "data/policy-engine-local/curated/",
+  "data/policy-engine-local/databases/",
+]
+reason = "The path is a legacy local-data namespace inside the canonical data/ root, not a second product root."
+source_reference_policy = "Source and fixture code may reference this path only through architecture/policies/data.toml, documented workspace tooling excludes, or tests that assert the data policy contract."
+
+[[contract]]
+path = "design"
+status = "active"
+role = "Design prototypes, design-system exploration, and user-facing visual source that has not become product frontend source."
+owner = "team-design"
+lifecycle_class = "design_documentation"
+topology_category = "docs"
+topology_commit_policy = "committed_or_ignored_by_subpath"
+allowed_file_kinds = ["documentation", "frontend_source", "ignored_generated_output"]
+allowed_child_directory_kinds = ["documentation_section", "frontend_workspace", "archive"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_preview_outputs_ignored_or_moved_to_frontend_when_productized"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "Each design project needs README.md or index.html with owner and lifecycle."
+max_root_loose_files = 4
+root_loose_file_policy = "No loose prototype assets at root; keep files under a named design project."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/ or apps/<workspace>/"
+
+[[contract]]
+path = "docs"
+status = "active"
+role = "Contributor, operator, architecture, tutorial, reference, ADR, runbook, and plan documentation."
+owner = "team-docs"
+lifecycle_class = "documentation"
+topology_category = "docs"
+topology_commit_policy = "committed_with_lifecycle"
+allowed_file_kinds = ["documentation", "baseline_evidence", "release_input"]
+allowed_child_directory_kinds = ["documentation_section", "archive"]
+python_import_policy = "not_importable"
+generated_output_policy = "generated_docs_committed_only_when_registered_or_checked_by_docs_gate"
+committed_data_policy = "docs_evidence_only_no_product_or_test_data"
+readme_index_requirement = "Root README.md required; high-volume sections need README.md, index.md, or generated index."
+max_root_loose_files = 12
+root_loose_file_policy = "Root loose docs are navigation and project entrypoints only; lifecycle docs live under docs/plans or docs/archive."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/ or docs/plans/accepted/"
+
+[[contract]]
+path = "examples"
+status = "active_transitional"
+role = "Runnable examples and tutorial projects demonstrating supported extension and product author workflows."
+owner = "team-docs"
+lifecycle_class = "examples"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = [
+  "documentation",
+  "product_python_source",
+  "frontend_source",
+  "committed_data_fixture",
+]
+allowed_child_directory_kinds = ["example_project", "data_fixture"]
+python_import_policy = "not_importable_as_product_root"
+generated_output_policy = "local_example_outputs_ignored"
+committed_data_policy = "tiny_example_assets_only_under_examples_example_name"
+readme_index_requirement = "Each example project needs README.md and runnable command; root README.md required when more than one example exists."
+max_root_loose_files = 4
+root_loose_file_policy = "Single-file examples are transitional; new examples live under examples/<example-name>/."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "examples/<example-name>/README.md or docs/tutorials/"
+
+[[contract]]
+path = "frontend"
+status = "legacy_handoff"
+role = "Contributor handoff for the former JavaScript workspace root. Active apps live under apps/ and shared JavaScript packages live under packages/."
+owner = "team-frontend"
+lifecycle_class = "frontend_handoff"
+topology_category = "docs"
+topology_commit_policy = "committed"
+allowed_file_kinds = [
+  "documentation",
+]
+allowed_child_directory_kinds = ["legacy_handoff", "editor_residue"]
+python_import_policy = "not_importable"
+generated_output_policy = "no generated outputs; old workspace paths are redirects or handoff documentation only"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "Root README.md required and must point contributors to apps/ and packages/."
+max_root_loose_files = 1
+root_loose_file_policy = "No active source or package manifests under frontend/."
+ignored_descendant_retention = "editor_residue_only"
+evidence_or_generated_artifact_promotion_path = "architecture/frontend_workspaces.toml and architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "apps"
+status = "active"
+role = "JavaScript application workspace root for operator-facing apps and static shells."
+owner = "team-frontend"
+lifecycle_class = "frontend_app_workspace"
+topology_category = "source"
+topology_commit_policy = "committed_except_generated_outputs"
+allowed_file_kinds = ["frontend_source", "documentation", "ignored_generated_output"]
+allowed_child_directory_kinds = ["frontend_workspace", "cache", "build_output"]
+python_import_policy = "not_importable"
+generated_output_policy = "follow_architecture_frontend_workspaces_and_generated_artifacts"
+committed_data_policy = "workspace_contract_fixtures_only_no_product_data"
+readme_index_requirement = "Every app needs README.md or package manifest plus owner."
+max_root_loose_files = 1
+root_loose_file_policy = "No loose app files; apps live under apps/<app-name>/."
+ignored_descendant_retention = "frontend_generated_mixed"
+evidence_or_generated_artifact_promotion_path = "architecture/frontend_workspaces.toml and architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "ops"
+status = "active"
+role = "Operational source of truth for CI templates, release policy, runtime operations, migrations, security, observability, and cloud config."
+owner = "team-ops"
+lifecycle_class = "operations_source"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["ops_source", "documentation", "baseline_evidence", "release_input"]
+allowed_child_directory_kinds = ["ops_domain", "config", "release_lifecycle", "archive"]
+python_import_policy = "not_importable_as_product_root"
+generated_output_policy = "ops_baselines_committed_when_registered_local_outputs_under_build"
+committed_data_policy = "operational_baselines_only_no_product_data"
+readme_index_requirement = "Root README.md required; every top-level ops domain needs README, owner, or registered baseline."
+max_root_loose_files = 8
+root_loose_file_policy = "Root loose files are README and top-level ops manifests only; implementation belongs in ops domains or tools."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "ops/<domain>/ contract files or docs/archive/reports/"
+
+[[contract]]
+path = "packages"
+status = "active"
+role = "JavaScript library and CLI workspaces that are publishable or shared across apps."
+owner = "team-frontend"
+lifecycle_class = "frontend_package_workspace"
+topology_category = "source"
+topology_commit_policy = "committed_except_generated_outputs"
+allowed_file_kinds = [
+  "frontend_source",
+  "documentation",
+  "generated_committed",
+  "ignored_generated_output",
+]
+allowed_child_directory_kinds = ["frontend_workspace", "cache", "build_output"]
+python_import_policy = "not_importable"
+generated_output_policy = "package_generated_outputs_local_unless_registered"
+committed_data_policy = "no_committed_data_except_package_test_fixtures"
+readme_index_requirement = "Each package workspace needs README.md or package manifest with owner."
+max_root_loose_files = 1
+root_loose_file_policy = "No loose package files at root; each package lives under packages/<package-name>/."
+ignored_descendant_retention = "frontend_generated_mixed"
+evidence_or_generated_artifact_promotion_path = "architecture/frontend_workspaces.toml and architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "release"
+status = "active"
+role = "Committed release inputs, release manifests, checklists, provenance notes, and reviewed release evidence."
+owner = "team-release"
+lifecycle_class = "release_input"
+topology_category = "release_workspace"
+topology_commit_policy = "committed_with_lifecycle"
+allowed_file_kinds = ["release_input", "documentation", "baseline_evidence"]
+allowed_child_directory_kinds = ["release_lifecycle", "archive"]
+python_import_policy = "not_importable"
+generated_output_policy = "generated_release_outputs_belong_under_build_unless_promoted"
+committed_data_policy = "release_evidence_only_no_product_or_test_data"
+readme_index_requirement = "Root README.md or release index required when release inputs exceed one file."
+max_root_loose_files = 12
+root_loose_file_policy = "Root release loose files are release inputs only; generated release outputs stay under _build/release/."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "release/ or docs/archive/reports/release/"
+
+[[contract]]
+path = "release-fragments"
+status = "active"
+role = "Committed unreleased changelog fragments and release-fragment templates."
+owner = "team-release"
+lifecycle_class = "release_fragment_workspace"
+topology_category = "release_workspace"
+topology_commit_policy = "committed_with_lifecycle"
+allowed_file_kinds = ["release_input", "documentation"]
+allowed_child_directory_kinds = ["release_lifecycle"]
+python_import_policy = "not_importable"
+generated_output_policy = "release_fragment_build_outputs_belong_under_build_or_release"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "Root README.md required; unreleased fragment directory needs policy or template."
+max_root_loose_files = 4
+root_loose_file_policy = "Only README, template, and release-fragment policy files may be loose at root."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "release/ or docs/archive/reports/release/"
+
+[[contract]]
+path = "schemas"
+status = "active"
+role = "JSON Schema, OpenAPI, manifest schema, and generated schema snapshots."
+owner = "team-architecture"
+lifecycle_class = "schema_snapshot_root"
+topology_category = "generated_committed"
+topology_commit_policy = "registered_generated_artifacts"
+allowed_file_kinds = ["schema_snapshot", "generated_committed", "documentation"]
+allowed_child_directory_kinds = ["schema_domain", "architecture_baseline"]
+python_import_policy = "not_importable_schema_data_only"
+generated_output_policy = "all_committed_generated_schemas_registered_in_architecture_generated_artifacts"
+committed_data_policy = "schema_snapshots_only_no_fixtures_or_product_data"
+readme_index_requirement = "Root README.md required; every schema family needs README.md, generated index, or manifest."
+max_root_loose_files = 8
+root_loose_file_policy = "Loose root files are README and top-level schema entrypoints only; Python wrappers live under src/polisyos/schemas."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "src"
+status = "active"
+role = "Canonical product Python source root."
+owner = "team-polisyos"
+lifecycle_class = "product_python_source"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["product_python_source", "documentation", "committed_data_fixture"]
+allowed_child_directory_kinds = ["python_package", "data_fixture"]
+python_import_policy = "product_import_surface_under_polisyos"
+generated_output_policy = "generated_code_committed_only_when_registered_and_package_owned"
+committed_data_policy = "package_owned_assets_or_registered_product_fixtures_only"
+readme_index_requirement = "High-volume packages need README.md, AUTHORING.md, generated index, or owner/sunset exception."
+max_root_loose_files = 0
+root_loose_file_policy = "No loose files under src root; product source starts at src/polisyos/."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "package-local assets/ or architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "tests"
+status = "active"
+role = "Pytest suites, contract tests, fixtures, golden records, architecture tests, repo-quality tests, and test helpers."
+owner = "team-quality"
+lifecycle_class = "test_source"
+topology_category = "test_fixture"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["test_source", "committed_data_fixture", "baseline_evidence", "documentation"]
+allowed_child_directory_kinds = ["test_layer", "data_fixture", "architecture_baseline"]
+python_import_policy = "pytest_helpers_only_not_product_import_surface"
+generated_output_policy = "test_outputs_local_ignored_unless_registered_as_golden_or_snapshot"
+committed_data_policy = "test_fixtures_and_golden_only_under_registered_roots"
+readme_index_requirement = "Root README.md required; high-volume test layers need README, AUTHORING, generated index, or exception."
+max_root_loose_files = 12
+root_loose_file_policy = "Root loose files are pytest config helpers and README only; tests live under declared layers."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "tests/_data/, tests/_golden/, or architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "tools"
+status = "active"
+role = "Developer tooling, repository quality automation, diagnostics, docs generators, CI helpers, and operational runners."
+owner = "team-devx"
+lifecycle_class = "developer_tooling_source"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["test_source", "ops_source", "documentation", "baseline_evidence"]
+allowed_child_directory_kinds = ["ops_domain", "config", "documentation_section"]
+python_import_policy = "importable_internal_devx_tooling_if_documented"
+generated_output_policy = "tool_outputs_local_under_build_cache_or_registered_generated_artifacts"
+committed_data_policy = "tool_test_fixtures_only_no_product_data"
+readme_index_requirement = "Root README.md required; high-volume tool namespaces need README.md, AUTHORING.md, or generated command index."
+max_root_loose_files = 12
+root_loose_file_policy = "Root loose files are README and command entrypoint helpers only; implementation lives under tool namespaces."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "docs/reference/tools.md, architecture/generated_artifacts.toml, or docs/archive/reports/"
+
+[[contract]]
+path = ".cursor"
+status = "active"
+role = "Committed editor or agent configuration for Cursor-specific workflows."
+owner = "team-design"
+lifecycle_class = "workspace_config"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["documentation", "architecture_contract"]
+allowed_child_directory_kinds = ["config"]
+python_import_policy = "not_importable"
+generated_output_policy = "not_allowed"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README optional while the root has fewer than 20 tracked files."
+max_root_loose_files = 4
+root_loose_file_policy = "Only committed editor config files may be loose at root."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = ".devcontainer"
+status = "active"
+role = "Committed development-container configuration."
+owner = "team-devx"
+lifecycle_class = "workspace_config"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["documentation", "architecture_contract"]
+allowed_child_directory_kinds = ["config"]
+python_import_policy = "not_importable"
+generated_output_policy = "not_allowed"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README optional while the root has fewer than 20 tracked files."
+max_root_loose_files = 4
+root_loose_file_policy = "Only committed container config files may be loose at root."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = ".vscode"
+status = "active"
+role = "Committed or ignored editor configuration for VS Code-compatible workflows."
+owner = "team-devx"
+lifecycle_class = "workspace_config"
+topology_category = "source"
+topology_commit_policy = "committed_or_ignored_by_subpath"
+allowed_file_kinds = ["documentation", "architecture_contract"]
+allowed_child_directory_kinds = ["config"]
+python_import_policy = "not_importable"
+generated_output_policy = "not_allowed"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README optional while the root has fewer than 20 tracked files."
+max_root_loose_files = 4
+root_loose_file_policy = "Only committed editor config files may be loose at root; local settings remain ignored."
+ignored_descendant_retention = "source_adjacent_tool_caches"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = "_build"
+status = "local_only"
+role = "Ignored build, release, coverage, site, audit, and generated output staging area."
+owner = "local"
+lifecycle_class = "build_output"
+topology_category = "build_output"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["build_output", "release_lifecycle"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_ignored_only_unless_promoted_to_registered_committed_artifact"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored local output roots."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; root is fully ignored."
+ignored_descendant_retention = "local_build_output"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/, release/, or architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "_cache"
+status = "local_only"
+role = "Ignored repository-local cache root for tools and generated intermediates."
+owner = "local"
+lifecycle_class = "cache"
+topology_category = "cache"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["cache"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_ignored_cache_only"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored local cache roots."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; root is fully ignored."
+ignored_descendant_retention = "local_cache"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = ".polisyos"
+status = "local_only"
+role = "Ignored local PolisyOS runtime state, reports, artifact cache, provider verification, and production snapshots."
+owner = "local"
+lifecycle_class = "local_runtime_state"
+topology_category = "runtime_state"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["local_runtime_state", "cache"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_runtime_state_ignored_promote_reviewed_reports_only"
+committed_data_policy = "no_committed_data_local_production_snapshots_never_committed_directly"
+readme_index_requirement = "Schema is documented in docs/reference/local-runtime-state.md; root README not required while ignored."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; root is fully ignored."
+ignored_descendant_retention = "local_runtime_state"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/ after redaction or release evidence after approval"
+
+[[contract]]
+path = ".venv"
+status = "local_only"
+role = "Ignored local Python virtual environment."
+owner = "local"
+lifecycle_class = "local_environment"
+topology_category = "legacy_local_env"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["cache"]
+python_import_policy = "not_importable"
+generated_output_policy = "not_applicable"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored local environments."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; root is fully ignored."
+ignored_descendant_retention = "local_environment"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = "node_modules"
+status = "local_only"
+role = "Ignored local JavaScript dependency tree."
+owner = "local"
+lifecycle_class = "local_environment"
+topology_category = "dependency_cache"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["cache"]
+python_import_policy = "not_importable"
+generated_output_policy = "not_applicable"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored dependency trees."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; root is fully ignored."
+ignored_descendant_retention = "local_environment"
+evidence_or_generated_artifact_promotion_path = "none"
+
+[phase_1_3_report_only_overlay]
+status = "report_only"
+owner = "team-architecture"
+source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-13---architecture-report-only-contracts"
+conceptual_groups = "architecture/conceptual_groups.toml"
+gate_registry = "architecture/gates/report_only.toml"
+notes = "Phase 1.3 adds conceptual architecture group contracts without moving legacy architecture files."
+
+[[phase_1_3_directory]]
+path = "architecture/packages"
+group = "packages"
+owner = "team-architecture"
+physical_status = "created_phase_1_3"
+commit_policy = "committed"
+contract_files = [
+  "architecture/packages/fabric.toml",
+  "architecture/packages/foundry.toml",
+  "architecture/packages/scientist.toml",
+]
+mode = "report_only"
+
+[[phase_1_3_directory]]
+path = "architecture/gates"
+group = "gates"
+owner = "team-architecture"
+physical_status = "created_phase_1_3"
+commit_policy = "committed"
+contract_files = ["architecture/gates/report_only.toml"]
+mode = "report_only"
+
+[[phase_1_3_directory]]
+path = "architecture/imports"
+group = "imports"
+owner = "team-architecture"
+physical_status = "existing"
+commit_policy = "committed"
+contract_files = [
+  "architecture/imports/policy.toml",
+  "architecture/imports/exceptions.toml",
+  "architecture/imports/reports.toml",
+]
+mode = "report_only"

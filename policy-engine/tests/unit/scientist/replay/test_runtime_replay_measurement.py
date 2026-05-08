@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import sys
-from types import ModuleType, SimpleNamespace
+from types import SimpleNamespace
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.runtime.replay import measure_replayable_audit_bundle
+from polisyos.scientist.orchestration.workflows import builder as workflow_builder
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
@@ -70,9 +70,7 @@ def test_measure_replayable_audit_bundle_reports_semantic_diff(tmp_path, monkeyp
         )
         return SimpleNamespace(state=replay_state)
 
-    fake_builder = ModuleType("polisyos.scientist.workflows.builder")
-    fake_builder.run_selected_workflow = _fake_run_selected_workflow
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", fake_builder)
+    monkeypatch.setattr(workflow_builder, "run_selected_workflow", _fake_run_selected_workflow)
 
     measurement = measure_replayable_audit_bundle(store, replay_bundle_ref)
 

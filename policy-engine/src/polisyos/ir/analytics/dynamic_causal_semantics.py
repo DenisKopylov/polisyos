@@ -14,8 +14,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
 
 _FORECAST_INTERVENTION_QUERY_SCHEMA_NAME = "ir.forecast_intervention_query"
 _FORECAST_INTERVENTION_QUERY_SCHEMA_VERSION = "1.0"

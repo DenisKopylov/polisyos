@@ -15,4 +15,5 @@ install_lazy_module_shim(
     public_names=("DecisionValidityService", "DecisionValidityStateStore"),
     sunset_date="2026-12-31",
     migration_hint="Use polisyos.scientist.validation.decision_validity for new imports.",
+    shim_id="decomp-scientist-decision_validity",
 )

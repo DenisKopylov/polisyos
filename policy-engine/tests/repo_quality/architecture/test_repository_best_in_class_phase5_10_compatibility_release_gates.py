@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_phase5_10_compatibility_release_gate_contract_is_report_only() -> None:
-    contract = _read_toml("architecture/compatibility_release_gates.toml")
+    contract = _read_toml("architecture/gates/compatibility_release.toml")
     header = contract["compatibility_release_gates"]
     checks = {item["id"]: item for item in contract["promotion_check"]}
 

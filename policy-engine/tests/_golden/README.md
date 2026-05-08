@@ -31,8 +31,8 @@ Consumed by package tests and repository-quality drift checks.
 ## Operability Links
 
 - `tests/FIXTURE_CATALOG.md`
-- `architecture/directory_contracts.toml`
-- `architecture/test_ratchets.toml`
+- `architecture/policies/directory_contracts.toml`
+- `architecture/tests/ratchets.toml`
 
 ## Known Shims/Deprecations
 

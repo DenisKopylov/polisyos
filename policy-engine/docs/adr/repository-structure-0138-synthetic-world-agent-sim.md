@@ -25,7 +25,7 @@ removes the boundary smell from first-party `polisyos.synthetic_world` imports.
    `src/polisyos/foundry/agent_sim/world` in Phase 4A.
 3. The canonical target FQN is `polisyos.foundry.agent_sim.world`.
 4. The top-level `polisyos.synthetic_world` facade remains wrapper-only until
-   2026-10-01 and is removed after sunset.
+   2026-07-31 and is removed after sunset.
 5. `polisyos.foundry.agent_sim` remains the ABM/RL runtime facade. The moved
    world-generation surface is addressable through
    `polisyos.foundry.agent_sim.world`.
@@ -40,8 +40,9 @@ simulation and truth-centric synthetic worlds. Static first-party imports from
 `polisyos.foundry.agent_sim.world.*`. The non-canonical top-level path becomes
 a shim with sunset.
 
-Phase 3.4 keeps only the root facade smoke contract under
-`tests/unit/synthetic_world/`; behavior coverage lives under
+Phase 2.3 of the last-mile remediation keeps only the root facade smoke
+contract under `tests/unit/foundry/agent_sim/` because the caller report shows
+no first-party source imports. Behavior coverage lives under
 `tests/unit/foundry/agent_sim/world/`.
 
 ## Concrete Impact

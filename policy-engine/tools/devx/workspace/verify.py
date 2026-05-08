@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import textwrap
 
 from tools.lib.imports import ensure_repo_import_roots
 
@@ -24,10 +25,37 @@ PYTEST_NUMERICAL_ENV = {
     "VECLIB_MAXIMUM_THREADS": "1",
     "BLIS_NUM_THREADS": "1",
 }
+LAST_MILE_FAST_GATE_HELP = """
+Last-mile fail-fast gates:
+  - shell-package closure via check-package-import-gates --fail-closed
+  - repository_last_mile_inventory.py baseline drift
+  - check_extension_examples.py contract coverage without install/discovery/pytest
+  - top-level schemas/** pure-data closure
+"""
+SCHEMA_PURITY_SNIPPET = """
+from pathlib import Path
+
+root = Path("schemas")
+output = Path("_build/.tmp/last-mile/schemas-python-residue.txt")
+output.parent.mkdir(parents=True, exist_ok=True)
+matches = []
+if root.exists():
+    for path in sorted(root.rglob("*")):
+        if path.name == "__pycache__" or path.suffix == ".py":
+            matches.append(path.as_posix())
+output.write_text("\\n".join(matches) + ("\\n" if matches else ""), encoding="utf-8")
+if matches:
+    print("\\n".join(matches))
+    raise SystemExit(1)
+"""
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run the standard fast local gate.")
+    parser = argparse.ArgumentParser(
+        description="Run the standard fast local gate.",
+        epilog=textwrap.dedent(LAST_MILE_FAST_GATE_HELP).strip(),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--skip-doctor", action="store_true", help="Skip workstation preflight.")
     parser.add_argument("--backend-only", action="store_true", help="Skip frontend checks.")
     parser.add_argument("--frontend-only", action="store_true", help="Skip backend checks.")
@@ -51,7 +79,8 @@ def _build_parser() -> argparse.ArgumentParser:
 def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
     command = [
         sys.executable,
-        "tools/devx/workspace/doctor.py",
+        "-m",
+        "tools.devx.workspace.doctor",
         "--skip-contract-checks",
     ]
     for surface in surfaces:
@@ -165,8 +194,30 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
+            label="check package import gates (shell-package closure)",
+            argv=(
+                *uv,
+                "run",
+                "polisyos-tools",
+                "validation",
+                "check-package-import-gates",
+                "--fail-closed",
+                "--json-output",
+                "_build/.tmp/last-mile/package-import-gates.json",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
             label="lint foundry",
-            argv=(*uv, "run", "python", "tools/quality/lint/lint_foundry.py", "--repo-root", "."),
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "-m",
+                "tools.quality.lint.lint_foundry",
+                "--repo-root",
+                ".",
+            ),
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
@@ -208,6 +259,43 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 "ml",
                 "python",
                 "tools/ops_runners/runtime/check_runtime_api_contract.py",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check last-mile inventory baseline",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/repository_last_mile_inventory.py",
+                "--json-output",
+                "_build/.tmp/last-mile/inventory.json",
+                "--check",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check extension example contract coverage",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/check_extension_examples.py",
+                "--skip-install",
+                "--skip-discovery",
+                "--skip-pytest",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check schemas pure-data closure",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "-c",
+                textwrap.dedent(SCHEMA_PURITY_SNIPPET).strip(),
             ),
             cwd=PRODUCT_ROOT,
         ),

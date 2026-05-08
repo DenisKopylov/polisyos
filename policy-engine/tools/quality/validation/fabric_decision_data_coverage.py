@@ -115,7 +115,7 @@ def _read(path: Path) -> str:
 def build_report(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     """Build the static Phase 6 decision-data coverage report."""
     decision_data_path = (
-        repo_root / "src" / "polisyos" / "fabric" / "decision_data" / "__init__.py"
+        repo_root / "src" / "polisyos" / "fabric" / "evidence" / "decision_data.py"
     )
     trust_schema_path = repo_root / "schemas" / "fabric" / "trust_envelope.schema.json"
     run_routes_path = repo_root / "src" / "polisyos" / "runtime" / "http" / "routes" / "runs.py"

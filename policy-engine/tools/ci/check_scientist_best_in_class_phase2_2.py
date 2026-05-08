@@ -141,21 +141,21 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     notes: list[str] = []
     try:
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.research_dag.builder import ResearchDAGBuilder
-        from polisyos.scientist.research_dag.comparison import (
+        from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
+        from polisyos.scientist.methods.research_dag.comparison import (
             compare_research_trajectories,
             public_comparison_export,
         )
-        from polisyos.scientist.research_dag.invalidation import (
+        from polisyos.scientist.methods.research_dag.invalidation import (
             SourceInvalidationEvent,
             propagate_source_invalidation,
         )
-        from polisyos.scientist.research_dag.models import (
+        from polisyos.scientist.methods.research_dag.models import (
             ResearchDAGArtifact,
             ResearchEdgeType,
             ResearchNodeType,
         )
-        from polisyos.scientist.research_dag.replay import (
+        from polisyos.scientist.methods.research_dag.replay import (
             ReplayMode,
             plan_research_replay,
             public_replay_export,

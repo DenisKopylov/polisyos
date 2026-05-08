@@ -28,11 +28,11 @@ No unrelated user-change bucket was identified for this closeout.
 | Area | Final state | Evidence |
 | --- | --- | --- |
 | Product root policy | Outer repository root is GitHub/Git control plane plus `policy-engine/`; root topology gates are fail-closed. | `architecture/topology.toml`, `_build/.tmp/final-acceptance/platform-acceptance.json` |
-| Renovate policy | Canonical config is `.github/renovate.json`; outer-root `renovate.json` is retired. `matchFileNames` must resolve and the retired `policy-engine/frontend/runtime-dashboard/package.json` path is blocked. | `.github/renovate.json`, `architecture/control_plane_supply_chain.toml`, `_build/.tmp/final-acceptance/control-plane-supply-chain.json` |
+| Renovate policy | Canonical config is `.github/renovate.json`; outer-root `renovate.json` is retired. `matchFileNames` must resolve and the retired `policy-engine/apps/runtime-dashboard/package.json` path is blocked. | `.github/renovate.json`, `architecture/control_plane_supply_chain.toml`, `_build/.tmp/final-acceptance/control-plane-supply-chain.json` |
 | Docs lifecycle | Final remediation plan is archived; active plans containing accepted final closeout evidence now fail the docs lifecycle gate. | `tools/quality/validation/check_docs_lifecycle.py`, `tests/repo_quality/tools/test_docs_lifecycle.py` |
-| Importable roots | Namespace-capable non-product roots are documented and fail if undocumented: `tools`, `tests`, `benchmarks`, `apps`, `examples`, `ops`, `schemas`. | `architecture/directory_contracts.toml`, `_build/.tmp/final-acceptance/package-import-gates.json` |
-| Top-level schemas | Top-level `schemas/` is schema-only: no `.py`, no `__init__.py`, and no product Python package code. Python schema helpers live under `src/polisyos/schemas`. | `architecture/directory_contracts.toml`, `tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py` |
-| Root facade policy | Package-root `.py` files are allowed facades, registered shims, or dated root-file exceptions. New unregistered root implementation files fail closed. | `architecture/package_layout.toml`, `tools/quality/validation/check_package_import_gates.py` |
+| Importable roots | Namespace-capable non-product roots are documented and fail if undocumented: `tools`, `tests`, `benchmarks`, `apps`, `examples`, `ops`, `schemas`. | `architecture/policies/directory_contracts.toml`, `_build/.tmp/final-acceptance/package-import-gates.json` |
+| Top-level schemas | Top-level `schemas/` is schema-only: no `.py`, no `__init__.py`, and no product Python package code. Python schema helpers live under `src/polisyos/schemas`. | `architecture/policies/directory_contracts.toml`, `tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py` |
+| Root facade policy | Package-root `.py` files are allowed facades, registered shims, or dated root-file exceptions. New unregistered root implementation files fail closed. | `architecture/packages/layout.toml`, `tools/quality/validation/check_package_import_gates.py` |
 | Scientist topology | Canonical Scientist first-level count is 18 semantic roots against cap 18. Compatibility shim roots are separate debt: 31 registered roots, covered by shim policy and smoke imports. | `architecture/packages/scientist.toml`, `docs/reference/scientist/index.md` |
 | God-module ratchet | Existing oversized modules cannot grow above committed `current_lines`; 18 active budgets remain dated report-only decomposition debt. | `architecture/module_size_budget.toml`, `_build/.tmp/final-acceptance/package-import-gates.json` |
 | Release/operability | Operability release gate is fail-closed; compatibility release metadata remains report-only but contract errors are fail-on and target fail-closed no earlier than 2026-10-01. | `_build/.tmp/final-acceptance/operability-release-gates.json`, `_build/.tmp/final-acceptance/compatibility-release-gates.json` |
@@ -65,19 +65,19 @@ dated target in `architecture/gates/report_only.toml`.
 | Transition | Owner | Evidence | Target |
 | --- | --- | --- | --- |
 | Package contract schema | team-architecture | `architecture/packages/*.toml` | 2026-10-01 or later |
-| Compatibility release gates | team-release | `architecture/compatibility_release_gates.toml` | 2026-10-01 or later |
-| Package aggregate mirrors | team-architecture | `architecture/package_boundaries.toml` | 2026-10-01 or later |
+| Compatibility release gates | team-release | `architecture/gates/compatibility_release.toml` | 2026-10-01 or later |
+| Package aggregate mirrors | team-architecture | `architecture/packages/boundaries.toml` | 2026-10-01 or later |
 | Module-size budget decomposition | team-architecture | `architecture/module_size_budget.toml` | 2026-10-01 or later |
 | Generated artifact contracts | team-architecture | `architecture/generated_artifacts.toml` | 2026-10-01 or later |
 | Extension points | team-architecture | `architecture/extension_points.toml` | 2026-10-01 or later |
 | Runbook coverage contract mirror | team-architecture | `architecture/runbook_coverage.toml` | 2026-10-01 or later |
 | Component observability contract mirror | team-architecture | `architecture/component_observability.toml` | 2026-10-01 or later |
 | Runtime-state layout contract mirror | team-architecture | `architecture/runtime_state_layout.toml` | 2026-10-01 or later |
-| Test ratchet contract mirror | team-quality | `architecture/test_ratchets.toml` | 2026-10-01 or later |
-| Directory contract mirror | team-architecture | `architecture/directory_contracts.toml` | 2026-10-01 or later |
+| Test ratchet contract mirror | team-quality | `architecture/tests/ratchets.toml` | 2026-10-01 or later |
+| Directory contract mirror | team-architecture | `architecture/policies/directory_contracts.toml` | 2026-10-01 or later |
 | Directory hygiene assets | team-quality | `architecture/asset_placement.toml` | 2026-10-01 or later |
-| Static-analysis overrides | team-architecture | `architecture/static_analysis_overrides.toml` | 2026-10-01 or later |
-| Dead static-analysis overrides | team-devx | `architecture/static_analysis_overrides.toml` | 2026-10-01 or later |
+| Static-analysis overrides | team-architecture | `architecture/tooling/static_analysis_overrides.toml` | 2026-10-01 or later |
+| Dead static-analysis overrides | team-devx | `architecture/tooling/static_analysis_overrides.toml` | 2026-10-01 or later |
 
 Fresh report-only evidence was written to
 `_build/.tmp/final-acceptance/architecture-contracts-all.json` with

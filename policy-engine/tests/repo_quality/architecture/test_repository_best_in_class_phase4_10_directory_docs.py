@@ -105,7 +105,7 @@ def test_high_volume_subtrees_have_local_authoring_closure() -> None:
 
 
 def test_public_stable_and_high_complexity_packages_have_readme_coverage() -> None:
-    public_surface = _load_toml("architecture/public_surface.toml")
+    public_surface = _load_toml("architecture/public_surface/contract.toml")
     stable_readmes = [
         package["readme"]
         for package in public_surface["package"]  # type: ignore[index]
@@ -127,7 +127,7 @@ def test_public_stable_and_high_complexity_packages_have_readme_coverage() -> No
 
 def test_guardrail_readme_gate_includes_high_complexity_packages() -> None:
     public_policies = guardrails._parse_public_surface(
-        REPO_ROOT / "architecture/public_surface.toml"
+        REPO_ROOT / "architecture/public_surface/contract.toml"
     )
     public_inventory = guardrails.build_public_surface_inventory(public_policies)
     subjects = guardrails._readme_gate_subjects(public_inventory)

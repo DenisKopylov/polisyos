@@ -8,11 +8,11 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Connector-backed ingestion, world queries, catalog surfaces, and data-plane materialization."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
   "architecture/generated_artifacts.toml",
-  "architecture/test_topology.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -22,22 +22,30 @@ source_root = "src/polisyos/fabric"
 readme = "src/polisyos/fabric/README.md"
 root_facade_policy = "top-level package is a lazy public facade; implementation remains in subpackages"
 implementation_roots = [
+  "src/polisyos/fabric/_adapters",
   "src/polisyos/fabric/_internal",
   "src/polisyos/fabric/catalog",
   "src/polisyos/fabric/claims",
+  "src/polisyos/fabric/config",
   "src/polisyos/fabric/connectors",
   "src/polisyos/fabric/data_plane",
-  "src/polisyos/fabric/decision_data",
   "src/polisyos/fabric/docs",
+  "src/polisyos/fabric/entity_resolution",
   "src/polisyos/fabric/evidence",
+  "src/polisyos/fabric/extensions",
+  "src/polisyos/fabric/identity",
   "src/polisyos/fabric/ingestion",
-  "src/polisyos/fabric/observability",
-  "src/polisyos/fabric/processing_guarantees",
+  "src/polisyos/fabric/io",
+  "src/polisyos/fabric/numerics",
+  "src/polisyos/fabric/pii",
+  "src/polisyos/fabric/product_integration",
+  "src/polisyos/fabric/provenance",
   "src/polisyos/fabric/quality",
   "src/polisyos/fabric/retrieval",
+  "src/polisyos/fabric/security",
+  "src/polisyos/fabric/storage",
   "src/polisyos/fabric/trust",
   "src/polisyos/fabric/world",
-  "src/polisyos/fabric/world_query",
 ]
 legacy_layout_mirror = ""
 
@@ -97,7 +105,7 @@ runbook_expectation = "Production-affecting ingestion, quarantine, DLQ, or conne
 status = "report_only"
 metrics_owner = "team-fabric"
 metric_surfaces = [
-  "polisyos.fabric.observability",
+  "polisyos.fabric._adapters.observability",
   "ops/observability/slo/fabric.yaml",
 ]
 trace_expectation = "Connector, materialization, and world-store paths emit component, source, and tenant identifiers."
@@ -123,7 +131,7 @@ owner = "team-fabric"
 [exceptions]
 status = "declared"
 owner = "team-fabric"
-registries = ["architecture/static_analysis_overrides.toml"]
+registries = ["architecture/tooling/static_analysis_overrides.toml"]
 
 [[exception]]
 id = "fabric-ruff-ratchet"
@@ -132,7 +140,7 @@ kind = "lint_ratchet"
 reason = "Phase 4B keeps Fabric on explicit Ruff per-file and package ratchets while connector payload typing is narrowed."
 sunset = "2026-10-01"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/static_analysis_overrides.toml"
+registry = "architecture/tooling/static_analysis_overrides.toml"
 
 [sunsets]
 status = "declared"

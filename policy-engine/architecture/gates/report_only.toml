@@ -22,12 +22,12 @@ area = "release"
 owner = "team-release"
 mode = "report_only"
 command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
-evidence = "architecture/compatibility_release_gates.toml"
+evidence = "architecture/gates/compatibility_release.toml"
 source_contracts = [
-  "architecture/compatibility_release_gates.toml",
+  "architecture/gates/compatibility_release.toml",
   "architecture/extension_points.toml",
   "architecture/generated_artifacts.toml",
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "architecture/runtime_state_layout.toml",
   "ops/migrations/migration-contracts.toml",
   "ops/release/release-fragment-policy.toml",
@@ -41,7 +41,7 @@ area = "packages"
 owner = "team-architecture"
 mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors"
-evidence = "architecture/package_boundaries.toml"
+evidence = "architecture/packages/boundaries.toml"
 source_contracts = ["architecture/packages/*.toml"]
 target_fail_closed_not_before = "2026-10-01"
 
@@ -114,8 +114,8 @@ area = "tests"
 owner = "team-quality"
 mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report test-ratchets"
-evidence = "architecture/test_ratchets.toml"
-source_contracts = ["architecture/test_ratchets.toml", "architecture/test_topology.toml"]
+evidence = "architecture/tests/ratchets.toml"
+source_contracts = ["architecture/tests/ratchets.toml", "architecture/tests/topology.toml"]
 target_fail_closed_not_before = "2026-10-01"
 
 [[gate]]
@@ -124,8 +124,8 @@ area = "topology"
 owner = "team-architecture"
 mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report directory-contracts"
-evidence = "architecture/directory_contracts.toml"
-source_contracts = ["architecture/directory_contracts.toml", "architecture/conceptual_groups.toml"]
+evidence = "architecture/policies/directory_contracts.toml"
+source_contracts = ["architecture/policies/directory_contracts.toml", "architecture/conceptual_groups.toml"]
 target_fail_closed_not_before = "2026-10-01"
 
 [[gate]]
@@ -137,8 +137,8 @@ command = "uv run polisyos-tools validation directory-hygiene-assets --fail-on-c
 evidence = "architecture/asset_placement.toml"
 source_contracts = [
   "architecture/asset_placement.toml",
-  "architecture/directory_contracts.toml",
-  "architecture/test_ratchets.toml",
+  "architecture/policies/directory_contracts.toml",
+  "architecture/tests/ratchets.toml",
   "architecture/generated_artifacts.toml",
   "architecture/local_runtime_state.toml",
 ]
@@ -150,9 +150,9 @@ area = "static_analysis"
 owner = "team-architecture"
 mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report static-analysis-overrides"
-evidence = "architecture/static_analysis_overrides.toml"
+evidence = "architecture/tooling/static_analysis_overrides.toml"
 source_contracts = [
-  "architecture/static_analysis_overrides.toml",
+  "architecture/tooling/static_analysis_overrides.toml",
   "architecture/tooling/tool_config_split.toml",
   "architecture/tooling/mypy/generated.ini",
   "architecture/tooling/ruff/generated.toml",
@@ -167,9 +167,9 @@ area = "static_analysis"
 owner = "team-devx"
 mode = "report_only"
 command = "uv run python tools/ops_runners/reports/dead_overrides.py"
-evidence = "architecture/static_analysis_overrides.toml"
+evidence = "architecture/tooling/static_analysis_overrides.toml"
 source_contracts = [
-  "architecture/static_analysis_overrides.toml",
+  "architecture/tooling/static_analysis_overrides.toml",
   "architecture/tooling/tool_config_split.toml",
   "architecture/tooling/mypy/generated.ini",
   "architecture/tooling/ruff/generated.toml",

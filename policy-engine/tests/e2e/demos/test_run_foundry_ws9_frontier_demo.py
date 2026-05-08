@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 def test_run_foundry_ws9_frontier_demo_emits_json_payload() -> None:
-    repo_root = Path(__file__).resolve().parents[2]
-    script = repo_root / "tools" / "demos" / "run_foundry_ws9_frontier_demo.py"
+    repo_root = Path(__file__).resolve().parents[3]
+    script = repo_root / "tools" / "research" / "demos" / "run_foundry_ws9_frontier_demo.py"
     completed = subprocess.run(
         [sys.executable, str(script)],
         cwd=repo_root,

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-05-06T11:05:29.526696+00:00",
+  "generated_at": "2026-05-08T10:06:30.484507+00:00",
   "call_sites": [
     {
       "path": "src/polisyos/fabric/data_plane/orchestrator.py",

@@ -4,11 +4,11 @@ Related references: [Workflows](workflows.md), [Reliability scorecard](reliabili
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`
+Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/methods/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`.
+> Source of truth: `src/polisyos/scientist/agent/reasoning.py`, `src/polisyos/scientist/agent/eval_harness.py`, `src/polisyos/scientist/methods/search/strategies/advanced_policy.py`, `tests/unit/scientist/agent/test_reasoning.py`, `tests/unit/scientist/agent/test_eval_harness.py`, and `tests/unit/scientist/search/strategies/test_advanced_policy.py`.
 
 This page documents the optional L6 reasoning/search rollout surface. These
 capabilities do not become part of the default Scientist runtime just because
@@ -39,7 +39,7 @@ an `offline_validation_ref`.
 
 ## Advanced Search Policy Surface
 
-`polisyos.scientist.search.strategies.advanced_policy` currently exposes the
+`polisyos.scientist.methods.search.strategies.advanced_policy` currently exposes the
 WS-3C policy toolkit:
 
 - `ASHAScheduler`

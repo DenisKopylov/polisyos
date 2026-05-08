@@ -1,0 +1,703 @@
+{
+  "allowed_decisions": [
+    "canonical_home_with_adapters",
+    "merge",
+    "rename",
+    "scoped_ok",
+    "sunset_shim"
+  ],
+  "findings": [],
+  "registry": "architecture/name_registry.toml",
+  "repeated_first_level_names": [
+    {
+      "decision": "canonical_home_with_adapters",
+      "name": "_adapters",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/_adapters"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/_adapters"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Private adapter capsules are allowed only as package-qualified bridges into canonical cross-cutting homes.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "_internal",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/_internal"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/_internal"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/_internal"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/_internal"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Private implementation capsules are intentionally repeated across bounded contexts and must remain package-qualified.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "adapters",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/berl/adapters"
+          ],
+          "package": "berl"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/adapters"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Adapter packages are package-owned integration seams and do not define a repository-wide adapter API.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "artifacts",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/artifacts"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/artifacts"
+          ],
+          "package": "ir"
+        }
+      ],
+      "rationale": "Core artifact primitives and IR artifact projections are separate bounded-context concepts.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "canonical_home_with_adapters",
+      "name": "calibration",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/calibration"
+          ],
+          "package": "calibration"
+        },
+        {
+          "locations": [
+            "src/polisyos/ddm/calibration"
+          ],
+          "package": "ddm"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/calibration"
+          ],
+          "package": "foundry"
+        }
+      ],
+      "rationale": "polisyos.calibration is the canonical diagnostics home; DDM and Foundry calibration packages remain bounded-context adapters.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "claims",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/claims"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/claims"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Fabric claim processing and Scientist claim reasoning are package-local concerns.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "connectors",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/connectors"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/connectors"
+          ],
+          "package": "ir"
+        }
+      ],
+      "rationale": "Fabric executable connectors and IR connector bridge contracts are package-qualified surfaces.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "contracts",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/berl/contracts"
+          ],
+          "package": "berl"
+        },
+        {
+          "locations": [
+            "src/polisyos/core/contracts"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ddm/contracts"
+          ],
+          "package": "ddm"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/contracts"
+          ],
+          "package": "foundry"
+        }
+      ],
+      "rationale": "Contracts are owned by each bounded context unless promoted through polisyos.core.contracts.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "data_plane",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/data_plane"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/data_plane"
+          ],
+          "package": "foundry"
+        }
+      ],
+      "rationale": "Fabric and Foundry data-plane names describe separate execution contexts.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "sunset_shim",
+      "name": "discovery",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/discovery"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/discovery"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "polisyos.core.discovery owns plugin discovery; Scientist discovery moves under methods/discovery with the first-level root retained only as a dated shim.",
+      "sunset": "2026-10-01",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "evidence",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/evidence"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/evidence"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Fabric evidence materialization and Scientist evidence reasoning remain package-local concepts.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "extensions",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/extensions"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/extensions"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/extensions"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/lex/extensions"
+          ],
+          "package": "lex"
+        },
+        {
+          "locations": [
+            "src/polisyos/runtime/extensions"
+          ],
+          "package": "runtime"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/extensions"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Extension packages are package-owned authoring surfaces governed by architecture/extension_points.toml.",
+      "sunset": "none",
+      "target_phase": "0.4/1.6"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "feedback",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/feedback"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/feedback"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Foundry execution feedback and Scientist decision feedback are separate bounded-context workflows.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "governance",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/governance"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/governance"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/governance"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Core, IR, and Scientist governance roots are package-qualified, with Scientist legacy governance peers handled by the Wave 2 family audit.",
+      "sunset": "none",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "kernel",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/data_forge/kernel"
+          ],
+          "package": "data_forge"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/kernel"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/kernel"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Kernel packages are package-specific runtime kernels and are not cross-package APIs.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "llm",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/llm"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/llm"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Core LLM infrastructure and Scientist LLM orchestration stay package-qualified.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "methods",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/methods"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/methods"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Foundry method catalog and Scientist method taxonomy are distinct; Scientist legacy method peers are handled by the Wave 2 family audit.",
+      "sunset": "none",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "migrations",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/common/migrations"
+          ],
+          "package": "common"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/migrations"
+          ],
+          "package": "ir"
+        }
+      ],
+      "rationale": "Common and IR migration helpers are package-local.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "sunset_shim",
+      "name": "orchestrator",
+      "owner": "team-scientist",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/scholar/orchestrator"
+          ],
+          "package": "scholar"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/orchestrator"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Scholar orchestrator remains package-local; Scientist first-level orchestrator moves under orchestration/orchestrator with a dated shim if imports require it.",
+      "sunset": "2026-10-01",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "provenance",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/provenance"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/provenance"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Fabric and Scientist provenance packages track separate bounded-context artifacts.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "canonical_home_with_adapters",
+      "name": "registry",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/registry"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/registry"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/registry"
+          ],
+          "package": "ir"
+        }
+      ],
+      "rationale": "polisyos.core.registry owns generic registry primitives; Fabric, Foundry, and IR registries are domain adapters or semantic contract groups.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
+      "decision": "sunset_shim",
+      "name": "runtime",
+      "owner": "team-runtime",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/runtime"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/runtime"
+          ],
+          "package": "runtime"
+        }
+      ],
+      "rationale": "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in.",
+      "sunset": "2026-10-01",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "schemas",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/ir/schemas"
+          ],
+          "package": "ir"
+        },
+        {
+          "locations": [
+            "src/polisyos/schemas"
+          ],
+          "package": "schemas"
+        }
+      ],
+      "rationale": "Top-level schema wrappers and IR schema helpers are separate schema/data concerns.",
+      "sunset": "none",
+      "target_phase": "0.4/6.4"
+    },
+    {
+      "decision": "sunset_shim",
+      "name": "search",
+      "owner": "team-scientist",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/scholar/search"
+          ],
+          "package": "scholar"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/search"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Scholar search remains package-local; Scientist first-level search moves under methods/search with a dated shim if imports require it.",
+      "sunset": "2026-10-01",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "canonical_home_with_adapters",
+      "name": "security",
+      "owner": "team-core",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/security"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/security"
+          ],
+          "package": "fabric"
+        }
+      ],
+      "rationale": "polisyos.core.security is canonical; package security modules adapt local resources to core security primitives.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
+      "decision": "canonical_home_with_adapters",
+      "name": "trace",
+      "owner": "team-core",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/core/trace"
+          ],
+          "package": "core"
+        },
+        {
+          "locations": [
+            "src/polisyos/foundry/trace"
+          ],
+          "package": "foundry"
+        }
+      ],
+      "rationale": "polisyos.core.trace is canonical for persisted traces; Foundry trace remains a bounded-context adapter/facade.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "validation",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/foundry/validation"
+          ],
+          "package": "foundry"
+        },
+        {
+          "locations": [
+            "src/polisyos/scientist/validation"
+          ],
+          "package": "scientist"
+        }
+      ],
+      "rationale": "Foundry and Scientist validation are separate package concepts; Scientist verification and policy_verified are Wave 2 subpackage moves.",
+      "sunset": "none",
+      "target_phase": "0.4/2.2"
+    },
+    {
+      "decision": "scoped_ok",
+      "name": "world",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/world"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/ir/world"
+          ],
+          "package": "ir"
+        }
+      ],
+      "rationale": "Fabric and IR world packages describe different bounded-context world models.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    }
+  ],
+  "schema_version": "repository.last_mile_inventory.phase0_4.name_collisions.v1",
+  "scope": "src/polisyos first-level package directories plus top-level package roots"
+}

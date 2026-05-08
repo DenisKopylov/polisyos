@@ -1,3 +1,13 @@
+---
+redirect_stub: true
+owner: team-frontend
+target_path: apps; packages/runtime-api-client; docs/reference/frontend/workspace-contract.md
+reason: legacy frontend handoff path retained while Wave 6 frontend references are swept
+created_date: 2026-05-07
+sunset_date: 2026-08-05
+removal_gate: uv run python tools/quality/validation/check_docs_lifecycle.py --repo-root .
+---
+
 # Frontend Handoff
 
 `frontend/` is a legacy handoff path. Active JavaScript workspaces moved in

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polisyos-scientist-governance-pass-example"
+version = "0.1.0"
+description = "Minimal external Scientist governance pass extension example."
+requires-python = ">=3.14,<3.15"
+dependencies = ["policy-engine"]
+
+[project.entry-points."polisyos.scientist_governance_passes"]
+"example.audit_marker" = "polisyos_scientist_governance_pass_example:audit_marker_pass_factory"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/polisyos_scientist_governance_pass_example"]

@@ -1,0 +1,210 @@
+[structure_remediation_gates]
+version = 1
+status = "fail_closed"
+owner = "team-architecture"
+phase = "repository-structure-remediation-phase-7"
+inventory_command = "uv run python tools/quality/validation/repository_structure_phase0.py inventory --markdown-output docs/archive/reports/REPOSITORY_STRUCTURE_REMEDIATION_PHASE_0_INVENTORY.md --baseline-dir architecture/baselines/structure_remediation"
+exceptions = "architecture/exceptions/structure_remediation.toml"
+
+[[defect]]
+id = "section-0-1-foundry-method-placeholders"
+section_0_item = 1
+owner = "team-architecture"
+primary_phase = "1A"
+target_contracts = [
+  "docs/adr/repository-structure-0129-empty-placeholder-package-policy.md",
+  "docs/adr/repository-structure-0136-foundry-methods-flat-vs-catalog.md",
+  "architecture/packages/layout.toml",
+]
+gates = ["empty_namespace_gate"]
+
+[[defect]]
+id = "section-0-2-double-workspace"
+section_0_item = 2
+owner = "team-platform"
+primary_phase = "2A"
+target_contracts = [
+  "docs/adr/repository-structure-0130-workspace-boundary.md",
+  "docs/adr/repository-structure-0131-build-cache-umbrella.md",
+  "architecture/topology.toml",
+]
+gates = ["cache_dir_gate", "build_output_gate"]
+
+[[defect]]
+id = "section-0-3-large-packages-and-loose-root-modules"
+section_0_item = 3
+owner = "team-scientist/team-foundry"
+primary_phase = "3A/5/6"
+target_contracts = [
+  "docs/adr/repository-structure-0133-package-layout-budget.md",
+  "architecture/packages/layout.toml",
+  "DECOMPOSITION_BLUEPRINT.md",
+]
+gates = ["loose_files_gate"]
+
+[[defect]]
+id = "section-0-4-cross-package-name-collisions"
+section_0_item = 4
+owner = "team-architecture"
+primary_phase = "1C"
+target_contracts = [
+  "docs/adr/repository-structure-0134-cross-package-name-registry.md",
+  "architecture/name_registry.toml",
+]
+gates = ["name_collision_gate"]
+
+[[defect]]
+id = "section-0-5-weak-versioned-placeholder-packages"
+section_0_item = 5
+owner = "team-architecture"
+primary_phase = "3B/4A"
+target_contracts = [
+  "docs/adr/repository-structure-0135-versioning-out-of-package-names.md",
+  "docs/adr/repository-structure-0137-production-data-fixtures.md",
+  "docs/adr/repository-structure-0138-synthetic-world-agent-sim.md",
+  "docs/adr/repository-structure-0139-calibration-canonical-home.md",
+  "architecture/packages/layout.toml",
+  "architecture/name_registry.toml",
+]
+gates = ["loose_files_gate", "name_collision_gate"]
+
+[[defect]]
+id = "section-0-6-pyproject-size"
+section_0_item = 6
+owner = "team-devx"
+primary_phase = "1B"
+target_contracts = [
+  "docs/adr/repository-structure-0132-architecture-governance-source.md",
+  "architecture/gates/structure_remediation.toml",
+]
+gates = ["pyproject_size_gate"]
+
+[[defect]]
+id = "section-0-7-artifact-and-governance-path-chaos"
+section_0_item = 7
+owner = "team-devx/team-architecture"
+primary_phase = "1B/2B"
+target_contracts = [
+  "docs/adr/repository-structure-0131-build-cache-umbrella.md",
+  "docs/adr/repository-structure-0132-architecture-governance-source.md",
+  "architecture/generated_artifacts.toml",
+  "architecture/topology.toml",
+]
+gates = ["build_output_gate", "cache_dir_gate"]
+
+[[gate]]
+id = "empty_namespace_gate"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/empty_namespace_gate.py --inventory-output architecture/baselines/structure_remediation/foundry_methods_external_importers.json"
+evidence = "architecture/baselines/structure_remediation/foundry_methods_empty_placeholders.json"
+secondary_evidence = [
+  "architecture/baselines/structure_remediation/foundry_methods_external_importers.json",
+]
+target_fail_closed_phase = "1A"
+
+[[gate]]
+id = "loose_files_gate"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate loose_files --mode fail-closed"
+evidence = "architecture/packages/layout.toml"
+exceptions = "architecture/exceptions/structure_remediation.toml"
+target_fail_closed_phase = "7"
+
+[[gate]]
+id = "name_collision_gate"
+area = "name_registry"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/name_collision_gate.py"
+evidence = "architecture/name_registry.toml"
+target_fail_closed_phase = "1C"
+
+[[gate]]
+id = "pyproject_size_gate"
+area = "configuration"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate pyproject_size --mode fail-closed"
+evidence = "architecture/baselines/structure_remediation/pyproject_sections.json"
+target_fail_closed_phase = "1B"
+
+[[gate]]
+id = "cache_dir_gate"
+area = "workspace"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate cache_dir --mode fail-closed"
+evidence = "architecture/baselines/structure_remediation/cache_and_env_paths.json"
+exceptions = "architecture/exceptions/structure_remediation.toml"
+target_fail_closed_phase = "2B"
+
+[[gate]]
+id = "build_output_gate"
+area = "workspace"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate build_output --mode fail-closed"
+evidence = "architecture/baselines/structure_remediation/build_outputs.json"
+exceptions = "architecture/exceptions/structure_remediation.toml"
+target_fail_closed_phase = "2B"
+
+[[gate]]
+id = "dynamic_imports_gate"
+area = "decomposition_preflight"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/decomposition_preflight.py gate"
+evidence = "architecture/imports/dynamic.toml"
+target_fail_closed_phase = "3A"
+
+[[gate]]
+id = "pickle_compat_gate"
+area = "decomposition_preflight"
+owner = "team-scientist/team-foundry"
+mode = "fail_closed"
+command = "uv run pytest tests/contract/test_pickle_compat.py -q"
+evidence = "tests/_data/checkpoint_compat"
+target_fail_closed_phase = "3A"
+
+[[gate]]
+id = "public_surface_snapshot_gate"
+area = "decomposition_preflight"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_public_surface_snapshot.py -q"
+evidence = "architecture/baselines/structure_remediation/public_surface_pre_decomp.json"
+target_fail_closed_phase = "3A"
+
+[[gate]]
+id = "import_cycles_gate"
+area = "decomposition_preflight"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+evidence = "architecture/imports/lazy.toml"
+secondary_evidence = [
+  "architecture/baselines/structure_remediation/import_graph_pre_decomp.json",
+]
+target_fail_closed_phase = "3A"
+
+[[gate]]
+id = "import_time_regression_gate"
+area = "decomposition_preflight"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "POLISYOS_RUN_IMPORT_TIME_GATE=1 uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+evidence = "architecture/baselines/structure_remediation/import_time_pre_decomp.json"
+target_fail_closed_phase = "3A"
+
+[[gate]]
+id = "reexport_shim_shape_gate"
+area = "decomposition_preflight"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+evidence = "architecture/shims.toml"
+target_fail_closed_phase = "3A"

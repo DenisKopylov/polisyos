@@ -440,7 +440,7 @@ allowed-confusables = [
 "src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
 "src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
 "src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
-"src/polisyos/fabric/world_query/__init__.py" = ["S608"]
+"src/polisyos/fabric/world/query.py" = ["S608"]
 "tests/unit/fabric/**" = [
   "B017",
   "E501",

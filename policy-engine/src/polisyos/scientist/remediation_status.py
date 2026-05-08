@@ -22,4 +22,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-12-31",
     migration_hint="Use polisyos.scientist.governance.remediation_status for new imports.",
+    shim_id="decomp-scientist-remediation_status",
 )

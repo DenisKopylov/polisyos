@@ -40,7 +40,7 @@ production snapshots remain outside git.
 
 ## Concrete Impact
 
-- Contracts: `architecture/generated_artifacts.toml`, `architecture/data_policy.toml`.
+- Contracts: `architecture/generated_artifacts.toml`, `architecture/policies/data.toml`.
 - Baseline: `build_outputs.json`.
 - Owner: `team-data-forge`.
 - Target phase: `1A`.

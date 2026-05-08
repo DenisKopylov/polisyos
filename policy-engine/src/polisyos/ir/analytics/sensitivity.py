@@ -8,8 +8,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import CausalSensitivityResultRef, SensitivityAnalysisBundleRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import CausalSensitivityResultRef, SensitivityAnalysisBundleRef
 
 
 class BenchmarkResult(BaseModel):

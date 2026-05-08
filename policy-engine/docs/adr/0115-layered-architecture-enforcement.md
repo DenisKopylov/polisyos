@@ -18,7 +18,7 @@ imports include reverse edges such as `ir -> foundry`, `ir -> scientist`,
 
 Use import-linter as the primary architecture boundary arbiter:
 
-1. `architecture/import_contracts.toml` declares layers, forbidden imports, and
+1. `architecture/imports/contracts.toml` declares layers, forbidden imports, and
    Data Forge domain independence.
 2. `polisyos-tools architecture guardrails` delegates import checks to import-linter
    instead of reimplementing graph logic.
@@ -33,7 +33,7 @@ Use import-linter as the primary architecture boundary arbiter:
 
 ## Phase 0 Implementation Note
 
-Repository SOTA Phase 0 validated `architecture/import_contracts.toml` against
+Repository SOTA Phase 0 validated `architecture/imports/contracts.toml` against
 the topology schema on 2026-05-02 and registered the current experimental
 scientist-support roots (`polisyos.berl`, `polisyos.calibration`,
 `polisyos.ddm_15_7`, and `polisyos.synthetic_world`) in the layer contract. The

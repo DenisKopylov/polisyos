@@ -22,6 +22,6 @@ def test_phase52_publishing_and_module_shims_have_sunsets() -> None:
 
     assert evidence_sources.__canonical_module__ == "polisyos.scientist.evidence.sources"
     assert evidence_sources.__sunset_date__ == "2026-11-30"
-    assert publisher.__canonical_module__ == "polisyos.scientist.publishing"
+    assert publisher.__canonical_module__ == "polisyos.scientist.publishing.publisher"
     assert publisher.__shim_sunset_date__ == "2026-12-31"
     assert publisher.DecisionGradeExport is publishing.DecisionGradeExport

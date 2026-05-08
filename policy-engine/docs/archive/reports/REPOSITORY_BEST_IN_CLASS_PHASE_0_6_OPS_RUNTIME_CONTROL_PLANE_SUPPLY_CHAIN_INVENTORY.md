@@ -240,7 +240,7 @@ The observability topology reference documents 6 dashboards, while the tree curr
 
 ### Public-stable package inventory
 
-`architecture/public_surface.toml` declares these `public_stable` modules:
+`architecture/public_surface/contract.toml` declares these `public_stable` modules:
 
 - `polisyos.common`
 - `core`
@@ -251,7 +251,7 @@ The observability topology reference documents 6 dashboards, while the tree curr
 - `runtime`
 - `lex`
 
-`architecture/public_surface_inventory.json` has inventory entries for all of them. Export counts currently recorded there are:
+`architecture/public_surface/inventory.json` has inventory entries for all of them. Export counts currently recorded there are:
 
 | Package | Export count |
 | --- | ---: |

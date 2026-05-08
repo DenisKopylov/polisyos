@@ -155,7 +155,7 @@ Rules:
 2. `domains/*` may not import sibling domains.
 3. Runtime packages may import only `polisyos.data_forge.read_api`.
 4. `kernel/*` remains internal unless explicitly listed in
-   `architecture/public_surface.toml`.
+   `architecture/public_surface/contract.toml`.
 5. Legacy package entrypoints remain as compatibility shims only until their
    sunset gates pass.
 
@@ -171,7 +171,7 @@ During the full consolidation, preserve these invariants:
    migration owner, and sunset gate.
 4. No runtime import from `polisyos.data_forge.domains` or
    `polisyos.data_forge.kernel` outside Data Forge itself.
-5. No `architecture/complexity_exceptions.toml` burn-down before the replacement
+5. No `architecture/exceptions/complexity.toml` burn-down before the replacement
    module is complete and protected by tests.
 6. No broad global import rewrite. Each import migration must be scoped to the
    phase and verified by targeted tests.
@@ -429,7 +429,7 @@ Complete the academic migration:
 - add old-vs-new fixtures for readiness and artifact hashes;
 - remove `polisyos.academic` compatibility shims after runtime consumers are
   migrated;
-- burn down academic exceptions in `architecture/complexity_exceptions.toml`.
+- burn down academic exceptions in `architecture/exceptions/complexity.toml`.
 
 Implementation status as of 2026-05-02:
 
@@ -683,7 +683,7 @@ The plan is complete when:
 7. Golden, differential, and drift tests pass for each migrated domain.
 8. Each migrated domain publishes artifact schemas under `schemas/artifacts/`
    and manifest schemas under `schemas/manifests/`.
-9. No migrated god-file remains in `architecture/complexity_exceptions.toml`
+9. No migrated god-file remains in `architecture/exceptions/complexity.toml`
    without a new owner, reason, and sunset.
 10. Legal and cloud cutover have replay/differential evidence against completed
     NPA outputs.

@@ -24,8 +24,7 @@ RUNTIME_ROOT = REPO_ROOT / "src" / "polisyos" / "runtime"
 FABRIC_BOUNDARY_SOURCES = (
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion",
 )
 ALLOWED_PROVIDER_BOOTSTRAP_FILES = {
     REPO_ROOT
@@ -36,7 +35,7 @@ ALLOWED_PROVIDER_BOOTSTRAP_FILES = {
     / "services"
     / "control_registry_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion" / "ingestion_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval" / "providers.py",
 }
 DEFAULT_HOOK_BOUNDARY_FILES = (
@@ -51,10 +50,10 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "cell_router_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "jwt_auth_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion" / "ingestion_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval" / "providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "world" / "providers.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "_connector_bridge.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "api.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "__init__.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "federation" / "composer.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "streaming.py",
@@ -72,7 +71,7 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "store.py",
     REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "backends" / "s3_store.py",
     REPO_ROOT / "src" / "polisyos" / "core" / "artifacts" / "backends" / "gcs_store.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "observability.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "_adapters" / "observability.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "fallback.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "circuit_breaker.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "resilience" / "rate_limiter.py",
@@ -93,7 +92,7 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "scientist" / "llm" / "budget_enforcer.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "runner.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "advanced_methods.py",
-    REPO_ROOT / "src" / "polisyos" / "fabric" / "quality.py",
+    REPO_ROOT / "src" / "polisyos" / "fabric" / "quality" / "quality.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "components_bridge.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "_registry_lifecycle.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "transform" / "_common.py",

@@ -26,7 +26,7 @@ src/polisyos/benchmarks/
   `tests/performance`.
 - New benchmark pytest configuration is not allowed. The existing
   `benchmarks/conftest.py` is a Phase 1.4 explicit transition exception in
-  `architecture/test_ratchets.toml`.
+  `architecture/tests/ratchets.toml`.
 
 Physical moves are deferred to Wave 2 and Wave 3; this README is the
 report-only collection contract for new work.

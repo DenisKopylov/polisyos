@@ -7,8 +7,8 @@ store contract, schema metadata и helpers, через которые `analytics
 
 ## Роль в системе
 
-- **Зависит от:** `polisyos.ir.canon`
-- **Используется в:** `polisyos.ir.analytics`, `polisyos.ir.observation`, `polisyos.ir.refs`, `polisyos.core`, `polisyos.fabric`
+- **Зависит от:** `polisyos.ir.model_layer.canon`
+- **Используется в:** `polisyos.ir.analytics`, `polisyos.ir.observation`, `polisyos.ir.registry.refs`, `polisyos.core`, `polisyos.fabric`
 - Этот пакет является тонкой границей между domain models и реальными CAS backends.
 
 ## Ключевые концепции

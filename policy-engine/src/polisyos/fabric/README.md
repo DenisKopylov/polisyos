@@ -4,7 +4,7 @@
 acquisition, document and claim pipelines, data-plane orchestration,
 provenance, retrieval, and world materialization.
 
-- Last updated: 2026-05-06
+- Last updated: 2026-05-07
 
 ## Purpose
 
@@ -48,19 +48,30 @@ subpackage READMEs below explain the implementation boundaries in more detail.
 discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
 retrieval README rather than being part of the root facade contract.
 
-## Internal Layout
+## Semantic Groups
 
 - [`api.py`](api.py) and [`__init__.py`](__init__.py) own the stable lazy root
   facade and public-surface helper metadata.
 - [`_internal/`](_internal/) contains post-cleanup private helpers. Do not
   deep-import it from callers outside Fabric.
-- Connector-facing code lives under [`connectors/`](connectors/),
-  [`connectors/sources/`](connectors/sources/README.md), and
-  [`ingestion/`](ingestion/).
-- World, claims, retrieval, catalog, quality, trust, security, and provenance
-  subpackages own domain-specific implementation surfaces behind the facade.
-- Compatibility wrapper packages such as `config`, `compatibility`, and
-  `connectors_ingestion` exist only where recorded in the shim registry.
+- [`_adapters/`](_adapters/) contains Fabric adapters over canonical
+  cross-cutting interfaces such as `polisyos.core.observability`.
+- [`ingestion/`](ingestion/) owns ingestion runtime semantics and provider
+  resolution; connector-specific ingestion entrypoints live under
+  [`connectors/ingestion/`](connectors/ingestion/).
+- [`trust/`](trust/) owns trust comparison helpers and trust-envelope adapters.
+- [`quality/`](quality/) owns quality indicators, safety guardrails, fitness
+  reports, and processing-guarantee contracts.
+- [`evidence/`](evidence/) owns evidence bundles, decision-data envelopes, and
+  fact writing.
+- [`identity/`](identity/) owns dataset and segment manifest identity.
+- [`numerics/`](numerics/) owns finite-number and numerical-stability helpers.
+- [`data_plane/`](data_plane/) owns shape/time semantics plus orchestration,
+  replay, streaming, quarantine, and semantic-diff flows.
+- [`config/`](config/) owns Fabric-local configuration models.
+- [`world/`](world/) owns world materialization, world store, and query helpers.
+- Connector-facing code lives under [`connectors/`](connectors/) and
+  [`connectors/sources/`](connectors/sources/README.md).
 
 ## Extension Points
 
@@ -123,14 +134,12 @@ Run from the repository root (`policy-engine/`).
 - Active Fabric facade-cleanup shims are registered in
   [architecture/shims.toml](../../../architecture/shims.toml) with owner
   `team-fabric` and sunset `2026-12-31`.
-- Current wrapper-only import paths include `polisyos.fabric._numeric_parsing`,
-  `polisyos.fabric.compatibility`, `polisyos.fabric.config`,
-  `polisyos.fabric.connectors_ingestion`, `polisyos.fabric.finite`,
-  `polisyos.fabric.fitness_report`, `polisyos.fabric.ingestion_providers`,
-  `polisyos.fabric.registry`, `polisyos.fabric.safety`, and
-  `polisyos.fabric.trust_adapter`.
+- Legacy compatibility imports such as `polisyos.fabric.decision_data`,
+  `polisyos.fabric.processing_guarantees`, `polisyos.fabric.world_query`, and
+  `polisyos.fabric.observability` are bridged through documented re-export
+  aliases to the semantic groups above.
 - New public imports must be added to `api.py`, the generated public-surface
-  reference, and compatibility policy before old import paths are removed.
+  reference, and compatibility policy before old import paths are retired.
 
 ## Reference Docs
 

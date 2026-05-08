@@ -9,8 +9,8 @@
     }
   ],
   "profile_id": "ecb_sdmx",
-  "replay_checksum": "sha256:e17ee4d092fd2c478eb370536e1d438b6f8cb1c1e3770b6576a60f0a8d43b035",
-  "schema_checksum": "sha256:f9d43d77e6f9169275abbb1bc01ea7805f5b96b1083f2b04c4e50a57662c2f3c",
+  "replay_checksum": "sha256:e939bc67b06f11066c5d96b81503fa600f5a9a04f41e62fd8bbbbbdfcecf81e9",
+  "schema_checksum": "sha256:0b2fa7e468722c7cb57551aae70e279e3453799a47241ab53723709652e6263c",
   "schema_version": "fabric.source_replay_fixture.v1",
   "source_contract_id": "sdmx.generic",
   "transcript": {

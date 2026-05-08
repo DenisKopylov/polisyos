@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, RootModel, field_validator
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.ir.canon import CanonSpec
+    from polisyos.ir.model_layer.canon import CanonSpec
 
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 

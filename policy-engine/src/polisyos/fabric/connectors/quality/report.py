@@ -13,7 +13,7 @@ from enum import Enum
 from typing import Any
 
 from polisyos.core.canon import content_hash
-from polisyos.fabric.quality.finite import ensure_non_negative_finite, ensure_probability
+from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.connectors import QualityTier
 
 from .statistics import (

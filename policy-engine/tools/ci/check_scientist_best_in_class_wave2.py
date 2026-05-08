@@ -300,24 +300,24 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             assert_reusable_memory_clean,
             retrieve_reflexive_lessons,
         )
-        from polisyos.scientist.orchestration.orchestrator.publisher import (
+        from polisyos.scientist.publishing.publisher import (
             DecisionGradeExport,
             OutputAudience,
             assert_decision_grade_exports_consistent,
             compile_decision_grade_exports,
         )
-        from polisyos.scientist.research_dag.builder import ResearchDAGBuilder
-        from polisyos.scientist.research_dag.comparison import compare_research_trajectories
-        from polisyos.scientist.research_dag.models import ResearchEdgeType, ResearchNodeType
-        from polisyos.scientist.research_dag.projections import (
+        from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
+        from polisyos.scientist.methods.research_dag.comparison import compare_research_trajectories
+        from polisyos.scientist.methods.research_dag.models import ResearchEdgeType, ResearchNodeType
+        from polisyos.scientist.methods.research_dag.projections import (
             project_reflexive_memory_events_to_research_dag,
             validate_memory_influence_dag_attribution,
         )
-        from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-        from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
-        from polisyos.scientist.search.lessons import LessonCard, LessonKind
-        from polisyos.scientist.search.readiness import DecisionReadiness
-        from polisyos.scientist.search.voi_models import (
+        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+        from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
+        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
+        from polisyos.scientist.methods.search.voi_models import (
             VOIDecisionRecord,
             VOIDecisionType,
             VOIRunReport,

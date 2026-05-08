@@ -5,7 +5,7 @@
 Phase 3.4 synthetic-world shim collapse does not add an import exception:
 first-party consumers use `polisyos.foundry.agent_sim.world`, and the
 wrapper-only `polisyos.synthetic_world` facade is covered by
-`architecture/imports/policy.toml` until the 2026-10-01 sunset.
+`architecture/imports/policy.toml` until the 2026-07-31 sunset.
 
 | id                                                   | owner           | reason                                                                                                          | added_on   | expires    | status |
 | ---------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------- | ---------- | ---------- | ------ |

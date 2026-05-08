@@ -18,7 +18,7 @@ source attribution and publishability.
 ## Runtime Contracts
 
 The claim spine extends the existing public readiness ladder from
-`polisyos.scientist.search.readiness.DecisionReadiness`; it does not replace or
+`polisyos.scientist.methods.search.readiness.DecisionReadiness`; it does not replace or
 rename readiness levels.
 
 | Contract | Source | Role |

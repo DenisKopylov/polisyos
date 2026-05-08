@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.ir.fact_log import FactProvenance
+from polisyos.ir.loading.fact_log import FactProvenance
 
 
 def stable_world_provenance_v1(*, license: str = "internal") -> FactProvenance:

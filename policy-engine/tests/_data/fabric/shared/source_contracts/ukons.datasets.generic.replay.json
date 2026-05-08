@@ -11,8 +11,8 @@
     }
   ],
   "profile_id": "ukons_public",
-  "replay_checksum": "sha256:fceb348870689e55f9e8b2dcb208f482e36047e40cca00a006cf1d2e61b3e7da",
-  "schema_checksum": "sha256:2a559d6d32134106c326d318c706a19358d50dcecbc6aed7182b4e00be7bc8a6",
+  "replay_checksum": "sha256:393bd8948935d9ffc7b1b0b9ec65bda555f76c91f6575621319aef3dd60cab49",
+  "schema_checksum": "sha256:569cb4f420d6688d878675e0011bc3090a80ab4c09b473b2ea7d622c2e0900cd",
   "schema_version": "fabric.source_replay_fixture.v1",
   "source_contract_id": "ukons.datasets.generic",
   "transcript": {

@@ -4,11 +4,11 @@ Related references: [Scientist Causal Runners](causal.md), [Reliability scorecar
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, `tests/unit/scientist/causal/test_causal_evaluation_node.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`, and `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`
+Source of truth: `src/polisyos/scientist/methods/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, `tests/unit/scientist/causal/test_causal_evaluation_node.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`, and `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, `tests/unit/scientist/causal/test_causal_evaluation_node.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`, and `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`.
+> Source of truth: `src/polisyos/scientist/methods/causal/validity.py`, `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`, `src/polisyos/scientist/orchestration/engine/frontier_runtime.py`, `tests/unit/scientist/causal/test_causal_evaluation_node.py`, `tests/unit/scientist/nodes/test_decision_packet_node_v3.py`, and `tests/unit/foundry/methods/catalog/causal/test_validity_eval_pack.py`.
 
 `RunCausalEvaluationNode` persists a best-effort
 `scientist.causal_validity_bundle` artifact through

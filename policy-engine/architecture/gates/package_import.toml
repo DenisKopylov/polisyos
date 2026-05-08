@@ -1,0 +1,279 @@
+[package_import_gates]
+version = 1
+status = "fail_closed"
+phase = "repository-best-in-class-phase-6.1"
+owner = "team-architecture"
+completed_on = 2026-05-06
+gate_command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+active_source_move_report_only_blockers = []
+source_contracts = [
+  "architecture/gates/package_import.toml",
+  "architecture/imports/reports.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/imports/policy.toml",
+  "architecture/imports/exceptions.toml",
+  "architecture/baselines/imports/deep_import.json",
+  "architecture/imports/dynamic.toml",
+  "architecture/imports/lazy.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/public_surface/inventory.json",
+  "architecture/name_registry.toml",
+  "architecture/policies/cross_cutting_concerns.toml",
+  "architecture/shims.toml",
+  "architecture/exceptions/structure_remediation.toml",
+  "architecture/policies/directory_contracts.toml",
+  "architecture/packages/fabric.toml",
+  "architecture/packages/ir.toml",
+  "architecture/packages/scientist.toml",
+  "architecture/module_size_budget.toml",
+]
+
+[single_file_shell_package_policy]
+status = "fail_closed"
+owner = "team-architecture"
+scope_roots = ["src/polisyos/fabric", "src/polisyos/ir"]
+max_python_files = 2
+allowed_facade_packages = []
+latest_allowed_sunset = "2026-07-31"
+wrapper_only_created_from_loose_file_disallowed_after = "2026-07-31"
+local_documentation_source = "architecture/policies/directory_contracts.toml:single_file_shell_package_local_documentation"
+exception_required_fields = [
+  "path",
+  "owner",
+  "rationale",
+  "sunset",
+  "migration_target",
+  "smoke_import_test",
+]
+
+[[single_file_shell_package_exception_group]]
+id = "ir-wave3-shell-packages"
+owner = "team-ir"
+rationale = "Remaining IR shell-like packages are retained only where Phase 3.2 keeps private facade, connector, schema, or Trinity wrappers."
+sunset = "2026-07-31"
+migration_target = "architecture/shims.toml#last_mile_import_compatibility_map"
+smoke_import_test = "tests/unit/ir/test_root_facade_closeout.py::test_ir_phase_0_3_import_map_declares_shell_group_targets"
+created_to_wrap_formerly_loose_file = true
+paths = [
+  "src/polisyos/ir/_internal",
+  "src/polisyos/ir/_lazy_facade",
+  "src/polisyos/ir/connectors",
+  "src/polisyos/ir/schemas",
+  "src/polisyos/ir/trinity",
+]
+
+[[gate]]
+id = "root-facade-package-layout"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/packages/layout.toml",
+  "architecture/exceptions/structure_remediation.toml",
+]
+blocks = [
+  "new package-root implementation modules outside the root facade budget",
+  "unregistered root facade/layout drift in active package roots",
+]
+
+[[gate]]
+id = "package-boundary"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/packages/boundaries.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/imports/policy.toml",
+  "architecture/imports/exceptions.toml",
+]
+blocks = [
+  "new forbidden package edges without explicit registration",
+  "cross-package imports that bypass a package's public API contract",
+]
+
+[[gate]]
+id = "public-surface"
+area = "public_surface"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/public_surface/contract.toml",
+  "architecture/public_surface/inventory.json",
+  "architecture/imports/contracts.toml",
+  "architecture/packages/boundaries.toml",
+]
+blocks = [
+  "public-surface inventory drift",
+  "import-contract/public-surface disagreement",
+]
+
+[[gate]]
+id = "deep-import"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/baselines/imports/deep_import.json",
+  "architecture/imports/contracts.toml",
+  "architecture/imports/exceptions.toml",
+]
+blocks = [
+  "new hidden cross-package import edges without owner, reason, and sunset",
+  "deep imports into implementation packages without an explicit exception",
+]
+
+[[gate]]
+id = "dynamic-import"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/imports/dynamic.toml",
+]
+blocks = [
+  "unregistered dynamic import patterns",
+  "registered dynamic import slots without resolved targets",
+]
+
+[[gate]]
+id = "import-cycle"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/imports/lazy.toml",
+  "architecture/baselines/structure_remediation/import_graph_pre_decomp.json",
+]
+blocks = [
+  "new import cycles outside the lazy import allow-list",
+  "cycle allow-list drift without owner review",
+]
+
+[[gate]]
+id = "package-layout"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/packages/layout.toml",
+  "architecture/exceptions/structure_remediation.toml",
+]
+blocks = [
+  "root Python file budget regressions outside dated structure exceptions",
+  "package layout violations without owner-approved timebox",
+]
+
+[[gate]]
+id = "single-file-shell-package"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/gates/package_import.toml",
+  "architecture/policies/directory_contracts.toml",
+]
+blocks = [
+  "new single-file shell packages without an allowed facade, local README, or dated exception",
+  "wrapper-only packages created from formerly loose files after the Wave 3 cutoff",
+  "single-file shell package exceptions missing owner, rationale, sunset, migration target, or smoke import test",
+]
+
+[[gate]]
+id = "name-collision"
+area = "name_registry"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/name_registry.toml",
+  "architecture/exceptions/structure_remediation.toml",
+]
+blocks = [
+  "new repeated directory names outside name_registry.toml",
+  "rename backlog entries without owner and sunset metadata",
+]
+
+[[gate]]
+id = "cross-cutting-concern-home"
+area = "package_layout"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/policies/cross_cutting_concerns.toml",
+  "architecture/name_registry.toml",
+]
+blocks = [
+  "new cross-cutting concern root files or first-level packages outside canonical homes",
+  "new group-level concern files outside _adapters without owner, rationale, and sunset",
+]
+
+[[gate]]
+id = "shim-expiry"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/shims.toml",
+]
+blocks = [
+  "expired shim sunset dates",
+  "wrapper-only shims without dated owner exception",
+]
+
+[[gate]]
+id = "importable-root-contracts"
+area = "directory_contracts"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/policies/directory_contracts.toml",
+]
+blocks = [
+  "undocumented importable or namespace-capable top-level roots",
+  "non-product Python roots outside src/polisyos without owner and product import policy",
+]
+
+[[gate]]
+id = "schema-only-root"
+area = "schemas"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/policies/directory_contracts.toml",
+  "architecture/generated_artifacts.toml",
+]
+blocks = [
+  "top-level schemas/ becoming an importable Python package",
+  "Python package code under top-level schemas/",
+  "Python cache residue under top-level schemas/",
+  "product imports from top-level schemas/ residue",
+]
+
+[[gate]]
+id = "module-size-ratchet"
+area = "module_size"
+owner = "team-architecture"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/module_size_budget.toml",
+]
+blocks = [
+  "existing oversized modules growing above their current_lines ratchet",
+  "budgeted god modules exceeding their report_only_limit_lines ratchet",
+]
+
+[[gate]]
+id = "scientist-first-level-package-count"
+area = "package_layout"
+owner = "team-scientist"
+mode = "fail_closed"
+source_contracts = [
+  "architecture/packages/scientist.toml",
+  "architecture/shims.toml",
+]
+blocks = [
+  "unregistered Scientist first-level roots",
+  "Scientist canonical first-level root count exceeding the configured cap",
+]

@@ -24,4 +24,5 @@ install_lazy_module_shim(
     migration_hint=(
         "Use polisyos.scientist.orchestration.engine.frontier_runtime for new imports."
     ),
+    shim_id="decomp-scientist-frontier_runtime",
 )

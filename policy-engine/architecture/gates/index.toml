@@ -1,0 +1,659 @@
+[gates_index]
+version = 1
+status = "active"
+owner = "team-architecture"
+phase = "repository-best-in-class-last-mile-phase-6.1"
+readme = "architecture/gates/README.md"
+taxonomy_index = "architecture/index.toml"
+description = "Maps each architecture gate ID to the gate source contract and command that owns it."
+
+[[gate_contract]]
+id = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+header = "repository_sota_gates"
+owner = "team-architecture"
+status = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout"
+
+[[gate_contract]]
+id = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+header = "package_import_gates"
+owner = "team-architecture"
+status = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate_contract]]
+id = "compatibility-release"
+source_contract = "architecture/gates/compatibility_release.toml"
+header = "compatibility_release_gates"
+owner = "team-release"
+status = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate_contract]]
+id = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+header = "operability_release_supply_chain_gates"
+owner = "team-security"
+status = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate_contract]]
+id = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+header = "structure_remediation_gates"
+owner = "team-architecture"
+status = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py inventory --markdown-output docs/archive/reports/REPOSITORY_STRUCTURE_REMEDIATION_PHASE_0_INVENTORY.md --baseline-dir architecture/baselines/structure_remediation"
+
+[[gate_contract]]
+id = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+header = "report_only_gates"
+owner = "team-architecture"
+status = "report_only"
+command = ""
+
+[[gate]]
+id = "topology-loose-files"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q"
+
+[[gate]]
+id = "import-linter"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml"
+
+[[gate]]
+id = "public-surface"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools architecture guardrails check"
+
+[[gate]]
+id = "generated-drift"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools architecture guardrails check --run-generated-checks"
+
+[[gate]]
+id = "docs-freshness"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-docs"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
+
+[[gate]]
+id = "public-polish"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-docs"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q"
+
+[[gate]]
+id = "shim-audit"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "complexity-exceptions"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "security-baselines"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "dependency-baselines"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "sbom-baseline"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "commit-policy"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-release"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+
+[[gate]]
+id = "command-registry"
+family = "repository-sota"
+source_contract = "architecture/gates/repository_sota.toml"
+table = "gate"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run polisyos-tools docs --output docs/reference/tools.md --check"
+
+[[gate]]
+id = "root-facade-package-layout"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "package-boundary"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "public-surface"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "deep-import"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "dynamic-import"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "import-cycle"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "package-layout"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "single-file-shell-package"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "name-collision"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "cross-cutting-concern-home"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "shim-expiry"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "importable-root-contracts"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "schema-only-root"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "module-size-ratchet"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "scientist-first-level-package-count"
+family = "package-import"
+source_contract = "architecture/gates/package_import.toml"
+table = "gate"
+owner = "team-scientist"
+mode = "fail_closed"
+command = "uv run polisyos-tools validation check-package-import-gates --fail-closed"
+
+[[gate]]
+id = "breaking-compatibility-fragment"
+family = "compatibility-release"
+source_contract = "architecture/gates/compatibility_release.toml"
+table = "promotion_check"
+owner = "team-release"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate]]
+id = "migration-runbook-docs"
+family = "compatibility-release"
+source_contract = "architecture/gates/compatibility_release.toml"
+table = "promotion_check"
+owner = "team-ops"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate]]
+id = "public-surface-inventory-review"
+family = "compatibility-release"
+source_contract = "architecture/gates/compatibility_release.toml"
+table = "promotion_check"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate]]
+id = "generated-client-compatibility"
+family = "compatibility-release"
+source_contract = "architecture/gates/compatibility_release.toml"
+table = "promotion_check"
+owner = "team-frontend"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate]]
+id = "slo-runbook-coverage"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-ops"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "component-observability"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-observability"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "alert-to-runbook"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-ops"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "migration-classes"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-platform"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "release-topology"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-release"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "promotion-gates"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-release"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "compatibility-release-metadata"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "release-supply-chain"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "workflow-permissions-oidc"
+family = "operability-release-supply-chain"
+source_contract = "architecture/gates/operability_release_supply_chain.toml"
+table = "gate"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
+
+[[gate]]
+id = "empty_namespace_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/empty_namespace_gate.py --inventory-output architecture/baselines/structure_remediation/foundry_methods_external_importers.json"
+
+[[gate]]
+id = "loose_files_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate loose_files --mode fail-closed"
+
+[[gate]]
+id = "name_collision_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/name_collision_gate.py"
+
+[[gate]]
+id = "pyproject_size_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate pyproject_size --mode fail-closed"
+
+[[gate]]
+id = "cache_dir_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate cache_dir --mode fail-closed"
+
+[[gate]]
+id = "build_output_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/repository_structure_phase0.py gate --gate build_output --mode fail-closed"
+
+[[gate]]
+id = "dynamic_imports_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/validation/decomposition_preflight.py gate"
+
+[[gate]]
+id = "pickle_compat_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-scientist/team-foundry"
+mode = "fail_closed"
+command = "uv run pytest tests/contract/test_pickle_compat.py -q"
+
+[[gate]]
+id = "public_surface_snapshot_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_public_surface_snapshot.py -q"
+
+[[gate]]
+id = "import_cycles_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+
+[[gate]]
+id = "import_time_regression_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "POLISYOS_RUN_IMPORT_TIME_GATE=1 uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+
+[[gate]]
+id = "reexport_shim_shape_gate"
+family = "structure-remediation"
+source_contract = "architecture/gates/structure_remediation.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q"
+
+[[gate]]
+id = "package-contract-schema"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report packages"
+
+[[gate]]
+id = "compatibility-release-gates"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-release"
+mode = "report_only"
+command = "uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors"
+
+[[gate]]
+id = "package-aggregate-mirror"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors"
+
+[[gate]]
+id = "module-size-budget"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size"
+
+[[gate]]
+id = "generated-artifact-contracts"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report generated-artifacts"
+
+[[gate]]
+id = "extension-points"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report extension-points"
+
+[[gate]]
+id = "runbook-coverage"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report runbook-coverage"
+
+[[gate]]
+id = "component-observability"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report component-observability"
+
+[[gate]]
+id = "runtime-state-layout"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report runtime-state-layout"
+
+[[gate]]
+id = "test-ratchets"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-quality"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report test-ratchets"
+
+[[gate]]
+id = "directory-contracts"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report directory-contracts"
+
+[[gate]]
+id = "directory-hygiene-assets"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-quality"
+mode = "report_only"
+command = "uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors"
+
+[[gate]]
+id = "static-analysis-overrides"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report static-analysis-overrides"
+
+[[gate]]
+id = "dead-static-analysis-overrides"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-devx"
+mode = "report_only"
+command = "uv run python tools/ops_runners/reports/dead_overrides.py"

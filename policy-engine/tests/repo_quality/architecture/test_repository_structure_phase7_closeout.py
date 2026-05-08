@@ -28,7 +28,7 @@ def _read_toml(path: str) -> dict:
 
 
 def test_phase7_structure_gate_registry_is_fail_closed() -> None:
-    payload = _read_toml("architecture/structure_remediation_gates.toml")
+    payload = _read_toml("architecture/gates/structure_remediation.toml")
     header = payload["structure_remediation_gates"]
     gates = {gate["id"]: gate for gate in payload["gate"]}
 

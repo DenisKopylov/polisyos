@@ -13,8 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
-from polisyos.ir.references import JointDecisionCertificateRef, RecoverabilityCertificateRef
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.registry.refs import JointDecisionCertificateRef, RecoverabilityCertificateRef
 
 
 class RecoverabilityCertificateStatus(str, Enum):

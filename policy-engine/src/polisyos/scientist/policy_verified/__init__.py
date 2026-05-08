@@ -1,51 +1,7 @@
-"""Compatibility shim for policy verified moved to validation.policy_verified."""
+"""Compatibility shim for `polisyos.scientist.policy_verified`."""
 
-from polisyos.scientist.validation.policy_verified import (
-    LegalCandidatePack,
-    LegalSourcePack,
-    PolicyEvidenceLink,
-    PolicyOption,
-    PolicyOptionSet,
-    PolicyRequestFrame,
-    SourceCoverageGap,
-    SourceVerificationReport,
-    VerifiedLegalClaim,
-    VerifiedPolicyReport,
-    load_legal_candidate_pack,
-    load_legal_source_pack,
-    load_policy_option_set,
-    load_policy_request_frame,
-    load_source_verification_report,
-    load_verified_policy_report,
-    persist_legal_candidate_pack,
-    persist_legal_source_pack,
-    persist_policy_option_set,
-    persist_policy_request_frame,
-    persist_source_verification_report,
-    persist_verified_policy_report,
-)
+from __future__ import annotations
 
-__all__ = [
-    "LegalCandidatePack",
-    "LegalSourcePack",
-    "PolicyEvidenceLink",
-    "PolicyOption",
-    "PolicyOptionSet",
-    "PolicyRequestFrame",
-    "SourceCoverageGap",
-    "SourceVerificationReport",
-    "VerifiedLegalClaim",
-    "VerifiedPolicyReport",
-    "load_legal_candidate_pack",
-    "load_legal_source_pack",
-    "load_policy_option_set",
-    "load_policy_request_frame",
-    "load_source_verification_report",
-    "load_verified_policy_report",
-    "persist_legal_candidate_pack",
-    "persist_legal_source_pack",
-    "persist_policy_option_set",
-    "persist_policy_request_frame",
-    "persist_source_verification_report",
-    "persist_verified_policy_report",
-]
+from polisyos.scientist._internal.compat import reexport_package as _reexport_package
+
+_reexport_package(__name__, "polisyos.scientist.validation.policy_verified", globals())

@@ -259,7 +259,7 @@ Deprecation requirements:
 1. `PR-A`: core component taxonomy/discovery/compliance extension for connectors.
 2. `PR-B`: connector bridge + `_registry_lifecycle` bootstrap cutover.
 3. `PR-C`: method bootstrap cutover + compatibility wrapper in `foundry.methods.discovery`.
-4. `PR-D`: shared bootstrap adoption in lex/scholar/scientist + tests/architecture/docs.
+4. `PR-D`: shared bootstrap adoption in lex/scholar/scientist + tests/repo_quality/architecture/docs.
 
 ## 7. CI and Governance Updates
 
@@ -301,8 +301,8 @@ Targeted tests (minimum):
 
 ```bash
 python3 -m pytest \
-  tests/architecture/test_components_discovery.py \
-  tests/architecture/test_components_bridge.py \
+  tests/repo_quality/architecture/test_components_discovery.py \
+  tests/repo_quality/architecture/test_components_bridge.py \
   tests/unit/fabric/test_scholar_extractor_components.py \
   tests/unit/fabric/connectors/test_registry.py \
   tests/unit/foundry/methods/test_discovery.py \
@@ -451,7 +451,7 @@ Executed locally:
 
 1. Targeted regression + new P6 tests:
 
-   - `python3 -m pytest tests/unit/core/components/test_connector_kind_compliance.py tests/unit/fabric/connectors/test_components_bridge.py tests/unit/scientist/test_node_registry_components_bootstrap.py tests/unit/core/components/test_unified_bootstrap_idempotency.py tests/architecture/test_components_discovery.py tests/architecture/test_components_bridge.py tests/unit/fabric/test_scholar_extractor_components.py tests/unit/scientist/test_engine_registry_v0.py`
+   - `python3 -m pytest tests/unit/core/components/test_connector_kind_compliance.py tests/unit/fabric/connectors/test_components_bridge.py tests/unit/scientist/test_node_registry_components_bootstrap.py tests/unit/core/components/test_unified_bootstrap_idempotency.py tests/repo_quality/architecture/test_components_discovery.py tests/repo_quality/architecture/test_components_bridge.py tests/unit/fabric/test_scholar_extractor_components.py tests/unit/scientist/test_engine_registry_v0.py`
    - Result: `14 passed`
 2. Architecture metrics and freeze blocking check:
 

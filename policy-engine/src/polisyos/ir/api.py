@@ -15,9 +15,147 @@ docs summarize the same package counts and naming rules.
 from __future__ import annotations
 
 import importlib
+import importlib.abc
+import importlib.machinery
+import sys
+import warnings
+from types import ModuleType
 from typing import Any
 
 LazyExportMap = dict[str, tuple[str, str]]
+
+_IR_LEGACY_MODULE_ALIASES: dict[str, tuple[str, bool]] = {
+    "polisyos.ir.canon": ("polisyos.ir.model_layer.canon", False),
+    "polisyos.ir.citations": ("polisyos.ir.loading.citations", False),
+    "polisyos.ir.fact_log": ("polisyos.ir.loading.fact_log", False),
+    "polisyos.ir.loaders": ("polisyos.ir.loading.loaders", False),
+    "polisyos.ir.migration_report": ("polisyos.ir.loading.migration_report", False),
+    "polisyos.ir.model_spec": ("polisyos.ir.model_layer.model_spec", False),
+    "polisyos.ir.norm_pack": ("polisyos.ir.loading.norm_pack", False),
+    "polisyos.ir.portfolio": ("polisyos.ir.loading.portfolio", False),
+    "polisyos.ir.predicate": ("polisyos.ir.model_layer.predicate", False),
+    "polisyos.ir.public_surface": ("polisyos.ir.registry.public_surface", False),
+    "polisyos.ir.queries": ("polisyos.ir.model_layer.queries", False),
+    "polisyos.ir.references.citations": ("polisyos.ir.loading.citations", False),
+    "polisyos.ir.references.refs": ("polisyos.ir.registry.refs", False),
+    "polisyos.ir.refs": ("polisyos.ir.registry.refs", False),
+    "polisyos.ir.registry_fragments": ("polisyos.ir.registry.registry_fragments", False),
+    "polisyos.ir.schema_catalog": ("polisyos.ir.loading.schema_catalog", False),
+    "polisyos.ir.types": ("polisyos.ir.model_layer.types", False),
+    "polisyos.ir.units": ("polisyos.ir.model_layer.units", False),
+}
+
+_IR_LEGACY_AGGREGATE_MODULES: dict[str, tuple[str, ...]] = {
+    "polisyos.ir.references": (
+        "polisyos.ir.loading.citations",
+        "polisyos.ir.registry.refs",
+    ),
+}
+
+
+class _IRLegacyModuleAliasLoader(importlib.abc.Loader):
+    def __init__(
+        self,
+        alias_fqn: str,
+        target_fqn: str,
+        *,
+        package_alias: bool = False,
+    ) -> None:
+        self._alias_fqn = alias_fqn
+        self._target_fqn = target_fqn
+        self._package_alias = package_alias
+
+    def create_module(self, spec: importlib.machinery.ModuleSpec) -> Any:
+        _warn_ir_legacy_import(self._alias_fqn, self._target_fqn)
+        module = importlib.import_module(self._target_fqn)
+        if self._package_alias and not hasattr(module, "__path__"):
+            module.__path__ = []  # type: ignore[attr-defined]
+        sys.modules[spec.name] = module
+        return module
+
+    def exec_module(self, module: Any) -> None:
+        return None
+
+
+class _IRLegacyAggregateLoader(importlib.abc.Loader):
+    def __init__(self, alias_fqn: str, target_fqns: tuple[str, ...]) -> None:
+        self._alias_fqn = alias_fqn
+        self._target_fqns = target_fqns
+
+    def create_module(self, spec: importlib.machinery.ModuleSpec) -> ModuleType:
+        _warn_ir_legacy_import(self._alias_fqn, ", ".join(self._target_fqns))
+        module = ModuleType(spec.name)
+        module.__doc__ = (
+            "Compatibility aggregate for moved IR reference contracts. "
+            "Use polisyos.ir.registry.refs for artifact refs and "
+            "polisyos.ir.loading.citations for citation refs."
+        )
+        module.__package__ = spec.name
+        module.__path__ = []  # type: ignore[attr-defined]
+
+        exported_names: set[str] = set()
+        for target_fqn in self._target_fqns:
+            target_module = importlib.import_module(target_fqn)
+            for name in getattr(target_module, "__all__", ()):
+                setattr(module, name, getattr(target_module, name))
+                exported_names.add(name)
+        module.__all__ = sorted(exported_names)  # type: ignore[attr-defined]
+        sys.modules[spec.name] = module
+        return module
+
+    def exec_module(self, module: Any) -> None:
+        return None
+
+
+class _IRLegacyModuleAliasFinder(importlib.abc.MetaPathFinder):
+    _polisyos_ir_alias_finder = True
+
+    def find_spec(
+        self,
+        fullname: str,
+        path: object | None,
+        target: object | None = None,
+    ) -> importlib.machinery.ModuleSpec | None:
+        alias = _IR_LEGACY_MODULE_ALIASES.get(fullname)
+        if alias is None:
+            target_fqns = _IR_LEGACY_AGGREGATE_MODULES.get(fullname)
+            if target_fqns is None:
+                return None
+            loader = _IRLegacyAggregateLoader(fullname, target_fqns)
+            spec = importlib.machinery.ModuleSpec(fullname, loader, is_package=True)
+            spec.submodule_search_locations = []
+            return spec
+        else:
+            target_fqn, package_alias = alias
+            loader = _IRLegacyModuleAliasLoader(
+                fullname,
+                target_fqn,
+                package_alias=package_alias,
+            )
+            spec = importlib.machinery.ModuleSpec(fullname, loader, is_package=package_alias)
+            if package_alias:
+                spec.submodule_search_locations = []
+            return spec
+
+
+def _warn_ir_legacy_import(alias_fqn: str, target_fqn: str) -> None:
+    warnings.warn(
+        (
+            f"{alias_fqn} is a deprecated IR compatibility import; use {target_fqn} "
+            "instead. This shim is scheduled for removal after 2026-12-31; see "
+            "docs/archive/reports/REPOSITORY_BEST_IN_CLASS_LAST_MILE_IMPORT_MAP.md"
+            "#ir-shell-packages."
+        ),
+        DeprecationWarning,
+        stacklevel=4,
+    )
+
+
+def install_ir_legacy_module_aliases() -> None:
+    """Install lazy compatibility aliases for moved IR shell packages."""
+    if any(getattr(finder, "_polisyos_ir_alias_finder", False) for finder in sys.meta_path):
+        return
+    sys.meta_path.insert(0, _IRLegacyModuleAliasFinder())
 
 
 def resolve_lazy_export(
@@ -108,7 +246,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "ABMIdentifiabilityCertificate",
     ),
     "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
-    "ABMResultRef": ("polisyos.ir.references", "ABMResultRef"),
+    "ABMResultRef": ("polisyos.ir.registry.refs", "ABMResultRef"),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
         "CausalDiscoveryReport",
@@ -126,7 +264,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "BlockSupportReport",
     ),
     "CausalBlockBridgeRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "CausalBlockBridgeRef",
     ),
     "CausalNexGraphBridge": (
@@ -222,7 +360,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "EndogenousGroupDecompositionStatus",
     ),
     "EndogenousGroupInequalityDecompositionRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "EndogenousGroupInequalityDecompositionRef",
     ),
     "EndogenousGroupInequalityDecompositionResult": (
@@ -262,23 +400,23 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "ShiftDiagnosticReport",
     ),
     "ShiftDiagnosticReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "ShiftDiagnosticReportRef",
     ),
     "SensitivityAnalysisBundleRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "SensitivityAnalysisBundleRef",
     ),
     "ExplanationBundleRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "ExplanationBundleRef",
     ),
     "JudgeVerdictRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "JudgeVerdictRef",
     ),
     "DriftReadinessRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "DriftReadinessRef",
     ),
     "MetricValidationReport": (
@@ -349,7 +487,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "RegimeShiftIdentificationCertificate",
     ),
     "RegimeShiftIdentificationCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "RegimeShiftIdentificationCertificateRef",
     ),
     "MultiEnvironmentCausalContract": (
@@ -365,7 +503,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "PrivacyAwareTransportCertificate",
     ),
     "PrivacyAwareTransportCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "PrivacyAwareTransportCertificateRef",
     ),
     "PrivacyObservedMode": (
@@ -387,13 +525,13 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "ExposureMappingType",
     ),
     "InteractionComplex": ("polisyos.ir.analytics.interference", "InteractionComplex"),
-    "InteractionComplexRef": ("polisyos.ir.references", "InteractionComplexRef"),
+    "InteractionComplexRef": ("polisyos.ir.registry.refs", "InteractionComplexRef"),
     "InterferenceCertificate": (
         "polisyos.ir.analytics.interference",
         "InterferenceCertificate",
     ),
     "InterferenceCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "InterferenceCertificateRef",
     ),
     "InterferenceEffectDecomposition": (
@@ -406,7 +544,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "MAUPInvarianceCertificate",
     ),
     "MAUPInvarianceCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "MAUPInvarianceCertificateRef",
     ),
     "MAUPPartitionCheck": ("polisyos.ir.analytics.interference", "MAUPPartitionCheck"),
@@ -471,7 +609,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "KernelEstimatorSpec",
     ),
     "KernelEstimatorSpecRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "KernelEstimatorSpecRef",
     ),
     "KernelEstimatorTemplate": (
@@ -539,7 +677,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "SurveyQualityCertificate",
     ),
     "SurveyQualityCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "SurveyQualityCertificateRef",
     ),
     "MicrosimCalibrationReport": (
@@ -547,7 +685,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "MicrosimCalibrationReport",
     ),
     "MicrosimCalibrationReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "MicrosimCalibrationReportRef",
     ),
     "DynamicMicrosimValidationReport": (
@@ -555,7 +693,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "DynamicMicrosimValidationReport",
     ),
     "DynamicMicrosimValidationReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "DynamicMicrosimValidationReportRef",
     ),
     "DependenceStructure": (
@@ -563,7 +701,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "DependenceStructure",
     ),
     "DependenceStructureRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "DependenceStructureRef",
     ),
     "MobilityReport": (
@@ -571,7 +709,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "MobilityReport",
     ),
     "MobilityReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "MobilityReportRef",
     ),
     "RecourseAction": ("polisyos.ir.analytics.recourse", "RecourseAction"),
@@ -744,7 +882,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.welfare",
         "GEUncertaintyBundle",
     ),
-    "GEUncertaintyBundleRef": ("polisyos.ir.references", "GEUncertaintyBundleRef"),
+    "GEUncertaintyBundleRef": ("polisyos.ir.registry.refs", "GEUncertaintyBundleRef"),
     "GEUncertaintyRepresentation": (
         "polisyos.ir.analytics.welfare",
         "GEUncertaintyRepresentation",
@@ -794,7 +932,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "RegimeShiftForecastBundle",
     ),
     "RegimeShiftForecastBundleRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "RegimeShiftForecastBundleRef",
     ),
     "Phase4DynamicsGate": (
@@ -814,7 +952,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "TemporalGraphCausalCertificate",
     ),
     "TemporalGraphCausalCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "TemporalGraphCausalCertificateRef",
     ),
     "SpaceTimeCausalCertificate": (
@@ -822,7 +960,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "SpaceTimeCausalCertificate",
     ),
     "SpaceTimeCausalCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "SpaceTimeCausalCertificateRef",
     ),
     "UncertaintyEnvelope": (
@@ -835,7 +973,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "EquilibriumMultiplicityWelfareAnnotation",
     ),
     "WelfareBundle": ("polisyos.ir.analytics.welfare", "WelfareBundle"),
-    "WelfareBundleRef": ("polisyos.ir.references", "WelfareBundleRef"),
+    "WelfareBundleRef": ("polisyos.ir.registry.refs", "WelfareBundleRef"),
     "WelfareIntervalSemantics": (
         "polisyos.ir.analytics.welfare",
         "WelfareIntervalSemantics",
@@ -845,7 +983,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.welfare",
         "WelfareSampleBundle",
     ),
-    "WelfareSampleBundleRef": ("polisyos.ir.references", "WelfareSampleBundleRef"),
+    "WelfareSampleBundleRef": ("polisyos.ir.registry.refs", "WelfareSampleBundleRef"),
     "WelfareStatus": ("polisyos.ir.analytics.welfare", "WelfareStatus"),
     "to_causalnex_graph_bridge": (
         "polisyos.ir.analytics.ecosystem_bridges",

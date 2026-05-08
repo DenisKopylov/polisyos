@@ -1,7 +1,6 @@
 {
   "benchmarks": {
     "benchmark_importing_tests": [
-      "tests/performance/test_benchmark_phase15_cli.py",
       "tests/performance/test_benchmark_phase15_contract.py",
       "tests/performance/test_benchmark_runtime_pipeline.py",
       "tests/performance/test_causal_frontier_sae_benchmark.py",
@@ -409,10 +408,10 @@
         "extension_counts": {
           ".duckdb": 4,
           ".json": 93,
-          ".md": 3,
+          ".md": 7,
           ".pkl": 2
         },
-        "file_count": 102,
+        "file_count": 106,
         "path": "tests/_data",
         "python_file_count": 0,
         "test_file_count": 0
@@ -463,10 +462,10 @@
         "extension_counts": {
           ".duckdb": 4,
           ".json": 93,
-          ".md": 3,
+          ".md": 7,
           ".pkl": 2
         },
-        "file_count": 102,
+        "file_count": 106,
         "path": "tests/_data",
         "python_file_count": 0,
         "test_file_count": 0
@@ -488,11 +487,11 @@
         "exists": true,
         "extension_counts": {
           ".md": 2,
-          ".py": 8
+          ".py": 9
         },
-        "file_count": 10,
+        "file_count": 11,
         "path": "tests/_helpers",
-        "python_file_count": 8,
+        "python_file_count": 9,
         "test_file_count": 0
       },
       "tests/contract": {
@@ -529,7 +528,7 @@
         "source_exists": true,
         "source_package": "ddm_15_7",
         "source_path": "src/polisyos/ddm_15_7",
-        "sunset_date": "2026-10-01",
+        "sunset_date": "2026-07-31",
         "target_exists": true,
         "target_package": "ddm",
         "target_path": "src/polisyos/ddm",
@@ -892,7 +891,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-decision_validity",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -907,9 +906,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-discovery-to-methods",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/discovery",
@@ -924,7 +923,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-error_semantics",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -940,7 +939,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-evidence_sources",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -972,7 +971,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-feedback_utils",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -988,7 +987,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-frontier_runtime",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1004,7 +1003,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-latent_separation",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1020,7 +1019,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-llm_cycle",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1036,7 +1035,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-publisher",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1044,7 +1043,7 @@
         "sunset_date": "2026-12-31",
         "target_exists": true,
         "target_package": "scientist",
-        "target_path": "src/polisyos/scientist/publishing",
+        "target_path": "src/polisyos/scientist/publishing/publisher.py",
         "type": "python_reexport"
       },
       {
@@ -1052,7 +1051,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-reliability_scorecard",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1068,7 +1067,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-remediation_status",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1084,7 +1083,7 @@
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-replay_backend",
         "issue": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
-        "owner": "team-scientist/team-foundry",
+        "owner": "team-scientist",
         "reference": "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
         "source_exists": true,
         "source_package": "scientist",
@@ -1099,9 +1098,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-research-dag-to-methods",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/research_dag",
@@ -1115,9 +1114,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "decomp-scientist-search-to-methods",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-47---scientist-search-discovery-research-dag-and-methods-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/search",
@@ -1146,182 +1145,6 @@
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
-        "id": "fabric-compatibility-to-internal",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/compatibility",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/_internal/compatibility.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-config-to-internal",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/config",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/_internal/config.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-connectors-ingestion-to-ingestion",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/connectors_ingestion",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/ingestion/connectors.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-finite-to-quality",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/finite",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/quality/finite.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-fitness-report-to-quality",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/fitness_report",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/quality/fitness_report.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-ingestion-providers-to-ingestion",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/ingestion_providers",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/ingestion/providers.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-numeric-parsing-to-internal",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/_numeric_parsing",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/_internal/numeric_parsing.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-registry-to-internal",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/registry",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/_internal/registry.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-safety-to-quality",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/safety",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/quality/safety.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "fabric-trust-adapter-to-trust",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "owner": "team-fabric",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-31---fabric-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "fabric",
-        "source_path": "src/polisyos/fabric/trust_adapter",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "fabric",
-        "target_path": "src/polisyos/fabric/trust/adapter.py",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "ir-citations-to-references",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "owner": "team-ir",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "ir",
-        "source_path": "src/polisyos/ir/citations",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "ir",
-        "target_path": "src/polisyos/ir/references",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
         "id": "ir-lazy-facade-to-api",
         "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
         "owner": "team-ir",
@@ -1338,58 +1161,42 @@
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
-        "id": "ir-public-surface-to-api",
+        "id": "ir-references-to-api-compat-aggregate",
         "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
         "owner": "team-ir",
         "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "source_exists": true,
+        "source_exists": false,
         "source_package": "ir",
-        "source_path": "src/polisyos/ir/public_surface",
+        "source_path": "src/polisyos/ir/references",
         "sunset_date": "2026-12-31",
         "target_exists": true,
         "target_package": "ir",
         "target_path": "src/polisyos/ir/api.py",
-        "type": "python_reexport"
+        "type": "python_alias"
       },
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
-        "id": "ir-refs-to-references",
+        "id": "ir-refs-to-registry-refs",
         "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
         "owner": "team-ir",
         "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "source_exists": true,
+        "source_exists": false,
         "source_package": "ir",
         "source_path": "src/polisyos/ir/refs",
         "sunset_date": "2026-12-31",
         "target_exists": true,
         "target_package": "ir",
-        "target_path": "src/polisyos/ir/references",
-        "type": "python_reexport"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "ir-schema-catalog-to-schemas",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "owner": "team-ir",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-32---ir-root-facade-closeout",
-        "source_exists": true,
-        "source_package": "ir",
-        "source_path": "src/polisyos/ir/schema_catalog",
-        "sunset_date": "2026-12-31",
-        "target_exists": true,
-        "target_package": "ir",
-        "target_path": "src/polisyos/ir/schemas",
-        "type": "python_reexport"
+        "target_path": "src/polisyos/ir/registry/refs.py",
+        "type": "python_alias"
       },
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "phase-4-6-scientist-continuous-governance",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/continuous_governance",
@@ -1403,9 +1210,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "phase-4-6-scientist-human-review",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/human_review",
@@ -1419,9 +1226,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "phase-4-6-scientist-policy-verified",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/policy_verified",
@@ -1435,9 +1242,9 @@
         "adr": null,
         "has_issue_or_adr_reference": true,
         "id": "phase-4-6-scientist-verification",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-46---scientist-governance-and-validation-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/verification",
@@ -1526,6 +1333,22 @@
         "target_package": "scientist",
         "target_path": "src/polisyos/scientist/methods/causal",
         "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-claims-to-evidence-claims",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
+        "owner": "team-scientist",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/claims",
+        "sunset_date": "2026-11-30",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/evidence/claims",
+        "type": "python_package_redirect"
       },
       {
         "adr": null,
@@ -1626,10 +1449,42 @@
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
-        "id": "scientist-orchestrator-to-orchestration-orchestrator",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "id": "scientist-orchestration-orchestrator-publisher-to-publishing-publisher",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-21---move-scientist-root-implementation-modules",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-21---move-scientist-root-implementation-modules",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/orchestration/orchestrator/publisher.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/publishing/publisher.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-orchestrator-publisher-to-publishing-publisher",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-21---move-scientist-root-implementation-modules",
+        "owner": "team-scientist",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-21---move-scientist-root-implementation-modules",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/orchestrator/publisher.py",
+        "sunset_date": "2026-12-31",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/publishing/publisher.py",
+        "type": "python_reexport"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-orchestrator-to-orchestration-orchestrator",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
+        "owner": "team-scientist",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/orchestrator",
@@ -1642,10 +1497,26 @@
       {
         "adr": null,
         "has_issue_or_adr_reference": true,
-        "id": "scientist-workflows-to-orchestration-workflows",
-        "issue": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "id": "scientist-provenance-to-evidence-provenance",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "owner": "team-scientist",
-        "reference": "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-45---scientist-engine-llm-compute-and-orchestration-lane",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
+        "source_exists": true,
+        "source_package": "scientist",
+        "source_path": "src/polisyos/scientist/provenance",
+        "sunset_date": "2026-11-30",
+        "target_exists": true,
+        "target_package": "scientist",
+        "target_path": "src/polisyos/scientist/evidence/provenance",
+        "type": "python_package_redirect"
+      },
+      {
+        "adr": null,
+        "has_issue_or_adr_reference": true,
+        "id": "scientist-workflows-to-orchestration-workflows",
+        "issue": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
+        "owner": "team-scientist",
+        "reference": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-22---resolve-scientist-semantic-duplicate-roots",
         "source_exists": true,
         "source_package": "scientist",
         "source_path": "src/polisyos/scientist/workflows",
@@ -1665,7 +1536,7 @@
         "source_exists": true,
         "source_package": "synthetic_world",
         "source_path": "src/polisyos/synthetic_world",
-        "sunset_date": "2026-10-01",
+        "sunset_date": "2026-07-31",
         "target_exists": true,
         "target_package": "foundry",
         "target_path": "src/polisyos/foundry/agent_sim/world",
@@ -1788,9 +1659,10 @@
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.1948,
-        "loose_name_mirrored_source_count": 30,
+        "loose_name_mirror_ratio": 0.6012,
+        "loose_name_mirrored_source_count": 104,
         "missing_strict_mirror_sample": [
+          "src/polisyos/ir/_internal/validation.py",
           "src/polisyos/ir/analytics/_truthfulness.py",
           "src/polisyos/ir/analytics/abm_bridge.py",
           "src/polisyos/ir/analytics/abstraction.py",
@@ -1809,8 +1681,7 @@
           "src/polisyos/ir/analytics/causal_graph_kuzu.py",
           "src/polisyos/ir/analytics/causal_queries.py",
           "src/polisyos/ir/analytics/causal_rl.py",
-          "src/polisyos/ir/analytics/causal_run_snapshot.py",
-          "src/polisyos/ir/analytics/certified_tightening.py"
+          "src/polisyos/ir/analytics/causal_run_snapshot.py"
         ],
         "package": "ir",
         "package_local_data_dir_count": 2,
@@ -1822,20 +1693,20 @@
         "property_path": "tests/property/ir",
         "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 154,
+        "source_module_count": 173,
         "source_path": "src/polisyos/ir",
         "strict_mirrored_source_count": 22,
-        "strict_module_mirror_ratio": 0.1429,
+        "strict_module_mirror_ratio": 0.1272,
         "unit_exists": true,
         "unit_path": "tests/unit/ir",
-        "unit_test_file_count": 97,
-        "unit_test_to_source_ratio": 0.6299
+        "unit_test_file_count": 163,
+        "unit_test_to_source_ratio": 0.9422
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.2327,
-        "loose_name_mirrored_source_count": 37,
+        "loose_name_mirror_ratio": 0.5031,
+        "loose_name_mirrored_source_count": 80,
         "missing_strict_mirror_sample": [
           "src/polisyos/core/artifacts/_atomic_write.py",
           "src/polisyos/core/artifacts/_env_capture.py",
@@ -1871,18 +1742,19 @@
         "strict_module_mirror_ratio": 0.1447,
         "unit_exists": true,
         "unit_path": "tests/unit/core",
-        "unit_test_file_count": 70,
-        "unit_test_to_source_ratio": 0.4403
+        "unit_test_file_count": 101,
+        "unit_test_to_source_ratio": 0.6352
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.1299,
-        "loose_name_mirrored_source_count": 30,
+        "loose_name_mirror_ratio": 0.498,
+        "loose_name_mirrored_source_count": 124,
         "missing_strict_mirror_sample": [
+          "src/polisyos/fabric/_adapters/observability.py",
           "src/polisyos/fabric/_internal/compatibility.py",
-          "src/polisyos/fabric/_internal/config.py",
           "src/polisyos/fabric/_internal/registry.py",
+          "src/polisyos/fabric/api.py",
           "src/polisyos/fabric/catalog/binding.py",
           "src/polisyos/fabric/catalog/contract.py",
           "src/polisyos/fabric/catalog/discovery.py",
@@ -1898,30 +1770,29 @@
           "src/polisyos/fabric/claims/backends/regex_numeric_v1.py",
           "src/polisyos/fabric/claims/canonicalize.py",
           "src/polisyos/fabric/claims/citations.py",
-          "src/polisyos/fabric/claims/conflicts/detect.py",
-          "src/polisyos/fabric/claims/conflicts/key.py"
+          "src/polisyos/fabric/claims/conflicts/detect.py"
         ],
         "package": "fabric",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/fabric",
-        "property_test_file_count": 0,
+        "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 231,
+        "source_module_count": 249,
         "source_path": "src/polisyos/fabric",
         "strict_mirrored_source_count": 17,
-        "strict_module_mirror_ratio": 0.0736,
+        "strict_module_mirror_ratio": 0.0683,
         "unit_exists": true,
         "unit_path": "tests/unit/fabric",
-        "unit_test_file_count": 98,
-        "unit_test_to_source_ratio": 0.4242
+        "unit_test_file_count": 164,
+        "unit_test_to_source_ratio": 0.6586
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.4679,
-        "loose_name_mirrored_source_count": 219,
+        "loose_name_mirror_ratio": 0.7205,
+        "loose_name_mirrored_source_count": 379,
         "missing_strict_mirror_sample": [
           "src/polisyos/foundry/_internal/utils.py",
           "src/polisyos/foundry/_quickstart.py",
@@ -1951,21 +1822,24 @@
         "property_path": "tests/property/foundry",
         "property_test_file_count": 28,
         "source_exists": true,
-        "source_module_count": 468,
+        "source_module_count": 526,
         "source_path": "src/polisyos/foundry",
-        "strict_mirrored_source_count": 182,
-        "strict_module_mirror_ratio": 0.3889,
+        "strict_mirrored_source_count": 184,
+        "strict_module_mirror_ratio": 0.3498,
         "unit_exists": true,
         "unit_path": "tests/unit/foundry",
-        "unit_test_file_count": 373,
-        "unit_test_to_source_ratio": 0.797
+        "unit_test_file_count": 468,
+        "unit_test_to_source_ratio": 0.8897
       },
       {
         "integration_path": "tests/integration/scientist",
         "integration_test_file_count": 3,
-        "loose_name_mirror_ratio": 0.5996,
-        "loose_name_mirrored_source_count": 280,
+        "loose_name_mirror_ratio": 0.7524,
+        "loose_name_mirrored_source_count": 559,
         "missing_strict_mirror_sample": [
+          "src/polisyos/scientist/_adapters/observability.py",
+          "src/polisyos/scientist/_internal/compat.py",
+          "src/polisyos/scientist/_internal/shims.py",
           "src/polisyos/scientist/agent/_drafter_formatting.py",
           "src/polisyos/scientist/agent/_drafter_llm.py",
           "src/polisyos/scientist/agent/_drafter_orchestrator.py",
@@ -1982,10 +1856,7 @@
           "src/polisyos/scientist/agent/failure_card.py",
           "src/polisyos/scientist/agent/feasibility.py",
           "src/polisyos/scientist/agent/feasibility_duckdb.py",
-          "src/polisyos/scientist/agent/formalizer.py",
-          "src/polisyos/scientist/agent/knowledge_tools.py",
-          "src/polisyos/scientist/agent/memory.py",
-          "src/polisyos/scientist/agent/pi.py"
+          "src/polisyos/scientist/agent/formalizer.py"
         ],
         "package": "scientist",
         "package_local_data_dir_count": 2,
@@ -1997,22 +1868,23 @@
         "property_path": "tests/property/scientist",
         "property_test_file_count": 5,
         "source_exists": true,
-        "source_module_count": 467,
+        "source_module_count": 743,
         "source_path": "src/polisyos/scientist",
-        "strict_mirrored_source_count": 220,
-        "strict_module_mirror_ratio": 0.4711,
+        "strict_mirrored_source_count": 239,
+        "strict_module_mirror_ratio": 0.3217,
         "unit_exists": true,
         "unit_path": "tests/unit/scientist",
-        "unit_test_file_count": 415,
-        "unit_test_to_source_ratio": 0.8887
+        "unit_test_file_count": 473,
+        "unit_test_to_source_ratio": 0.6366
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0182,
-        "loose_name_mirrored_source_count": 1,
+        "loose_name_mirror_ratio": 0.7619,
+        "loose_name_mirrored_source_count": 48,
         "missing_strict_mirror_sample": [
           "src/polisyos/runtime/api.py",
+          "src/polisyos/runtime/extensions/api.py",
           "src/polisyos/runtime/http/access_audit.py",
           "src/polisyos/runtime/http/app.py",
           "src/polisyos/runtime/http/authz_middleware.py",
@@ -2030,8 +1902,7 @@
           "src/polisyos/runtime/http/openapi_contract.py",
           "src/polisyos/runtime/http/resilience.py",
           "src/polisyos/runtime/http/response_policies.py",
-          "src/polisyos/runtime/http/routes/analysis.py",
-          "src/polisyos/runtime/http/routes/artifacts.py"
+          "src/polisyos/runtime/http/routes/analysis.py"
         ],
         "package": "runtime",
         "package_local_data_dir_count": 0,
@@ -2040,24 +1911,25 @@
         "property_path": "tests/property/runtime",
         "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 55,
+        "source_module_count": 63,
         "source_path": "src/polisyos/runtime",
-        "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_mirrored_source_count": 1,
+        "strict_module_mirror_ratio": 0.0159,
         "unit_exists": true,
         "unit_path": "tests/unit/runtime",
-        "unit_test_file_count": 41,
-        "unit_test_to_source_ratio": 0.7455
+        "unit_test_file_count": 78,
+        "unit_test_to_source_ratio": 1.2381
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.2069,
-        "loose_name_mirrored_source_count": 6,
+        "loose_name_mirror_ratio": 0.4667,
+        "loose_name_mirrored_source_count": 14,
         "missing_strict_mirror_sample": [
           "src/polisyos/lex/api.py",
           "src/polisyos/lex/artifacts.py",
           "src/polisyos/lex/errors.py",
+          "src/polisyos/lex/extensions/api.py",
           "src/polisyos/lex/factlog.py",
           "src/polisyos/lex/knowledge/search.py",
           "src/polisyos/lex/knowledge/store.py",
@@ -2073,30 +1945,29 @@
           "src/polisyos/lex/normpack/policies.py",
           "src/polisyos/lex/normpack/provider_registry.py",
           "src/polisyos/lex/normpack/select_sources.py",
-          "src/polisyos/lex/provenance.py",
-          "src/polisyos/lex/simulator/cli.py"
+          "src/polisyos/lex/provenance.py"
         ],
         "package": "lex",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/lex",
-        "property_test_file_count": 0,
+        "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 29,
+        "source_module_count": 30,
         "source_path": "src/polisyos/lex",
         "strict_mirrored_source_count": 7,
-        "strict_module_mirror_ratio": 0.2414,
+        "strict_module_mirror_ratio": 0.2333,
         "unit_exists": true,
         "unit_path": "tests/unit/lex",
-        "unit_test_file_count": 9,
-        "unit_test_to_source_ratio": 0.3103
+        "unit_test_file_count": 15,
+        "unit_test_to_source_ratio": 0.5
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.1429,
-        "loose_name_mirrored_source_count": 3,
+        "loose_name_mirror_ratio": 0.4762,
+        "loose_name_mirrored_source_count": 10,
         "missing_strict_mirror_sample": [
           "src/polisyos/scholar/api.py",
           "src/polisyos/scholar/discover/http_fetch.py",
@@ -2130,14 +2001,14 @@
         "strict_module_mirror_ratio": 0.1429,
         "unit_exists": true,
         "unit_path": "tests/unit/scholar",
-        "unit_test_file_count": 7,
-        "unit_test_to_source_ratio": 0.3333
+        "unit_test_file_count": 14,
+        "unit_test_to_source_ratio": 0.6667
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0385,
-        "loose_name_mirrored_source_count": 1,
+        "loose_name_mirror_ratio": 0.3846,
+        "loose_name_mirrored_source_count": 10,
         "missing_strict_mirror_sample": [
           "src/polisyos/berl/adapters/_linear.py",
           "src/polisyos/berl/adapters/_utils.py",
@@ -2173,14 +2044,14 @@
         "strict_module_mirror_ratio": 0.0385,
         "unit_exists": true,
         "unit_path": "tests/unit/berl",
-        "unit_test_file_count": 5,
-        "unit_test_to_source_ratio": 0.1923
+        "unit_test_file_count": 14,
+        "unit_test_to_source_ratio": 0.5385
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0,
-        "loose_name_mirrored_source_count": 0,
+        "loose_name_mirror_ratio": 0.6667,
+        "loose_name_mirrored_source_count": 8,
         "missing_strict_mirror_sample": [
           "src/polisyos/ddm/calibration/audit.py",
           "src/polisyos/ddm/calibration/calibrate.py",
@@ -2208,14 +2079,14 @@
         "strict_module_mirror_ratio": 0.0,
         "unit_exists": true,
         "unit_path": "tests/unit/ddm",
-        "unit_test_file_count": 6,
-        "unit_test_to_source_ratio": 0.5
+        "unit_test_file_count": 15,
+        "unit_test_to_source_ratio": 1.25
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.3714,
-        "loose_name_mirrored_source_count": 78,
+        "loose_name_mirror_ratio": 0.6009,
+        "loose_name_mirrored_source_count": 134,
         "missing_strict_mirror_sample": [
           "src/polisyos/data_forge/_version.py",
           "src/polisyos/data_forge/domains/academic/assets.py",
@@ -2245,16 +2116,16 @@
         ],
         "property_exists": true,
         "property_path": "tests/property/data_forge",
-        "property_test_file_count": 0,
+        "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 210,
+        "source_module_count": 223,
         "source_path": "src/polisyos/data_forge",
-        "strict_mirrored_source_count": 37,
-        "strict_module_mirror_ratio": 0.1762,
+        "strict_mirrored_source_count": 49,
+        "strict_module_mirror_ratio": 0.2197,
         "unit_exists": true,
         "unit_path": "tests/unit/data_forge",
-        "unit_test_file_count": 110,
-        "unit_test_to_source_ratio": 0.5238
+        "unit_test_file_count": 149,
+        "unit_test_to_source_ratio": 0.6682
       },
       {
         "integration_path": null,
@@ -2284,8 +2155,8 @@
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.3333,
-        "loose_name_mirrored_source_count": 3,
+        "loose_name_mirror_ratio": 0.7778,
+        "loose_name_mirrored_source_count": 7,
         "missing_strict_mirror_sample": [
           "src/polisyos/common/config.py",
           "src/polisyos/common/env_parsing.py",
@@ -2307,8 +2178,8 @@
         "strict_module_mirror_ratio": 0.3333,
         "unit_exists": true,
         "unit_path": "tests/unit/common",
-        "unit_test_file_count": 6,
-        "unit_test_to_source_ratio": 0.6667
+        "unit_test_file_count": 10,
+        "unit_test_to_source_ratio": 1.1111
       },
       {
         "integration_path": null,
@@ -2329,15 +2200,17 @@
         "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/ddm_15_7",
-        "unit_test_file_count": 1,
+        "unit_test_file_count": 0,
         "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": null,
+        "loose_name_mirror_ratio": 0.0,
         "loose_name_mirrored_source_count": 0,
-        "missing_strict_mirror_sample": [],
+        "missing_strict_mirror_sample": [
+          "src/polisyos/schemas/abi_models.py"
+        ],
         "package": "schemas",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -2345,14 +2218,14 @@
         "property_path": "tests/property/schemas",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 0,
+        "source_module_count": 1,
         "source_path": "src/polisyos/schemas",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": null,
+        "strict_module_mirror_ratio": 0.0,
         "unit_exists": false,
         "unit_path": "tests/unit/schemas",
         "unit_test_file_count": 0,
-        "unit_test_to_source_ratio": null
+        "unit_test_to_source_ratio": 0.0
       },
       {
         "integration_path": null,
@@ -2373,7 +2246,7 @@
         "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/synthetic_world",
-        "unit_test_file_count": 1,
+        "unit_test_file_count": 0,
         "unit_test_to_source_ratio": null
       }
     ],
@@ -2404,7 +2277,7 @@
         "package": "ir",
         "property_path": "tests/property/ir",
         "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0065
+        "property_to_source_ratio": 0.0058
       },
       {
         "data_contract_heavy": false,
@@ -2418,11 +2291,11 @@
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 0,
+        "hypothesis_file_count": 1,
         "package": "fabric",
         "property_path": "tests/property/fabric",
-        "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.004
       },
       {
         "data_contract_heavy": false,
@@ -2431,7 +2304,7 @@
         "package": "foundry",
         "property_path": "tests/property/foundry",
         "property_test_file_count": 28,
-        "property_to_source_ratio": 0.0598
+        "property_to_source_ratio": 0.0532
       },
       {
         "data_contract_heavy": false,
@@ -2440,7 +2313,7 @@
         "package": "scientist",
         "property_path": "tests/property/scientist",
         "property_test_file_count": 5,
-        "property_to_source_ratio": 0.0107
+        "property_to_source_ratio": 0.0067
       },
       {
         "data_contract_heavy": true,
@@ -2449,16 +2322,16 @@
         "package": "runtime",
         "property_path": "tests/property/runtime",
         "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0182
+        "property_to_source_ratio": 0.0159
       },
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 0,
+        "hypothesis_file_count": 1,
         "package": "lex",
         "property_path": "tests/property/lex",
-        "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.0333
       },
       {
         "data_contract_heavy": false,
@@ -2490,11 +2363,11 @@
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 0,
+        "hypothesis_file_count": 1,
         "package": "data_forge",
         "property_path": "tests/property/data_forge",
-        "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_test_file_count": 1,
+        "property_to_source_ratio": 0.0045
       },
       {
         "data_contract_heavy": false,
@@ -2530,7 +2403,7 @@
         "package": "schemas",
         "property_path": "tests/property/schemas",
         "property_test_file_count": 0,
-        "property_to_source_ratio": null
+        "property_to_source_ratio": 0.0
       },
       {
         "data_contract_heavy": false,
@@ -2546,6 +2419,8 @@
       "tests/conftest.py",
       "tests/integration/test_c7_synthetic_full_pipeline.py",
       "tests/property/common/test_serialization_properties.py",
+      "tests/property/data_forge/test_merkle_properties.py",
+      "tests/property/fabric/test_numeric_parsing_properties.py",
       "tests/property/foundry/data_plane/test_bindings_properties.py",
       "tests/property/foundry/methods/catalog/bayesian/test_bayesian_gp_properties.py",
       "tests/property/foundry/methods/catalog/bayesian/test_bayesian_properties.py",
@@ -2575,6 +2450,7 @@
       "tests/property/foundry/test_constraints_properties.py",
       "tests/property/foundry/test_slot_schema_properties.py",
       "tests/property/ir/test_phase3_properties.py",
+      "tests/property/lex/test_common_properties.py",
       "tests/property/runtime/http/test_access_invariants_properties.py",
       "tests/property/scientist/engine/test_property_budget.py",
       "tests/property/scientist/engine/test_property_checkpoint.py",
@@ -2603,6 +2479,7 @@
       "tests/unit/scientist/discovery/test_stability.py",
       "tests/unit/scientist/discovery/test_utility_judge.py",
       "tests/unit/scientist/discovery/test_workers.py",
+      "tests/unit/scientist/evidence/provenance/test_provenance_completeness.py",
       "tests/unit/scientist/evidence/test_evidence_sources_direct.py",
       "tests/unit/scientist/governance/test_calibration_governance.py",
       "tests/unit/scientist/governance/test_calibration_leaderboard.py",
@@ -2616,25 +2493,18 @@
     ],
     "missing_any_property_packages": [
       "core",
-      "fabric",
-      "lex",
       "scholar",
       "berl",
       "ddm",
-      "data_forge",
       "calibration",
       "ddm_15_7",
       "schemas",
       "synthetic_world"
     ],
-    "missing_data_contract_heavy_packages": [
-      "fabric",
-      "lex",
-      "data_forge"
-    ],
+    "missing_data_contract_heavy_packages": [],
     "property_root": "tests/property",
-    "total_hypothesis_usage_files": 70,
-    "total_property_test_files": 36
+    "total_hypothesis_usage_files": 74,
+    "total_property_test_files": 39
   },
   "pytest": {
     "addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
@@ -2877,13 +2747,13 @@
       {
         "exists": true,
         "has_conftest": false,
-        "init_file_count": 37,
+        "init_file_count": 38,
         "path": "tools"
       },
       {
         "exists": true,
         "has_conftest": true,
-        "init_file_count": 63,
+        "init_file_count": 66,
         "path": "tests"
       },
       {
@@ -2911,81 +2781,81 @@
   },
   "ratchet_starting_points": [
     {
-      "mirror_floor": 0.1429,
+      "mirror_floor": 0.1272,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "ir",
       "property_file_floor": 1,
-      "unit_test_file_floor": 97
+      "unit_test_file_floor": 163
     },
     {
       "mirror_floor": 0.1447,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "core",
       "property_file_floor": 0,
-      "unit_test_file_floor": 70
+      "unit_test_file_floor": 101
     },
     {
-      "mirror_floor": 0.0736,
+      "mirror_floor": 0.0683,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "fabric",
-      "property_file_floor": 0,
-      "unit_test_file_floor": 98
+      "property_file_floor": 1,
+      "unit_test_file_floor": 164
     },
     {
-      "mirror_floor": 0.3889,
+      "mirror_floor": 0.3498,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "foundry",
       "property_file_floor": 28,
-      "unit_test_file_floor": 373
+      "unit_test_file_floor": 468
     },
     {
-      "mirror_floor": 0.4711,
+      "mirror_floor": 0.3217,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "scientist",
       "property_file_floor": 5,
-      "unit_test_file_floor": 415
+      "unit_test_file_floor": 473
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": 0.0159,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "runtime",
       "property_file_floor": 1,
-      "unit_test_file_floor": 41
+      "unit_test_file_floor": 78
     },
     {
-      "mirror_floor": 0.2414,
+      "mirror_floor": 0.2333,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "lex",
-      "property_file_floor": 0,
-      "unit_test_file_floor": 9
+      "property_file_floor": 1,
+      "unit_test_file_floor": 15
     },
     {
       "mirror_floor": 0.1429,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "scholar",
       "property_file_floor": 0,
-      "unit_test_file_floor": 7
+      "unit_test_file_floor": 14
     },
     {
       "mirror_floor": 0.0385,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "berl",
       "property_file_floor": 0,
-      "unit_test_file_floor": 5
+      "unit_test_file_floor": 14
     },
     {
       "mirror_floor": 0.0,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "ddm",
       "property_file_floor": 0,
-      "unit_test_file_floor": 6
+      "unit_test_file_floor": 15
     },
     {
-      "mirror_floor": 0.1762,
+      "mirror_floor": 0.2197,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "data_forge",
-      "property_file_floor": 0,
-      "unit_test_file_floor": 110
+      "property_file_floor": 1,
+      "unit_test_file_floor": 149
     },
     {
       "mirror_floor": 0.7143,
@@ -2999,17 +2869,17 @@
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "common",
       "property_file_floor": 1,
-      "unit_test_file_floor": 6
+      "unit_test_file_floor": 10
     },
     {
       "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "ddm_15_7",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": null,
+      "mirror_floor": 0.0,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "schemas",
       "property_file_floor": 0,
@@ -3020,27 +2890,20 @@
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "synthetic_world",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     }
   ],
   "schema_version": "repository.verification_inventory.v2",
   "summary": {
     "benchmark_py_file_count": 147,
-    "data_contract_heavy_packages_missing_property_tests": [
-      "fabric",
-      "lex",
-      "data_forge"
-    ],
+    "data_contract_heavy_packages_missing_property_tests": [],
     "data_like_directory_count": 14,
     "package_count": 16,
     "packages_missing_property_tests": [
       "core",
-      "fabric",
-      "lex",
       "scholar",
       "berl",
       "ddm",
-      "data_forge",
       "calibration",
       "ddm_15_7",
       "schemas",
@@ -3050,12 +2913,12 @@
     "pytest_collectable_data_like_tests": 3,
     "pytest_conftest_count": 30,
     "pytest_duplicate_fixture_name_count": 3,
-    "source_module_count": 1848,
+    "source_module_count": 2242,
     "strict_mirror_ratio_max": 0.7143,
     "strict_mirror_ratio_min": 0.0,
-    "strict_mirror_ratio_weighted": 0.2814,
+    "strict_mirror_ratio_weighted": 0.2471,
     "tracked_package_count": 12,
-    "unit_test_file_count": 1244
+    "unit_test_file_count": 1669
   },
   "test_role_inventory": {
     "classification": {
@@ -3080,25 +2943,25 @@
         "conftest_count": 24,
         "exists": true,
         "path": "tests/unit",
-        "python_file_count": 1330,
+        "python_file_count": 1759,
         "role": "product_behavior",
-        "test_file_count": 1244
+        "test_file_count": 1669
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/integration",
-        "python_file_count": 6,
+        "python_file_count": 15,
         "role": "product_behavior",
-        "test_file_count": 6
+        "test_file_count": 15
       },
       {
         "conftest_count": 1,
         "exists": true,
         "path": "tests/property",
-        "python_file_count": 37,
+        "python_file_count": 40,
         "role": "product_behavior",
-        "test_file_count": 36
+        "test_file_count": 39
       },
       {
         "conftest_count": 0,
@@ -3128,9 +2991,9 @@
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/architecture",
-        "python_file_count": 39,
+        "python_file_count": 43,
         "role": "repository_quality",
-        "test_file_count": 39
+        "test_file_count": 43
       },
       {
         "conftest_count": 0,
@@ -3144,9 +3007,9 @@
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/tools",
-        "python_file_count": 61,
+        "python_file_count": 68,
         "role": "repository_quality",
-        "test_file_count": 61
+        "test_file_count": 68
       }
     ]
   }

@@ -4,8 +4,8 @@ Phase 5.8 makes `architecture/packages/*.toml` the primary package architecture
 source of truth. Existing aggregate contracts stay in place as generated or
 mirrored legacy views until their gates switch to package-contract generation.
 
-Each aggregate package in `architecture/package_boundaries.toml` or
-`architecture/public_surface.toml` must have exactly one primary contract file
+Each aggregate package in `architecture/packages/boundaries.toml` or
+`architecture/public_surface/contract.toml` must have exactly one primary contract file
 here. The report-only validator treats missing primary files and aggregate
 mirror drift as contract errors, while the gates themselves remain report-only
 until the Wave 6 fail-closed conversion plan is accepted.

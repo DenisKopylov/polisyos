@@ -327,10 +327,19 @@ jobs:
             --output _build/.tmp/test-reports/test-economics-summary.md
           cat _build/.tmp/test-reports/test-economics-summary.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Check directory health ratchet
+        run: |
+          uv run python tools/quality/validation/directory_health.py \
+            --repo-root . \
+            --json-output _build/.tmp/last-mile/directory-health.json \
+            --markdown-output _build/.tmp/last-mile/directory-health.md \
+            --fail-on-regression
+
       - name: Render test ratchet summary
         run: |
           uv run python tools/quality/testing/report_test_ratchets.py \
-            --output _build/.tmp/test-reports/test-ratchets-summary.md
+            --output _build/.tmp/test-reports/test-ratchets-summary.md \
+            --fail-on-regression
           cat _build/.tmp/test-reports/test-ratchets-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload economics summary
@@ -341,6 +350,8 @@ jobs:
           path: |
             policy-engine/_build/.tmp/test-reports/test-economics-summary.md
             policy-engine/_build/.tmp/test-reports/test-ratchets-summary.md
+            policy-engine/_build/.tmp/last-mile/directory-health.json
+            policy-engine/_build/.tmp/last-mile/directory-health.md
           if-no-files-found: warn
           retention-days: 14
 

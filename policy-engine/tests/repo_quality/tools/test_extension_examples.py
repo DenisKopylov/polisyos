@@ -13,6 +13,7 @@ def test_phase6_4_extension_examples_cover_required_hosts() -> None:
     assert set(examples) == {
         "fabric_connector",
         "foundry_method",
+        "scientist_governance_pass",
         "scientist_node",
         "data_forge_domain",
         "lex_normpack",
@@ -21,6 +22,7 @@ def test_phase6_4_extension_examples_cover_required_hosts() -> None:
     assert {example.group for example in examples.values()} == {
         "polisyos.fabric_connectors",
         "polisyos.foundry_methods",
+        "polisyos.scientist_governance_passes",
         "polisyos.scientist_nodes",
         "polisyos.data_forge_domains",
         "polisyos.lex_normpacks",

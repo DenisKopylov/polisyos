@@ -46,14 +46,14 @@ The contract schema lives at
 
 ## Boundary Evidence
 
-- `architecture/import_contracts.toml` blocks runtime/fabric/IR/domain
+- `architecture/imports/contracts.toml` blocks runtime/fabric/IR/domain
   consumers from importing `polisyos.data_forge`,
   `polisyos.data_forge.kernel`, or `polisyos.data_forge.domains`, while
   allowing `polisyos.data_forge.read_api`.
-- `architecture/package_boundaries.toml` keeps
+- `architecture/packages/boundaries.toml` keeps
   `runtime_allowed_submodules = ["polisyos.data_forge.read_api"]` on the Data
   Forge package boundary.
-- `architecture/public_surface.toml` documents the top-level Data Forge facade
+- `architecture/public_surface/contract.toml` documents the top-level Data Forge facade
   as lazy build-time only and `read_api` as the runtime import surface.
 
 ## Baselines

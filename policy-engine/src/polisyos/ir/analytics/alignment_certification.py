@@ -41,8 +41,8 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     synthesize_latent_bridge,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import AlignmentReportRef, VariableAlignmentCertificateRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import AlignmentReportRef, VariableAlignmentCertificateRef
 from polisyos.scientist.cross_graph.compiler import (
     build_fragment_alignment_ontology_warnings,
 )

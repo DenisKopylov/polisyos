@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from polisyos.core.registry.generic import GenericRegistry
-from polisyos.fabric.manifest import DatasetManifest
+from polisyos.fabric.identity.manifest import DatasetManifest
 
 
 class ManifestRegistry:

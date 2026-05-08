@@ -1,9 +1,19 @@
-"""Compatibility facade for Fabric configuration models."""
+"""Fabric configuration models."""
 
 from __future__ import annotations
 
-import sys as _sys
-from importlib import import_module as _import_module
+from .config import (
+    DEFAULT_RECONCILIATION_TOLERANCE,
+    NORMALIZATION_RULES,
+    RECONCILIATION_RULES,
+    CatalogConfig,
+    FabricConfig,
+)
 
-_impl = _import_module("polisyos.fabric._internal.config")
-_sys.modules[__name__] = _impl
+__all__ = [
+    "DEFAULT_RECONCILIATION_TOLERANCE",
+    "NORMALIZATION_RULES",
+    "RECONCILIATION_RULES",
+    "CatalogConfig",
+    "FabricConfig",
+]

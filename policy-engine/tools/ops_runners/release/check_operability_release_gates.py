@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import re
 import sys
@@ -17,7 +18,7 @@ from tools.quality.validation import control_plane_supply_chain_contracts
 
 REPO_ROOT = repo_root_from(__file__)
 WORKSPACE_ROOT = REPO_ROOT.parent
-DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "operability_release_supply_chain_gates.toml"
+DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "gates" / "operability_release_supply_chain.toml"
 PHASE = "repository-best-in-class-phase-6.3"
 GATE_COMMAND = "uv run polisyos-tools release check-operability-release-gates --fail-closed"
 REQUIRED_DEPLOYMENT_UNITS = {
@@ -37,6 +38,18 @@ REQUIRED_PROMOTION_GATES = {
     "operability_release_supply_chain",
 }
 REQUIRED_MIGRATION_CLASSES = {"db", "runtime_state", "api_schemas", "ir"}
+DEFAULT_REQUIRED_OPERABILITY_BUNDLE_FILES = (
+    "README.md",
+    "alerts.yml",
+    "dashboard.json",
+    "retention-policy.toml",
+    "runbooks.md",
+    "runtime-contract.toml",
+    "slo.yaml",
+)
+DEFAULT_PHASE_6_6_PLAN_WINDOW_START = dt.date(2026, 5, 7)
+DEFAULT_PHASE_6_6_PLAN_COMPLETION_TARGET = dt.date(2026, 5, 31)
+EXCEPTION_MINIMUM_DAYS_AFTER_COMPLETION = 90
 COMPONENT_SLO_REQUIRED_CLASSIFICATIONS = {
     "public_stable",
     "public_experimental",
@@ -76,6 +89,7 @@ def build_report(
     contract_path: Path = DEFAULT_CONTRACT,
     fragments_dir: Path | None = None,
     breaking_classes: tuple[str, ...] = (),
+    current_date: dt.date | None = None,
 ) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     contract_path = _resolve(repo_root, contract_path)
@@ -83,7 +97,10 @@ def build_report(
     findings: list[Finding] = []
 
     findings.extend(_check_conversion_contract(repo_root, contract_path, contract))
-    operability_summary, operability_findings = _check_operability(repo_root)
+    operability_summary, operability_findings = _check_operability(
+        repo_root,
+        current_date=current_date,
+    )
     findings.extend(operability_findings)
     release_summary, release_findings = _check_release_promotion(
         repo_root,
@@ -187,13 +204,30 @@ def _check_conversion_contract(
     return findings
 
 
-def _check_operability(repo_root: Path) -> tuple[dict[str, Any], list[Finding]]:
+def _check_operability(
+    repo_root: Path,
+    *,
+    current_date: dt.date | None = None,
+) -> tuple[dict[str, Any], list[Finding]]:
     findings: list[Finding] = []
+    current_date = current_date or dt.date.today()
     components_index = _read_toml(repo_root / "ops" / "components" / "index.toml")
     runbooks = _read_toml(repo_root / "architecture" / "runbook_coverage.toml")
     observability = _read_toml(repo_root / "architecture" / "component_observability.toml")
     components = {str(item.get("id", "")): item for item in components_index.get("component", [])}
     public_stable = _public_stable_components(repo_root)
+    bundle_policy, bundle_policy_findings = _component_bundle_policy(
+        repo_root=repo_root,
+        components_index=components_index,
+        runbooks=runbooks,
+        observability=observability,
+    )
+    findings.extend(bundle_policy_findings)
+    index_public_stable = {
+        component_id
+        for component_id, component in components.items()
+        if str(component.get("classification", "")) == "public_stable"
+    }
 
     missing_components = sorted(public_stable - set(components))
     for component in missing_components:
@@ -202,6 +236,16 @@ def _check_operability(repo_root: Path) -> tuple[dict[str, Any], list[Finding]]:
                 "slo-runbook-coverage",
                 component,
                 "public-stable component is missing from ops/components/index.toml",
+            )
+        )
+
+    for component_id in sorted(index_public_stable):
+        findings.extend(
+            _check_public_stable_bundle(
+                repo_root=repo_root,
+                component_id=component_id,
+                component=components[component_id],
+                required_files=bundle_policy["required_files"],
             )
         )
 
@@ -255,11 +299,16 @@ def _check_operability(repo_root: Path) -> tuple[dict[str, Any], list[Finding]]:
                     )
                 )
             if slo_status == "exception":
-                for field in ("exception_reason", "exception_expires"):
-                    if not str(component.get(field, "")).strip():
-                        findings.append(
-                            Finding("slo-runbook-coverage", component_id, f"`{field}` is required")
-                        )
+                findings.extend(
+                    _check_exception_record(
+                        component,
+                        subject=component_id,
+                        prefix="exception",
+                        policy=bundle_policy,
+                        current_date=current_date,
+                        source="ops/components/index.toml",
+                    )
+                )
                 if "status: exception" not in slo_text:
                     findings.append(
                         Finding(
@@ -286,6 +335,17 @@ def _check_operability(repo_root: Path) -> tuple[dict[str, Any], list[Finding]]:
         if component.get("slo_status") == "required_missing":
             findings.append(
                 Finding("component-observability", component_id, "slo_status is required_missing")
+            )
+        if component.get("slo_status") == "exception":
+            findings.extend(
+                _check_exception_record(
+                    component,
+                    subject=component_id,
+                    prefix="exception",
+                    policy=bundle_policy,
+                    current_date=current_date,
+                    source="architecture/component_observability.toml",
+                )
             )
         for field in (
             "owner",
@@ -323,17 +383,241 @@ def _check_operability(repo_root: Path) -> tuple[dict[str, Any], list[Finding]]:
                     )
                 )
 
+    for component in runbooks.get("component_contract", []):
+        if component.get("slo_exception"):
+            findings.extend(
+                _check_exception_record(
+                    component,
+                    subject=str(component.get("component", "")),
+                    prefix="slo_exception",
+                    policy=bundle_policy,
+                    current_date=current_date,
+                    source="architecture/runbook_coverage.toml",
+                )
+            )
+
     alert_summary, alert_findings = _check_alert_coverage(repo_root, runbooks)
     findings.extend(alert_findings)
     return (
         {
             "component_count": len(components),
             "public_stable_component_count": len(public_stable),
+            "public_stable_index_component_count": len(index_public_stable),
             "observability_contract_count": len(observability_contracts),
+            "required_bundle_files": bundle_policy["required_files"],
             **alert_summary,
         },
         findings,
     )
+
+
+def _component_bundle_policy(
+    *,
+    repo_root: Path,
+    components_index: dict[str, Any],
+    runbooks: dict[str, Any],
+    observability: dict[str, Any],
+) -> tuple[dict[str, Any], list[Finding]]:
+    findings: list[Finding] = []
+    header = components_index.get("component_bundles", {})
+    required_files = tuple(
+        _as_string_list(header.get("required_public_stable_bundle_files"))
+        or DEFAULT_REQUIRED_OPERABILITY_BUNDLE_FILES
+    )
+    plan_window_start = _parse_date(
+        header.get("phase_6_6_plan_window_start"),
+        default=DEFAULT_PHASE_6_6_PLAN_WINDOW_START,
+    )
+    plan_completion_target = _parse_date(
+        header.get("phase_6_6_plan_completion_target"),
+        default=DEFAULT_PHASE_6_6_PLAN_COMPLETION_TARGET,
+    )
+    if plan_window_start is None:
+        plan_window_start = DEFAULT_PHASE_6_6_PLAN_WINDOW_START
+        findings.append(
+            Finding(
+                "operability-bundle-completeness",
+                "ops/components/index.toml",
+                "phase_6_6_plan_window_start must be an ISO date",
+            )
+        )
+    if plan_completion_target is None:
+        plan_completion_target = DEFAULT_PHASE_6_6_PLAN_COMPLETION_TARGET
+        findings.append(
+            Finding(
+                "operability-bundle-completeness",
+                "ops/components/index.toml",
+                "phase_6_6_plan_completion_target must be an ISO date",
+            )
+        )
+
+    expected_required_files = set(DEFAULT_REQUIRED_OPERABILITY_BUNDLE_FILES)
+    if set(required_files) != expected_required_files:
+        findings.append(
+            Finding(
+                "operability-bundle-completeness",
+                "ops/components/index.toml",
+                "required public-stable bundle files do not match Phase 6.6",
+                ", ".join(sorted(set(required_files) ^ expected_required_files)),
+            )
+        )
+    expected_gate = "fail_closed"
+    for subject, contract, table_name in (
+        ("ops/components/index.toml", components_index, "component_bundles"),
+        ("architecture/runbook_coverage.toml", runbooks, "runbook_coverage"),
+        (
+            "architecture/component_observability.toml",
+            observability,
+            "component_observability",
+        ),
+    ):
+        contract_header = contract.get(table_name, {})
+        if contract_header.get("phase_6_6_completeness_gate") != expected_gate:
+            findings.append(
+                Finding(
+                    "operability-bundle-completeness",
+                    subject,
+                    "phase_6_6_completeness_gate must be fail_closed",
+                    str(contract_header.get("phase_6_6_completeness_gate", "")),
+                )
+            )
+        if set(_as_string_list(contract_header.get("required_public_stable_bundle_files"))) != (
+            expected_required_files
+        ):
+            findings.append(
+                Finding(
+                    "operability-bundle-completeness",
+                    subject,
+                    "required_public_stable_bundle_files must mirror Phase 6.6",
+                )
+            )
+    minimum_expiration = plan_completion_target + dt.timedelta(
+        days=EXCEPTION_MINIMUM_DAYS_AFTER_COMPLETION
+    )
+    return (
+        {
+            "required_files": tuple(required_files),
+            "plan_window_start": plan_window_start,
+            "plan_completion_target": plan_completion_target,
+            "minimum_exception_expiration": minimum_expiration,
+        },
+        findings,
+    )
+
+
+def _check_public_stable_bundle(
+    *,
+    repo_root: Path,
+    component_id: str,
+    component: dict[str, Any],
+    required_files: tuple[str, ...],
+) -> list[Finding]:
+    bundle = str(component.get("bundle", ""))
+    if not bundle:
+        return [
+            Finding(
+                "operability-bundle-completeness",
+                component_id,
+                "`bundle` is required for public-stable components",
+            )
+        ]
+    bundle_path = repo_root / bundle
+    if not bundle_path.is_dir():
+        return [
+            Finding(
+                "operability-bundle-completeness",
+                component_id,
+                "public-stable component bundle directory is missing",
+                bundle,
+            )
+        ]
+    present_files = {path.name for path in bundle_path.iterdir() if path.is_file()}
+    missing = sorted(set(required_files) - present_files)
+    if not missing:
+        return []
+    return [
+        Finding(
+            "operability-bundle-completeness",
+            component_id,
+            "public-stable component bundle is missing required files",
+            ", ".join(missing),
+        )
+    ]
+
+
+def _check_exception_record(
+    record: dict[str, Any],
+    *,
+    subject: str,
+    prefix: str,
+    policy: dict[str, Any],
+    current_date: dt.date,
+    source: str,
+) -> list[Finding]:
+    findings: list[Finding] = []
+    required_fields = (
+        f"{prefix}_owner",
+        f"{prefix}_reason",
+        f"{prefix}_expires",
+        f"{prefix}_action_plan",
+        f"{prefix}_action_due",
+    )
+    missing_fields = [field for field in required_fields if not str(record.get(field, "")).strip()]
+    for field in missing_fields:
+        findings.append(
+            Finding(
+                "operability-exception-policy",
+                subject,
+                f"`{field}` is required",
+                source,
+            )
+        )
+
+    expires = _parse_date(record.get(f"{prefix}_expires"))
+    if expires is None:
+        if f"{prefix}_expires" not in missing_fields:
+            findings.append(
+                Finding(
+                    "operability-exception-policy",
+                    subject,
+                    f"`{prefix}_expires` must be an ISO date",
+                    source,
+                )
+            )
+        return findings
+    if expires < current_date:
+        findings.append(
+            Finding(
+                "operability-exception-policy",
+                subject,
+                "exception expired",
+                f"{source}: {expires.isoformat()}",
+            )
+        )
+
+    minimum_expiration = policy["minimum_exception_expiration"]
+    if expires >= minimum_expiration:
+        return findings
+
+    action_plan = str(record.get(f"{prefix}_action_plan", "")).strip()
+    action_due = _parse_date(record.get(f"{prefix}_action_due"))
+    plan_window_start = policy["plan_window_start"]
+    plan_completion_target = policy["plan_completion_target"]
+    if not action_plan or action_due is None or not (
+        plan_window_start <= action_due <= plan_completion_target
+    ):
+        findings.append(
+            Finding(
+                "operability-exception-policy",
+                subject,
+                "short exception must have an action plan due inside the plan window",
+                (
+                    f"{source}: expires={expires.isoformat()} "
+                    f"minimum={minimum_expiration.isoformat()}"
+                ),
+            )
+        )
+    return findings
 
 
 def _check_alert_coverage(
@@ -503,6 +787,7 @@ def _check_release_promotion(
 
     compatibility_report = check_compatibility_release_gates.build_report(
         repo_root=repo_root,
+        policy_path=repo_root / "architecture" / "gates" / "compatibility_release.toml",
         fragments_dir=fragments_dir,
         breaking_classes=breaking_classes,
     )
@@ -607,7 +892,11 @@ def _check_supply_chain(
 
 
 def _public_stable_components(repo_root: Path) -> set[str]:
-    surface = _read_toml(repo_root / "architecture" / "public_surface.toml")
+    surface_path = _first_existing(
+        repo_root,
+        ("architecture/public_surface/contract.toml",),
+    )
+    surface = _read_toml(surface_path)
     components: set[str] = set()
     for package in surface.get("package", []):
         if package.get("classification") != "public_stable":
@@ -677,6 +966,14 @@ def _path_or_glob_exists(repo_root: Path, path: str) -> bool:
     return (base / normalized).exists()
 
 
+def _first_existing(repo_root: Path, paths: tuple[str, ...]) -> Path:
+    for path in paths:
+        candidate = repo_root / path
+        if candidate.exists():
+            return candidate
+    return repo_root / paths[0]
+
+
 def _as_string_list(value: object) -> list[str]:
     if value is None:
         return []
@@ -685,6 +982,17 @@ def _as_string_list(value: object) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value if str(item)]
     return [str(value)]
+
+
+def _parse_date(value: object, *, default: dt.date | None = None) -> dt.date | None:
+    if value is None or value == "":
+        return default
+    if isinstance(value, dt.date):
+        return value
+    try:
+        return dt.date.fromisoformat(str(value))
+    except ValueError:
+        return None
 
 
 def _build_parser() -> argparse.ArgumentParser:

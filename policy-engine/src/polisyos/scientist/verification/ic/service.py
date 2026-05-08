@@ -1,4 +1,7 @@
 """Compatibility shim for IC verification services."""
 
-from polisyos.scientist.validation.verification.ic.service import *  # noqa: F403
-from polisyos.scientist.validation.verification.ic.service import __all__ as __all__
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import alias_module as _alias_module
+
+_alias_module(__name__, "polisyos.scientist.validation.verification.ic.service", globals())

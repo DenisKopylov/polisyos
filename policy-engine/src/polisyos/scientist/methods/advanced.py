@@ -84,6 +84,19 @@ _METHOD_MODULES = {
 _METHOD_MODULE_LOAD_LOCK = threading.RLock()
 
 
+def _is_registerable_method_candidate(attr_name: str, candidate: Any) -> bool:
+    if attr_name.startswith("_") or not isinstance(candidate, type):
+        return False
+    if candidate.__name__.startswith("_"):
+        return False
+    signature = getattr(candidate, "signature", None)
+    if signature is None or not hasattr(candidate, "pure_step"):
+        return False
+    namespace = getattr(signature, "namespace", "")
+    version = getattr(signature, "version", "")
+    return bool(str(namespace).strip() and str(version).strip())
+
+
 @dataclass(frozen=True)
 class C7AdvancedInputs:
     """Input contract for the Scientist C7 advanced-method suite.
@@ -373,11 +386,7 @@ def _ensure_method_module_loaded(
                     resolved_registry = _default_method_registry()
                 for attr_name in dir(module):
                     candidate = getattr(module, attr_name)
-                    if (
-                        isinstance(candidate, type)
-                        and hasattr(candidate, "signature")
-                        and hasattr(candidate, "pure_step")
-                    ):
+                    if _is_registerable_method_candidate(attr_name, candidate):
                         try:
                             resolved_registry.register(candidate)
                         except Exception as exc:

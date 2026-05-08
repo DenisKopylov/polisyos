@@ -2,17 +2,19 @@
   "contracts": {
     "eurostat.data.generic": {
       "connector_id": "eurostat.data",
-      "content_hash": "sha256:0f6687e89da74186170d15a2b2aab4e6a14d2e845fb883adc09591e592ae78fa",
+      "content_hash": "sha256:64ab9d69c26c4274c272ae0306defc2d3177a8f9806031edd097a12574a5c4e0",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -66,6 +68,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.dataset_id",
               "max_length": 128,
               "name": "dataset_id",
               "nullable": false,
@@ -89,6 +92,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.observation_index",
               "max_length": null,
               "name": "observation_index",
               "nullable": false,
@@ -112,6 +116,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.6,
+              "field_id": "eurostat.data.generic.time_period",
               "max_length": 32,
               "name": "time_period",
               "nullable": true,
@@ -135,6 +140,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.0,
+              "field_id": "eurostat.data.generic.unit",
               "max_length": 64,
               "name": "unit",
               "nullable": true,
@@ -158,6 +164,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.7,
+              "field_id": "eurostat.data.generic.value",
               "max_length": null,
               "name": "value",
               "nullable": true,
@@ -181,6 +188,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "eurostat.data.generic.dimensions_json",
               "max_length": 8192,
               "name": "dimensions_json",
               "nullable": false,
@@ -214,28 +222,30 @@
           "time_dimension": "time_period",
           "time_granularity": null,
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
         }
       },
       "dataset_id": "*",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "sdmx.generic": {
       "connector_id": "sdmx.source",
-      "content_hash": "sha256:ad65e77fd766109b86841005c0c07335d1a0bc6885cc17660bd96b019da39b0d",
+      "content_hash": "sha256:839e76c3fd794eee4aba20f505a21a6c42fe7cc8a531547db7d4290a67835053",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 500,
@@ -291,6 +301,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.85,
+              "field_id": "sdmx.generic.value",
               "max_length": null,
               "name": "value",
               "nullable": true,
@@ -314,6 +325,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.9,
+              "field_id": "sdmx.generic.time_period",
               "max_length": 32,
               "name": "time_period",
               "nullable": true,
@@ -337,6 +349,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.0,
+              "field_id": "sdmx.generic.freq",
               "max_length": 8,
               "name": "freq",
               "nullable": true,
@@ -364,28 +377,30 @@
           "time_dimension": "time_period",
           "time_granularity": "quarterly",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
         }
       },
       "dataset_id": "*",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "ukons.datasets.generic": {
       "connector_id": "ukons.datasets",
-      "content_hash": "sha256:24762f7d20e2a4761cce5e53eecbb2af20e58e26f111fd6e57e1878a08aa78d2",
+      "content_hash": "sha256:3a33aec485b484b5f67f3fbf7005def3bd0fdc1d6cbb87bc0bd10966bb2e3001",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -438,6 +453,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "ukons.datasets.generic.dataset_id",
               "max_length": 128,
               "name": "dataset_id",
               "nullable": false,
@@ -461,6 +477,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.6,
+              "field_id": "ukons.datasets.generic.observation",
               "max_length": null,
               "name": "observation",
               "nullable": true,
@@ -484,6 +501,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.5,
+              "field_id": "ukons.datasets.generic.time_period",
               "max_length": 64,
               "name": "time_period",
               "nullable": true,
@@ -507,6 +525,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.5,
+              "field_id": "ukons.datasets.generic.geography",
               "max_length": 64,
               "name": "geography",
               "nullable": true,
@@ -530,6 +549,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "ukons.datasets.generic.dimensions_json",
               "max_length": 8192,
               "name": "dimensions_json",
               "nullable": false,
@@ -563,28 +583,30 @@
           "time_dimension": "time_period",
           "time_granularity": null,
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
         }
       },
       "dataset_id": "*",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "worldbank.wdi.generic": {
       "connector_id": "worldbank.wdi",
-      "content_hash": "sha256:dc177a655ce7626034d56ec6aa2dced7f88a2e9f73ea30c2651eaef37b08d2d1",
+      "content_hash": "sha256:1c955f0a7558b90113fff96fa7e7c03edb79b6a81306ec3d05789824f4b40216",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "latest_window",
         "completeness_window_rows": 2000,
@@ -670,6 +692,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.country_code",
               "max_length": 3,
               "name": "country_code",
               "nullable": false,
@@ -693,6 +716,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.95,
+              "field_id": "worldbank.wdi.generic.country_name",
               "max_length": 256,
               "name": "country_name",
               "nullable": true,
@@ -716,6 +740,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.indicator_id",
               "max_length": 128,
               "name": "indicator_id",
               "nullable": false,
@@ -739,6 +764,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.95,
+              "field_id": "worldbank.wdi.generic.indicator_name",
               "max_length": 512,
               "name": "indicator_name",
               "nullable": true,
@@ -762,6 +788,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "worldbank.wdi.generic.year",
               "max_length": null,
               "name": "year",
               "nullable": false,
@@ -785,6 +812,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.8,
+              "field_id": "worldbank.wdi.generic.value",
               "max_length": null,
               "name": "value",
               "nullable": true,
@@ -808,6 +836,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.0,
+              "field_id": "worldbank.wdi.generic.unit",
               "max_length": 64,
               "name": "unit",
               "nullable": true,
@@ -831,6 +860,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.0,
+              "field_id": "worldbank.wdi.generic.decimal",
               "max_length": null,
               "name": "decimal",
               "nullable": true,
@@ -866,28 +896,30 @@
           "time_dimension": "year",
           "time_granularity": "annual",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
         }
       },
       "dataset_id": "*",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     },
     "wvs.wave7.generic": {
       "connector_id": "wvs.wave7",
-      "content_hash": "sha256:388a6114e2f173307d35ab37d0026e297f78f903b95d8f39102599c05c89ce8a",
+      "content_hash": "sha256:194f88668ef76db93263492d1c33794a7100dc8697c6307fa2e77b0b6c527647",
       "contract": {
         "approval": {
-          "adr_refs": [],
-          "approved_major_bump": false,
-          "downstream_impact_summary": "",
-          "migration_note": "",
-          "migration_status": "not_needed",
-          "owner": "",
-          "reviewer": "",
-          "risk_level": "low"
+          "adr_refs": [
+            "ADR-0021"
+          ],
+          "approved_major_bump": true,
+          "downstream_impact_summary": "Built-in connector contracts now publish schema-qualified stable field IDs; payload field names and source mappings are unchanged.",
+          "migration_note": "Refresh connector contract snapshots and downstream generated schema consumers so they use field_id as the stable key where available.",
+          "migration_status": "planned",
+          "owner": "team-fabric",
+          "reviewer": "team-architecture",
+          "risk_level": "moderate"
         },
         "completeness_scope": "full_dataset",
         "completeness_window_rows": null,
@@ -973,6 +1005,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.country_code",
               "max_length": 3,
               "name": "country_code",
               "nullable": false,
@@ -996,6 +1029,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.7,
+              "field_id": "wvs.wave7.generic.country_name",
               "max_length": 256,
               "name": "country_name",
               "nullable": true,
@@ -1019,6 +1053,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.survey_year",
               "max_length": null,
               "name": "survey_year",
               "nullable": false,
@@ -1042,6 +1077,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.wave",
               "max_length": null,
               "name": "wave",
               "nullable": false,
@@ -1065,6 +1101,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 1.0,
+              "field_id": "wvs.wave7.generic.indicator_code",
               "max_length": 64,
               "name": "indicator_code",
               "nullable": false,
@@ -1088,6 +1125,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.7,
+              "field_id": "wvs.wave7.generic.indicator_label",
               "max_length": 512,
               "name": "indicator_label",
               "nullable": true,
@@ -1111,6 +1149,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.6,
+              "field_id": "wvs.wave7.generic.value",
               "max_length": null,
               "name": "value",
               "nullable": true,
@@ -1134,6 +1173,7 @@
               "display_unit": null,
               "element_type": null,
               "expected_completeness": 0.2,
+              "field_id": "wvs.wave7.generic.sample_size",
               "max_length": null,
               "name": "sample_size",
               "nullable": true,
@@ -1171,14 +1211,14 @@
           "time_dimension": "survey_year",
           "time_granularity": "annual",
           "version": {
-            "major": 1,
+            "major": 2,
             "minor": 0,
             "patch": 0
           }
         }
       },
       "dataset_id": "*",
-      "schema_version": "1.0.0"
+      "schema_version": "2.0.0"
     }
   },
   "version": 1

@@ -2,11 +2,11 @@
 
 Freshness: 2026-05-03
 Owner: `team-architecture`
-Source of truth: `architecture/repository_sota_gates.toml`,
+Source of truth: `architecture/gates/repository_sota.toml`,
 `tools/devx/workspace/repository_sota_closeout.py`,
 `architecture/shims.toml`,
-`architecture/complexity_exceptions.toml`, and
-`architecture/ops_baselines.toml`
+`architecture/exceptions/complexity.toml`, and
+`architecture/baselines/ops.toml`
 
 Public reference: `docs/reference/repository-topology.md`
 
@@ -40,24 +40,24 @@ surface. Canonical commands live under `tools/devx`, `tools/ops`,
 `tools/connectors`, `tools/data_forge`, `tools/foundry`, `tools/migrations`,
 `tools/demos`, `tools/lib`, and `tools/archive`.
 
-Local data and runtime state are governed by `architecture/data_policy.toml`
+Local data and runtime state are governed by `architecture/policies/data.toml`
 and `architecture/local_runtime_state.toml`. Committed generated artifacts,
 frontend clients, SBOM policy, operational baselines, and release policy are
 registered under `architecture/generated_artifacts.toml`,
-`architecture/frontend_workspaces.toml`, and `architecture/ops_baselines.toml`.
+`architecture/frontend_workspaces.toml`, and `architecture/baselines/ops.toml`.
 
 ## Fail-Closed Gates
 
 | Gate | Contract | Enforcement |
 | --- | --- | --- |
-| Topology and loose files | `architecture/topology.toml` | `tests/architecture/test_repository_sota_phase3_topology_cleanup.py` |
+| Topology and loose files | `architecture/topology.toml` | `tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py` |
 | Import policy | `architecture/imports/policy.toml`, `architecture/imports/exceptions.toml` | `tools/quality/lint/lint_imports.py` |
-| Public surface | `architecture/public_surface.toml` | `polisyos-tools architecture guardrails check` |
+| Public surface | `architecture/public_surface/contract.toml` | `polisyos-tools architecture guardrails check` |
 | Generated drift | `architecture/generated_artifacts.toml` | `polisyos-tools architecture guardrails check --run-generated-checks` |
-| Docs freshness | `architecture/docs_freshness_exceptions.toml` | `polisyos-tools workspace repository-sota-closeout` |
-| Public polish | `docs/reference/repository-topology.md` | `pytest tests/architecture/test_repository_public_polish.py` |
+| Docs freshness | `architecture/exceptions/docs_freshness.toml` | `polisyos-tools workspace repository-sota-closeout` |
+| Public polish | `docs/reference/repository-topology.md` | `pytest tests/repo_quality/architecture/test_repository_public_polish.py` |
 | Shim audit | `architecture/shims.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
-| Complexity exceptions | `architecture/complexity_exceptions.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
+| Complexity exceptions | `architecture/exceptions/complexity.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
 | Security and dependencies | `ops/security/*.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
 | SBOM | `ops/security/sbom.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
 | Commit policy | `ops/release/commit-policy.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |
@@ -69,9 +69,9 @@ Remaining import and complexity exceptions are explicit and reviewable:
 
 - Import exceptions remain in `architecture/imports/exceptions.toml` with owner, reason,
   source glob, and expiry.
-- Complexity exceptions remain in `architecture/complexity_exceptions.toml`
+- Complexity exceptions remain in `architecture/exceptions/complexity.toml`
   with concrete source paths, owner, reason, remediation, and expiry.
-- Docs freshness uses `architecture/docs_freshness_exceptions.toml` as a
+- Docs freshness uses `architecture/exceptions/docs_freshness.toml` as a
   time-bounded baseline while historical published-doc metadata debt is burned
   down.
 

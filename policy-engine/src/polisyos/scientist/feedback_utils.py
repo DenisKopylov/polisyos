@@ -29,5 +29,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-11-30",
     migration_hint="Use polisyos.scientist.feedback.utils for new imports.",
-    shim_id="scientist.feedback_utils-to-feedback.utils",
+    shim_id="decomp-scientist-feedback_utils",
 )

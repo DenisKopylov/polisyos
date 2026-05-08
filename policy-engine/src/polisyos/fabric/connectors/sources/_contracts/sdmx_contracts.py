@@ -22,6 +22,8 @@ from polisyos.fabric.connectors.contracts import (
     make_field_id,
 )
 
+from ._governance import FIELD_ID_MAJOR_BUMP_APPROVAL
+
 _SCHEMA_ID = "sdmx.generic"
 
 
@@ -31,7 +33,7 @@ def _field_id(name: str) -> str:
 
 SDMX_GENERIC_SCHEMA = DataSchema(
     schema_id=_SCHEMA_ID,
-    version=SchemaVersion(1, 0, 0),
+    version=SchemaVersion(2, 0, 0),
     fields=(
         FieldSpec(
             name="value",
@@ -92,6 +94,7 @@ SDMX_GENERIC_CONTRACT = ConnectorSchemaContract(
     completeness_window_rows=500,
     description="Wildcard contract for SDMX dataflows (dynamic dimension columns).",
     created_by="wave1",
+    approval=FIELD_ID_MAJOR_BUMP_APPROVAL,
 )
 
 SDMX_CONTRACTS = (SDMX_GENERIC_CONTRACT,)

@@ -148,7 +148,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ClaimType,
         )
         from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
-        from polisyos.scientist.orchestration.orchestrator.publisher import (
+        from polisyos.scientist.publishing.publisher import (
             DecisionGradeExport,
             OutputAudience,
             OutputOmissionRecord,
@@ -159,14 +159,14 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             load_decision_grade_export,
             persist_decision_grade_export,
         )
-        from polisyos.scientist.research_dag.models import (
+        from polisyos.scientist.methods.research_dag.models import (
             ResearchDAGArtifact,
             ResearchDAGEdge,
             ResearchDAGNode,
             ResearchEdgeType,
             ResearchNodeType,
         )
-        from polisyos.scientist.search.readiness import DecisionReadiness
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
         from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_7_import_failed:{exc.__class__.__name__}:{exc}"]

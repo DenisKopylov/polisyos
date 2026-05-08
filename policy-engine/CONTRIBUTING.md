@@ -94,8 +94,8 @@ Markers and decorators in active use:
 
 - Freeze policy: `docs/explanation/freeze-policy.md`
 - Import gate source of truth: `architecture/imports/policy.toml`
-- Public surface source of truth: `architecture/public_surface.toml`
-- Public surface inventory: `architecture/public_surface_inventory.json` and `docs/reference/public-surface.md`
+- Public surface source of truth: `architecture/public_surface/contract.toml`
+- Public surface inventory: `architecture/public_surface/inventory.json` and `docs/reference/public-surface.md`
 - Generated artifact lifecycle source of truth: `architecture/generated_artifacts.toml`
 - Generated artifact reference map: `docs/reference/generated-artifacts.md`
 - Workflow/toolchain baseline guardrail: `.github/workflows/abi.yml`
@@ -107,8 +107,8 @@ Markers and decorators in active use:
 - Temporary exceptions registry: `architecture/imports/exceptions.toml` with human-readable sync in
   `architecture/imports/exceptions.md`
 
-- Deep-import creep baseline: `architecture/deep_import_baseline.json`
-- Architecture guardrail temporary exceptions: `architecture/guardrail_exceptions.toml` with human-readable sync in
+- Deep-import creep baseline: `architecture/baselines/imports/deep_import.json`
+- Architecture guardrail temporary exceptions: `architecture/exceptions/guardrails.toml` with human-readable sync in
   `architecture/guardrail_exceptions_registry.md`
 
 - Golden-path scaffolds: `polisyos-tools architecture scaffold`

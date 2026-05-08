@@ -32,7 +32,7 @@ from polisyos.core.contracts.fabric import (
     EvidenceBundleRef,
 )
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
-from polisyos.fabric.processing_guarantees import (
+from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
 )
@@ -713,7 +713,7 @@ def _manifest_for_partition(
 
 
 def _utc_now() -> Any:
-    from polisyos.fabric.temporal import utc_now
+    from polisyos.fabric.data_plane.temporal import utc_now
 
     return utc_now()
 

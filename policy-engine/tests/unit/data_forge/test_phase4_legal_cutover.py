@@ -93,6 +93,7 @@ def test_legal_cloud_runner_imports_data_forge_batch_runtime() -> None:
 def test_legal_runtime_jobs_use_read_api_surface() -> None:
     from polisyos.data_forge.read_api.legal import BatchConfig, ProgressTracker, run_batch_pipeline
 
+    service = importlib.import_module("polisyos.runtime.http.services.control.run_lifecycle")
     control_source = (
         Path(__file__).resolve().parents[3]
         / "src"
@@ -100,11 +101,13 @@ def test_legal_runtime_jobs_use_read_api_surface() -> None:
         / "runtime"
         / "http"
         / "services"
-        / "control.py"
+        / "control"
+        / "run_lifecycle.py"
     ).read_text(encoding="utf-8")
 
     assert "from polisyos.lex.batch" not in control_source
     assert "from polisyos.data_forge.read_api.legal" in control_source
+    assert service.ControlPlaneService.__module__ == service.__name__
     assert BatchConfig.__module__ == "polisyos.data_forge.domains.legal.batch.config"
     assert ProgressTracker.__module__ == "polisyos.data_forge.domains.legal.batch.progress"
     assert run_batch_pipeline.__module__ == "polisyos.data_forge.domains.legal.batch.pipeline"

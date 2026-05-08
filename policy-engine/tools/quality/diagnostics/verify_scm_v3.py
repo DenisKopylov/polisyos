@@ -56,7 +56,7 @@ QUICK_CHECKS: tuple[CheckSpec, ...] = (
     CheckSpec(
         label="gate_lint_foundry",
         phase="phase--1",
-        command=_trusted_command("uv run python tools/quality/lint/lint_foundry.py --repo-root ."),
+        command=_trusted_command("uv run python -m tools.quality.lint.lint_foundry --repo-root ."),
     ),
     CheckSpec(
         label="gate_schema_ir",

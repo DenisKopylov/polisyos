@@ -30,7 +30,7 @@ non-Trinity surface.
 ## Depends on / depended on by
 
 - Depends on: [`../trinity/README.md`](../trinity/README.md), migration registry primitives in [`base.py`](./base.py), schema rules in [`schema_registry.py`](./schema_registry.py).
-- Depended on by: `polisyos.ir.loaders`, `polisyos.ir.schema_catalog`, runtime ingestion paths, contract tests and compatibility checks.
+- Depended on by: `polisyos.ir.loading.loaders`, `polisyos.ir.loading.schema_catalog`, runtime ingestion paths, contract tests and compatibility checks.
 
 ## Common commands
 

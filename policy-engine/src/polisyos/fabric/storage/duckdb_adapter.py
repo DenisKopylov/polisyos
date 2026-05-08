@@ -12,7 +12,7 @@ import pandas as pd
 
 from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world_query import WorldQueryError, query_world_table
+from polisyos.fabric.world.query import WorldQueryError, query_world_table
 
 from .port import StoragePort
 

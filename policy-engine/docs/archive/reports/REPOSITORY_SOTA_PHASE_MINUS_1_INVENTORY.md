@@ -72,7 +72,7 @@ Drift against the previous Phase -1 inventory:
 | Legacy data packages | `academic`, `datasets`, `ukraine_data`, `batch_common`, `batch_snapshot` present | Not present on disk | Deleted in worktree and mirrored by Data Forge domains. |
 | New source packages | none noted | `berl`, `ddm_15_7` | New package roots require topology/public-surface review. |
 | Import graph | 0 parse errors | 0 parse errors across 2,129 Python files | Import scan remains parse-clean. |
-| Deep-import baseline | present | `architecture/deep_import_baseline.json` has 3,299 edges and is modified in worktree | Do not overwrite without explicit refresh command. |
+| Deep-import baseline | present | `architecture/baselines/imports/deep_import.json` has 3,299 edges and is modified in worktree | Do not overwrite without explicit refresh command. |
 | Public surface | 10 public packages | 10 public packages | Current source has package roots not listed as public. |
 | Generated registry | present | 11 families, 19 output paths | 3 mixed-policy outputs missing; 6 new schema files are untracked. |
 | Tools | duplicate compatibility wrappers present | wrappers still present, `ops` and `quality` grew | Cleanup remains Phase 3 work. |
@@ -85,14 +85,14 @@ Drift against the previous Phase -1 inventory:
 Machine-readable architecture contracts currently present:
 
 - `architecture/topology.toml`
-- `architecture/package_boundaries.toml`
-- `architecture/import_contracts.toml`
+- `architecture/packages/boundaries.toml`
+- `architecture/imports/contracts.toml`
 - `architecture/migration_shims.toml`
-- `architecture/complexity_exceptions.toml`
+- `architecture/exceptions/complexity.toml`
 - `architecture/generated_artifacts.toml`
-- `architecture/public_surface.toml`
-- `architecture/public_surface_inventory.json`
-- `architecture/deep_import_baseline.json`
+- `architecture/public_surface/contract.toml`
+- `architecture/public_surface/inventory.json`
+- `architecture/baselines/imports/deep_import.json`
 - `schemas/topology/*.schema.json`
 
 Topology comparison against `architecture/topology.toml`:
@@ -196,7 +196,7 @@ errors.
 | ------ | ----- |
 | Python files scanned | 2,129 |
 | Parse errors | 0 |
-| Existing deep-import baseline file | `architecture/deep_import_baseline.json` |
+| Existing deep-import baseline file | `architecture/baselines/imports/deep_import.json` |
 | Deep-import baseline edges in file | 3,299 |
 | Baseline file status | Modified in current worktree; not overwritten by this inventory |
 
@@ -273,7 +273,7 @@ Top deep-import targets from the fresh scan:
 
 Layer and forbidden-contract checks are report-only in Phase -1. The counts
 below are candidates derived from the fresh AST scan and
-`architecture/import_contracts.toml`; they are not enforcement results.
+`architecture/imports/contracts.toml`; they are not enforcement results.
 
 Layer order from the current import contract:
 
@@ -324,12 +324,12 @@ Data Forge domain-independence candidate violations: 0.
 
 Public surface source of truth:
 
-- `architecture/public_surface.toml`
-- `architecture/public_surface_inventory.json`
+- `architecture/public_surface/contract.toml`
+- `architecture/public_surface/inventory.json`
 - `architecture/public_surface/`
 
-Current `architecture/public_surface.toml` lists 10 public package entries.
-`architecture/public_surface_inventory.json` also lists 10 packages and is
+Current `architecture/public_surface/contract.toml` lists 10 public package entries.
+`architecture/public_surface/inventory.json` also lists 10 packages and is
 modified in the current worktree; this inventory records it but does not
 overwrite it.
 

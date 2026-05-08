@@ -15,8 +15,8 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.canon import content_hash, to_canonical_bytes
-from polisyos.ir.references import EvidenceBundleRef
+from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
+from polisyos.ir.registry.refs import EvidenceBundleRef
 
 
 class ConnectorCapability(Flag):

@@ -1,0 +1,5 @@
+# Foundry Mirror Contracts
+
+These tests keep extracted Foundry helpers behaviorally aligned with their
+legacy facades while last-mile package boundaries settle. New tests should
+prefer the canonical domain suite unless they intentionally assert facade parity.

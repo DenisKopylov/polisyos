@@ -35,7 +35,7 @@ from polisyos.fabric.data_plane.quarantine import (
     persist_quarantine_record,
 )
 from polisyos.fabric.data_plane.watermark import WindowAssignment, WindowPolicy
-from polisyos.fabric.processing_guarantees import (
+from polisyos.fabric.quality.processing_guarantees import (
     BackpressureStrategy,
     CDCSchemaCompatibility,
     OutOfOrderHandling,
@@ -44,7 +44,7 @@ from polisyos.fabric.processing_guarantees import (
     processing_contract_snapshot,
     stream_processing_contract,
 )
-from polisyos.fabric.temporal import parse_datetime_utc
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:

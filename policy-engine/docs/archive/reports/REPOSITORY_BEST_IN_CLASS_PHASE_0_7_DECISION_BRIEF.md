@@ -1012,7 +1012,7 @@ Non-product Python roots outside `src/polisyos`:
 | --- | --- | --- | --- | --- | --- | --- |
 | `benchmarks` | yes | 119 | 28 | 24 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
 | `tools` | yes | 199 | 37 | 31 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
-| `tests/architecture` | yes | 18 | 0 | 2 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
+| `tests/repo_quality/architecture` | yes | 18 | 0 | 2 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
 | `tests/contract` | yes | 21 | 0 | 1 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
 | `tests/fixtures` | yes | 8 | 1 | 1 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
 | `tests/integration` | yes | 6 | 0 | 2 | non-product import root; keep out of product package contracts | 1.4, 1.8, 2.4, 6.2 |
@@ -1435,7 +1435,7 @@ Non-product Python roots outside `src/polisyos`:
 - `src/.DS_Store`
 - `src/polisyos/.DS_Store`
 - `tests/.DS_Store`
-- `tests/architecture/.DS_Store`
+- `tests/repo_quality/architecture/.DS_Store`
 - `tests/fixtures/.DS_Store`
 - `tests/integration/.DS_Store`
 - `tests/property/.DS_Store`

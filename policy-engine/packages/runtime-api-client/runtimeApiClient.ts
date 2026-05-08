@@ -1401,14 +1401,14 @@ export type FabricDecisionData = {
   gaps?: Array<TypedGap>;
   id: string;
   kind?: "quantity" | "authored_text" | "fact" | "event" | "claim";
-  lineage: polisyos__fabric__decision_data__LineageRef;
+  lineage: polisyos__fabric__evidence__decision_data__LineageRef;
   metadata?: {
   [key: string]: unknown;
 };
   quality: QualityRef;
   replay: ReplayRef;
   source_contract: SourceContractRef;
-  time: polisyos__fabric__decision_data__TemporalRef;
+  time: polisyos__fabric__evidence__decision_data__TemporalRef;
   value: FabricQuantityValue | AuthoredText | {
   [key: string]: unknown;
 };
@@ -1434,7 +1434,7 @@ export type FabricDecisionDataResponse = {
 };
   run_id: string;
   source_kind: string;
-  temporal_scope?: polisyos__fabric__decision_data__TemporalRef | null;
+  temporal_scope?: polisyos__fabric__evidence__decision_data__TemporalRef | null;
 };
 
 export type FabricImpactAnalysisRequest = {
@@ -1493,7 +1493,7 @@ export type FabricQuantityValue = {
   metric_id?: string | null;
   point?: number | null;
   semantic_type?: string | null;
-  unit: polisyos__fabric__decision_data__UnitRef;
+  unit: polisyos__fabric__evidence__decision_data__UnitRef;
 };
 
 export type FabricReplayRunResponse = {
@@ -2982,7 +2982,7 @@ export type polisyos__core__contracts__runtime__UnitRef = {
   system?: string;
 };
 
-export type polisyos__fabric__decision_data__LineageRef = {
+export type polisyos__fabric__evidence__decision_data__LineageRef = {
   compact_summary_ref?: string | null;
   export_links?: {
   [key: string]: string;
@@ -2997,7 +2997,7 @@ export type polisyos__fabric__decision_data__LineageRef = {
   tracking_issue?: string | null;
 };
 
-export type polisyos__fabric__decision_data__TemporalRef = {
+export type polisyos__fabric__evidence__decision_data__TemporalRef = {
   branch?: string | null;
   scenario_id?: string | null;
   snapshot_id?: string | null;
@@ -3005,7 +3005,7 @@ export type polisyos__fabric__decision_data__TemporalRef = {
   valid_at?: string | null;
 };
 
-export type polisyos__fabric__decision_data__UnitRef = {
+export type polisyos__fabric__evidence__decision_data__UnitRef = {
   code: string;
   display?: string | null;
   system?: string;

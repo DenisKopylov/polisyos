@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import hashlib
 import json
 import tomllib
 from dataclasses import asdict, dataclass
@@ -15,7 +17,8 @@ from tools.lib.fs import atomic_write_text
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
-DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "test_ratchets.toml"
+DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "tests" / "ratchets.toml"
+TEST_ROOT = REPO_ROOT / "tests"
 
 
 @dataclass(frozen=True)
@@ -185,6 +188,334 @@ def _baseline_packages(contract: dict[str, Any]) -> dict[str, dict[str, Any]]:
     }
 
 
+def _repo_relative(path: Path) -> str:
+    return str(path.relative_to(REPO_ROOT))
+
+
+def _read_python_ast(path: Path) -> ast.Module:
+    return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+
+
+def _iter_shared_helper_files(shared_helper_root: Path) -> list[Path]:
+    if not shared_helper_root.exists():
+        return []
+    return sorted(
+        path
+        for path in shared_helper_root.rglob("*.py")
+        if path.name != "__init__.py" and "__pycache__" not in path.parts
+    )
+
+
+def _iter_layer_local_conftests(pattern: str) -> list[Path]:
+    conftests: list[Path] = []
+    for path in sorted(REPO_ROOT.glob(pattern)):
+        if path == TEST_ROOT / "conftest.py" or "__pycache__" in path.parts:
+            continue
+        try:
+            relative = path.relative_to(TEST_ROOT)
+        except ValueError:
+            continue
+        if relative.parts and not relative.parts[0].startswith("_"):
+            conftests.append(path)
+    return conftests
+
+
+def _iter_python_test_files() -> list[Path]:
+    if not TEST_ROOT.exists():
+        return []
+    return sorted(
+        path
+        for path in TEST_ROOT.rglob("*.py")
+        if "__pycache__" not in path.parts
+    )
+
+
+def _iter_imported_modules(tree: ast.AST) -> list[tuple[str, int]]:
+    modules: list[tuple[str, int]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            modules.extend((alias.name, node.lineno) for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                continue
+            if node.module:
+                modules.append((node.module, node.lineno))
+            if node.module in {"_helpers", "tests._helpers", "tests"}:
+                modules.extend(
+                    (f"{node.module}.{alias.name}", node.lineno)
+                    for alias in node.names
+                    if alias.name != "*"
+                )
+    return modules
+
+
+def _iter_string_literals(node: ast.AST) -> list[str]:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return [node.value]
+    if isinstance(node, ast.Tuple | ast.List | ast.Set):
+        values: list[str] = []
+        for item in node.elts:
+            values.extend(_iter_string_literals(item))
+        return values
+    return []
+
+
+def _iter_pytest_plugin_modules(tree: ast.AST) -> list[tuple[str, int]]:
+    modules: list[tuple[str, int]] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == "pytest_plugins"
+            for target in node.targets
+        ):
+            continue
+        modules.extend((value, node.lineno) for value in _iter_string_literals(node.value))
+    return modules
+
+
+def _helper_module_names(path: Path, shared_helper_root: Path) -> set[str]:
+    module_suffix = ".".join(path.relative_to(shared_helper_root).with_suffix("").parts)
+    return {f"_helpers.{module_suffix}", f"tests._helpers.{module_suffix}"}
+
+
+def _find_helper_usages(
+    helper_files: list[Path],
+    shared_helper_root: Path,
+) -> dict[str, list[dict[str, Any]]]:
+    usage: dict[str, list[dict[str, Any]]] = {
+        _repo_relative(path): [] for path in helper_files
+    }
+    helper_modules = {
+        path: _helper_module_names(path, shared_helper_root) for path in helper_files
+    }
+    for python_file in _iter_python_test_files():
+        tree = _read_python_ast(python_file)
+        module_refs = _iter_imported_modules(tree) + _iter_pytest_plugin_modules(tree)
+        for helper_file, helper_names in helper_modules.items():
+            if python_file == helper_file:
+                continue
+            for module_name, lineno in module_refs:
+                if any(
+                    module_name == helper_name or module_name.startswith(f"{helper_name}.")
+                    for helper_name in helper_names
+                ):
+                    usage[_repo_relative(helper_file)].append(
+                        {
+                            "path": _repo_relative(python_file),
+                            "line": lineno,
+                            "module": module_name,
+                        }
+                    )
+                    break
+    return usage
+
+
+def _forbidden_import_prefixes(helper_contract: dict[str, Any]) -> tuple[str, ...]:
+    return tuple(
+        str(path).replace("/", ".")
+        for path in helper_contract["shared_helper_forbidden_test_layers"]
+    )
+
+
+def _find_forbidden_reverse_imports(
+    helper_files: list[Path],
+    helper_contract: dict[str, Any],
+) -> list[dict[str, Any]]:
+    forbidden_prefixes = _forbidden_import_prefixes(helper_contract)
+    findings: list[dict[str, Any]] = []
+    for helper_file in helper_files:
+        for module_name, lineno in _iter_imported_modules(_read_python_ast(helper_file)):
+            if any(
+                module_name == prefix or module_name.startswith(f"{prefix}.")
+                for prefix in forbidden_prefixes
+            ):
+                findings.append(
+                    {
+                        "path": _repo_relative(helper_file),
+                        "line": lineno,
+                        "module": module_name,
+                    }
+                )
+    return findings
+
+
+def _fixture_name(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str | None:
+    for decorator in node.decorator_list:
+        target = decorator.func if isinstance(decorator, ast.Call) else decorator
+        if isinstance(target, ast.Attribute) and target.attr == "fixture":
+            return _fixture_name_from_decorator(node, decorator)
+        if isinstance(target, ast.Name) and target.id == "fixture":
+            return _fixture_name_from_decorator(node, decorator)
+    return None
+
+
+def _fixture_name_from_decorator(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    decorator: ast.expr,
+) -> str:
+    if isinstance(decorator, ast.Call):
+        for keyword in decorator.keywords:
+            if (
+                keyword.arg == "name"
+                and isinstance(keyword.value, ast.Constant)
+                and isinstance(keyword.value.value, str)
+            ):
+                return keyword.value.value
+    return node.name
+
+
+def _fixture_factory_hash(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
+    payload = repr(
+        (
+            ast.dump(node.args, include_attributes=False),
+            [ast.dump(decorator, include_attributes=False) for decorator in node.decorator_list],
+            ast.dump(node.returns, include_attributes=False) if node.returns is not None else None,
+            [ast.dump(statement, include_attributes=False) for statement in node.body],
+        )
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
+
+
+def _find_duplicated_fixture_factories(conftests: list[Path]) -> list[dict[str, Any]]:
+    fixtures_by_hash: dict[str, list[dict[str, Any]]] = {}
+    for conftest in conftests:
+        tree = _read_python_ast(conftest)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+                continue
+            fixture_name = _fixture_name(node)
+            if fixture_name is None:
+                continue
+            factory_hash = _fixture_factory_hash(node)
+            fixtures_by_hash.setdefault(factory_hash, []).append(
+                {
+                    "fixture": fixture_name,
+                    "path": _repo_relative(conftest),
+                    "line": node.lineno,
+                }
+            )
+
+    duplicate_groups: list[dict[str, Any]] = []
+    for factory_hash, instances in fixtures_by_hash.items():
+        if len(instances) <= 1:
+            continue
+        fixture_names = sorted({str(instance["fixture"]) for instance in instances})
+        duplicate_groups.append(
+            {
+                "id": f"{fixture_names[0]}:{factory_hash}",
+                "factory_hash": factory_hash,
+                "fixture": fixture_names[0] if len(fixture_names) == 1 else fixture_names,
+                "instances": sorted(instances, key=lambda item: (item["path"], item["line"])),
+            }
+        )
+    return sorted(duplicate_groups, key=lambda item: str(item["id"]))
+
+
+def _registered_duplicate_fixture_factories(contract: dict[str, Any]) -> list[dict[str, Any]]:
+    return sorted(
+        (
+            {
+                "id": str(item["id"]),
+                "fixture": item["fixture"],
+                "paths": sorted(str(path) for path in item["paths"]),
+                "owner": str(item["owner"]),
+                "reason": str(item["reason"]),
+            }
+            for item in contract.get("test_helper_duplicate_fixture_factory", [])
+        ),
+        key=lambda item: item["id"],
+    )
+
+
+def _duplicate_key(item: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
+    fixture = item["fixture"]
+    fixture_key = ",".join(fixture) if isinstance(fixture, list) else str(fixture)
+    if "instances" in item:
+        paths = tuple(sorted(str(instance["path"]) for instance in item["instances"]))
+    else:
+        paths = tuple(sorted(str(path) for path in item["paths"]))
+    return fixture_key, paths
+
+
+def _baseline_count_regressions(
+    summary: dict[str, int],
+    baseline_summary: dict[str, Any],
+) -> dict[str, dict[str, int]]:
+    regressions: dict[str, dict[str, int]] = {}
+    for key, actual in summary.items():
+        baseline = baseline_summary.get(key)
+        if baseline is not None and actual > int(baseline):
+            regressions[key] = {"actual": actual, "baseline": int(baseline)}
+    return regressions
+
+
+def _build_test_helper_topology_report(contract: dict[str, Any]) -> dict[str, Any]:
+    helper_contract = contract["test_helper_topology"]
+    shared_helper_root = _repo_path(str(helper_contract["shared_helper_root"]))
+    helper_files = _iter_shared_helper_files(shared_helper_root)
+    conftests = _iter_layer_local_conftests(str(helper_contract["layer_local_conftest_glob"]))
+    helper_usages = _find_helper_usages(helper_files, shared_helper_root)
+    unused_helpers = [
+        {"path": path}
+        for path, usages in sorted(helper_usages.items())
+        if not usages
+    ]
+    duplicate_factories = _find_duplicated_fixture_factories(conftests)
+    registered_duplicates = _registered_duplicate_fixture_factories(contract)
+    duplicate_keys = {_duplicate_key(item) for item in duplicate_factories}
+    registered_duplicate_keys = {_duplicate_key(item) for item in registered_duplicates}
+    unregistered_duplicates = [
+        item
+        for item in duplicate_factories
+        if _duplicate_key(item) not in registered_duplicate_keys
+    ]
+    stale_duplicate_registrations = [
+        item for item in registered_duplicates if _duplicate_key(item) not in duplicate_keys
+    ]
+    forbidden_reverse_imports = _find_forbidden_reverse_imports(helper_files, helper_contract)
+    summary = {
+        "shared_helper_files": len(helper_files),
+        "layer_local_conftest_files": len(conftests),
+        "duplicated_fixture_factories": len(duplicate_factories),
+        "unused_helpers": len(unused_helpers),
+        "forbidden_reverse_imports": len(forbidden_reverse_imports),
+    }
+
+    baseline_path = _repo_path(str(helper_contract["baseline"]))
+    baseline_summary: dict[str, Any] = {}
+    if baseline_path.exists():
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+        baseline_summary = baseline.get("summary", {})
+    count_regressions = _baseline_count_regressions(summary, baseline_summary)
+    status = "ok"
+    if (
+        count_regressions
+        or forbidden_reverse_imports
+        or unregistered_duplicates
+        or stale_duplicate_registrations
+    ):
+        status = "regression"
+
+    return {
+        "status": status,
+        "contract": str(DEFAULT_CONTRACT.relative_to(REPO_ROOT)),
+        "baseline": str(baseline_path.relative_to(REPO_ROOT)),
+        "summary": summary,
+        "baseline_summary": baseline_summary,
+        "count_regressions": count_regressions,
+        "shared_helper_files": [_repo_relative(path) for path in helper_files],
+        "layer_local_conftest_files": [_repo_relative(path) for path in conftests],
+        "unused_helpers": unused_helpers,
+        "helper_usages": helper_usages,
+        "duplicated_fixture_factories": duplicate_factories,
+        "registered_duplicate_fixture_factories": registered_duplicates,
+        "unregistered_duplicate_fixture_factories": unregistered_duplicates,
+        "stale_duplicate_fixture_registrations": stale_duplicate_registrations,
+        "forbidden_reverse_imports": forbidden_reverse_imports,
+    }
+
+
 def _float_delta(value: float, baseline: object) -> float | None:
     if baseline is None:
         return None
@@ -329,6 +660,11 @@ def _build_package_report(
 def _build_payload(contract_path: Path) -> dict[str, Any]:
     contract = _load_toml(contract_path)
     baselines = _baseline_packages(contract)
+    helper_topology_report = (
+        _build_test_helper_topology_report(contract)
+        if "test_helper_topology" in contract
+        else None
+    )
     reports = [
         _build_package_report(package, baseline=baselines.get(str(package["name"])))
         for package in sorted(contract.get("package_ratchet", []), key=lambda item: item["name"])
@@ -358,38 +694,47 @@ def _build_payload(contract_path: Path) -> dict[str, Any]:
         report for report in reports if report.mirror_status == "below_first_target_tracking"
     ]
     exceptions = [report for report in reports if report.status == "explicit_exception"]
+    summary: dict[str, Any] = {
+        "packages": len(reports),
+        "floor_regressions": len(regressions),
+        "mirror_floor_regressions": len(regressions),
+        "mirror_floor_regression_exceptions": len(regression_exceptions),
+        "strict_mirror_regressions": len(strict_regressions),
+        "strict_mirror_regression_exceptions": len(strict_regression_exceptions),
+        "below_first_target_tracking": len(below_target),
+        "explicit_exceptions": len(exceptions),
+        "property_required_packages": len(property_required),
+        "property_regressions": len(property_regressions),
+        "property_file_delta_total": sum(
+            report.property_test_file_count_delta or 0 for report in reports
+        ),
+        "loose_mirror_ratio_delta_total": round(
+            sum(report.loose_name_mirror_ratio_delta or 0.0 for report in reports),
+            4,
+        ),
+        "strict_mirror_ratio_delta_total": round(
+            sum(report.strict_module_mirror_ratio_delta or 0.0 for report in reports),
+            4,
+        ),
+    }
+    if helper_topology_report is not None:
+        summary["test_helper_topology_status"] = helper_topology_report["status"]
+        summary["test_helper_topology_count_regressions"] = len(
+            helper_topology_report["count_regressions"]
+        )
 
-    return {
+    payload: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "contract": str(contract_path.relative_to(REPO_ROOT)),
         "baseline_inventory": contract["test_ratchets"]["baseline_inventory"],
         "ratchet_mode": contract["test_ratchets"]["status"],
         "ratchet_policy": contract["ratchet_policy"],
-        "summary": {
-            "packages": len(reports),
-            "floor_regressions": len(regressions),
-            "mirror_floor_regressions": len(regressions),
-            "mirror_floor_regression_exceptions": len(regression_exceptions),
-            "strict_mirror_regressions": len(strict_regressions),
-            "strict_mirror_regression_exceptions": len(strict_regression_exceptions),
-            "below_first_target_tracking": len(below_target),
-            "explicit_exceptions": len(exceptions),
-            "property_required_packages": len(property_required),
-            "property_regressions": len(property_regressions),
-            "property_file_delta_total": sum(
-                report.property_test_file_count_delta or 0 for report in reports
-            ),
-            "loose_mirror_ratio_delta_total": round(
-                sum(report.loose_name_mirror_ratio_delta or 0.0 for report in reports),
-                4,
-            ),
-            "strict_mirror_ratio_delta_total": round(
-                sum(report.strict_module_mirror_ratio_delta or 0.0 for report in reports),
-                4,
-            ),
-        },
+        "summary": summary,
         "packages": [asdict(report) for report in reports],
     }
+    if helper_topology_report is not None:
+        payload["test_helper_topology"] = helper_topology_report
+    return payload
 
 
 def _percent(value: float | None) -> str:
@@ -432,11 +777,28 @@ def _render_markdown(payload: dict[str, Any]) -> str:
         f"- Total property file delta: {summary['property_file_delta_total']:+d}",
         f"- Total loose mirror delta: {summary['loose_mirror_ratio_delta_total'] * 100:+.2f}pp",
         f"- Total strict mirror delta: {summary['strict_mirror_ratio_delta_total'] * 100:+.2f}pp",
-        "",
-        "| package | mode | modules | strict mirror | loose mirror | floor | "
-        "property files | target | status |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---|",
     ]
+    if "test_helper_topology" in payload:
+        helper_topology = payload["test_helper_topology"]
+        helper_summary = helper_topology["summary"]
+        lines.extend(
+            [
+                f"- Test helper topology: `{helper_topology['status']}`",
+                f"- Shared helper files: {helper_summary['shared_helper_files']}",
+                f"- Layer-local conftest files: {helper_summary['layer_local_conftest_files']}",
+                f"- Duplicated fixture factories: {helper_summary['duplicated_fixture_factories']}",
+                f"- Unused helpers: {helper_summary['unused_helpers']}",
+                f"- Forbidden reverse imports: {helper_summary['forbidden_reverse_imports']}",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "| package | mode | modules | strict mirror | loose mirror | floor | "
+            "property files | target | status |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---|",
+        ]
+    )
     for package in payload["packages"]:
         lines.append(
             "| "
@@ -503,6 +865,7 @@ def main() -> int:
         payload["summary"]["floor_regressions"]
         or payload["summary"]["strict_mirror_regressions"]
         or payload["summary"]["property_regressions"]
+        or payload["summary"].get("test_helper_topology_status") == "regression"
     ):
         return 1
     return 0

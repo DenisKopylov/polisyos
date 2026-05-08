@@ -10,6 +10,7 @@ new_shared_names_allowed = false
 fail_closed_for_unregistered_collisions = true
 required_shared_fields = ["name", "allowed_in", "semantic_axis", "disambiguation", "owner", "target_phase", "sunset"]
 required_rename_backlog_fields = ["name", "packages", "locations", "action", "owner", "target_phase", "sunset"]
+phase0_4_allowed_decisions = ["scoped_ok", "rename", "merge", "canonical_home_with_adapters", "sunset_shim"]
 
 [[shared_name]]
 name = "_internal"
@@ -381,9 +382,18 @@ target_phase = "1C"
 sunset = "none"
 
 [[shared_name]]
+name = "_adapters"
+allowed_in = ["fabric", "scientist"]
+semantic_axis = "package-local adapters for canonical cross-cutting concerns"
+disambiguation = "qualified imports required; _adapters modules must adapt to canonical homes and remain package-scoped"
+owner = "team-architecture"
+target_phase = "1.5"
+sunset = "none"
+
+[[shared_name]]
 name = "registry"
-allowed_in = ["core", "fabric", "foundry"]
-semantic_axis = "core registry primitives, Fabric manifest registry facade, and Foundry method/runtime registries"
+allowed_in = ["core", "fabric", "foundry", "ir"]
+semantic_axis = "core registry primitives, Fabric manifest registry facade, Foundry method/runtime registries, and IR registry fragments/refs"
 disambiguation = "qualified imports required; core registry primitives are canonical and package registries remain bounded-context adapters/facades, not cross-package singletons"
 owner = "team-architecture"
 target_phase = "4.8/7"
@@ -489,6 +499,49 @@ target_phase = "4A"
 sunset = "none"
 
 [[rename_backlog]]
+name = "fabric_shell_packages"
+packages = ["fabric"]
+locations = [
+  "src/polisyos/fabric/decision_data",
+  "src/polisyos/fabric/fact_writer",
+  "src/polisyos/fabric/manifest",
+  "src/polisyos/fabric/processing_guarantees",
+  "src/polisyos/fabric/segment_manifest",
+  "src/polisyos/fabric/tabular",
+  "src/polisyos/fabric/temporal",
+]
+action = "Phase 3.1 groups remaining Fabric single-file shell packages under evidence, quality, identity, data_plane, ingestion, trust, and internal boundaries according to the Phase 0.3 import compatibility map."
+replacement = "architecture/shims.toml#last_mile_import_compatibility_map"
+owner = "team-fabric"
+target_phase = "3.1"
+sunset = "2026-12-31"
+
+[[rename_backlog]]
+name = "ir_shell_packages"
+packages = ["ir"]
+locations = [
+  "src/polisyos/ir/canon",
+  "src/polisyos/ir/fact_log",
+  "src/polisyos/ir/loaders",
+  "src/polisyos/ir/migration_report",
+  "src/polisyos/ir/model_spec",
+  "src/polisyos/ir/norm_pack",
+  "src/polisyos/ir/portfolio",
+  "src/polisyos/ir/predicate",
+  "src/polisyos/ir/public_surface",
+  "src/polisyos/ir/queries",
+  "src/polisyos/ir/registry_fragments",
+  "src/polisyos/ir/schema_catalog",
+  "src/polisyos/ir/types",
+  "src/polisyos/ir/units",
+]
+action = "Phase 3.2 groups IR shell packages under model_layer, loading, and registry; Phase 3.3 closes the refs/references collision by making registry/refs.py the artifact-ref home, loading/citations.py the citation-ref home, and keeping polisyos.ir.references only as an api.py-synthesized compatibility aggregate."
+replacement = "architecture/shims.toml#last_mile_import_compatibility_map"
+owner = "team-ir"
+target_phase = "3.2/3.3"
+sunset = "2026-12-31"
+
+[[rename_backlog]]
 name = "discovery"
 packages = ["core", "foundry", "scientist"]
 locations = [
@@ -534,3 +587,424 @@ replacement = "src/polisyos/data_forge/domains/catalog/fixtures/academic/academi
 owner = "team-architecture"
 target_phase = "4A"
 sunset = "2026-10-01"
+
+[[phase0_4_name_decision]]
+name = "_internal"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Private implementation capsules are intentionally repeated across bounded contexts and must remain package-qualified."
+
+[[phase0_4_name_decision]]
+name = "_adapters"
+decision = "canonical_home_with_adapters"
+owner = "team-architecture"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "Private adapter capsules are allowed only as package-qualified bridges into canonical cross-cutting homes."
+
+[[phase0_4_name_decision]]
+name = "adapters"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Adapter packages are package-owned integration seams and do not define a repository-wide adapter API."
+
+[[phase0_4_name_decision]]
+name = "artifacts"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Core artifact primitives and IR artifact projections are separate bounded-context concepts."
+
+[[phase0_4_name_decision]]
+name = "calibration"
+decision = "canonical_home_with_adapters"
+owner = "team-architecture"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "polisyos.calibration is the canonical diagnostics home; DDM and Foundry calibration packages remain bounded-context adapters."
+
+[[phase0_4_name_decision]]
+name = "canon"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Core canonicalization primitives and IR canonical model helpers are intentionally separate."
+
+[[phase0_4_name_decision]]
+name = "claims"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric claim processing and Scientist claim reasoning are package-local concerns."
+
+[[phase0_4_name_decision]]
+name = "connectors"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric executable connectors and IR connector bridge contracts are package-qualified surfaces."
+
+[[phase0_4_name_decision]]
+name = "contracts"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Contracts are owned by each bounded context unless promoted through polisyos.core.contracts."
+
+[[phase0_4_name_decision]]
+name = "data_plane"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric and Foundry data-plane names describe separate execution contexts."
+
+[[phase0_4_name_decision]]
+name = "discovery"
+decision = "sunset_shim"
+owner = "team-architecture"
+target_phase = "0.4/2.2"
+sunset = "2026-10-01"
+rationale = "polisyos.core.discovery owns plugin discovery; Scientist discovery moves under methods/discovery with the first-level root retained only as a dated shim."
+
+[[phase0_4_name_decision]]
+name = "evidence"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric evidence materialization and Scientist evidence reasoning remain package-local concepts."
+
+[[phase0_4_name_decision]]
+name = "extensions"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/1.6"
+sunset = "none"
+rationale = "Extension packages are package-owned authoring surfaces governed by architecture/extension_points.toml."
+
+[[phase0_4_name_decision]]
+name = "feedback"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Foundry execution feedback and Scientist decision feedback are separate bounded-context workflows."
+
+[[phase0_4_name_decision]]
+name = "governance"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/2.2"
+sunset = "none"
+rationale = "Core, IR, and Scientist governance roots are package-qualified, with Scientist legacy governance peers handled by the Wave 2 family audit."
+
+[[phase0_4_name_decision]]
+name = "kernel"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Kernel packages are package-specific runtime kernels and are not cross-package APIs."
+
+[[phase0_4_name_decision]]
+name = "llm"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Core LLM infrastructure and Scientist LLM orchestration stay package-qualified."
+
+[[phase0_4_name_decision]]
+name = "methods"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/2.2"
+sunset = "none"
+rationale = "Foundry method catalog and Scientist method taxonomy are distinct; Scientist legacy method peers are handled by the Wave 2 family audit."
+
+[[phase0_4_name_decision]]
+name = "migrations"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Common and IR migration helpers are package-local."
+
+[[phase0_4_name_decision]]
+name = "observability"
+decision = "canonical_home_with_adapters"
+owner = "team-observability"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "polisyos.core.observability is canonical; package observability modules adapt local telemetry vocabulary to it."
+
+[[phase0_4_name_decision]]
+name = "orchestrator"
+decision = "sunset_shim"
+owner = "team-scientist"
+target_phase = "0.4/2.2"
+sunset = "2026-10-01"
+rationale = "Scholar orchestrator remains package-local; Scientist first-level orchestrator moves under orchestration/orchestrator with a dated shim if imports require it."
+
+[[phase0_4_name_decision]]
+name = "provenance"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric and Scientist provenance packages track separate bounded-context artifacts."
+
+[[phase0_4_name_decision]]
+name = "registry"
+decision = "canonical_home_with_adapters"
+owner = "team-architecture"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "polisyos.core.registry owns generic registry primitives; Fabric, Foundry, and IR registries are domain adapters or semantic contract groups."
+
+[[phase0_4_name_decision]]
+name = "runtime"
+decision = "sunset_shim"
+owner = "team-runtime"
+target_phase = "0.4/2.2"
+sunset = "2026-10-01"
+rationale = "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in."
+
+[[phase0_4_name_decision]]
+name = "schemas"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/6.4"
+sunset = "none"
+rationale = "Top-level schema wrappers and IR schema helpers are separate schema/data concerns."
+
+[[phase0_4_name_decision]]
+name = "search"
+decision = "sunset_shim"
+owner = "team-scientist"
+target_phase = "0.4/2.2"
+sunset = "2026-10-01"
+rationale = "Scholar search remains package-local; Scientist first-level search moves under methods/search with a dated shim if imports require it."
+
+[[phase0_4_name_decision]]
+name = "security"
+decision = "canonical_home_with_adapters"
+owner = "team-core"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "polisyos.core.security is canonical; package security modules adapt local resources to core security primitives."
+
+[[phase0_4_name_decision]]
+name = "trace"
+decision = "canonical_home_with_adapters"
+owner = "team-core"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "polisyos.core.trace is canonical for persisted traces; Foundry trace remains a bounded-context adapter/facade."
+
+[[phase0_4_name_decision]]
+name = "validation"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/2.2"
+sunset = "none"
+rationale = "Foundry and Scientist validation are separate package concepts; Scientist verification and policy_verified are Wave 2 subpackage moves."
+
+[[phase0_4_name_decision]]
+name = "world"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Fabric and IR world packages describe different bounded-context world models."
+
+[[phase2_2_scientist_parallel_closeout]]
+family_id = "evidence_claims_provenance_legacy_roots"
+resolution = "moved_with_sunset_shims"
+owner = "team-scientist"
+target_phase = "2.2"
+canonical_home = "polisyos.scientist.evidence"
+canonical_roots = [
+  "polisyos.scientist.evidence",
+  "polisyos.scientist.evidence.claims",
+  "polisyos.scientist.evidence.provenance",
+]
+legacy_roots = [
+  "polisyos.scientist.claims",
+  "polisyos.scientist.provenance",
+]
+scoped_ok_roots = []
+non_overlap_rationale = "Claim ledger and provenance helpers live under the Scientist evidence boundary; the old first-level claims and provenance roots are dated compatibility shims only."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_compatibility_roots_are_registered_in_shims"
+
+[[phase2_2_scientist_parallel_closeout]]
+family_id = "workflows_orchestration_orchestrator_research_dag"
+resolution = "merged_with_sunset_shims"
+owner = "team-scientist"
+target_phase = "2.2"
+canonical_home = "polisyos.scientist.orchestration"
+canonical_roots = [
+  "polisyos.scientist.orchestration",
+  "polisyos.scientist.orchestration.workflows",
+  "polisyos.scientist.orchestration.orchestrator",
+]
+legacy_roots = [
+  "polisyos.scientist.workflows",
+  "polisyos.scientist.orchestrator",
+  "polisyos.scientist.research_dag",
+]
+scoped_ok_roots = ["polisyos.scientist.methods.research_dag"]
+non_overlap_rationale = "Executable workflow routing and decision-card orchestration live under orchestration; Research DAG is a methods/provenance sidecar under methods/research_dag and only the first-level research_dag path remains as a dated shim."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
+
+[[phase2_2_scientist_parallel_closeout]]
+family_id = "methods_legacy_search_discovery_research_roots"
+resolution = "moved_with_sunset_shims"
+owner = "team-scientist"
+target_phase = "2.2"
+canonical_home = "polisyos.scientist.methods"
+canonical_roots = [
+  "polisyos.scientist.methods",
+  "polisyos.scientist.methods.search",
+  "polisyos.scientist.methods.discovery",
+  "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.methods.causal",
+  "polisyos.scientist.methods.autotune",
+  "polisyos.scientist.methods.backtesting",
+  "polisyos.scientist.methods.doe",
+]
+legacy_roots = [
+  "polisyos.scientist.search",
+  "polisyos.scientist.discovery",
+  "polisyos.scientist.research_dag",
+  "polisyos.scientist.causal",
+  "polisyos.scientist.autotune",
+  "polisyos.scientist.backtesting",
+  "polisyos.scientist.doe",
+]
+scoped_ok_roots = []
+non_overlap_rationale = "Scientist method implementations live below methods; old first-level search, discovery, research_dag, causal, autotune, backtesting, and DOE imports are compatibility paths only."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
+
+[[phase2_2_scientist_parallel_closeout]]
+family_id = "extensions_package_registries"
+resolution = "scoped_ok_with_registry_boundary"
+owner = "team-architecture"
+target_phase = "2.2"
+canonical_home = "architecture/extension_points.toml plus package-local extension modules"
+canonical_roots = ["architecture/extension_points.toml"]
+legacy_roots = []
+scoped_ok_roots = [
+  "polisyos.scientist.extensions",
+  "polisyos.data_forge.extensions",
+  "polisyos.fabric.extensions",
+  "polisyos.foundry.extensions",
+  "polisyos.lex.extensions",
+  "polisyos.runtime.extensions",
+]
+non_overlap_rationale = "architecture/extension_points.toml owns cross-package entry-point policy; package extensions modules remain package-scoped authoring surfaces and do not overlap with Scientist implementation roots."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
+
+[[phase2_2_scientist_parallel_closeout]]
+family_id = "governance_validation_verification_policy_verified"
+resolution = "moved_with_sunset_shims"
+owner = "team-scientist"
+target_phase = "2.2"
+canonical_home = "polisyos.scientist.governance and polisyos.scientist.validation"
+canonical_roots = [
+  "polisyos.scientist.governance",
+  "polisyos.scientist.governance.continuous",
+  "polisyos.scientist.governance.human_review",
+  "polisyos.scientist.validation",
+  "polisyos.scientist.validation.policy_verified",
+  "polisyos.scientist.validation.verification",
+]
+legacy_roots = [
+  "polisyos.scientist.continuous_governance",
+  "polisyos.scientist.human_review",
+  "polisyos.scientist.policy_verified",
+  "polisyos.scientist.verification",
+]
+scoped_ok_roots = []
+non_overlap_rationale = "Governance owns continuous governance and human review, while validation owns policy_verified and implementation verification; the old first-level roots are dated compatibility shims only."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "observability"
+source_names = ["observability", "telemetry"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.core.observability"
+owner = "team-observability"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Process-wide metrics, logs, and telemetry primitives live under core observability; package telemetry remains scoped or adapts through _adapters."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "security"
+source_names = ["security"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.core.security"
+owner = "team-core"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Tenant identity, authorization, audit, and quota primitives are canonical in core security; package security roots are scoped adapters or domain modules."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "registry"
+source_names = ["registry"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.core.registry"
+owner = "team-architecture"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Core registry owns generic registry contracts; Fabric, Foundry, and other package registries are documented domain registries."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "discovery"
+source_names = ["discovery"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.core.discovery"
+owner = "team-architecture"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Plugin and entry-point discovery use core discovery; package workflow discovery must stay package-qualified and avoid a competing top-level API."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "configuration"
+source_names = ["configuration", "config"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.common.config"
+owner = "team-architecture"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Runtime-agnostic configuration helpers live in common config; package config files describe package-local schemas or adapters."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "tracing"
+source_names = ["tracing", "trace"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.core.trace"
+owner = "team-core"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Persisted trace records and sinks live in core trace; package tracing files are scoped emitters or compatibility facades."
+
+[[phase1_5_cross_cutting_concern_decision]]
+name = "calibration"
+source_names = ["calibration"]
+decision = "canonical_home_with_adapters"
+canonical_home = "polisyos.calibration"
+owner = "team-architecture"
+target_phase = "1.5"
+sunset = "none"
+rationale = "Generic calibration diagnostics stay in polisyos.calibration; DDM, Foundry, IR, and Scientist calibration modules remain scoped adapters or domain workflows."

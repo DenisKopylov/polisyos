@@ -15,6 +15,11 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
+from polisyos.ir.api import install_ir_legacy_module_aliases as _install_ir_legacy_module_aliases
+
+_install_ir_legacy_module_aliases()
+del _install_ir_legacy_module_aliases
+
 __all__ = [
     "ABMBifurcationReport",
     "ABMIdentifiabilityCertificate",
@@ -301,7 +306,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "ABMIdentifiabilityCertificate",
     ),
     "ABMResult": ("polisyos.ir.analytics.phase4_dynamics", "ABMResult"),
-    "ABMResultRef": ("polisyos.ir.references", "ABMResultRef"),
+    "ABMResultRef": ("polisyos.ir.registry.refs", "ABMResultRef"),
     "CalibrationConfig": ("polisyos.ir.analytics.calibration", "CalibrationConfig"),
     "CalibrationTarget": ("polisyos.ir.analytics.calibration", "CalibrationTarget"),
     "ConnectorCapability": ("polisyos.ir.connectors", "ConnectorCapability"),
@@ -337,10 +342,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.sensitivity",
         "SensitivityAnalysisIndex",
     ),
-    "SensitivityAnalysisBundleRef": ("polisyos.ir.references", "SensitivityAnalysisBundleRef"),
-    "ExplanationBundleRef": ("polisyos.ir.references", "ExplanationBundleRef"),
-    "JudgeVerdictRef": ("polisyos.ir.references", "JudgeVerdictRef"),
-    "DriftReadinessRef": ("polisyos.ir.references", "DriftReadinessRef"),
+    "SensitivityAnalysisBundleRef": ("polisyos.ir.registry.refs", "SensitivityAnalysisBundleRef"),
+    "ExplanationBundleRef": ("polisyos.ir.registry.refs", "ExplanationBundleRef"),
+    "JudgeVerdictRef": ("polisyos.ir.registry.refs", "JudgeVerdictRef"),
+    "DriftReadinessRef": ("polisyos.ir.registry.refs", "DriftReadinessRef"),
     "OperatingCharacteristicKey": (
         "polisyos.ir.analytics.shift_diagnostics",
         "OperatingCharacteristicKey",
@@ -359,8 +364,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.shift_diagnostics",
         "ShiftDiagnosticReport",
     ),
-    "ShiftDiagnosticReportRef": ("polisyos.ir.references", "ShiftDiagnosticReportRef"),
-    "load_policy": ("polisyos.ir.loaders", "load_policy"),
+    "ShiftDiagnosticReportRef": ("polisyos.ir.registry.refs", "ShiftDiagnosticReportRef"),
+    "load_policy": ("polisyos.ir.loading.loaders", "load_policy"),
     "IRExportInfo": ("polisyos.ir.schemas", "IRExportInfo"),
     "IRFieldInfo": ("polisyos.ir.schemas", "IRFieldInfo"),
     "IRPublicStatus": ("polisyos.ir.schemas", "IRPublicStatus"),
@@ -380,17 +385,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.dependent_sensitivity",
         "persist_dependent_sensitivity_result",
     ),
-    "NormPack": ("polisyos.ir.norm_pack", "NormPack"),
-    "NormRule": ("polisyos.ir.norm_pack", "NormRule"),
-    "NormRef": ("polisyos.ir.norm_pack", "NormRef"),
-    "RuleType": ("polisyos.ir.norm_pack", "RuleType"),
-    "AgentConfig": ("polisyos.ir.model_spec", "AgentConfig"),
-    "AgentTypeConfig": ("polisyos.ir.model_spec", "AgentTypeConfig"),
-    "AssumptionSpec": ("polisyos.ir.model_spec", "AssumptionSpec"),
-    "AssumptionType": ("polisyos.ir.model_spec", "AssumptionType"),
-    "EnvironmentConfig": ("polisyos.ir.model_spec", "EnvironmentConfig"),
-    "EnvironmentParam": ("polisyos.ir.model_spec", "EnvironmentParam"),
-    "FidelityLevel": ("polisyos.ir.model_spec", "FidelityLevel"),
+    "NormPack": ("polisyos.ir.loading.norm_pack", "NormPack"),
+    "NormRule": ("polisyos.ir.loading.norm_pack", "NormRule"),
+    "NormRef": ("polisyos.ir.loading.norm_pack", "NormRef"),
+    "RuleType": ("polisyos.ir.loading.norm_pack", "RuleType"),
+    "AgentConfig": ("polisyos.ir.model_layer.model_spec", "AgentConfig"),
+    "AgentTypeConfig": ("polisyos.ir.model_layer.model_spec", "AgentTypeConfig"),
+    "AssumptionSpec": ("polisyos.ir.model_layer.model_spec", "AssumptionSpec"),
+    "AssumptionType": ("polisyos.ir.model_layer.model_spec", "AssumptionType"),
+    "EnvironmentConfig": ("polisyos.ir.model_layer.model_spec", "EnvironmentConfig"),
+    "EnvironmentParam": ("polisyos.ir.model_layer.model_spec", "EnvironmentParam"),
+    "FidelityLevel": ("polisyos.ir.model_layer.model_spec", "FidelityLevel"),
     "GovernancePassAlias": ("polisyos.ir.observation.governance", "GovernancePassAlias"),
     "GovernancePassAliasRegistry": (
         "polisyos.ir.observation.governance",
@@ -404,7 +409,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.observation.governance",
         "GovernancePassMappingRegistry",
     ),
-    "ModelSpec": ("polisyos.ir.model_spec", "ModelSpec"),
+    "ModelSpec": ("polisyos.ir.model_layer.model_spec", "ModelSpec"),
     "GateContext": ("polisyos.ir.governance.gate", "GateContext"),
     "GateDecision": ("polisyos.ir.governance.gate", "GateDecision"),
     "GateEvent": ("polisyos.ir.governance.gate", "GateEvent"),
@@ -427,10 +432,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.governance.policy_spec",
         "TemporalInterventionStep",
     ),
-    "PolicyPortfolio": ("polisyos.ir.portfolio", "PolicyPortfolio"),
-    "PolicyInteraction": ("polisyos.ir.portfolio", "PolicyInteraction"),
-    "InteractionMatrix": ("polisyos.ir.portfolio", "InteractionMatrix"),
-    "InteractionType": ("polisyos.ir.portfolio", "InteractionType"),
+    "PolicyPortfolio": ("polisyos.ir.loading.portfolio", "PolicyPortfolio"),
+    "PolicyInteraction": ("polisyos.ir.loading.portfolio", "PolicyInteraction"),
+    "InteractionMatrix": ("polisyos.ir.loading.portfolio", "InteractionMatrix"),
+    "InteractionType": ("polisyos.ir.loading.portfolio", "InteractionType"),
     "ConstraintType": ("polisyos.ir.governance.problem_frame", "ConstraintType"),
     "KPISpec": ("polisyos.ir.governance.problem_frame", "KPISpec"),
     "ProblemConstraintSpec": ("polisyos.ir.governance.problem_frame", "ConstraintSpec"),
@@ -445,7 +450,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "EquilibriumMultiplicityWelfareAnnotation",
     ),
     "WelfareBundle": ("polisyos.ir.analytics.welfare", "WelfareBundle"),
-    "WelfareBundleRef": ("polisyos.ir.references", "WelfareBundleRef"),
+    "WelfareBundleRef": ("polisyos.ir.registry.refs", "WelfareBundleRef"),
     "WelfareIntervalSemantics": (
         "polisyos.ir.analytics.welfare",
         "WelfareIntervalSemantics",
@@ -455,7 +460,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.welfare",
         "WelfareSampleBundle",
     ),
-    "WelfareSampleBundleRef": ("polisyos.ir.references", "WelfareSampleBundleRef"),
+    "WelfareSampleBundleRef": ("polisyos.ir.registry.refs", "WelfareSampleBundleRef"),
     "WelfareStatus": ("polisyos.ir.analytics.welfare", "WelfareStatus"),
     "CausalMethod": ("polisyos.ir.analytics.causal", "CausalMethod"),
     "EstimationStatus": ("polisyos.ir.analytics.causal", "EstimationStatus"),
@@ -471,8 +476,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     ),
     "CausalQuery": ("polisyos.ir.analytics.causal_queries", "CausalQuery"),
     "CausalQueryResult": ("polisyos.ir.analytics.causal_queries", "CausalQueryResult"),
-    "CausalQueryResultRef": ("polisyos.ir.references", "CausalQueryResultRef"),
-    "CausalExecutionBundleRef": ("polisyos.ir.references", "CausalExecutionBundleRef"),
+    "CausalQueryResultRef": ("polisyos.ir.registry.refs", "CausalQueryResultRef"),
+    "CausalExecutionBundleRef": ("polisyos.ir.registry.refs", "CausalExecutionBundleRef"),
     "BlockSupportReport": (
         "polisyos.ir.analytics.network_generative",
         "BlockSupportReport",
@@ -481,15 +486,15 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.network_generative",
         "CausalBlockBridge",
     ),
-    "CausalBlockBridgeRef": ("polisyos.ir.references", "CausalBlockBridgeRef"),
+    "CausalBlockBridgeRef": ("polisyos.ir.registry.refs", "CausalBlockBridgeRef"),
     "ExposureMappingType": ("polisyos.ir.analytics.interference", "ExposureMappingType"),
     "InteractionComplex": ("polisyos.ir.analytics.interference", "InteractionComplex"),
-    "InteractionComplexRef": ("polisyos.ir.references", "InteractionComplexRef"),
+    "InteractionComplexRef": ("polisyos.ir.registry.refs", "InteractionComplexRef"),
     "InterferenceCertificate": (
         "polisyos.ir.analytics.interference",
         "InterferenceCertificate",
     ),
-    "InterferenceCertificateRef": ("polisyos.ir.references", "InterferenceCertificateRef"),
+    "InterferenceCertificateRef": ("polisyos.ir.registry.refs", "InterferenceCertificateRef"),
     "InterferenceEffectDecomposition": (
         "polisyos.ir.analytics.interference",
         "InterferenceEffectDecomposition",
@@ -499,7 +504,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.interference",
         "MAUPInvarianceCertificate",
     ),
-    "MAUPInvarianceCertificateRef": ("polisyos.ir.references", "MAUPInvarianceCertificateRef"),
+    "MAUPInvarianceCertificateRef": ("polisyos.ir.registry.refs", "MAUPInvarianceCertificateRef"),
     "MAUPPartitionCheck": ("polisyos.ir.analytics.interference", "MAUPPartitionCheck"),
     "NetworkInterferenceReport": (
         "polisyos.ir.analytics.interference",
@@ -511,13 +516,13 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.causal_ensemble",
         "CausalModelEnsemble",
     ),
-    "CausalModelEnsembleRef": ("polisyos.ir.references", "CausalModelEnsembleRef"),
+    "CausalModelEnsembleRef": ("polisyos.ir.registry.refs", "CausalModelEnsembleRef"),
     "TransportabilityResult": (
         "polisyos.ir.analytics.transportability",
         "TransportabilityResult",
     ),
     "TransportabilityResultRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "TransportabilityResultRef",
     ),
     "ForecastCalibrationMethod": (
@@ -541,7 +546,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "ForecastingUncertaintyBundleV2",
     ),
     "ForecastingUncertaintyBundleRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "ForecastingUncertaintyBundleRef",
     ),
     "ForecastShiftTypeAssessment": (
@@ -552,7 +557,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.welfare",
         "GEUncertaintyBundle",
     ),
-    "GEUncertaintyBundleRef": ("polisyos.ir.references", "GEUncertaintyBundleRef"),
+    "GEUncertaintyBundleRef": ("polisyos.ir.registry.refs", "GEUncertaintyBundleRef"),
     "GEUncertaintyRepresentation": (
         "polisyos.ir.analytics.welfare",
         "GEUncertaintyRepresentation",
@@ -602,7 +607,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "RegimeShiftForecastBundle",
     ),
     "RegimeShiftForecastBundleRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "RegimeShiftForecastBundleRef",
     ),
     "Phase4DynamicsGate": (
@@ -622,7 +627,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "TemporalGraphCausalCertificate",
     ),
     "TemporalGraphCausalCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "TemporalGraphCausalCertificateRef",
     ),
     "SpaceTimeCausalCertificate": (
@@ -630,7 +635,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "SpaceTimeCausalCertificate",
     ),
     "SpaceTimeCausalCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "SpaceTimeCausalCertificateRef",
     ),
     "CausalDiscoveryReport": (
@@ -754,7 +759,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "SurveyQualityCertificate",
     ),
     "SurveyQualityCertificateRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "SurveyQualityCertificateRef",
     ),
     "MicrosimCalibrationReport": (
@@ -762,7 +767,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "MicrosimCalibrationReport",
     ),
     "MicrosimCalibrationReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "MicrosimCalibrationReportRef",
     ),
     "DynamicMicrosimValidationReport": (
@@ -770,7 +775,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "DynamicMicrosimValidationReport",
     ),
     "DynamicMicrosimValidationReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "DynamicMicrosimValidationReportRef",
     ),
     "DependenceStructure": (
@@ -778,7 +783,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "DependenceStructure",
     ),
     "DependenceStructureRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "DependenceStructureRef",
     ),
     "MobilityReport": (
@@ -786,7 +791,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "MobilityReport",
     ),
     "MobilityReportRef": (
-        "polisyos.ir.references",
+        "polisyos.ir.registry.refs",
         "MobilityReportRef",
     ),
     "BacktestPlanBundle": ("polisyos.ir.observation.bundles", "BacktestPlanBundle"),

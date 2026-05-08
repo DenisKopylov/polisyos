@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 VALIDATION_SCRIPT = (
     REPO_ROOT / "tools" / "quality" / "validation" / "repository_structure_phase0.py"
 )
-CONCERN_CONTRACT = REPO_ROOT / "architecture" / "cross_cutting_concerns.toml"
+CONCERN_CONTRACT = REPO_ROOT / "architecture" / "policies" / "cross_cutting_concerns.toml"
 NAME_REGISTRY = REPO_ROOT / "architecture" / "name_registry.toml"
 
 PHASE_4_8_CONCERNS = {

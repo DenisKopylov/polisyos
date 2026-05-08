@@ -26,7 +26,7 @@ from polisyos.ir.observation.governance import (
     DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY,
     ObservationFamilyPolicyRegistry,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 

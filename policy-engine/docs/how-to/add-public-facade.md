@@ -14,7 +14,7 @@
 ## Output
 
 - обновленный package facade в `src/polisyos/**/__init__.py`;
-- при необходимости обновленный `architecture/public_surface.toml`;
+- при необходимости обновленный `architecture/public_surface/contract.toml`;
 - synchronized `docs/reference/public-surface.md`.
 
 ## Commands
@@ -55,7 +55,7 @@ Preserve the existing facade mode:
 ## 3. Update the manifest when the package-level contract changes
 
 If you are introducing a new package root or changing its classification, edit
-`architecture/public_surface.toml`.
+`architecture/public_surface/contract.toml`.
 
 That manifest is the source of truth for:
 

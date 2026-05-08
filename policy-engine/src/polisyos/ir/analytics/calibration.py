@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
 else:
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
 
 
 class TargetAlignConfig(BaseModel):

@@ -58,7 +58,7 @@ Keep these decisions from the Data Forge plan as written:
 | Data Forge migration      | ADR-0112 plus `docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md` |
 | Asset-centric pipelines   | ADR-0113 plus Data Forge kernel contracts                          |
 | Schema registry           | ADR-0114 plus `schemas/**` and codegen gates                       |
-| Layering/imports          | ADR-0115 plus `architecture/import_contracts.toml`                 |
+| Layering/imports          | ADR-0115 plus `architecture/imports/contracts.toml`                 |
 | OTel-first observability  | ADR-0116 plus `ops/observability/**`                               |
 | Secrets                   | ADR-0117 plus SecretBackend protocol and security gates            |
 | Release/SemVer            | ADR-0118 plus `release/` and `release-fragments/`                  |
@@ -111,11 +111,11 @@ contracts:
 | File                                      | Purpose                                                             |
 | ----------------------------------------- | ------------------------------------------------------------------- |
 | `architecture/topology.toml`              | Top-level path allowlist, category, owner, commit policy            |
-| `architecture/package_boundaries.toml`    | Package owners, allowed dependencies, public facades                |
-| `architecture/import_contracts.toml`      | Import-linter contracts for layers, forbidden imports, independence |
+| `architecture/packages/boundaries.toml`    | Package owners, allowed dependencies, public facades                |
+| `architecture/imports/contracts.toml`      | Import-linter contracts for layers, forbidden imports, independence |
 | `architecture/shims.toml`       | Compatibility shims with owner and sunset                           |
-| `architecture/complexity_exceptions.toml` | Temporary god-file/module-size exceptions                           |
-| `architecture/public_surface.toml`        | Public entrypoints and supported facade modes                       |
+| `architecture/exceptions/complexity.toml` | Temporary god-file/module-size exceptions                           |
+| `architecture/public_surface/contract.toml`        | Public entrypoints and supported facade modes                       |
 | `architecture/generated_artifacts.toml`   | Generated artifact registry with freshness gates                    |
 | `schemas/topology/*.schema.json`          | JSON Schema for architecture TOML contracts                         |
 
@@ -132,17 +132,17 @@ owned, documented, and time-bounded.
 
 | Gate             | Source                                                                      |
 | ---------------- | --------------------------------------------------------------------------- |
-| import-linter    | `architecture/import_contracts.toml`                                        |
+| import-linter    | `architecture/imports/contracts.toml`                                        |
 | deptry           | `pyproject.toml` dependency declarations                                    |
 | topology-gate    | `architecture/topology.toml`                                                |
 | shim-audit       | `architecture/shims.toml`                                         |
-| complexity       | `architecture/complexity_exceptions.toml` plus Ruff caps                    |
+| complexity       | `architecture/exceptions/complexity.toml` plus Ruff caps                    |
 | schema-drift     | `schemas/**` and codegen commands                                           |
 | generated-header | `architecture/generated_artifacts.toml`                                     |
 | gitleaks         | `ops/security/gitleaks.toml`                                                |
 | OSV/SBOM         | `ops/security/osv-scanner.toml` and `release-sbom` generated artifact       |
 | commitlint       | release-train policy from ADR-0118                                          |
-| public-surface   | `architecture/public_surface.toml` and `architecture/public_surface/*.json` |
+| public-surface   | `architecture/public_surface/contract.toml` and `architecture/public_surface/*.json` |
 | docs-freshness   | docs front matter and `docs/plans/README.md`                                |
 | loose-file       | `architecture/topology.toml` loose-file allow/deny lists                    |
 | pii-redaction    | SecretBackend redaction middleware and manifest/log scans                   |

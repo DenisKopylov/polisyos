@@ -1,0 +1,631 @@
+[test_ratchets]
+version = 1
+status = "active"
+owner = "team-quality"
+phase = "repository-best-in-class-phase-6.2"
+default_gate_mode = "fail_closed_no_regression"
+last_verified = "2026-05-07"
+description = "Active test and benchmark ratchet contract for package mirror no-regression, property/integration decisions, fixture roots, pytest roots, and benchmark collection shape."
+legacy_mirror = "architecture/tests/topology.toml"
+topology_contract = "architecture/tests/topology.toml"
+baseline_inventory = "architecture/baselines/repository_best_in_class_phase0_4/verification_inventory.json"
+report_command = "uv run python tools/quality/testing/report_test_ratchets.py --fail-on-regression --output _build/.tmp/test-reports/test-ratchets-summary.md"
+
+[[ratchet]]
+id = "fabric-package-tests"
+package = "fabric"
+owner = "team-fabric"
+contract = "architecture/packages/fabric.toml"
+required_roots = ["tests/unit/fabric"]
+recommended_roots = ["tests/unit/fabric/connectors", "tests/integration"]
+minimum_new_change_expectation = "new connectors and data-plane paths include unit or contract coverage plus fixtures when behavior changes"
+mode = "fail_closed_contract"
+
+[[ratchet]]
+id = "foundry-package-tests"
+package = "foundry"
+owner = "team-foundry"
+contract = "architecture/packages/foundry.toml"
+required_roots = ["tests/unit/foundry", "tests/property/foundry"]
+recommended_roots = ["tests/unit/foundry/methods", "tests/unit/foundry/validation", "tests/contract"]
+minimum_new_change_expectation = "new methods include family-local tests and update golden/property coverage when semantics change"
+mode = "fail_closed_contract"
+
+[[ratchet]]
+id = "scientist-package-tests"
+package = "scientist"
+owner = "team-scientist"
+contract = "architecture/packages/scientist.toml"
+required_roots = ["tests/unit/scientist", "tests/property/scientist"]
+recommended_roots = ["tests/integration/scientist", "tests/contract"]
+minimum_new_change_expectation = "new workflow nodes include replay/idempotency coverage and phase acceptance updates when promotion behavior changes"
+mode = "fail_closed_contract"
+
+[ratchet_policy]
+ratchet_mode = "fail_closed_no_regression"
+mirror_presence_metric = "loose_name_mirror_ratio"
+strict_mirror_metric = "strict_module_mirror_ratio"
+ratchet_floor_source = "measured_baseline"
+first_critical_target_ratio = 0.7000
+no_regression_rule = "Fail when an observed loose mirror ratio falls below ratchet_floor, a strict mirror ratio falls below baseline, or required property tests fall below floor unless the package has an explicit mirror_regression_exception or strict_mirror_regression_exception."
+fail_closed_threshold_policy = "No package may receive a fail-closed mirror floor above its measured baseline until a newer baseline is committed."
+runtime_over_coverage_policy = "Normalize runtime over-coverage through module mappings or declared cross-module behavior tests; raw test-file count does not satisfy module mirror presence."
+new_package_move_policy = "New package moves must include characterization, mirror, or explicit cross-layer behavior-test mapping in this contract before merging."
+
+[layers.unit]
+root = "tests/unit"
+source_root = "src/polisyos"
+mirror_presence_metric = "loose_name_mirror_ratio"
+strict_mirror_metric = "strict_module_mirror_ratio"
+
+[layers.integration]
+root = "tests/integration"
+decision_source = "package_ratchet.integration_decision"
+package_local_exceptions_allowed = true
+
+[layers.property]
+root = "tests/property"
+decision_source = "package_ratchet.property_decision"
+required_when_declared = true
+
+[layers.performance]
+root = "tests/performance"
+marker = "performance"
+benchmark_marker = "benchmark"
+role = "Internal performance and cost-regression checks. Public product evaluation suites live under the benchmark policy."
+
+[pytest_policy]
+root_config = "pytest.ini"
+pytest_roots = ["tests"]
+marker_policy = "Markers are registered in pytest.ini and auto-applied by tests/conftest.py; --strict-markers remains required."
+duplicate_config_cleanup = "No additional pytest.ini, tox.ini pytest section, setup.cfg pytest section, or pyproject [tool.pytest.ini_options] may be introduced without an explicit pytest_universe_exception."
+third_universe_policy = "No pytest root outside tests/ may define independent collection/configuration without an explicit pytest_universe_exception."
+forbidden_config_roots = [
+  "pyproject.toml:[tool.pytest.ini_options]",
+  "setup.cfg:[tool:pytest]",
+  "tox.ini:[pytest]",
+  "benchmarks/pytest.ini",
+]
+
+[[pytest_universe_exception]]
+id = "benchmarks-conftest-transition"
+path = "benchmarks/conftest.py"
+kind = "conftest"
+mode = "explicit_exception"
+owner = "team-quality"
+expires_phase = "Wave 2 benchmark runner relocation"
+expires = "2026-09-01"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+reason = "Legacy benchmark scripts still import shared benchmark helpers through a pytest-compatible conftest. It may not grow an independent pytest config, and runner helpers move under src/polisyos/benchmarks in the benchmark relocation wave."
+
+[fixture_policy]
+shared_fixture_root = "tests/_data"
+shared_golden_root = "tests/_golden"
+shared_helper_root = "tests/_helpers"
+benchmark_data_root = "benchmarks/_data"
+root_transition_policy = "Phase 2.4 split shared raw fixtures to tests/_data, shared golden records to tests/_golden, and Python fixture helpers to tests/_helpers."
+package_local_fixture_policy = "Package-coupled data fixtures move to tests/_data/<package> unless a package-local runtime fixture root is explicitly generated at test time."
+package_local_golden_policy = "Package-scoped golden records live under tests/_golden/<package> or an explicitly registered snapshot root."
+fixture_helper_policy = "Fixture helper Python lives under tests/_helpers or package conftest modules; raw data fixtures do not live in tests/contract."
+target_fixture_roots = ["tests/_data", "tests/_data/<package>", "benchmarks/_data"]
+target_golden_roots = ["tests/_golden", "tests/_golden/<package>"]
+product_fixture_exception_roots = [
+  "src/polisyos/data_forge/domains/catalog/fixtures",
+  "src/polisyos/scientist/nodes/builtins/data",
+]
+
+[test_helper_topology]
+status = "active_contract"
+owner = "team-quality"
+baseline = "architecture/baselines/repository_best_in_class_last_mile/test_helper_topology.json"
+shared_helper_root = "tests/_helpers"
+layer_local_conftest_glob = "tests/**/conftest.py"
+shared_helper_allowed_imports = [
+  "product_code",
+  "standard_library",
+  "standard_test_libraries",
+]
+shared_helper_forbidden_test_layers = [
+  "tests/unit",
+  "tests/integration",
+  "tests/property",
+  "tests/contract",
+  "tests/repo_quality",
+]
+shared_helper_contract = "Shared helpers may import product code and standard test libraries, but may not import concrete test-layer modules."
+layer_local_conftest_contract = "Layer-local conftest.py files may import shared helpers and local product/test dependencies, but identical copied fixture factories require owner and reason registration."
+unused_helper_policy = "Shared helper modules must have at least one importing test, helper, or pytest_plugins consumer."
+duplicate_fixture_policy = "Identical fixture factories copied across layer-local conftest.py files must be removed or registered below with owner and reason."
+growth_policy = "ratchet_update_required"
+mode = "fail_closed_no_regression"
+
+[[test_helper_duplicate_fixture_factory]]
+id = "scientist-cas-store-local-fixture"
+fixture = "cas_store"
+paths = [
+  "tests/unit/scientist/governance/conftest.py",
+  "tests/unit/scientist/nodes/conftest.py",
+]
+owner = "team-scientist"
+reason = "Both Scientist slices intentionally keep a tiny local FileSystemCAS fixture next to slice-specific context factories; registered until a shared Scientist helper can replace both without broad fixture shadowing."
+
+[repo_quality_tests]
+roots = [
+  "tests/repo_quality/architecture",
+  "tests/repo_quality/lint",
+  "tests/repo_quality/tools",
+]
+excluded_from_package_mirror_ratio = true
+policy = "Repository-quality tests validate architecture contracts and tooling behavior; they are not counted as package unit mirror coverage."
+
+[benchmark_policy]
+decision = "public_product_evaluation"
+status = "active_contract"
+current_collection_root = "benchmarks"
+current_performance_root = "tests/performance"
+target_public_root = "benchmarks"
+target_suite_root = "benchmarks/suites"
+target_data_root = "benchmarks/_data"
+target_runner_root = "src/polisyos/benchmarks"
+target_runner_subroots = [
+  "src/polisyos/benchmarks/runner",
+  "src/polisyos/benchmarks/metrics",
+  "src/polisyos/benchmarks/reporting",
+  "src/polisyos/benchmarks/harness",
+]
+internal_performance_root = "tests/performance"
+collection_rule = "Public product benchmark suites and committed data collect under benchmarks/; reusable runner implementation moves under src/polisyos/benchmarks; pytest performance checks remain under tests/performance."
+physical_moves_deferred_to = ["Wave 2", "Wave 3"]
+new_suite_policy = "New public benchmark suites should land under benchmarks/suites with data in benchmarks/_data, or document a temporary transition path in this contract."
+
+[[coverage_normalization]]
+id = "runtime-http-cross-module-behavior"
+package = "runtime"
+test_path = "tests/unit/runtime/http"
+classification = "integration"
+source_globs = ["src/polisyos/runtime/api.py", "src/polisyos/runtime/http/**"]
+counts_toward = "integration_coverage_decision"
+reason = "Runtime HTTP coverage exercises route, middleware, authz, resilience, and ASGI boundary behavior across many source modules; it is intentionally declared as cross-module behavior coverage instead of one-test-file-per-module mirror coverage."
+
+[[coverage_normalization]]
+id = "data-forge-domain-flow-characterization"
+package = "data_forge"
+test_path = "tests/unit/data_forge"
+classification = "characterization"
+source_globs = [
+  "src/polisyos/data_forge/domains/**",
+  "src/polisyos/data_forge/kernel/**",
+  "src/polisyos/data_forge/read_api/**",
+]
+counts_toward = "behavior_test_mapping"
+reason = "Data Forge behavior is dominated by domain flows, golden snapshots, schema evolution, and read-API cutover tests that intentionally cover multiple source modules per test."
+
+[[coverage_normalization]]
+id = "fabric-connector-and-data-plane-characterization"
+package = "fabric"
+test_path = "tests/unit/fabric"
+classification = "characterization"
+source_globs = [
+  "src/polisyos/fabric/connectors/**",
+  "src/polisyos/fabric/data_plane/**",
+  "src/polisyos/fabric/world/**",
+]
+counts_toward = "behavior_test_mapping"
+reason = "Fabric connector, data-plane, and world-store tests exercise source contracts across provider adapters, cursor state, replay, and fact emission rather than one file at a time."
+
+[[coverage_normalization]]
+id = "lex-legal-batch-cross-package-characterization"
+package = "lex"
+test_path = "tests/unit/data_forge/legal_batch"
+classification = "characterization"
+source_globs = [
+  "src/polisyos/lex/**",
+  "src/polisyos/data_forge/domains/legal/**",
+]
+counts_toward = "integration_coverage_decision"
+reason = "Lex legal-corpus behavior is partly exercised through the Data Forge legal batch pipeline; this mapping keeps that cross-package coverage explicit while Lex mirror tests ratchet separately."
+
+[[coverage_normalization]]
+id = "scientist-berl-explanation-reliability-bridge"
+package = "berl"
+test_path = "tests/integration/scientist_berl"
+classification = "integration"
+source_globs = [
+  "src/polisyos/berl/contracts/**",
+  "src/polisyos/scientist/validation/phase5_preflight.py",
+]
+counts_toward = "integration_coverage_decision"
+reason = "Phase 5.4 exercises Scientist analyst-facing explanation preflight across the BERL ExplanationBundle validation boundary."
+
+[[coverage_normalization]]
+id = "scholar-scientist-search-orchestration-bridge"
+package = "scholar"
+test_path = "tests/integration/scholar_scientist"
+classification = "integration"
+source_globs = [
+  "src/polisyos/scholar/search/**",
+  "src/polisyos/scientist/methods/research_dag/**",
+]
+counts_toward = "integration_coverage_decision"
+reason = "Phase 5.4 exercises offline Scholar search/discovery output as Scientist research-DAG orchestration input."
+
+[[coverage_normalization]]
+id = "foundry-calibration-method-output-bridge"
+package = "calibration"
+test_path = "tests/integration/foundry_calibration"
+classification = "integration"
+source_globs = [
+  "src/polisyos/calibration/**",
+  "src/polisyos/foundry/methods/catalog/econometrics/discrete_choice.py",
+]
+counts_toward = "integration_coverage_decision"
+reason = "Phase 5.4 exercises Foundry method output as input to top-level Calibration diagnostics."
+
+[[package_exception]]
+id = "ddm-15-7-wrapper"
+package = "ddm_15_7"
+source_path = "src/polisyos/ddm_15_7"
+mode = "explicit_exception"
+owner = "team-architecture"
+sunset_date = "2026-07-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+reason = "Wrapper-only compatibility shim tracked in architecture/shims.toml; excluded from active package mirror ratchets and limited to facade smoke coverage."
+
+[[package_exception]]
+id = "synthetic-world-wrapper"
+package = "synthetic_world"
+source_path = "src/polisyos/synthetic_world"
+mode = "explicit_exception"
+owner = "team-foundry"
+sunset_date = "2026-07-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+reason = "Wrapper-only compatibility shim tracked in architecture/shims.toml; excluded from active package mirror ratchets."
+
+[[package_ratchet]]
+name = "berl"
+source_path = "src/polisyos/berl"
+unit_path = "tests/unit/berl"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 26
+unit_test_file_count_baseline = 14
+strict_mirror_ratio_baseline = 0.0385
+loose_mirror_ratio_baseline = 0.3846
+no_regression = true
+exception_reason = "Small legacy explainability surface; Phase 1.4 tracks no-regression but does not force a 70 percent first target."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+phase_5_1_target_ratio = 0.3500
+phase_5_1_measured_loose_mirror_ratio = 0.3846
+phase_5_1_floor_source = "observed after tests/unit/berl/mirror_contracts"
+phase_5_1_follow_up_target_ratio = 0.5000
+phase_5_1_next_ratchet_date = "2026-06-15"
+ratchet_floor = 0.3846
+integration_decision = "not_required"
+integration_reason = "No package-specific integration lane; BERL coverage is unit scoped while the package remains small."
+property_decision = "not_required"
+property_reason = "Legacy/compatibility package with deterministic unit coverage only in Phase 1E."
+
+[[package_ratchet]]
+name = "calibration"
+source_path = "src/polisyos/calibration"
+unit_path = "tests/unit/calibration"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 7
+unit_test_file_count_baseline = 5
+strict_mirror_ratio_baseline = 0.7143
+loose_mirror_ratio_baseline = 0.7143
+ratchet_floor = 0.7143
+no_regression = true
+exception_reason = "Small compatibility surface already above the first critical target; keep no-regression without expanding the critical package set."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+integration_decision = "not_required"
+integration_reason = "Calibration integration coverage is owned by Foundry/Scientist package slices."
+property_decision = "not_required"
+property_reason = "Top-level calibration is a compatibility surface; package-specific property coverage lives with Foundry/Scientist calibration domains."
+
+[[package_ratchet]]
+name = "common"
+source_path = "src/polisyos/common"
+unit_path = "tests/unit/common"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 9
+unit_test_file_count_baseline = 10
+strict_mirror_ratio_baseline = 0.3333
+loose_mirror_ratio_baseline = 0.7778
+no_regression = true
+exception_reason = "Small shared primitive package; property coverage remains required while mirror growth is ratcheted from the measured baseline."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+phase_5_1_target_ratio = 0.7500
+phase_5_1_measured_loose_mirror_ratio = 0.7778
+phase_5_1_floor_source = "observed after tests/unit/common/mirror_contracts"
+ratchet_floor = 0.7778
+integration_decision = "not_required"
+integration_reason = "Common primitives are exercised through unit, contract, and dependent package tests."
+property_decision = "required"
+property_path = "tests/property/common"
+
+[[package_ratchet]]
+name = "core"
+source_path = "src/polisyos/core"
+unit_path = "tests/unit/core"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 159
+unit_test_file_count_baseline = 101
+strict_mirror_ratio_baseline = 0.1447
+loose_mirror_ratio_baseline = 0.5031
+ratchet_floor = 0.5031
+phase_5_1_target_ratio = 0.5000
+phase_5_1_measured_loose_mirror_ratio = 0.5031
+phase_5_1_floor_source = "observed after tests/unit/core/mirror_contracts"
+first_target_ratio = 0.7000
+no_regression = true
+integration_decision = "not_required"
+integration_reason = "Core cross-layer compatibility is covered by tests/contract and package integration suites."
+property_decision = "not_required"
+property_reason = "Core currently uses schema/contract tests for invariants; dedicated property suite is deferred until artifact contracts stabilize."
+
+[[package_ratchet]]
+name = "data_forge"
+source_path = "src/polisyos/data_forge"
+unit_path = "tests/unit/data_forge"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 223
+unit_test_file_count_baseline = 149
+strict_mirror_ratio_baseline = 0.2197
+loose_mirror_ratio_baseline = 0.6009
+first_target_ratio = 0.7000
+no_regression = true
+ratchet_floor = 0.6009
+phase_5_3_floor_source = "observed after tests/unit/data_forge/kernel/snapshot/test_merkle.py"
+phase_5_1_target_ratio = 0.6000
+phase_5_1_measured_loose_mirror_ratio = 0.6009
+phase_5_1_floor_source = "observed after tests/unit/data_forge/mirror_contracts"
+integration_decision = "not_required"
+integration_reason = "Data Forge domain flows are covered by local golden/shadow/replay tests inside tests/unit/data_forge and mapped in coverage_normalization."
+property_decision = "required"
+property_path = "tests/property/data_forge"
+property_test_file_count_floor = 1
+
+[[package_ratchet]]
+name = "ddm"
+source_path = "src/polisyos/ddm"
+unit_path = "tests/unit/ddm"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 12
+unit_test_file_count_baseline = 15
+strict_mirror_ratio_baseline = 0.0000
+loose_mirror_ratio_baseline = 0.6667
+no_regression = true
+exception_reason = "Canonical DDM surface owns deterministic replay and acceptance coverage after the ddm_15_7 shim test collapse, but no measured module mirror presence yet."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+phase_5_1_target_ratio = 0.6000
+phase_5_1_measured_loose_mirror_ratio = 0.6667
+phase_5_1_floor_source = "observed after tests/unit/ddm/mirror_contracts"
+ratchet_floor = 0.6667
+integration_decision = "not_required"
+integration_reason = "DDM behavior coverage is unit scoped under tests/unit/ddm; the ddm_15_7 compatibility root keeps one facade smoke test only."
+property_decision = "not_required"
+property_reason = "DDM has deterministic replay and acceptance unit tests; property coverage is deferred until the monitor API stabilizes."
+
+[[package_ratchet]]
+name = "fabric"
+source_path = "src/polisyos/fabric"
+unit_path = "tests/unit/fabric"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 249
+unit_test_file_count_baseline = 164
+strict_mirror_ratio_baseline = 0.0683
+loose_mirror_ratio_baseline = 0.4980
+first_target_ratio = 0.7000
+no_regression = true
+ratchet_floor = 0.4980
+phase_5_3_floor_source = "observed after tests/unit/fabric/_internal/test_numeric_parsing.py"
+phase_5_1_target_ratio = 0.5000
+phase_5_1_measured_loose_mirror_ratio = 0.4980
+phase_5_1_floor_source = "observed after tests/unit/fabric/mirror_contracts"
+mirror_regression_exception = true
+mirror_regression_exception_owner = "team-fabric"
+mirror_regression_exception_expires = "2026-06-15"
+mirror_regression_exception_reason = "Phase 6 split-module denominator growth temporarily puts Fabric just below the previously pinned loose mirror floor; keep fail-closed tracking explicit while mirror_contracts catch up."
+mirror_regression_exception_issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#wave-6---repository-polish-gate-organization-and-stub-cleanup"
+integration_decision = "not_required"
+integration_reason = "Connector/reference integration cases are marked from package-local unit subtrees until external service lanes are split and mapped in coverage_normalization."
+property_decision = "required"
+property_path = "tests/property/fabric"
+property_test_file_count_floor = 1
+strict_mirror_regression_exception = true
+strict_mirror_regression_exception_owner = "team-fabric"
+strict_mirror_regression_exception_expires = "2026-06-15"
+strict_mirror_regression_exception_reason = "Wave 7 observes a strict mirror-ratio denominator increase from Fabric package reshaping after the latest generated inventory refresh; loose mirror and property ratchets stay non-regressing while team-fabric closes first-level mirror files."
+strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
+
+[[package_ratchet]]
+name = "foundry"
+source_path = "src/polisyos/foundry"
+unit_path = "tests/unit/foundry"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 526
+unit_test_file_count_baseline = 468
+strict_mirror_ratio_baseline = 0.3498
+loose_mirror_ratio_baseline = 0.7205
+ratchet_floor = 0.7205
+phase_5_1_target_ratio = 0.7200
+phase_5_1_measured_loose_mirror_ratio = 0.7205
+phase_5_1_floor_source = "observed after tests/unit/foundry/mirror_contracts"
+first_target_ratio = 0.7000
+no_regression = true
+integration_decision = "not_required"
+integration_reason = "Foundry does not keep tests/unit/foundry/integration; runtime and benchmark-style coverage lives in local subpackage hubs."
+property_decision = "required"
+property_path = "tests/property/foundry"
+mirror_regression_exception = true
+mirror_regression_exception_owner = "team-foundry"
+mirror_regression_exception_expires = "2026-06-15"
+mirror_regression_exception_reason = "Wave 7 observes loose mirror-ratio drift from Foundry source denominator reshaping while property coverage remains stable; team-foundry owns first-level mirror normalization before the sunset."
+mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
+strict_mirror_regression_exception = true
+strict_mirror_regression_exception_owner = "team-quality"
+strict_mirror_regression_exception_expires = "2026-06-15"
+strict_mirror_regression_exception_reason = "Phase 5.3 observes strict-path denominator expansion while Foundry family shims and extension-registry moves settle; loose mirror and property ratchets stay non-regressing."
+strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+
+[[package_ratchet]]
+name = "ir"
+source_path = "src/polisyos/ir"
+unit_path = "tests/unit/ir"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 173
+unit_test_file_count_baseline = 163
+strict_mirror_ratio_baseline = 0.1272
+loose_mirror_ratio_baseline = 0.6012
+first_target_ratio = 0.7000
+no_regression = true
+mirror_regression_exception = true
+mirror_regression_exception_owner = "team-quality"
+mirror_regression_exception_expires = "2026-06-15"
+mirror_regression_exception_reason = "Phase 5.3 observes a denominator increase from package moves before the IR mirror characterization catches up; keep this explicit while loose mirror and property ratchets stay non-regressing."
+mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+ratchet_floor = 0.6012
+phase_5_1_target_ratio = 0.6000
+phase_5_1_measured_loose_mirror_ratio = 0.6012
+phase_5_1_floor_source = "observed after tests/unit/ir/mirror_contracts"
+integration_decision = "not_required"
+integration_reason = "IR integration behavior is covered through contract tests and consuming package suites."
+property_decision = "required"
+property_path = "tests/property/ir"
+
+[[package_ratchet]]
+name = "lex"
+source_path = "src/polisyos/lex"
+unit_path = "tests/unit/lex"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 30
+unit_test_file_count_baseline = 15
+strict_mirror_ratio_baseline = 0.2333
+loose_mirror_ratio_baseline = 0.4667
+no_regression = true
+exception_reason = "Small legal-domain package remains exempt from the first 70 percent mirror target while Phase 5.3 activates dedicated property coverage."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+ratchet_floor = 0.4667
+phase_5_3_floor_source = "observed after tests/unit/lex/test_common.py"
+phase_5_1_target_ratio = 0.4500
+phase_5_1_measured_loose_mirror_ratio = 0.4667
+phase_5_1_floor_source = "observed after tests/unit/lex/mirror_contracts"
+phase_5_1_follow_up_target_ratio = 0.5000
+phase_5_1_next_ratchet_date = "2026-06-15"
+integration_decision = "not_required"
+integration_reason = "Lex domain batch coverage is localized through tests/unit/data_forge/legal_batch plus tests/unit/lex and mapped in coverage_normalization."
+property_decision = "required"
+property_path = "tests/property/lex"
+property_test_file_count_floor = 1
+strict_mirror_regression_exception = true
+strict_mirror_regression_exception_owner = "team-lex"
+strict_mirror_regression_exception_expires = "2026-06-15"
+strict_mirror_regression_exception_reason = "Wave 7 observes strict mirror-ratio drift from Lex/Data Forge legal-batch topology while loose mirror and property ratchets remain covered; team-lex owns the short sunset to add or normalize first-level mirror tests."
+strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-71---final-verification-and-closeout-artifact"
+
+[[package_ratchet]]
+name = "runtime"
+source_path = "src/polisyos/runtime"
+unit_path = "tests/unit/runtime"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 63
+unit_test_file_count_baseline = 78
+strict_mirror_ratio_baseline = 0.0159
+loose_mirror_ratio_baseline = 0.7619
+first_target_ratio = 0.7000
+no_regression = true
+mirror_regression_exception = true
+mirror_regression_exception_owner = "team-runtime"
+mirror_regression_exception_expires = "2026-06-15"
+mirror_regression_exception_reason = "Phase 5.3 observes a runtime module-count increase while HTTP behavior remains normalized through runtime-http-cross-module-behavior."
+mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+ratchet_floor = 0.7619
+phase_5_1_target_ratio = 0.7500
+phase_5_1_measured_loose_mirror_ratio = 0.7619
+phase_5_1_floor_source = "observed after tests/unit/runtime/mirror_contracts"
+integration_decision = "required"
+integration_path = "tests/unit/runtime/http"
+integration_reason = "Runtime HTTP tests are marked integration but remain package-local because they exercise the local ASGI boundary."
+property_decision = "required"
+property_path = "tests/property/runtime"
+normalization = "runtime-http-cross-module-behavior"
+
+[[package_ratchet]]
+name = "scholar"
+source_path = "src/polisyos/scholar"
+unit_path = "tests/unit/scholar"
+package_mode = "explicit_exception"
+ratchet_mode = "fail_closed_no_regression"
+critical = false
+source_module_count_baseline = 21
+unit_test_file_count_baseline = 14
+strict_mirror_ratio_baseline = 0.1429
+loose_mirror_ratio_baseline = 0.4762
+no_regression = true
+exception_reason = "Small search/freshness package; networked integration and property coverage remain out of Phase 1.4."
+exception_expires = "2026-12-31"
+exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"
+phase_5_1_target_ratio = 0.4500
+phase_5_1_measured_loose_mirror_ratio = 0.4762
+phase_5_1_floor_source = "observed after tests/unit/scholar/mirror_contracts"
+phase_5_1_follow_up_target_ratio = 0.5000
+phase_5_1_next_ratchet_date = "2026-06-15"
+ratchet_floor = 0.4762
+integration_decision = "not_required"
+integration_reason = "Scholar freshness/search coverage is unit scoped; networked integration remains out of Phase 1E."
+property_decision = "not_required"
+property_reason = "Scholar property coverage depends on stable frozen-search fixtures and is not required in Phase 1E."
+
+[[package_ratchet]]
+name = "scientist"
+source_path = "src/polisyos/scientist"
+unit_path = "tests/unit/scientist"
+package_mode = "critical_target"
+ratchet_mode = "fail_closed_no_regression"
+critical = true
+source_module_count_baseline = 743
+unit_test_file_count_baseline = 473
+strict_mirror_ratio_baseline = 0.3217
+loose_mirror_ratio_baseline = 0.7524
+ratchet_floor = 0.7524
+phase_5_1_target_ratio = 0.7500
+phase_5_1_measured_loose_mirror_ratio = 0.7524
+phase_5_1_floor_source = "observed after tests/unit/scientist/mirror_contracts"
+first_target_ratio = 0.7000
+no_regression = true
+integration_decision = "required"
+integration_path = "tests/integration/scientist"
+property_decision = "required"
+property_path = "tests/property/scientist"
+strict_mirror_regression_exception = true
+strict_mirror_regression_exception_owner = "team-scientist"
+strict_mirror_regression_exception_expires = "2026-06-15"
+strict_mirror_regression_exception_reason = "Phase 5.2 leaves first-level shim files in place while Scientist taxonomy contracts and test mirrors converge; loose mirror and property ratchets stay non-regressing."
+strict_mirror_regression_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-53---mirror-and-property-test-expansion"

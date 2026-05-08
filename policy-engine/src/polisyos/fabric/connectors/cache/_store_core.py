@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactID, FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.security import DataClassification, RetentionScope, resolve_artifact_governance
 from polisyos.fabric.storage.tenant_cas import infer_tenant_id_from_cas_root
 

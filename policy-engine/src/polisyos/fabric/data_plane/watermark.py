@@ -9,7 +9,7 @@ from math import floor
 from typing import Any
 
 from polisyos.core.contracts.cursor import WatermarkType, WindowStrategy
-from polisyos.fabric.temporal import parse_datetime_utc
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc
 from polisyos.ir.connectors import VersionStrategy
 
 

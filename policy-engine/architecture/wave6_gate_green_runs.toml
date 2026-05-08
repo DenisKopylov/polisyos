@@ -17,7 +17,7 @@ status = "two_consecutive_green_runs"
   sequence = 1
   ran_on = 2026-05-06
   result = "passed"
-  evidence = "architecture/package_import_gates.toml"
+  evidence = "architecture/gates/package_import.toml"
 
   [[gate.green_run]]
   sequence = 2
@@ -35,7 +35,7 @@ status = "two_consecutive_green_runs"
   sequence = 1
   ran_on = 2026-05-06
   result = "passed"
-  evidence = "architecture/directory_health.toml"
+  evidence = "architecture/policies/directory_health.toml"
 
   [[gate.green_run]]
   sequence = 2
@@ -53,7 +53,7 @@ status = "two_consecutive_green_runs"
   sequence = 1
   ran_on = 2026-05-06
   result = "passed"
-  evidence = "architecture/test_ratchets.toml"
+  evidence = "architecture/tests/ratchets.toml"
 
   [[gate.green_run]]
   sequence = 2
@@ -71,7 +71,7 @@ status = "two_consecutive_green_runs"
   sequence = 1
   ran_on = 2026-05-06
   result = "passed"
-  evidence = "architecture/operability_release_supply_chain_gates.toml"
+  evidence = "architecture/gates/operability_release_supply_chain.toml"
 
   [[gate.green_run]]
   sequence = 2
@@ -125,7 +125,7 @@ status = "two_consecutive_green_runs"
   sequence = 1
   ran_on = 2026-05-06
   result = "passed"
-  evidence = "architecture/repository_sota_gates.toml"
+  evidence = "architecture/gates/repository_sota.toml"
 
   [[gate.green_run]]
   sequence = 2

@@ -182,7 +182,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
             ARTIFACT_RESEARCH_DAG_REF,
         )
-        from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
+        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"wave1_import_failed:{exc.__class__.__name__}:{exc}"]
 

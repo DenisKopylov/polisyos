@@ -158,7 +158,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ClaimSupportStatus,
             ClaimType,
         )
-        from polisyos.scientist.search.readiness import DecisionReadiness
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"phase2_1_import_failed:{exc.__class__.__name__}:{exc}"]
 

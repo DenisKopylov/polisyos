@@ -22,7 +22,7 @@ legacy paths or duplicate top-level `tools/*` namespaces as active surfaces.
 | Cloud deploy assets | `ops/cloud/deploy/assets/` and `tools/ops/cloud/` | `team-ops` | `.gitignore`, cloud tool tests |
 | GCP helpers | `ops/cloud/gcp/` | `team-ops` | command registry and GCP package helper |
 | Docker/compose assets | `ops/docker/` | `team-ops` | `ops/docker/academic-doc-infra.compose.yml`, `ops/docker/observability.compose.yml` |
-| Observability assets | `ops/observability/{grafana,prometheus,otel,slo}` | `team-observability` | `architecture/ops_baselines.toml` |
+| Observability assets | `ops/observability/{grafana,prometheus,otel,slo}` | `team-observability` | `architecture/baselines/ops.toml` |
 | Policy-as-code | `ops/policy/` | `team-security` | `ops/policy/policies/**` |
 | Duplicate tools namespaces | `tools/{devx,ops,quality,research,...}` | owning tool teams | command registry |
 | Tests topology | `tests/{architecture,unit,property,e2e,golden,...}` | owning package teams | physical test tree |
@@ -69,7 +69,7 @@ allowlisted for tiny fixtures, manifests, registries, and gold examples only.
 ## Acceptance Evidence
 
 Phase 3 final acceptance is enforced by
-`tests/architecture/test_repository_sota_phase3_topology_cleanup.py`:
+`tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py`:
 
 - topology status is `final`;
 - denied loose files are checked before git-ignore exemptions;

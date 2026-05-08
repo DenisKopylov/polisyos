@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.fabric.quality.finite import ensure_probability, finite_or_none
+from polisyos.fabric.numerics.finite import ensure_probability, finite_or_none
 from polisyos.ir.kernel.units import UnitRef
 
 from ._schema_types import Additivity, SchemaType, SemanticType

@@ -12,8 +12,8 @@
     }
   ],
   "profile_id": "eurostat_public",
-  "replay_checksum": "sha256:b5e992b6f0de63e2f420862034fc9dafd85e0ede387c6033d98a933f1c3b7528",
-  "schema_checksum": "sha256:73046af1ac72dd41ae366e97f929d50a8c548aaa12114120c489734182140e92",
+  "replay_checksum": "sha256:d51892d024e71fb448fd370b933e6e8b44ba811394a3e61444c7e6797690805f",
+  "schema_checksum": "sha256:71403bda0f4fd5f822c21672b1520d1651582217d52a56c525e020bb81ae5277",
   "schema_version": "fabric.source_replay_fixture.v1",
   "source_contract_id": "eurostat.data.generic",
   "transcript": {

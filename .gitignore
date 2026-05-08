@@ -13,7 +13,6 @@ policy-engine/_build/
 policy-engine/_cache/
 policy-engine/.polisyos/*
 !policy-engine/.polisyos/
-!policy-engine/.polisyos/SCHEMA.md
 policy-engine/.polisyos-tools/
 policy-engine/.venv/
 policy-engine/.venv-*/

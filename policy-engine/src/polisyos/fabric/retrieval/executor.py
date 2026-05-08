@@ -16,7 +16,7 @@ from polisyos.core.contracts.control import (
     FetchPreview,
 )
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 from .providers import RetrievalProviders, resolve_retrieval_providers

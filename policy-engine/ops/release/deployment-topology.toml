@@ -150,8 +150,8 @@ artifact_roots = [
 ]
 deployment_targets = ["Python distributions", "extension contracts", "internal package releases"]
 release_evidence = [
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
   "architecture/component_observability.toml",
 ]
 rollback_runbooks = [

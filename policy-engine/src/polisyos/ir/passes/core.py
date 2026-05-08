@@ -18,8 +18,8 @@ from polisyos.ir.passes.base import (
     PassDiagnostic,
     PassResult,
 )
-from polisyos.ir.references import ArtifactRefModel
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.registry.registry_fragments import (
     RegistryBundle,
     RegistryComposeRequest,
     compose_registry_fragments,

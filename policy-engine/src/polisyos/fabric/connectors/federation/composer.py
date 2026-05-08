@@ -32,7 +32,7 @@ from polisyos.fabric.connectors.federation.types import (
     SchemaIncompatibilityError,
     SourceMetadata,
 )
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 logger = get_logger(__name__)
 

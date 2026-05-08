@@ -8,7 +8,7 @@ from .reports import LinkIssue, LinkIssueCode, LinkSeverity
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.applicability import IdSelector, NormApplicability
-    from polisyos.ir.registry_fragments import RegistryBundle
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
 
 
 def validate_norm_applicability_refs(

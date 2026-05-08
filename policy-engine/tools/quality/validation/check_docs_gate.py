@@ -49,7 +49,7 @@ DOCS_OR_README_PATTERNS = (
 )
 FACADE_PATTERNS = (
     "src/polisyos/**/__init__.py",
-    "architecture/public_surface.toml",
+    "architecture/public_surface/contract.toml",
     "architecture/generated_artifacts.toml",
 )
 IR_OR_SCHEMA_PATTERNS = (

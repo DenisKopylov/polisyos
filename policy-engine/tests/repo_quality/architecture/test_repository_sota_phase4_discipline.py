@@ -102,7 +102,7 @@ def test_phase4_frontend_workspace_contract_has_owners_commands_and_ignores() ->
 
 
 def test_phase4_data_policy_keeps_local_lake_ignored_and_product_data_allowlisted() -> None:
-    policy = _read_toml("architecture/data_policy.toml")
+    policy = _read_toml("architecture/policies/data.toml")
 
     assert policy["data_policy"]["local_data_lake"] == "data/policy-engine-local"
     assert policy["data_policy"]["product_commit_policy"] == "allowlist_only"
@@ -158,7 +158,7 @@ def test_phase4_local_runtime_state_is_ignored_retention_classed_and_cleanable()
 
 
 def test_phase4_ops_baselines_cover_security_observability_release_runtime_migrations() -> None:
-    contract = _read_toml("architecture/ops_baselines.toml")
+    contract = _read_toml("architecture/baselines/ops.toml")
     baselines = {item["id"]: item for item in contract["baseline"]}
 
     assert {

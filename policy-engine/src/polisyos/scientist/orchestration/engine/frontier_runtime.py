@@ -191,7 +191,7 @@ def build_frontier_runtime_report(
             capability_id="adversarial_scenario_discovery",
             family="search",
             feature_flag="enable_adversarial_scenario_discovery",
-            module_path="polisyos.scientist.search.adversarial:PlatformMetaEvaluator",
+            module_path="polisyos.scientist.methods.search.adversarial:PlatformMetaEvaluator",
             method_fqns=["scientist.search.adversarial.platform_meta_eval@1.0.0"],
             enabled=resolved.enable_adversarial_scenario_discovery,
             wired=True,

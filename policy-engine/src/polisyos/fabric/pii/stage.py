@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.tabular import payload_to_dataframe
+from polisyos.fabric.data_plane.tabular import payload_to_dataframe
 from polisyos.ir.connectors import FetchResult
 
 from .detector import PresidioConfig, PresidioDetector

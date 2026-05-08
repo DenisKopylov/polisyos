@@ -5,9 +5,9 @@ Owner: `team-platform`
 Source of truth: `architecture/local_runtime_state.toml`,
 `architecture/runtime_state_layout.toml`
 
-`.polisyos/` is local runtime state. The only tracked file in this root is
-`.polisyos/SCHEMA.md`; raw runtime payloads remain ignored and must be promoted
-only through reviewed summaries or release evidence.
+`.polisyos/` is local runtime state and is fully ignored. This page is the
+committed schema document for that root; raw runtime payloads remain ignored and
+must be promoted only through reviewed summaries or release evidence.
 
 CAS state is canonical under `.polisyos/cas`. Recomputable CAS cache lives under
 `.polisyos/cas/_cache`, and README/check artifacts live under

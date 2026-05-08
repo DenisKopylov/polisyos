@@ -35,7 +35,7 @@ use the new cache/output paths.
 
 ## Concrete Impact
 
-- Contract: `architecture/structure_remediation_gates.toml`.
+- Contract: `architecture/gates/structure_remediation.toml`.
 - Gates: `cache_dir_gate`, `build_output_gate`.
 - Baselines: `cache_and_env_paths.json`, `build_outputs.json`.
 - Owner: `team-devx`.

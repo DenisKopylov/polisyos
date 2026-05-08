@@ -165,7 +165,7 @@ def test_pickle_inventory_includes_canonical_checkpoint_fixtures() -> None:
 
 def test_phase3a_gate_registry_lists_new_decomposition_gates() -> None:
     gates = tomllib.loads(
-        (REPO_ROOT / "architecture" / "structure_remediation_gates.toml").read_text(
+        (REPO_ROOT / "architecture" / "gates" / "structure_remediation.toml").read_text(
             encoding="utf-8"
         )
     )
@@ -204,7 +204,7 @@ def test_phase4_1_foundry_executor_lane_closes_legacy_private_siblings() -> None
     dynamic_sources = {
         entry["source_file"]
         for entry in tomllib.loads(
-            (REPO_ROOT / "architecture" / "dynamic_imports.toml").read_text(encoding="utf-8")
+            (REPO_ROOT / "architecture" / "imports" / "dynamic.toml").read_text(encoding="utf-8")
         )["pattern"]
     }
     removed_source_paths = {

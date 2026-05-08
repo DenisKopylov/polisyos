@@ -13,7 +13,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEdge,
     ProvenanceEntity,
 )
-from polisyos.fabric.temporal import ensure_aware_utc
+from polisyos.fabric.data_plane.temporal import ensure_aware_utc
 
 PROV_CONTEXT = {
     "@context": {

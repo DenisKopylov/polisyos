@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any
 
 from polisyos.core.canon import content_hash
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictKind
 

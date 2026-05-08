@@ -25,4 +25,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-12-31",
     migration_hint="Use polisyos.scientist.validation.reliability_scorecard for new imports.",
+    shim_id="decomp-scientist-reliability_scorecard",
 )

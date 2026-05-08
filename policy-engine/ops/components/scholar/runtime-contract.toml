@@ -4,7 +4,7 @@ owner = "team-scholar"
 aliases = ["scholar", "polisyos.scholar"]
 source_readme = "src/polisyos/scholar/README.md"
 runtime_contract_links = [
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "architecture/runtime_state_layout.toml",
   "docs/reference/scientist/claims.md",
 ]

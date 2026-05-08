@@ -2,7 +2,7 @@
 
 The implementation moved under the Foundry agent simulation owner during
 Repository Structure Remediation Phase 4A. Keep this root import available
-until the 2026-10-01 shim sunset; deep ``polisyos.synthetic_world.*`` imports
+until the 2026-07-31 shim sunset; deep ``polisyos.synthetic_world.*`` imports
 are internal and must migrate to ``polisyos.foundry.agent_sim.world.*``.
 """
 

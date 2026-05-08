@@ -13,7 +13,10 @@ def test_phase1_6_runtime_state_layout_defines_schema_cas_and_migration_slots() 
     layout = _read_toml("architecture/runtime_state_layout.toml")
 
     assert local["local_runtime_state"]["layout_contract"] == "architecture/runtime_state_layout.toml"
-    assert layout["runtime_state_layout"]["schema_document"] == ".polisyos/SCHEMA.md"
+    assert (
+        layout["runtime_state_layout"]["schema_document"]
+        == "docs/reference/local-runtime-state.md"
+    )
     assert layout["runtime_state_layout"]["status"] in {"contract_only", "active"}
 
     schema = layout["schema_md_contract"]

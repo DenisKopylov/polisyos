@@ -22,6 +22,9 @@ Available examples:
 - [foundry_method](foundry_method/) demonstrates the canonical
   `polisyos.foundry_methods` contract through
   `polisyos.foundry.extensions.component_for_method()`.
+- [scientist_governance_pass](scientist_governance_pass/) demonstrates the
+  `polisyos.scientist_governance_passes` contract with a deterministic
+  `ValidatorPass` factory.
 - [scientist_node](scientist_node/) demonstrates the `polisyos.scientist_nodes`
   contract with a deterministic state-annotation node.
 - [data_forge_domain](data_forge_domain/) demonstrates the

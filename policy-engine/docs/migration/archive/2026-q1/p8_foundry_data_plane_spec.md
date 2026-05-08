@@ -291,14 +291,14 @@ Minimum checks:
    - workflow rewiring + pre-simulation data-plane gate + replay integration.
 4. `M4` (`2026-05-22` -> `2026-05-24`):
 
-   - lint/tests/architecture/docs/governance closure and freeze evidence.
+   - lint/tests/repo_quality/architecture/docs/governance closure and freeze evidence.
 
 ### 6.2 PR slicing (recommended)
 
 1. `PR-A`: contracts + execute API compatibility extensions.
 2. `PR-B`: binder module + Scientist binding node.
 3. `PR-C`: workflow/data-plane gate + replay/decision-packet integration.
-4. `PR-D`: lint/tests/architecture/docs and queue/governance updates.
+4. `PR-D`: lint/tests/repo_quality/architecture/docs and queue/governance updates.
 
 ## 7. CI and Governance Updates
 

@@ -601,7 +601,7 @@
       "severity": "P1",
       "source_files": [
         "src/polisyos/fabric/data_plane/streaming.py",
-        "src/polisyos/fabric/processing_guarantees/__init__.py"
+        "src/polisyos/fabric/quality/processing_guarantees.py"
       ],
       "status": "implemented",
       "tests": [
@@ -715,7 +715,7 @@
         "docs/reference/fabric/quality.md"
       ],
       "evidence": {
-        "fitness_report_module": true,
+        "fitness_report_module": false,
         "quality_module": true,
         "quality_tests": [
           "tests/unit/fabric/test_quality_indicators.py",
@@ -1113,10 +1113,11 @@
         "docs/reference/fabric/schema-compatibility.md"
       ],
       "evidence": {
-        "source_module_count": 30,
+        "source_module_count": 31,
         "source_modules": [
           "src/polisyos/fabric/connectors/sources/__init__.py",
           "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+          "src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
           "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
           "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
           "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
@@ -1157,6 +1158,7 @@
       "source_files": [
         "src/polisyos/fabric/connectors/sources/__init__.py",
         "src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+        "src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
         "src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
         "src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
         "src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
@@ -1269,7 +1271,7 @@
         "schemas/fabric/processing_guarantee.schema.json",
         "schemas/snapshots/fabric/source_contracts_v2.json",
         "src/polisyos/fabric/connectors/contracts/source_contract.py",
-        "src/polisyos/fabric/processing_guarantees/__init__.py",
+        "src/polisyos/fabric/quality/processing_guarantees.py",
         "tools/quality/validation/fabric_processing_guarantees.py"
       ],
       "status": "implemented",
@@ -1352,7 +1354,7 @@
         "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
         "dataset_id": "*",
         "schema_id": "eurostat.data.generic",
-        "schema_version": "1.0.0"
+        "schema_version": "2.0.0"
       },
       "id": "source_contracts.eurostat.data.generic",
       "owner": "@fabric-owners",
@@ -1460,7 +1462,7 @@
         "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
         "dataset_id": "*",
         "schema_id": "sdmx.generic",
-        "schema_version": "1.0.0"
+        "schema_version": "2.0.0"
       },
       "id": "source_contracts.sdmx.generic",
       "owner": "@fabric-owners",
@@ -1497,7 +1499,7 @@
         "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
         "dataset_id": "*",
         "schema_id": "ukons.datasets.generic",
-        "schema_version": "1.0.0"
+        "schema_version": "2.0.0"
       },
       "id": "source_contracts.ukons.datasets.generic",
       "owner": "@fabric-owners",
@@ -1534,7 +1536,7 @@
         "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
         "dataset_id": "*",
         "schema_id": "worldbank.wdi.generic",
-        "schema_version": "1.0.0"
+        "schema_version": "2.0.0"
       },
       "id": "source_contracts.worldbank.wdi.generic",
       "owner": "@fabric-owners",
@@ -1571,7 +1573,7 @@
         "contract_snapshot": "schemas/snapshots/fabric/connector_contract_registry.json",
         "dataset_id": "*",
         "schema_id": "wvs.wave7.generic",
-        "schema_version": "1.0.0"
+        "schema_version": "2.0.0"
       },
       "id": "source_contracts.wvs.wave7.generic",
       "owner": "@fabric-owners",
@@ -1757,7 +1759,7 @@
       "severity": "P1",
       "source_files": [
         "schemas/fabric/trust_envelope.schema.json",
-        "src/polisyos/fabric/decision_data/__init__.py",
+        "src/polisyos/fabric/evidence/decision_data.py",
         "src/polisyos/runtime/http/routes/runs.py",
         "src/polisyos/runtime/http/services/lineage.py"
       ],
@@ -1807,7 +1809,7 @@
       "priority": "P2",
       "severity": "P2",
       "source_files": [
-        "src/polisyos/fabric/decision_data/__init__.py",
+        "src/polisyos/fabric/evidence/decision_data.py",
         "tools/quality/validation/fabric_decision_data_coverage.py"
       ],
       "status": "implemented",
@@ -1840,7 +1842,7 @@
       "source_files": [
         "src/polisyos/core/observability/_metrics_registry_base.py",
         "src/polisyos/core/observability/metrics_parts.py",
-        "src/polisyos/fabric/observability/__init__.py"
+        "src/polisyos/fabric/_adapters/observability.py"
       ],
       "status": "implemented",
       "tests": [
@@ -2246,7 +2248,7 @@
       "priority": "P1",
       "severity": "P1",
       "source_files": [
-        "src/polisyos/fabric/world_query/__init__.py"
+        "src/polisyos/fabric/world/query.py"
       ],
       "status": "implemented",
       "tests": [
@@ -2335,8 +2337,8 @@
       "priority": "P2",
       "severity": "P2",
       "source_files": [
-        "src/polisyos/fabric/world/store/snapshots.py",
-        "src/polisyos/fabric/world_query/__init__.py"
+        "src/polisyos/fabric/world/query.py",
+        "src/polisyos/fabric/world/store/snapshots.py"
       ],
       "status": "not_applicable",
       "tests": [
@@ -2432,7 +2434,7 @@
       "severity": "P2",
       "source_files": [
         "src/polisyos/fabric/provenance/lineage.py",
-        "src/polisyos/fabric/world_query/__init__.py"
+        "src/polisyos/fabric/world/query.py"
       ],
       "status": "blocked_by_research",
       "tests": [],

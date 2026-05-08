@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Literal
 
-from polisyos.ir.fact_log import FactSegmentManifest
+from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 from .errors import DocValidationError
 

@@ -10,11 +10,11 @@ related:
   - ../../plans/active/DECOMPOSITION_BLUEPRINT.md
   - ../../plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md
   - ../../reference/ownership.md
-  - ../../../architecture/package_boundaries.toml
-  - ../../../architecture/package_layout.toml
+  - ../../../architecture/packages/boundaries.toml
+  - ../../../architecture/packages/layout.toml
   - ../../../architecture/name_registry.toml
   - ../../../architecture/shims.toml
-  - ../../../architecture/complexity_exceptions.toml
+  - ../../../architecture/exceptions/complexity.toml
 ---
 
 # Repository Best-In-Class Phase 0.5 Source Complexity Inventory

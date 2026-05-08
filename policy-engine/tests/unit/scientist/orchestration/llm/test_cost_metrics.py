@@ -175,7 +175,7 @@ class TestGrafanaDashboard:
         import pathlib
 
         dashboard_path = (
-            pathlib.Path(__file__).resolve().parents[4]
+            pathlib.Path(__file__).resolve().parents[5]
             / "ops"
             / "observability"
             / "grafana"

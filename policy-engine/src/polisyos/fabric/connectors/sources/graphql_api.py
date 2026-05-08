@@ -28,7 +28,7 @@ from polisyos.fabric.connectors.types import (
     ValidationSeverity,
 )
 from polisyos.fabric.quality.safety import extract_bounded_data_path, validate_data_path
-from polisyos.fabric.tabular import payload_to_dataframe
+from polisyos.fabric.data_plane.tabular import payload_to_dataframe
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,

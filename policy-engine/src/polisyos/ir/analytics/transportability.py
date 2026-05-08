@@ -10,8 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import TransportabilityResultRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import TransportabilityResultRef
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult

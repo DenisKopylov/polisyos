@@ -26,7 +26,7 @@ def _load_toml(path: Path) -> dict:
 
 
 def test_name_collision_gate_is_fail_closed() -> None:
-    gates = _load_toml(REPO_ROOT / "architecture" / "structure_remediation_gates.toml")
+    gates = _load_toml(REPO_ROOT / "architecture" / "gates" / "structure_remediation.toml")
     name_gate = next(gate for gate in gates["gate"] if gate["id"] == "name_collision_gate")
 
     assert name_gate["mode"] == "fail_closed"

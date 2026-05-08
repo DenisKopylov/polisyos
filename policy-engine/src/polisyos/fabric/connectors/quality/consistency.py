@@ -15,7 +15,7 @@ from typing import Any
 
 import pandas as pd
 
-from polisyos.fabric.quality.finite import ensure_probability, is_finite_number
+from polisyos.fabric.numerics.finite import ensure_probability, is_finite_number
 
 from .report import ConsistencyResult, RuleViolation
 

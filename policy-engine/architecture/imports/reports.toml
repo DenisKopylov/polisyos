@@ -13,8 +13,8 @@ source_contracts = [
   "architecture/packages/fabric.toml",
   "architecture/packages/foundry.toml",
   "architecture/packages/scientist.toml",
-  "architecture/import_contracts.toml",
-  "architecture/package_boundaries.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/packages/boundaries.toml",
 ]
 output = "_build/reports/architecture/import-boundary-report.json"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dependency-graph --json-output _build/reports/architecture/import-boundary-report.json"
@@ -27,7 +27,7 @@ mode = "report_only"
 source_contracts = [
   "architecture/imports/policy.toml",
   "architecture/imports/exceptions.toml",
-  "architecture/deep_import_baseline.json",
+  "architecture/baselines/imports/deep_import.json",
 ]
 output = "_build/reports/architecture/dependency-graph-report.json"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dependency-graph --json-output _build/reports/architecture/dependency-graph-report.json"
@@ -37,7 +37,7 @@ acceptance = "Report captures package-level dependency edges and deep-import bas
 id = "dynamic-import-registry-report"
 owner = "team-architecture"
 mode = "report_only"
-source_contracts = ["architecture/dynamic_imports.toml"]
+source_contracts = ["architecture/imports/dynamic.toml"]
 output = "_build/reports/architecture/dynamic-import-registry-report.json"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report dynamic-imports --json-output _build/reports/architecture/dynamic-import-registry-report.json"
 acceptance = "Report summarizes dynamic import slots and unresolved target allowances."
@@ -49,14 +49,14 @@ mode = "report_only"
 source_contracts = [
   "architecture/imports/policy.toml",
   "architecture/imports/exceptions.toml",
-  "architecture/deep_import_baseline.json",
-  "architecture/dynamic_imports.toml",
+  "architecture/baselines/imports/deep_import.json",
+  "architecture/imports/dynamic.toml",
   "architecture/imports/lazy.toml",
-  "architecture/import_contracts.toml",
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/public_surface_inventory.json",
+  "architecture/imports/contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/public_surface/inventory.json",
   "architecture/name_registry.toml",
   "architecture/shims.toml",
 ]

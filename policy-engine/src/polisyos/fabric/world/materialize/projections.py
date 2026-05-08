@@ -22,7 +22,7 @@ from polisyos.fabric.world.store.validate import (
     validate_trust_assessment_id,
     validate_world_event_id,
 )
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.doc import DocFragment, DocMeta

@@ -136,19 +136,19 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_human_escalation_voi_decision,
         )
         from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_VOI_RUN_REPORT_REF
-        from polisyos.scientist.search.funnel.types import CheapSignalVector, FunnelStageResult
-        from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
-        from polisyos.scientist.search.voi_calibration import (
+        from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+        from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
+        from polisyos.scientist.methods.search.voi_calibration import (
             build_voi_calibration_report,
             compare_voi_to_static_baseline,
             validate_voi_default_enable,
         )
-        from polisyos.scientist.search.voi_models import (
+        from polisyos.scientist.methods.search.voi_models import (
             VOIDecisionRecord,
             VOIDecisionType,
             VOIRunReport,
         )
-        from polisyos.scientist.search.voi_scheduler import (
+        from polisyos.scientist.methods.search.voi_scheduler import (
             SimpleVOIScheduler,
             build_adversarial_challenge_voi_decision,
             build_stop_search_voi_decision,

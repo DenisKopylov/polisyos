@@ -19,7 +19,7 @@ that govern them.
   artifacts.
 - `promotion-gates.toml` defines the contract-only gates that later release
   automation can enforce for staging and production promotion.
-- `architecture/operability_release_supply_chain_gates.toml` and
+- `architecture/gates/operability_release_supply_chain.toml` and
   `polisyos-tools release check-operability-release-gates --fail-closed`
   convert the Phase 6.3 operability, release topology, compatibility,
   workflow-permission, OIDC, SBOM, provenance, and release security checks into

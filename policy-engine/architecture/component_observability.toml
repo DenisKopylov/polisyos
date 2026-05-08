@@ -8,6 +8,20 @@ description = "Observability expectations for package-level components."
 ops_organization_decision = "invert_to_ops_components"
 component_bundle_root = "ops/components"
 release_gate_policy = "public-stable components need SLO coverage, Prometheus rule ownership, dashboard coverage, trace/log context keys, and a release gate or explicit owner-approved exception"
+phase_6_6_completeness_gate = "fail_closed"
+phase_6_6_plan_window_start = "2026-05-07"
+phase_6_6_plan_completion_target = "2026-05-31"
+phase_6_6_exception_minimum_days_after_completion = 90
+required_public_stable_bundle_files = [
+  "README.md",
+  "alerts.yml",
+  "dashboard.json",
+  "retention-policy.toml",
+  "runbooks.md",
+  "runtime-contract.toml",
+  "slo.yaml",
+]
+exception_policy = "SLO exceptions require owner, reason, expiration, and an action plan due inside the last-mile plan window unless the exception expires at least 90 days after the plan completion target."
 
 [[component_contract]]
 component = "common"
@@ -21,6 +35,9 @@ log_context_keys = ["package_name", "dependency_group"]
 release_gate = "Common is covered by dependent component SLOs until it exposes standalone runtime traffic"
 exception_reason = "Common is a helper facade without standalone user-visible operations; reliability is covered by dependent component SLOs until it exposes runtime traffic"
 exception_expires = "2026-08-01"
+exception_owner = "team-core"
+exception_action_plan = "Decide whether Common exposes standalone runtime traffic; if yes, replace the exception with a present SLO bundle, otherwise keep coverage delegated to dependent public-stable components."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component]]
@@ -191,6 +208,9 @@ log_context_keys = ["package_name"]
 release_gate = "No standalone BERL release gate until it exposes an operational service surface"
 exception_reason = "BERL is active Scientist support infrastructure but does not expose a standalone operational service surface yet"
 exception_expires = "2026-08-01"
+exception_owner = "team-architecture"
+exception_action_plan = "Resolve BERL's standalone operational surface decision after the last-mile bridge tests; either promote to a present BERL SLO or keep BERL covered by Scientist component operations."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -205,6 +225,9 @@ log_context_keys = ["package_name"]
 release_gate = "No standalone DDM release gate until shim and package-version policy stabilizes"
 exception_reason = "DDM has compatibility-shim work in flight; SLO coverage is required if ddm is promoted as a public-stable package"
 exception_expires = "2026-08-01"
+exception_owner = "team-architecture"
+exception_action_plan = "Finish the DDM shim and package-version policy decision; create a present DDM SLO only if DDM remains a standalone operational surface."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -219,6 +242,9 @@ log_context_keys = ["calibration_run_id", "method_id", "artifact_ref"]
 release_gate = "Calibration alerts map to Foundry runbooks until calibration becomes a standalone public-stable component"
 exception_reason = "Calibration is currently covered by Foundry/Scientist operability; add standalone SLO if promoted as a public-stable package"
 exception_expires = "2026-08-01"
+exception_owner = "team-foundry"
+exception_action_plan = "Resolve Foundry versus Scientist calibration ownership; promote calibration to a present SLO if it becomes a public-stable component."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"
 
 [[component_contract]]
@@ -238,4 +264,7 @@ log_context_keys = ["request_id", "tenant_id", "artifact_ref", "security_control
 release_gate = "Security alert routing remains report-only here; release/security gates are converted in Wave 6"
 exception_reason = "Security owns alert response and compliance evidence, but Phase 4.9 does not introduce a standalone security SLO gate before Wave 6"
 exception_expires = "2026-08-01"
+exception_owner = "team-security"
+exception_action_plan = "Close the Wave 6 security SLO ownership decision; either promote security to a present component SLO or keep security alerts governed by release/security gates."
+exception_action_due = "2026-05-31"
 exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-63---operability-release-and-supply-chain-gate-conversion"

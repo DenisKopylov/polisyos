@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
     from polisyos.ir.artifacts import StorePutOptions
-    from polisyos.ir.canon import CanonSpec as IRCanonSpec
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 
 def _coerce_payload(value: Any) -> dict[str, Any]:

@@ -16,8 +16,8 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
-from polisyos.fabric.quality.finite import ensure_non_negative_finite, ensure_probability
-from polisyos.fabric.tabular import require_dataframe
+from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
+from polisyos.fabric.data_plane.tabular import require_dataframe
 from polisyos.ir.connectors import QualityTier
 
 from .completeness import CompletenessAnalyzer, SamplingStrategy
@@ -480,7 +480,7 @@ class DataQualityValidator:
         fetch_result: Any,
     ) -> Any:
         try:
-            from polisyos.fabric.quality import compute_quality_indicators
+            from polisyos.fabric.quality.quality import compute_quality_indicators
 
             last_updated = getattr(fetch_result, "source_updated_at", None)
             if last_updated is None:

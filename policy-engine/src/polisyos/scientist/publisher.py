@@ -1,6 +1,6 @@
 """Compatibility shim for `polisyos.scientist.publisher`.
 
-Canonical module: `polisyos.scientist.publishing`.
+Canonical module: `polisyos.scientist.publishing.publisher`.
 Sunset: 2026-12-31.
 """
 
@@ -11,7 +11,7 @@ from polisyos.scientist._internal.shims import install_lazy_module_shim
 install_lazy_module_shim(
     globals(),
     legacy_module=__name__,
-    canonical_module="polisyos.scientist.publishing",
+    canonical_module="polisyos.scientist.publishing.publisher",
     public_names=(
         "COMPILER_BACKED_DECISION_CARD_FLAG",
         "DECISION_GRADE_COMPILER_FLAG",
@@ -31,5 +31,6 @@ install_lazy_module_shim(
         "publish_decision",
     ),
     sunset_date="2026-12-31",
-    migration_hint="Use polisyos.scientist.publishing for new imports.",
+    migration_hint="Use polisyos.scientist.publishing.publisher for new imports.",
+    shim_id="decomp-scientist-publisher",
 )

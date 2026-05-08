@@ -31,4 +31,5 @@ install_lazy_module_shim(
     ),
     sunset_date="2026-12-31",
     migration_hint="Use polisyos.scientist.methods.causal.latent_separation for new imports.",
+    shim_id="decomp-scientist-latent_separation",
 )

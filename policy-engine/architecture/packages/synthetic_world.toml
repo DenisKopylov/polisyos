@@ -8,10 +8,10 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
 ]
 
 [layout]
@@ -21,7 +21,7 @@ source_root = "src/polisyos/synthetic_world"
 readme = "src/polisyos/synthetic_world/README.md"
 root_facade_policy = "wrapper-only compatibility facade to polisyos.foundry.agent_sim.world"
 implementation_roots = []
-legacy_layout_mirror = "architecture/package_layout.toml"
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "compatibility_shim"
 
 [boundaries]
@@ -43,11 +43,11 @@ registry_owner = "team-foundry"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.synthetic_world"]
 major_subsystem = false
-notes = "Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-10-01."
+notes = "Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-07-31."
 
 [tests]
 status = "compatibility_smoke"
-unit_roots = ["tests/unit/synthetic_world"]
+unit_roots = ["tests/unit/foundry/agent_sim"]
 contract_roots = ["tests/contract"]
 integration_required = false
 integration_roots = []
@@ -82,14 +82,14 @@ allowed = []
 [exceptions]
 status = "declared"
 owner = "team-foundry"
-registries = ["architecture/shims.toml", "architecture/static_analysis_overrides.toml"]
+registries = ["architecture/shims.toml", "architecture/tooling/static_analysis_overrides.toml"]
 
 [[exception]]
 id = "synthetic-world-to-agent-sim-world"
 owner = "team-foundry"
 kind = "compatibility_shim"
 reason = "Consolidate truth-centric world generation under the Foundry agent simulation owner."
-sunset = "2026-10-01"
+sunset = "2026-07-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 registry = "architecture/shims.toml"
 
@@ -98,9 +98,9 @@ id = "synthetic-world-ruff-shim-ratchet"
 owner = "team-foundry"
 kind = "lint_ratchet"
 reason = "Synthetic world shim ignores remain visible until the wrapper-only facade sunsets."
-sunset = "2026-10-01"
+sunset = "2026-07-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/static_analysis_overrides.toml"
+registry = "architecture/tooling/static_analysis_overrides.toml"
 
 [sunsets]
 status = "declared"
@@ -109,7 +109,7 @@ owner = "team-foundry"
 [[sunset]]
 id = "synthetic-world-to-agent-sim-world"
 owner = "team-foundry"
-date = "2026-10-01"
+date = "2026-07-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 condition = "public imports use polisyos.foundry.agent_sim.world and wrapper-only compatibility tests can be removed"
 

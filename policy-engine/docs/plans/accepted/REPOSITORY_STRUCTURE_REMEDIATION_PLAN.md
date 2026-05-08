@@ -140,14 +140,14 @@ benchmark). Без зелёного safety net Phase 5 и Phase 6 не стар�
 | Concern                            | Source                                                              |
 | ---------------------------------- | ------------------------------------------------------------------- |
 | Repository topology                | `architecture/topology.toml` + ADR‑0111                             |
-| Package boundaries                 | `architecture/package_boundaries.toml`                              |
-| Import contracts                   | `architecture/import_contracts.toml` (+ to‑be‑merged registries)    |
+| Package boundaries                 | `architecture/packages/boundaries.toml`                              |
+| Import contracts                   | `architecture/imports/contracts.toml` (+ to‑be‑merged registries)    |
 | Migration shims                    | `architecture/shims.toml`                                 |
-| Public surface                     | `architecture/public_surface.toml` + `architecture/public_surface/` |
+| Public surface                     | `architecture/public_surface/contract.toml` + `architecture/public_surface/` |
 | Generated artifacts                | `architecture/generated_artifacts.toml`                             |
 | Loose‑file allowlist               | `architecture/topology.toml` (`[[loose_file]]` или sentinels)       |
 | Структурные decisions этого плана  | новые ADR‑0129..ADR‑0135 (см. Phase 0)                              |
-| Tests topology                     | `tests/README.md` + `tests/architecture/`                           |
+| Tests topology                     | `tests/README.md` + `tests/repo_quality/architecture/`                           |
 | Frontend workspace                 | `frontend/` + новый workspace‑manager (Phase 1F / 4B)               |
 | Closeout evidence                  | `docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_CLOSEOUT.md`  |
 
@@ -158,7 +158,7 @@ benchmark). Без зелёного safety net Phase 5 и Phase 6 не стар�
 Repository SOTA Phase 5 closeout зафиксировал:
 
 - топологию первого уровня (`architecture/topology.toml`),
-- package boundaries (`architecture/package_boundaries.toml`),
+- package boundaries (`architecture/packages/boundaries.toml`),
 - gates: import-linter, deptry, topology, shim-audit, public-surface,
   generated-header, gitleaks, OSV/SBOM, complexity, docs-freshness,
   loose-file, pii-redaction.
@@ -393,7 +393,7 @@ tests/
 
 Параллельные фазы безопасны только если соблюдаются file-ownership
 fences. Shared registries (`architecture/shims.toml`,
-`architecture/public_surface.toml`, `architecture/package_boundaries.toml`)
+`architecture/public_surface/contract.toml`, `architecture/packages/boundaries.toml`)
 обновляются короткими serialized patches, а не независимыми долгоживущими
 ветками.
 
@@ -401,9 +401,9 @@ fences. Shared registries (`architecture/shims.toml`,
 | ---- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | 1A   | `foundry/methods/`, loose data/runtime artifacts, `generated_artifacts` | `pyproject.toml`, `tools/quality/validation/`, frontend source      |
 | 1B   | `pyproject.toml`, split config files, `architecture/imports/`, `architecture/policies/` | `tests/`, frontend, package source moves                            |
-| 1C   | `architecture/name_registry.toml`, `architecture/package_layout.toml`, name ADRs | Physical moves in `scientist/` / `foundry/`                         |
+| 1C   | `architecture/name_registry.toml`, `architecture/packages/layout.toml`, name ADRs | Physical moves in `scientist/` / `foundry/`                         |
 | 1D   | `tools/{devx,ops,quality,research,ci}`, tool shims, CI refs           | `tools/devx/refactor/move_module.py`, new Phase 3A validation gates |
-| 1E   | `tests/`, `architecture/test_topology.toml`                           | Source package moves                                                |
+| 1E   | `tests/`, `architecture/tests/topology.toml`                           | Source package moves                                                |
 | 1F   | `apps/runtime-dashboard/src/**` source duplicate cleanup          | Lockfiles, workspace manager, `_build/` paths                       |
 | 2A   | Workspace root layout, `.venv`, lockfile placement, topology paths    | Safety net baselines                                                |
 | 2B   | `_build/`, `_cache/`, `.gitignore`, tool cache dirs                   | Source package moves                                                |
@@ -452,9 +452,9 @@ machine‑readable inventory и зафиксировать ownership fences дл
    - **ADR‑0139** — Canonical home for `calibration/`.
 3. Создать новый contract `architecture/name_registry.toml` (Phase 1C
    будет его наполнять).
-4. Создать `architecture/package_layout.toml` с правилами «façade в
+4. Создать `architecture/packages/layout.toml` с правилами «façade в
    корне», «не более N loose .py», «empty namespace ban».
-5. Создать `architecture/test_topology.toml` skeleton.
+5. Создать `architecture/tests/topology.toml` skeleton.
 6. Расширить `tools/quality/validation/` хуки report‑only‑gate'ами:
    - `empty_namespace_gate` — проваливает наличие
      `foundry/methods/<X>/` без файлов кроме `__init__.py`, если в
@@ -475,8 +475,8 @@ machine‑readable inventory и зафиксировать ownership fences дл
 - ADR‑0129..0139 skeletons.
 - Inventory snapshot in `docs/archive/reports/REPOSITORY_STRUCTURE_REMEDIATION_PHASE_0_INVENTORY.md`.
 - `architecture/name_registry.toml` (skeleton).
-- `architecture/package_layout.toml` (skeleton).
-- `architecture/test_topology.toml` (skeleton).
+- `architecture/packages/layout.toml` (skeleton).
+- `architecture/tests/topology.toml` (skeleton).
 - `docs/plans/active/REPOSITORY_STRUCTURE_REMEDIATION_CONCURRENCY.md`.
 - Report‑only gate wiring.
 
@@ -1064,7 +1064,7 @@ ADR‑0141.
    `foundry/methods/compat_matrix.py`,
    `foundry/methods/discovery.py`,
    `foundry/methods/selection.py`, `scientist/registry.py`.
-3. **`architecture/dynamic_imports.toml`** — каждое dynamic FQN
+3. **`architecture/imports/dynamic.toml`** — каждое dynamic FQN
    pattern с полями: `pattern`, `source_file`, `owner`,
    `allowed_targets` (явный whitelist допустимых FQN), `notes`.
 4. **`dynamic_imports_gate`:** report‑only тест, который для каждого
@@ -1123,9 +1123,9 @@ ADR‑0144.
    `architecture/baselines/structure_remediation/public_surface_pre_decomp.json`
    — пройти AST по всем top‑level пакетам, собрать `__all__` +
    публичные классы / функции / Pydantic модели с сигнатурами и FQN.
-   Legacy `architecture/public_surface_inventory.json` остаётся
+   Legacy `architecture/public_surface/inventory.json` остаётся
    отдельным façade inventory и не является источником Phase 3A gate.
-2. **`tests/architecture/test_public_surface_snapshot.py`** — diff
+2. **`tests/repo_quality/architecture/test_public_surface_snapshot.py`** — diff
    против committed snapshot. Любое изменение требует явного
    обновления snapshot (зелёный diff = ровно запланированные удаления
    /переименования из blueprint).
@@ -1138,7 +1138,7 @@ ADR‑0144.
 
 1. Snapshot `schemas/runtime_api_v1.openapi.json` и любых других
    regenerated schemas (Pydantic JSON schemas) до Phase 5.
-2. После Phase 5/6 — `tests/architecture/test_schema_diff.py`
+2. После Phase 5/6 — `tests/repo_quality/architecture/test_schema_diff.py`
    сравнивает; diff в `$defs` ключах допустим только для FQN,
    зафиксированных в blueprint.
 
@@ -1209,11 +1209,11 @@ ADR‑0142.
 **Deliverables:**
 
 - `docs/plans/active/DECOMPOSITION_BLUEPRINT.md` (принят).
-- `architecture/dynamic_imports.toml` (полное покрытие grep).
+- `architecture/imports/dynamic.toml` (полное покрытие grep).
 - `architecture/imports/lazy.toml` (классифицированные циклы).
 - `tests/contract/test_pickle_compat.py` + canonical fixtures.
-- `tests/architecture/test_public_surface_snapshot.py` + snapshot.
-- `tests/architecture/test_schema_diff.py` + baseline.
+- `tests/repo_quality/architecture/test_public_surface_snapshot.py` + snapshot.
+- `tests/repo_quality/architecture/test_schema_diff.py` + baseline.
 - `tools/devx/refactor/move_module.py` (codemod, протестирован).
 - ADR‑0140..0145.
 - 6 новых report‑only gates: `dynamic_imports_gate`,
@@ -1260,7 +1260,7 @@ façade pattern. Никаких поведенческих изменений.
 ### 15.1 Prerequisite check
 
 Перед стартом — Phase 3A gate tests зелёные
-(`pytest tests/architecture/test_decomposition_preflight_gates.py -q`;
+(`pytest tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q`;
 `tools/quality/validation/` содержит implementation modules для этих
 gates). DECOMPOSITION_BLUEPRINT (раздел scientist) принят. Phase 4A
 закрыта, если она трогала `scientist/` или shared `calibration`.
@@ -1318,8 +1318,8 @@ replay_backend.py             → scientist/replay/backend.py (rename)
      `sunset_date = move_date + max(60d, 2× max workflow lifetime)`.
 3. Обновить `scientist/__init__.py`: `__all__` строго ограничен
    façade символами; всё остальное — приватное.
-4. Обновить `architecture/public_surface.toml` секцию scientist.
-5. Обновить `architecture/package_boundaries.toml` если надо
+4. Обновить `architecture/public_surface/contract.toml` секцию scientist.
+5. Обновить `architecture/packages/boundaries.toml` если надо
    (allowed_dependencies остаются прежними; меняется только
    internal layout).
 6. Прогнать **полный safety net** (acceptance ниже).
@@ -1335,9 +1335,9 @@ replay_backend.py             → scientist/replay/backend.py (rename)
   tests/property/scientist tests/contract -q` — нет регрессий vs
   Phase 3A baseline.
 - `pytest tests/contract/test_pickle_compat.py -q` — green.
-- `pytest tests/architecture/test_public_surface_snapshot.py -q` —
+- `pytest tests/repo_quality/architecture/test_public_surface_snapshot.py -q` —
   diff = ровно запланированное в blueprint, ничего лишнего.
-- `pytest tests/architecture/test_schema_diff.py -q` — green
+- `pytest tests/repo_quality/architecture/test_schema_diff.py -q` — green
   (нет shifts в `$defs` за пределами blueprint).
 - `dynamic_imports_gate` зелёный (re‑export shims дают valid resolve).
 - `import_cycles_gate` зелёный.
@@ -1442,7 +1442,7 @@ shims → public surface refresh → safety net → точечный откат 
 2. **Plugin discovery:** `foundry/plugins/`,
    `foundry/methods/components_bridge.py`, `compat_matrix.py`,
    `discovery.py`, `selection.py` — все они dynamic; их FQN patterns
-   уже зарегистрированы в `architecture/dynamic_imports.toml`
+   уже зарегистрированы в `architecture/imports/dynamic.toml`
    (Phase 3A). Phase 6 не должен ничего ломать в этом контракте; gate
    проверяет.
 3. **Foundry/methods empty placeholders уже убраны в Phase 1A**, так
@@ -1470,7 +1470,7 @@ shims → public surface refresh → safety net → точечный откат 
 
 ### 16.5 Public surface freeze
 
-После Phase 6 — `architecture/public_surface.toml` обновляется так,
+После Phase 6 — `architecture/public_surface/contract.toml` обновляется так,
 чтобы единственные публичные FQN в scientist/foundry были те, что в
 их `api.py` и узких подпакетах, явно отмеченных `public: true`.
 
@@ -1576,7 +1576,7 @@ tests/unit/foundry/conftest.py
 
 `tests/property/` сейчас покрывает не все top‑level пакеты. После
 фазы — для каждого пакета либо `tests/property/<pkg>/` существует,
-либо в `architecture/test_topology.toml` указано «property не
+либо в `architecture/tests/topology.toml` указано «property не
 требуется» с обоснованием.
 
 **Acceptance:**
@@ -1585,7 +1585,7 @@ tests/unit/foundry/conftest.py
   top‑level пакетов в src.
 - Нет duplicate test файлов между `tests/unit/<pkg>/integration/` и
   `tests/integration/<pkg>/`.
-- `architecture/test_topology.toml` фиксирует contract.
+- `architecture/tests/topology.toml` фиксирует contract.
 
 ---
 
@@ -1753,7 +1753,7 @@ status=accepted, stability=stable. Closeout evidence:
 | Workspace boundary collapse сломает `.github/` workflows              | Phase 2A включает refresh всех workflow‑путей; CI green обязателен                                              |
 | Codemod большого scope в Phase 5/6 даст regression                    | Phase 3A строит safety net (pickle compat, public surface snapshot, golden, dynamic imports gate); прицельный `git checkout -- <file>` для отката одного файла |
 | Pickle / checkpoint десериализация ломается из‑за смены FQN           | Phase 3A фиксирует `tests/contract/test_pickle_compat.py`; sunset re‑export shim ≥ 2× max workflow lifetime     |
-| Dynamic `importlib.import_module(...)` после move возвращает 404      | Phase 3A регистрирует все dynamic FQN в `architecture/dynamic_imports.toml`; gate fail‑closed до Phase 5        |
+| Dynamic `importlib.import_module(...)` после move возвращает 404      | Phase 3A регистрирует все dynamic FQN в `architecture/imports/dynamic.toml`; gate fail‑closed до Phase 5        |
 | Pydantic `$defs` ключи в OpenAPI меняются после переноса моделей      | Phase 3A включает schema diff baseline; Phase 5/6 acceptance — `schemas/runtime_api_v1.openapi.json` diff = ровно запланированное |
 | Двойная регистрация JAX pytree / Pydantic после re‑export             | ADR‑0144 запрещает `from .new import *` в shim; Phase 3A grep‑аудит fail‑closed                                 |
 | Скрытые циклические импорты вылезают наружу при façade pattern        | Phase 3A baseline import graph + `import_cycles_gate`; ADR‑0145 фиксирует допустимые lazy edges                 |
@@ -1809,7 +1809,7 @@ Wave 3. Critical path: Phase 0 → Wave 1 closeout → 2A → 2B → 3A →
 | 0138    | synthetic_world ↔ agent_sim merge direction                            | Phase 0 skeleton / 3B final |
 | 0139    | Canonical home for `calibration/`                                      | Phase 0 skeleton / 3B final |
 | 0140    | Pickle / checkpoint FQN compatibility contract                         | Phase 3A     |
-| 0141    | Dynamic imports registry (`architecture/dynamic_imports.toml`)         | Phase 3A     |
+| 0141    | Dynamic imports registry (`architecture/imports/dynamic.toml`)         | Phase 3A     |
 | 0142    | Codemod tooling policy (libcst‑based `tools/devx/refactor/`)           | Phase 3A     |
 | 0143    | Decomposition blueprint format (per‑package move map)                  | Phase 3A     |
 | 0144    | Re‑export shim shape (`from .new import X`, без `import *`)            | Phase 3A     |
@@ -1823,7 +1823,7 @@ Wave 3. Critical path: Phase 0 → Wave 1 closeout → 2A → 2B → 3A →
 - `docs/plans/accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md` — состояние gates
 - `docs/reference/repository-topology.md` — публичная карта paths
 - `architecture/topology.toml` — машинный контракт топологии
-- `architecture/package_boundaries.toml` — машинный контракт boundaries
+- `architecture/packages/boundaries.toml` — машинный контракт boundaries
 - `architecture/shims.toml` — реестр shim‑ов
 - `src/polisyos/foundry/methods/catalog/MIGRATION_V2.md` — V2‑миграция methods
 - Аудит‑отчёт 2026‑05‑03 (раздел 0 этого плана)

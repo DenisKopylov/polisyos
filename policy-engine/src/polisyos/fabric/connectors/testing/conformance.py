@@ -15,7 +15,7 @@ from polisyos.fabric.connectors.governance_metadata import (
 from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
 from polisyos.fabric.connectors.testing.harness import ConnectorTestHarness
-from polisyos.fabric.processing_guarantees import ProcessingGuarantee
+from polisyos.fabric.quality.processing_guarantees import ProcessingGuarantee
 
 
 @dataclass(frozen=True, slots=True)

@@ -99,7 +99,7 @@ def test_phase35_repo_quality_tests_are_consolidated_or_redirected() -> None:
 
 def _contract() -> dict[str, Any]:
     return tomllib.loads(
-        (REPO_ROOT / "architecture" / "test_topology.toml").read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture" / "tests" / "topology.toml").read_text(encoding="utf-8")
     )
 
 

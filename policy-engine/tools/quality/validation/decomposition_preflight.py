@@ -30,7 +30,7 @@ REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
 BASELINE_DIR = REPO_ROOT / "architecture" / "baselines" / "structure_remediation"
 BLUEPRINT_PATH = REPO_ROOT / "docs" / "plans" / "active" / "DECOMPOSITION_BLUEPRINT.md"
-DYNAMIC_IMPORTS_PATH = REPO_ROOT / "architecture" / "dynamic_imports.toml"
+DYNAMIC_IMPORTS_PATH = REPO_ROOT / "architecture" / "imports" / "dynamic.toml"
 LAZY_IMPORTS_PATH = REPO_ROOT / "architecture" / "imports" / "lazy.toml"
 SCHEMA_BASELINE_PATH = BASELINE_DIR / "schema_diff_pre_decomp.json"
 PUBLIC_SURFACE_BASELINE_PATH = BASELINE_DIR / "public_surface_pre_decomp.json"
@@ -136,8 +136,8 @@ MOVE_TARGETS: Mapping[str, tuple[str, str]] = {
         "LLM orchestration belongs under the Scientist LLM package.",
     ),
     "polisyos.scientist.publisher": (
-        "polisyos.scientist.orchestration.orchestrator.publisher",
-        "Publisher orchestration should live with decision-card orchestration.",
+        "polisyos.scientist.publishing.publisher",
+        "Decision-grade publishing should live under the Scientist publishing package.",
     ),
     "polisyos.scientist.reliability_scorecard": (
         "polisyos.scientist.validation.reliability_scorecard",
@@ -1469,7 +1469,7 @@ def generate_blueprint() -> str:
             "## Dynamic Imports",
             "",
             f"- Registered dynamic import patterns: {len(dynamic_entries)}",
-            "- Registry: `architecture/dynamic_imports.toml`",
+            "- Registry: `architecture/imports/dynamic.toml`",
             "",
             "## Import Cycles",
             "",

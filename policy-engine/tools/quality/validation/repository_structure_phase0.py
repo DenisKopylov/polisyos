@@ -487,7 +487,7 @@ def collect_inventory(repo_root: Path) -> dict[str, Any]:
 
 
 def _load_package_layout(repo_root: Path) -> dict[str, Any]:
-    payload = _load_toml(repo_root / "architecture" / "package_layout.toml")
+    payload = _load_toml(repo_root / "architecture" / "packages" / "layout.toml")
     defaults = payload.get("defaults", {})
     return {
         "max_root_py_files": int(defaults.get("max_root_py_files", DEFAULT_MAX_ROOT_PY_FILES)),

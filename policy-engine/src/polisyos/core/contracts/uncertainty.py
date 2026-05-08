@@ -1,6 +1,6 @@
 """Public contracts uncertainty module API."""
 
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ForecastingUncertaintyBundleRef,
     RegimeShiftForecastBundleRef,
     UncertaintyEnvelopeRef,

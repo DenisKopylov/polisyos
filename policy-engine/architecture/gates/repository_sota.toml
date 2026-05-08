@@ -1,0 +1,113 @@
+[repository_sota_gates]
+version = 1
+status = "fail_closed"
+owner = "team-architecture"
+closeout_report = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md"
+gate_command = "uv run polisyos-tools workspace repository-sota-closeout"
+
+[[gate]]
+id = "topology-loose-files"
+area = "topology"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q"
+evidence = "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py"
+
+[[gate]]
+id = "import-linter"
+area = "imports"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml"
+evidence = "architecture/imports/policy.toml"
+exceptions = "architecture/imports/exceptions.toml"
+
+[[gate]]
+id = "public-surface"
+area = "public_surface"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools architecture guardrails check"
+evidence = "architecture/public_surface/contract.toml"
+exceptions = "architecture/exceptions/guardrails.toml"
+
+[[gate]]
+id = "generated-drift"
+area = "generated_artifacts"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools architecture guardrails check --run-generated-checks"
+evidence = "architecture/generated_artifacts.toml"
+
+[[gate]]
+id = "docs-freshness"
+area = "docs"
+owner = "team-docs"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
+evidence = "architecture/exceptions/docs_freshness.toml"
+exceptions = "architecture/exceptions/docs_freshness.toml"
+
+[[gate]]
+id = "public-polish"
+area = "docs"
+owner = "team-docs"
+mode = "fail_closed"
+command = "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q"
+evidence = "tests/repo_quality/architecture/test_repository_public_polish.py"
+
+[[gate]]
+id = "shim-audit"
+area = "migration_shims"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "architecture/shims.toml"
+
+[[gate]]
+id = "complexity-exceptions"
+area = "complexity"
+owner = "team-architecture"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "architecture/exceptions/complexity.toml"
+
+[[gate]]
+id = "security-baselines"
+area = "security"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "ops/security/secrets-baseline.toml"
+
+[[gate]]
+id = "dependency-baselines"
+area = "dependencies"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "ops/security/osv-scanner.toml"
+
+[[gate]]
+id = "sbom-baseline"
+area = "sbom"
+owner = "team-security"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "ops/security/sbom.toml"
+
+[[gate]]
+id = "commit-policy"
+area = "release"
+owner = "team-release"
+mode = "fail_closed"
+command = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+evidence = "ops/release/commit-policy.toml"
+
+[[gate]]
+id = "command-registry"
+area = "tools"
+owner = "team-devx"
+mode = "fail_closed"
+command = "uv run polisyos-tools docs --output docs/reference/tools.md --check"
+evidence = "docs/reference/tools.md"

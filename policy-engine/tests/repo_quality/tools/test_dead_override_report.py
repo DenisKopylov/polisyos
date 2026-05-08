@@ -100,7 +100,7 @@ ignore_errors = true
 
 def _write_common_configs(repo_root: Path, *, metadata: str) -> None:
     (repo_root / "src" / "polisyos" / "pkg" / "new").mkdir(parents=True)
-    (repo_root / "architecture").mkdir()
+    (repo_root / "architecture" / "tooling").mkdir(parents=True)
     (repo_root / "src" / "polisyos" / "pkg" / "live.py").write_text("", encoding="utf-8")
     (repo_root / "src" / "polisyos" / "pkg" / "new" / "moved.py").write_text(
         "",
@@ -125,7 +125,7 @@ ignore_errors = true
 """.lstrip(),
         encoding="utf-8",
     )
-    (repo_root / "architecture" / "static_analysis_overrides.toml").write_text(
+    (repo_root / "architecture" / "tooling" / "static_analysis_overrides.toml").write_text(
         metadata.lstrip(),
         encoding="utf-8",
     )

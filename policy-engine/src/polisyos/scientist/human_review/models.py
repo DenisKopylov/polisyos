@@ -1,4 +1,7 @@
 """Compatibility shim for human-review models."""
 
-from polisyos.scientist.governance.human_review.models import *  # noqa: F403
-from polisyos.scientist.governance.human_review.models import __all__ as __all__
+from __future__ import annotations
+
+from polisyos.scientist._internal.compat import alias_module as _alias_module
+
+_alias_module(__name__, "polisyos.scientist.governance.human_review.models", globals())

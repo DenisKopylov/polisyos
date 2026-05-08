@@ -17,9 +17,9 @@ from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.kernel.numbers import DecimalValue
 
 if TYPE_CHECKING:
-    from polisyos.ir.types import SelectorOperator
+    from polisyos.ir.model_layer.types import SelectorOperator
 else:
-    from polisyos.ir.types import SelectorOperator
+    from polisyos.ir.model_layer.types import SelectorOperator
 
 SelectorScalar = str | int | bool | DecimalValue
 SelectorValue = SelectorScalar | list[SelectorScalar]

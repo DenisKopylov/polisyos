@@ -50,8 +50,9 @@ component discovery.
 | `tests/unit/scholar/`      | 7           | scholar freshness and search orchestration                  | [scholar](unit/scholar/README.md)      |
 | `tests/unit/scientist/`    | 427         | workflows, governance, search, nodes, engine, agent         | [scientist](unit/scientist/README.md)  |
 
-Legacy `tests/architecture`, `tests/lint`, and `tests/tools` roots are
-redirects only. Add new repository-quality tests under `tests/repo_quality`.
+The old architecture-test root has been removed. Legacy `tests/lint` and
+`tests/tools` roots are redirects only. Add new repository-quality tests under
+`tests/repo_quality`.
 
 Support surfaces that are not subsystem READMEs:
 

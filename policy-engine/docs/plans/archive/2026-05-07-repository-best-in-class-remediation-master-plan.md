@@ -18,11 +18,11 @@ related:
   - docs/plans/active/REPOSITORY_LIFECYCLE_AND_OPS_TAXONOMY_DECISION.md
   - docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md
   - architecture/topology.toml
-  - architecture/package_layout.toml
-  - architecture/test_topology.toml
-  - architecture/test_ratchets.toml
+  - architecture/packages/layout.toml
+  - architecture/tests/topology.toml
+  - architecture/tests/ratchets.toml
   - architecture/name_registry.toml
-  - architecture/cross_cutting_concerns.toml
+  - architecture/policies/cross_cutting_concerns.toml
   - architecture/local_runtime_state.toml
 ---
 
@@ -175,17 +175,17 @@ These files are cross-program shared registries. They must be edited through
 short serialized patches, never long-running parallel branches:
 
 - `architecture/topology.toml`
-- `architecture/package_layout.toml`
-- `architecture/package_boundaries.toml`
-- `architecture/public_surface.toml`
-- `architecture/public_surface_inventory.json`
-- `architecture/import_contracts.toml`
+- `architecture/packages/layout.toml`
+- `architecture/packages/boundaries.toml`
+- `architecture/public_surface/contract.toml`
+- `architecture/public_surface/inventory.json`
+- `architecture/imports/contracts.toml`
 - `architecture/name_registry.toml`
-- `architecture/cross_cutting_concerns.toml`
+- `architecture/policies/cross_cutting_concerns.toml`
 - `architecture/shims.toml`
 - `architecture/generated_artifacts.toml`
-- `architecture/dynamic_imports.toml`
-- `architecture/test_topology.toml`
+- `architecture/imports/dynamic.toml`
+- `architecture/tests/topology.toml`
 - `architecture/frontend_workspaces.toml`
 - `architecture/local_runtime_state.toml`
 - `pyproject.toml`
@@ -340,7 +340,7 @@ Use separate queues so unrelated work can still move quickly:
 | topology queue | `architecture/topology.toml`, root allow-lists, `.gitignore` | team-platform | phases 1.1, 2.1, and 1.8 coordinate here |
 | package contract queue | `package_layout`, `package_boundaries`, `public_surface`, `import_contracts`, `name_registry`, `shims` | team-architecture | one package move at a time |
 | generated-artifact queue | `architecture/generated_artifacts.toml`, schema/client generation commands | team-devx/team-architecture | coordinate lifecycle, ops, JS, and schema phases |
-| test topology queue | `architecture/test_topology.toml`, test ratchets, pytest root policy | team-quality | coordinate verification phases with package moves |
+| test topology queue | `architecture/tests/topology.toml`, test ratchets, pytest root policy | team-quality | coordinate verification phases with package moves |
 | JS workspace queue | `pnpm-workspace.yaml`, `pnpm-lock.yaml`, root `package.json` | team-frontend | singleton lockfile updates |
 | Python tooling queue | `pyproject.toml`, `mypy.ini`, `ruff.toml`, `pytest.ini` | team-devx | avoid concurrent path override churn |
 | docs nav queue | `mkdocs.yml`, generated nav fragments | team-docs | docs moves can prepare in parallel |
@@ -707,7 +707,7 @@ Scope:
   package moved during remediation.
 - Inventory `tests/fixtures`, `tests/golden`, `tests/contract`, package-local
   fixtures, and pytest-collectable tests under data-like directories.
-- Inventory `tests/architecture`, `tests/lint`, `tests/tools`, and
+- Inventory `tests/repo_quality/architecture`, `tests/lint`, `tests/tools`, and
   `tests/contract` to separate product behavior, product contract, and
   repository-quality tests.
 - Inventory property-test coverage and missing property-test areas, especially
@@ -839,7 +839,7 @@ Scope:
 - Inventory examples and determine which examples should become installable
   verification assets.
 - Inventory top-level directories and local-only roots for a future
-  `architecture/directory_contracts.toml`.
+  `architecture/policies/directory_contracts.toml`.
 - Inventory high-volume subtrees needing README, AUTHORING, or generated index:
   `docs/adr`, `schemas/snapshots/ir`,
   `src/polisyos/foundry/methods/catalog/causal`,
@@ -1048,8 +1048,8 @@ architecture/packages/scientist.toml
   - `architecture/runbook_coverage.toml`;
   - `architecture/component_observability.toml`;
   - `architecture/runtime_state_layout.toml`;
-  - `architecture/test_ratchets.toml`;
-  - `architecture/directory_contracts.toml`;
+  - `architecture/tests/ratchets.toml`;
+  - `architecture/policies/directory_contracts.toml`;
   - generated-artifact contracts;
   - import-boundary and dependency-graph reports;
   - dynamic-import registry;
@@ -1071,8 +1071,8 @@ Parallel safety:
 
 Scope:
 
-- Expand `architecture/test_topology.toml` or add
-  `architecture/test_ratchets.toml` with per-layer mirror ratio, allowed
+- Expand `architecture/tests/topology.toml` or add
+  `architecture/tests/ratchets.toml` with per-layer mirror ratio, allowed
   exceptions, integration coverage decisions, property-test decisions, ratchet
   floor, and no-regression rule.
 - Start thresholds from measured baselines. Do not set aspirational fail-closed
@@ -1309,7 +1309,7 @@ Phase 1.7 contract artifacts:
 
 Scope:
 
-- Add `architecture/directory_contracts.toml` or extend topology with a
+- Add `architecture/policies/directory_contracts.toml` or extend topology with a
   top-level contract for every root directory:
   - `architecture`;
   - `benchmarks`;
@@ -1439,7 +1439,7 @@ Implementation evidence:
 - Gate:
   `tests/repo_quality/architecture/test_repository_best_in_class_phase2_2_ops_runner_relocation.py`.
 - Updated inventories and commands:
-  `architecture/dynamic_imports.toml`, `architecture/generated_artifacts.toml`,
+  `architecture/imports/dynamic.toml`, `architecture/generated_artifacts.toml`,
   root `.github/workflows/**`, workspace doctor/verify, release scripts, and
   generated tools reference.
 
@@ -1812,7 +1812,7 @@ Acceptance:
 
 - A contributor can tell whether a failure is product behavior, product
   contract, or repository quality.
-- `tests/architecture`, `tests/lint`, and `tests/tools` ambiguity is removed or
+- `tests/repo_quality/architecture`, `tests/lint`, and `tests/tools` ambiguity is removed or
   explicitly redirected.
 
 Parallel safety:
@@ -2512,7 +2512,7 @@ Acceptance:
 Artifact:
 
 - Status: completed on 2026-05-06.
-- `architecture/package_import_gates.toml` defines the fail-closed Phase 6.1
+- `architecture/gates/package_import.toml` defines the fail-closed Phase 6.1
   conversion contract and converted package/import gate set.
 - `polisyos-tools validation check-package-import-gates --fail-closed`
   validates package-level import-boundary deltas, public-surface/import-contract
@@ -2566,7 +2566,7 @@ Acceptance:
 Artifact:
 
 - Status: completed on 2026-05-06.
-- `architecture/directory_health.toml` is fail-closed with top-level path moves
+- `architecture/policies/directory_health.toml` is fail-closed with top-level path moves
   inactive and the top-level directory contract gate enabled.
 - `polisyos-tools validation directory-health --fail-on-regression` fails on
   contract errors, metric regressions, and fail-closed closure findings.
@@ -2599,7 +2599,7 @@ Acceptance:
 Artifact:
 
 - Status: completed on 2026-05-06.
-- `architecture/operability_release_supply_chain_gates.toml` defines the
+- `architecture/gates/operability_release_supply_chain.toml` defines the
   fail-closed Phase 6.3 conversion contract and source-contract set.
 - `polisyos-tools release check-operability-release-gates --fail-closed`
   validates SLO/runbook coverage, component observability, alert-to-runbook

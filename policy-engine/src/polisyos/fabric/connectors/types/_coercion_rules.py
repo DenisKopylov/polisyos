@@ -14,7 +14,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
-from polisyos.fabric.temporal import (
+from polisyos.fabric.data_plane.temporal import (
     FutureTimestampError,
     from_unix_timestamp_utc,
     normalize_reference_datetime,

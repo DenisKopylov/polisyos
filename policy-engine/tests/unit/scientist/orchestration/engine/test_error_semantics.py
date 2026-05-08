@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from polisyos.scientist.orchestration.engine import error_semantics
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 
@@ -51,6 +52,17 @@ def test_emit_degraded_path_prefers_injected_metrics_provider(monkeypatch) -> No
             "error_type": "runtime_error",
         }
     ]
+
+
+def test_default_metrics_uses_scientist_observability_adapter(monkeypatch) -> None:
+    metrics = _FakeMetrics()
+
+    monkeypatch.setattr(
+        "polisyos.scientist._adapters.observability.get_metrics",
+        lambda: metrics,
+    )
+
+    assert error_semantics._default_metrics() is metrics
 
 
 def test_emit_degraded_path_uses_explicit_metrics_instance() -> None:

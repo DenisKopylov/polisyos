@@ -11,7 +11,7 @@ from polisyos.ir.kernel.base import KernelModel
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore
     from polisyos.ir.artifacts.refs import InputRef
-    from polisyos.ir.references import DependenceStructureRef
+    from polisyos.ir.registry.refs import DependenceStructureRef
 
 
 class DependenceStructure(KernelModel):
@@ -197,8 +197,8 @@ def persist_dependence_structure(
     """Persist a dependence structure artifact and return its typed ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.canon import CanonSpec
-    from polisyos.ir.references import DependenceStructureRef
+    from polisyos.ir.model_layer.canon import CanonSpec
+    from polisyos.ir.registry.refs import DependenceStructureRef
 
     ref = put_json_artifact(
         store,

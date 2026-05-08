@@ -8,10 +8,10 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Shared helper boundary for config, logging, serialization, and migrations."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
-  "architecture/test_topology.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]

@@ -148,6 +148,8 @@ path = "schemas"
 category = "generated_committed"
 commit_policy = "registered_generated_artifacts"
 owner = "team-architecture"
+content_policy = "pure_schema_data_only_no_python"
+python_import_policy = "not_importable"
 
 [[path]]
 scope = "repo_root"
@@ -325,6 +327,7 @@ allow = [
   "CHANGELOG.md",
   "CODE_OF_CONDUCT.md",
   "CONTRIBUTING.md",
+  "LICENSE",
   "README.md",
   "SECURITY.md",
   "SUPPORT.md",

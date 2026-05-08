@@ -15,8 +15,8 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.quality.finite import ensure_non_negative_finite, ensure_probability
-from polisyos.ir.canon import CanonSpec, to_canonical_bytes
+from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 
 from .governance import SchemaApprovalMetadata
 from .schema import DataSchema, SchemaVersion

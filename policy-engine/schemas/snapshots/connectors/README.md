@@ -16,14 +16,16 @@
   - `connector_id`, `dataset_id`, `schema_version`, `content_hash`;
   - `contract`: нормализованный `ConnectorSchemaContract` без runtime timestamp (`created_at`).
 
-## Актуальное состояние (2026-03-03)
+## Актуальное состояние (2026-05-08)
 
-- Контрактов: `3`.
+- Контрактов: `5`.
 - Ключи:
   - `eurostat.data.generic`
+  - `sdmx.generic`
   - `ukons.datasets.generic`
   - `worldbank.wdi.generic`
-- Для всех контрактов текущая версия: `schema_version=1.0.0`.
+  - `wvs.wave7.generic`
+- Для всех контрактов текущая версия: `schema_version=2.0.0`.
 
 ## Источники и инструменты
 

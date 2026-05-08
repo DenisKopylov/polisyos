@@ -26,7 +26,7 @@ Phase 3A focused safety-net status:
   - uv run python tools/quality/validation/decomposition_preflight.py gate
     passed locally.
   - uv run pytest tests/contract/test_pickle_compat.py
-    tests/architecture/test_public_surface_snapshot.py
-    tests/architecture/test_schema_diff.py
-    tests/architecture/test_decomposition_preflight_gates.py -q
+    tests/repo_quality/architecture/test_public_surface_snapshot.py
+    tests/repo_quality/architecture/test_schema_diff.py
+    tests/repo_quality/architecture/test_decomposition_preflight_gates.py -q
     passed locally.

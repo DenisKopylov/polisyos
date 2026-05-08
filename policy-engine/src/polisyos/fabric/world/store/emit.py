@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from enum import Enum
 
-from polisyos.fabric.fact_writer import build_fact
-from polisyos.ir.fact_log import Fact, FactLegal, FactProvenance
+from polisyos.fabric.evidence.fact_writer import build_fact
+from polisyos.ir.loading.fact_log import Fact, FactLegal, FactProvenance
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocFragment, DocMeta

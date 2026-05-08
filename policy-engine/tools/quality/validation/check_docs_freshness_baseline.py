@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 REPO_ROOT = repo_root_from(__file__)
-BASELINE_PATH = Path("architecture/docs_freshness_exceptions.toml")
+BASELINE_PATH = Path("architecture/exceptions/docs_freshness.toml")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 

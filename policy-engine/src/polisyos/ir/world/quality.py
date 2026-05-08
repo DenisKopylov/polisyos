@@ -7,7 +7,7 @@ from typing import Annotated, Any
 
 from pydantic import BeforeValidator, Field, field_validator, model_validator
 
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel, reject_floats_deep
 from polisyos.ir.world.ids import quality_report_id_from_payload
 

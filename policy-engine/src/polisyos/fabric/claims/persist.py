@@ -16,8 +16,8 @@ from polisyos.fabric.world import (
     validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.ir.canon import to_canonical_bytes
-from polisyos.ir.fact_log import Fact, FactSegmentManifest
+from polisyos.ir.loading.fact_log import Fact, FactSegmentManifest
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.doc import DocMeta
 

@@ -22,12 +22,12 @@ Validated locally on 2026-05-02:
 | Contract | Schema | Result |
 | --- | --- | --- |
 | `architecture/topology.toml` | `schemas/topology/topology.schema.json` | OK |
-| `architecture/package_boundaries.toml` | `schemas/topology/package_boundaries.schema.json` | OK |
-| `architecture/import_contracts.toml` | `schemas/topology/import_contracts.schema.json` | OK |
+| `architecture/packages/boundaries.toml` | `schemas/topology/package_boundaries.schema.json` | OK |
+| `architecture/imports/contracts.toml` | `schemas/topology/import_contracts.schema.json` | OK |
 | `architecture/shims.toml` | `schemas/topology/migration_shims.schema.json` | OK |
-| `architecture/complexity_exceptions.toml` | `schemas/topology/complexity_exceptions.schema.json` | OK |
-| `architecture/guardrail_exceptions.toml` | `schemas/topology/guardrail_exceptions.schema.json` | OK |
-| `architecture/public_surface.toml` | `schemas/topology/public_surface.schema.json` | OK |
+| `architecture/exceptions/complexity.toml` | `schemas/topology/complexity_exceptions.schema.json` | OK |
+| `architecture/exceptions/guardrails.toml` | `schemas/topology/guardrail_exceptions.schema.json` | OK |
+| `architecture/public_surface/contract.toml` | `schemas/topology/public_surface.schema.json` | OK |
 | `architecture/generated_artifacts.toml` | `schemas/topology/generated_artifacts.schema.json` | OK |
 | `architecture/domain_migration_batches.toml` | `schemas/topology/domain_migration_batches.schema.json` | OK |
 | `architecture/conservative_overlay.toml` | `schemas/topology/conservative_overlay.schema.json` | OK |
@@ -79,7 +79,7 @@ Phase 0 normalized these contract surfaces:
 - Generated artifacts now include Data Forge artifact and manifest JSON
   Schemas under `schemas/artifacts/` and `schemas/manifests/`.
 - Guardrail exceptions now have a schema-backed empty-baseline registry:
-  `architecture/guardrail_exceptions.toml`.
+  `architecture/exceptions/guardrails.toml`.
 - CODEOWNERS now covers repo-root control files and every committed
   product-root topology path.
 - Public-surface and generated-artifact reference outputs were regenerated via
@@ -107,7 +107,7 @@ Phase -1.5 moved their durable implementations into `tools/research/`.
 | Migration shims | Local shim metadata audit | OK: 23 checked, 0 missing metadata | Baseline accepted |
 | Guardrail exceptions | Schema validation plus architecture guardrail check | OK: no active exceptions | Baseline accepted |
 | Topology loose/local state | Git ignore classification for `.venv-spatial-tests/`, `topics.csv`, and `policy-engine/all_1000_policy_topics.csv` | Ignored local state | Report-only until fixture/source decision |
-| Import contracts | Schema-valid `architecture/import_contracts.toml` | OK | Report-only for the architecture TOML import-linter runner |
+| Import contracts | Schema-valid `architecture/imports/contracts.toml` | OK | Report-only for the architecture TOML import-linter runner |
 | Docs freshness | `uv run polisyos-tools validation check-docs-accuracy --repo-root .` | 56 existing violations | Report-only debt; no new fail-closed gate |
 | Security scan | `uv run ruff check --select S --exit-zero --statistics .` | 99 findings by current Ruff S baseline | Report-only debt; no new fail-closed gate |
 

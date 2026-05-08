@@ -22,7 +22,7 @@ from polisyos.fabric.connectors.federation.types import (
 )
 from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.connectors.registry import ConnectorPreferences, ConnectorRegistry
-from polisyos.fabric.temporal import utc_now
+from polisyos.fabric.data_plane.temporal import utc_now
 
 logger = get_logger(__name__)
 

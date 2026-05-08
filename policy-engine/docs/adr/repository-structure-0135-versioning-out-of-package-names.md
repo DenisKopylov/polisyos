@@ -27,7 +27,7 @@ extension contracts, runtime state, persisted artifacts, and JS packages.
 2. `src/polisyos/ddm_15_7` migrates to `src/polisyos/ddm` in Phase 4A.
 3. The target Python facade is `polisyos.ddm`.
 4. The old `polisyos.ddm_15_7` facade remains wrapper-only until
-   2026-10-01.
+   2026-07-31.
 5. Deep `polisyos.ddm_15_7.*` imports are internal and must be migrated in
    first-party source and tests during Phase 4A.
 6. Existing schema IDs, YAML contract IDs, and policy IDs that contain
@@ -54,6 +54,12 @@ External root-facade importers get a sunset window. First-party tests and deep
 imports move to `polisyos.ddm` immediately in Phase 4A. New versioned Python
 package names fail the package layout gate once Phase 4A closes.
 
+Phase 2.3 of the last-mile remediation keeps the root compatibility import
+because the caller report shows only intentional compatibility tests, while the
+release policy still requires a dated public-import window. The owner remains
+`team-architecture`, the migration target is `polisyos.ddm`, and the smoke
+test lives under `tests/unit/ddm/`.
+
 Future decomposition work must name which compatibility category it is changing
 before it moves code, schemas, artifacts, generated clients, or plugin
 contracts.
@@ -62,7 +68,7 @@ contracts.
 
 | Category | Source of truth | Breaking-change signal |
 | --- | --- | --- |
-| Python public API | `architecture/public_surface.toml`, package facades, and shim registry | SemVer major or explicit shim/deprecation entry |
+| Python public API | `architecture/public_surface/contract.toml`, package facades, and shim registry | SemVer major or explicit shim/deprecation entry |
 | Schema/OpenAPI ABI | `schemas/**` and committed OpenAPI snapshots | schema major, OpenAPI path major, or migration guide entry |
 | Extension plugin ABI | `architecture/extension_points.toml` | `contract_version` major or incompatible ABI policy |
 | Runtime-state format | `architecture/local_runtime_state.toml` and `.polisyos` schema docs | migration reader/writer version change |
@@ -83,7 +89,7 @@ contracts.
 
 Plugin discovery must use a declared entry-point group or declared builtin
 loader from `architecture/extension_points.toml`. Ad hoc string imports remain
-governed by `architecture/dynamic_imports.toml` and must have an owner, target
+governed by `architecture/imports/dynamic.toml` and must have an owner, target
 or allowed target list, and verifier.
 
 ## Release Fragments
@@ -96,7 +102,7 @@ one of the compatibility categories above. The value should be one of:
 
 ## Concrete Impact
 
-- Contract: `architecture/package_layout.toml`.
+- Contract: `architecture/packages/layout.toml`.
 - Extension contracts: `architecture/extension_points.toml`.
 - Blueprint:
   `docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#ddm_15_7-to-ddm`.

@@ -1,0 +1,2853 @@
+{
+  "cross_cutting_concerns": {
+    "concerns": [
+      {
+        "adapter_policy": "Package adapters may translate local metric, log, and SLO vocabulary to polisyos.core.observability; they must not define competing cross-package telemetry APIs.",
+        "canonical_home": "polisyos.core.observability",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "package",
+            "package": "core",
+            "path": "src/polisyos/core/observability"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/kernel/observability.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/_adapters/observability.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/lifecycle/observability.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/observability.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/_adapters/observability.py"
+          }
+        ],
+        "name": "observability",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Package adapters may translate local resources to core identity, authorization, audit, and quota primitives; non-core packages must not define global security context APIs.",
+        "canonical_home": "polisyos.core.security",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "package",
+            "package": "core",
+            "path": "src/polisyos/core/security"
+          },
+          {
+            "kind": "package",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/security"
+          },
+          {
+            "kind": "module",
+            "package": "runtime",
+            "path": "src/polisyos/runtime/http/security.py"
+          },
+          {
+            "kind": "module",
+            "package": "scholar",
+            "path": "src/polisyos/scholar/search/security.py"
+          }
+        ],
+        "name": "security",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Package registries may adapt domain records to core registry primitives; they must stay package-qualified and must not act as process-wide registry singletons.",
+        "canonical_home": "polisyos.core.registry",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/artifacts/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/components/registry.py"
+          },
+          {
+            "kind": "package",
+            "package": "core",
+            "path": "src/polisyos/core/registry"
+          },
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/security/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/catalog/knowledge/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/catalog/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/kernel/schemas/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/_internal/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/catalog/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/connectors/bindings/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/connectors/contracts/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/connectors/profiles/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/connectors/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/extensions/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/selection/registry.py"
+          },
+          {
+            "kind": "package",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/registry"
+          },
+          {
+            "kind": "package",
+            "package": "ir",
+            "path": "src/polisyos/ir/registry"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/agent/tools/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/autotune/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/engine/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/llm/profiles/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/methods/autotune/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/engine/registry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/llm/profiles/registry.py"
+          }
+        ],
+        "name": "registry",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Plugin and entry-point discovery use polisyos.core.discovery; domain discovery workflows must live under package-specific semantic groups such as scientist.methods.discovery.",
+        "canonical_home": "polisyos.core.discovery",
+        "decision": "rename_or_sunset",
+        "implementation_locations": [
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/components/discovery.py"
+          },
+          {
+            "kind": "package",
+            "package": "core",
+            "path": "src/polisyos/core/discovery"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/catalog/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/connectors/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/extensions/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/plugins/discovery.py"
+          },
+          {
+            "kind": "package",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/discovery"
+          },
+          {
+            "kind": "package",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/methods/discovery"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/workflows/discovery.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/workflows/discovery.py"
+          }
+        ],
+        "name": "discovery",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Package config modules may adapt local schema and environment details to polisyos.common.config helpers; new reusable configuration parsing belongs in the canonical common module.",
+        "canonical_home": "polisyos.common.config",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "module",
+            "package": "common",
+            "path": "src/polisyos/common/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/artifacts/backends/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/observability/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "core",
+            "path": "src/polisyos/core/security/slsa/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/academic/batch/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/catalog/batch/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/legal/batch/config.py"
+          },
+          {
+            "kind": "package",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/kernel/pipeline/config"
+          },
+          {
+            "kind": "package",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/config"
+          },
+          {
+            "kind": "module",
+            "package": "fabric",
+            "path": "src/polisyos/fabric/config/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/feedback/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/uncertainty/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/engine/locks/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/engine/runner/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/engine/locks/config.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/engine/runner/config.py"
+          }
+        ],
+        "name": "configuration",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Tracing adapters may emit package-local spans, records, or replay hooks through polisyos.core.trace; new package trace roots are not canonical APIs.",
+        "canonical_home": "polisyos.core.trace",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "package",
+            "package": "core",
+            "path": "src/polisyos/core/trace"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/runtime/trace.py"
+          },
+          {
+            "kind": "package",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/trace"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/nodes/builtins/tracing.py"
+          }
+        ],
+        "name": "tracing",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Telemetry adapters may bind Scientist engine and governance events to polisyos.core.observability metrics and logs; package telemetry modules must not become separate observability stacks.",
+        "canonical_home": "polisyos.core.observability",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/engine/telemetry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/governance/telemetry.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/orchestration/engine/telemetry.py"
+          }
+        ],
+        "name": "telemetry",
+        "proposed_before_wave": "1.5"
+      },
+      {
+        "adapter_policy": "Package calibration modules may adapt local drift, search, and governance artifacts to polisyos.calibration diagnostics; reusable diagnostics move to the canonical package.",
+        "canonical_home": "polisyos.calibration",
+        "decision": "canonical_interface_plus_package_adapters",
+        "implementation_locations": [
+          {
+            "kind": "package",
+            "package": "calibration",
+            "path": "src/polisyos/calibration"
+          },
+          {
+            "kind": "module",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+          },
+          {
+            "kind": "package",
+            "package": "ddm",
+            "path": "src/polisyos/ddm/calibration"
+          },
+          {
+            "kind": "package",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/calibration"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/calibration.py"
+          },
+          {
+            "kind": "module",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/microsim/calibration.py"
+          },
+          {
+            "kind": "module",
+            "package": "ir",
+            "path": "src/polisyos/ir/analytics/calibration.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/autotune/calibration.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/governance/calibration.py"
+          },
+          {
+            "kind": "module",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/methods/autotune/calibration.py"
+          }
+        ],
+        "name": "calibration",
+        "proposed_before_wave": "1.5"
+      }
+    ],
+    "contract": "architecture/policies/cross_cutting_concerns.toml",
+    "findings": [],
+    "schema_version": "repository.last_mile_inventory.phase0_4.cross_cutting_concerns.v1"
+  },
+  "finding_ids": [
+    "LM-001",
+    "LM-002",
+    "LM-003",
+    "LM-004",
+    "LM-005",
+    "LM-006",
+    "LM-007",
+    "LM-008",
+    "LM-009",
+    "LM-010",
+    "LM-011",
+    "LM-012",
+    "LM-013",
+    "LM-014",
+    "LM-015",
+    "LM-016",
+    "LM-017",
+    "LM-018",
+    "LM-019",
+    "LM-020",
+    "LM-021",
+    "LM-022",
+    "LM-023",
+    "LM-024",
+    "LM-025",
+    "LM-026"
+  ],
+  "findings": [
+    {
+      "count": 12,
+      "current_status": "observed",
+      "finding_id": "LM-001",
+      "kind": "package_root_loose_python",
+      "metadata": {
+        "by_package": {
+          "berl": [
+            "src/polisyos/berl/perturbations.py",
+            "src/polisyos/berl/service.py"
+          ],
+          "calibration": [
+            "src/polisyos/calibration/_sklearn_compat.py",
+            "src/polisyos/calibration/adapters.py",
+            "src/polisyos/calibration/continuous.py",
+            "src/polisyos/calibration/curve.py",
+            "src/polisyos/calibration/diagnostics.py",
+            "src/polisyos/calibration/multiclass.py",
+            "src/polisyos/calibration/recalibration.py"
+          ],
+          "common": [
+            "src/polisyos/common/async_tools.py",
+            "src/polisyos/common/config.py",
+            "src/polisyos/common/env_parsing.py",
+            "src/polisyos/common/jax_env.py",
+            "src/polisyos/common/logger.py",
+            "src/polisyos/common/serialization.py",
+            "src/polisyos/common/timestamps.py"
+          ],
+          "data_forge": [
+            "src/polisyos/data_forge/_version.py",
+            "src/polisyos/data_forge/errors.py"
+          ],
+          "fabric": [
+            "src/polisyos/fabric/api.py"
+          ],
+          "foundry": [
+            "src/polisyos/foundry/_quickstart.py",
+            "src/polisyos/foundry/_registry.py",
+            "src/polisyos/foundry/api.py"
+          ],
+          "ir": [
+            "src/polisyos/ir/api.py"
+          ],
+          "lex": [
+            "src/polisyos/lex/api.py",
+            "src/polisyos/lex/artifacts.py",
+            "src/polisyos/lex/common.py",
+            "src/polisyos/lex/errors.py",
+            "src/polisyos/lex/factlog.py",
+            "src/polisyos/lex/intervention_artifacts.py",
+            "src/polisyos/lex/interventions.py",
+            "src/polisyos/lex/provenance.py",
+            "src/polisyos/lex/types.py"
+          ],
+          "runtime": [
+            "src/polisyos/runtime/api.py",
+            "src/polisyos/runtime/manifest.py",
+            "src/polisyos/runtime/replay.py"
+          ],
+          "schemas": [
+            "src/polisyos/schemas/abi_models.py"
+          ],
+          "scholar": [
+            "src/polisyos/scholar/api.py",
+            "src/polisyos/scholar/errors.py",
+            "src/polisyos/scholar/freshness.py",
+            "src/polisyos/scholar/freshness_store.py",
+            "src/polisyos/scholar/policies.py",
+            "src/polisyos/scholar/provenance.py",
+            "src/polisyos/scholar/types.py"
+          ],
+          "scientist": [
+            "src/polisyos/scientist/api.py",
+            "src/polisyos/scientist/decision_validity.py",
+            "src/polisyos/scientist/error_semantics.py",
+            "src/polisyos/scientist/evidence_sources.py",
+            "src/polisyos/scientist/feedback_utils.py",
+            "src/polisyos/scientist/frontier_runtime.py",
+            "src/polisyos/scientist/latent_separation.py",
+            "src/polisyos/scientist/llm_cycle.py",
+            "src/polisyos/scientist/publisher.py",
+            "src/polisyos/scientist/reliability_scorecard.py",
+            "src/polisyos/scientist/remediation_status.py",
+            "src/polisyos/scientist/replay_backend.py"
+          ]
+        }
+      },
+      "owner": "team-scientist",
+      "package": "scientist",
+      "path": "src/polisyos/scientist/api.py",
+      "paths": [
+        "src/polisyos/scientist/api.py",
+        "src/polisyos/scientist/decision_validity.py",
+        "src/polisyos/scientist/error_semantics.py",
+        "src/polisyos/scientist/evidence_sources.py",
+        "src/polisyos/scientist/feedback_utils.py",
+        "src/polisyos/scientist/frontier_runtime.py",
+        "src/polisyos/scientist/latent_separation.py",
+        "src/polisyos/scientist/llm_cycle.py",
+        "src/polisyos/scientist/publisher.py",
+        "src/polisyos/scientist/reliability_scorecard.py",
+        "src/polisyos/scientist/remediation_status.py",
+        "src/polisyos/scientist/replay_backend.py"
+      ],
+      "suggested_target": "src/polisyos/scientist/<domain>/"
+    },
+    {
+      "count": 12,
+      "current_status": "observed",
+      "finding_id": "LM-002",
+      "kind": "single_file_shell_package",
+      "metadata": {
+        "by_package": {
+          "fabric": [
+            "src/polisyos/fabric/_adapters",
+            "src/polisyos/fabric/config",
+            "src/polisyos/fabric/connectors/ingestion",
+            "src/polisyos/fabric/connectors/sdk",
+            "src/polisyos/fabric/extensions",
+            "src/polisyos/fabric/numerics",
+            "src/polisyos/fabric/product_integration"
+          ],
+          "ir": [
+            "src/polisyos/ir/_internal",
+            "src/polisyos/ir/_lazy_facade",
+            "src/polisyos/ir/connectors",
+            "src/polisyos/ir/schemas",
+            "src/polisyos/ir/trinity"
+          ]
+        },
+        "policy": {
+          "max_python_files": 2,
+          "scope_roots": [
+            "src/polisyos/fabric",
+            "src/polisyos/ir"
+          ]
+        }
+      },
+      "owner": "team-fabric,team-ir",
+      "package": "fabric,ir",
+      "path": "src/polisyos/fabric/_adapters",
+      "paths": [
+        "src/polisyos/fabric/_adapters",
+        "src/polisyos/fabric/config",
+        "src/polisyos/fabric/connectors/ingestion",
+        "src/polisyos/fabric/connectors/sdk",
+        "src/polisyos/fabric/extensions",
+        "src/polisyos/fabric/numerics",
+        "src/polisyos/fabric/product_integration",
+        "src/polisyos/ir/_internal",
+        "src/polisyos/ir/_lazy_facade",
+        "src/polisyos/ir/connectors",
+        "src/polisyos/ir/schemas",
+        "src/polisyos/ir/trinity"
+      ],
+      "suggested_target": "package-local implementation module or dated facade exception"
+    },
+    {
+      "count": 0,
+      "current_status": "not_observed",
+      "finding_id": "LM-003",
+      "kind": "near_duplicate_sibling_package",
+      "owner": "team-ir",
+      "package": "ir",
+      "path": "",
+      "paths": [],
+      "suggested_target": "src/polisyos/ir/references"
+    },
+    {
+      "count": 2,
+      "current_status": "observed",
+      "finding_id": "LM-004",
+      "kind": "near_duplicate_sibling_package",
+      "owner": "team-scientist",
+      "package": "scientist",
+      "path": "src/polisyos/scientist/orchestration",
+      "paths": [
+        "src/polisyos/scientist/orchestration",
+        "src/polisyos/scientist/orchestrator"
+      ],
+      "suggested_target": "src/polisyos/scientist/orchestration"
+    },
+    {
+      "count": 10,
+      "current_status": "observed",
+      "finding_id": "LM-005",
+      "kind": "semantic_duplicate_pair",
+      "metadata": {
+        "semantic_pairs": [
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/publishing",
+              "src/polisyos/scientist/publisher.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/publishing"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/evidence",
+              "src/polisyos/scientist/evidence_sources.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/evidence"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/feedback",
+              "src/polisyos/scientist/feedback_utils.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/feedback"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/replay",
+              "src/polisyos/scientist/replay_backend.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/replay"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/llm",
+              "src/polisyos/scientist/llm_cycle.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/llm"
+          }
+        ]
+      },
+      "owner": "team-scientist",
+      "package": "scientist",
+      "path": "src/polisyos/scientist/evidence",
+      "paths": [
+        "src/polisyos/scientist/evidence",
+        "src/polisyos/scientist/evidence_sources.py",
+        "src/polisyos/scientist/feedback",
+        "src/polisyos/scientist/feedback_utils.py",
+        "src/polisyos/scientist/llm",
+        "src/polisyos/scientist/llm_cycle.py",
+        "src/polisyos/scientist/publisher.py",
+        "src/polisyos/scientist/publishing",
+        "src/polisyos/scientist/replay",
+        "src/polisyos/scientist/replay_backend.py"
+      ],
+      "suggested_target": "scientist domain packages with root-file compatibility shims"
+    },
+    {
+      "count": 2,
+      "current_status": "observed",
+      "finding_id": "LM-006",
+      "kind": "compatibility_wrapper_sunset",
+      "owner": "team-architecture",
+      "package": "ddm_15_7,synthetic_world",
+      "path": "src/polisyos/ddm_15_7",
+      "paths": [
+        "src/polisyos/ddm_15_7",
+        "src/polisyos/synthetic_world"
+      ],
+      "suggested_target": "src/polisyos/ddm and src/polisyos/foundry/agent_sim/world",
+      "sunset": {
+        "metadata_present": true,
+        "rows": [
+          {
+            "metadata_present": true,
+            "path": "src/polisyos/ddm_15_7",
+            "source": "src/polisyos/ddm_15_7/README.md",
+            "sunset_date": "2026-07-31"
+          },
+          {
+            "metadata_present": true,
+            "path": "src/polisyos/synthetic_world",
+            "source": "src/polisyos/synthetic_world/README.md",
+            "sunset_date": "2026-07-31"
+          }
+        ],
+        "source": null,
+        "sunset_date": "2026-07-31"
+      }
+    },
+    {
+      "count": 26,
+      "current_status": "observed",
+      "finding_id": "LM-007",
+      "kind": "large_module_ratchet",
+      "metadata": {
+        "modules": [
+          {
+            "current_lines": 3080,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/architecture_report_only_contracts.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 3281,
+            "owner": "team-fabric",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/fabric_best_in_class_inventory.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1635,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/decomposition_preflight.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1509,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/repository_last_mile_inventory.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1580,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/check_package_import_gates.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1423,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/repository_best_in_class_phase0_7_inventory.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1259,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/repository_verification_inventory.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1296,
+            "owner": "team-devx",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/directory_health.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 1126,
+            "owner": "team-architecture",
+            "package": "tools-quality-validation",
+            "path": "tools/quality/validation/repository_structure_phase0.py",
+            "sunset": "2026-12-31",
+            "target_lines": 1000
+          },
+          {
+            "current_lines": 4809,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2539,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2896,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 885,
+            "owner": "team-scientist",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+            "sunset": "2026-12-31",
+            "target_lines": 800
+          },
+          {
+            "current_lines": 3002,
+            "owner": "team-scientist",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2050,
+            "owner": "team-runtime",
+            "package": "runtime",
+            "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2000
+          },
+          {
+            "current_lines": 3881,
+            "owner": "team-data-forge",
+            "package": "data_forge",
+            "path": "src/polisyos/data_forge/domains/legal/batch/graph_builder.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 3658,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/invariance_tests.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 3435,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 3210,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/bayesian/advanced.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 3114,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/selection/advisor.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 3085,
+            "owner": "team-ir",
+            "package": "ir",
+            "path": "src/polisyos/ir/analytics/strategic.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2866,
+            "owner": "team-runtime",
+            "package": "runtime",
+            "path": "src/polisyos/runtime/http/openapi_contract.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2824,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/ml/uncertainty.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2743,
+            "owner": "team-scientist",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/validation/fairness_audit.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2733,
+            "owner": "team-scientist",
+            "package": "scientist",
+            "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          },
+          {
+            "current_lines": 2520,
+            "owner": "team-foundry",
+            "package": "foundry",
+            "path": "src/polisyos/foundry/methods/catalog/causal/missing_data.py",
+            "sunset": "2026-12-31",
+            "target_lines": 2500
+          }
+        ]
+      },
+      "owner": "owning-package-teams",
+      "package": "foundry,data_forge,scientist,runtime",
+      "path": "src/polisyos/data_forge/domains/legal/batch/graph_builder.py",
+      "paths": [
+        "src/polisyos/data_forge/domains/legal/batch/graph_builder.py",
+        "src/polisyos/foundry/methods/catalog/bayesian/advanced.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+        "src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
+        "src/polisyos/foundry/methods/catalog/causal/invariance_tests.py",
+        "src/polisyos/foundry/methods/catalog/causal/missing_data.py",
+        "src/polisyos/foundry/methods/catalog/ml/uncertainty.py",
+        "src/polisyos/foundry/methods/selection/advisor.py",
+        "src/polisyos/ir/analytics/strategic.py",
+        "src/polisyos/runtime/http/openapi_contract.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+        "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "src/polisyos/scientist/validation/fairness_audit.py",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "tools/quality/validation/check_package_import_gates.py",
+        "tools/quality/validation/decomposition_preflight.py",
+        "tools/quality/validation/directory_health.py",
+        "tools/quality/validation/fabric_best_in_class_inventory.py",
+        "tools/quality/validation/repository_best_in_class_phase0_7_inventory.py",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "tools/quality/validation/repository_structure_phase0.py",
+        "tools/quality/validation/repository_verification_inventory.py"
+      ],
+      "suggested_target": "architecture/module_size_budget.toml extraction_sequence"
+    },
+    {
+      "count": 8,
+      "current_status": "observed",
+      "finding_id": "LM-008",
+      "kind": "mirror_coverage_regression_baseline",
+      "metadata": {
+        "packages": [
+          {
+            "mirror_floor": 0.1272,
+            "package": "ir",
+            "path": "architecture/packages/ir.toml",
+            "property_file_floor": 1,
+            "unit_test_file_floor": 163
+          },
+          {
+            "mirror_floor": 0.1447,
+            "package": "core",
+            "path": "architecture/packages/core.toml",
+            "property_file_floor": 0,
+            "unit_test_file_floor": 101
+          },
+          {
+            "mirror_floor": 0.0683,
+            "package": "fabric",
+            "path": "architecture/packages/fabric.toml",
+            "property_file_floor": 1,
+            "unit_test_file_floor": 164
+          },
+          {
+            "mirror_floor": 0.3498,
+            "package": "foundry",
+            "path": "architecture/packages/foundry.toml",
+            "property_file_floor": 28,
+            "unit_test_file_floor": 468
+          },
+          {
+            "mirror_floor": 0.3217,
+            "package": "scientist",
+            "path": "architecture/packages/scientist.toml",
+            "property_file_floor": 5,
+            "unit_test_file_floor": 473
+          },
+          {
+            "mirror_floor": 0.2333,
+            "package": "lex",
+            "path": "architecture/packages/lex.toml",
+            "property_file_floor": 1,
+            "unit_test_file_floor": 15
+          },
+          {
+            "mirror_floor": 0.1429,
+            "package": "scholar",
+            "path": "architecture/packages/scholar.toml",
+            "property_file_floor": 0,
+            "unit_test_file_floor": 14
+          },
+          {
+            "mirror_floor": 0.0385,
+            "package": "berl",
+            "path": "architecture/packages/berl.toml",
+            "property_file_floor": 0,
+            "unit_test_file_floor": 14
+          }
+        ]
+      },
+      "owner": "team-quality",
+      "package": "scientist,fabric,foundry,ir,core,berl,lex,scholar",
+      "path": "architecture/packages/berl.toml",
+      "paths": [
+        "architecture/packages/berl.toml",
+        "architecture/packages/core.toml",
+        "architecture/packages/fabric.toml",
+        "architecture/packages/foundry.toml",
+        "architecture/packages/ir.toml",
+        "architecture/packages/lex.toml",
+        "architecture/packages/scholar.toml",
+        "architecture/packages/scientist.toml"
+      ],
+      "suggested_target": "architecture/tests/ratchets.toml"
+    },
+    {
+      "count": 0,
+      "current_status": "not_observed",
+      "finding_id": "LM-009",
+      "kind": "local_ignored_residue",
+      "metadata": {
+        "known_junk_names": [
+          ".DS_Store",
+          ".hypothesis",
+          ".mypy_cache",
+          ".pytest_cache",
+          ".ruff_cache",
+          "__pycache__"
+        ]
+      },
+      "owner": "team-devx",
+      "package": "repository",
+      "path": "",
+      "paths": [],
+      "suggested_target": "_build/.tmp or remove after evidence capture"
+    },
+    {
+      "count": 0,
+      "current_status": "not_observed",
+      "finding_id": "LM-010",
+      "kind": "redirect_only_directory",
+      "owner": "team-quality",
+      "package": "tests",
+      "path": "",
+      "paths": [],
+      "suggested_target": "tests/repo_quality/architecture",
+      "sunset": {
+        "metadata_present": false,
+        "rows": [],
+        "source": null,
+        "sunset_date": null
+      }
+    },
+    {
+      "count": 15,
+      "current_status": "needs_review",
+      "finding_id": "LM-011",
+      "kind": "integration_bridge_coverage_gap",
+      "owner": "team-quality",
+      "package": "tests",
+      "path": "tests/integration/core_runtime/test_config_security_startup_bridge.py",
+      "paths": [
+        "tests/integration/core_runtime/test_config_security_startup_bridge.py",
+        "tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+        "tests/integration/fabric_ir/test_connector_observation_bridge.py",
+        "tests/integration/foundry_calibration/test_method_calibration_bridge.py",
+        "tests/integration/foundry_scientist/test_method_node_bridge.py",
+        "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+        "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+        "tests/integration/scholar_scientist/test_search_orchestration_bridge.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_workflow_reliability_scenarios.py",
+        "tests/integration/scientist/test_workflow_tracing.py",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "tests/integration/test_c7_synthetic_full_pipeline.py",
+        "tests/integration/test_human_gate_audit.py",
+        "tests/integration/test_phase0_quality_validation.py"
+      ],
+      "suggested_target": "tests/integration/<package_bridge>/"
+    },
+    {
+      "count": 1,
+      "current_status": "observed",
+      "finding_id": "LM-012",
+      "kind": "redirect_only_directory",
+      "owner": "team-frontend",
+      "package": "frontend",
+      "path": "frontend",
+      "paths": [
+        "frontend"
+      ],
+      "suggested_target": "apps/ and packages/",
+      "sunset": {
+        "metadata_present": true,
+        "rows": [
+          {
+            "metadata_present": true,
+            "path": "frontend",
+            "source": "frontend/README.md",
+            "sunset_date": "2026-08-05"
+          }
+        ],
+        "source": "frontend/README.md",
+        "sunset_date": "2026-08-05"
+      }
+    },
+    {
+      "count": 9,
+      "current_status": "observed",
+      "finding_id": "LM-013",
+      "kind": "architecture_gate_split",
+      "owner": "team-architecture",
+      "package": "architecture",
+      "path": "architecture/gates/README.md",
+      "paths": [
+        "architecture/gates/README.md",
+        "architecture/gates/compatibility_release.toml",
+        "architecture/gates/index.toml",
+        "architecture/gates/operability_release_supply_chain.toml",
+        "architecture/gates/package_import.toml",
+        "architecture/gates/report_only.toml",
+        "architecture/gates/repository_sota.toml",
+        "architecture/gates/structure_remediation.toml",
+        "architecture/wave6_gate_green_runs.toml"
+      ],
+      "suggested_target": "architecture/gates/** or registered root-level exception"
+    },
+    {
+      "count": 1,
+      "current_status": "observed",
+      "finding_id": "LM-014",
+      "kind": "directory_role_review",
+      "owner": "team-data-forge",
+      "package": "data_forge",
+      "path": "data/policy-engine-local",
+      "paths": [
+        "data/policy-engine-local"
+      ],
+      "suggested_target": "data/<documented-local-role>"
+    },
+    {
+      "count": 25,
+      "current_status": "observed",
+      "finding_id": "LM-015",
+      "kind": "cross_cutting_concern_duplicate",
+      "metadata": {
+        "repeated_names": [
+          {
+            "name": "adapters",
+            "packages": [
+              "berl",
+              "calibration",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/berl/adapters",
+              "src/polisyos/calibration/adapters.py",
+              "src/polisyos/scientist/adapters"
+            ]
+          },
+          {
+            "name": "contracts",
+            "packages": [
+              "berl",
+              "core",
+              "ddm",
+              "foundry"
+            ],
+            "paths": [
+              "src/polisyos/berl/contracts",
+              "src/polisyos/core/contracts",
+              "src/polisyos/ddm/contracts",
+              "src/polisyos/foundry/contracts"
+            ]
+          },
+          {
+            "name": "discovery",
+            "packages": [
+              "core",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/discovery",
+              "src/polisyos/scientist/discovery"
+            ]
+          },
+          {
+            "name": "governance",
+            "packages": [
+              "core",
+              "ir",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/governance",
+              "src/polisyos/ir/governance",
+              "src/polisyos/scientist/governance"
+            ]
+          },
+          {
+            "name": "llm",
+            "packages": [
+              "core",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/llm",
+              "src/polisyos/scientist/llm"
+            ]
+          },
+          {
+            "name": "provenance",
+            "packages": [
+              "fabric",
+              "lex",
+              "scholar",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/fabric/provenance",
+              "src/polisyos/lex/provenance.py",
+              "src/polisyos/scholar/provenance.py",
+              "src/polisyos/scientist/provenance"
+            ]
+          },
+          {
+            "name": "registry",
+            "packages": [
+              "core",
+              "foundry",
+              "ir"
+            ],
+            "paths": [
+              "src/polisyos/core/registry",
+              "src/polisyos/foundry/registry",
+              "src/polisyos/ir/registry"
+            ]
+          },
+          {
+            "name": "security",
+            "packages": [
+              "core",
+              "fabric"
+            ],
+            "paths": [
+              "src/polisyos/core/security",
+              "src/polisyos/fabric/security"
+            ]
+          },
+          {
+            "name": "trace",
+            "packages": [
+              "core",
+              "foundry"
+            ],
+            "paths": [
+              "src/polisyos/core/trace",
+              "src/polisyos/foundry/trace"
+            ]
+          }
+        ]
+      },
+      "owner": "team-architecture",
+      "package": "multiple",
+      "path": "src/polisyos/berl/adapters",
+      "paths": [
+        "src/polisyos/berl/adapters",
+        "src/polisyos/berl/contracts",
+        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/core/contracts",
+        "src/polisyos/core/discovery",
+        "src/polisyos/core/governance",
+        "src/polisyos/core/llm",
+        "src/polisyos/core/registry",
+        "src/polisyos/core/security",
+        "src/polisyos/core/trace",
+        "src/polisyos/ddm/contracts",
+        "src/polisyos/fabric/provenance",
+        "src/polisyos/fabric/security",
+        "src/polisyos/foundry/contracts",
+        "src/polisyos/foundry/registry",
+        "src/polisyos/foundry/trace",
+        "src/polisyos/ir/governance",
+        "src/polisyos/ir/registry",
+        "src/polisyos/lex/provenance.py",
+        "src/polisyos/scholar/provenance.py",
+        "src/polisyos/scientist/adapters",
+        "src/polisyos/scientist/discovery",
+        "src/polisyos/scientist/governance",
+        "src/polisyos/scientist/llm",
+        "src/polisyos/scientist/provenance"
+      ],
+      "suggested_target": "architecture/contracts/cross_cutting_concerns.toml"
+    },
+    {
+      "count": 20,
+      "current_status": "observed",
+      "finding_id": "LM-016",
+      "kind": "scientist_parallel_family",
+      "metadata": {
+        "families": [
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/publishing",
+              "src/polisyos/scientist/publisher.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/publishing"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/evidence",
+              "src/polisyos/scientist/evidence_sources.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/evidence"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/feedback",
+              "src/polisyos/scientist/feedback_utils.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/feedback"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/replay",
+              "src/polisyos/scientist/replay_backend.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/replay"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/llm",
+              "src/polisyos/scientist/llm_cycle.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/llm"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/orchestration",
+              "src/polisyos/scientist/orchestrator"
+            ],
+            "suggested_target": "src/polisyos/scientist/orchestration"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/engine/error_semantics.py",
+              "src/polisyos/scientist/error_semantics.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/engine/error_semantics.py"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/engine/frontier_runtime.py",
+              "src/polisyos/scientist/frontier_runtime.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/engine/frontier_runtime.py"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/governance/remediation_status.py",
+              "src/polisyos/scientist/remediation_status.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/governance/remediation_status.py"
+          },
+          {
+            "current_status": "observed",
+            "paths": [
+              "src/polisyos/scientist/causal/latent_separation.py",
+              "src/polisyos/scientist/latent_separation.py"
+            ],
+            "suggested_target": "src/polisyos/scientist/causal/latent_separation.py"
+          }
+        ]
+      },
+      "owner": "team-scientist",
+      "package": "scientist",
+      "path": "src/polisyos/scientist/causal/latent_separation.py",
+      "paths": [
+        "src/polisyos/scientist/causal/latent_separation.py",
+        "src/polisyos/scientist/engine/error_semantics.py",
+        "src/polisyos/scientist/engine/frontier_runtime.py",
+        "src/polisyos/scientist/error_semantics.py",
+        "src/polisyos/scientist/evidence",
+        "src/polisyos/scientist/evidence_sources.py",
+        "src/polisyos/scientist/feedback",
+        "src/polisyos/scientist/feedback_utils.py",
+        "src/polisyos/scientist/frontier_runtime.py",
+        "src/polisyos/scientist/governance/remediation_status.py",
+        "src/polisyos/scientist/latent_separation.py",
+        "src/polisyos/scientist/llm",
+        "src/polisyos/scientist/llm_cycle.py",
+        "src/polisyos/scientist/orchestration",
+        "src/polisyos/scientist/orchestrator",
+        "src/polisyos/scientist/publisher.py",
+        "src/polisyos/scientist/publishing",
+        "src/polisyos/scientist/remediation_status.py",
+        "src/polisyos/scientist/replay",
+        "src/polisyos/scientist/replay_backend.py"
+      ],
+      "suggested_target": "src/polisyos/scientist/<canonical-family>/"
+    },
+    {
+      "count": 45,
+      "current_status": "observed",
+      "finding_id": "LM-017",
+      "kind": "repeated_cross_package_name",
+      "metadata": {
+        "repeated_names": [
+          {
+            "name": "adapters",
+            "packages": [
+              "berl",
+              "calibration",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/berl/adapters",
+              "src/polisyos/calibration/adapters.py",
+              "src/polisyos/scientist/adapters"
+            ]
+          },
+          {
+            "name": "calibration",
+            "packages": [
+              "ddm",
+              "foundry"
+            ],
+            "paths": [
+              "src/polisyos/ddm/calibration",
+              "src/polisyos/foundry/calibration"
+            ]
+          },
+          {
+            "name": "config",
+            "packages": [
+              "common",
+              "fabric"
+            ],
+            "paths": [
+              "src/polisyos/common/config.py",
+              "src/polisyos/fabric/config"
+            ]
+          },
+          {
+            "name": "connectors",
+            "packages": [
+              "fabric",
+              "ir"
+            ],
+            "paths": [
+              "src/polisyos/fabric/connectors",
+              "src/polisyos/ir/connectors"
+            ]
+          },
+          {
+            "name": "contracts",
+            "packages": [
+              "berl",
+              "core",
+              "ddm",
+              "foundry"
+            ],
+            "paths": [
+              "src/polisyos/berl/contracts",
+              "src/polisyos/core/contracts",
+              "src/polisyos/ddm/contracts",
+              "src/polisyos/foundry/contracts"
+            ]
+          },
+          {
+            "name": "discovery",
+            "packages": [
+              "core",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/discovery",
+              "src/polisyos/scientist/discovery"
+            ]
+          },
+          {
+            "name": "errors",
+            "packages": [
+              "core",
+              "data_forge",
+              "lex",
+              "scholar"
+            ],
+            "paths": [
+              "src/polisyos/core/errors",
+              "src/polisyos/data_forge/errors.py",
+              "src/polisyos/lex/errors.py",
+              "src/polisyos/scholar/errors.py"
+            ]
+          },
+          {
+            "name": "extensions",
+            "packages": [
+              "data_forge",
+              "fabric",
+              "foundry",
+              "lex",
+              "runtime",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/data_forge/extensions",
+              "src/polisyos/fabric/extensions",
+              "src/polisyos/foundry/extensions",
+              "src/polisyos/lex/extensions",
+              "src/polisyos/runtime/extensions",
+              "src/polisyos/scientist/extensions"
+            ]
+          },
+          {
+            "name": "governance",
+            "packages": [
+              "core",
+              "ir",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/governance",
+              "src/polisyos/ir/governance",
+              "src/polisyos/scientist/governance"
+            ]
+          },
+          {
+            "name": "llm",
+            "packages": [
+              "core",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/core/llm",
+              "src/polisyos/scientist/llm"
+            ]
+          },
+          {
+            "name": "migrations",
+            "packages": [
+              "common",
+              "ir"
+            ],
+            "paths": [
+              "src/polisyos/common/migrations",
+              "src/polisyos/ir/migrations"
+            ]
+          },
+          {
+            "name": "provenance",
+            "packages": [
+              "fabric",
+              "lex",
+              "scholar",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/fabric/provenance",
+              "src/polisyos/lex/provenance.py",
+              "src/polisyos/scholar/provenance.py",
+              "src/polisyos/scientist/provenance"
+            ]
+          },
+          {
+            "name": "registry",
+            "packages": [
+              "core",
+              "foundry",
+              "ir"
+            ],
+            "paths": [
+              "src/polisyos/core/registry",
+              "src/polisyos/foundry/registry",
+              "src/polisyos/ir/registry"
+            ]
+          },
+          {
+            "name": "security",
+            "packages": [
+              "core",
+              "fabric"
+            ],
+            "paths": [
+              "src/polisyos/core/security",
+              "src/polisyos/fabric/security"
+            ]
+          },
+          {
+            "name": "trace",
+            "packages": [
+              "core",
+              "foundry"
+            ],
+            "paths": [
+              "src/polisyos/core/trace",
+              "src/polisyos/foundry/trace"
+            ]
+          },
+          {
+            "name": "validation",
+            "packages": [
+              "foundry",
+              "scientist"
+            ],
+            "paths": [
+              "src/polisyos/foundry/validation",
+              "src/polisyos/scientist/validation"
+            ]
+          }
+        ]
+      },
+      "owner": "team-architecture",
+      "package": "multiple",
+      "path": "src/polisyos/berl/adapters",
+      "paths": [
+        "src/polisyos/berl/adapters",
+        "src/polisyos/berl/contracts",
+        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/common/config.py",
+        "src/polisyos/common/migrations",
+        "src/polisyos/core/contracts",
+        "src/polisyos/core/discovery",
+        "src/polisyos/core/errors",
+        "src/polisyos/core/governance",
+        "src/polisyos/core/llm",
+        "src/polisyos/core/registry",
+        "src/polisyos/core/security",
+        "src/polisyos/core/trace",
+        "src/polisyos/data_forge/errors.py",
+        "src/polisyos/data_forge/extensions",
+        "src/polisyos/ddm/calibration",
+        "src/polisyos/ddm/contracts",
+        "src/polisyos/fabric/config",
+        "src/polisyos/fabric/connectors",
+        "src/polisyos/fabric/extensions",
+        "src/polisyos/fabric/provenance",
+        "src/polisyos/fabric/security",
+        "src/polisyos/foundry/calibration",
+        "src/polisyos/foundry/contracts",
+        "src/polisyos/foundry/extensions",
+        "src/polisyos/foundry/registry",
+        "src/polisyos/foundry/trace",
+        "src/polisyos/foundry/validation",
+        "src/polisyos/ir/connectors",
+        "src/polisyos/ir/governance",
+        "src/polisyos/ir/migrations",
+        "src/polisyos/ir/registry",
+        "src/polisyos/lex/errors.py",
+        "src/polisyos/lex/extensions",
+        "src/polisyos/lex/provenance.py",
+        "src/polisyos/runtime/extensions",
+        "src/polisyos/scholar/errors.py",
+        "src/polisyos/scholar/provenance.py",
+        "src/polisyos/scientist/adapters",
+        "src/polisyos/scientist/discovery",
+        "src/polisyos/scientist/extensions",
+        "src/polisyos/scientist/governance",
+        "src/polisyos/scientist/llm",
+        "src/polisyos/scientist/provenance",
+        "src/polisyos/scientist/validation"
+      ],
+      "suggested_target": "architecture/name_registry.toml"
+    },
+    {
+      "count": 12,
+      "current_status": "needs_review",
+      "finding_id": "LM-018",
+      "kind": "public_entrypoint_example_gap",
+      "metadata": {
+        "entry_point_count": 22,
+        "entry_point_group": "polisyos.scientist_governance_passes",
+        "paths": [
+          "examples/extensions/scientist_governance_pass/README.md",
+          "examples/extensions/scientist_governance_pass/pyproject.toml",
+          "examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/__init__.py",
+          "examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/governance.py",
+          "examples/extensions/scientist_governance_pass/tests/test_smoke.py",
+          "examples/extensions/scientist_node/README.md",
+          "examples/extensions/scientist_node/pyproject.toml",
+          "examples/extensions/scientist_node/src/polisyos_scientist_node_example/__init__.py",
+          "examples/extensions/scientist_node/src/polisyos_scientist_node_example/components.py",
+          "examples/extensions/scientist_node/src/polisyos_scientist_node_example/node.py",
+          "examples/extensions/scientist_node/tests/test_smoke.py",
+          "pyproject.toml"
+        ],
+        "scientist_example_count": 11
+      },
+      "owner": "team-devx",
+      "package": "examples",
+      "path": "examples/extensions/scientist_governance_pass/README.md",
+      "paths": [
+        "examples/extensions/scientist_governance_pass/README.md",
+        "examples/extensions/scientist_governance_pass/pyproject.toml",
+        "examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/__init__.py",
+        "examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/governance.py",
+        "examples/extensions/scientist_governance_pass/tests/test_smoke.py",
+        "examples/extensions/scientist_node/README.md",
+        "examples/extensions/scientist_node/pyproject.toml",
+        "examples/extensions/scientist_node/src/polisyos_scientist_node_example/__init__.py",
+        "examples/extensions/scientist_node/src/polisyos_scientist_node_example/components.py",
+        "examples/extensions/scientist_node/src/polisyos_scientist_node_example/node.py",
+        "examples/extensions/scientist_node/tests/test_smoke.py",
+        "pyproject.toml"
+      ],
+      "suggested_target": "examples/scientist_governance_passes/"
+    },
+    {
+      "count": 3,
+      "current_status": "observed",
+      "finding_id": "LM-019",
+      "kind": "adr_thematic_index_gap",
+      "owner": "team-docs",
+      "package": "docs",
+      "path": "docs/adr/index.md",
+      "paths": [
+        "docs/adr/index.md",
+        "docs/adr/index.toml",
+        "tools/quality/validation/generate_adr_index.py"
+      ],
+      "suggested_target": "docs/adr/index.md generated from docs/adr/index.toml"
+    },
+    {
+      "count": 1,
+      "current_status": "needs_review",
+      "finding_id": "LM-020",
+      "kind": "operability_bundle_completeness",
+      "owner": "team-ops",
+      "package": "ops",
+      "path": "ops/components/index.toml",
+      "paths": [
+        "ops/components/index.toml"
+      ],
+      "suggested_target": "ops/components/<component>/ complete bundle"
+    },
+    {
+      "count": 2,
+      "current_status": "needs_review",
+      "finding_id": "LM-021",
+      "kind": "validation_tool_budget_gap",
+      "metadata": {
+        "budget_registered": true,
+        "paths": [
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "architecture/module_size_budget.toml"
+        ]
+      },
+      "owner": "team-devx",
+      "package": "tools",
+      "path": "architecture/module_size_budget.toml",
+      "paths": [
+        "architecture/module_size_budget.toml",
+        "tools/quality/validation/repository_last_mile_inventory.py"
+      ],
+      "suggested_target": "architecture/module_size_budget.toml"
+    },
+    {
+      "count": 0,
+      "current_status": "not_observed",
+      "finding_id": "LM-022",
+      "kind": "top_level_schema_python_cache_residue",
+      "owner": "team-architecture",
+      "package": "schemas",
+      "path": "",
+      "paths": [],
+      "suggested_target": "src/polisyos/schemas or generated schema artifacts"
+    },
+    {
+      "count": 39,
+      "current_status": "needs_review",
+      "finding_id": "LM-023",
+      "kind": "test_helper_duplication_surface",
+      "owner": "team-quality",
+      "package": "tests",
+      "path": "tests/_helpers/AUTHORING.md",
+      "paths": [
+        "tests/_helpers/AUTHORING.md",
+        "tests/_helpers/README.md",
+        "tests/_helpers/__init__.py",
+        "tests/_helpers/artifacts.py",
+        "tests/_helpers/c7_synthetic_data.py",
+        "tests/_helpers/causal_scm_fixtures.py",
+        "tests/_helpers/mirror_contracts.py",
+        "tests/_helpers/observability.py",
+        "tests/_helpers/runtime_http.py",
+        "tests/_helpers/scientist_runtime.py",
+        "tests/_helpers/search_strategies.py",
+        "tests/conftest.py",
+        "tests/contract/conftest.py",
+        "tests/property/foundry/methods/conftest.py",
+        "tests/repo_quality/conftest.py",
+        "tests/unit/berl/conftest.py",
+        "tests/unit/calibration/conftest.py",
+        "tests/unit/common/conftest.py",
+        "tests/unit/core/conftest.py",
+        "tests/unit/data_forge/conftest.py",
+        "tests/unit/ddm/conftest.py",
+        "tests/unit/fabric/conftest.py",
+        "tests/unit/fabric/connectors/conftest.py",
+        "tests/unit/foundry/agent_sim/conftest.py",
+        "tests/unit/foundry/calibration/conftest.py",
+        "tests/unit/foundry/conftest.py",
+        "tests/unit/foundry/method_regression/conftest.py",
+        "tests/unit/foundry/methods/conftest.py",
+        "tests/unit/ir/conftest.py",
+        "tests/unit/lex/conftest.py",
+        "tests/unit/runtime/conftest.py",
+        "tests/unit/runtime/http/conftest.py",
+        "tests/unit/scholar/conftest.py",
+        "tests/unit/scientist/conftest.py",
+        "tests/unit/scientist/governance/conftest.py",
+        "tests/unit/scientist/nodes/conftest.py",
+        "tests/unit/scientist/orchestration/kernel/conftest.py",
+        "tests/unit/scientist/search/conftest.py",
+        "tests/unit/scientist/search/strategies/conftest.py"
+      ],
+      "suggested_target": "tests/_helpers contract and layer-local conftest policy"
+    },
+    {
+      "count": 3,
+      "current_status": "needs_review",
+      "finding_id": "LM-024",
+      "kind": "shim_sunset_caller_report_gap",
+      "owner": "team-architecture",
+      "package": "compatibility-shims",
+      "path": "architecture/tests/ratchets.toml",
+      "paths": [
+        "architecture/tests/ratchets.toml",
+        "src/polisyos/ddm_15_7",
+        "src/polisyos/synthetic_world"
+      ],
+      "suggested_target": "caller report for each sunset shim",
+      "sunset": {
+        "metadata_present": true,
+        "rows": [
+          {
+            "metadata_present": true,
+            "path": "src/polisyos/ddm_15_7",
+            "source": "src/polisyos/ddm_15_7/README.md",
+            "sunset_date": "2026-07-31"
+          },
+          {
+            "metadata_present": true,
+            "path": "src/polisyos/synthetic_world",
+            "source": "src/polisyos/synthetic_world/README.md",
+            "sunset_date": "2026-07-31"
+          }
+        ],
+        "source": null,
+        "sunset_date": "2026-07-31"
+      }
+    },
+    {
+      "count": 48,
+      "current_status": "needs_review",
+      "finding_id": "LM-025",
+      "kind": "stale_frontend_path_reference",
+      "owner": "team-frontend",
+      "package": "frontend",
+      "path": "apps/runtime-dashboard/src/app/README.md",
+      "paths": [
+        "apps/runtime-dashboard/src/app/README.md",
+        "apps/runtime-dashboard/src/features/README.md",
+        "apps/runtime-dashboard/src/shared/ui/README.md",
+        "apps/runtime-dashboard/src/test/README.md",
+        "architecture/baselines/repository_best_in_class_last_mile/inventory.json",
+        "architecture/generated_artifacts.toml",
+        "architecture/policies/directory_contracts.toml",
+        "architecture/policies/directory_health.toml",
+        "architecture/tooling/mkdocs/generated.yml",
+        "architecture/tooling/mkdocs/nav/30-reference.yml",
+        "docs/adr/0114-schema-registry-and-evolution.md",
+        "docs/adr/0119-frontend-monorepo-workspace.md",
+        "docs/adr/by-topic.md",
+        "docs/adr/index.md",
+        "docs/archive/reports/REPOSITORY_BEST_IN_CLASS_PHASE_0_3_ARCHITECTURE_CONTRACT_INVENTORY.md",
+        "docs/archive/reports/REPOSITORY_BEST_IN_CLASS_PHASE_0_7_DECISION_BRIEF.md",
+        "docs/archive/reports/REPOSITORY_SOTA_PHASE_MINUS_1_INVENTORY.md",
+        "docs/how-to/install.md",
+        "docs/how-to/operate-ci-cd-platform.md",
+        "docs/how-to/post-refactor-migration.md",
+        "docs/how-to/release-policy.md",
+        "docs/plans/accepted/REPOSITORY_SOTA_PHASE_4_GENERATED_FRONTEND_DATA_OPS.md",
+        "docs/plans/accepted/REPOSITORY_SOTA_PLAN.md",
+        "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md",
+        "docs/plans/active/DOCUMENTATION_SOTA_PLAN.md",
+        "docs/plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md",
+        "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md",
+        "docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md",
+        "docs/plans/archive/2026-05-07-repository-best-in-class-last-mile-closeout.md",
+        "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md",
+        "docs/plans/archive/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md",
+        "docs/plans/archive/REPOSITORY_LINT_AND_FORMAT_PLAN.md",
+        "docs/reference/generated-artifacts.md",
+        "docs/reference/ownership.md",
+        "docs/reference/quality-gates.md",
+        "docs/reference/repository-hygiene.md",
+        "docs/reference/repository-topology.md",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase4_10_directory_docs.py",
+        "tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+        "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "tests/repo_quality/tools/test_docs_lifecycle.py",
+        "tests/repo_quality/tools/test_phase4_consolidation.py",
+        "tests/repo_quality/tools/test_repository_last_mile_inventory.py",
+        "tools/devx/workspace/bootstrap.py",
+        "tools/quality/validation/check_docs_gate.py",
+        "tools/quality/validation/check_docs_lifecycle.py",
+        "tools/quality/validation/directory_health.py",
+        "tools/quality/validation/repository_last_mile_inventory.py"
+      ],
+      "suggested_target": "apps/ and packages/ references"
+    },
+    {
+      "count": 2,
+      "current_status": "needs_review",
+      "finding_id": "LM-026",
+      "kind": "architecture_taxonomy_closure",
+      "owner": "team-architecture",
+      "package": "architecture",
+      "path": "architecture/conceptual_groups.toml",
+      "paths": [
+        "architecture/conceptual_groups.toml",
+        "architecture/wave6_gate_green_runs.toml"
+      ],
+      "suggested_target": "architecture/conceptual_groups.toml and concern taxonomy closure"
+    }
+  ],
+  "generated_at": "2026-05-07T00:00:00Z",
+  "last_reviewed": "2026-05-07",
+  "mode": "read_only_inventory",
+  "name_collisions": {
+    "allowed_decisions": [
+      "canonical_home_with_adapters",
+      "merge",
+      "rename",
+      "scoped_ok",
+      "sunset_shim"
+    ],
+    "findings": [],
+    "registry": "architecture/name_registry.toml",
+    "repeated_first_level_names": [
+      {
+        "decision": "canonical_home_with_adapters",
+        "name": "_adapters",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/_adapters"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/_adapters"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Private adapter capsules are allowed only as package-qualified bridges into canonical cross-cutting homes.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "_internal",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/_internal"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/_internal"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/_internal"
+            ],
+            "package": "ir"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/_internal"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Private implementation capsules are intentionally repeated across bounded contexts and must remain package-qualified.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "adapters",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/berl/adapters"
+            ],
+            "package": "berl"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/adapters"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Adapter packages are package-owned integration seams and do not define a repository-wide adapter API.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "artifacts",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/artifacts"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/artifacts"
+            ],
+            "package": "ir"
+          }
+        ],
+        "rationale": "Core artifact primitives and IR artifact projections are separate bounded-context concepts.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "canonical_home_with_adapters",
+        "name": "calibration",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/calibration"
+            ],
+            "package": "calibration"
+          },
+          {
+            "locations": [
+              "src/polisyos/ddm/calibration"
+            ],
+            "package": "ddm"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/calibration"
+            ],
+            "package": "foundry"
+          }
+        ],
+        "rationale": "polisyos.calibration is the canonical diagnostics home; DDM and Foundry calibration packages remain bounded-context adapters.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "claims",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/claims"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/claims"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Fabric claim processing and Scientist claim reasoning are package-local concerns.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "connectors",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/connectors"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/connectors"
+            ],
+            "package": "ir"
+          }
+        ],
+        "rationale": "Fabric executable connectors and IR connector bridge contracts are package-qualified surfaces.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "contracts",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/berl/contracts"
+            ],
+            "package": "berl"
+          },
+          {
+            "locations": [
+              "src/polisyos/core/contracts"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/ddm/contracts"
+            ],
+            "package": "ddm"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/contracts"
+            ],
+            "package": "foundry"
+          }
+        ],
+        "rationale": "Contracts are owned by each bounded context unless promoted through polisyos.core.contracts.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "data_plane",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/data_plane"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/data_plane"
+            ],
+            "package": "foundry"
+          }
+        ],
+        "rationale": "Fabric and Foundry data-plane names describe separate execution contexts.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "sunset_shim",
+        "name": "discovery",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/discovery"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/discovery"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "polisyos.core.discovery owns plugin discovery; Scientist discovery moves under methods/discovery with the first-level root retained only as a dated shim.",
+        "sunset": "2026-10-01",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "evidence",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/evidence"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/evidence"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Fabric evidence materialization and Scientist evidence reasoning remain package-local concepts.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "extensions",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/data_forge/extensions"
+            ],
+            "package": "data_forge"
+          },
+          {
+            "locations": [
+              "src/polisyos/fabric/extensions"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/extensions"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/lex/extensions"
+            ],
+            "package": "lex"
+          },
+          {
+            "locations": [
+              "src/polisyos/runtime/extensions"
+            ],
+            "package": "runtime"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/extensions"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Extension packages are package-owned authoring surfaces governed by architecture/extension_points.toml.",
+        "sunset": "none",
+        "target_phase": "0.4/1.6"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "feedback",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/foundry/feedback"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/feedback"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Foundry execution feedback and Scientist decision feedback are separate bounded-context workflows.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "governance",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/governance"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/governance"
+            ],
+            "package": "ir"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/governance"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Core, IR, and Scientist governance roots are package-qualified, with Scientist legacy governance peers handled by the Wave 2 family audit.",
+        "sunset": "none",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "kernel",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/data_forge/kernel"
+            ],
+            "package": "data_forge"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/kernel"
+            ],
+            "package": "ir"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/kernel"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Kernel packages are package-specific runtime kernels and are not cross-package APIs.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "llm",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/llm"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/llm"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Core LLM infrastructure and Scientist LLM orchestration stay package-qualified.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "methods",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/foundry/methods"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/methods"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Foundry method catalog and Scientist method taxonomy are distinct; Scientist legacy method peers are handled by the Wave 2 family audit.",
+        "sunset": "none",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "migrations",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/common/migrations"
+            ],
+            "package": "common"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/migrations"
+            ],
+            "package": "ir"
+          }
+        ],
+        "rationale": "Common and IR migration helpers are package-local.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "sunset_shim",
+        "name": "orchestrator",
+        "owner": "team-scientist",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/scholar/orchestrator"
+            ],
+            "package": "scholar"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/orchestrator"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Scholar orchestrator remains package-local; Scientist first-level orchestrator moves under orchestration/orchestrator with a dated shim if imports require it.",
+        "sunset": "2026-10-01",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "provenance",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/provenance"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/provenance"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Fabric and Scientist provenance packages track separate bounded-context artifacts.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "canonical_home_with_adapters",
+        "name": "registry",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/registry"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/registry"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/registry"
+            ],
+            "package": "ir"
+          }
+        ],
+        "rationale": "polisyos.core.registry owns generic registry primitives; Fabric, Foundry, and IR registries are domain adapters or semantic contract groups.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
+        "decision": "sunset_shim",
+        "name": "runtime",
+        "owner": "team-runtime",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/foundry/runtime"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/runtime"
+            ],
+            "package": "runtime"
+          }
+        ],
+        "rationale": "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in.",
+        "sunset": "2026-10-01",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "schemas",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/ir/schemas"
+            ],
+            "package": "ir"
+          },
+          {
+            "locations": [
+              "src/polisyos/schemas"
+            ],
+            "package": "schemas"
+          }
+        ],
+        "rationale": "Top-level schema wrappers and IR schema helpers are separate schema/data concerns.",
+        "sunset": "none",
+        "target_phase": "0.4/6.4"
+      },
+      {
+        "decision": "sunset_shim",
+        "name": "search",
+        "owner": "team-scientist",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/scholar/search"
+            ],
+            "package": "scholar"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/search"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Scholar search remains package-local; Scientist first-level search moves under methods/search with a dated shim if imports require it.",
+        "sunset": "2026-10-01",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "canonical_home_with_adapters",
+        "name": "security",
+        "owner": "team-core",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/security"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/fabric/security"
+            ],
+            "package": "fabric"
+          }
+        ],
+        "rationale": "polisyos.core.security is canonical; package security modules adapt local resources to core security primitives.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
+        "decision": "canonical_home_with_adapters",
+        "name": "trace",
+        "owner": "team-core",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/core/trace"
+            ],
+            "package": "core"
+          },
+          {
+            "locations": [
+              "src/polisyos/foundry/trace"
+            ],
+            "package": "foundry"
+          }
+        ],
+        "rationale": "polisyos.core.trace is canonical for persisted traces; Foundry trace remains a bounded-context adapter/facade.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "validation",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/foundry/validation"
+            ],
+            "package": "foundry"
+          },
+          {
+            "locations": [
+              "src/polisyos/scientist/validation"
+            ],
+            "package": "scientist"
+          }
+        ],
+        "rationale": "Foundry and Scientist validation are separate package concepts; Scientist verification and policy_verified are Wave 2 subpackage moves.",
+        "sunset": "none",
+        "target_phase": "0.4/2.2"
+      },
+      {
+        "decision": "scoped_ok",
+        "name": "world",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/world"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/ir/world"
+            ],
+            "package": "ir"
+          }
+        ],
+        "rationale": "Fabric and IR world packages describe different bounded-context world models.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      }
+    ],
+    "schema_version": "repository.last_mile_inventory.phase0_4.name_collisions.v1",
+    "scope": "src/polisyos first-level package directories plus top-level package roots"
+  },
+  "phase": "0.1",
+  "plan": "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md",
+  "schema_version": "repository.last_mile_inventory.v1",
+  "scientist_parallel_implementations": {
+    "families": [
+      {
+        "action": "wave2_merge",
+        "canonical_home": "polisyos.scientist.orchestration",
+        "current_locations": [
+          "src/polisyos/scientist/workflows",
+          "src/polisyos/scientist/orchestration",
+          "src/polisyos/scientist/orchestration/workflows",
+          "src/polisyos/scientist/orchestrator",
+          "src/polisyos/scientist/orchestration/orchestrator",
+          "src/polisyos/scientist/research_dag",
+          "src/polisyos/scientist/methods/workflows",
+          "src/polisyos/scientist/methods/research_dag"
+        ],
+        "family_id": "workflows_orchestration_orchestrator_research_dag",
+        "label": "Scientist workflow/orchestration/orchestrator/research DAG roots",
+        "rationale": "Wave 2 keeps orchestration as the active implementation boundary, merges workflow builders below orchestration/workflows, and keeps old workflow/orchestrator/research_dag roots only as smoke-tested shims if import evidence requires it.",
+        "wave": "2"
+      },
+      {
+        "action": "wave2_move",
+        "canonical_home": "polisyos.scientist.methods",
+        "current_locations": [
+          "src/polisyos/scientist/methods",
+          "src/polisyos/scientist/methods/search",
+          "src/polisyos/scientist/methods/discovery",
+          "src/polisyos/scientist/methods/research_dag",
+          "src/polisyos/scientist/search",
+          "src/polisyos/scientist/discovery",
+          "src/polisyos/scientist/research_dag",
+          "src/polisyos/scientist/causal",
+          "src/polisyos/scientist/methods/causal",
+          "src/polisyos/scientist/autotune",
+          "src/polisyos/scientist/methods/autotune",
+          "src/polisyos/scientist/backtesting",
+          "src/polisyos/scientist/methods/backtesting",
+          "src/polisyos/scientist/doe",
+          "src/polisyos/scientist/methods/doe"
+        ],
+        "family_id": "methods_legacy_search_discovery_research_roots",
+        "label": "Scientist methods versus legacy search/discovery/research roots",
+        "rationale": "Wave 2 moves active search, discovery, research DAG, causal, autotune, backtesting, and DOE implementations below methods; first-level roots become registered shims only where import evidence requires them.",
+        "wave": "2"
+      },
+      {
+        "action": "explicit_non_overlap",
+        "canonical_home": "architecture/extension_points.toml plus package-local extension modules",
+        "current_locations": [
+          "src/polisyos/scientist/extensions",
+          "src/polisyos/data_forge/extensions",
+          "src/polisyos/fabric/extensions",
+          "src/polisyos/foundry/extensions",
+          "src/polisyos/lex/extensions",
+          "src/polisyos/runtime/extensions",
+          "src/polisyos/scientist/engine/registry.py",
+          "src/polisyos/scientist/agent/tools/registry.py",
+          "architecture/extension_points.toml"
+        ],
+        "family_id": "extensions_package_registries",
+        "label": "Scientist extensions versus repository extension registries",
+        "rationale": "Extension packages are package-scoped authoring surfaces, while architecture/extension_points.toml owns cross-package entry-point policy; Scientist registry modules remain local implementation registries unless promoted by a later ABI decision.",
+        "wave": "2"
+      },
+      {
+        "action": "wave2_shim",
+        "canonical_home": "polisyos.scientist.governance and polisyos.scientist.validation",
+        "current_locations": [
+          "src/polisyos/scientist/governance",
+          "src/polisyos/scientist/governance/continuous",
+          "src/polisyos/scientist/governance/human_review",
+          "src/polisyos/scientist/continuous_governance",
+          "src/polisyos/scientist/human_review",
+          "src/polisyos/scientist/validation",
+          "src/polisyos/scientist/verification",
+          "src/polisyos/scientist/validation/verification",
+          "src/polisyos/scientist/policy_verified",
+          "src/polisyos/scientist/validation/policy_verified"
+        ],
+        "family_id": "governance_validation_verification_policy_verified",
+        "label": "Scientist governance, validation, verification, and policy-verified roots",
+        "rationale": "Wave 2 moves continuous governance and human review below governance, moves verification and policy_verified below validation, and leaves current first-level roots as dated compatibility shims only where import evidence requires them.",
+        "wave": "2"
+      }
+    ],
+    "findings": [],
+    "schema_version": "repository.last_mile_inventory.phase0_4.scientist_parallel_implementations.v1",
+    "scope": "Scientist old/new implementation families scheduled for Wave 2 closeout"
+  },
+  "summary": {
+    "finding_count": 26,
+    "needs_review_count": 8,
+    "not_observed_count": 4,
+    "observed_count": 14,
+    "path_count": 298
+  }
+}

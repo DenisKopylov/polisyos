@@ -174,8 +174,8 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_fresh_rotating_challenge_evidence,
         )
         from polisyos.scientist.evals.sentinels import SentinelChallengeCase, SentinelChallengeKind
-        from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry
-        from polisyos.scientist.search.failure_cards import FailureSeverity, TypedFailureCard
+        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+        from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_5_import_failed:{exc.__class__.__name__}:{exc}"]
 

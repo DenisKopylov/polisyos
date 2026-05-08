@@ -1,14 +1,14 @@
 # Public Surface Snapshots
 
 This directory stores generated public-surface inventories grouped by package.
-`architecture/public_surface.toml` defines the policy; generated JSON files
+`architecture/public_surface/contract.toml` defines the policy; generated JSON files
 capture exported names and signatures for drift checks.
 
 Data Forge must be included from its first implementation phase.
 
 ## Snapshot Rules
 
-1. Policy lives in `architecture/public_surface.toml`.
+1. Policy lives in `architecture/public_surface/contract.toml`.
 2. Generated inventories live in this directory and should be refreshed by a
    future command such as:
 

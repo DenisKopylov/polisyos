@@ -9,8 +9,8 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.references import BacktestReportRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import BacktestReportRef
 
 
 class BiasDirection(str, Enum):

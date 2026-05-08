@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
@@ -35,6 +36,8 @@ SOURCE_ADJACENT_ROOTS = (
 )
 SKIP_DIR_NAMES = {".git", ".hg", ".venv", ".venv_codex", "node_modules", ".next", ".turbo"}
 AMBIGUOUS_FIXTURE_DIR_NAMES = {"cache", "errors", "raw"}
+PHASE_LOCAL_JUNK_PATTERN = "phase*-local-junk-*"
+PHASE_LOCAL_JUNK_KIND = "phase_local_junk_residue"
 
 
 @dataclass(frozen=True)
@@ -66,6 +69,9 @@ def build_cleanup_plan(
     candidates.extend(_stale_children(repo_root / ".polisyos" / "reports", cutoff, "local_report"))
     candidates.extend(_stale_children(repo_root / "benchmarks" / "_reports", cutoff, "benchmark_report"))
     candidates.extend(_stale_build_audit_children(repo_root / "_build", cutoff))
+    phase_junk_candidates, phase_junk_manual = _phase_local_junk_roots(repo_root)
+    candidates.extend(phase_junk_candidates)
+    manual.extend(phase_junk_manual)
 
     audit_candidates = _stale_children(
         repo_root / ".polisyos" / "audits",
@@ -222,6 +228,53 @@ def _stale_build_audit_children(root: Path, cutoff: float) -> list[CleanupCandid
             if _older_than(child, cutoff):
                 candidates.append(CleanupCandidate(child, "build_audit", "stale build audit output"))
     return candidates
+
+
+def _phase_local_junk_roots(
+    repo_root: Path,
+) -> tuple[list[CleanupCandidate], list[CleanupCandidate]]:
+    build_root = repo_root / "_build"
+    if not build_root.exists():
+        return [], []
+    candidates: list[CleanupCandidate] = []
+    manual: list[CleanupCandidate] = []
+    phase_junk_roots = (
+        path for path in build_root.glob(PHASE_LOCAL_JUNK_PATTERN) if path.is_dir()
+    )
+    for child in sorted(phase_junk_roots):
+        if _contains_tracked_file(repo_root, child):
+            manual.append(
+                CleanupCandidate(
+                    child,
+                    PHASE_LOCAL_JUNK_KIND,
+                    "phase-local-junk root contains tracked evidence; review before cleanup",
+                    owner_approval_required=True,
+                )
+            )
+            continue
+        candidates.append(
+            CleanupCandidate(
+                child,
+                PHASE_LOCAL_JUNK_KIND,
+                "ignored phase-local-junk build residue",
+            )
+        )
+    return candidates, manual
+
+
+def _contains_tracked_file(repo_root: Path, path: Path) -> bool:
+    relative = _rel(path, repo_root)
+    try:
+        completed = subprocess.run(  # noqa: S603
+            ["git", "ls-files", "--", relative],  # noqa: S607
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
+    return any(line.strip() for line in completed.stdout.splitlines())
 
 
 def _source_adjacent_residue(repo_root: Path) -> list[CleanupCandidate]:

@@ -89,7 +89,7 @@ def build_report(
     *,
     mypy_config: str | None = None,
     ruff_config: str | None = None,
-    metadata_config: str = "architecture/static_analysis_overrides.toml",
+    metadata_config: str = "architecture/tooling/static_analysis_overrides.toml",
 ) -> dict[str, Any]:
     """Build a Phase 3.6 dead-override report.
 
@@ -552,20 +552,20 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--mypy-config",
         help=(
-            "Mypy config to scan. Defaults to architecture/static_analysis_overrides.toml "
+            "Mypy config to scan. Defaults to architecture/tooling/static_analysis_overrides.toml "
             "tool_config_split.mypy_config, then baselines.mypy_config, then mypy.ini."
         ),
     )
     parser.add_argument(
         "--ruff-config",
         help=(
-            "Ruff config to scan. Defaults to architecture/static_analysis_overrides.toml "
+            "Ruff config to scan. Defaults to architecture/tooling/static_analysis_overrides.toml "
             "tool_config_split.ruff_config, then baselines.ruff_config, then ruff.toml."
         ),
     )
     parser.add_argument(
         "--metadata-config",
-        default="architecture/static_analysis_overrides.toml",
+        default="architecture/tooling/static_analysis_overrides.toml",
         help="TOML file with [[override_scope]] owner/lifecycle metadata.",
     )
     parser.add_argument("--json-output", type=Path)

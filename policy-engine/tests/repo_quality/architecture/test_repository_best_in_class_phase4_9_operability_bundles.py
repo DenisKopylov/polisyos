@@ -120,7 +120,7 @@ def _path_exists(path: str) -> bool:
 
 
 def _public_stable_components() -> set[str]:
-    surface = _read_toml("architecture/public_surface.toml")
+    surface = _read_toml("architecture/public_surface/contract.toml")
     components: set[str] = set()
     for package in surface["package"]:
         if package["classification"] == "public_stable":

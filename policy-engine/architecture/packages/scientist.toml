@@ -8,12 +8,12 @@ gate_mode = "report_only"
 primary_contract = true
 description = "Workflow orchestration, Scientist methods, governance, validation, replay, and decision-grade policy production."
 legacy_aggregate_mirrors = [
-  "architecture/package_boundaries.toml",
-  "architecture/package_layout.toml",
-  "architecture/public_surface.toml",
-  "architecture/import_contracts.toml",
+  "architecture/packages/boundaries.toml",
+  "architecture/packages/layout.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
   "architecture/generated_artifacts.toml",
-  "architecture/test_topology.toml",
+  "architecture/tests/topology.toml",
 ]
 
 [layout]
@@ -21,9 +21,10 @@ status = "resolved_root_facade"
 layout_owner = "team-scientist"
 source_root = "src/polisyos/scientist"
 readme = "src/polisyos/scientist/README.md"
-root_facade_policy = "root package remains a public facade; orchestration, methods, governance, and validation implementation lives under explicit hubs; old first-level search/discovery/research_dag and governance-adjacent packages are compatibility shims only"
+root_facade_policy = "root package remains a public facade; resolved_root_facade permits only __init__.py, api.py, _api.py, and registered python_reexport shims; implementation lives in semantic subpackages or _internal"
 canonical_first_level_root_cap = 18
 canonical_first_level_roots = [
+  "src/polisyos/scientist/_adapters",
   "src/polisyos/scientist/_internal",
   "src/polisyos/scientist/adapters",
   "src/polisyos/scientist/agent",
@@ -38,7 +39,6 @@ canonical_first_level_roots = [
   "src/polisyos/scientist/nodes",
   "src/polisyos/scientist/orchestration",
   "src/polisyos/scientist/policy_design",
-  "src/polisyos/scientist/provenance",
   "src/polisyos/scientist/publishing",
   "src/polisyos/scientist/replay",
   "src/polisyos/scientist/validation",
@@ -79,6 +79,7 @@ validation_roots = [
 ]
 compatibility_shim_roots = [
   "src/polisyos/scientist/claims",
+  "src/polisyos/scientist/provenance",
   "src/polisyos/scientist/autotune",
   "src/polisyos/scientist/backtesting",
   "src/polisyos/scientist/causal",
@@ -98,20 +99,49 @@ compatibility_shim_roots = [
   "src/polisyos/scientist/human_review",
   "src/polisyos/scientist/policy_verified",
   "src/polisyos/scientist/verification",
-  "src/polisyos/scientist/decision_validity.py",
-  "src/polisyos/scientist/error_semantics.py",
-  "src/polisyos/scientist/evidence_sources.py",
-  "src/polisyos/scientist/feedback_utils.py",
-  "src/polisyos/scientist/frontier_runtime.py",
-  "src/polisyos/scientist/latent_separation.py",
-  "src/polisyos/scientist/llm_cycle.py",
-  "src/polisyos/scientist/publisher.py",
-  "src/polisyos/scientist/reliability_scorecard.py",
-  "src/polisyos/scientist/remediation_status.py",
-  "src/polisyos/scientist/replay_backend.py",
 ]
-legacy_layout_mirror = "architecture/package_layout.toml"
+phase2_2_semantic_duplicate_root_status = "resolved_with_sunset_shims"
+phase2_2_closeout_registry = "architecture/name_registry.toml#phase2_2_scientist_parallel_closeout"
+phase2_2_shim_registry = "architecture/shims.toml"
+phase2_2_smoke_test = "tests/unit/scientist/methods/test_import_shims.py"
+phase2_2_active_root_rule = "claims, provenance, orchestrator, workflows, search, discovery, research_dag, continuous_governance, human_review, policy_verified, and verification are compatibility roots only; active implementation stays under evidence, orchestration, methods, governance, and validation."
+legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
+
+[[duplicate_package_file_pair]]
+package_path = "src/polisyos/scientist/publishing"
+file_path = "src/polisyos/scientist/publisher.py"
+owner = "team-scientist"
+wave = "2.2"
+reason = "Wave 2.2 resolves the publishing package and publisher.py compatibility pair."
+
+[[duplicate_package_file_pair]]
+package_path = "src/polisyos/scientist/evidence"
+file_path = "src/polisyos/scientist/evidence_sources.py"
+owner = "team-scientist"
+wave = "2.2"
+reason = "Wave 2.2 resolves the evidence package and evidence_sources.py compatibility pair."
+
+[[duplicate_package_file_pair]]
+package_path = "src/polisyos/scientist/feedback"
+file_path = "src/polisyos/scientist/feedback_utils.py"
+owner = "team-scientist"
+wave = "2.2"
+reason = "Wave 2.2 resolves the feedback package and feedback_utils.py compatibility pair."
+
+[[duplicate_package_file_pair]]
+package_path = "src/polisyos/scientist/replay"
+file_path = "src/polisyos/scientist/replay_backend.py"
+owner = "team-scientist"
+wave = "2.2"
+reason = "Wave 2.2 resolves the replay package and replay_backend.py compatibility pair."
+
+[[duplicate_package_file_pair]]
+package_path = "src/polisyos/scientist/llm"
+file_path = "src/polisyos/scientist/llm_cycle.py"
+owner = "team-scientist"
+wave = "2.2"
+reason = "Wave 2.2 resolves the llm package and llm_cycle.py compatibility pair."
 
 [boundaries]
 public_facade = "polisyos.scientist"
@@ -204,7 +234,7 @@ owner = "team-scientist"
 [exceptions]
 status = "declared"
 owner = "team-scientist"
-registries = ["architecture/module_size_budget.toml", "architecture/static_analysis_overrides.toml"]
+registries = ["architecture/module_size_budget.toml", "architecture/tooling/static_analysis_overrides.toml"]
 
 [[exception]]
 id = "scientist-module-size-ratchet"
@@ -222,7 +252,7 @@ kind = "mypy_ruff_ratchet"
 reason = "Phase 5A records current Scientist mypy debt by module and keeps new checks report-only in Phase 1.3."
 sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/static_analysis_overrides.toml"
+registry = "architecture/tooling/static_analysis_overrides.toml"
 
 [sunsets]
 status = "declared"

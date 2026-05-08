@@ -4,7 +4,7 @@ status = "contract_only"
 owner = "team-architecture"
 phase = "repository-best-in-class-phase-1.5"
 source_plan = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-15---extension-abi-dynamic-import-and-versioning-contracts"
-dynamic_import_registry = "architecture/dynamic_imports.toml"
+dynamic_import_registry = "architecture/imports/dynamic.toml"
 versioning_policy = "docs/adr/repository-structure-0135-versioning-out-of-package-names.md"
 parallel_safety = "Physical registry consolidation and registry rewrites wait for Wave 5 integration."
 
@@ -20,7 +20,7 @@ example_verifier = "installable-example-smoke"
 
 [dynamic_import_policy]
 plugin_discovery_rule = "Plugin discovery must use the extension point entry-point group or the extension point builtin_loader."
-ad_hoc_import_rule = "Ad hoc string imports must be registered in architecture/dynamic_imports.toml."
+ad_hoc_import_rule = "Ad hoc string imports must be registered in architecture/imports/dynamic.toml."
 required_registry_fields = ["owner", "target", "verifier"]
 target_field = "Use target for extension-point loader targets and allowed_targets for concrete import targets."
 verifier_field = "Use verifier to name the gate, smoke test, or owner review that proves the target remains intentional."
@@ -30,7 +30,7 @@ id = "python_public_api"
 label = "Python public API"
 version_owner = "team-architecture"
 deprecation_window = "2 minor releases"
-source_of_truth = "architecture/public_surface.toml and package facade modules"
+source_of_truth = "architecture/public_surface/contract.toml and package facade modules"
 breaking_change_signal = "SemVer major or explicit shim/deprecation entry"
 release_fragment_change_class = "python-public-api"
 
@@ -151,7 +151,7 @@ builtin_loader_verifier = "uv run pytest tests/unit/scientist tests/integration/
 dynamic_import_target = "entry-point group polisyos.scientist_governance_passes or builtin loader polisyos.scientist.governance.pass_entrypoints:builtin_governance_pass_factories"
 dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 example_package = "examples/extensions/scientist_governance_pass"
-example_smoke_command = "python -m pip install -e examples/extensions/scientist_governance_pass && python -m polisyos.scientist.governance.pass_registry"
+example_smoke_command = "python -m pip install -e examples/extensions/scientist_governance_pass && python -m pytest examples/extensions/scientist_governance_pass/tests -q"
 example_expectations = [
   "declares exactly one polisyos.scientist_governance_passes entry point",
   "factory returns a ValidatorPass-compatible object",

@@ -53,14 +53,14 @@ old Lex offline compatibility packages. Release and rollback notes live under
   [`docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`](/Users/deniskopylov/polisyos/policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md)
 
 - Review the stable import contract in
-  [`architecture/public_surface.toml`](/Users/deniskopylov/polisyos/policy-engine/architecture/public_surface.toml)
+  [`architecture/public_surface/contract.toml`](/Users/deniskopylov/polisyos/policy-engine/architecture/public_surface/contract.toml)
 
 - Start runtime-safe consumption from `polisyos.data_forge.read_api`
 
 ## Source Of Truth
 
 - Architecture contract:
-  [`architecture/public_surface.toml`](/Users/deniskopylov/polisyos/policy-engine/architecture/public_surface.toml)
+  [`architecture/public_surface/contract.toml`](/Users/deniskopylov/polisyos/policy-engine/architecture/public_surface/contract.toml)
 
 - Active implementation plan:
   [`docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`](/Users/deniskopylov/polisyos/policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md)

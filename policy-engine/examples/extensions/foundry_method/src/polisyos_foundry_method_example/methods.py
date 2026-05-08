@@ -50,7 +50,15 @@ class WeightedAverageMethod:
     )
     metadata = MethodMetadata(
         description="Deterministic weighted-average example method.",
-        tags=frozenset({"example", "summary"}),
+        tags=frozenset({"example", "summary", "tabular", "estimation"}),
+        when_to_use=(
+            "Use for deterministic tabular summaries when values and non-zero weights are "
+            "already aligned one-to-one."
+        ),
+        output_interpretation=(
+            "mean is the weighted arithmetic average, so larger weights increase the "
+            "contribution of their paired values."
+        ),
     )
 
     @staticmethod

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.governance.schedule import schedule_range
 from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 
@@ -21,7 +21,7 @@ from ._trinity_params import _validate_params
 from .reports import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
 
 if TYPE_CHECKING:
-    from polisyos.ir.registry_fragments import RegistryBundle
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
     from polisyos.ir.trinity import TrinityBundle
 
 

@@ -24,7 +24,7 @@ collides with populated `foundry/methods/catalog/{domain}/` packages.
 
 1. Ban empty namespace placeholders when a populated descendant or sibling owns
    the same semantic name.
-2. Record the rule in `architecture/package_layout.toml`.
+2. Record the rule in `architecture/packages/layout.toml`.
 3. Enforce through `empty_namespace_gate`, report-only in Phase 0 and
    fail-closed after Phase 1A.
 
@@ -35,7 +35,7 @@ directories are either removed or converted into time-boxed migration shims.
 
 ## Concrete Impact
 
-- Contract: `architecture/package_layout.toml`.
+- Contract: `architecture/packages/layout.toml`.
 - Gate: `tools/quality/validation/repository_structure_phase0.py`.
 - Baseline: `architecture/baselines/structure_remediation/foundry_methods_empty_placeholders.json`.
 - Owner: `team-architecture`.

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.canon import CanonSpec, from_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes
 
 from .contracts import (
     ArtifactID,

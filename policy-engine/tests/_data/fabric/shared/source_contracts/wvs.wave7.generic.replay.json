@@ -14,8 +14,8 @@
     }
   ],
   "profile_id": "wvs_wave7",
-  "replay_checksum": "sha256:dc17eff5aaa80d528ffebd96c8a9c56977a832515a64528c29c2ef7a73608431",
-  "schema_checksum": "sha256:d15d79992764e378d151d47331ddb12449d03f936a1deb3c9754a6fb4b370f22",
+  "replay_checksum": "sha256:8c302273aa4b147e05e00a64fa1dbec2b72f11ca10cba739743c98703bd734d7",
+  "schema_checksum": "sha256:dfb73b6b4ca398e1d4be8beb2f12a9b7833b4eec13c46f83d3322db8c58efafb",
   "schema_version": "fabric.source_replay_fixture.v1",
   "source_contract_id": "wvs.wave7.generic",
   "transcript": {

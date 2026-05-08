@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 __all__ = [
     "ResolutionError",
     "ResolutionPolicy",
+    "SemVer",
     "VersionConstraint",
     "compare_versions",
     "find_compatible_versions",

@@ -1,0 +1,89 @@
+{
+  "families": [
+    {
+      "action": "wave2_merge",
+      "canonical_home": "polisyos.scientist.orchestration",
+      "current_locations": [
+        "src/polisyos/scientist/workflows",
+        "src/polisyos/scientist/orchestration",
+        "src/polisyos/scientist/orchestration/workflows",
+        "src/polisyos/scientist/orchestrator",
+        "src/polisyos/scientist/orchestration/orchestrator",
+        "src/polisyos/scientist/research_dag",
+        "src/polisyos/scientist/methods/workflows",
+        "src/polisyos/scientist/methods/research_dag"
+      ],
+      "family_id": "workflows_orchestration_orchestrator_research_dag",
+      "label": "Scientist workflow/orchestration/orchestrator/research DAG roots",
+      "rationale": "Wave 2 keeps orchestration as the active implementation boundary, merges workflow builders below orchestration/workflows, and keeps old workflow/orchestrator/research_dag roots only as smoke-tested shims if import evidence requires it.",
+      "wave": "2"
+    },
+    {
+      "action": "wave2_move",
+      "canonical_home": "polisyos.scientist.methods",
+      "current_locations": [
+        "src/polisyos/scientist/methods",
+        "src/polisyos/scientist/methods/search",
+        "src/polisyos/scientist/methods/discovery",
+        "src/polisyos/scientist/methods/research_dag",
+        "src/polisyos/scientist/search",
+        "src/polisyos/scientist/discovery",
+        "src/polisyos/scientist/research_dag",
+        "src/polisyos/scientist/causal",
+        "src/polisyos/scientist/methods/causal",
+        "src/polisyos/scientist/autotune",
+        "src/polisyos/scientist/methods/autotune",
+        "src/polisyos/scientist/backtesting",
+        "src/polisyos/scientist/methods/backtesting",
+        "src/polisyos/scientist/doe",
+        "src/polisyos/scientist/methods/doe"
+      ],
+      "family_id": "methods_legacy_search_discovery_research_roots",
+      "label": "Scientist methods versus legacy search/discovery/research roots",
+      "rationale": "Wave 2 moves active search, discovery, research DAG, causal, autotune, backtesting, and DOE implementations below methods; first-level roots become registered shims only where import evidence requires them.",
+      "wave": "2"
+    },
+    {
+      "action": "explicit_non_overlap",
+      "canonical_home": "architecture/extension_points.toml plus package-local extension modules",
+      "current_locations": [
+        "src/polisyos/scientist/extensions",
+        "src/polisyos/data_forge/extensions",
+        "src/polisyos/fabric/extensions",
+        "src/polisyos/foundry/extensions",
+        "src/polisyos/lex/extensions",
+        "src/polisyos/runtime/extensions",
+        "src/polisyos/scientist/engine/registry.py",
+        "src/polisyos/scientist/agent/tools/registry.py",
+        "architecture/extension_points.toml"
+      ],
+      "family_id": "extensions_package_registries",
+      "label": "Scientist extensions versus repository extension registries",
+      "rationale": "Extension packages are package-scoped authoring surfaces, while architecture/extension_points.toml owns cross-package entry-point policy; Scientist registry modules remain local implementation registries unless promoted by a later ABI decision.",
+      "wave": "2"
+    },
+    {
+      "action": "wave2_shim",
+      "canonical_home": "polisyos.scientist.governance and polisyos.scientist.validation",
+      "current_locations": [
+        "src/polisyos/scientist/governance",
+        "src/polisyos/scientist/governance/continuous",
+        "src/polisyos/scientist/governance/human_review",
+        "src/polisyos/scientist/continuous_governance",
+        "src/polisyos/scientist/human_review",
+        "src/polisyos/scientist/validation",
+        "src/polisyos/scientist/verification",
+        "src/polisyos/scientist/validation/verification",
+        "src/polisyos/scientist/policy_verified",
+        "src/polisyos/scientist/validation/policy_verified"
+      ],
+      "family_id": "governance_validation_verification_policy_verified",
+      "label": "Scientist governance, validation, verification, and policy-verified roots",
+      "rationale": "Wave 2 moves continuous governance and human review below governance, moves verification and policy_verified below validation, and leaves current first-level roots as dated compatibility shims only where import evidence requires them.",
+      "wave": "2"
+    }
+  ],
+  "findings": [],
+  "schema_version": "repository.last_mile_inventory.phase0_4.scientist_parallel_implementations.v1",
+  "scope": "Scientist old/new implementation families scheduled for Wave 2 closeout"
+}

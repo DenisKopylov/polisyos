@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from pydantic import ConfigDict, Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.references import BoundsBundleRef
+from polisyos.ir.registry.refs import BoundsBundleRef
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore
     from polisyos.ir.artifacts.refs import InputRef
-    from polisyos.ir.references import MobilityReportRef
+    from polisyos.ir.registry.refs import MobilityReportRef
 
 
 def _default_artifact_name(schema_version: str) -> str:
@@ -258,8 +258,8 @@ def persist_mobility_report(
     """Persist a mobility report and return its typed ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.canon import CanonSpec
-    from polisyos.ir.references import MobilityReportRef
+    from polisyos.ir.model_layer.canon import CanonSpec
+    from polisyos.ir.registry.refs import MobilityReportRef
 
     ref = put_json_artifact(
         store,

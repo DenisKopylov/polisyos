@@ -2,7 +2,7 @@
 
 Freshness: 2026-05-03
 Owner: `team-platform`
-Source of truth: `architecture/ops_baselines.toml`
+Source of truth: `architecture/baselines/ops.toml`
 
 Phase 5 promotes the non-Python operational baselines to fail-closed repository
 contracts. Remaining exceptions must be owner-approved, time-bounded, and

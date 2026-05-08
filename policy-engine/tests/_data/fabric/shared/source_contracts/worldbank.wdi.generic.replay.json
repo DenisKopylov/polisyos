@@ -14,8 +14,8 @@
     }
   ],
   "profile_id": "worldbank_wdi",
-  "replay_checksum": "sha256:d6d351363402e2dff18fc7b096280553e6fd1a3c352ae146584c5e6e35ba60e0",
-  "schema_checksum": "sha256:5361359ae083181d3a0af6f63ceb663a77988e8b3e37aa04211aa80915104cce",
+  "replay_checksum": "sha256:2f8dd4f9371b27bc651348c055dc942cacb24d91cc849c4fe85f4790ae3243a7",
+  "schema_checksum": "sha256:0afd8f1cd8ebc05a1f1759ba61410766cad76dd888ecc4b5a117f0548903acaa",
   "schema_version": "fabric.source_replay_fixture.v1",
   "source_contract_id": "worldbank.wdi.generic",
   "transcript": {

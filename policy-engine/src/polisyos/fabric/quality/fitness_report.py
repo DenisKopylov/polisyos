@@ -7,9 +7,9 @@ from datetime import datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.temporal import parse_datetime_utc, utc_now
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 
-from . import QualityIndicators, QualityLevel, QualityThresholds
+from .quality import QualityIndicators, QualityLevel, QualityThresholds
 
 logger = get_logger(__name__)
 

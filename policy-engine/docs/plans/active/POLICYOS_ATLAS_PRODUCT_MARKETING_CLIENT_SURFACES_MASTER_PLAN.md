@@ -3,10 +3,10 @@ title: PolicyOS Atlas Product, Marketing, Client Surfaces Master Plan
 status: active
 owner: team-polisyos
 created: 2026-05-06
-last_verified: 2026-05-06
+last_verified: 2026-05-07
 stability: draft
 related:
-  - docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md
+  - docs/plans/active/REPOSITORY_BEST_IN_CLASS_REMEDIATION_MASTER_PLAN.md
   - docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md
   - docs/plans/active/FRONTEND_SOTA_PLAN.md
   - docs/plans/active/DOCUMENTATION_SOTA_PLAN.md
@@ -55,7 +55,11 @@ client-facing surfaces implied by:
 - existing Atlas frontend code under `apps/runtime-dashboard/**`;
 - existing brand docs under `docs/brand/**`;
 - public marketing, procurement, documentation, support, auth, billing,
-  settings, and domain-specific ideas listed by Denis on 2026-05-06.
+  settings, and domain-specific ideas listed by Denis on 2026-05-06;
+- plan-review additions received on 2026-05-07 covering backend contracts,
+  content ownership, analytics/attribution, continuous gates, jurisdiction,
+  lead routing, sandbox architecture, early email/OG, public telemetry, and
+  AI Act readiness.
 
 In scope:
 
@@ -97,7 +101,7 @@ Out of scope:
 
 ## Verified Baseline
 
-Baseline verified locally on 2026-05-06.
+Baseline verified locally on 2026-05-07.
 
 ### Zip Inventory
 
@@ -114,13 +118,14 @@ Baseline verified locally on 2026-05-06.
 | `landing/design-canvas.jsx` | Design exploration canvas | Treat as visual reference and Storybook seed, not product route. |
 | `preview/*.html` | Tokens, buttons, badges, cards, glyphs, logo, type, shadows, uncertainty previews | Convert into Storybook/design-reference stories and automated token drift fixtures. |
 | `ui_kits/dashboard/*.jsx` | 30+ prototype dashboard/product surfaces | Most are product-feature backlog items already partially tracked by `DESIGN_BEST_IN_CLASS_PLAN.md`; use only for missing domain-specific surfaces listed in this plan. |
-| `policy-engine/frontend/runtime-dashboard/public/atlas/**` | Legacy destination path from the zip | Canonical repo has moved toward `apps/runtime-dashboard/**`; do not revive old `frontend/runtime-dashboard/**` as a primary app path. |
+| `policy-engine/apps/runtime-dashboard/public/atlas/**` | Legacy destination path from the zip | Canonical repo has moved toward `apps/runtime-dashboard/**`; do not revive old `apps/runtime-dashboard/**` as a primary app path. |
 
 ### Current Production Anchors
 
 | Area | Existing anchor | Current state |
 | --- | --- | --- |
 | Canonical frontend app | `apps/runtime-dashboard/**` | React/Vite app exists with routes, providers, Storybook, tests, a11y, visual, Lighthouse scripts. |
+| Canonical app path transition | Canonical app path target = `apps/runtime-dashboard/**`; current/legacy transition path to reconcile = `policy-engine/apps/runtime-dashboard/**` until Phase 0.1 closes the rename PR gap | Phase 0.1 must close the rename/topology gap before Wave 1.1; until then, agents verify actual paths with `rg --files` before editing. |
 | Public landing | `apps/runtime-dashboard/src/features/landing/**` | Minimal `LandingPage` with hero/capabilities/timeline/CTA and locale switch. Not a complete marketing site. |
 | Auth | `apps/runtime-dashboard/src/features/auth/routes/LoginPage.tsx` | Minimal login/redirect surface only. No real flow matrix. |
 | Product shell | `apps/runtime-dashboard/src/app/layout/**`, `src/app/workspaces.ts` | Six workspaces: Command Center, Scenario Composer, Runs/Decisions, Evidence Fabric, Lex Knowledge, Platform Health. |
@@ -280,6 +285,8 @@ These files or file families must be touched through short queue-owned patches:
 | design token queue | `src/styles/**`, `docs/brand/**`, design check scripts | team-design | Zip token drift and public dark-mode changes merge as small token patches. |
 | API/OpenAPI queue | `schemas/runtime_api_v1.openapi.json`, generated API client, `src/api/**` | team-runtime/team-frontend | Schema/client generation is single-writer. |
 | mock/fixture queue | MSW handlers, fixture catalogs, public sandbox seed data | team-quality | Scenario fixture IDs and contract shapes merge once per wave. |
+| analytics/experiments queue | public event taxonomy, attribution policy, experiment flags, RUM destinations | team-growth/team-quality | Consent-aware measurement changes merge before CTA/form launch. |
+| lead destination queue | CRM/calendar/support/careers/newsletter/roadmap destination health fixtures | team-revenue/team-ops | No public intake form ships without a green destination health check. |
 | package/lockfile queue | `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml` | team-devx | No source changes in lockfile-only patches. |
 | docs nav queue | `mkdocs.yml`, generated docs nav, docs index pages | team-docs | Public docs IA and repository docs nav coordinate here. |
 | legal/compliance queue | approved trust/legal copy, DPA/SLA/AUP/Subprocessor pages | team-legal/team-security | No unsupported public claims. |
@@ -292,6 +299,8 @@ These files or file families must be touched through short queue-owned patches:
 | Marketing IA | solutions, customers, methodology, resources, blog, press, careers, partners | public route queue, i18n queue |
 | Interactive demo | playable composer, sandbox scenarios, public decision sample, ROI/TCO calculator, live counters | mock fixture queue, API queue |
 | Trust/procurement | trust center, legal, procurement playbook, quote builder, sovereign deploy, compliance matrix | legal/compliance queue, API queue for quote generation |
+| Public measurement | event taxonomy, attribution, experiment flags, RUM, synthetic checks | analytics/experiments queue, consent queue |
+| Public intake | demo/contact, partner, career, DSAR, FOI, newsletter, roadmap voting | lead destination queue, privacy/legal queue |
 | Auth | recovery, verification, MFA, SSO, magic link, invites, tenant picker, onboarding, step-up | auth contract/API queue |
 | Billing | plan picker, payment methods, invoices, receipts, dunning, trials, add-ons, usage | billing API/OpenAPI queue, legal/compliance queue |
 | Settings | workspace admin, personal settings, governance settings, integrations | workspace queue, permission queue, audit API queue |
@@ -328,13 +337,13 @@ parallel:
 
 ### Severity Labels
 
-| Severity | Definition |
-| --- | --- |
-| P0 | Blocks real launch, compliance trust, auth safety, or procurement path. |
-| P1 | Core buyer/user journey missing or misleading. |
-| P2 | Important adoption, operability, support, or governance gap. |
-| P3 | Brand/content/community/polish gap that materially affects premium trust. |
-| P4 | Long-tail polish, content volume, or non-blocking enhancement. |
+| Severity | Definition | Exception authority |
+| --- | --- | --- |
+| P0 | Blocks real launch, compliance trust, auth safety, or procurement path. | security lead + legal lead + product lead joint sign-off, dated |
+| P1 | Core buyer/user journey missing or misleading. | product lead + relevant fence owner |
+| P2 | Important adoption, operability, support, or governance gap. | relevant fence owner |
+| P3 | Brand/content/community/polish gap that materially affects premium trust. | relevant fence owner |
+| P4 | Long-tail polish, content volume, or non-blocking enhancement. | relevant fence owner |
 
 ### Branch Naming Patterns
 
@@ -371,6 +380,13 @@ link, or dated exception.
 | i18n completeness | team-content | existing app locales partial by feature | en/uk/ru keys complete for all route families |
 | Public performance | team-performance | no public-site budget for full marketing IA | public homepage Lighthouse 100/100/100/100 and JS budget agreed in Wave 0 |
 | Print/PDF readiness | team-design | product print styles exist | tender pack, docs, decision packet, invoice, trust artifacts pass print snapshots |
+| Backend contract lock | team-runtime | ad hoc fixture/API assumptions | every Wave 4-8 UI flow is `ready`, `stub-locked`, or `blocked` before implementation |
+| Content register ownership | team-content | content types named, owners not complete | every localized public content type has register owner and register tag policy |
+| Public analytics/attribution | team-growth | consent-gated analytics only | every CTA/form/demo event has taxonomy, destination, and consent-aware experiment policy |
+| Continuous gates ratchet | team-quality | launch gates concentrated in Wave 10 | security, privacy, route, content, a11y, bundle, and claim gates ratchet from Wave 0 |
+| Jurisdiction scope | team-legal | UA/EU implied but not fully tagged | every legal/trust/procurement claim and page has jurisdiction tag and risk posture |
+| Lead routing health | team-revenue | downstream owner declared only | every public form has destination system and green health-check fixture |
+| Public telemetry | team-ops | Lighthouse lab checks only | RUM, JS error reporting, and synthetic checks cover public critical routes |
 
 ### Subplan Relationship
 
@@ -393,6 +409,13 @@ link, or dated exception.
 | MKT-05 | P1 | No blog/insights, resource library, webinars/events, press/media kit, glossary, about, careers, partners, contact/demo route families. | public marketing | 2 and 7 |
 | MKT-06 | P1 | Homepage lacks playable product demo, sandbox, decision packet sample, ROI/TCO calculator, and live counters. | interactive demo | 2 |
 | MKT-07 | P1 | Contact/demo, career applications, partner inquiries, and roadmap votes need scheduling, qualification, privacy, moderation, and downstream handoff contracts. | public marketing | 0 and 2 |
+| CONTRACT-01 | P0 | Wave 4-8 UI flows can drift if they start from fixtures without accepted OpenAPI or locked stubs. | API/contracts | 0 |
+| CONTENT-01 | P1 | Localized public routes can be registered without named register owners for formal uk/ru copy. | public marketing | 0 |
+| ANALYTICS-01 | P1 | Consent-gated analytics exists conceptually, but CTA/form/demo events lack taxonomy, attribution, and experiment destinations. | QA/performance + public marketing | 0 and 1 |
+| GATE-01 | P0 | Security/privacy/performance/content gates are concentrated too late if Wave 10 is first enforcement. | QA/performance | 0 |
+| JUR-01 | P0 | UA/EU jurisdiction scope, out-of-scope jurisdictions, FOI, e-invoicing, e-signature, and AI Act posture are not locked before sales/procurement pages. | trust/legal/procurement | 0 |
+| LEAD-01 | P1 | Public forms can collect leads without health-checked CRM/calendar/support/careers/newsletter destinations. | API/contracts | 0 |
+| SANDBOX-01 | P1 | Public sandbox engine choice is an architecture fork that affects performance and demo quality. | interactive public demo | 0 |
 | TRUST-01 | P0 | No public Trust Center with SOC 2/ISO/GDPR/residency/subprocessors/DPA/AUP/SLA/security questionnaire/VPAT/a11y/on-prem evidence. | trust/legal | 3 |
 | TRUST-02 | P0 | No public legal route family for ToS, Privacy, DPA, AUP, SLA, subprocessors, cookies. | trust/legal | 3 |
 | TRUST-03 | P1 | No status page with incident history/RCA, public changelog, or public roadmap. | trust/status | 3 |
@@ -415,6 +438,8 @@ link, or dated exception.
 | DOM-03 | P1 | Evidence Fabric source detail and lineage map need standalone board/product route. | domain product | 8 |
 | DOM-04 | P2 | Civic data hub, read-only regulator SKU, and EU AI Act transparency snippet are missing. | domain product | 8 |
 | BRAND-01 | P2 | Animated glyphs, Atlas Codex, email design system, designed invoices/receipts, social previews, dark landing, motion language examples missing. | brand-as-product | 9 |
+| EMAIL-01 | P1 | Transactional email foundation must exist before auth/support/governance flows ship. | brand-as-product | 1 |
+| TELEMETRY-01 | P1 | Public RUM, JS error reporting, and synthetic uptime checks are absent from early public launch gates. | QA/performance | 1 |
 | PERF-01 | P0 | Public marketing performance budgets and Lighthouse 100 target are not enforced. | QA/performance | 0 and 10 |
 | SEO-01 | P1 | Public sitemap, robots, canonical URLs, structured data, and share metadata need explicit launch gates. | QA/performance | 0 and 10 |
 | I18N-01 | P1 | Localization is not marketed as a feature and not complete across proposed surfaces. | cross-cutting | 2-10 |
@@ -457,8 +482,11 @@ wave instead of making an exception inside the wave.
 ### Wave 0 - Inventory, Decisions, And Contracts
 
 Purpose: make the program measurable and unblock parallel implementation.
-All Wave 0 phases are C0/C1 except the topology decision, which becomes C5 only
-if it creates a new public app.
+Wave 0 phases are mostly C0/C1 contract work and can prepare in parallel even
+when they share a broad fence. Their final registry patches still serialize
+through the relevant queue. The topology decision becomes C5 only if it creates
+a new public app. Wave 4-8 phases may not start implementation until Phase 0.7
+classifies their backend contract row as `ready`, `stub-locked`, or `blocked`.
 
 #### Phase 0.1 - Zip Adoption Ledger
 
@@ -477,7 +505,10 @@ Acceptance:
 
 - Every zip path has an owner and adoption status.
 - Asset drift is measured with file hashes or visual glyph snapshot evidence.
-- No old `frontend/runtime-dashboard/**` path becomes canonical again.
+- No old `apps/runtime-dashboard/**` path becomes canonical again.
+- A rename/topology PR explicitly confirms `apps/runtime-dashboard/**` as the
+  canonical app path, or records a reverse decision, before Phase 1.1 route
+  work starts.
 
 Verification:
 
@@ -504,6 +535,8 @@ Scope:
   compressed unless Wave 0 records a dated exception with owner and measured
   user benefit.
 - If Option B is required, add a short ADR before any code move.
+- Treat the budget as provisional until Phase 0.13 records the sandbox engine
+  choice; the final public homepage/sandbox budget must include that decision.
 
 Acceptance:
 
@@ -575,6 +608,8 @@ Scope:
   - static fixture acceptable for public launch;
   - mocked contract first;
   - backend required before UI can be honest.
+- Add columns for destination system, destination owner, health-check fixture,
+  and destination status where the UI flow submits public or customer data.
 - Add MSW/fixture naming conventions for scenario presets and public demos.
 
 Acceptance:
@@ -606,6 +641,19 @@ Scope:
 - Include SOC 2, ISO 27001, GDPR, data residency UA/EU, subprocessors, DPA,
   AUP, SLA, pen-test summary, VPAT, WCAG 2.2 AA, sovereign/on-prem, NIS2,
   EU AI Act, EUDI Wallet readiness, Diia SSO, Trembita/SEV DEIR references.
+- Include e-invoicing posture:
+  - UBL/PEPPOL for EU B2G;
+  - Prozorro/source formats for UA procurement where applicable.
+- Include e-signature/e-seal posture for UA and EU.
+- Include FOI/right of access to public information posture, including UA Law
+  No. 2939-VI.
+- Include EU AI Act conformity assessment readiness for potentially high-risk
+  systems, not only Article 13/14 transparency copy.
+- Define public-claim exception authority:
+  - security lead for security evidence exceptions;
+  - legal lead for legal/compliance exceptions;
+  - product lead for product availability exceptions;
+  - joint dated sign-off for any P0 launch-blocking exception.
 
 Acceptance:
 
@@ -655,10 +703,290 @@ Verification:
 
 - state matrix test fixture validates every route family row.
 
-### Wave 1 - Foundation Routes, Content Runtime, And Public Shell
+#### Phase 0.7 - Backend Contract Lock
+
+Primary fence: API/contracts.
+
+Scope:
+
+- Create a backend contract lock registry for every UI flow in Waves 4-8:
+  - auth recovery, verification, MFA, SSO, magic link, invites, tenant picker,
+    onboarding, step-up, session/risk/logout/organization exit;
+  - billing, invoices, receipts, usage, quotes, procurement orders, coupons,
+    dunning, trials, cancellation;
+  - settings, SSO config, SCIM, audit log, API keys, PATs, webhooks,
+    integrations, residency, retention, governance policy;
+  - support tickets, DSAR, FOI, incident detail;
+  - public decision records, governance inbox, quick approve, source detail,
+    civic data, transparency snippets.
+- For each row, record:
+  - service owner;
+  - OpenAPI path/schema if accepted;
+  - signed stub contract if backend is not ready;
+  - status: `ready`, `stub-locked`, or `blocked`;
+  - fixture owner;
+  - planned replacement wave.
+
+Acceptance:
+
+- No Wave 4+ phase starts implementation without a registry row.
+- `stub-locked` rows include request/response shape, error states, authz
+  requirements, rate limits, audit events, and replacement owner.
+- `blocked` rows are visible in the dashboard and cannot be hidden behind UI
+  fixtures.
+
+Verification:
+
+- contract-lock registry uniqueness check;
+- OpenAPI/stub schema validation;
+- `corepack pnpm --dir policy-engine/apps/runtime-dashboard run contracts:verify`.
+
+#### Phase 0.8 - Content Capacity And Register Ownership
+
+Primary fence: public marketing.
+
+Scope:
+
+- Assign named role owners:
+  - technical writer;
+  - register editor for formal Ukrainian;
+  - register editor for formal Russian;
+  - methodology editor;
+  - design-content owner.
+- Extend the public content type catalog with ownership per type:
+  - persona page;
+  - case study;
+  - methodology longread;
+  - pricing/procurement;
+  - legal/trust;
+  - docs/support;
+  - blog/resource/webinar/press;
+  - careers/partner/contact/demo.
+- Record register tags:
+  - `formal-uk`;
+  - `formal-ru`;
+  - `formal-en` for regulated fallback copy;
+  - `neutral-en`.
+
+Acceptance:
+
+- No localized route is registered until its content type has a register owner.
+- Content ownership is about capacity and review responsibility, not a promise
+  to produce a specific volume of pages in one wave.
+- Pricing, legal, procurement, trust, support, and billing copy all require
+  register tags before launch.
+
+Verification:
+
+- content owner registry check;
+- register-tag completeness check;
+- i18n fixture smoke for en/uk/ru.
+
+#### Phase 0.9 - Analytics, Experiments, And Attribution Contract
+
+Primary fence: QA/performance + public marketing.
+
+Fence note: this is the only planned dual-fence Wave 0 contract because event
+taxonomy is both measurement infrastructure and conversion content. Execution
+branches still split by single fence; final taxonomy merges through the
+analytics/experiments queue.
+
+Scope:
+
+- Define event taxonomy for public and client conversion events:
+  - `page_view`;
+  - `persona_path_select`;
+  - `demo_book_started`;
+  - `demo_book_completed`;
+  - `sandbox_run_started`;
+  - `sandbox_run_completed`;
+  - `calculator_export`;
+  - `packet_download`;
+  - `pricing_view`;
+  - `quote_started`;
+  - `quote_exported`;
+  - `doc_helpful`;
+  - `ticket_submitted`;
+  - `dsar_submitted`;
+  - `foi_submitted`;
+  - `roadmap_vote_submitted`;
+  - `newsletter_signup_completed`.
+- Define attribution policy:
+  - UTM;
+  - referrer;
+  - last-touch;
+  - lead-stage conversion;
+  - tenant-safe handoff.
+- Decide A/B infrastructure:
+  - provider;
+  - own feature flag;
+  - or no A/B until a later wave.
+- Require consent-aware bucketing and analytics suppression.
+
+Acceptance:
+
+- No public form or CTA launches without event mapping and declared
+  destination.
+- Events declare payload fields, PII policy, consent category, and retention.
+- Experiment assignment is stable, consent-aware, and reversible.
+
+Verification:
+
+- event taxonomy lint;
+- consent-gated event tests;
+- attribution fixture tests.
+
+#### Phase 0.10 - Continuous Gates Ratchet
+
+Primary fence: QA/performance.
+
+Scope:
+
+- Turn the following checks into ratchets from Wave 0 onward:
+  - `audit:ci`;
+  - secret scan;
+  - CSP/SRI;
+  - evidence-map link check;
+  - route-ID uniqueness;
+  - content-registry uniqueness;
+  - register-tag completeness;
+  - a11y baseline;
+  - public bundle budget;
+  - public HTML license/PII leak scan;
+  - destination health fixtures;
+  - backend contract lock status.
+- Define report-only windows and fail-closed thresholds.
+
+Acceptance:
+
+- Later waves may raise thresholds but may not lower them without the severity
+  exception authority table.
+- Threshold lowering requires the same joint exception authority as P0
+  launch-blocking exceptions.
+- Wave 10 is the final tightening and closeout, not the first time these gates
+  run.
+- P0 findings in auth, billing, legal, procurement, public forms, or public
+  decision routes block launch unless a dated joint exception exists.
+
+Verification:
+
+- ratchet config check;
+- baseline report committed or linked;
+- CI command map updated.
+
+#### Phase 0.11 - Jurisdictional Scope
+
+Primary fence: trust/legal/procurement.
+
+Scope:
+
+- Declare jurisdictions in scope:
+  - UA;
+  - EU.
+- Declare jurisdictions out of scope unless legal review changes the decision:
+  - RF/152-FZ and any market requiring unsupported data-localization,
+    sanctions, export-control, or procurement posture.
+- For each in-scope jurisdiction record:
+  - data-protection law;
+  - e-invoicing requirements, including UBL/PEPPOL for EU B2G;
+  - e-signature/e-seal equivalents;
+  - FOI/public-information access law, including UA Law No. 2939-VI;
+  - public procurement/tender format requirements;
+  - EU AI Act posture and high-risk/conformity assessment notes.
+- Define exception authority per claim class:
+  - security lead for security posture;
+  - legal lead for legal/compliance claims;
+  - product lead for product availability claims;
+  - joint sign-off for P0 launch-blocking exceptions.
+
+Acceptance:
+
+- Every legal, trust, procurement, pricing, quote, invoice, DSAR, FOI, and
+  AI Act page declares jurisdiction tags.
+- Out-of-scope jurisdictions cannot be implied by copy, lead routing, or
+  pricing selectors.
+- Jurisdiction tags are available to route, content, and public-claim checks.
+
+Verification:
+
+- jurisdiction registry check;
+- public-claim evidence map cross-check;
+- legal review.
+
+#### Phase 0.12 - Lead Routing And CRM Destination
+
+Primary fence: API/contracts.
+
+Scope:
+
+- For each public form, declare destination system and health-check fixture:
+  - demo booking;
+  - contact;
+  - partner/reseller;
+  - career application;
+  - DSAR;
+  - FOI;
+  - newsletter/weekly briefing;
+  - roadmap vote;
+  - quote/procurement inquiry;
+  - support ticket.
+- Record destination owner, retry policy, failure UX, privacy/retention rule,
+  attachment policy, and operational alert.
+
+Acceptance:
+
+- No public form is published without a green destination health check.
+- Phase 0.4 API/fixture inventory includes a `destination system` column.
+- Intake failures are visible to ops; leads cannot silently accumulate in an
+  unmonitored inbox.
+
+Verification:
+
+- destination health fixture tests;
+- form-to-destination mapping lint;
+- ops alert review.
+
+#### Phase 0.13 - Sandbox Engine Choice
+
+Primary fence: interactive public demo.
+
+Dependencies: Wave 0.2 draft topology and budget assumptions.
+
+Scope:
+
+- Decide public sandbox engine strategy before Wave 1:
+  - precomputed lookup fixtures;
+  - lightweight WASM mini-engine;
+  - server-rendered sandbox runs;
+  - hybrid staged approach.
+- Measure effect on:
+  - homepage and sandbox bundle budget;
+  - latency;
+  - offline/degraded behavior;
+  - explainability;
+  - ability to re-run case studies;
+  - data/privacy risk.
+- Record the decision next to the public topology decision.
+
+Acceptance:
+
+- A dated note records chosen engine and rejected alternatives.
+- Bundle/performance evidence exists for the selected option.
+- Explainability story is documented: regulator and academia users can see
+  whether the sandbox shows mock, fixture, simulated, or real runtime behavior
+  and where that disclosure appears in the UI.
+- Wave 2 sandbox tasks inherit this decision instead of choosing locally.
+
+Verification:
+
+- sandbox engine decision note;
+- bundle/perf evidence;
+- fixture or prototype smoke test for chosen path.
+
+### Wave 1 - Foundation Routes, Content Runtime, Email, OG, Telemetry, And Public Shell
 
 Purpose: create the scaffolding that lets teams implement page families without
-fighting for routes, i18n, content, or shell primitives.
+fighting for routes, i18n, content, email, OG, telemetry, or shell primitives.
 
 #### Phase 1.1 - Public Shell And Navigation
 
@@ -696,7 +1024,7 @@ Verification:
 
 Primary fence: public marketing.
 
-Dependencies: Wave 0.3.
+Dependencies: Wave 0.3 and 0.8.
 
 Scope:
 
@@ -707,14 +1035,25 @@ Scope:
   - required SEO fields;
   - required print metadata;
   - required glyph term references;
+  - required register tag for public pricing, legal, procurement, trust,
+    support, docs, and billing-facing strings;
   - no unsupported locale rows;
   - glossary cross-reference integrity.
+- Add fallback policy:
+  - `formal-uk` is preferred for Ukrainian public regulated copy;
+  - if `formal-uk` is missing, fallback to approved `formal-en`;
+  - never fallback from Ukrainian regulated copy to Russian;
+  - never fallback from formal regulated copy to informal/neutral copy without
+    owner approval.
 
 Acceptance:
 
 - Adding a new case study, resource, job, or glossary term does not require
   editing route code.
 - Ukrainian and Russian fallbacks are explicit, not accidental English bleed.
+- Register tags (`formal-uk`, `formal-ru`, `formal-en`, `neutral-en`) are
+  mandatory for all public pricing, legal, procurement, trust, support, and
+  billing copy.
 - Content failures block CI in report-only mode first, then fail-closed in
   Wave 10.
 
@@ -760,7 +1099,7 @@ Verification:
 
 Primary fence: trust/legal/procurement.
 
-Dependencies: Wave 0.5.
+Dependencies: Wave 0.5, 0.9, and 0.11.
 
 Scope:
 
@@ -780,6 +1119,111 @@ Verification:
 - unit tests for consent categories;
 - Playwright check that analytics hooks are not called before consent.
 
+#### Phase 1.5 - Atlas Email Foundation
+
+Primary fence: brand-as-product.
+
+Dependencies: Wave 0.8, Wave 0.9, Wave 1.2.
+
+Scope:
+
+- Build email-safe Atlas transactional foundations:
+  - verify email;
+  - reset password;
+  - invite;
+  - MFA recovery;
+  - ticket update;
+  - governance request.
+- Define email-safe token subset:
+  - fonts/fallbacks;
+  - colors;
+  - button styles;
+  - glyph fallback behavior;
+  - dark-mode limitations;
+  - legal footer slots.
+- Add locale/register rules for en/uk/ru.
+
+Acceptance:
+
+- Auth, support, and governance flows in later waves do not ship with default
+  provider templates.
+- Email templates are source-controlled, versioned, and snapshot-tested.
+- Templates declare event taxonomy mapping and destination/provider owner.
+
+Verification:
+
+- email HTML snapshot tests;
+- register-tag check for email copy;
+- accessibility/readability smoke for major clients where tooling exists.
+
+#### Phase 1.6 - OG/Social Preview Generator
+
+Primary fence: brand-as-product.
+
+Dependencies: Wave 0.3, Wave 1.2, Wave 1.3.
+
+Scope:
+
+- Build default OG/Twitter/LinkedIn preview generator from content metadata.
+- Support content types:
+  - homepage;
+  - persona pages;
+  - case studies;
+  - methodology pages;
+  - resources;
+  - changelog/roadmap items;
+  - public decision records;
+  - docs articles.
+- Generate, not handcode, title, subtitle, glyph, locale, image alt, and
+  freshness metadata.
+
+Acceptance:
+
+- Public pages can ship with generated social metadata from the content
+  registry before custom art exists.
+- Missing OG metadata fails content checks.
+- Social previews use Atlas glyphs/tokens and avoid unsupported claims.
+
+Verification:
+
+- OG render tests;
+- content metadata completeness tests;
+- visual snapshots for default templates.
+
+#### Phase 1.7 - Public RUM, Error Reporting, And Synthetic Checks
+
+Primary fence: QA/performance.
+
+Dependencies: Wave 0.9, 0.10, and 1.4.
+
+Scope:
+
+- Add consent-aware RUM for Core Web Vitals.
+- Add JS error reporting without PII.
+- Add synthetic uptime checks for:
+  - homepage;
+  - sandbox;
+  - public decision record;
+  - docs landing/article.
+- Add public Core Web Vitals/status dashboard surface or feed that can be
+  linked from trust/status pages.
+
+Acceptance:
+
+- RUM and error reporting honor cookie/consent categories.
+- JS error payloads are scrubbed for PII, tokens, tenant IDs, and form values.
+- Public dashboard data retention is declared and bounded.
+- Synthetic checks are operational before Wave 2 public route launch.
+- Trust/status can link to real public web vitals evidence, not only lab
+  Lighthouse runs.
+
+Verification:
+
+- RUM consent tests;
+- PII scrubber tests;
+- synthetic-check fixture tests;
+- public telemetry dashboard smoke.
+
 ### Wave 2 - Marketing Site And Interactive Product Surface
 
 Purpose: ship the buyer-facing site and "living product in marketing" layer.
@@ -789,7 +1233,7 @@ Most phases are C1/C2 and can run in parallel after Wave 1.
 
 Primary fence: public marketing.
 
-Dependencies: Wave 1.1, 1.3.
+Dependencies: Wave 0.10, Wave 1.1, 1.3, 1.6, and 1.7.
 
 Scope:
 
@@ -823,7 +1267,7 @@ Verification:
 
 Primary fence: public marketing.
 
-Dependencies: Wave 1.2.
+Dependencies: Wave 1.2 and 1.6.
 
 Scope:
 
@@ -858,7 +1302,7 @@ Verification:
 
 Primary fence: public marketing.
 
-Dependencies: Wave 1.2, Wave 2.6 public sandbox fixtures.
+Dependencies: Wave 1.2, 1.6, Wave 2.6 public sandbox fixtures.
 
 Scope:
 
@@ -927,7 +1371,7 @@ Verification:
 
 Primary fence: interactive public demo.
 
-Dependencies: Wave 0.4, Wave 1.3.
+Dependencies: Wave 0.4, 0.7, 0.13, Wave 1.3.
 
 Scope:
 
@@ -940,13 +1384,15 @@ Scope:
   - evidence bundle preview;
   - decision packet sample link.
 - Keep it honest: label fixture/simulated data clearly.
+- Implement the sandbox using the engine strategy selected in Phase 0.13.
 
 Acceptance:
 
 - No login required.
 - Works on mobile and desktop.
 - Re-run links from case studies load scenario state.
-- Does not call protected runtime APIs.
+- Does not call protected runtime APIs and does not relay sandbox runs to
+  production telemetry beyond aggregate counters.
 
 Verification:
 
@@ -958,7 +1404,7 @@ Verification:
 
 Primary fence: interactive public demo.
 
-Dependencies: existing `PublicDecisionViewerPage`, Wave 0.4.
+Dependencies: existing `PublicDecisionViewerPage`, Wave 0.4, 0.7, and 1.6.
 
 Scope:
 
@@ -991,7 +1437,7 @@ Verification:
 
 Primary fence: interactive public demo.
 
-Dependencies: Wave 0.4, Wave 1.4.
+Dependencies: Wave 0.4, 0.9, 0.12, Wave 1.4.
 
 Scope:
 
@@ -1016,7 +1462,7 @@ Verification:
 
 Primary fence: public marketing.
 
-Dependencies: Wave 0.3, Wave 0.4, Wave 1.4.
+Dependencies: Wave 0.3, 0.4, 0.8, 0.9, 0.12, Wave 1.4.
 
 Scope:
 
@@ -1061,6 +1507,41 @@ Verification:
 - privacy/retention copy review;
 - route metadata and sitemap tests.
 
+#### Phase 2.9 - Public Governance-On-The-Go Demo
+
+Primary fence: interactive public demo.
+
+Dependencies: Wave 0.7, 0.9, 0.13, Wave 1.3, Wave 2.6.
+
+Scope:
+
+- Build a mobile-only public preview of the quick-approve story:
+  - compact decision summary;
+  - governance pass status;
+  - evidence caveat;
+  - one-tap approve/block preview;
+  - "how this works in production" explainer link;
+  - no real approval action.
+- Link the preview from homepage, regulator persona, case studies, public
+  decision sample, and procurement pages.
+- Keep full production governance inbox and mobile quick approve in Phase 8.2.
+
+Acceptance:
+
+- Preview is clearly marked as public demo and cannot be mistaken for a real
+  governance action.
+- Mobile viewport is the primary design target.
+- The demo explains step-up auth, audit, and reason capture requirements for
+  production.
+- Events are mapped through Phase 0.9 taxonomy.
+
+Verification:
+
+- mobile Playwright demo journey;
+- a11y/reduced-motion test;
+- event taxonomy test;
+- public route bundle check.
+
 ### Wave 3 - Trust, Legal, Status, Roadmap, And Procurement
 
 Purpose: build the trust pack as a product surface and make procurement a
@@ -1070,7 +1551,7 @@ first-class journey.
 
 Primary fence: trust/legal/procurement.
 
-Dependencies: Wave 0.5, Wave 1.3.
+Dependencies: Wave 0.5, 0.11, Wave 1.3.
 
 Scope:
 
@@ -1106,7 +1587,7 @@ Verification:
 
 Primary fence: trust/status.
 
-Dependencies: Wave 0.4.
+Dependencies: Wave 0.4, 0.9, 0.10, 0.12.
 
 Scope:
 
@@ -1125,6 +1606,13 @@ Acceptance:
 - Roadmap items link to public ADRs where appropriate.
 - Roadmap voting, if enabled, has moderation, rate-limit, abuse/spam handling,
   duplicate vote policy, and customer attribution rules.
+- Public roadmap voting has a slip-communications policy before voting is
+  enabled:
+  - delay/cancellation template;
+  - publishing channel;
+  - owner;
+  - customer notification threshold;
+  - link from roadmap item to explanation.
 - RCA pages expose timeline, contributing factors, prevention work, and
   follow-up links without leaking customer-sensitive data.
 
@@ -1138,7 +1626,7 @@ Verification:
 
 Primary fence: trust/legal/procurement.
 
-Dependencies: Wave 0.5, legal/compliance queue.
+Dependencies: Wave 0.5, 0.11, legal/compliance queue.
 
 Scope:
 
@@ -1169,15 +1657,18 @@ Verification:
 
 Primary fence: trust/legal/procurement.
 
-Dependencies: Wave 0.5, Wave 2.7.
+Dependencies: Wave 0.5, 0.11, Wave 2.7.
 
 Scope:
 
 - Build procurement pages:
   - how to buy Atlas;
   - CPV/procurement category guidance;
+  - machine-readable CPV mapping artifact;
   - Prozorro-friendly tender boilerplate in web, PDF, and Word/DOCX-friendly
     form;
+  - Prozorro tender pack format in XML/PDF/DOCX-ready sources;
+  - e-invoicing UBL/PEPPOL readiness for EU B2G procurement;
   - EU procurement notes;
   - objections/FAQ;
   - framework contract notes;
@@ -1195,6 +1686,8 @@ Acceptance:
 - Procurement path is visible from pricing, trust, homepage, and persona pages.
 - Downloadable boilerplate has version/date/owner and identifies whether it is
   a public template, PDF, or DOCX-ready source.
+- CPV mappings and tender pack formats are generated or validated as machine
+  artifacts, not prose-only tables.
 - Claims are evidence-mapped.
 
 Verification:
@@ -1207,7 +1700,7 @@ Verification:
 
 Primary fence: trust/legal/procurement.
 
-Dependencies: Wave 0.4, Wave 3.4.
+Dependencies: Wave 0.4, 0.7, 0.11, 0.12, Wave 3.4.
 
 Scope:
 
@@ -1238,12 +1731,14 @@ Verification:
 
 Purpose: expand the current minimal login route into a full identity journey.
 Auth phases can prepare in parallel by flow but serialize API/session state.
+No Wave 4 implementation starts unless Phase 0.7 marks the relevant contract
+row as `ready` or `stub-locked`.
 
 #### Phase 4.1 - Auth Flow State Machine
 
 Primary fence: auth/onboarding.
 
-Dependencies: Wave 0.4.
+Dependencies: Wave 0.4 and 0.7.
 
 Scope:
 
@@ -1336,7 +1831,7 @@ Verification:
 
 Primary fence: auth/onboarding.
 
-Dependencies: Wave 4.1, settings SSO contract draft.
+Dependencies: Wave 0.7 and Wave 4.1.
 
 Scope:
 
@@ -1431,12 +1926,14 @@ Verification:
 ### Wave 5 - Billing, Procurement Orders, Usage, And Subscription Lifecycle
 
 Purpose: make revenue and government procurement usable inside the product.
+No Wave 5 implementation starts unless Phase 0.7 locks the relevant billing,
+quote, usage, invoice, and procurement contracts.
 
 #### Phase 5.1 - Billing Contract And Navigation
 
 Primary fence: billing/procurement-in-app.
 
-Dependencies: Wave 0.4, Wave 3.5.
+Dependencies: Wave 0.4, 0.7, 0.11, 0.12, Wave 3.5.
 
 Scope:
 
@@ -1570,6 +2067,8 @@ Verification:
 ### Wave 6 - Workspace And Personal Settings
 
 Purpose: create the admin and personal configuration layer missing from the kit.
+No Wave 6 implementation starts unless Phase 0.7 locks the relevant settings,
+audit, SSO, SCIM, webhook, integration, and governance contracts.
 
 #### Phase 6.1 - Settings Route Family And IA
 
@@ -1686,7 +2185,7 @@ Verification:
 
 Primary fence: workspace settings.
 
-Dependencies: Wave 6.1, governance backend contract draft.
+Dependencies: Wave 0.7 and Wave 6.1.
 
 Scope:
 
@@ -1752,7 +2251,9 @@ Verification:
 ### Wave 7 - Public Docs, Support, Content Engine, And Community
 
 Purpose: turn docs/support/content from scattered artifacts into a client-facing
-engine.
+engine. Support, ticket, DSAR, FOI, and docs-assistant surfaces depend on
+Phase 0.7 contract rows and Phase 0.12 destination health where forms are
+involved.
 
 #### Phase 7.1 - Public Docs IA And Article View
 
@@ -1837,11 +2338,11 @@ Verification:
 - keyboard tests;
 - link integrity tests.
 
-#### Phase 7.4 - Help Center, Tickets, Incident Detail, DSAR
+#### Phase 7.4 - Help Center, Tickets, Incident Detail, DSAR, And FOI
 
 Primary fence: docs/support.
 
-Dependencies: Wave 0.4, Wave 3.2.
+Dependencies: Wave 0.4, 0.7, 0.11, 0.12, Wave 3.2.
 
 Scope:
 
@@ -1855,11 +2356,24 @@ Scope:
   - incident link.
 - Build status incident detail.
 - Build DSAR/compliance request form.
+- Build FOI/right of access to public information request flow separately from
+  DSAR:
+  - UA Law No. 2939-VI copy;
+  - public-body/requester distinction;
+  - response deadline metadata;
+  - public-body request acknowledgment receipt with reference number;
+  - attachments;
+  - jurisdiction tags;
+  - escalation/support handoff.
 
 Acceptance:
 
 - Ticket forms have attachment, privacy, and rate-limit states.
 - DSAR form has identity verification and region/legal copy.
+- FOI form is not modeled as GDPR DSAR; it has its own jurisdiction, deadline,
+  identity, and routing rules.
+- FOI submission produces an acknowledgment receipt with a public-body reference
+  number when the destination contract supports it.
 - Incident detail shares source schema with status page.
 
 Verification:
@@ -1916,6 +2430,9 @@ Verification:
 ### Wave 8 - PolicyOS Domain Differentiators
 
 Purpose: implement the product surfaces that make PolicyOS visibly different.
+No Wave 8 implementation starts unless Phase 0.7 locks the relevant public
+decision, governance, quick-approve, source-lineage, civic-data, and
+transparency contracts.
 
 #### Phase 8.1 - Public Decision Record Productization
 
@@ -1953,7 +2470,7 @@ Verification:
 
 Primary fence: domain product.
 
-Dependencies: Wave 6.5, Wave 4 step-up auth.
+Dependencies: Wave 0.7, Wave 6.5, Wave 4 step-up auth.
 
 Scope:
 
@@ -1977,6 +2494,8 @@ Acceptance:
 - Approvals and blocks require reason where governance policy requires it.
 - Mobile layout is not just desktop squeezed down.
 - Actions are audited and reversible only according to policy.
+- Reversal of an apply/block action requires step-up auth and an audit-event
+  chain link to the original action.
 
 Verification:
 
@@ -1988,7 +2507,7 @@ Verification:
 
 Primary fence: domain product.
 
-Dependencies: existing Evidence Fabric, Wave 0.4.
+Dependencies: existing Evidence Fabric, Wave 0.4 and 0.7.
 
 Scope:
 
@@ -2021,7 +2540,7 @@ Verification:
 
 Primary fence: domain product.
 
-Dependencies: Wave 3 trust/legal, Wave 5 billing plan model.
+Dependencies: Wave 0.7, 0.11, Wave 3 trust/legal, Wave 5 billing plan model.
 
 Scope:
 
@@ -2044,11 +2563,11 @@ Verification:
 - legal/privacy review;
 - route tests.
 
-#### Phase 8.5 - EU AI Act Transparency Snippet
+#### Phase 8.5 - EU AI Act Transparency And Conformity Readiness
 
 Primary fence: domain product.
 
-Dependencies: Wave 3 compliance matrix, Wave 8.1.
+Dependencies: Wave 0.11, Wave 3 compliance matrix, Wave 8.1.
 
 Scope:
 
@@ -2060,12 +2579,21 @@ Scope:
   - source links;
   - decision record link.
 - Provide preview and embed code generator.
+- Build conformity assessment readiness posture:
+  - identify which Atlas features may fall into high-risk categories;
+  - map Article requirements to product evidence;
+  - define evidence package contents;
+  - link posture into the Trust Center and compliance matrix.
 
 Acceptance:
 
 - Snippet can be embedded without full app chrome.
 - It cites the decision record and methodology sources.
 - It has high-contrast and reduced-motion support.
+- Trust Center exposes AI Act compliance posture beyond the embeddable
+  transparency widget.
+- High-risk/conformity assessment status is labeled as ready, planned, blocked,
+  or out-of-scope with evidence.
 
 Verification:
 
@@ -2105,34 +2633,33 @@ Verification:
 - `corepack pnpm --dir policy-engine/apps/runtime-dashboard run design:motion`
 - visual/storybook interaction tests.
 
-#### Phase 9.2 - Email, Invoice, Receipt, OG, And Social Preview Artifacts
+#### Phase 9.2 - Advanced Email, Invoice, Receipt, And Social Artifacts
 
 Primary fence: brand-as-product.
 
-Dependencies: Wave 5 invoice routes, Wave 7 content engine.
+Dependencies: Wave 1.5, Wave 1.6, Wave 5 invoice routes, Wave 7 content engine.
 
 Scope:
 
-- Build transactional email templates:
-  - verify email;
-  - reset password;
-  - invite;
-  - MFA recovery;
+- Extend the Phase 1.5 email foundation for:
   - invoice;
   - receipt;
   - failed payment;
-  - governance request;
   - public decision published;
-  - ticket update.
-- Build marketing email/weekly briefing template.
+  - weekly briefing;
+  - annual report release;
+  - longread/resource nurture.
+- Build marketing email and weekly briefing templates.
 - Build designed invoice/receipt artifact style.
-- Build OG/Twitter/LinkedIn share previews per longread, case, decision,
-  resource, and report.
+- Extend the Phase 1.6 OG generator with custom OG/Twitter/LinkedIn artwork per
+  longread, case, decision, resource, invoice-safe receipt preview, and report.
 
 Acceptance:
 
-- Email templates use Atlas typography/colors within email-safe constraints.
-- Social previews are generated from content metadata.
+- Advanced templates reuse the email-safe Atlas foundation instead of forking
+  provider-specific defaults.
+- Social previews remain generated from content metadata even when custom art is
+  available.
 - Invoices/receipts pass print/PDF snapshots.
 
 Verification:
@@ -2251,6 +2778,10 @@ Acceptance:
 - Atlas Codex links to `docs/brand/**` as source of truth.
 - Localization page is visible from marketing and procurement.
 - No mascot or unsupported brand metaphors.
+- A one-page ADR declares Atlas Codex as a public publication layer over the
+  same source data as Storybook/design docs, not a parallel design system.
+- Atlas Codex and Storybook share source fixtures or generated data so drift is
+  caught by CI.
 
 Verification:
 
@@ -2262,7 +2793,7 @@ Verification:
 
 Primary fence: docs/support.
 
-Dependencies: Wave 7 docs/search, API contract review.
+Dependencies: Wave 0.7, Wave 7 docs/search.
 
 Scope:
 
@@ -2280,6 +2811,12 @@ Acceptance:
 - Assistant is not a generic chatbot.
 - Source citations are visible and clickable.
 - It does not answer legal/compliance questions beyond approved sources.
+- No streaming hallucinations: the assistant either returns a fully
+  source-grounded answer or says it does not know and links to support.
+- Legal, compliance, procurement, governance, government identity, SSO
+  configuration, billing, and security-configuration questions outside approved
+  sources follow an explicit refusal policy.
+- Draft/partial answers are not streamed before source grounding completes.
 
 Verification:
 
@@ -2290,7 +2827,9 @@ Verification:
 ### Wave 10 - Hardening, Performance, Launch Gates, And Closeout
 
 Purpose: turn the implementation into a launchable, measurable, maintainable
-surface set.
+surface set. Wave 10 tightens and proves the ratchets introduced in Phase 0.10;
+it must not be the first moment security, privacy, route, content, a11y, or
+bundle gates run.
 
 #### Phase 10.1 - Route Coverage And Sitemap Gate
 
@@ -2335,10 +2874,19 @@ Scope:
 - Add visual snapshots for desktop, mobile, dark, forced-colors, print.
 - Add print snapshots for tender pack, docs article, decision packet, invoice,
   receipt, trust artifact.
+- Add screen-reader smoke checks for NVDA/VoiceOver or documented local
+  equivalents on uk and ru locales for:
+  - auth;
+  - billing;
+  - governance inbox;
+  - public decision record;
+  - mobile quick approve.
 
 Acceptance:
 
 - WCAG 2.2 AA route checks pass.
+- Screen-reader smoke confirms formal Ukrainian and Russian flows are
+  navigable and understandable in critical journeys.
 - Mobile layouts do not overlap or truncate critical text.
 - Print output is usable for regulators/procurement.
 
@@ -2440,9 +2988,9 @@ send shared files through queues.
 
 | Wave | Parallel lanes | Serialized gates |
 | --- | --- | --- |
-| 0 | zip ledger, content model, API inventory, legal evidence map, state matrix, performance baseline | public topology decision if app split is required |
-| 1 | public shell, content registry, primitives, cookie/analytics | public routes, i18n, design token patches |
-| 2 | homepage, personas, cases, methodology, sandbox, packet sample, calculator, service/conversion/careers/partners | route registration, sandbox fixtures, public counters API, form intake contracts |
+| 0 | zip ledger, content model, API inventory, legal evidence map, state matrix, backend contract lock, content ownership, analytics/attribution, continuous gates, jurisdiction, lead destination, sandbox engine | public topology decision if app split is required; final registry patches per queue |
+| 1 | public shell, content registry, primitives, cookie/analytics, email foundation, OG generator, public RUM/error/synthetic checks | public routes, i18n, design token patches, analytics/experiments queue |
+| 2 | homepage, personas, cases, methodology, sandbox, packet sample, calculator, service/conversion/careers/partners, mobile quick-approve preview | route registration, sandbox fixtures, public counters API, form intake contracts |
 | 3 | trust center, status/changelog/roadmap, legal, procurement playbook, quote shell | legal/compliance copy, quote pricing model |
 | 4 | recovery/verification, MFA, SSO/invites/tenant, onboarding, session/risk/logout/organization-exit states | auth state/API contract, session provider changes |
 | 5 | plan picker, payment methods, invoices/receipts, usage/cancel/coupons | billing API/OpenAPI, invoice legal artifact |
@@ -2459,6 +3007,10 @@ send shared files through queues.
 - [ ] Route ID is registered.
 - [ ] Owner and launch status are recorded.
 - [ ] SEO metadata exists for public pages.
+- [ ] OG/Social preview metadata is generated from content metadata, not
+      hardcoded.
+- [ ] Register tag (`formal-uk`, `formal-ru`, `formal-en`, `neutral-en`) is
+      checked by the content registry where public copy is localized.
 - [ ] en/uk/ru copy exists or explicit fallback is approved.
 - [ ] Loading, empty, error, unauthorized, unlicensed, offline/degraded states
       are implemented where applicable.
@@ -2476,9 +3028,14 @@ send shared files through queues.
 - [ ] Rate-limit and retry copy exists.
 - [ ] Privacy/security copy exists.
 - [ ] Retention period and downstream owner are declared.
+- [ ] Destination system is declared and health-checked.
+- [ ] Event taxonomy mapping is declared.
+- [ ] Jurisdictional retention rule is declared for UA, EU, or both.
 - [ ] Spam/abuse handling is declared for public forms.
 - [ ] Attachments, if allowed, have type/size limits and malware-scan owner.
 - [ ] Sensitive data persistence policy is explicit.
+- [ ] No client-side persistence of card data, secrets, or tokens beyond the
+      session.
 - [ ] Audit event is previewed for admin/governance/billing actions.
 - [ ] Destructive actions require confirmation.
 - [ ] Step-up auth is required for high-risk actions.
@@ -2489,6 +3046,9 @@ send shared files through queues.
 - [ ] Evidence link exists.
 - [ ] Certification status is exact.
 - [ ] Jurisdiction and region are explicit where relevant.
+- [ ] Jurisdictional scope tag is declared: UA, EU, or out-of-scope.
+- [ ] If the claim is related to EU AI Act or NIS2, risk class and required
+      artifact are listed.
 - [ ] Last reviewed date exists.
 - [ ] Legal/security approval exists for launch.
 
@@ -2508,6 +3068,16 @@ These decisions must be made in Wave 0 or early Wave 1:
 | Decision | Default | Required evidence |
 | --- | --- | --- |
 | Single app vs separate public app | Single app with aggressive lazy splitting | Bundle and Lighthouse evidence for public routes |
+| Sandbox engine | Precomputed fixtures, escalate to WASM only with bundle/perf evidence | Wave 0.13 decision note |
+| Jurisdictional scope | UA + EU in scope, RF out of scope until legal review | Wave 0.11 jurisdiction registry |
+| CRM/lead destination | Single declared system per form, health-checked | Wave 0.12 destination registry |
+| Email kit foundation | Atlas-tokenized transactional templates from Wave 1 | Wave 1.5 snapshots and provider owner |
+| Provider lock-in / portability strategy | Provider-neutral email templates with adapter boundary for Postmark, Resend, and SES until provider selection is signed | Wave 1.5 portability note |
+| Mobile quick-approve visibility | Public preview from Wave 2 demo set | Wave 2.9 public demo evidence |
+| Public telemetry | Consent-aware RUM + error tracking + synthetic checks from Wave 1 | Wave 1.7 telemetry evidence |
+| Atlas Codex topology | Publication layer over Storybook/design docs, single source | Wave 9.5 ADR |
+| AI Act readiness | Conformity assessment posture in trust center | Wave 8.5 evidence package |
+| Public roadmap slip-comms policy | Public template + channel before voting flag flips | Wave 3.2 roadmap policy |
 | Public counters source | Fixture-labeled until telemetry contract exists | API/telemetry contract and privacy review |
 | Trust center claim level | Publish only evidence-mapped claims | Legal/security evidence map |
 | Quote builder binding status | Non-binding draft quote until legal approval | Legal/procurement review |

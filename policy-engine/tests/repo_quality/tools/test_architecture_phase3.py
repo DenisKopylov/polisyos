@@ -77,7 +77,8 @@ def test_scaffold_governance_pass_writes_expected_templates(tmp_path: Path) -> N
 
 
 def test_guardrails_detects_new_deep_import_creep(tmp_path: Path) -> None:
-    baseline = tmp_path / "deep_import_baseline.json"
+    baseline = tmp_path / "baselines" / "imports" / "deep_import.json"
+    baseline.parent.mkdir(parents=True)
     baseline.write_text('{"version":1,"edges":[]}\n', encoding="utf-8")
 
     violations = guardrails._check_deep_import_creep(
@@ -101,10 +102,11 @@ def test_guardrails_exception_registry_requires_declared_id(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    exceptions = tmp_path / "guardrail_exceptions.toml"
+    exceptions = tmp_path / "exceptions" / "guardrails.toml"
     registry = tmp_path / "guardrail_exceptions_registry.md"
     expires = dt.date.today() + dt.timedelta(days=14)
     monkeypatch.setattr(guardrails, "REPO_ROOT", tmp_path)
+    exceptions.parent.mkdir(parents=True)
     exceptions.write_text(
         textwrap.dedent(
             f"""

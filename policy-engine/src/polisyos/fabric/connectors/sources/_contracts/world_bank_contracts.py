@@ -15,6 +15,8 @@ from polisyos.fabric.connectors.contracts import (
     make_field_id,
 )
 
+from ._governance import FIELD_ID_MAJOR_BUMP_APPROVAL
+
 _SCHEMA_ID = "worldbank.wdi.generic"
 
 
@@ -24,7 +26,7 @@ def _field_id(name: str) -> str:
 
 WDI_GENERIC_SCHEMA = DataSchema(
     schema_id=_SCHEMA_ID,
-    version=SchemaVersion(1, 0, 0),
+    version=SchemaVersion(2, 0, 0),
     fields=(
         FieldSpec(
             name="country_code",
@@ -127,6 +129,7 @@ WDI_GENERIC_CONTRACT = ConnectorSchemaContract(
     completeness_window_rows=2000,
     description="Wildcard contract for World Bank WDI indicators.",
     created_by="phase16",
+    approval=FIELD_ID_MAJOR_BUMP_APPROVAL,
 )
 
 WORLD_BANK_CONTRACTS = (WDI_GENERIC_CONTRACT,)

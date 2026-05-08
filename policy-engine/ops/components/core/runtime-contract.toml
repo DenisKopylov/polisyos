@@ -4,7 +4,7 @@ owner = "team-core"
 aliases = ["core", "polisyos.core"]
 source_readme = "src/polisyos/core/README.md"
 runtime_contract_links = [
-  "architecture/public_surface.toml",
+  "architecture/public_surface/contract.toml",
   "ops/runtime/runtime-contracts.toml",
   "architecture/runtime_state_layout.toml",
   "docs/reference/security-compliance.md",

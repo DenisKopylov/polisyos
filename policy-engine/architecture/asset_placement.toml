@@ -3,10 +3,11 @@ version = 1
 status = "report_only"
 phase = "repository-best-in-class-phase-2.9"
 owner = "team-quality"
-directory_contracts_source = "architecture/directory_contracts.toml"
-test_ratchets_source = "architecture/test_ratchets.toml"
+directory_contracts_source = "architecture/policies/directory_contracts.toml"
+test_ratchets_source = "architecture/tests/ratchets.toml"
 generated_artifacts_source = "architecture/generated_artifacts.toml"
 local_runtime_state_source = "architecture/local_runtime_state.toml"
+data_policy_source = "architecture/policies/data.toml"
 validator_command = "uv run polisyos-tools validation directory-hygiene-assets --fail-on-contract-errors"
 cleanup_command = "uv run polisyos-tools workspace clean-local-reports --stale-days 30 --dry-run"
 gate_conversion_phase = "wave-6.2"
@@ -16,6 +17,7 @@ promotion_rules = [
   "Test fixtures live under tests/_data or benchmark data roots after Phase 2.4.",
   "Golden records live under tests/_golden or explicitly registered snapshot roots after Phase 2.4.",
   "Examples keep assets inside installable examples/<example-name>/ projects.",
+  "The legacy local data lake name data/policy-engine-local/ is retained only as an ADR-backed ignored local-state exception.",
   "Local reports stay ignored under .polisyos/reports, _build, or benchmarks/_reports until reviewed and promoted.",
   "Promoted report evidence must land under docs/archive/reports, release evidence, or a registered generated-artifact family.",
 ]
@@ -110,6 +112,23 @@ allowed_roots = ["docs/archive/reports/benchmarks/"]
 local_roots = ["benchmarks/_reports/", "_build/benchmark-results/"]
 commit_policy = "local_by_default_reviewed_baseline_only"
 promotion_rule = "Promote benchmark evidence through docs/archive/reports/benchmarks or architecture/generated_artifacts.toml."
+
+[[asset_class]]
+id = "legacy_local_data_lake_state"
+review_class = "local_state_data"
+owner = "team-data-forge"
+local_roots = [
+  "data/policy-engine-local/raw/",
+  "data/policy-engine-local/curated/",
+  "data/policy-engine-local/databases/",
+]
+source_contracts = [
+  "docs/adr/repository-structure-0147-data-root-local-state-naming.md",
+  "architecture/policies/data.toml",
+  "architecture/policies/directory_contracts.toml",
+]
+commit_policy = "ignored_local_state_except_root_readme"
+promotion_rule = "Promote reusable local data only after reducing it to an allowlisted fixture, manifest, registry entry, or reviewed generated-artifact family."
 
 [[registered_product_fixture]]
 id = "catalog-relevant-topics-domain-fixtures"

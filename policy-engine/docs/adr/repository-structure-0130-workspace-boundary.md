@@ -36,7 +36,7 @@ Phase 2A chooses **Variant A: collapse to the product root**.
    `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md`.
 4. Product-level design and local data material move under `policy-engine/`.
    Bulk data remains ignored by Git and is governed by
-   `architecture/data_policy.toml`.
+   `architecture/policies/data.toml`.
 5. Root-level duplicate `.venv`, `.polisyos`, and cache directories are removed.
    The remaining canonical local state lives under `policy-engine/`.
 6. A true root monorepo remains deferred until there are multiple independently

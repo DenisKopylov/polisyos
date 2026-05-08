@@ -182,14 +182,14 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             GovernanceReport,
             GovernanceReportLinks,
         )
-        from polisyos.scientist.research_dag.builder import ResearchDAGBuilder
-        from polisyos.scientist.research_dag.invalidation import (
+        from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
+        from polisyos.scientist.methods.research_dag.invalidation import (
             SourceInvalidationEvent,
             SourceInvalidationImpact,
             propagate_source_invalidation,
         )
-        from polisyos.scientist.research_dag.models import ResearchEdgeType, ResearchNodeType
-        from polisyos.scientist.search.readiness import DecisionReadiness
+        from polisyos.scientist.methods.research_dag.models import ResearchEdgeType, ResearchNodeType
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
         from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_6_import_failed:{exc.__class__.__name__}:{exc}"]

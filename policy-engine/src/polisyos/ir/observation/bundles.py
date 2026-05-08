@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
     from polisyos.ir.analytics.transportability import SNode
     from polisyos.ir.observation.governance import GovernancePassAliasRegistry
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 else:
     from datetime import date
@@ -37,7 +37,7 @@ else:
     from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
     from polisyos.ir.analytics.transportability import SNode
     from polisyos.ir.observation.governance import GovernancePassAliasRegistry
-    from polisyos.ir.types import TimeFrequency
+    from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
@@ -710,11 +710,11 @@ SURVIVAL_DATA_TARGET = ContractCompatibilityTarget(
 )
 BACKTEST_PLAN_TARGET = ContractCompatibilityTarget(
     contract_id="scientist.backtesting.historical_validation_plan.v1",
-    contract_fqn="polisyos.scientist.backtesting.plan.HistoricalValidationPlan",
+    contract_fqn="polisyos.scientist.methods.backtesting.plan.HistoricalValidationPlan",
 )
 LESSON_CARD_TARGET = ContractCompatibilityTarget(
     contract_id="scientist.search.lesson_card.v1",
-    contract_fqn="polisyos.scientist.search.lessons.LessonCard",
+    contract_fqn="polisyos.scientist.methods.search.lessons.LessonCard",
 )
 
 

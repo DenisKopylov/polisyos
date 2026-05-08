@@ -13,14 +13,14 @@ from typing import Any
 
 import pandas as pd
 
-from polisyos.fabric.quality.finite import (
+from polisyos.fabric.numerics.finite import (
     ensure_finite_float,
     ensure_non_negative_finite,
     ensure_probability,
     is_finite_number,
 )
-from polisyos.fabric.tabular import require_dataframe
-from polisyos.fabric.temporal import parse_datetime_utc, utc_now
+from polisyos.fabric.data_plane.tabular import require_dataframe
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 
 
 def _jsonable_value(value: Any) -> Any:

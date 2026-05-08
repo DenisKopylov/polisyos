@@ -33,6 +33,8 @@ __all__ = [
     "suggest_adapter_methods",
     "suggest_alternative_methods",
     "suggest_plan_node_alternatives",
+    "_score_entry",
+    "_score_entry_v2",
 ]
 
 

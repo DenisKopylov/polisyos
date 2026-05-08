@@ -1,0 +1,152 @@
+PROPRIETARY SOFTWARE LICENSE — ALL RIGHTS RESERVED
+
+Copyright (c) 2026 Denis Kopylov. All Rights Reserved.
+
+This source code, documentation, configuration, data, design, and any other
+material contained in this repository (collectively, the "Work") is the
+exclusive intellectual property of Denis Kopylov (the "Author"). The Work has
+been made temporarily visible in a public source code hosting service for the
+sole and limited purpose of demonstration and review by parties expressly
+invited by the Author.
+
+PUBLICATION OF THE WORK IN A PUBLIC REPOSITORY DOES NOT CONSTITUTE A LICENSE,
+WAIVER, OR OTHER GRANT OF RIGHTS, EXPRESS OR IMPLIED.
+
+================================================================================
+1. NO LICENSE GRANTED
+================================================================================
+
+No license, immunity, or other right is granted, by implication, estoppel, or
+otherwise, under any patent, copyright, trade secret, trademark, or other
+intellectual property right of the Author. In particular, but without
+limitation, NO PERSON IS GRANTED any of the following rights with respect to
+the Work or any portion thereof:
+
+    (a) the right to use the Work, in whole or in part, for any purpose,
+        including personal, educational, academic, research, evaluation,
+        benchmarking, internal, or commercial use;
+
+    (b) the right to copy, reproduce, mirror, archive, cache, fork, clone,
+        download for retention, screenshot, or otherwise duplicate the Work
+        in any medium, whether electronic, print, or otherwise;
+
+    (c) the right to modify, adapt, translate, port, refactor, decompile,
+        reverse engineer, or create derivative works based on the Work;
+
+    (d) the right to distribute, sublicense, lease, lend, sell, publish,
+        republish, transmit, broadcast, display, perform, or otherwise make
+        the Work available to any third party in any form;
+
+    (e) the right to use any trademark, service mark, trade name, logo,
+        product name, or other identifier appearing in the Work;
+
+    (f) the right to use the Work, in whole or in part, to train, fine-tune,
+        evaluate, prompt, embed, index, or otherwise inform any machine
+        learning model, large language model, embedding model, retrieval
+        system, dataset, or other artificial intelligence or data-driven
+        system, whether commercial or non-commercial, and whether the output
+        of such system is made publicly available or not;
+
+    (g) the right to extract, scrape, ingest, or otherwise harvest the Work
+        by automated or manual means for inclusion in any corpus, archive,
+        index, or training dataset.
+
+The act of cloning, forking, downloading, mirroring, archiving, or otherwise
+duplicating this repository (including via "git clone", "git fork", web-based
+forks, archive snapshots, browser-cached pages, third-party mirrors, or any
+similar mechanism) is itself an act of copying that is NOT authorized by this
+notice and may, of itself, constitute copyright infringement.
+
+================================================================================
+2. RESPONSIBILITY AND LIABILITY FOR UNAUTHORIZED USE
+================================================================================
+
+Any person or entity that copies, modifies, distributes, publishes, or
+otherwise uses the Work, in whole or in part, in violation of this notice
+shall be in breach of applicable copyright and intellectual property law and
+shall be solely and fully responsible for such breach. Without limiting the
+foregoing, such person or entity may be subject to:
+
+    - injunctive and other equitable relief, including immediate take-down
+      orders;
+
+    - actual damages suffered by the Author and any profits attributable to
+      the infringement that are not taken into account in computing actual
+      damages;
+
+    - statutory damages where available under applicable law, including
+      enhanced or maximum statutory damages for willful infringement;
+
+    - the Author's reasonable attorneys' fees, expert witness fees, and
+      litigation costs;
+
+    - criminal penalties where the unauthorized use constitutes criminal
+      copyright infringement under applicable law;
+
+    - any other civil, criminal, administrative, or equitable remedy
+      available to the Author under applicable law.
+
+The Author expressly reserves all rights and remedies, at law and in equity,
+arising under copyright law (including, without limitation, the United States
+Copyright Act, 17 U.S.C. §§ 101 et seq., the Berne Convention, the WIPO
+Copyright Treaty, and equivalent legislation and treaties in any other
+jurisdiction), trade secret law, contract law, unfair competition law, and
+any other applicable body of law.
+
+NO ACT OR OMISSION OF THE AUTHOR — including, without limitation, the temporary
+public visibility of the Work, the absence of access controls, the failure to
+issue an immediate notice of infringement, or the toleration of past
+unauthorized use — shall be construed as a waiver of any right or remedy of
+the Author, nor as consent to any past, present, or future unauthorized use.
+
+================================================================================
+3. NO WARRANTY; LIMITATION OF LIABILITY OF THE AUTHOR
+================================================================================
+
+THE WORK IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS, IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO THE IMPLIED
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+NON-INFRINGEMENT, ACCURACY, COMPLETENESS, OR QUIET ENJOYMENT.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+CONSEQUENTIAL, OR PUNITIVE DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, REVENUE, OR PROFITS;
+BUSINESS INTERRUPTION; OR REPUTATIONAL HARM) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE), ARISING IN ANY WAY OUT OF THE USE OF, OR INABILITY
+TO USE, THE WORK, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+================================================================================
+4. EXPORT, SANCTIONS, AND COMPLIANCE
+================================================================================
+
+Any person who accesses or uses the Work is solely responsible for compliance
+with all applicable export control laws, trade sanctions, embargoes, and other
+regulatory requirements of any jurisdiction. The Author makes no representation
+that the Work is appropriate or available for use in any particular location.
+
+================================================================================
+5. SEVERABILITY; ENTIRE NOTICE
+================================================================================
+
+If any provision of this notice is held to be invalid or unenforceable in any
+jurisdiction, such provision shall be enforced to the maximum extent permitted
+by applicable law, and the remaining provisions shall remain in full force and
+effect. This notice constitutes the entire statement of rights with respect to
+the Work and supersedes any prior or contemporaneous statement.
+
+================================================================================
+6. CONTACT FOR LICENSING REQUESTS
+================================================================================
+
+Any request for written authorization to use, copy, modify, distribute, or
+otherwise exploit any portion of the Work must be made in writing to the
+Author. Absent prior written authorization signed by the Author, no rights of
+any kind are granted, and any use is at the sole risk and liability of the
+person undertaking it.
+
+Denis Kopylov
+2026
+
+END OF NOTICE.

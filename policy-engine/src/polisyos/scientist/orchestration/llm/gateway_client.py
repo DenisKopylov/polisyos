@@ -66,12 +66,14 @@ class _HTTPError(RuntimeError):
         status: int,
         *,
         error_code: str | None = None,
+        error_body: str | None = None,
         retry_after_s: float | None = None,
         request_id: str | None = None,
     ) -> None:
         super().__init__(message)
         self.status = status
         self.error_code = error_code
+        self.error_body = error_body
         self.retry_after_s = retry_after_s
         self.request_id = request_id
 
@@ -124,6 +126,29 @@ def _is_retryable_status(status: int, error_code: str | None = None) -> bool:
     if error_code in _RETRYABLE_ERROR_CODES:
         return True
     return status == 429 or status >= 500
+
+
+def _should_retry_without_response_format(
+    status: int,
+    error_code: str | None,
+    raw_text: str,
+    payload: dict[str, Any],
+) -> bool:
+    """Handle gateways where JSON mode is temporarily unavailable.
+
+    Some OpenAI-compatible gateways still accept prompt-instructed JSON but
+    reject the `response_format` control flag. Retrying without the flag keeps
+    the same model/prompt path alive while preserving downstream JSON parsing.
+    """
+    if "response_format" not in payload:
+        return False
+    if status not in {400, 422}:
+        return False
+    normalized_error = (error_code or "").lower()
+    normalized_body = raw_text.lower()
+    if normalized_error not in {"invalid_request", "invalid_request_error", "bad_request"}:
+        return False
+    return "json_object" in normalized_body or "response_format" in normalized_body
 
 
 class GatewayLLMClient:
@@ -437,9 +462,34 @@ class GatewayLLMClient:
                             f"Gateway request failed ({response.status}): {raw_text[:400]}",
                             status=response.status,
                             error_code=error_code,
+                            error_body=raw_text[:1000],
                             retry_after_s=retry_after_s,
                             request_id=request_id,
                         )
+                        if _should_retry_without_response_format(
+                            response.status,
+                            error_code,
+                            raw_text,
+                            payload,
+                        ):
+                            fallback_payload = dict(payload)
+                            fallback_payload.pop("response_format", None)
+                            _gateway_degraded(
+                                operation="chat_completion",
+                                reason="response_format_unsupported_retry_plain_json",
+                                exc=err,
+                                details={
+                                    "status": response.status,
+                                    "error_code": error_code,
+                                    "request_id": request_id,
+                                    "model": self.model,
+                                },
+                            )
+                            return await self._post_json(
+                                endpoint=endpoint,
+                                payload=fallback_payload,
+                                timeout_s=timeout_s,
+                            )
                         if not _is_retryable_status(response.status, error_code):
                             raise err
                         raise err

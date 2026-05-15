@@ -1,0 +1,77 @@
+{
+  "fixture_id": "runtime_authority_invariant_pass",
+  "contract_name": "runtime_quality.invariant_registry_entry.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "hds_invariants": [
+    "ADR-0155:single-final-owner",
+    "ADR-0155:runtime-evidence-required",
+    "ADR-0155:next-diagnostic-command"
+  ],
+  "description": "Minimal valid registry entry for a serious closeout invariant whose authority comes from runtime event and CAS evidence.",
+  "payload": {
+    "invariant_id": "hds.runtime_authority.normative_applicability",
+    "minimum_closeout_gate": "normative_applicability_authority",
+    "pql_id": "PQL-HDS-0147-001",
+    "final_owner": "team-runtime-quality",
+    "producer_owners": [
+      "team-lex",
+      "team-runtime-quality"
+    ],
+    "runtime_event_names": [
+      "producer_execution",
+      "cas_write",
+      "ref_publication"
+    ],
+    "required_artifact_kinds": [
+      "normative_applicability_report"
+    ],
+    "required_ref_keys": [
+      "normative_applicability_report_ref"
+    ],
+    "evidence_classes": [
+      "authority_bearing"
+    ],
+    "allowed_provenance_kinds": [
+      "runtime_emitted"
+    ],
+    "required_schema_contracts": [
+      "runtime_quality.evidence_authority_envelope.v1",
+      "runtime_quality.diagnostic_event.v1"
+    ],
+    "scorecard_gate_names": [
+      "runtime_quality.normative_applicability"
+    ],
+    "readiness_check": "require_runtime_authority_envelope",
+    "enforcement_function": "polisyos.runtime.quality.invariants.require_runtime_authority",
+    "approval_policy": "requires_readiness_pass",
+    "override_policy": "not_overridable",
+    "non_overridable_blockers": [
+      "authority_missing",
+      "authority_ref_not_cas",
+      "authority_tenant_conflict",
+      "disallowed_provenance"
+    ],
+    "dashboard_projection_policy": "projection_only",
+    "public_artifact_policy": "redacted_projection_only",
+    "conflict_policy": "runtime_event_and_cas_match_or_block",
+    "failure_code": "authority_missing_or_mismatched",
+    "diagnostic_owner": "team-runtime-quality",
+    "dependencies": [
+      "hds.mode.effective_profile",
+      "hds.schema.compatibility"
+    ],
+    "consumers": [
+      "scorecard",
+      "readiness",
+      "approval",
+      "dashboard"
+    ],
+    "applies_to_profiles": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "next_diagnostic_command": "uv run pytest tests/unit/runtime/quality/test_authority_envelope_contract.py -q"
+  }
+}

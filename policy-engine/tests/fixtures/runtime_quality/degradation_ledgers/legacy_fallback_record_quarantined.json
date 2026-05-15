@@ -1,0 +1,43 @@
+{
+  "fixture_id": "legacy_fallback_record_quarantined",
+  "contract_name": "runtime_quality.degradation_ledger.v1",
+  "expected_status": "quarantined",
+  "expected_failure_code": "degradation_legacy_record_quarantined",
+  "hds_invariants": [
+    "ADR-0149:fallback-ledger-required-fields",
+    "ADR-0151:legacy-quarantine",
+    "ADR-0155:next-diagnostic-command"
+  ],
+  "description": "Legacy fallback note is quarantined because it does not carry the required evidence impact and override semantics.",
+  "payload": {
+    "degradation_id": "degradation_hds_phase02_legacy_fallback_quarantined",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_legacy_fallback_quarantine",
+    "cas_ref": null,
+    "component": "legacy.runtime.fallbacks",
+    "phase": "legacy_import",
+    "trigger": "unknown",
+    "primary_path": "unknown",
+    "fallback_path": "unknown",
+    "allowed_profiles": [],
+    "actual_profile": "production",
+    "produced_artifacts": [
+      "legacy://fallbacks/provider_note.json"
+    ],
+    "affected_claims": [],
+    "affected_gates": [],
+    "severity": "unknown",
+    "degradation_kind": "legacy_unknown",
+    "downstream_impact": "Unknown; legacy record does not declare affected gates or produced artifacts with authority refs.",
+    "override_policy": "unknown",
+    "blocking_status": "blocking",
+    "owner": "team-runtime-ops",
+    "generated_at": "2026-05-14T12:11:00Z",
+    "validation_status": "blocked",
+    "quarantine": {
+      "failure_code": "degradation_legacy_record_quarantined",
+      "reason": "Legacy fallback record lacks accepted schema, allowed profiles, override policy, and diagnostic command identity.",
+      "may_satisfy_serious_gate": false
+    },
+    "next_diagnostic_command": "uv run pytest tests/unit/runtime/quality/test_degradation.py -q"
+  }
+}

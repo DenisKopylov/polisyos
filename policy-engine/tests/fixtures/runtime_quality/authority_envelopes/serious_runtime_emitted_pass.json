@@ -1,0 +1,91 @@
+{
+  "fixture_id": "serious_runtime_emitted_pass",
+  "contract_name": "runtime_quality.evidence_authority_envelope.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "hds_invariants": [
+    "ADR-0147:authority-ordering",
+    "ADR-0147:same-input-closure",
+    "ADR-0151:producer-reader-schema",
+    "ADR-0154:event-cas-reconciliation"
+  ],
+  "description": "Authority-bearing runtime evidence with matching diagnostic event, CAS ref, provenance, mode, and schema identity.",
+  "payload": {
+    "evidence_id": "evidence.normative_applicability.hds_phase02.pass",
+    "artifact_ref": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "artifact_kind": "normative_applicability_report",
+    "evidence_class": "authority_bearing",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.lex.normpack.applicability_report",
+    "producer_version": "2026.05.14+hds-phase02",
+    "owner": "team-runtime-quality",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_runtime_producer_pass",
+    "cas_ref": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "schema_name": "runtime_quality.normative_applicability_report",
+    "schema_version": "1.0.0",
+    "reader_contract": "runtime_quality.evidence_authority_envelope",
+    "reader_contract_version": "1.0.0",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "trace_id": "trace_hds_phase02_001",
+    "span_id": "span_authority_envelope_001",
+    "parent_span_id": null,
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "production",
+    "phase": "runtime_evidence",
+    "state_before": "running",
+    "state_after": "evidence_emitted",
+    "generated_at": "2026-05-14T12:00:00Z",
+    "as_of_time": "2026-05-14T11:59:30Z",
+    "same_input_closure": {
+      "closure_id": "same_input_closure_hds_phase02_001",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "run_id": "run_hds_phase02_serious_001",
+      "job_id": "job_hds_phase02_norms_001",
+      "tenant_id": "tenant_ua_demo",
+      "cell_id": "cell_eu_central_1",
+      "time_context_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "production_data_manifest_ref": "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333",
+      "legal_snapshot_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "method_plan_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "provider_mode_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+      "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "degradation_ledger_ref": null,
+      "evidence_input_refs": [
+        "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555"
+      ],
+      "closure_sha256": "7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    "input_refs": [
+      "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555"
+    ],
+    "output_refs": [
+      "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "degradation_ledger_ref": null,
+    "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "semantic_binding_ref": null,
+    "attestation_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "validation_status": "pass",
+    "blocking_status": "non_blocking",
+    "governance": {
+      "classification": "internal_runtime_authority",
+      "authority_boundary": "runtime_only",
+      "pii": "none",
+      "retention_policy": "diagnostic_evidence_400d",
+      "review_status": "machine_checked",
+      "override_policy": "not_overridable",
+      "approval_policy": "readiness_required"
+    }
+  }
+}

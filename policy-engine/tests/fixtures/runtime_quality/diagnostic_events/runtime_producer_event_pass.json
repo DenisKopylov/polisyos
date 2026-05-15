@@ -1,0 +1,53 @@
+{
+  "fixture_id": "runtime_producer_event_pass",
+  "contract_name": "runtime_quality.diagnostic_event.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "hds_invariants": [
+    "ADR-0154:event-envelope",
+    "ADR-0154:trace-identity",
+    "ADR-0147:runtime-event-before-cas"
+  ],
+  "description": "Append-only runtime producer event that can be reconciled with an authority envelope and CAS artifact.",
+  "payload": {
+    "event_id": "evt_hds_phase02_runtime_producer_pass",
+    "event_source": "polisyos.runtime.quality.authority",
+    "event_type": "producer_execution",
+    "event_time": "2026-05-14T12:00:00Z",
+    "event_subject": {
+      "kind": "authority_evidence",
+      "ref": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "authority_role": "producer_authority"
+    },
+    "schema_name": "runtime_quality.diagnostic_event",
+    "schema_version": "1.0.0",
+    "trace_id": "trace_hds_phase02_001",
+    "span_id": "span_diagnostic_event_001",
+    "parent_span_id": null,
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "producer_component": "polisyos.lex.normpack.applicability_report",
+    "producer_version": "2026.05.14+hds-phase02",
+    "execution_profile": "production",
+    "phase": "runtime_evidence",
+    "state_before": "running",
+    "state_after": "evidence_emitted",
+    "payload_ref": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "artifact_refs": [
+      "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "input_refs": [
+      "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555"
+    ],
+    "blocking_status": "non_blocking",
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "authority_role": "producer_authority",
+    "append_only": true,
+    "sampled": false
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "fixture_id": "bundle_overlay_rejected",
+  "contract_name": "runtime_quality.evidence_authority_envelope.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "authority_bundle_overlay_not_runtime",
+  "hds_invariants": [
+    "ADR-0147:lower-authority-cannot-upgrade",
+    "ADR-0147:provenance-fail-closed",
+    "ADR-0154:bundle-events-not-runtime-authority"
+  ],
+  "description": "Bundle overlay shaped like evidence but rejected because it is packaging-only and uses a bundle-local ref.",
+  "payload": {
+    "evidence_id": "evidence.normative_applicability.bundle_overlay.rejected",
+    "artifact_ref": "bundle://quality_evidence/normative_evidence.json",
+    "artifact_kind": "normative_applicability_report",
+    "evidence_class": "diagnostic_supporting",
+    "authority_role": "packaging_only",
+    "provenance_kind": "bundle_overlay",
+    "producer_component": "tools.ops_runners.runtime.canary_evidence",
+    "producer_version": "2026.05.14+hds-phase02",
+    "owner": "team-quality-closeout",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_bundle_packaging_rejected",
+    "cas_ref": null,
+    "payload_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "schema_name": "runtime_quality.normative_applicability_report",
+    "schema_version": "1.0.0",
+    "reader_contract": "runtime_quality.evidence_authority_envelope",
+    "reader_contract_version": "1.0.0",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "trace_id": "trace_hds_phase02_001",
+    "span_id": "span_bundle_overlay_001",
+    "parent_span_id": "span_authority_envelope_001",
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "production",
+    "phase": "bundle_assembly",
+    "state_before": "evidence_emitted",
+    "state_after": "bundle_packaged",
+    "generated_at": "2026-05-14T12:05:00Z",
+    "as_of_time": "2026-05-14T11:59:30Z",
+    "same_input_closure": {
+      "closure_id": "same_input_closure_hds_phase02_overlay",
+      "status": "not_closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "run_id": "run_hds_phase02_serious_001",
+      "job_id": "job_hds_phase02_norms_001",
+      "tenant_id": "tenant_ua_demo",
+      "cell_id": "cell_eu_central_1",
+      "time_context_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "production_data_manifest_ref": "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333",
+      "legal_snapshot_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "method_plan_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "provider_mode_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+      "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "degradation_ledger_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+      "evidence_input_refs": [
+        "bundle://quality_evidence/normative_evidence.json"
+      ],
+      "closure_sha256": null
+    },
+    "input_refs": [
+      "bundle://quality_evidence/normative_evidence.json"
+    ],
+    "output_refs": [
+      "bundle://quality_evidence/normative_evidence.json"
+    ],
+    "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "degradation_ledger_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "semantic_binding_ref": null,
+    "attestation_ref": null,
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "validation_status": "fail",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "authority_bundle_overlay_not_runtime",
+      "reason": "Bundle overlay is packaging-only and cannot mint a runtime CAS authority ref."
+    },
+    "governance": {
+      "classification": "internal_bundle_packaging",
+      "authority_boundary": "packaging_only",
+      "pii": "none",
+      "retention_policy": "diagnostic_evidence_90d",
+      "review_status": "machine_rejected",
+      "override_policy": "not_overridable",
+      "approval_policy": "cannot_satisfy_closeout"
+    }
+  }
+}

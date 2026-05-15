@@ -29,6 +29,8 @@ LAST_MILE_FAST_GATE_HELP = """
 Last-mile fail-fast gates:
   - shell-package closure via check-package-import-gates --fail-closed
   - repository_last_mile_inventory.py baseline drift
+  - Honest Diagnostics coverage dashboard generation
+  - Honest Diagnostics substrate anti-drift audit
   - check_extension_examples.py contract coverage without install/discovery/pytest
   - top-level schemas/** pure-data closure
 """
@@ -272,6 +274,33 @@ def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[C
                 "--json-output",
                 "_build/.tmp/last-mile/inventory.json",
                 "--check",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="build honest diagnostics coverage dashboard",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/build_honest_diagnostics_coverage.py",
+                "--repo-root",
+                ".",
+                "--output-dir",
+                "_build/honest-diagnostics/coverage",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="check honest diagnostics substrate drift",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/check_substrate_drift.py",
+                "--repo-root",
+                ".",
+                "--require-passing",
             ),
             cwd=PRODUCT_ROOT,
         ),

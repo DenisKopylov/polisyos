@@ -1,0 +1,66 @@
+{
+  "fixture_id": "projection_owner_rejected",
+  "contract_name": "runtime_quality.invariant_registry_entry.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "invariant_projection_owner_not_authoritative",
+  "hds_invariants": [
+    "ADR-0155:single-final-owner",
+    "ADR-0155:projection-not-final-authority",
+    "ADR-0150:dashboard-projection-boundary"
+  ],
+  "description": "Registry entry rejected because a dashboard projection is declared as final owner for runtime authority.",
+  "payload": {
+    "invariant_id": "hds.runtime_authority.projection_owner_rejected",
+    "minimum_closeout_gate": "normative_applicability_authority",
+    "pql_id": "PQL-HDS-0147-001",
+    "final_owner": "runtime-dashboard",
+    "producer_owners": [
+      "team-lex",
+      "team-runtime-quality"
+    ],
+    "runtime_event_names": [
+      "dashboard_projection"
+    ],
+    "required_artifact_kinds": [
+      "dashboard_quality_projection"
+    ],
+    "required_ref_keys": [
+      "dashboard_normative_projection_ref"
+    ],
+    "evidence_classes": [
+      "diagnostic_supporting"
+    ],
+    "allowed_provenance_kinds": [
+      "runtime_projection",
+      "bundle_overlay"
+    ],
+    "required_schema_contracts": [
+      "runtime_dashboard.quality_projection.v1"
+    ],
+    "scorecard_gate_names": [
+      "runtime_quality.normative_applicability"
+    ],
+    "readiness_check": "read_dashboard_projection",
+    "enforcement_function": "polisyos.runtime_dashboard.read_projection",
+    "approval_policy": "projection_may_approve",
+    "override_policy": "unknown",
+    "non_overridable_blockers": [],
+    "dashboard_projection_policy": "may_upgrade_to_authority",
+    "public_artifact_policy": "public_projection_may_satisfy",
+    "conflict_policy": "projection_wins",
+    "failure_code": "invariant_projection_owner_not_authoritative",
+    "diagnostic_owner": "team-quality-closeout",
+    "dependencies": [],
+    "consumers": [
+      "dashboard"
+    ],
+    "applies_to_profiles": [
+      "production"
+    ],
+    "next_diagnostic_command": "uv run pytest tests/repo_quality/tools/test_runtime_quality_contract_fixtures.py -q",
+    "rejection": {
+      "failure_code": "invariant_projection_owner_not_authoritative",
+      "reason": "Dashboard projections may observe invariant state but cannot be final authority for serious closeout."
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "fixture_id": "bundle_packaging_event_rejected",
+  "contract_name": "runtime_quality.diagnostic_event.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "diagnostic_event_bundle_packaging_not_authority",
+  "hds_invariants": [
+    "ADR-0154:bundle-packaging-events-not-authority",
+    "ADR-0147:lower-authority-cannot-upgrade",
+    "ADR-0150:projection-boundaries"
+  ],
+  "description": "Packaging event is valid as observer telemetry but rejected when used as a runtime authority event.",
+  "payload": {
+    "event_id": "evt_hds_phase02_bundle_packaging_rejected",
+    "event_source": "tools.ops_runners.runtime.canary_evidence",
+    "event_type": "bundle_packaging",
+    "event_time": "2026-05-14T12:05:00Z",
+    "event_subject": {
+      "kind": "bundle_overlay",
+      "ref": "bundle://quality_evidence/normative_evidence.json",
+      "authority_role": "packaging_only"
+    },
+    "schema_name": "runtime_quality.diagnostic_event",
+    "schema_version": "1.0.0",
+    "trace_id": "trace_hds_phase02_001",
+    "span_id": "span_bundle_packaging_event_001",
+    "parent_span_id": "span_diagnostic_event_001",
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "producer_component": "tools.ops_runners.runtime.canary_evidence",
+    "producer_version": "2026.05.14+hds-phase02",
+    "execution_profile": "production",
+    "phase": "bundle_assembly",
+    "state_before": "evidence_emitted",
+    "state_after": "bundle_packaged",
+    "payload_ref": "bundle://quality_evidence/normative_evidence.json",
+    "artifact_refs": [
+      "bundle://quality_evidence/normative_evidence.json"
+    ],
+    "input_refs": [
+      "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "blocking_status": "non_overridable",
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "payload_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "authority_role": "packaging_only",
+    "append_only": true,
+    "sampled": false,
+    "rejection": {
+      "failure_code": "diagnostic_event_bundle_packaging_not_authority",
+      "reason": "Bundle packaging events may observe runtime evidence but cannot be used as producer authority."
+    }
+  }
+}

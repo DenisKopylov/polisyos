@@ -1,0 +1,91 @@
+{
+  "fixture_id": "legacy_unknown_schema_quarantined",
+  "contract_name": "runtime_quality.evidence_authority_envelope.v1",
+  "expected_status": "quarantined",
+  "expected_failure_code": "schema_legacy_unknown_quarantined",
+  "hds_invariants": [
+    "ADR-0147:legacy-evidence-not-authoritative",
+    "ADR-0151:unknown-schema-quarantine",
+    "ADR-0151:legacy-classification"
+  ],
+  "description": "Legacy evidence is inspectable but quarantined because schema identity and reader compatibility are unknown.",
+  "payload": {
+    "evidence_id": "evidence.legacy.unknown_schema.quarantined",
+    "artifact_ref": "legacy://quality_report/normative_evidence.json",
+    "artifact_kind": "legacy_quality_report",
+    "evidence_class": "legacy_quarantined",
+    "authority_role": "not_authoritative",
+    "provenance_kind": "legacy_quarantined",
+    "producer_component": "legacy.bundle.importer",
+    "producer_version": "unknown",
+    "owner": "team-architecture",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_legacy_schema_quarantine",
+    "cas_ref": null,
+    "payload_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "schema_name": "legacy.unknown_quality_report",
+    "schema_version": "unknown",
+    "reader_contract": "runtime_quality.evidence_authority_envelope",
+    "reader_contract_version": "1.0.0",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "trace_id": "trace_hds_phase02_legacy_001",
+    "span_id": "span_legacy_quarantine_001",
+    "parent_span_id": null,
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "production",
+    "phase": "legacy_import",
+    "state_before": "artifact_discovered",
+    "state_after": "quarantined",
+    "generated_at": "2026-05-14T12:10:00Z",
+    "as_of_time": "2026-05-14T11:59:30Z",
+    "same_input_closure": {
+      "closure_id": "same_input_closure_hds_phase02_legacy",
+      "status": "not_closed",
+      "policy_intent_ref": null,
+      "run_id": "run_hds_phase02_serious_001",
+      "job_id": "job_hds_phase02_norms_001",
+      "tenant_id": "tenant_ua_demo",
+      "cell_id": "cell_eu_central_1",
+      "time_context_ref": null,
+      "production_data_manifest_ref": null,
+      "legal_snapshot_ref": null,
+      "method_plan_ref": null,
+      "provider_mode_ref": null,
+      "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "degradation_ledger_ref": null,
+      "evidence_input_refs": [
+        "legacy://quality_report/normative_evidence.json"
+      ],
+      "closure_sha256": null
+    },
+    "input_refs": [
+      "legacy://quality_report/normative_evidence.json"
+    ],
+    "output_refs": [],
+    "effective_mode_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "degradation_ledger_ref": null,
+    "schema_compatibility_ref": null,
+    "semantic_binding_ref": null,
+    "attestation_ref": null,
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "validation_status": "blocked",
+    "blocking_status": "blocking",
+    "quarantine": {
+      "failure_code": "schema_legacy_unknown_quarantined",
+      "reason": "Legacy evidence lacks accepted producer schema and reader compatibility identity.",
+      "may_satisfy_serious_gate": false
+    },
+    "governance": {
+      "classification": "legacy_quarantine",
+      "authority_boundary": "not_authoritative",
+      "pii": "unknown",
+      "retention_policy": "diagnostic_evidence_90d",
+      "review_status": "needs_schema_classification",
+      "override_policy": "not_overridable",
+      "approval_policy": "cannot_satisfy_closeout"
+    }
+  }
+}

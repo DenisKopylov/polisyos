@@ -1,0 +1,49 @@
+{
+  "fixture_id": "silent_generated_substitute_rejected",
+  "contract_name": "runtime_quality.degradation_ledger.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "degradation_generated_substitute_not_allowed",
+  "hds_invariants": [
+    "ADR-0149:generated-substitute-ledger",
+    "ADR-0149:fallback-produced-evidence-not-silent",
+    "ADR-0147:bundle-generated-evidence-not-authority"
+  ],
+  "description": "Generated substitute report is rejected because it tries to satisfy a production gate without an allowed-profile policy.",
+  "payload": {
+    "degradation_id": "degradation_hds_phase02_generated_substitute_rejected",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_generated_substitute_rejected",
+    "cas_ref": "cas://sha256/1414141414141414141414141414141414141414141414141414141414141414",
+    "component": "tools.ops_runners.runtime.canary_evidence",
+    "phase": "bundle_assembly",
+    "trigger": "missing_runtime_normative_report",
+    "primary_path": "cas://runtime/normative_applicability_report",
+    "fallback_path": "bundle://quality_evidence/normative_evidence.json",
+    "allowed_profiles": [
+      "dev_smoke"
+    ],
+    "actual_profile": "production",
+    "produced_artifacts": [
+      "bundle://quality_evidence/normative_evidence.json"
+    ],
+    "affected_claims": [
+      "claim://normative_applicability/ua_energy_relief"
+    ],
+    "affected_gates": [
+      "runtime_quality.normative_applicability",
+      "readiness.minimum_closeout_gate"
+    ],
+    "severity": "critical",
+    "degradation_kind": "generated_substitute",
+    "downstream_impact": "Would replace missing runtime authority with bundle-local generated evidence.",
+    "override_policy": "not_overridable",
+    "blocking_status": "non_overridable",
+    "owner": "team-runtime-ops",
+    "generated_at": "2026-05-14T12:06:00Z",
+    "validation_status": "fail",
+    "rejection": {
+      "failure_code": "degradation_generated_substitute_not_allowed",
+      "reason": "Generated substitutes are allowed only for dev smoke and cannot satisfy production closeout."
+    },
+    "next_diagnostic_command": "uv run pytest tests/unit/runtime/quality/test_degradation.py -q"
+  }
+}

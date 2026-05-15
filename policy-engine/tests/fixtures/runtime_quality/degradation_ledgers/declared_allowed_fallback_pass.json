@@ -1,0 +1,46 @@
+{
+  "fixture_id": "declared_allowed_fallback_pass",
+  "contract_name": "runtime_quality.degradation_ledger.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "hds_invariants": [
+    "ADR-0149:fallback-ledger-record",
+    "ADR-0149:allowed-profile-policy",
+    "ADR-0155:registry-scoped-overrides"
+  ],
+  "description": "A declared fallback to a live secondary provider that is allowed by profile policy and remains non-authority-upgrading.",
+  "payload": {
+    "degradation_id": "degradation_hds_phase02_allowed_fallback_pass",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_allowed_fallback_pass",
+    "cas_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "component": "polisyos.scientist.orchestration.llm.gateway_client",
+    "phase": "provider_execution",
+    "trigger": "primary_provider_rate_limited",
+    "primary_path": "provider://primary-live/model/policyos-production",
+    "fallback_path": "provider://secondary-live/model/policyos-production",
+    "allowed_profiles": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "actual_profile": "production",
+    "produced_artifacts": [
+      "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "affected_claims": [
+      "claim://normative_applicability/ua_energy_relief"
+    ],
+    "affected_gates": [
+      "runtime_quality.normative_applicability"
+    ],
+    "severity": "low",
+    "degradation_kind": "live_provider_failover",
+    "downstream_impact": "No semantic loss; secondary provider uses the same approved live model family and prompt contract.",
+    "override_policy": "registry_allowed",
+    "blocking_status": "non_blocking",
+    "owner": "team-runtime-ops",
+    "generated_at": "2026-05-14T12:00:30Z",
+    "validation_status": "pass",
+    "next_diagnostic_command": "uv run pytest tests/unit/runtime/quality/test_degradation.py -q"
+  }
+}

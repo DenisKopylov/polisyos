@@ -1,0 +1,61 @@
+{
+  "fixture_id": "legacy_unknown_schema_quarantined",
+  "contract_name": "runtime_quality.invariant_registry_entry.v1",
+  "expected_status": "quarantined",
+  "expected_failure_code": "invariant_legacy_unknown_schema_quarantined",
+  "hds_invariants": [
+    "ADR-0155:registry-schema-required",
+    "ADR-0151:unknown-schema-quarantine",
+    "ADR-0155:missing-owner-fails-closeout"
+  ],
+  "description": "Legacy static registry-like entry is quarantined because ownership and schema compatibility are unknown.",
+  "payload": {
+    "invariant_id": "legacy.static_inventory.normative_applicability",
+    "minimum_closeout_gate": "unknown",
+    "pql_id": null,
+    "final_owner": null,
+    "producer_owners": [],
+    "runtime_event_names": [],
+    "required_artifact_kinds": [
+      "quality_report"
+    ],
+    "required_ref_keys": [
+      "quality_report_ref"
+    ],
+    "evidence_classes": [
+      "legacy_quarantined"
+    ],
+    "allowed_provenance_kinds": [
+      "legacy_quarantined"
+    ],
+    "required_schema_contracts": [
+      "legacy.unknown_quality_report"
+    ],
+    "scorecard_gate_names": [],
+    "readiness_check": null,
+    "enforcement_function": null,
+    "approval_policy": "cannot_approve",
+    "override_policy": "not_overridable",
+    "non_overridable_blockers": [
+      "missing_final_owner",
+      "unknown_schema",
+      "missing_runtime_event"
+    ],
+    "dashboard_projection_policy": "inspect_only",
+    "public_artifact_policy": "do_not_publish",
+    "conflict_policy": "fail_closed",
+    "failure_code": "invariant_legacy_unknown_schema_quarantined",
+    "diagnostic_owner": "team-architecture-governance",
+    "dependencies": [],
+    "consumers": [],
+    "applies_to_profiles": [
+      "production"
+    ],
+    "next_diagnostic_command": "uv run pytest tests/repo_quality/tools/test_runtime_quality_contract_fixtures.py -q",
+    "quarantine": {
+      "failure_code": "invariant_legacy_unknown_schema_quarantined",
+      "reason": "Static legacy registry entry lacks final owner, runtime event names, enforcement function, and accepted schema contract.",
+      "may_satisfy_serious_gate": false
+    }
+  }
+}

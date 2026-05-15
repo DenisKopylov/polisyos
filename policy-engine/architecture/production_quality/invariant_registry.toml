@@ -1,0 +1,74 @@
+[[invariants]]
+invariant_id = "HDS-MCG-001"
+minimum_closeout_gate = "serious_canary_runtime_refs"
+pql_id = "PQL-001"
+final_owner = "runtime.quality.closeout"
+producer_owners = [
+  "runtime.nl_pipeline",
+  "lex.normative_applicability",
+  "fabric.retrieval",
+  "foundry.method_quality",
+  "scientist.grounding",
+]
+runtime_event_names = [
+  "polisyos.runtime.evidence.normative_applicability_report.v1",
+  "polisyos.runtime.evidence.fabric_retrieval_trace.v1",
+  "polisyos.runtime.evidence.foundry_method_report.v1",
+  "polisyos.runtime.evidence.policy_grounding_matrix.v1",
+  "polisyos.runtime.evidence.conflict_check.v1",
+]
+required_artifact_kinds = [
+  "normative_applicability_report",
+  "fabric_retrieval_trace",
+  "foundry_method_report",
+  "policy_grounding_matrix",
+  "conflict_check_report",
+]
+required_ref_keys = [
+  "normative_applicability_report_ref",
+  "fabric_retrieval_trace_ref",
+  "foundry_method_report_ref",
+  "policy_grounding_matrix_ref",
+  "conflict_check_ref",
+]
+evidence_classes = ["authority_bearing"]
+allowed_provenance_kinds = ["runtime_emitted", "runtime_blocker"]
+required_schema_contracts = [
+  "runtime_quality.normative_applicability_report.v1",
+  "runtime_quality.fabric_retrieval_trace.v1",
+  "runtime_quality.foundry_method_report.v1",
+  "runtime_quality.policy_grounding_matrix.v1",
+  "runtime_quality.conflict_check_report.v1",
+]
+scorecard_gate_names = [
+  "lex_normative_applicability",
+  "fabric_retrieval",
+  "foundry_method_quality",
+  "policy_grounding",
+  "lex_conflict_check",
+]
+readiness_check = "production_quality.runtime_required_refs"
+approval_policy = "requires_verified_scorecard"
+override_policy = "not_overridable"
+non_overridable_blockers = [
+  "authority_cas_missing",
+  "authority_ref_not_cas",
+  "authority_payload_mismatch",
+  "authority_tenant_conflict",
+]
+dashboard_projection_policy = "projection_only"
+public_artifact_policy = "not_public_exportable"
+conflict_policy = "fail_closed"
+failure_code = "hds_runtime_refs_missing"
+diagnostic_owner = "team-runtime"
+dependencies = []
+consumers = [
+  "runtime.scorecard",
+  "tools.ci.check_policyos_production_quality_best_in_class",
+  "runtime.approval",
+  "runtime.dashboard_projection",
+]
+next_diagnostic_command = "uv run pytest tests/unit/runtime/http/test_nl_pipeline_materialization.py -q"
+negative_tests = [
+  "tests/unit/runtime/quality/test_authority_envelope_contract.py::test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates",
+]

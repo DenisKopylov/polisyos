@@ -1,0 +1,57 @@
+{
+  "fixture_id": "legacy_unknown_event_schema_quarantined",
+  "contract_name": "runtime_quality.diagnostic_event.v1",
+  "expected_status": "quarantined",
+  "expected_failure_code": "diagnostic_event_unknown_schema_quarantined",
+  "hds_invariants": [
+    "ADR-0154:event-type-registry",
+    "ADR-0151:unknown-schema-quarantine",
+    "ADR-0147:missing-provenance-fail-closed"
+  ],
+  "description": "Legacy event-like record is quarantined because the event schema and type registry identity are unknown.",
+  "payload": {
+    "event_id": "evt_hds_phase02_legacy_schema_quarantine",
+    "event_source": "legacy.runtime.audit",
+    "event_type": "legacy_unknown",
+    "event_time": "2026-05-14T12:10:00Z",
+    "event_subject": {
+      "kind": "legacy_artifact",
+      "ref": "legacy://quality_report/normative_evidence.json",
+      "authority_role": "not_authoritative"
+    },
+    "schema_name": "legacy.runtime_event",
+    "schema_version": "unknown",
+    "trace_id": "trace_hds_phase02_legacy_001",
+    "span_id": "span_legacy_event_quarantine_001",
+    "parent_span_id": null,
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "producer_component": "legacy.bundle.importer",
+    "producer_version": "unknown",
+    "execution_profile": "production",
+    "phase": "legacy_import",
+    "state_before": "artifact_discovered",
+    "state_after": "quarantined",
+    "payload_ref": "legacy://quality_report/normative_evidence.json",
+    "artifact_refs": [
+      "legacy://quality_report/normative_evidence.json"
+    ],
+    "input_refs": [
+      "legacy://quality_report/normative_evidence.json"
+    ],
+    "blocking_status": "blocking",
+    "redaction_policy_ref": "policy://redaction/runtime-authority-internal-v1",
+    "duplicate_of": null,
+    "payload_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "authority_role": "not_authoritative",
+    "append_only": true,
+    "sampled": false,
+    "quarantine": {
+      "failure_code": "diagnostic_event_unknown_schema_quarantined",
+      "reason": "Event schema and event type are not accepted by the runtime diagnostic event registry.",
+      "may_satisfy_serious_gate": false
+    }
+  }
+}

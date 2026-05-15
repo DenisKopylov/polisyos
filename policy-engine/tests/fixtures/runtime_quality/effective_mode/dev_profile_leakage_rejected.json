@@ -1,0 +1,51 @@
+{
+  "fixture_id": "dev_profile_leakage_rejected",
+  "contract_name": "runtime_quality.effective_mode_ledger.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "mode_profile_mismatch",
+  "hds_invariants": [
+    "ADR-0149:serious-profile-mode-match",
+    "ADR-0149:simulated-provider-leakage",
+    "ADR-0149:warning-policy-fail-closed"
+  ],
+  "description": "Production closeout request rejected because effective execution leaked into dev smoke semantics.",
+  "payload": {
+    "mode_ledger_id": "mode_ledger_hds_phase02_dev_leakage_rejected",
+    "runtime_event_ref": "event://diagnostic/evt_hds_phase02_effective_mode_rejected",
+    "cas_ref": "cas://sha256/1212121212121212121212121212121212121212121212121212121212121212",
+    "run_id": "run_hds_phase02_serious_001",
+    "job_id": "job_hds_phase02_norms_001",
+    "tenant_id": "tenant_ua_demo",
+    "cell_id": "cell_eu_central_1",
+    "trace_id": "trace_hds_phase02_001",
+    "span_id": "span_effective_mode_dev_leakage_001",
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "dev_smoke",
+    "canary_kind": "deterministic_fixture",
+    "lane_id": "dev-fixture-smoke",
+    "provider_mode": "simulated",
+    "model_simulation_mode": "enabled",
+    "mock_fallback_allowed": true,
+    "mock_fallback_used": true,
+    "fixture_identity": "tests/fixtures/runtime_quality/effective_mode/dev_profile_leakage_rejected.json",
+    "data_mode": "fixture",
+    "production_data_root": null,
+    "manifest_fingerprint": "sha256:abababababababababababababababababababababababababababababababab",
+    "state_store_backend": "in_memory_fixture",
+    "worker_backend": "inline_fixture_worker",
+    "local_control_waiver": null,
+    "scorecard_warn_policy": "warn_allowed",
+    "evidence_overlay_mode": "fixture_overlay",
+    "quarantine_status": "required",
+    "signed_exception_ref": null,
+    "generated_at": "2026-05-14T12:01:00Z",
+    "validation_status": "fail",
+    "blocking_status": "non_overridable",
+    "owner": "team-runtime-ops",
+    "rejection": {
+      "failure_code": "mode_profile_mismatch",
+      "reason": "Requested production profile disagrees with dev fixture execution, simulated provider mode, and warn-allowed scorecard policy."
+    },
+    "next_diagnostic_command": "uv run pytest tests/unit/runtime/quality/test_effective_mode.py -q"
+  }
+}

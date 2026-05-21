@@ -5,7 +5,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 Freshness: 2026-04-27.
 Owner: `@fabric-owners`
 Source plan: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`, Phase 4.
-Source of truth: `src/polisyos/fabric/observability.py`, `src/polisyos/ir/connectors.py`, `src/polisyos/fabric/connectors/governance_metadata.py`, `src/polisyos/fabric/security/**`, `src/polisyos/fabric/connectors/quality/evidence.py`, `src/polisyos/scientist/governance/passes/quality_gate_pass.py`
+Source of truth: `src/polisyos/fabric/_adapters/observability.py`, `src/polisyos/ir/connectors.py`, `src/polisyos/fabric/connectors/governance_metadata.py`, `src/polisyos/fabric/security/**`, `src/polisyos/fabric/connectors/quality/evidence.py`, `src/polisyos/scientist/governance/passes/quality_gate_pass.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric Phase 4 treats observability, governance metadata, quality evidence, and
@@ -120,7 +120,7 @@ uv run pytest tests/unit/fabric/connectors/test_quality_statistics.py tests/unit
 
 ## API Reference
 
-::: polisyos.fabric.observability
+::: polisyos.fabric._adapters.observability
 
 ::: polisyos.fabric.connectors.governance_metadata
 

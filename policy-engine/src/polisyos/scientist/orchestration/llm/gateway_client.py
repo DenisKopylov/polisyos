@@ -146,7 +146,11 @@ def _should_retry_without_response_format(
         return False
     normalized_error = (error_code or "").lower()
     normalized_body = raw_text.lower()
-    if normalized_error not in {"invalid_request", "invalid_request_error", "bad_request"}:
+    if normalized_error and normalized_error not in {
+        "invalid_request",
+        "invalid_request_error",
+        "bad_request",
+    }:
         return False
     return "json_object" in normalized_body or "response_format" in normalized_body
 
@@ -188,6 +192,7 @@ class GatewayLLMClient:
             dict(plugin) for plugin in (default_plugins or []) if isinstance(plugin, dict)
         ]
         self._session: aiohttp.ClientSession | None = None
+        self._response_format_unsupported = False
 
     async def _ensure_session(self, timeout_s: float) -> aiohttp.ClientSession:
         """Return the shared session, creating it lazily if needed."""
@@ -234,7 +239,7 @@ class GatewayLLMClient:
                 messages=messages,
             ),
         }
-        if response_format is not None:
+        if response_format is not None and not self._response_format_unsupported:
             payload["response_format"] = response_format
         if tools is not None:
             payload["tools"] = tools
@@ -356,7 +361,7 @@ class GatewayLLMClient:
             ),
             "stream": True,
         }
-        if response_format is not None:
+        if response_format is not None and not self._response_format_unsupported:
             payload["response_format"] = response_format
         if tools is not None:
             payload["tools"] = tools
@@ -472,9 +477,10 @@ class GatewayLLMClient:
                             raw_text,
                             payload,
                         ):
+                            self._response_format_unsupported = True
                             fallback_payload = dict(payload)
                             fallback_payload.pop("response_format", None)
-                            _gateway_degraded(
+                            degraded_event = _gateway_degraded(
                                 operation="chat_completion",
                                 reason="response_format_unsupported_retry_plain_json",
                                 exc=err,
@@ -485,11 +491,15 @@ class GatewayLLMClient:
                                     "model": self.model,
                                 },
                             )
-                            return await self._post_json(
+                            fallback_response = await self._post_json(
                                 endpoint=endpoint,
                                 payload=fallback_payload,
                                 timeout_s=timeout_s,
                             )
+                            events = fallback_response.setdefault("_gateway_degraded_events", [])
+                            if isinstance(events, list):
+                                events.insert(0, degraded_event)
+                            return fallback_response
                         if not _is_retryable_status(response.status, error_code):
                             raise err
                         raise err
@@ -512,6 +522,7 @@ class GatewayLLMClient:
                 last_error = exc
                 if not _is_retryable_status(exc.status, exc.error_code):
                     # 4xx (except 429): fail immediately, do not retry
+                    await self.aclose()
                     raise RuntimeError(str(exc)) from exc
                 if attempt >= self.max_retries:
                     break
@@ -526,6 +537,7 @@ class GatewayLLMClient:
                 if attempt >= self.max_retries:
                     break
                 await asyncio.sleep(min(0.5 * (attempt + 1), 2.0))
+        await self.aclose()
         raise RuntimeError(f"Failed LLM gateway call to {url}") from last_error
 
     def _build_request_headers(

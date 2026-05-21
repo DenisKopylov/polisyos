@@ -7,14 +7,14 @@
 | Topic | Description | Count |
 | --- | --- | --- |
 | `repository-structure` | Repository topology, package layout, import boundaries, docs governance, and workspace hygiene. | 32 |
-| `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 41 |
+| `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 44 |
 | `security` | Tenant isolation, signing, secrets, trust stores, and other security controls. | 4 |
-| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 8 |
-| `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 15 |
-| `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 3 |
+| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 17 |
+| `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 16 |
+| `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
 | `frontend` | Frontend workspace, dashboard, UI language, themes, and authored text surfaces. | 5 |
-| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 43 |
+| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 48 |
 
 ## Topic Index
 
@@ -100,6 +100,9 @@
 | [0130](0130-scientist-research-dag.md) | `accepted` | `polisyos.scientist` | Scientist Research DAG Boundary | - |
 | [0131](0131-scientist-readiness-ladder.md) | `accepted` | `polisyos.scientist` | Scientist Readiness Ladder Boundary | - |
 | [0132](0132-scientist-voi-compute-law.md) | `accepted` | `polisyos.scientist` | Scientist VOI Compute Law | - |
+| [0153](0153-diagnostic-slos-assurance-case-and-attestation.md) | `accepted` | `repository` | Diagnostic SLOs, Assurance Case, And Attestation | 0006, 0010, 0116, 0128, 0147, 0148, 0149, 0150, 0151, 0152 |
+| [0160](0160-evidence-portfolio-independence-multiverse-synthesis.md) | `accepted` | `repository` | Evidence Portfolio, Independence Map, Multiverse, And Synthesis | 0020, 0028, 0041, 0129, 0152, 0156, 0159, 0161 |
+| [0164](0164-run-cost-proportionality-evidence-budget-governance.md) | `accepted` | `repository` | Run Cost, Proportionality, And Evidence Budget Governance | 0150, 0156, 0157, 0160, 0161, 0163, 0165 |
 
 ### security
 
@@ -121,6 +124,15 @@
 | [0101](0101-runtime-audit-trail-model.md) | `accepted` | `polisyos.runtime` | Runtime Audit Trail Model | - |
 | [0103](0103-async-cas-adapter-roadmap.md) | `accepted` | `repository` | Async CAS Adapter Roadmap | - |
 | [0104](0104-ir-canonical-cas-policy.md) | `accepted` | `polisyos.ir` | IR Canonical JSON and CAS Hash Policy | - |
+| [0147](0147-production-evidence-authority-ordering.md) | `accepted` | `repository` | Production Evidence Authority Ordering | 0010, 0098, 0101, 0104, 0123, 0148, 0149, 0150, ADR-043 |
+| [0148](0148-serious-run-state-machine-and-phase-barriers.md) | `accepted` | `polisyos.runtime` | Serious Run State Machine And Phase Barriers | 0008, 0009, 0097, 0099, 0101, 0147, 0149, 0150 |
+| [0149](0149-effective-mode-and-fallback-degradation-ledger.md) | `accepted` | `polisyos.runtime` | Effective Mode And Fallback Degradation Ledger | 0097, 0101, 0116, 0147, 0148, 0150, RSR-0137 |
+| [0150](0150-scorecard-readiness-approval-projection-boundaries.md) | `accepted` | `polisyos.runtime` | Scorecard, Readiness, Approval, And Projection Boundaries | 0007, 0099, 0100, 0101, 0147, 0148, 0149, ADR-043, ADR-044 |
+| [0154](0154-diagnostic-event-envelope-and-runtime-log-contract.md) | `accepted` | `polisyos.runtime` | Diagnostic Event Envelope And Runtime Log Contract | 0097, 0101, 0116, 0124, 0147, 0148, 0149, 0150, 0151, 0153 |
+| [0155](0155-production-invariant-registry-and-ownership-contract.md) | `accepted` | `repository` | Production Invariant Registry And Ownership Contract | 0147, 0148, 0149, 0150, 0151, 0152, 0153, 0154 |
+| [0156](0156-policy-design-case-runtime-quality-assurance-profile.md) | `accepted` | `polisyos.runtime` | Policy Design Case Runtime Quality Assurance Profile | 0147, 0150, 0152, 0153, 0155, 0157, 0161 |
+| [0162](0162-human-oversight-publication-external-audit-authority.md) | `accepted` | `repository` | Human Oversight, Publication, And External Audit Authority | 0147, 0150, 0153, 0154, 0156, 0157, 0161, 0163 |
+| [0163](0163-lifecycle-ddm-ex-post-calibration.md) | `accepted` | `repository` | Lifecycle, DDM, Ex-Post Outcomes, And Calibration | 0149, 0150, 0154, 0156, 0160, 0161, 0162, 0164 |
 | [ADR-004](ADR-004-policy-surface-removal.md) | `completed` | `polisyos.ir` | Trinity-Only IR Runtime | - |
 
 ### schemas
@@ -142,6 +154,7 @@
 | [0109](0109-ir-transport-and-interoperability-bridges.md) | `accepted` | `polisyos.ir` | IR Transport and Interoperability Bridges | 0005, 0098, 0104, 0108 |
 | [0110](0110-ir-frontier-governance-and-causal-contracts.md) | `accepted` | `polisyos.ir` | Ir Frontier Governance And Causal Contracts | - |
 | [0114](0114-schema-registry-and-evolution.md) | `proposed` | `polisyos.ir` | Schema Registry and Evolution Rules | 0005, 0108, 0118, 0122, 0123 |
+| [0151](0151-evidence-schema-compatibility-and-legacy-quarantine.md) | `accepted` | `repository` | Evidence Schema Compatibility And Legacy Quarantine | 0005, 0108, 0114, 0123, 0147, 0148, 0150 |
 
 ### testing
 
@@ -150,6 +163,7 @@
 | [0020](0020-robustness-sensitivity-stress.md) | `proposed` | `repository` | Robustness Modes (Sensitivity + Stress Test) (Phase 13) | - |
 | [0095](0095-canonical-scm-test-fixtures.md) | `proposed` | `repository` | Canonical SCM Test Fixtures | - |
 | [0128](0128-hermetic-reproducibility.md) | `proposed` | `repository` | Hermetic Reproducibility | 0010, 0118, 0122, 0123 |
+| [0165](0165-formal-policy-case-substrate-invariant-specs.md) | `accepted` | `repository` | Formal Policy Case And Substrate Invariant Specs | 0147, 0148, 0149, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 0162, 0163, 0164 |
 
 ### release
 
@@ -218,4 +232,9 @@
 | [0123](0123-artifact-ref-governance.md) | `proposed` | `repository` | ArtifactRef Governance Metadata | 0010, 0021, 0062, 0105 |
 | [0125](0125-quality-regime-golden-differential-drift-consumer-contracts.md) | `proposed` | `polisyos.data_forge` | Quality Regime for Data Forge Assets | 0062, 0095, 0113, 0114 |
 | [0133](0133-fabric-streaming-scale-semantics.md) | `accepted` | `polisyos.fabric` | Fabric Streaming Scale Semantics | - |
+| [0152](0152-semantic-binding-lineage-and-claim-evidence.md) | `accepted` | `repository` | Semantic Binding, Lineage, And Claim Evidence | 0015, 0021, 0043, 0123, 0147, 0148, 0150, 0151, ADR-043 |
+| [0157](0157-policy-intent-capability-ledger-authority-profile.md) | `accepted` | `repository` | Policy Intent Envelope, Capability Ledger, And Authority Profile Mapping | 0129, 0131, 0149, 0150, 0152, 0156, 0158 |
+| [0158](0158-concept-spine-multi-jurisdiction-reconciliation.md) | `accepted` | `polisyos.ir` | Concept Spine And Multi-Jurisdiction Reconciliation | 0036, 0051, 0147, 0152, 0156, 0157, 0159 |
+| [0159](0159-production-evidence-producer-contracts.md) | `accepted` | `repository` | Production Evidence Producer Contracts For Lex, Fabric, Scholar, And Data Forge | 0015, 0021, 0112, 0122, 0152, 0156, 0158, 0160 |
+| [0161](0161-claim-argument-warrant-compiler-closeout-gate.md) | `accepted` | `repository` | Claim Argument, Warrant Reliability, And Compiler Closeout Gate | 0129, 0147, 0152, 0153, 0156, 0160 |
 | [ADR-043](ADR-043-provenance-law.md) | `approved` | `polisyos.lex` | Provenance Law Through QuantityValue | 0123, ADR-044, ADR-046 |

@@ -11,7 +11,11 @@ from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
-from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
+from polisyos.fabric.quality.quality import QualityIndicators
+from polisyos.scientist.nodes.builtins.governance.data_plane_gate import (
+    DataPlaneGateNode,
+    _quality_report_from_dict,
+)
 from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
 
 
@@ -215,3 +219,27 @@ def test_data_plane_gate_uses_branch_state_for_param_outputs(tmp_path) -> None:
     assert "data_plane_gate_profile" not in state.params
     assert state.params["nested"] == {"baseline": True}
     assert outcome.state.params["data_plane_gate_profile"] == "mvp"
+
+
+def test_quality_report_proxy_exposes_cache_age_for_quality_fitness() -> None:
+    report = _quality_report_from_dict(
+        {
+            "tier": "silver",
+            "grade": "B",
+            "score": 0.88,
+            "completeness_score": 0.95,
+            "row_count": 10,
+            "validated_at": "2026-05-09T00:00:00Z",
+            "freshness_status": {
+                "is_fresh": True,
+                "cache_age_seconds": 172800,
+                "message": "served from cache",
+            },
+            "violations": [],
+        }
+    )
+
+    assert report.freshness_status.data_age_seconds is None
+    assert report.freshness_status.cache_age_seconds == 172800
+    indicators = QualityIndicators.from_quality_report(report)
+    assert indicators.staleness_days == 2

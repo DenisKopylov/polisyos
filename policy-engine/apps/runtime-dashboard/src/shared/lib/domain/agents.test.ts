@@ -78,6 +78,33 @@ describe("agents domain", () => {
       },
       latest_verdict: "approve",
       notes: ["pipeline-note", 9],
+      performance_summary: {
+        llm: {
+          latency_ms: "125000",
+          total_tokens: "3400",
+        },
+        phase_budgets: [
+          {
+            budget_ms: "10000",
+            category: "retrieval",
+            duration_ms: "15000",
+            phase: "retrieval.materialize",
+            status: "over_budget",
+          },
+          {
+            budget_ms: 20000,
+            category: "llm",
+            duration_ms: 12000,
+            phase: "llm.total",
+            status: "within_budget",
+          },
+        ],
+        variants: {
+          completed: "1",
+          failed: "1",
+          total: "2",
+        },
+      },
       preflight: {
         diagnostics: [
           {
@@ -229,6 +256,30 @@ describe("agents domain", () => {
       },
       latestVerdict: "approve",
       notes: ["pipeline-note", "9"],
+      performanceSummary: {
+        llmLatencyMs: 125000,
+        overBudgetCount: 1,
+        phaseBudgets: [
+          {
+            budgetMs: 10000,
+            category: "retrieval",
+            durationMs: 15000,
+            phase: "retrieval.materialize",
+            status: "over_budget",
+          },
+          {
+            budgetMs: 20000,
+            category: "llm",
+            durationMs: 12000,
+            phase: "llm.total",
+            status: "within_budget",
+          },
+        ],
+        totalTokens: 3400,
+        variantsCompleted: 1,
+        variantsFailed: 1,
+        variantsTotal: 2,
+      },
       preflight: {
         diagnostics: [
           {
@@ -285,6 +336,7 @@ describe("agents domain", () => {
       iterationLifecycle: null,
       latestVerdict: null,
       notes: [],
+      performanceSummary: null,
       preflight: null,
       reproducibility: null,
       retrieval: null,

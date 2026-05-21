@@ -141,3 +141,143 @@ Imported from
 - **Revisit trigger**: Wave 5 negative controls and proof-harness enforcement have stable timing data across fast-pr, integration-pr, nightly, and weekly-closeout lanes.
 - **Revisit wave**: after Wave 5
 - **Promotion status**: log_only_pending_revisit
+
+### DL-HDS-0007 - strict xfail carry-forward for open red controls
+
+- **Date**: 2026-05-15
+- **Context**: Phase 1.10 requires every temporary HDS strict xfail exception to be named by a machine-readable registry entry and reviewed through the decision log while earlier red controls await runtime implementation.
+- **Decision**: Allow only the registered `HDS-XFAIL-RED-CONTROLS` strict xfail budget for the current HDS red-control files; any increase or new path must add a new temporary exception tied to an invariant and revisit wave.
+- **Affected ADR**: ADR-0147, ADR-0148, ADR-0149, ADR-0150, ADR-0152, ADR-0154, ADR-0155
+- **Affected invariant id or phase id**: HDS-MCG-001; Phase 1.10
+- **Owner**: team-architecture-governance
+- **Reversibility**: reversible
+- **Revisit trigger**: The referenced red controls pass without xfail, or any PR adds, moves, broadens, or increases a strict xfail in an HDS substrate test.
+- **Revisit wave**: after Wave 2
+- **Promotion status**: log_only_pending_revisit
+
+### DL-HDS-0008 - Wave 4 operational closeout evidence
+
+- **Date**: 2026-05-15
+- **Context**: Wave 4 requires operational closeout evidence, not only local unit-test pass status. The implementation now requires a fresh serious canary bundle, `policyos.honest_diagnostics.wave4_closeout.v1`, and `check_wave4_operational_closeout.py` before the Wave 4 exit fence can be marked complete.
+- **Decision**: Treat the fresh bundle's authority-bearing semantic binding ledger, decision artifact quality report, assurance case, diagnostic SLO report, attestation records, migration sandbox, and redacted public export projection as the Wave 4 closeout evidence set. The two-consecutive-weekly-baseline window is explicitly not a blocker for this closeout per implementation instruction; the report records it as `not_applicable_by_instruction`.
+- **Evidence bundle path**: `_build/honest-diagnostics/rebaseline/wave-4`
+- **Commands**: `uv run python tools/quality/validation/check_substrate_drift.py --repo-root .`; `uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-4`; `uv run python tools/quality/validation/check_wave4_operational_closeout.py --repo-root . --bundle-dir <fresh-serious-bundle> --ignore-weekly-baseline-window`
+- **Affected ADR**: ADR-0152, ADR-0153
+- **Affected invariant id or phase id**: Wave 4 Exit Fence; Phase 4.1; Phase 4.3A; Phase 4.4; Phase 4.5; Phase 4.6
+- **Owner**: team-runtime-quality
+- **Reversibility**: reversible
+- **Revisit trigger**: Any Wave 4 closeout command fails, or any serious bundle uses legacy, projection-only, synthetic, stale, or missing evidence as authority.
+- **Revisit wave**: Wave 5
+- **Promotion status**: operational_closeout_required
+
+### DL-HDS-0009 - Wave 6 authority envelope disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 closeout binds authority envelope serialization to runtime CAS refs, diagnostic events, schema compatibility, same-input closure, effective mode, fallback/degradation, projection boundaries, and attested producer metadata.
+- **Decision**: Close the Wave 1 open question by treating the runtime authority envelope plus CAS manifest and diagnostic event reconciliation as the production authority record.
+- **Closes**: DL-HDS-0001
+- **Affected ADR**: ADR-0147, ADR-0152, ADR-0155
+- **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-002; Wave 6
+- **Owner**: team-runtime-quality
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Any final readiness run accepts a bundle-local path, projection, or static inventory row as runtime authority.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0010 - Wave 6 event-log boundary disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 requires every selected serious runtime ref to reconcile to diagnostic events while dashboard projections remain projection-only evidence.
+- **Decision**: Close the Wave 2 boundary question by assigning authority to append-only runtime diagnostic events and keeping dashboard-only metadata out of closeout authority.
+- **Closes**: DL-HDS-0002
+- **Affected ADR**: ADR-0150, ADR-0154
+- **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-020; Wave 6
+- **Owner**: team-observability
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Event/CAS reconciliation fails or a dashboard projection is used as closeout authority.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0011 - Wave 6 legacy migration disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 serious closeout keeps legacy-compatible payloads in migration sandbox outputs and requires authority-bearing runtime reports for closeout.
+- **Decision**: Close the Wave 4 migration cutoff question by quarantining legacy evidence as diagnostic-only unless it is re-emitted with runtime authority metadata.
+- **Closes**: DL-HDS-0003
+- **Affected ADR**: ADR-0151
+- **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-003; Wave 6
+- **Owner**: team-architecture
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: A legacy bundle is promoted to serious authority without a new runtime CAS ref and compatible schema decision.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0012 - Wave 6 diagnostic SLO disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 inspection and readiness require diagnostic SLO evidence in selected serious bundles and treat missing/stale diagnostic evidence as closeout blockers.
+- **Decision**: Close the Wave 4 threshold question by binding SLO readiness to pass records emitted in the diagnostic SLO report and invariant proof harness.
+- **Closes**: DL-HDS-0004
+- **Affected ADR**: ADR-0153
+- **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-021; Wave 6
+- **Owner**: team-assurance
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Diagnostic SLO evidence becomes stale or a closeout lane passes with missing diagnostic observations.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0013 - Wave 6 attestation disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 requires attestation records for producer steps, public export, dashboard projection, approval packet, provider/model gateway, and prompt/tool/parser boundaries.
+- **Decision**: Close the Wave 5 attestation expansion question by requiring trust-boundary attestation records in serious bundles and preserving semantic-binding failures as non-overridable blockers.
+- **Closes**: DL-HDS-0005
+- **Affected ADR**: ADR-0148, ADR-0149, ADR-0152, ADR-0153, ADR-0155
+- **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-008; Wave 6
+- **Owner**: team-architecture-governance
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: A serious bundle contains an unattested producer step, semantic binding gap, or non-overridable blocker bypass.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0014 - Wave 6 CI budget disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 final validation runs are sequential to avoid local port and CAS contention while deterministic serious closeout remains non-live.
+- **Decision**: Close the Wave 5 CI budget question by keeping dev smoke explicit through `--ci-smoke`, deterministic serious closeout through the canary matrix, and final coverage/anti-drift/readiness checks as separate sequential gates.
+- **Closes**: DL-HDS-0006
+- **Affected ADR**: ADR-0153, ADR-0155
+- **Affected invariant id or phase id**: CI Tiers And Test Budget; Wave 6 Exit Fence
+- **Owner**: team-quality-closeout
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Final validation timing or flakiness requires changing lane ownership, timeout budgets, or gate order.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0015 - Wave 6 strict xfail disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 proof-harness, anti-drift, red-control, and coverage checks require zero due temporary exceptions for the honest diagnostics substrate.
+- **Decision**: Close the Wave 2 strict xfail carry-forward by requiring every due HDS exception to be either removed, retired, or superseded by an explicit later-wave decision before closeout.
+- **Closes**: DL-HDS-0007
+- **Affected ADR**: ADR-0147, ADR-0148, ADR-0149, ADR-0150, ADR-0152, ADR-0154, ADR-0155
+- **Affected invariant id or phase id**: HDS-MCG-001; Phase 1.10; Wave 6
+- **Owner**: team-architecture-governance
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Any strict xfail budget increases, broadens, or carries past its revisit wave.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired
+
+### DL-HDS-0016 - Wave 6 operational closeout disposition
+
+- **Date**: 2026-05-16
+- **Context**: Wave 6 promotes the closeout authority from Wave 4 operational evidence to the final deterministic matrix, evidence inspection, runtime/API/local/dashboard smokes, coverage, anti-drift, and readiness outputs.
+- **Decision**: Close the Wave 4 operational closeout carry-forward by requiring final evidence paths in the Wave 6 plan before archiving.
+- **Closes**: DL-HDS-0008
+- **Affected ADR**: ADR-0152, ADR-0153
+- **Affected invariant id or phase id**: Wave 6 Exit Fence; Phase 6.1; Phase 6.4
+- **Owner**: team-runtime-quality
+- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Revisit trigger**: Final closeout evidence is missing, stale, or fails inspection/readiness.
+- **Revisit wave**: Wave 7
+- **Promotion status**: retired

@@ -5,7 +5,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 Freshness: 2026-04-27.
 Owner: `@fabric-owners`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/quality.py`, `src/polisyos/fabric/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_{system,statistics}.py`
+Source of truth: `src/polisyos/fabric/quality/quality.py`, `src/polisyos/fabric/quality/fitness_report.py`, `src/polisyos/fabric/connectors/quality/**`, `tests/unit/fabric/test_quality_indicators.py`, `tests/unit/fabric/connectors/test_quality_{system,statistics}.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric currently exposes two quality layers that are both active in code.
@@ -94,9 +94,9 @@ uv run pytest tests/unit/fabric/data_plane/test_orchestrator.py -q
 
 ## API Reference
 
-::: polisyos.fabric.quality
+::: polisyos.fabric.quality.quality
 
-::: polisyos.fabric.fitness_report
+::: polisyos.fabric.quality.fitness_report
 
 ::: polisyos.fabric.connectors.quality.validator
 

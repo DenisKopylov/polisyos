@@ -11,6 +11,13 @@ def test_run_agents_endpoint_returns_attempt_pipeline(runtime_api_env) -> None:
     assert pipeline["source_kind"] == "core_run"
     assert pipeline["source"] == "decision_packet.audit_trail"
     assert pipeline["total_attempts"] == 1
+    performance_summary = pipeline["performance_summary"]
+    assert performance_summary["schema_version"] == "1.0"
+    assert performance_summary["budget_summary"]["over_budget_count"] == 2
+    assert {row["phase"] for row in performance_summary["phase_budgets"]} >= {
+        "llm.total",
+        "retrieval.materialize",
+    }
     assert (
         pipeline["reflexion_terminal_ref"]["artifact_id"]
         == runtime_api_env["reflexion_terminal_artifact_id"]

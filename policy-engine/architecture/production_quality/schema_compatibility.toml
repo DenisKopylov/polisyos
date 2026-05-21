@@ -1,0 +1,254 @@
+schema_version = "policyos.production_quality.schema_compatibility.v1"
+owner = "runtime.quality"
+purpose = "Producer-reader schema compatibility and legacy quarantine declarations for Honest Diagnostics Substrate closeout."
+
+decisions = [
+  "compatible",
+  "compatible_with_migration",
+  "legacy_quarantined",
+  "unknown_schema_blocked",
+  "incompatible_blocked",
+  "stale_schema_blocked",
+]
+
+production_closeout_blocking_decisions = [
+  "legacy_quarantined",
+  "unknown_schema_blocked",
+  "incompatible_blocked",
+  "stale_schema_blocked",
+]
+
+[[readers]]
+name = "scorecard"
+consumer = "polisyos.runtime.quality.scorecard"
+production_closeout_policy = "block_non_compatible"
+diagnostic_policy = "legacy_readable_only"
+accepted_schema_families = [
+  "policyos.runtime.production_data_quality",
+  "policyos.lex.normative_applicability_report",
+  "policyos.fabric.source_selection_trace",
+  "policyos.foundry.method_quality_report",
+  "policyos.scientist.policy_grounding_matrix",
+  "policyos.lex.policy_conflict_check",
+  "policyos.foundry.causal_statistical_validity",
+  "policyos.replay_manifest",
+  "policyos.drift_explanation",
+  "policyos.runtime.resilience_matrix",
+  "policyos.runtime_resilience_matrix",
+  "policyos.human_review_calibration_report",
+  "policyos.scientist.decision_artifact_quality",
+  "policyos.privacy_compliance_report",
+  "policyos.runtime.governance_lifecycle_report",
+]
+min_version = "1"
+max_version = "1"
+current_version = "1"
+legacy_versions = ["0"]
+
+[[readers]]
+name = "readiness"
+consumer = "production_quality_best_in_class_readiness"
+production_closeout_policy = "block_non_compatible"
+diagnostic_policy = "legacy_readable_only"
+accepted_schema_families = [
+  "policyos.quality_scorecard",
+  "policyos.canary_evidence",
+]
+min_version = "1"
+max_version = "1"
+current_version = "1"
+legacy_versions = ["0"]
+
+[[readers]]
+name = "bundle_assembler"
+consumer = "tools.ops_runners.runtime.canary_evidence"
+production_closeout_policy = "block_non_compatible"
+diagnostic_policy = "legacy_readable_only"
+accepted_schema_families = [
+  "policyos.runtime.production_data_quality",
+  "policyos.lex.normative_applicability_report",
+  "policyos.fabric.source_selection_trace",
+  "policyos.foundry.method_quality_report",
+  "policyos.scientist.policy_grounding_matrix",
+  "policyos.lex.policy_conflict_check",
+  "policyos.foundry.causal_statistical_validity",
+  "policyos.replay_manifest",
+  "policyos.drift_explanation",
+  "policyos.runtime.resilience_matrix",
+  "policyos.runtime_resilience_matrix",
+  "policyos.human_review_calibration_report",
+  "policyos.scientist.decision_artifact_quality",
+  "policyos.privacy_compliance_report",
+  "policyos.runtime.governance_lifecycle_report",
+  "policyos.quality_scorecard",
+  "policyos.canary_evidence",
+]
+min_version = "1"
+max_version = "1"
+current_version = "1"
+legacy_versions = ["0"]
+
+[[readers]]
+name = "dashboard_projection"
+consumer = "runtime.dashboard_projection"
+production_closeout_policy = "projection_only"
+diagnostic_policy = "legacy_readable_only"
+accepted_schema_families = [
+  "policyos.quality_scorecard",
+  "policyos.canary_evidence",
+  "policyos.production_approval_packet",
+]
+min_version = "1"
+max_version = "1"
+current_version = "1"
+legacy_versions = ["0"]
+
+[[readers]]
+name = "approval_packet_builder"
+consumer = "polisyos.runtime.quality.approval"
+production_closeout_policy = "block_non_compatible"
+diagnostic_policy = "legacy_readable_only"
+accepted_schema_families = ["policyos.quality_scorecard"]
+min_version = "1"
+max_version = "1"
+current_version = "1"
+legacy_versions = ["0"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.normative_applicability_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "input_refs"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.fabric_retrieval_trace.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "source_family"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.foundry_method_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "method_expectation"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.policy_grounding_matrix.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "claim_sets"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.conflict_check_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "jurisdiction"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.effective_mode_ledger.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.approval"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "mode_policy"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.quality_scorecard.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.metric_taxonomy.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.benchmark_authority_pack.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.performance_budget.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.cas_ownership_manifest.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.approval_packet.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.governance_lifecycle_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.production_data_quality_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.causal_statistical_validity_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.security_assurance_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.privacy_compliance_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.replay_manifest.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.drift_explanation.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.resilience_matrix.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.human_review_calibration_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.provider_model_quality_ledger.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.decision_artifact_quality_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+[[schema_compatibility]]
+schema_contract = "runtime_quality.closeout_matrix_report.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.run_state_snapshot.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.phase_barrier_ledger.v1"
+reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]

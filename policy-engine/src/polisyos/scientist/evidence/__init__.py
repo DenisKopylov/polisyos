@@ -19,6 +19,7 @@ __all__ = [
     "build_claim_support_links",
     "build_path_source_status",
     "build_snippet_ledger",
+    "build_source_quality_report",
     "build_url_fetch_cache",
     "cap_tool_int",
     "claim_support_status",
@@ -106,6 +107,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "score_source_quality": (
         "polisyos.scientist.evidence.source_quality",
         "score_source_quality",
+    ),
+    "build_source_quality_report": (
+        "polisyos.scientist.evidence.source_quality",
+        "build_source_quality_report",
     ),
     "score_web_evidence_bundle_sources": (
         "polisyos.scientist.evidence.source_quality",

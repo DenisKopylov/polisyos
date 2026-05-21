@@ -1,0 +1,66 @@
+{
+  "fixture_id": "concept_jurisdiction_spine_pass",
+  "adr": "ADR-0158",
+  "contract_name": "policy_design_case.concept_jurisdiction_spine.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "concept_and_jurisdiction_spine.v1"
+  ],
+  "description": "Per-run concept and jurisdiction spine consumed by upstream producers and final claims.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0158_pass",
+    "artifact_ref": "cas://sha256/0158015801580158015801580158015801580158015801580158015801580158",
+    "cas_ref": "cas://sha256/0158015801580158015801580158015801580158015801580158015801580158",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.fabric.entity_resolution.policy_spine",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-policy-semantics",
+    "runtime_event_ref": "event://policy_design_case/adr0158/concept_jurisdiction/pass",
+    "schema_name": "policy_design_case.concept_jurisdiction_spine",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.concept_jurisdiction_spine.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_concept_spine_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:02:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0158_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555"
+      ],
+      "closure_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "concept_spine_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+    "jurisdiction_spine_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+    "canonical_concepts": [
+      {
+        "concept_id": "concept.minimum_income.floor",
+        "aliases": [
+          "minimum income",
+          "income floor"
+        ],
+        "metric_bindings": [
+          "metric.household_disposable_income"
+        ]
+      }
+    ],
+    "jurisdiction_graph": {
+      "root": "UA",
+      "as_of": "2026-05-17",
+      "conflict_rules_ref": "cas://sha256/7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    "unresolved_concept_blockers": []
+  }
+}

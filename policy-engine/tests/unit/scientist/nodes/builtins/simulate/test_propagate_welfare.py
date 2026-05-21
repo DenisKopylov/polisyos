@@ -138,6 +138,71 @@ def test_propagate_welfare_node_writes_partial_bundle_for_pe_only(tmp_path) -> N
     assert updated_sim.welfare_bundle_ref is not None
 
 
+def test_propagate_welfare_node_skips_default_operational_metrics_without_welfare_inputs(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_welfare_default_skip",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.welfare.default_skip"),
+    )
+
+    snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(
+            values={
+                "applied_nodes": 1,
+                "checked_constraints": 2,
+                "failure_cards_recorded": 0,
+                "step_latency_ms": 12.5,
+            }
+        ),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    sim_result_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_welfare_default_skip",
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref},
+        params={},
+    )
+
+    outcome = PropagateWelfareNode().execute(ctx, state)
+
+    assert outcome.status == "skip"
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in outcome.state.artifacts_index
+    assert outcome.events
+    assert "welfare target" in outcome.events[0].message
+
+
 def test_propagate_welfare_node_feeds_feedback_multiplicity_into_welfare_bundle(
     tmp_path,
 ) -> None:

@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     RunTransportabilityNode,
     _build_skg_query,
@@ -15,6 +15,9 @@ from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -150,6 +153,7 @@ def test_run_transportability_uses_branch_state_for_skip_warning(
         "params.transportability_capability_hash",
         "params.transportability_degradation_policy",
         "params.transportability_warning",
+        "params.transport_required",
         "artifacts_index.causal_report_ref",
         "artifacts_index.causal_capability_contract_ref",
         "artifacts_index.transportability_result_ref",

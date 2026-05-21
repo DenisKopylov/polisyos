@@ -1437,6 +1437,215 @@ superseded_by = []
 related = ["0096", "0111", "RSR-0130", "RSR-0131"]
 
 [[adr]]
+id = "0147"
+title = "Production Evidence Authority Ordering"
+status = "accepted"
+topic = "runtime-state"
+package = "repository"
+path = "docs/adr/0147-production-evidence-authority-ordering.md"
+supersedes = []
+superseded_by = []
+related = ["0010", "0098", "0101", "0104", "0123", "0148", "0149", "0150", "ADR-043"]
+
+[[adr]]
+id = "0148"
+title = "Serious Run State Machine And Phase Barriers"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0148-serious-run-state-machine-and-phase-barriers.md"
+supersedes = []
+superseded_by = []
+related = ["0008", "0009", "0097", "0099", "0101", "0147", "0149", "0150"]
+
+[[adr]]
+id = "0149"
+title = "Effective Mode And Fallback Degradation Ledger"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0149-effective-mode-and-fallback-degradation-ledger.md"
+supersedes = []
+superseded_by = []
+related = ["0097", "0101", "0116", "0147", "0148", "0150", "RSR-0137"]
+
+[[adr]]
+id = "0150"
+title = "Scorecard, Readiness, Approval, And Projection Boundaries"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0150-scorecard-readiness-approval-projection-boundaries.md"
+supersedes = []
+superseded_by = []
+related = ["0007", "0099", "0100", "0101", "0147", "0148", "0149", "ADR-043", "ADR-044"]
+
+[[adr]]
+id = "0151"
+title = "Evidence Schema Compatibility And Legacy Quarantine"
+status = "accepted"
+topic = "schemas"
+package = "repository"
+path = "docs/adr/0151-evidence-schema-compatibility-and-legacy-quarantine.md"
+supersedes = []
+superseded_by = []
+related = ["0005", "0108", "0114", "0123", "0147", "0148", "0150"]
+
+[[adr]]
+id = "0152"
+title = "Semantic Binding, Lineage, And Claim Evidence"
+status = "accepted"
+topic = "product-domain"
+package = "repository"
+path = "docs/adr/0152-semantic-binding-lineage-and-claim-evidence.md"
+supersedes = []
+superseded_by = []
+related = ["0015", "0021", "0043", "0123", "0147", "0148", "0150", "0151", "ADR-043"]
+
+[[adr]]
+id = "0153"
+title = "Diagnostic SLOs, Assurance Case, And Attestation"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0153-diagnostic-slos-assurance-case-and-attestation.md"
+supersedes = []
+superseded_by = []
+related = ["0006", "0010", "0116", "0128", "0147", "0148", "0149", "0150", "0151", "0152"]
+
+[[adr]]
+id = "0154"
+title = "Diagnostic Event Envelope And Runtime Log Contract"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0154-diagnostic-event-envelope-and-runtime-log-contract.md"
+supersedes = []
+superseded_by = []
+related = ["0097", "0101", "0116", "0124", "0147", "0148", "0149", "0150", "0151", "0153"]
+
+[[adr]]
+id = "0155"
+title = "Production Invariant Registry And Ownership Contract"
+status = "accepted"
+topic = "runtime-state"
+package = "repository"
+path = "docs/adr/0155-production-invariant-registry-and-ownership-contract.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0148", "0149", "0150", "0151", "0152", "0153", "0154"]
+
+[[adr]]
+id = "0156"
+title = "Policy Design Case Runtime Quality Assurance Profile"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0156-policy-design-case-runtime-quality-assurance-profile.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0150", "0152", "0153", "0155", "0157", "0161"]
+
+[[adr]]
+id = "0157"
+title = "Policy Intent Envelope, Capability Ledger, And Authority Profile Mapping"
+status = "accepted"
+topic = "product-domain"
+package = "repository"
+path = "docs/adr/0157-policy-intent-capability-ledger-authority-profile.md"
+supersedes = []
+superseded_by = []
+related = ["0129", "0131", "0149", "0150", "0152", "0156", "0158"]
+
+[[adr]]
+id = "0158"
+title = "Concept Spine And Multi-Jurisdiction Reconciliation"
+status = "accepted"
+topic = "product-domain"
+package = "polisyos.ir"
+path = "docs/adr/0158-concept-spine-multi-jurisdiction-reconciliation.md"
+supersedes = []
+superseded_by = []
+related = ["0036", "0051", "0147", "0152", "0156", "0157", "0159"]
+
+[[adr]]
+id = "0159"
+title = "Production Evidence Producer Contracts For Lex, Fabric, Scholar, And Data Forge"
+status = "accepted"
+topic = "product-domain"
+package = "repository"
+path = "docs/adr/0159-production-evidence-producer-contracts.md"
+supersedes = []
+superseded_by = []
+related = ["0015", "0021", "0112", "0122", "0152", "0156", "0158", "0160"]
+
+[[adr]]
+id = "0160"
+title = "Evidence Portfolio, Independence Map, Multiverse, And Synthesis"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0160-evidence-portfolio-independence-multiverse-synthesis.md"
+supersedes = []
+superseded_by = []
+related = ["0020", "0028", "0041", "0129", "0152", "0156", "0159", "0161"]
+
+[[adr]]
+id = "0161"
+title = "Claim Argument, Warrant Reliability, And Compiler Closeout Gate"
+status = "accepted"
+topic = "product-domain"
+package = "repository"
+path = "docs/adr/0161-claim-argument-warrant-compiler-closeout-gate.md"
+supersedes = []
+superseded_by = []
+related = ["0129", "0147", "0152", "0153", "0156", "0160"]
+
+[[adr]]
+id = "0162"
+title = "Human Oversight, Publication, And External Audit Authority"
+status = "accepted"
+topic = "runtime-state"
+package = "repository"
+path = "docs/adr/0162-human-oversight-publication-external-audit-authority.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0150", "0153", "0154", "0156", "0157", "0161", "0163"]
+
+[[adr]]
+id = "0163"
+title = "Lifecycle, DDM, Ex-Post Outcomes, And Calibration"
+status = "accepted"
+topic = "runtime-state"
+package = "repository"
+path = "docs/adr/0163-lifecycle-ddm-ex-post-calibration.md"
+supersedes = []
+superseded_by = []
+related = ["0149", "0150", "0154", "0156", "0160", "0161", "0162", "0164"]
+
+[[adr]]
+id = "0164"
+title = "Run Cost, Proportionality, And Evidence Budget Governance"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0164-run-cost-proportionality-evidence-budget-governance.md"
+supersedes = []
+superseded_by = []
+related = ["0150", "0156", "0157", "0160", "0161", "0163", "0165"]
+
+[[adr]]
+id = "0165"
+title = "Formal Policy Case And Substrate Invariant Specs"
+status = "accepted"
+topic = "testing"
+package = "repository"
+path = "docs/adr/0165-formal-policy-case-substrate-invariant-specs.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0148", "0149", "0150", "0151", "0152", "0153", "0154", "0155", "0156", "0162", "0163", "0164"]
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

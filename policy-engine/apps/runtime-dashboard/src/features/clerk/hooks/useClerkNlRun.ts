@@ -54,6 +54,7 @@ export function useClerkNlRun() {
         if (result.status !== "accepted" || !result.run_id) {
           store.updateSystemMessage(systemMsgId, {
             content: result.message ?? "Launch rejected",
+            controlJobId: result.job_id,
             runStatus: "rejected",
             error: result.message,
           });

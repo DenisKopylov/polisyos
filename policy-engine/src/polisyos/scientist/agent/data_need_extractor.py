@@ -102,17 +102,21 @@ class LLMDataNeedExtractorAgent:
         model_name: str | None = None,
         curated_dir: Path = Path("data/curated"),
         dataset_catalog: object | None = None,
+        allow_fallback: bool = True,
     ) -> None:
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
         else:
             self._llm = llm_client
         self._fallback = MockDataNeedExtractorAgent()
+        self._allow_fallback = allow_fallback
         self._registry = DataContractRegistry(curated_dir=curated_dir, strict=False)
         self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)
 
     async def extract_data_needs(self, problem_frame: ProblemFrame) -> list[DataNeedSpec]:
         if self._llm is None:
+            if not self._allow_fallback:
+                raise RuntimeError("data_need_extractor_llm_unavailable")
             return await self._fallback.extract_data_needs(problem_frame)
 
         metric_ids = self._registry.list_all()
@@ -159,7 +163,11 @@ class LLMDataNeedExtractorAgent:
             if needs:
                 return self._enrich_with_catalog(needs)
         except _DATA_NEED_PARSE_ERRORS as exc:
+            if not self._allow_fallback:
+                raise ValueError("llm_data_need_extraction_failed") from exc
             logger.debug("Falling back to mock data-need extraction after parse error: %s", exc)
+        if not self._allow_fallback:
+            raise ValueError("llm_data_need_extraction_returned_no_usable_needs")
         return await self._fallback.extract_data_needs(problem_frame)
 
     def _enrich_with_catalog(self, needs: list[DataNeedSpec]) -> list[DataNeedSpec]:

@@ -1,0 +1,601 @@
+{
+  "$defs": {
+    "GovernanceMetadata": {
+      "additionalProperties": false,
+      "description": "Governance metadata that controls downstream authority consumption.",
+      "properties": {
+        "approval_policy": {
+          "minLength": 1,
+          "title": "Approval Policy",
+          "type": "string"
+        },
+        "authority_boundary": {
+          "minLength": 1,
+          "title": "Authority Boundary",
+          "type": "string"
+        },
+        "classification": {
+          "minLength": 1,
+          "title": "Classification",
+          "type": "string"
+        },
+        "override_policy": {
+          "minLength": 1,
+          "title": "Override Policy",
+          "type": "string"
+        },
+        "pii": {
+          "minLength": 1,
+          "title": "Pii",
+          "type": "string"
+        },
+        "retention_policy": {
+          "minLength": 1,
+          "title": "Retention Policy",
+          "type": "string"
+        },
+        "review_status": {
+          "minLength": 1,
+          "title": "Review Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "classification",
+        "authority_boundary",
+        "pii",
+        "retention_policy",
+        "review_status",
+        "override_policy",
+        "approval_policy"
+      ],
+      "title": "GovernanceMetadata",
+      "type": "object"
+    },
+    "SameInputClosure": {
+      "additionalProperties": false,
+      "description": "Identity of the input context shared by authority-bearing evidence.",
+      "properties": {
+        "cell_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cell Id"
+        },
+        "closure_id": {
+          "minLength": 1,
+          "title": "Closure Id",
+          "type": "string"
+        },
+        "closure_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Closure Sha256"
+        },
+        "degradation_ledger_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Degradation Ledger Ref"
+        },
+        "effective_mode_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective Mode Ref"
+        },
+        "evidence_input_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Input Refs",
+          "type": "array"
+        },
+        "job_id": {
+          "minLength": 1,
+          "title": "Job Id",
+          "type": "string"
+        },
+        "legal_snapshot_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Snapshot Ref"
+        },
+        "method_plan_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method Plan Ref"
+        },
+        "policy_intent_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Intent Ref"
+        },
+        "production_data_manifest_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Production Data Manifest Ref"
+        },
+        "provider_mode_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Mode Ref"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "closed",
+            "not_closed",
+            "mismatched",
+            "blocked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "tenant_id": {
+          "minLength": 1,
+          "title": "Tenant Id",
+          "type": "string"
+        },
+        "time_context_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Context Ref"
+        }
+      },
+      "required": [
+        "closure_id",
+        "status",
+        "run_id",
+        "job_id",
+        "tenant_id"
+      ],
+      "title": "SameInputClosure",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.policyos.local/runtime_quality/evidence_authority_envelope_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "description": "Authority-bearing evidence metadata emitted beside runtime evidence.",
+  "properties": {
+    "artifact_kind": {
+      "minLength": 1,
+      "title": "Artifact Kind",
+      "type": "string"
+    },
+    "artifact_ref": {
+      "minLength": 1,
+      "title": "Artifact Ref",
+      "type": "string"
+    },
+    "as_of_time": {
+      "minLength": 1,
+      "title": "As Of Time",
+      "type": "string"
+    },
+    "attestation_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attestation Ref"
+    },
+    "authority_role": {
+      "enum": [
+        "producer_authority",
+        "runtime_blocker",
+        "scorecard_input",
+        "readiness_input",
+        "approval_input",
+        "projection_only",
+        "packaging_only",
+        "diagnostic_only",
+        "not_authoritative"
+      ],
+      "title": "Authority Role",
+      "type": "string"
+    },
+    "blocking_status": {
+      "enum": [
+        "non_blocking",
+        "blocking",
+        "non_overridable"
+      ],
+      "title": "Blocking Status",
+      "type": "string"
+    },
+    "cas_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cas Ref"
+    },
+    "cell_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cell Id"
+    },
+    "degradation_ledger_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Degradation Ledger Ref"
+    },
+    "duplicate_of": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duplicate Of"
+    },
+    "effective_execution_profile": {
+      "minLength": 1,
+      "title": "Effective Execution Profile",
+      "type": "string"
+    },
+    "effective_mode_ref": {
+      "minLength": 1,
+      "title": "Effective Mode Ref",
+      "type": "string"
+    },
+    "evidence_class": {
+      "enum": [
+        "authority_bearing",
+        "diagnostic_supporting",
+        "debug_only",
+        "public_exported",
+        "redacted_derived",
+        "legacy_quarantined"
+      ],
+      "title": "Evidence Class",
+      "type": "string"
+    },
+    "evidence_id": {
+      "minLength": 1,
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "generated_at": {
+      "minLength": 1,
+      "title": "Generated At",
+      "type": "string"
+    },
+    "governance": {
+      "$ref": "#/$defs/GovernanceMetadata"
+    },
+    "input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Refs",
+      "type": "array"
+    },
+    "job_id": {
+      "minLength": 1,
+      "title": "Job Id",
+      "type": "string"
+    },
+    "output_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Refs",
+      "type": "array"
+    },
+    "owner": {
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Span Id"
+    },
+    "payload_sha256": {
+      "minLength": 1,
+      "title": "Payload Sha256",
+      "type": "string"
+    },
+    "phase": {
+      "minLength": 1,
+      "title": "Phase",
+      "type": "string"
+    },
+    "producer_component": {
+      "minLength": 1,
+      "title": "Producer Component",
+      "type": "string"
+    },
+    "producer_version": {
+      "minLength": 1,
+      "title": "Producer Version",
+      "type": "string"
+    },
+    "provenance_kind": {
+      "enum": [
+        "runtime_emitted",
+        "runtime_blocker",
+        "runtime_fallback",
+        "runtime_projection",
+        "bundle_packaged",
+        "bundle_overlay",
+        "fixture_input",
+        "simulated_provider",
+        "legacy_quarantined",
+        "legacy_supported",
+        "legacy_rejected"
+      ],
+      "title": "Provenance Kind",
+      "type": "string"
+    },
+    "reader_contract": {
+      "minLength": 1,
+      "title": "Reader Contract",
+      "type": "string"
+    },
+    "reader_contract_version": {
+      "minLength": 1,
+      "title": "Reader Contract Version",
+      "type": "string"
+    },
+    "redaction_policy_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Redaction Policy Ref"
+    },
+    "requested_execution_profile": {
+      "minLength": 1,
+      "title": "Requested Execution Profile",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "runtime_event_ref": {
+      "minLength": 1,
+      "title": "Runtime Event Ref",
+      "type": "string"
+    },
+    "same_input_closure": {
+      "$ref": "#/$defs/SameInputClosure"
+    },
+    "schema_compatibility_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schema Compatibility Ref"
+    },
+    "schema_name": {
+      "minLength": 1,
+      "title": "Schema Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "minLength": 1,
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "semantic_binding_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Semantic Binding Ref"
+    },
+    "span_id": {
+      "minLength": 1,
+      "title": "Span Id",
+      "type": "string"
+    },
+    "state_after": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "State After"
+    },
+    "state_before": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "State Before"
+    },
+    "tenant_id": {
+      "minLength": 1,
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "validation_status": {
+      "enum": [
+        "pass",
+        "fail",
+        "blocked",
+        "not_applicable"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence_id",
+    "artifact_ref",
+    "artifact_kind",
+    "evidence_class",
+    "authority_role",
+    "provenance_kind",
+    "producer_component",
+    "producer_version",
+    "owner",
+    "runtime_event_ref",
+    "payload_sha256",
+    "schema_name",
+    "schema_version",
+    "reader_contract",
+    "reader_contract_version",
+    "tenant_id",
+    "run_id",
+    "job_id",
+    "trace_id",
+    "span_id",
+    "requested_execution_profile",
+    "effective_execution_profile",
+    "phase",
+    "generated_at",
+    "as_of_time",
+    "same_input_closure",
+    "input_refs",
+    "output_refs",
+    "effective_mode_ref",
+    "validation_status",
+    "blocking_status",
+    "governance"
+  ],
+  "title": "EvidenceAuthorityEnvelope",
+  "type": "object"
+}

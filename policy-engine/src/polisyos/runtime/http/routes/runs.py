@@ -7,11 +7,18 @@ import hashlib
 import json
 import os
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.control import (
+    ProductionApprovalRequest,
+    ProductionApprovalResponse,
+)
 from polisyos.core.contracts.runtime import (
     AgentPipelineResponse,
     ArtifactLineageView,
@@ -19,8 +26,10 @@ from polisyos.core.contracts.runtime import (
     CompareRunResponse,
     RunDetailsResponse,
     RunEvidenceContextResponse,
+    RunEvidenceContextView,
     RunLineageResponse,
     RunNodesResponse,
+    RunOperatorDiagnostic,
     RunQuantitiesResponse,
     RunsBatchRequest,
     RunsBatchResponse,
@@ -48,6 +57,10 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import bad_request
 from polisyos.runtime.http.response_policies import add_run_link_relations
+from polisyos.runtime.quality.approval import (
+    build_production_approval_packet,
+    persist_production_approval_packet,
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -146,6 +159,326 @@ def _is_terminal_status(status: str | None) -> bool:
         or "execut" in normalized
         or "evaluat" in normalized
     )
+
+
+def _control_service_from_request(request: Request) -> Any | None:
+    state = getattr(getattr(request, "app", None), "state", None)
+    if state is None:
+        return None
+    service = getattr(state, "_control_service", None)
+    if service is not None:
+        return service
+    container = getattr(state, "runtime_container", None)
+    return getattr(container, "control_service", None)
+
+
+def _string_or_none(value: Any) -> str | None:
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped or None
+    return None
+
+
+def _artifact_ownership_evidence(
+    store: Any,
+    *,
+    tenant_id: str | None,
+    cell_id: str | None,
+) -> dict[str, Any] | None:
+    evidence = getattr(store, "ownership_evidence", None)
+    if not callable(evidence):
+        return None
+    try:
+        payload = evidence(tenant_id=tenant_id, cell_id=cell_id)
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    return dict(payload)
+
+
+def _scorecard_ref_from_payload(scorecard: Mapping[str, Any] | None) -> str | None:
+    if scorecard is None:
+        return None
+    evidence_refs = scorecard.get("evidence_refs")
+    if not isinstance(evidence_refs, Mapping):
+        evidence_refs = {}
+    return _string_or_none(
+        scorecard.get("quality_scorecard_ref")
+        or scorecard.get("scorecard_ref")
+        or evidence_refs.get("quality_scorecard")
+    )
+
+
+def _load_scorecard_artifact(store: Any, ref: str) -> dict[str, Any] | None:
+    try:
+        artifact_id = ArtifactID.model_validate(ref)
+        if not store.has(artifact_id):
+            return None
+        payload = from_canonical_bytes(store.get_bytes(artifact_id))
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    return dict(payload)
+
+
+def _scorecard_with_persisted_ref(
+    *,
+    payload: Mapping[str, Any],
+    ref: str,
+    run_id: str,
+    overlay: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    scorecard = dict(payload)
+    if overlay is not None:
+        for key in (
+            "job_id",
+            "canary_kind",
+            "quality_evidence_bundle_path",
+            "evidence_bundle_path",
+        ):
+            if key not in scorecard and key in overlay:
+                scorecard[key] = overlay[key]
+        overlay_refs = overlay.get("evidence_refs")
+        payload_refs = scorecard.get("evidence_refs")
+        if isinstance(overlay_refs, Mapping) or isinstance(payload_refs, Mapping):
+            merged_refs: dict[str, Any] = {}
+            if isinstance(overlay_refs, Mapping):
+                merged_refs.update(dict(overlay_refs))
+            if isinstance(payload_refs, Mapping):
+                merged_refs.update(dict(payload_refs))
+            scorecard["evidence_refs"] = merged_refs
+
+    evidence_refs = scorecard.get("evidence_refs")
+    evidence_refs = dict(evidence_refs) if isinstance(evidence_refs, Mapping) else {}
+    evidence_refs["quality_scorecard"] = ref
+    scorecard["evidence_refs"] = evidence_refs
+    scorecard["quality_scorecard_ref"] = ref
+    scorecard["authoritative_scorecard_ref"] = ref
+    scorecard["scorecard_identity_ref"] = ref
+    scorecard["scorecard_identity_verified"] = True
+    scorecard["scorecard_ref_source"] = "runtime_cas"
+    scorecard.setdefault("run_id", run_id)
+    return scorecard
+
+
+def _latest_control_progress_scorecard(
+    control_service: Any | None,
+    run_id: str,
+) -> dict[str, Any] | None:
+    if control_service is None:
+        return None
+    get_latest = getattr(control_service, "get_latest_job_for_run", None)
+    record = None
+    if callable(get_latest):
+        try:
+            record = get_latest(run_id)
+        except Exception:
+            record = None
+    if record is None:
+        control_store = getattr(control_service, "_control_store", None)
+        get_latest_from_store = getattr(control_store, "get_latest_job_by_run", None)
+        if callable(get_latest_from_store):
+            try:
+                record = get_latest_from_store(run_id)
+            except Exception:
+                record = None
+    progress = getattr(record, "progress", None)
+    if not isinstance(progress, Mapping):
+        return None
+    scorecard = progress.get("quality_scorecard") or progress.get("quality")
+    if isinstance(scorecard, Mapping):
+        return dict(scorecard)
+    if any(
+        key in progress for key in ("quality_status", "quality_gates", "blocking_quality_failures")
+    ):
+        return dict(progress)
+    return None
+
+
+def _latest_control_operator_diagnostic(
+    control_service: Any | None,
+    run_id: str,
+) -> RunOperatorDiagnostic | None:
+    if control_service is None:
+        return None
+    get_latest = getattr(control_service, "get_latest_job_for_run", None)
+    if not callable(get_latest):
+        return None
+    try:
+        record = get_latest(run_id)
+    except Exception:
+        return None
+    if record is None:
+        return None
+    try:
+        response = record.to_response(request_id="run-details-operator-diagnostic")
+    except Exception:
+        return None
+    diagnostic = getattr(response, "operator_diagnostic", None)
+    if diagnostic is None:
+        failure = getattr(response, "failure", None)
+        diagnostic = getattr(failure, "operator_diagnostic", None)
+    if diagnostic is None:
+        return None
+    try:
+        return RunOperatorDiagnostic.model_validate(
+            diagnostic.model_dump(mode="json", exclude_none=True)
+        )
+    except Exception:
+        return None
+
+
+def _latest_control_policy_projection(
+    control_service: Any | None,
+    run_id: str,
+) -> dict[str, Any] | None:
+    if control_service is None:
+        return None
+    get_latest = getattr(control_service, "get_latest_job_for_run", None)
+    if not callable(get_latest):
+        return None
+    try:
+        record = get_latest(run_id)
+    except Exception:
+        return None
+    if record is None:
+        return None
+    try:
+        response = record.to_response(request_id="run-details-policy-design-projection")
+    except Exception:
+        return None
+    projection = getattr(response, "policy_design_case_projection", None)
+    return dict(projection) if isinstance(projection, Mapping) else None
+
+
+def _resolve_production_approval_scorecard(
+    *,
+    body: ProductionApprovalRequest,
+    control_service: Any | None,
+    run_id: str,
+    store: Any,
+) -> dict[str, Any]:
+    explicit_ref = _string_or_none(body.quality_scorecard_ref)
+    if explicit_ref is not None:
+        payload = _load_scorecard_artifact(store, explicit_ref)
+        if payload is None:
+            raise bad_request(
+                "quality_scorecard_ref does not point to an available persisted scorecard",
+                code="quality_scorecard_ref_unavailable",
+            )
+        return _scorecard_with_persisted_ref(
+            payload=payload,
+            ref=explicit_ref,
+            run_id=run_id,
+        )
+
+    inline_scorecard = (
+        dict(body.quality_scorecard) if isinstance(body.quality_scorecard, Mapping) else None
+    )
+    inline_ref = _scorecard_ref_from_payload(inline_scorecard)
+    if inline_ref is not None:
+        payload = _load_scorecard_artifact(store, inline_ref)
+        if payload is not None:
+            return _scorecard_with_persisted_ref(
+                payload=payload,
+                ref=inline_ref,
+                run_id=run_id,
+                overlay=inline_scorecard,
+            )
+
+    progress_scorecard = _latest_control_progress_scorecard(control_service, run_id)
+    progress_ref = _scorecard_ref_from_payload(progress_scorecard)
+    if progress_ref is not None:
+        payload = _load_scorecard_artifact(store, progress_ref)
+        if payload is None:
+            raise bad_request(
+                "control progress points to an unavailable persisted quality scorecard",
+                code="quality_scorecard_ref_unavailable",
+            )
+        return _scorecard_with_persisted_ref(
+            payload=payload,
+            ref=progress_ref,
+            run_id=run_id,
+            overlay=progress_scorecard,
+        )
+
+    if inline_scorecard is not None:
+        raise bad_request(
+            "quality_scorecard must reference a persisted scorecard artifact",
+            code="quality_scorecard_not_persisted",
+        )
+    raise bad_request(
+        "quality_scorecard_ref or persisted control progress is required",
+        code="quality_scorecard_required",
+    )
+
+
+def _live_promotion_decisions(control_service: Any | None) -> dict[str, dict[str, Any]]:
+    if control_service is None:
+        return {}
+    list_candidates = getattr(control_service, "list_promotion_candidates", None)
+    if not callable(list_candidates):
+        return {}
+    try:
+        response = list_candidates()
+    except Exception:
+        return {}
+
+    candidates = getattr(response, "candidates", None)
+    if candidates is None and isinstance(response, dict):
+        candidates = response.get("candidates")
+    if not isinstance(candidates, list):
+        return {}
+
+    decisions: dict[str, dict[str, Any]] = {}
+    for candidate in candidates:
+        promotion_id = getattr(candidate, "promotion_id", None)
+        status = getattr(candidate, "status", None)
+        if not promotion_id or not status:
+            continue
+        metadata = getattr(candidate, "metadata", None)
+        decisions[str(promotion_id)] = {
+            "status": str(status),
+            "metadata": metadata if isinstance(metadata, dict) else {},
+        }
+    return decisions
+
+
+def _overlay_live_promotion_decisions(
+    evidence_context: RunEvidenceContextView,
+    control_service: Any | None,
+) -> RunEvidenceContextView:
+    decisions = _live_promotion_decisions(control_service)
+    if not decisions or not evidence_context.promotion_candidates:
+        return evidence_context
+
+    changed = False
+    promotions = []
+    for promotion in evidence_context.promotion_candidates:
+        decision = decisions.get(promotion.promotion_id)
+        if decision is None:
+            promotions.append(promotion)
+            continue
+        live_status = decision["status"]
+        live_metadata = decision["metadata"]
+        if promotion.status == live_status and not live_metadata:
+            promotions.append(promotion)
+            continue
+        changed = True
+        promotions.append(
+            promotion.model_copy(
+                update={
+                    "status": live_status,
+                    "metadata": {**promotion.metadata, **live_metadata},
+                }
+            )
+        )
+
+    if not changed:
+        return evidence_context
+    return evidence_context.model_copy(update={"promotion_candidates": promotions})
 
 
 def _resolve_temporal_scope(
@@ -515,6 +848,87 @@ if router is not None:
             },
         )
 
+    @router.post(
+        "/{run_id}/production-approval",
+        response_model=ProductionApprovalResponse,
+        operation_id="create_run_production_approval",
+    )
+    def create_run_production_approval(
+        run_id: str,
+        body: ProductionApprovalRequest,
+        request: Request,
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> ProductionApprovalResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.production_approval",
+        )
+
+        control_service = _control_service_from_request(request)
+        scorecard = _resolve_production_approval_scorecard(
+            body=body,
+            control_service=control_service,
+            run_id=run_id,
+            store=ctx.store,
+        )
+        artifact_ownership = _artifact_ownership_evidence(
+            ctx.store,
+            tenant_id=run.details.tenant_id,
+            cell_id=run.details.cell_id,
+        )
+        packet = build_production_approval_packet(
+            scorecard=scorecard,
+            override=body.override,
+            artifact_ownership=artifact_ownership,
+        )
+        evidence_bundle_path = scorecard.get("quality_evidence_bundle_path")
+        persisted = persist_production_approval_packet(
+            packet,
+            store=ctx.store,
+            evidence_bundle_path=(
+                str(evidence_bundle_path)
+                if isinstance(evidence_bundle_path, str) and evidence_bundle_path.strip()
+                else None
+            ),
+            artifact_ownership=artifact_ownership,
+        )
+        record_approval_packet = getattr(
+            control_service,
+            "record_production_approval_packet",
+            None,
+        )
+        if callable(record_approval_packet):
+            record_approval_packet(
+                run_id=run_id,
+                approval_packet_ref=str(persisted.approval_packet_ref.artifact_id),
+                decision=packet.decision,
+                scorecard=scorecard,
+                approval_packet=packet.model_dump(mode="json", exclude_none=True),
+            )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            outcome="approval_packet_created",
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return ProductionApprovalResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            run_id=run_id,
+            decision=packet.decision,
+            packet=packet,
+            approval_packet_ref=persisted.approval_packet_ref,
+            evidence_bundle_packet_path=(
+                str(persisted.evidence_bundle_packet_path)
+                if persisted.evidence_bundle_packet_path is not None
+                else None
+            ),
+        )
+
     @router.get("/{run_id}", response_model=RunDetailsResponse, operation_id="get_run_details")
     def get_run_details(
         run_id: str,
@@ -556,10 +970,26 @@ if router is not None:
             tenant_id=run.details.tenant_id,
         )
         add_run_link_relations(response, run_id=run_id)
+        run_details = ctx.temporal.project_run_details(run.details, temporal_scope)
+        operator_diagnostic = _latest_control_operator_diagnostic(
+            _control_service_from_request(request),
+            run_id,
+        )
+        policy_design_case_projection = _latest_control_policy_projection(
+            _control_service_from_request(request),
+            run_id,
+        )
+        updates: dict[str, Any] = {}
+        if operator_diagnostic is not None:
+            updates["operator_diagnostic"] = operator_diagnostic
+        if policy_design_case_projection is not None:
+            updates["policy_design_case_projection"] = policy_design_case_projection
+        if updates:
+            run_details = run_details.model_copy(update=updates)
         return RunDetailsResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             temporal_scope=temporal_scope,
-            run=ctx.temporal.project_run_details(run.details, temporal_scope),
+            run=run_details,
         )
 
     @router.get("/{run_id}/live", include_in_schema=False)
@@ -1082,7 +1512,10 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_evidence_context",
         )
-        evidence_context = ctx.debug.get_run_evidence_context(run)
+        evidence_context = _overlay_live_promotion_decisions(
+            ctx.debug.get_run_evidence_context(run),
+            _control_service_from_request(request),
+        )
         record_data_access_audit(
             request,
             resource_id=run_id,

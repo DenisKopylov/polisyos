@@ -73,3 +73,34 @@ def test_catalog_lookup_assertion_is_not_swallowed() -> None:
 
     with pytest.raises(AssertionError, match="catalog contract invariant failed"):
         _run(agent.extract_data_needs(_problem_frame()))
+
+
+def test_extract_data_needs_parse_error_raises_when_fallback_disallowed() -> None:
+    class _FakeLLM:
+        async def generate(self, **kwargs):
+            del kwargs
+            return SimpleNamespace(content="not json")
+
+    agent = LLMDataNeedExtractorAgent(_FakeLLM(), allow_fallback=False)
+
+    with pytest.raises(ValueError, match="llm_data_need_extraction_failed"):
+        _run(agent.extract_data_needs(_problem_frame()))
+
+
+def test_extract_data_needs_empty_result_raises_when_fallback_disallowed() -> None:
+    class _FakeLLM:
+        async def generate(self, **kwargs):
+            del kwargs
+            return SimpleNamespace(content='{"data_needs": []}')
+
+    agent = LLMDataNeedExtractorAgent(_FakeLLM(), allow_fallback=False)
+
+    with pytest.raises(ValueError, match="llm_data_need_extraction_returned_no_usable_needs"):
+        _run(agent.extract_data_needs(_problem_frame()))
+
+
+def test_extract_data_needs_missing_llm_raises_when_fallback_disallowed() -> None:
+    agent = LLMDataNeedExtractorAgent(None, allow_fallback=False)
+
+    with pytest.raises(RuntimeError, match="data_need_extractor_llm_unavailable"):
+        _run(agent.extract_data_needs(_problem_frame()))

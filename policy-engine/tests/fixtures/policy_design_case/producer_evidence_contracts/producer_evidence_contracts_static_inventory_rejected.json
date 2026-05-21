@@ -1,0 +1,67 @@
+{
+  "fixture_id": "producer_evidence_contracts_static_inventory_rejected",
+  "adr": "ADR-0159",
+  "contract_name": "policy_design_case.producer_evidence_contracts.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "pdc_producer_evidence_static_inventory_not_authority",
+  "sdd_record_families": [
+    "legal_authority_and_competence.v1",
+    "data_source_semantic_lineage.v1",
+    "scholar_academic_evidence.v1"
+  ],
+  "description": "Manifest roles and narrative citations cannot substitute for producer-owned runtime refs.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0159_static_inventory_rejected",
+    "artifact_ref": "repo://architecture/baselines/production_quality/evidence_inventory.json",
+    "cas_ref": null,
+    "authority_role": "not_authoritative",
+    "provenance_kind": "static_inventory",
+    "static_inventory_ref": "repo://architecture/baselines/production_quality/evidence_inventory.json",
+    "producer_component": "tools.quality.validation.production_quality_evidence_inventory",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-domain-producers",
+    "runtime_event_ref": "event://policy_design_case/adr0159/producer_evidence/static_inventory_rejected",
+    "schema_name": "policy_design_case.producer_evidence_contracts",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.producer_evidence_contracts.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_producer_evidence_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:03:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0159_static_inventory_rejected",
+      "status": "blocked",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "repo://architecture/baselines/production_quality/evidence_inventory.json"
+      ],
+      "closure_sha256": null
+    },
+    "validation_status": "blocked",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "pdc_producer_evidence_static_inventory_not_authority",
+      "reason": "Static inventory has broad producer roles but lacks Lex/Fabric/Scholar/Data Forge runtime evidence refs."
+    }
+  },
+  "payload": {
+    "static_inventory_candidate": {
+      "inventory_ref": "repo://architecture/baselines/production_quality/evidence_inventory.json",
+      "manifest_roles": [
+        "legal",
+        "data",
+        "literature"
+      ],
+      "narrative_citation": "Dashboard says evidence exists."
+    },
+    "missing_producer_runtime_refs": [
+      "lex",
+      "fabric",
+      "scholar",
+      "data_forge"
+    ]
+  }
+}

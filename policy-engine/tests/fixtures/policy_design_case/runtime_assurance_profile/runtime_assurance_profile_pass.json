@@ -1,0 +1,61 @@
+{
+  "fixture_id": "runtime_assurance_profile_pass",
+  "adr": "ADR-0156",
+  "contract_name": "policy_design_case.runtime_assurance_profile.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "claim_argument_evidence_case.v1"
+  ],
+  "description": "Runtime-owned Policy Design Case assurance profile over the existing runtime quality chain.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0156_pass",
+    "artifact_ref": "cas://sha256/0156015601560156015601560156015601560156015601560156015601560156",
+    "cas_ref": "cas://sha256/0156015601560156015601560156015601560156015601560156015601560156",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.runtime.quality.assurance_case",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-runtime-quality",
+    "runtime_event_ref": "event://policy_design_case/adr0156/runtime_profile/pass",
+    "schema_name": "policy_design_case.runtime_assurance_profile",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.runtime_assurance_profile.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_runtime_profile_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:00:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0156_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "closure_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "profile_id": "pdc_runtime_assurance_profile_research_minimal",
+    "assurance_case_profile": "policy_design_case",
+    "runtime_quality_owner": "team-runtime-quality",
+    "case_node_refs": {
+      "top_claim": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "argument": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "evidence": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "sacm_cae_gsn_mapping": {
+      "claim": "Claim",
+      "argument": "ArgumentReasoning",
+      "evidence": "ArtifactReference"
+    },
+    "record_family_maturity": {
+      "claim_argument_evidence_case.v1": "stub"
+    }
+  }
+}

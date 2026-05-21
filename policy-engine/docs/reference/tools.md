@@ -129,7 +129,10 @@ Generated from `tools.registry` command metadata.
 | `validation` | `generate-adr-index` | `active` | `polisyos-tools validation generate-adr-index` | Generate ADR TOML and Markdown indexes from ``docs/adr``. | - | - | - |
 | `validation` | `generate-foundry-phase2-evidence` | `active` | `polisyos-tools validation generate-foundry-phase2-evidence` | Generate Phase 2 synthetic-world and judge evidence from enrolled JUnit reports. | - | - | - |
 | `validation` | `name-collision-gate` | `active` | `polisyos-tools validation name-collision-gate` | Fail-closed Phase 1C cross-package directory-name collision gate. | - | - | - |
+| `validation` | `production-quality-evidence-inventory` | `active` | `polisyos-tools validation production-quality-evidence-inventory` | Inventory production-quality evidence refs, fields, producers, and validators. | - | - | - |
 | `validation` | `repository-best-in-class-phase0-7-inventory` | `active` | `polisyos-tools validation repository-best-in-class-phase0-7-inventory` | Read-only Phase 0.7 inventory for repository best-in-class remediation. | - | - | - |
+| `validation` | `repository-last-mile-inventory` | `active` | `polisyos-tools validation repository-last-mile-inventory` | Read-only Phase 0.1 inventory for last-mile repository regressions. | - | - | - |
+| `validation` | `repository-last-mile-shim-callers` | `active` | `polisyos-tools validation repository-last-mile-shim-callers` | Generate Phase 0.3 caller evidence for last-mile import compatibility shims. | - | - | - |
 | `validation` | `repository-structure-phase0` | `active` | `polisyos-tools validation repository-structure-phase0` | Phase 0 repository-structure inventory and fail-closed gates. | - | - | - |
 | `validation` | `repository-verification-inventory` | `active` | `polisyos-tools validation repository-verification-inventory` | Generate the Repository Best-In-Class Phase 0.4 verification inventory. | - | - | - |
 | `validation` | `validate-foundry-phase0-closure` | `active` | `polisyos-tools validation validate-foundry-phase0-closure` | Emit a machine-readable closure report for Foundry Phase 0. | - | - | - |
@@ -142,11 +145,13 @@ Generated from `tools.registry` command metadata.
 | `testing` | `repeat-pytest` | `active` | `polisyos-tools testing repeat-pytest` | Repeat one pytest invocation multiple times and fail on the first red run. | - | - | - |
 | `testing` | `report-test-economics` | `active` | `polisyos-tools testing report-test-economics` | Summarize slow suites and unstable tests from JUnit XML plus quarantine metadata. | - | - | - |
 | `testing` | `report-test-ratchets` | `active` | `polisyos-tools testing report-test-ratchets` | Report package-level mirror and property-test ratchets. | - | - | - |
+| `testing` | `runtime-resilience-matrix` | `active` | `polisyos-tools testing runtime-resilience-matrix` | Build the deterministic runtime resilience matrix for production-quality gates. | - | - | - |
 | `ci` | `check-action-freshness` | `active` | `polisyos-tools ci check-action-freshness` | Audit pinned third-party GitHub Actions against latest upstream releases. | - | - | - |
 | `ci` | `check-fabric-schema-registry` | `active` | `polisyos-tools ci check-fabric-schema-registry` | CI wrapper for the Fabric schema governance gate. | - | - | - |
 | `ci` | `check-foundry-domain-coverage` | `active` | `polisyos-tools ci check-foundry-domain-coverage` | Enforce Foundry coverage thresholds by domain instead of only globally. | - | - | - |
 | `ci` | `check-phase7-ratchet` | `active` | `polisyos-tools ci check-phase7-ratchet` | Enforce the Phase 7 ratchet checklist for new subsystems and major surfaces. | - | - | - |
 | `ci` | `check-workflow-policy` | `active` | `polisyos-tools ci check-workflow-policy` | Lightweight repo policy checks for GitHub Actions workflows. | - | - | - |
+| `ci` | `check-policyos-production-quality-best-in-class` | `active` | `polisyos-tools ci check-policyos-production-quality-best-in-class` | Aggregate PolicyOS best-in-class production-quality readiness evidence. | - | - | - |
 | `ci` | `check-scientist-benchmark-authority` | `active` | `polisyos-tools ci check-scientist-benchmark-authority` | Validate the Scientist Phase 1.5 benchmark authority surface. | - | - | - |
 | `ci` | `check-scientist-best-in-class-phase1-0` | `active` | `polisyos-tools ci check-scientist-best-in-class-phase1-0` | Validate the Scientist best-in-class Phase 1.0 reconciliation docs. | - | - | - |
 | `ci` | `check-scientist-best-in-class-phase1-1` | `active` | `polisyos-tools ci check-scientist-best-in-class-phase1-1` | Validate the Scientist best-in-class Phase 1.1 claim spine. | - | - | - |
@@ -199,7 +204,9 @@ Generated from `tools.registry` command metadata.
 | `ops-experiments` | `run-msme-final-fresg-suite` | `active` | `polisyos-tools ops-experiments run-msme-final-fresg-suite` | Final PolicyOS MSME thesis experiment suite. | - | - | - |
 | `ops-experiments` | `run-msme-final-fresg-suite-v2` | `active` | `polisyos-tools ops-experiments run-msme-final-fresg-suite-v2` | Deadline-safe v2 MSME PolicyOS final experiment suite. | - | - | - |
 | `ops-experiments` | `run-msme-final-fresg-suite-v3` | `active` | `polisyos-tools ops-experiments run-msme-final-fresg-suite-v3` | Corrective v3 MSME PolicyOS final experiment suite. | - | - | - |
+| `ops-experiments` | `run-msme-final-v3-cloud-rerun` | `active` | `polisyos-tools ops-experiments run-msme-final-v3-cloud-rerun` | Launch the MSME final v3 full rerun on the current GCP VM and download artifacts. | - | - | - |
 | `ops-experiments` | `run-msme-grand-tournament-v2` | `active` | `polisyos-tools ops-experiments run-msme-grand-tournament-v2` | Grand PolicyOS MSME experiment for the 2026-05-01 thesis deadline. | - | - | - |
+| `ops-experiments` | `run-policyos-real-e2e-cloud` | `active` | `polisyos-tools ops-experiments run-policyos-real-e2e-cloud` | Launch a PolicyOS natural-language E2E run on a GCP VM. | - | - | - |
 | `migrations` | `migrate` | `active` | `polisyos-tools migrations migrate` | Migrate schema artifacts to their declared target versions. | - | - | - |
 | `migrations` | `migrate-duckdb-to-pg` | `active` | `polisyos-tools migrations migrate-duckdb-to-pg` | Migrate tenant-scoped data from DuckDB to PostgreSQL. | - | - | - |
 | `release` | `build-release-notes` | `active` | `polisyos-tools release build-release-notes` | Render Keep-a-Changelog style release notes from structured TOML fragments. | - | - | - |
@@ -212,10 +219,15 @@ Generated from `tools.registry` command metadata.
 | `release` | `stage-release-snapshot` | `active` | `polisyos-tools release stage-release-snapshot` | Freeze unreleased fragments into an immutable versioned release snapshot. | - | - | `release.check-release-version`, `runtime.export-runtime-openapi` |
 | `runtime` | `archive-legacy-runs` | `active` | `polisyos-tools runtime archive-legacy-runs` | runtime/archive_legacy_runs | - | - | - |
 | `runtime` | `backfill-decision-validity` | `active` | `polisyos-tools runtime backfill-decision-validity` | runtime/backfill_decision_validity | - | - | - |
+| `runtime` | `canary-matrix` | `active` | `polisyos-tools runtime canary-matrix` | List the PolicyOS production-quality canary matrix baseline. | - | - | - |
 | `runtime` | `check-runtime-api-contract` | `active` | `polisyos-tools runtime check-runtime-api-contract` | runtime/check_runtime_api_contract | - | - | - |
 | `runtime` | `export-runtime-openapi` | `active` | `polisyos-tools runtime export-runtime-openapi` | runtime/export_runtime_openapi | - | - | - |
 | `runtime` | `generate-runtime-client` | `active` | `polisyos-tools runtime generate-runtime-client` | runtime/generate_runtime_client | - | - | `runtime.export-runtime-openapi` |
 | `runtime` | `inventory-legacy-runs` | `active` | `polisyos-tools runtime inventory-legacy-runs` | runtime/inventory_legacy_runs | - | - | - |
+| `runtime` | `local-production-canary` | `active` | `polisyos-tools runtime local-production-canary` | Run a local production-data NL canary and write a sanitized evidence bundle. | - | - | - |
+| `runtime` | `provider-quality-ledger` | `active` | `polisyos-tools runtime provider-quality-ledger` | Build provider/model quality drift ledgers from canary lane evidence. | - | - | - |
+| `runtime` | `replay-canary-bundle` | `active` | `polisyos-tools runtime replay-canary-bundle` | Build deterministic replay refs for a sanitized canary evidence bundle. | - | - | - |
+| `runtime` | `run-canary-matrix` | `active` | `polisyos-tools runtime run-canary-matrix` | Execute real PolicyOS canary matrix lanes and emit a lane scorecard summary. | - | - | - |
 | `runtime` | `runtime-state-cleanup` | `active` | `polisyos-tools runtime runtime-state-cleanup` | Clean registered .polisyos runtime-state slots with dry-run summaries. | - | - | - |
 | `ukraine_data` | `build-edr-identity-seed-candidates` | `active` | `polisyos-tools ukraine_data build-edr-identity-seed-candidates` | ukraine_data/build_edr_identity_seed_candidates | - | - | - |
 | `ukraine_data` | `build-p1-source-bindings` | `active` | `polisyos-tools ukraine_data build-p1-source-bindings` | Build pragmatic D1 source bindings from downloaded public raw layers. | - | - | - |

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import duckdb
+from polisyos.data_forge.domains.academic.knowledge import skg_query
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 
@@ -225,8 +226,58 @@ def test_query_parameters_parses_parameter_and_context(tmp_path) -> None:
     assert candidate.parameter.name == "fiscal_multiplier"
     assert candidate.parameter.value == 1.4
     assert candidate.parameter.confidence_interval == (1.1, 1.7)
+    assert "mapped:ci_low/ci_high->confidence_interval" in candidate.normalization_diagnostics
     assert candidate.source_context is not None
     assert candidate.source_context.context_id == "PL"
+
+
+def test_evidence_parameter_normalizer_accepts_production_extraction_payload(
+    monkeypatch,
+) -> None:
+    debug_messages: list[str] = []
+    monkeypatch.setattr(
+        skg_query.logger,
+        "debug",
+        lambda message, *args, **kwargs: debug_messages.append(str(message)),
+    )
+
+    diagnostics: list[str] = []
+    parameter = SKGQuery._to_evidence_parameter(
+        "economic.interest_rate",
+        {
+            "value": 0.31,
+            "ci_low": 0.12,
+            "ci_high": 0.44,
+            "unit": "elasticity",
+            "context_snippet": "Effect of 1% increase in interest rate on unemployment level",
+            "pattern_name": "resolve_extract",
+            "confidence": 0.85,
+            "variable_hint": "economic.interest_rate",
+        },
+        diagnostics=diagnostics,
+    )
+
+    assert parameter is not None
+    assert parameter.name == "economic.interest_rate"
+    assert parameter.value == 0.31
+    assert parameter.confidence_interval == (0.12, 0.44)
+    assert parameter.heterogeneity_note == (
+        "Effect of 1% increase in interest rate on unemployment level"
+    )
+    assert "pattern:resolve_extract" in parameter.transfer_conditions
+    assert "extraction_confidence:0.85" in parameter.transfer_conditions
+    assert diagnostics == [
+        "mapped:variable_hint->name",
+        "mapped:ci_low/ci_high->confidence_interval",
+        "mapped:context_snippet->heterogeneity_note",
+        "retained:pattern_name->transfer_conditions",
+        "retained:confidence->transfer_conditions",
+    ]
+    assert not [
+        message
+        for message in debug_messages
+        if "EvidenceParameter.model_validate fallback" in message
+    ]
 
 
 def test_query_parameters_enriches_transport_metadata(tmp_path) -> None:

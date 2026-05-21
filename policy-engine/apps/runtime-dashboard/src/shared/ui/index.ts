@@ -3,3 +3,4 @@ export * from "./primitives";
 export * from "./compounds";
 export * from "./patterns";
 export * from "./dataExport";
+export * from "./OperatorDiagnosticPanel";

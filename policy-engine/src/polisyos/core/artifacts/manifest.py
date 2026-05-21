@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
 from ..components.ids import ComponentId
 from .ids import ArtifactID
@@ -149,12 +149,51 @@ class IntegrityInfo(BaseModel):
     optional: dict[str, str] | None = None
 
 
+class ArtifactTenantContextInfo(BaseModel):
+    """Persist the tenant/cell context that owned an authority-bearing write."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tenant_id: str
+    cell_id: str | None = None
+
+
+class ArtifactSameInputClosureInfo(BaseModel):
+    """Summarize the same-input closure identity carried by runtime authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    closure_id: str
+    status: str
+    closure_sha256: str | None = None
+    run_id: str
+    job_id: str
+    tenant_id: str
+    cell_id: str | None = None
+    evidence_input_refs: tuple[str, ...] = Field(default=())
+
+
+class ArtifactAuthorityInfo(BaseModel):
+    """Link a CAS artifact manifest to its runtime authority records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    authority_envelope_ref: str
+    diagnostic_event_ref: str
+    manifest_ref: str
+    payload_sha256: str
+
+
 class InputRef(BaseModel):
     """Declare one upstream artifact edge in a manifest lineage DAG."""
 
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
+
+    @field_serializer("artifact_id")
+    def _serialize_artifact_id(self, value: object) -> str:
+        return str(value)
 
 
 class ArtifactRef(BaseModel):
@@ -164,6 +203,10 @@ class ArtifactRef(BaseModel):
     artifact_id: ArtifactID
     kind: str
     media_type: str
+
+    @field_serializer("artifact_id")
+    def _serialize_artifact_id(self, value: object) -> str:
+        return str(value)
 
 
 class ArtifactManifest(BaseModel):
@@ -191,6 +234,13 @@ class ArtifactManifest(BaseModel):
     producer: ProducerInfo | None = None
     env: EnvInfo | None = None
     governance: ArtifactGovernanceInfo | None = None
+    tenant_context: ArtifactTenantContextInfo | None = None
+    same_input_closure: ArtifactSameInputClosureInfo | None = None
+    authority: ArtifactAuthorityInfo | None = None
 
     integrity: IntegrityInfo
     warnings: list[WarningRecord] = Field(default_factory=list)
+
+    @field_serializer("artifact_id")
+    def _serialize_artifact_id(self, value: object) -> str:
+        return str(value)

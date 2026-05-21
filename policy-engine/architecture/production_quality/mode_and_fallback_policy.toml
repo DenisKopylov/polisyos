@@ -1,0 +1,28 @@
+[registry]
+schema_version = "policyos.mode_and_fallback_policy.v1"
+owner = "team-runtime-ops"
+adr = "ADR-0149"
+description = "Allowed effective-mode and fallback/degradation policy rows for serious closeout."
+
+[[mode_policies]]
+policy_id = "serious_production_mode"
+profiles = ["research", "governed", "production", "serious_runtime"]
+closeout_allowed = true
+required_provider_mode = "live"
+required_llm_simulation_mode = "disabled"
+fixture_identity_policy = "not_allowed"
+mock_fallback_policy = "not_allowed"
+scorecard_warn_policy = "fail_serious"
+evidence_overlay_policy = "disabled"
+quarantine_policy = "block"
+failure_code = "mode_policy_failure"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_effective_mode.py -q"
+
+[[fallback_policies]]
+policy_id = "serious_fallback_fail_closed"
+profiles = ["research", "governed", "production", "serious_runtime"]
+allowed_fallback_kinds = []
+fallback_authority_policy = "block_authority_bearing_evidence"
+override_policy = "not_overridable"
+failure_code = "degradation_fallback_not_allowed"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_degradation.py -q"

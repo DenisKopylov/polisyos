@@ -186,8 +186,13 @@ class _MetricsRegistryBase:
     runtime_cache_rebuild_duration_seconds: metrics.Histogram | None = None
     runtime_cache_item_count: GaugeProxy | None = None
     runtime_cache_staleness_seconds: GaugeProxy | None = None
+    runtime_rate_limit_events_total: metrics.Counter | None = None
+    runtime_live_streams_current: GaugeProxy | None = None
     control_plane_job_admissions_total: metrics.Counter | None = None
     control_plane_job_admission_duration_seconds: metrics.Histogram | None = None
+    control_plane_job_executions_total: metrics.Counter | None = None
+    control_plane_job_execution_duration_seconds: metrics.Histogram | None = None
+    control_plane_job_queue_lag_seconds: metrics.Histogram | None = None
 
     # -- Singleton ----------------------------------------------------------
 

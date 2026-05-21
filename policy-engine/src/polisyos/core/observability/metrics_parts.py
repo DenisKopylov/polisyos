@@ -181,6 +181,200 @@ class MetricsRegistry(MetricsRegistryBase):
         }
         self.slo_connector_requests_total.add(1, attrs)
 
+    def record_node_started(
+        self,
+        *,
+        alias: str,
+        node_id: str,
+        workflow_id: str,
+    ) -> None:
+        """Record a Scientist engine node start event.
+
+        The runtime passes the shared core registry into Scientist workflows,
+        so the registry itself must satisfy the engine metrics protocol.
+        """
+        self._ensure_initialized()
+        if self.scientist_node_starts_total is None:
+            return
+        self.scientist_node_starts_total.add(
+            1,
+            {
+                "alias": alias,
+                "node_id": node_id,
+                "workflow_id": workflow_id,
+            },
+        )
+
+    def record_node_completed(
+        self,
+        *,
+        alias: str,
+        node_id: str,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        cache_hit: bool,
+        retry_count: int,
+    ) -> None:
+        """Record a Scientist engine node completion event."""
+        self._ensure_initialized()
+        attrs = {
+            "node_id": node_id,
+            "status": status,
+            "workflow_id": workflow_id,
+        }
+        if alias:
+            attrs["alias"] = alias
+        if self.scientist_node_duration_seconds is not None:
+            self.scientist_node_duration_seconds.record(
+                max(0.0, float(duration_ms) / 1000.0),
+                attrs,
+            )
+        if self.scientist_node_executions_total is not None:
+            self.scientist_node_executions_total.add(
+                1,
+                {
+                    "node_id": node_id,
+                    "status": status,
+                    "workflow_id": workflow_id,
+                    "cache_hit": str(bool(cache_hit)).lower(),
+                },
+            )
+        if retry_count > 0 and self.scientist_node_retry_count is not None:
+            self.scientist_node_retry_count.record(
+                int(retry_count),
+                {"node_id": node_id, "workflow_id": workflow_id},
+            )
+
+    def record_tier_completed(
+        self,
+        *,
+        tier_index: int,
+        tier_size: int,
+        duration_ms: int,
+        workflow_id: str,
+    ) -> None:
+        """Record per-tier execution duration for parallel DAG tiers."""
+        self._ensure_initialized()
+        if self.scientist_tier_duration_seconds is None:
+            return
+        self.scientist_tier_duration_seconds.record(
+            max(0.0, float(duration_ms) / 1000.0),
+            {
+                "tier_index": str(tier_index),
+                "tier_size": str(tier_size),
+                "workflow_id": workflow_id,
+            },
+        )
+
+    def record_workflow_completed(
+        self,
+        *,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        node_count: int,
+    ) -> None:
+        """Record Scientist workflow completion through the SLO DAG instruments."""
+        self._ensure_initialized()
+        attrs = {"workflow_id": workflow_id, "status": status}
+        if self.slo_dag_runs_total is not None:
+            self.slo_dag_runs_total.add(1, attrs)
+        if self.slo_dag_duration_seconds is not None:
+            duration_attrs = dict(attrs)
+            duration_attrs["node_count"] = str(max(0, int(node_count)))
+            self.slo_dag_duration_seconds.record(
+                max(0.0, float(duration_ms) / 1000.0),
+                duration_attrs,
+            )
+
+    def record_backpressure(
+        self,
+        *,
+        tier_index: int,
+        queued_tasks: int,
+        active_tasks: int,
+        workflow_id: str,
+    ) -> None:
+        """Record queue depth for Scientist parallel DAG execution."""
+        self._ensure_initialized()
+        if self.scientist_tier_queue_depth is None:
+            return
+        self.scientist_tier_queue_depth.set(
+            max(0, int(queued_tasks)),
+            {
+                "tier_index": str(tier_index),
+                "workflow_id": workflow_id,
+                "active_tasks": str(max(0, int(active_tasks))),
+            },
+        )
+
+    def record_semaphore_wait(
+        self,
+        *,
+        tier_index: int,
+        wait_seconds: float,
+        workflow_id: str,
+    ) -> None:
+        """Record time spent waiting for Scientist execution semaphore permits."""
+        self._ensure_initialized()
+        if self.scientist_semaphore_wait_seconds is None:
+            return
+        self.scientist_semaphore_wait_seconds.record(
+            max(0.0, float(wait_seconds)),
+            {"tier_index": str(tier_index), "workflow_id": workflow_id},
+        )
+
+    def record_workflow_state(
+        self,
+        *,
+        run_id: str,
+        workflow_id: str,
+        state: str,
+    ) -> None:
+        """Record a Scientist workflow state transition."""
+        self._ensure_initialized()
+        if self.scientist_workflow_state is None:
+            return
+        self.scientist_workflow_state.add(
+            1,
+            {"run_id": run_id, "workflow_id": workflow_id, "state": state},
+        )
+
+    def record_trace_correlation(
+        self,
+        *,
+        runner_backend: str,
+        workflow_id: str,
+        run_id: str,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+    ) -> None:
+        """EngineMetricsCollector-compatible trace-correlation entrypoint."""
+        self.record_scientist_trace_correlation(
+            runner_backend=runner_backend,
+            workflow_id=workflow_id,
+            run_id=run_id,
+            trace_id=trace_id,
+            span_id=span_id,
+        )
+
+    def record_operational_alert(
+        self,
+        *,
+        alert_type: str,
+        severity: str,
+        workflow_id: str | None = None,
+        run_id: str | None = None,
+    ) -> None:
+        """EngineMetricsCollector-compatible operational-alert entrypoint."""
+        self.record_scientist_operational_alert(
+            alert_type=alert_type,
+            severity=severity,
+            workflow_id=workflow_id,
+            run_id=run_id,
+        )
+
     def record_fabric_connector_fetch(
         self,
         *,

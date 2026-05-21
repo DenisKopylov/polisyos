@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.registry_fragments import RegistryBundle
+
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel import (
@@ -23,8 +26,6 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.linker import LinkIssueCode, link_trinity
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:" + "0" * 64
@@ -64,6 +65,45 @@ def _default_registries() -> RegistryBundle:
         metrics=DEFAULT_METRIC_REGISTRY,
         constraints=ConstraintRegistry(constraints={}),
     )
+
+
+def test_default_metric_registry_accepts_real_nl_policy_outcome_metrics() -> None:
+    outcome_metric_ids = [
+        "sme_survival_rate",
+        "msme_survival_rate",
+        "msme_loan_volume",
+        "employment_stability",
+        "employment_retention_rate",
+        "reconstruction_speed",
+        "fraud_incidence_rate",
+        "ate_estimate",
+        "causal_pathway_count",
+        "model_transport_score",
+    ]
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_real_nl_metrics",
+            domain=ProblemDomain.FISCAL,
+            objectives=[
+                ObjectiveSpec(
+                    objective_id=f"objective_{metric_id}",
+                    metric_id=metric_id,
+                    direction="maximize" if metric_id != "fraud_incidence_rate" else "minimize",
+                )
+                for metric_id in outcome_metric_ids
+            ],
+        ),
+        policy_spec=PolicySpec(policy_id="policy_real_nl_metrics", interventions=[]),
+        model_spec=_base_model_spec(),
+    )
+
+    _, report = link_trinity(bundle, _default_registries())
+
+    assert not [
+        issue
+        for issue in report.issues
+        if issue.code == LinkIssueCode.UNKNOWN_METRIC
+    ]
 
 
 def test_linker_reports_unknown_mechanism() -> None:

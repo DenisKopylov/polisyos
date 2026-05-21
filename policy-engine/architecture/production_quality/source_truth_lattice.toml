@@ -1,0 +1,545 @@
+[metadata]
+schema_version = "policyos.source_truth_lattice.v1"
+owner = "team-architecture-governance"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[semantic_preservation]
+required_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+
+[losing_authority_record_format]
+schema = "policyos.runtime.quality.losing_authority_record.v1"
+required_fields = [
+  "record_schema",
+  "field_family",
+  "authoritative_producer",
+  "authoritative_surface",
+  "losing_surface",
+  "lost_fields",
+  "failure_code",
+  "owner",
+  "next_diagnostic_command",
+]
+
+[[field_families]]
+id = "runtime_refs"
+description = "Runtime CAS/event refs, ref kind, and runtime-owned artifact identity."
+authoritative_producer = "runtime.cas"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_runtime_ref_authority_conflict"
+required_semantic_fields = [
+  "runtime_refs",
+  "lineage",
+  "schema",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve runtime CAS ref identity",
+  "preserve diagnostic event ref identity",
+  "preserve runtime ref kind and schema",
+  "emit losing-authority record before any lower-authority ref can disagree",
+]
+
+[[field_families]]
+id = "final_claims"
+description = "Final claim ids, claim refs, major/minor claim sets, and claim evidence bindings."
+authoritative_producer = "scientist.claim_compiler"
+owner = "team-policy-semantics"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_final_claim_authority_conflict"
+required_semantic_fields = [
+  "claim_sets",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve claim ids and claim refs exactly",
+  "preserve final claim set membership",
+  "preserve claim-to-source, claim-to-method, and claim-to-norm lineage",
+  "block summaries that drop unsupported or conflicting claim status",
+]
+
+[[field_families]]
+id = "source_data_context"
+description = "Source families, selected datasets, metrics, columns, units, geography, and time coverage."
+authoritative_producer = "fabric.source_selection"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_source_data_authority_conflict"
+required_semantic_fields = [
+  "source_family",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve selected source family and dataset identity",
+  "preserve metric, column, unit, geography, and time coverage",
+  "preserve production-vs-fixture provenance",
+  "block projection if source relevance or coverage status is dropped",
+]
+
+[[field_families]]
+id = "legal_context"
+description = "Legal norms, legal snapshots, conflict reports, applicability status, and jurisdiction filters."
+authoritative_producer = "lex.normpack"
+owner = "team-policy-semantics"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_legal_context_authority_conflict"
+required_semantic_fields = [
+  "norm_refs",
+  "jurisdiction",
+  "time_context",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve norm ids, snapshot refs, conflict report refs, and jurisdiction filters",
+  "preserve applicability and conflict status",
+  "preserve as-of legal time context",
+  "block lower-authority summaries that omit legal blockers",
+]
+
+[[field_families]]
+id = "foundry_method_context"
+description = "Foundry method families, assumptions, sample/power adequacy, sensitivity, and uncertainty."
+authoritative_producer = "foundry.method_quality"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_foundry_method_authority_conflict"
+required_semantic_fields = [
+  "method_expectation",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve method family and selected method ids",
+  "preserve assumptions, sample adequacy, power adequacy, sensitivity, and uncertainty",
+  "preserve method expectation from the scenario contract",
+  "block summaries that convert method warnings or blockers into pass",
+]
+
+[[field_families]]
+id = "scorecard_identity_and_gates"
+description = "Scorecard identity, scorecard refs, gate statuses, blockers, warnings, and approval state derived from scorecard."
+authoritative_producer = "runtime.scorecard"
+owner = "team-quality-closeout"
+allowed_projection_surfaces = [
+  "runtime.readiness",
+  "runtime.approval",
+  "runtime.api",
+  "runtime.dashboard",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_scorecard_identity_conflict"
+required_semantic_fields = [
+  "scorecard_identity",
+  "approval_state",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve scorecard ref and digest",
+  "preserve every gate status, blocker code, warning, and approval state",
+  "preserve scorecard schema and producer identity",
+  "block readiness or approval upgrades from projection-only scorecard data",
+]
+
+[[field_families]]
+id = "approval_readiness_public_status"
+description = "Readiness, approval, publishability, and public artifact status."
+authoritative_producer = "runtime.approval"
+owner = "team-quality-closeout"
+allowed_projection_surfaces = [
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.public_export",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_approval_readiness_authority_conflict"
+required_semantic_fields = [
+  "approval_state",
+  "scorecard_identity",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve readiness decision, approval packet ref, publishability, and non-overridable blockers",
+  "preserve approval reviewer and override provenance",
+  "preserve public artifact redaction and release status",
+  "block public exports that omit readiness or approval blockers",
+]
+
+[[field_families]]
+id = "mode_and_fallback_records"
+description = "Effective mode, fallback/degradation records, serious profile policy, and downgrade blockers."
+authoritative_producer = "runtime.mode_fallback_ledger"
+owner = "team-runtime-ops"
+allowed_projection_surfaces = [
+  "runtime.progress",
+  "runtime.api",
+  "runtime.dashboard",
+  "runtime.readiness",
+]
+allowed_package_surfaces = [
+  "runtime.canary_bundle",
+  "runtime.scorecard",
+  "runtime.approval",
+  "runtime.public_export",
+]
+conflict_failure_code = "hds_mode_fallback_authority_conflict"
+required_semantic_fields = [
+  "mode_context",
+  "fallback_records",
+  "lineage",
+]
+adapter_semantic_preservation_requirements = [
+  "preserve effective mode and execution profile",
+  "preserve fallback, degradation, simulation, fixture, and generated-substitute ledger records",
+  "preserve downgrade owner, reason, and downstream impact",
+  "block serious closeout if a lower-authority surface hides mode leakage",
+]
+
+[[adapter_paths]]
+id = "runtime_to_cas"
+source_surface = "runtime"
+target_surface = "runtime.cas"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "runtime_to_progress"
+source_surface = "runtime"
+target_surface = "runtime.progress"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "progress_to_api"
+source_surface = "runtime.progress"
+target_surface = "runtime.api"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-runtime-api"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "runtime_to_canary_bundle"
+source_surface = "runtime"
+target_surface = "runtime.canary_bundle"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "bundle_to_scorecard"
+source_surface = "runtime.canary_bundle"
+target_surface = "runtime.scorecard"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-quality-closeout"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "scorecard_to_readiness"
+source_surface = "runtime.scorecard"
+target_surface = "runtime.readiness"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-quality-closeout"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "readiness_to_approval"
+source_surface = "runtime.readiness"
+target_surface = "runtime.approval"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-quality-closeout"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "api_to_dashboard"
+source_surface = "runtime.api"
+target_surface = "runtime.dashboard"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-runtime-api"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+
+[[adapter_paths]]
+id = "public_export"
+source_surface = "runtime.approval"
+target_surface = "runtime.public_export"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+]
+blocker_code = "hds_adapter_semantic_loss"
+owner = "team-assurance"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"

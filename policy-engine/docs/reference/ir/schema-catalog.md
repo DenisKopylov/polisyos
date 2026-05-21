@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1537`.
+- Total IR types: `1541`.
 - Public/root-or-package facade types: `422`.
 - ABI snapshot-backed types: `88`.
 - Export enumeration covers these public packages:
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `analytics` | 940 | 232 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 97 | 20 | 8 |
-| `kernel` | 39 | 38 | 0 |
+| `kernel` | 43 | 38 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 7 | 0 | 0 |
 | `observation` | 139 | 63 | 30 |
@@ -22463,7 +22463,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.kernel.constraints.ConstraintSpec`
-- Summary: Registry of reusable constraints that ``link_trinity`` and governance checks resolve by id.
+- Summary: Registry of reusable constraints resolved by Trinity linkers and governance checks.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -22671,6 +22671,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `kind` | `polisyos.ir.kernel.merge_rules.MergeRuleKind` | `yes` | `—` | `polisyos.ir.kernel.merge_rules.MergeRuleKind` |
 | `rule_id` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.kernel.metrics.MetricCanonicalizationResult` { #polisyos-ir-kernel-metrics-metriccanonicalizationresult }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Canonical metric id plus diagnostics safe to store in evidence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `metric_id` | `str` | `yes` | `—` | — |
+| `changed` | `bool` | `yes` | `—` | — |
+| `diagnostics` | `list[dict[str, object]]` | `yes` | `—` | — |
+
 ### `polisyos.ir.kernel.metrics.MetricRegistry` { #polisyos-ir-kernel-metrics-metricregistry }
 
 - Kind: `pydantic_model`
@@ -22704,6 +22721,56 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `description` | `str \| NoneType` | `no` | `—` | — |
 | `metric_id` | `str` | `yes` | `—` | — |
 | `unit_id` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.metrics.MetricTaxonomyEntry` { #polisyos-ir-kernel-metrics-metrictaxonomyentry }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Versioned production metric taxonomy entry.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `aliases` | `tuple[str]` | `no` | `—` | — |
+| `description` | `str \| NoneType` | `no` | `—` | — |
+| `metric_id` | `str` | `yes` | `—` | — |
+| `owner` | `str` | `no` | `'team-ir'` | — |
+| `sources` | `tuple[str]` | `no` | `—` | — |
+| `unit_id` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.metrics.MetricTaxonomyValidationError` { #polisyos-ir-kernel-metrics-metrictaxonomyvalidationerror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unknown production metric failure with suggestions and evidence context.
+
+### `polisyos.ir.kernel.metrics.ProductionMetricTaxonomy` { #polisyos-ir-kernel-metrics-productionmetrictaxonomy }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.metrics.MetricTaxonomyEntry`
+- Summary: Canonical production metric ids, aliases, provenance, and evidence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `aliases` | `dict[str, str]` | `no` | `—` | — |
+| `canonicalizer` | `str` | `no` | `'production_metric_taxonomy.v1'` | — |
+| `metrics` | `dict[str, polisyos.ir.kernel.metrics.MetricTaxonomyEntry]` | `no` | `—` | `polisyos.ir.kernel.metrics.MetricTaxonomyEntry` |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `taxonomy_version` | `str` | `no` | `'2026.05.13'` | — |
 
 ### `polisyos.ir.kernel.selector_fields.SelectorFieldRegistry` { #polisyos-ir-kernel-selector-fields-selectorfieldregistry }
 

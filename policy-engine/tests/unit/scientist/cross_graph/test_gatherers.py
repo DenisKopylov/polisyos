@@ -5,6 +5,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
+from polisyos.ir.analytics.cross_graph import EvidenceStatus
 from polisyos.ir.analytics.literature import EnvironmentAuditReport, LiteratureCausalPrior
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer, _serialize_value
 from polisyos.scientist.cross_graph.gatherers.dataset import DatasetGatherer
@@ -49,6 +51,29 @@ class TestAcademicGatherer:
         assert result.status == "supported"
         assert result.confidence == 0.9
         assert result.metadata["transport_reasons"] == ["reason1"]
+
+    def test_with_compiler_fn_accepts_current_academic_result_shape(self):
+        class _CompilerResult:
+            status = EvidenceStatus.INSUFFICIENT
+            confidence = 0.3
+            transport_confidence = None
+            diagnostics = []
+            provenance_refs = ["academic:prior"]
+            transport_reasons = ["low_context_match"]
+
+        result = AcademicGatherer().assess(
+            _need(),
+            concepts=[],
+            context={
+                "academic_query": MagicMock(),
+                "_assess_academic_need": lambda *a, **kw: _CompilerResult(),
+            },
+        )
+
+        assert result.status == "insufficient"
+        assert result.confidence == 0.3
+        assert result.provenance_refs == ["academic:prior"]
+        assert result.metadata["transport_reasons"] == ["low_context_match"]
 
     def test_environment_audit_metadata_passthrough_and_advisory_diagnostic(self):
         mock_result = MagicMock()

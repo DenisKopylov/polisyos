@@ -192,6 +192,9 @@ class GCSArtifactStore:
                     "producer": opts.producer,
                     "env": opts.env,
                     "governance": getattr(opts, "governance", None),
+                    "tenant_context": getattr(opts, "tenant_context", None),
+                    "same_input_closure": getattr(opts, "same_input_closure", None),
+                    "authority": getattr(opts, "authority", None),
                     "integrity": IntegrityInfo(sha256=sha),
                 }
             )
@@ -222,6 +225,9 @@ class GCSArtifactStore:
             inputs=opts.inputs,
             canon=canon,
             governance=getattr(opts, "governance", None),
+            tenant_context=getattr(opts, "tenant_context", None),
+            same_input_closure=getattr(opts, "same_input_closure", None),
+            authority=getattr(opts, "authority", None),
         )
         return self.put_bytes(data, opts2)
 

@@ -14,8 +14,7 @@ import json
 
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
 from polisyos.foundry.methods.selection import authoring_catalog_payload
-from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, DEFAULT_METRIC_REGISTRY
 
 PI_SYSTEM_PROMPT = """
 # ROLE
@@ -80,25 +79,36 @@ You receive draft policy narratives from the Drafter and must produce machine-ex
 1. Output ONLY valid JSON - no markdown, no preamble
 2. All numeric values MUST be strings (e.g., "0.15" not 0.15)
 3. Use ONLY mechanisms from the available registry (provided below)
-4. Selectors must use valid predicates: kind=predicate|all_of|any_of|not
+4. Use ONLY metric_id values from the available metrics registry (provided below)
+5. Selectors must use valid predicates: kind=predicate|all_of|any_of|not
+6. PolicySpec.parameters is for numeric tunable runtime parameters only. Use
+   paths relative to intervention.params, e.g. "rate" or "learning_rate"; never
+   prefix them with "params.". Do not expose semantic strings, lists, dicts, or
+   narrative concepts as tunables.
+7. Runtime artifact references such as adaptive_agent.weights_artifact must be
+   valid CAS ids in the form "sha256:<64 lowercase hex chars>"; omit them when
+   no such artifact exists.
 
 # AVAILABLE MECHANISMS
 {mechanisms_json}
 
-# LIVE FOUNDRY METHODS CATALOG (OPTIONAL)
+# AVAILABLE METRICS
+{metrics_json}
+
+# LIVE FOUNDRY METHODS CATALOG SUMMARY
 {method_catalog_summary_json}
 
-# FULL METHOD CATALOG SNAPSHOT (OPTIONAL)
-{method_catalog_json}
-
-# TRINITYBUNDLE SCHEMA (v1.x)
-{schema_json}
+# COMPACT TRINITYBUNDLE CONTRACT
+{trinity_contract_json}
 
 # FORMALIZATION RULES
 - Build `problem_frame` from problem goals and constraints
 - Build `policy_spec` interventions with mechanism kinds from registry
 - Build `model_spec` with valid `data_snapshot_ref` and baseline simulation config
 - Ensure every intervention has: intervention_id, kind, target, schedule, params
+- Prefer the smallest valid JSON object over a verbose schema-shaped dump.
+- Do not invent Foundry method definitions. Use the catalog summary only to select
+  evaluation intent and labels.
 
 # ERROR HANDLING
 If the draft is ambiguous:
@@ -248,6 +258,103 @@ Given a ProblemFrame JSON, return an array `data_needs` where each element has:
   ]
 }}
 """
+
+TRINITY_COMPACT_CONTRACT: dict[str, object] = {
+    "schema_version": "1.0",
+    "root": {
+        "schema_version": "string, usually 1.0",
+        "problem_frame": "ProblemFrame",
+        "policy_spec": "PolicySpec",
+        "model_spec": "ModelSpec",
+    },
+    "ProblemFrame": {
+        "schema_version": "1.0",
+        "problem_id": "snake_case id",
+        "domain": "fiscal|monetary|social|environmental|labor|healthcare|education|infrastructure|regulatory|trade|custom",
+        "objectives": [
+            {
+                "objective_id": "snake_case id",
+                "metric_id": "snake_case id",
+                "direction": "maximize|minimize|maintain_range",
+                "weight": "decimal string",
+            }
+        ],
+        "hard_constraints": [],
+        "soft_constraints": [],
+        "narrative": "short explanation",
+        "labels": ["short labels"],
+    },
+    "PolicySpec": {
+        "schema_version": "1.0",
+        "policy_id": "snake_case id",
+        "interventions": [
+            {
+                "intervention_id": "snake_case id",
+                "kind": "mechanism id from AVAILABLE MECHANISMS",
+                "target": {
+                    "kind": "predicate",
+                    "field": "id",
+                    "operator": "==",
+                    "value": "all",
+                },
+                "schedule": {"start_step": 0, "duration_steps": 12},
+                "params": {"mechanism_param": "value"},
+                "notes": ["optional short notes"],
+            }
+        ],
+        "parameters": [
+            {
+                "param_id": "snake_case id",
+                "intervention_id": "existing intervention_id",
+                "param_path": "relative.path.inside.params_without_params_prefix",
+                "default_value": "decimal string or integer matching that params value",
+                "min_value": "optional decimal string",
+                "max_value": "optional decimal string",
+            }
+        ],
+        "description": "short description",
+        "labels": ["short labels"],
+    },
+    "ModelSpec": {
+        "schema_version": "1.0",
+        "model_id": "snake_case id",
+        "data_snapshot_ref": "sha256:<64 lowercase hex chars>",
+        "agent_config": {
+            "total_agents": "integer",
+            "max_agents": "integer",
+            "interaction_topology": "network|grid|well_mixed|none",
+        },
+        "assumptions": [
+            {
+                "assumption_id": "snake_case id",
+                "assumption_type": (
+                    "behavioral|structural|parametric|distributional|temporal|boundary"
+                ),
+                "description": "short assumption",
+                "confidence": "decimal string between 0 and 1",
+                "sensitivity_flag": True,
+            }
+        ],
+        "environment_config": {
+            "random_seed": "integer",
+            "stochastic": True,
+            "parallel_worlds": "integer",
+        },
+        "fidelity_level": "low|medium|high|hybrid",
+        "labels": ["short labels"],
+    },
+    "numeric_rule": "Use strings for decimal values. Integers and booleans may stay native.",
+    "selector_rule": "For broad targeting, use predicate id == all.",
+    "reference_rule": "If no real artifact ref is known, use sha256: followed by 64 zeroes.",
+    "adaptive_agent_rule": {
+        "observation_space": "Use executable registered agent fields such as agents.income, agents.risk_aversion, agents.skill_level. Do not use cells.*, government.* or unregistered agent fields in executable params.",
+        "action_space": {
+            "type": "continuous|discrete",
+            "affects": "Only agents.* targets are executable, for example ['agents.income']. Never use policy.*, government.* or cells.* as action targets.",
+            "discrete_hint": "If type=discrete and actions are provided, include n_categories=len(actions).",
+        },
+    },
+}
 
 POLICY_REQUEST_PLANNER_PROMPT = """
 # ROLE
@@ -473,14 +580,7 @@ def get_data_need_extractor_prompt(metric_ids: list[str] | None = None) -> str:
 
 def get_formalizer_prompt(method_catalog_snapshot: dict | None = None) -> str:
     """System prompt for Formalizer agent with schema injection."""
-    schema = TrinityBundle.model_json_schema()
     mechanisms = DEFAULT_MECHANISM_REGISTRY.model_dump(mode="json")
-    method_catalog_payload = method_catalog_snapshot or {
-        "schema_version": "1.0",
-        "snapshot_id": "none",
-        "entries": [],
-        "notes": ["method_catalog_unavailable"],
-    }
     method_catalog_summary = {
         "source_schema_version": "none",
         "snapshot_id": "none",
@@ -498,15 +598,57 @@ def get_formalizer_prompt(method_catalog_snapshot: dict | None = None) -> str:
             method_catalog_summary = authoring_catalog_payload(parsed_snapshot)
     return FORMALIZER_SYSTEM_PROMPT.format(
         mechanisms_json=json.dumps(mechanisms, indent=2),
+        metrics_json=json.dumps(DEFAULT_METRIC_REGISTRY.model_dump(mode="json"), indent=2),
         method_catalog_summary_json=json.dumps(method_catalog_summary, indent=2),
-        method_catalog_json=json.dumps(method_catalog_payload, indent=2),
-        schema_json=json.dumps(schema, indent=2),
+        trinity_contract_json=json.dumps(TRINITY_COMPACT_CONTRACT, indent=2),
     )
 
 
 def get_critic_prompt() -> str:
     """System prompt for Critic agent."""
-    return CRITIC_SYSTEM_PROMPT
+    contract_payload = {
+        "trinity_contract": TRINITY_COMPACT_CONTRACT,
+        "current_contract_facts": [
+            "The TrinityBundle under review has already passed local Pydantic validation.",
+            (
+                "policy_spec.problem_frame_ref is optional; do not report a missing "
+                "problem_frame_ref as a blocker."
+            ),
+            (
+                "adaptive_agent is an executable supported mechanism when "
+                "action_space.affects uses agents.* targets."
+            ),
+            (
+                "adaptive_agent observations should use executable registered "
+                "agent fields such as agents.income, agents.risk_aversion, "
+                "agents.skill_level."
+            ),
+            (
+                "Decimal fields may be serialized as JSON strings; do not report "
+                "decimal strings as schema errors."
+            ),
+            "problem_frame.objectives[].target is optional and may be null.",
+            "problem_frame.success_criteria is optional and may be an empty list.",
+            (
+                "AssumptionType includes behavioral, structural, parametric, "
+                "distributional, temporal, and boundary."
+            ),
+            (
+                "tax_subsidy is the current executable positive income-support proxy "
+                "for grants, reimbursements, vouchers, and tax relief when more "
+                "specialized transfer mechanisms are unavailable."
+            ),
+            (
+                "Only report SCHEMA blockers for contradictions visible in the "
+                "provided JSON after applying these contract facts."
+            ),
+        ],
+    }
+    return (
+        f"{CRITIC_SYSTEM_PROMPT}\n\n"
+        "# CURRENT EXECUTABLE TRINITY CONTRACT\n"
+        f"{json.dumps(contract_payload, indent=2)}\n"
+    )
 
 
 def get_policy_request_planner_prompt() -> str:

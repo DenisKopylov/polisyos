@@ -24,7 +24,10 @@ class DecisionValidityStatus(str, Enum):
     ACTIVE = "active"
     WARNING = "warning"
     STALE = "stale"
+    REVIEW_REQUIRED = "review_required"
     SUPERSEDED = "superseded"
+    REISSUED = "reissued"
+    WITHDRAWN = "withdrawn"
     REVOKED = "revoked"
     REQUIRES_HUMAN_REVIEW = "requires_human_review"
 
@@ -38,6 +41,7 @@ class DecisionDependencyKind(str, Enum):
     DATA_SNAPSHOT = "data_snapshot"
     DATASET = "dataset"
     DATA_SCHEMA = "data_schema"
+    SOURCE = "source"
     QUALITY_REPORT = "quality_report"
     INPUT_BINDING_REPORT = "input_binding_report"
     KNOWLEDGE_BUNDLE = "knowledge_bundle"
@@ -52,6 +56,12 @@ class DecisionDependencyKind(str, Enum):
 class DecisionTriggerType(str, Enum):
     """Identify the external or internal event that changed packet validity."""
 
+    NORM_INVALIDATION = "norm_invalidation"
+    DATA_INVALIDATION = "data_invalidation"
+    SOURCE_INVALIDATION = "source_invalidation"
+    METRIC_INVALIDATION = "metric_invalidation"
+    MODEL_INVALIDATION = "model_invalidation"
+    CONFLICT_INVALIDATION = "conflict_invalidation"
     LAW_CHANGE = "law_change"
     DATASET_SUPERSEDED = "dataset_superseded"
     HISTORICAL_SEMANTIC_REVISION = "historical_semantic_revision"

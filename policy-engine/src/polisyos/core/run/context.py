@@ -229,8 +229,22 @@ class RunContext:
             cell_id=cell_id,
             access_scope=access_scope,
         )
+        ctx._record_ref_owner(registry_bundle, writer="RunContext.start.registry_bundle")
         ctx.emit("core", "RUN_STARTED")
         return ctx
+
+    def _record_ref_owner(self, ref: ArtifactRef, *, writer: str) -> None:
+        if not self.tenant_id:
+            return
+        recorder = getattr(self.store, "record_artifact_owner", None)
+        if not callable(recorder):
+            return
+        recorder(
+            ref.artifact_id,
+            tenant_id=self.tenant_id,
+            cell_id=self.cell_id,
+            writer=writer,
+        )
 
     def emit(
         self,
@@ -241,6 +255,8 @@ class RunContext:
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
     ) -> None:
+        for ref in [*(inputs or []), *(outputs or [])]:
+            self._record_ref_owner(ref, writer=f"RunContext.emit:{event}")
         rec = TraceRecord(
             run_id=self.run_manifest.run_id,
             phase=phase,
@@ -285,6 +301,7 @@ class RunContext:
                 data,
                 ArtifactWriteOptions(kind="core.trace.jsonl", media_type="application/jsonl"),
             )
+            self._record_ref_owner(trace_ref, writer="RunContext.finalize.trace")
             self.run_manifest.trace_ref = trace_ref
 
         if run_dir is not None:
@@ -293,6 +310,7 @@ class RunContext:
             self.run_manifest,
             _run_manifest_write_options(self.run_manifest),
         )
+        self._record_ref_owner(run_ref, writer="RunContext.finalize.manifest")
         self.emit(
             "core",
             "RUN_FINALIZED",

@@ -5,6 +5,14 @@ from polisyos.scientist.orchestration.memory.applicability import (
     evaluate_lesson_applicability,
     lesson_scope_from_card,
 )
+from polisyos.scientist.orchestration.memory.authority import (
+    MemoryAuthorityContaminationCheck,
+    MemoryAuthorityKind,
+    MemoryAuthorityRecord,
+    assert_memory_authority_for_serious_output,
+    build_memory_use_authority_record,
+    build_no_memory_abstention_record,
+)
 from polisyos.scientist.orchestration.memory.consolidation import (
     ConsolidatedLessonSet,
     assert_lesson_can_influence,
@@ -43,6 +51,9 @@ __all__ = [
     "ConsolidatedLessonSet",
     "LessonApplicability",
     "MemoryApplicabilityContext",
+    "MemoryAuthorityContaminationCheck",
+    "MemoryAuthorityKind",
+    "MemoryAuthorityRecord",
     "MemoryContaminationFinding",
     "MemoryContaminationPolicy",
     "MemoryRetrievalResult",
@@ -53,7 +64,10 @@ __all__ = [
     "ReflexiveMemoryFacade",
     "apply_reflexive_scope",
     "assert_lesson_can_influence",
+    "assert_memory_authority_for_serious_output",
     "assert_reusable_memory_clean",
+    "build_memory_use_authority_record",
+    "build_no_memory_abstention_record",
     "build_reflexion_memory_recovery_eval_report",
     "build_reflexion_recovery_eval_report",
     "build_reflexive_lesson_scope",

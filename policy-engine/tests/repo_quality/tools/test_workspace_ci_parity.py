@@ -49,6 +49,7 @@ def test_workspace_verify_owns_fast_last_mile_gates(
 
     assert "check package import gates (shell-package closure)" in labels
     assert "check last-mile inventory baseline" in labels
+    assert "build honest diagnostics coverage dashboard" in labels
     assert "check extension example contract coverage" in labels
     assert "check schemas pure-data closure" in labels
     assert "Last-mile fail-fast gates:" in verify._build_parser().format_help()
@@ -65,6 +66,7 @@ def test_workspace_verify_owns_fast_last_mile_gate_labels(
 
     assert "check package import gates (shell-package closure)" in labels
     assert "check last-mile inventory baseline" in labels
+    assert "build honest diagnostics coverage dashboard" in labels
     assert "check extension example contract coverage" in labels
     assert "check schemas pure-data closure" in labels
     assert "Last-mile fail-fast gates:" in verify._build_parser().format_help()

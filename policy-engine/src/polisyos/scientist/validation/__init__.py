@@ -47,6 +47,10 @@ __all__ = [
     "adjust_family",
     "assemble_legal_candidate_pack",
     "build_phase5_validation_report",
+    "build_citation_faithfulness_report",
+    "build_decision_artifact_quality_report",
+    "build_policy_context_citation_faithfulness_report",
+    "build_policy_grounding_matrix_report",
     "build_policy_request_frame",
     "build_verified_policy_report",
     "collect_phase5_evidence",
@@ -56,6 +60,7 @@ __all__ = [
     "draft_policy_option_set",
     "enforce_phase5_publication",
     "enforce_phase5_validation_report",
+    "evaluate_claim_support",
     "evaluate_ic_implementation_conformance",
     "evaluate_incentive_compatibility",
     "expand_legal_source_pack",
@@ -73,6 +78,8 @@ __all__ = [
     "load_policy_request_frame",
     "load_source_verification_report",
     "load_verified_policy_report",
+    "normalize_decision_artifact_quality_report",
+    "normalize_policy_grounding_matrix",
     "persist_ic_certificate",
     "persist_ic_conformance_report",
     "persist_ic_negative_certificate",
@@ -230,6 +237,34 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "run_phase5_artifact_preflight": (
         "polisyos.scientist.validation.phase5_preflight",
         "run_phase5_artifact_preflight",
+    ),
+    "evaluate_claim_support": (
+        "polisyos.scientist.validation.claim_support",
+        "evaluate_claim_support",
+    ),
+    "build_citation_faithfulness_report": (
+        "polisyos.scientist.validation.citation_faithfulness",
+        "build_citation_faithfulness_report",
+    ),
+    "build_policy_context_citation_faithfulness_report": (
+        "polisyos.scientist.validation.citation_faithfulness",
+        "build_policy_context_citation_faithfulness_report",
+    ),
+    "build_decision_artifact_quality_report": (
+        "polisyos.scientist.validation.decision_artifact_quality",
+        "build_decision_artifact_quality_report",
+    ),
+    "build_policy_grounding_matrix_report": (
+        "polisyos.scientist.validation.policy_grounding",
+        "build_policy_grounding_matrix_report",
+    ),
+    "normalize_decision_artifact_quality_report": (
+        "polisyos.scientist.validation.decision_artifact_quality",
+        "normalize_decision_artifact_quality_report",
+    ),
+    "normalize_policy_grounding_matrix": (
+        "polisyos.scientist.validation.policy_grounding",
+        "normalize_policy_grounding_matrix",
     ),
     "LegalCandidatePack": (
         "polisyos.scientist.validation.policy_verified.models",

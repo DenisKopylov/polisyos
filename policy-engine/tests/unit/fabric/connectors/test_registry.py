@@ -1135,6 +1135,43 @@ class TestRegistryIntegration:
 
         asyncio.run(_run())
 
+    def test_registry_connection_pools_are_event_loop_scoped(
+        self,
+        registry: ConnectorRegistry,
+    ) -> None:
+        """Fresh-loop callers do not share asyncio pool primitives."""
+        config = ConnectionConfig(
+            url="https://api.example.com/v1",
+            headers={"User-Agent": "PolicyOS/Test"},
+            timeout_seconds=30,
+            max_connections=1,
+        )
+        registry.register(MockConnectorA, config=config)
+
+        barrier = threading.Barrier(2)
+        errors: list[BaseException] = []
+
+        def _worker() -> None:
+            async def _run() -> None:
+                barrier.wait(timeout=5)
+                handle = await registry.get_connection("mock_a")
+                await asyncio.sleep(0.02)
+                await registry.release_connection("mock_a", handle)
+
+            try:
+                asyncio.run(_run())
+            except BaseException as exc:  # pragma: no cover - asserted below.
+                errors.append(exc)
+
+        threads = [threading.Thread(target=_worker) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=5)
+
+        assert errors == []
+        assert registry.stats.active_pools == 2
+
     def test_bootstrap_default_configs_uses_default_profile_registry_helper(
         self,
         registry: ConnectorRegistry,

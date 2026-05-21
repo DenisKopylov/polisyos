@@ -25,7 +25,10 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
 from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
-from polisyos.scientist.orchestration.engine.condition import ConditionSyntaxError, evaluate_condition
+from polisyos.scientist.orchestration.engine.condition import (
+    ConditionSyntaxError,
+    evaluate_condition,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     NodeTimeoutError,
@@ -40,13 +43,19 @@ from polisyos.scientist.orchestration.engine.executor import (
     WorkflowReport,
     _log_node_events,
     _merge_cached_outcome_state,
+    _outcome_skip_reason,
     _should_cache,
+    _skip_blocker_for_engine_skip,
+    _skip_blocker_for_outcome,
     _validate_aliases,
     _validate_dependencies,
     _validate_required_binds,
     bind_node_params,
 )
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache, compute_idempotency_key
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
@@ -63,13 +72,16 @@ from polisyos.scientist.orchestration.engine.trace_attributes import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.scientist.orchestration.engine.checkpoint import AsyncCheckpointHook, CheckpointHook
+    from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
+    from polisyos.scientist.orchestration.engine.checkpoint import (
+        AsyncCheckpointHook,
+        CheckpointHook,
+    )
     from polisyos.scientist.orchestration.engine.compensation import RollbackCompensationHook
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.registry import NodeRegistry
     from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-    from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
 
 _module_logger = get_logger(__name__)
 
@@ -182,6 +194,13 @@ class AsyncWorkflowExecutor:
                                 status="skip",
                                 duration_ms=0,
                                 skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(invocations[alias].node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
                             )
                         )
                         blocked.add(alias)
@@ -198,6 +217,13 @@ class AsyncWorkflowExecutor:
                                 status="skip",
                                 duration_ms=0,
                                 skip_reason="upstream_failed",
+                                skip_blocker=_skip_blocker_for_engine_skip(
+                                    alias=alias,
+                                    node_id=str(inv.node_id),
+                                    skip_reason="upstream_failed",
+                                    missing_input="upstream_dependency",
+                                    phase="dependency_resolution",
+                                ),
                             )
                         )
                         blocked.add(alias)
@@ -251,6 +277,13 @@ class AsyncWorkflowExecutor:
                                         status="skip",
                                         duration_ms=0,
                                         skip_reason="condition_false",
+                                        skip_blocker=_skip_blocker_for_engine_skip(
+                                            alias=alias,
+                                            node_id=str(inv.node_id),
+                                            skip_reason="condition_false",
+                                            missing_input=inv.condition.expr,
+                                            phase="condition_evaluation",
+                                        ),
                                     )
                                 )
                                 condition_skipped.add(alias)
@@ -508,6 +541,12 @@ class AsyncWorkflowExecutor:
             duration_ms=duration_ms,
             artifacts=list(outcome.artifacts),
             error=outcome.error,
+            skip_reason=_outcome_skip_reason(outcome) if outcome.status == "skip" else None,
+            skip_blocker=_skip_blocker_for_outcome(
+                alias=alias,
+                node_id=str(inv.node_id),
+                outcome=outcome,
+            ),
         )
         return record, state, node_failed
 
@@ -618,6 +657,12 @@ class AsyncWorkflowExecutor:
                     duration_ms=duration_ms,
                     artifacts=list(outcome.artifacts),
                     error=outcome.error,
+                    skip_reason=_outcome_skip_reason(outcome) if outcome.status == "skip" else None,
+                    skip_blocker=_skip_blocker_for_outcome(
+                        alias=alias,
+                        node_id=str(invocations[alias].node_id),
+                        outcome=outcome,
+                    ),
                 )
             )
             if outcome.status == "ok":

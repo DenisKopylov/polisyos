@@ -21,6 +21,10 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+from polisyos.fabric.catalog.source_selection_audit import (  # noqa: E402
+    build_fabric_source_selection_trace,
+    normalize_fabric_retrieval_trace,
+)
 from polisyos.fabric.connectors.components import __polisyos_components__  # noqa: E402
 from polisyos.fabric.connectors.contracts import (  # noqa: E402
     SOURCE_CONTRACT_SCHEMA_VERSION,
@@ -63,7 +67,19 @@ GENERATED_AT_DT = datetime(2026, 4, 27, tzinfo=UTC)
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report", action="store_true", help="Print report JSON")
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=REPO_ROOT,
+        help="Repository root used for resolving a report output path.",
+    )
+    parser.add_argument(
+        "--report",
+        nargs="?",
+        const="-",
+        default=None,
+        help="Print report JSON, or write it to the provided path.",
+    )
     parser.add_argument("--check", action="store_true", help="Check generated artifacts")
     parser.add_argument("--update", action="store_true", help="Update generated artifacts")
     parser.add_argument(
@@ -305,6 +321,7 @@ def build_report() -> dict[str, Any]:
         },
         "compatibility_evidence": compatibility,
         "profile_compatibility_matrix": build_source_profile_matrix(contracts, profiles),
+        "source_selection_state_machine": build_source_selection_state_machine_report(),
         "contracts": [contract.to_snapshot_record() for contract in contracts],
         "conformance": [
             {
@@ -324,6 +341,190 @@ def build_report() -> dict[str, Any]:
             for report in reports
         ],
         "scorecards": [scorecard.model_dump(mode="json") for scorecard in scorecards],
+    }
+
+
+def build_source_selection_state_machine_report() -> dict[str, Any]:
+    """Build synthetic checks for Fabric scenario source selection semantics."""
+
+    scenario_contract = {
+        "schema_version": "policyos.scenario_evidence_contract.v1",
+        "contract_id": "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1",
+        "scenario_id": "ukraine_msme_wartime_credit_support",
+        "requirements": [
+            {
+                "requirement_id": (
+                    "scenario:ukraine_msme_wartime_credit_support:data:"
+                    "production_msme_panel"
+                ),
+                "domain": "data",
+                "expected_family": "production_msme_panel",
+                "required_facets": ["dictionary_ref", "schema_ref", "lineage_refs"],
+            }
+        ],
+    }
+    broad_trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[
+            {
+                "source_id": "production-data-datasets-bundle",
+                "source_family": "datasets",
+                "source_kind": "production_data",
+                "freshness": {"status": "pass"},
+                "coverage": {"status": "pass"},
+                "schema_compatibility": {"status": "pass"},
+                "relevance_rationale": "Context inventory only.",
+                "source_rights": "public",
+                "dictionary_ref": "dictionary:datasets:v1",
+                "schema_ref": "schema:datasets:v1",
+                "field_refs": ["field:any"],
+                "unit_refs": ["unit:any"],
+                "geography_refs": ["UA"],
+                "time_coverage_refs": ["2026"],
+                "quality_refs": ["quality:datasets:v1"],
+                "missingness_refs": ["missingness:datasets:v1"],
+                "freshness_refs": ["freshness:datasets:v1"],
+                "lineage_refs": ["lineage:datasets:v1"],
+                "transformation_refs": ["transform:datasets:v1"],
+                "data_forge_snapshot_refs": ["sha256:" + "1" * 64],
+                "derived_features": [{"feature_ref": "feature:any"}],
+            }
+        ],
+        selected_source_ids=["production-data-datasets-bundle"],
+        rejected_sources=[],
+        scenario_evidence_contract=scenario_contract,
+        production_data_contract_binding_report={
+            "scenario_contract_id": scenario_contract["contract_id"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": scenario_contract["requirements"][0][
+                        "requirement_id"
+                    ],
+                    "expected_family": "production_msme_panel",
+                    "candidate_ref": None,
+                    "status": "blocked",
+                    "missing_facets": ["dictionary_ref", "schema_ref", "lineage_refs"],
+                }
+            ],
+        },
+    )
+    contract_ref = "production_data:curated:production_msme_panel:contract.production_msme_panel"
+    selected_trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[
+            {
+                "source_id": contract_ref,
+                "source_family": "production_msme_panel",
+                "source_kind": "production_data_contract",
+                "freshness": {"status": "pass", "ref": "freshness:msme:v1"},
+                "coverage": {"status": "pass"},
+                "schema_compatibility": {"status": "pass"},
+                "relevance_rationale": "Matches the scenario family.",
+                "source_rights": "public_sector_reuse",
+                "dictionary_ref": "dictionary:msme:v1",
+                "schema_ref": "schema:msme:v1",
+                "field_refs": ["field:msme_survival_rate"],
+                "unit_refs": ["unit:rate"],
+                "geography_refs": ["UA"],
+                "time_coverage_refs": ["2024-2026"],
+                "quality_refs": ["quality:msme:v1"],
+                "missingness_refs": ["missingness:msme:v1"],
+                "freshness_refs": ["freshness:msme:v1"],
+                "lineage_refs": ["lineage:msme:v1"],
+                "transformation_refs": ["transform:msme:v1"],
+                "data_forge_snapshot_refs": ["sha256:" + "2" * 64],
+                "derived_features": [{"feature_ref": "feature:msme_survival_rate"}],
+            }
+        ],
+        selected_source_ids=[contract_ref],
+        rejected_sources=[
+            {
+                "source_id": "production-data-datasets-bundle",
+                "source_family": "datasets",
+                "reason_code": "non_admissible_context_only",
+            }
+        ],
+        scenario_evidence_contract=scenario_contract,
+        production_data_contract_binding_report={
+            "scenario_contract_id": scenario_contract["contract_id"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": scenario_contract["requirements"][0][
+                        "requirement_id"
+                    ],
+                    "expected_family": "production_msme_panel",
+                    "candidate_ref": contract_ref,
+                    "status": "satisfied",
+                    "missing_facets": [],
+                }
+            ],
+        },
+    )
+    dropped_trace = normalize_fabric_retrieval_trace(
+        {
+            "status": "pass",
+            "query_intent": {"policy_domain": "wartime_msme_support"},
+            "scenario_evidence_contract_id": None,
+            "selected_sources": selected_trace["selected_sources"],
+            "rejected_sources": [],
+            "production_data_contract_binding_report": {
+                "scenario_contract_id": scenario_contract["contract_id"],
+                "scenario_binding_findings": [
+                    {
+                        "requirement_id": scenario_contract["requirements"][0][
+                            "requirement_id"
+                        ],
+                        "expected_family": "production_msme_panel",
+                        "candidate_ref": contract_ref,
+                        "status": "satisfied",
+                        "missing_facets": [],
+                    }
+                ],
+            },
+        },
+        expected_source_families=["production_msme_panel"],
+    )
+    checks = [
+        {
+            "check_id": "broad_bundle_cannot_satisfy_scenario_family",
+            "passed": (
+                broad_trace["status"] == "fail"
+                and broad_trace["selected_contract_binding"] is None
+                and broad_trace["selected_sources"][0]["selection_status"]
+                == "non_admissible_context_only"
+            ),
+            "observed_status": broad_trace["status"],
+            "issue_codes": sorted({issue["code"] for issue in broad_trace["issues"]}),
+        },
+        {
+            "check_id": "selected_contract_binding_is_authority_surface",
+            "passed": (
+                selected_trace["status"] == "pass"
+                and selected_trace["selected_contract_binding"]["candidate_ref"]
+                == contract_ref
+                and selected_trace["selected_sources"][0]["authority_surface"]
+                == "claim_admissible_contract"
+            ),
+            "observed_status": selected_trace["status"],
+            "selected_contract_binding_ref": selected_trace["selected_contract_binding"][
+                "candidate_ref"
+            ],
+        },
+        {
+            "check_id": "scenario_contract_id_drop_fails_closed",
+            "passed": (
+                dropped_trace["status"] == "fail"
+                and "scenario_evidence_contract_id_dropped"
+                in {issue["code"] for issue in dropped_trace["issues"]}
+            ),
+            "observed_status": dropped_trace["status"],
+            "issue_codes": sorted({issue["code"] for issue in dropped_trace["issues"]}),
+        },
+    ]
+    return {
+        "schema_version": "policyos.fabric.source_selection_state_machine.v1",
+        "passed": all(check["passed"] for check in checks),
+        "checks": checks,
     }
 
 
@@ -528,6 +729,9 @@ def validate_report(report: dict[str, Any], *, fail_closed: bool = False) -> lis
         errors.append("every production SourceContract must carry field access policies")
     if int(summary.get("schema_field_policy_coverage_count", 0) or 0) != source_contract_count:
         errors.append("field access policies must cover every schema field or wildcard")
+    state_machine = report.get("source_selection_state_machine")
+    if not isinstance(state_machine, dict) or state_machine.get("passed") is not True:
+        errors.append("Fabric source-selection state machine contract failed")
     for row in report.get("contracts", []):
         contract = SourceContract.model_validate(row["contract"])
         if contract.status == "active" and not contract.replay.fixture_ref:
@@ -576,7 +780,15 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     report_errors = validate_report(report, fail_closed=args.fail_closed)
     if args.report:
-        print(dump_json(report), end="")
+        report_json = dump_json(report)
+        if args.report == "-":
+            print(report_json, end="")
+        else:
+            report_path = Path(args.report)
+            if not report_path.is_absolute():
+                report_path = Path(args.repo_root).expanduser().resolve() / report_path
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(report_json, encoding="utf-8")
 
     if args.update:
         update_artifacts(

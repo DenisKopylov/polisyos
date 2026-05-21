@@ -1,0 +1,282 @@
+[registry]
+name = "polisyos.runtime_quality.diagnostic_event_types"
+version = "1.0"
+owner = "team-observability"
+adr = "ADR-0154"
+description = "Registry-scoped diagnostic event types for serious-run authority, projection, replay, and reconciliation events."
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.producer_execution.v1"
+category = "producer_execution"
+description = "A runtime producer executed and emitted or blocked authority-bearing evidence."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.cas_write.v1"
+category = "cas_write"
+description = "A runtime component wrote an authority payload or artifact to CAS."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.cas"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.ref_publication.v1"
+category = "ref_publication"
+description = "A runtime-owned CAS ref was published to a reader, control plane, or progress surface."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.phase_transition.v1"
+category = "phase_transition"
+description = "A serious-run state machine phase transition was accepted or blocked."
+owner = "team-runtime-control"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.blocker.v1"
+category = "blocker"
+description = "A typed blocker was emitted for missing, stale, incompatible, or unsafe authority evidence."
+owner = "team-runtime-quality"
+authority_role = "runtime_blocker"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.effective_mode.v1"
+category = "effective_mode"
+description = "A requested/effective mode ledger was emitted for a serious run or canary lane."
+owner = "team-runtime-ops"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.fallback_degradation.v1"
+category = "fallback_degradation"
+description = "A fallback, degradation, fixture overlay, adapter downgrade, or simulated path was ledgered."
+owner = "team-runtime-ops"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.schema_migration.v1"
+category = "schema_migration"
+description = "A schema migration, adapter compatibility check, quarantine, or reader compatibility decision was recorded."
+owner = "team-architecture"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.scorecard_gate_read.v1"
+category = "scorecard_gate_read"
+description = "A scorecard gate read runtime authority refs and emitted a pass, fail, warning, or blocker decision."
+owner = "team-quality-closeout"
+authority_role = "runtime_consumer"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.scorecard"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.readiness_closeout.v1"
+category = "readiness_closeout"
+description = "A readiness closeout reader verified the authority graph for a serious run."
+owner = "team-quality-closeout"
+authority_role = "runtime_consumer"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.readiness"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.approval_decision.v1"
+category = "approval_decision"
+description = "An approval, rejection, override, or interruption decision read verified authority evidence."
+owner = "team-quality-closeout"
+authority_role = "runtime_consumer"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.approval"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.dashboard_projection.v1"
+category = "dashboard_projection"
+description = "A dashboard projection read and displayed authority state without minting authority."
+owner = "team-runtime-dashboard"
+authority_role = "projection_only"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.dashboard"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.public_artifact_publication.v1"
+category = "public_artifact_publication"
+description = "A public or redacted artifact publication preserved authority identity while applying redaction policy."
+owner = "team-runtime-quality"
+authority_role = "projection_only"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.publication"]
+payload_ref_policy = "redacted_or_cas_required"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.replay_result.v1"
+category = "replay_result"
+description = "A replay run compared deterministic inputs, outputs, and authority refs."
+owner = "team-assurance"
+authority_role = "runtime_reconciliation"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.replay"]
+payload_ref_policy = "cas_required_for_large_payload"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.reconciliation_result.v1"
+category = "reconciliation_result"
+description = "A reconciliation action classified duplicates, retries, collisions, withdrawals, or supersession."
+owner = "team-observability"
+authority_role = "runtime_reconciliation"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.reconciliation"]
+payload_ref_policy = "optional"
+
+[[event_types]]
+name = "polisyos.runtime.diagnostic.governance_lifecycle_decision.v1"
+category = "governance_lifecycle_decision"
+description = "A continuous governance lifecycle decision emitted runtime-owned stale, reissue, supersede, or withdraw authority."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.governance"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.resilience_lane.evidence_emitted.v1"
+category = "resilience_lane_evidence"
+description = "A Wave 5 resilience readiness lane emitted runtime-owned CAS evidence."
+owner = "team-runtime-ops"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.resilience_lane.slo_evidence_emitted.v1"
+category = "resilience_lane_slo_evidence"
+description = "A Wave 5 resilience readiness lane emitted runtime-owned diagnostic SLO evidence."
+owner = "team-runtime-ops"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.evidence.normative_applicability_report.v1"
+category = "runtime_evidence"
+description = "Lex normative applicability evidence was emitted or blocked by a runtime producer."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.lex"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.evidence.fabric_retrieval_trace.v1"
+category = "runtime_evidence"
+description = "Fabric retrieval/source-selection evidence was emitted or blocked by a runtime producer."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.fabric"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.evidence.foundry_method_report.v1"
+category = "runtime_evidence"
+description = "Foundry method-quality evidence was emitted or blocked by a runtime producer."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.foundry"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.evidence.policy_grounding_matrix.v1"
+category = "runtime_evidence"
+description = "Scientist policy-grounding evidence was emitted or blocked by a runtime producer."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.scientist"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.evidence.conflict_check.v1"
+category = "runtime_evidence"
+description = "Lex conflict-check evidence was emitted or blocked by a runtime producer."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime", "polisyos.lex"]
+payload_ref_policy = "cas_required_for_authority_payload"

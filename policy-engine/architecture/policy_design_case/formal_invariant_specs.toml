@@ -1,0 +1,154 @@
+schema_version = "policyos.policy_design_case.formal_invariant_specs.v1"
+
+[[specs]]
+spec_id = "authority_ordering"
+family = "formal_substrate_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0147", "ADR-0150", "ADR-0165"]
+statement = "Projection, packaging, diagnostic, and scorecard/readiness input roles never satisfy serious authority."
+protected_authority_property = "Only runtime producer authority and typed runtime blockers may satisfy serious authority consumers."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/authority.py",
+  "src/polisyos/runtime/quality/source_truth.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+]
+accepted_check_type = "finite_state_model_check"
+model_property = "authority_ordering_projection_never_satisfies_serious_authority"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_authority.py",
+]
+revisit_triggers = [
+  "New authority_role or provenance_kind values are introduced.",
+  "Scorecard, readiness, approval, or public export consumes a new authority field.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves projection-not-authority semantics."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_authority.py::test_projection_only_envelope_cannot_be_used_as_authority",
+  "tests/unit/runtime/quality/test_authority_spoofing.py",
+]
+
+[[specs]]
+spec_id = "phase_barriers"
+family = "formal_substrate_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0148", "ADR-0150", "ADR-0165"]
+statement = "Authority-upgrading transitions require every relevant phase barrier to pass; missing, skipped, or blocked barriers cannot upgrade authority."
+protected_authority_property = "Scorecard, final artifact, public artifact, and canary closeout authority cannot be minted across an unclosed barrier."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/phase_barriers.py",
+  "src/polisyos/runtime/quality/run_state.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "phase_barrier_authority_upgrade_requires_passed_barriers"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_run_state.py",
+]
+revisit_triggers = [
+  "A new serious-run phase barrier is added.",
+  "A new scorecard, approval, public export, or closeout transition is introduced.",
+]
+retirement_rule = "May be superseded only by an ADR that defines equivalent or stricter barrier semantics."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_run_state.py::test_missing_phase_barrier_record_blocks_scorecard_readiness",
+  "tests/unit/runtime/quality/test_run_state.py::test_skipped_phase_barrier_does_not_satisfy_serious_closeout",
+]
+
+[[specs]]
+spec_id = "same_input_closure"
+family = "formal_substrate_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0147", "ADR-0154", "ADR-0165"]
+statement = "Authority records in one serious closeout must carry a closed, hash-bearing, matching same-input closure identity."
+protected_authority_property = "No mixed tenant, run, job, cell, time, mode, method, legal, or input context may be consumed as one closeout."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/authority.py",
+  "src/polisyos/core/artifacts/manifest.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+]
+accepted_check_type = "finite_state_model_check"
+model_property = "same_input_closure_requires_closed_matching_identity"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_authority.py",
+]
+revisit_triggers = [
+  "SameInputClosure fields or identity_tuple semantics change.",
+  "A new reader aggregates authority envelopes across runs, tenants, cells, or jobs.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves same-input closure across all authority readers."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_authority.py::test_same_input_closure_rejects_mixed_closure_identities",
+]
+
+[[specs]]
+spec_id = "cas_event_reconciliation"
+family = "formal_substrate_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0154", "ADR-0155", "ADR-0165"]
+statement = "Runtime CAS authority artifacts and durable diagnostic events reconcile bidirectionally before serious closeout."
+protected_authority_property = "No orphan CAS artifact, orphan event, payload mismatch, identity mismatch, or event collision can satisfy authority."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/authority_reconciliation.py",
+  "src/polisyos/runtime/quality/diagnostic_events.py",
+  "src/polisyos/runtime/quality/event_log.py",
+]
+accepted_check_type = "finite_state_model_check"
+model_property = "cas_event_reconciliation_is_bijective_for_runtime_authority"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_authority_reconciliation.py",
+]
+revisit_triggers = [
+  "CAS manifest authority linkage changes.",
+  "Diagnostic event payload_ref, artifact_refs, tenant, cell, run, or job identity semantics change.",
+]
+retirement_rule = "May be superseded only by a stronger reconciliation model with durable event and CAS identity checks."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_authority_reconciliation.py::test_cas_artifact_without_durable_event_fails_serious_reconciliation",
+  "tests/unit/runtime/quality/test_authority_reconciliation.py::test_durable_event_without_cas_artifact_fails_serious_reconciliation",
+]
+
+[[specs]]
+spec_id = "terminal_readiness"
+family = "formal_substrate_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0148", "ADR-0150", "ADR-0165"]
+statement = "Approved, rejected, and published-blocked terminal states require readiness_closed authority plus verified scorecard identity and matching readiness decision."
+protected_authority_property = "Terminal readiness cannot be inferred from dashboard/API projections or from unverified scorecard identity."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/run_state.py",
+  "src/polisyos/runtime/quality/approval.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "terminal_readiness_requires_closed_scorecard_and_readiness"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_run_state.py",
+]
+revisit_triggers = [
+  "RunState terminal states or VALID_TRANSITIONS change.",
+  "Approval, publication, or readiness decision strings gain new authority meanings.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves verified readiness_closed terminal gating."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_run_state.py::test_too_early_final_artifact_compilation_is_blocked",
+]

@@ -1,0 +1,98 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_jurisdiction_spine_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Jurisdiction Spine",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "spine_id",
+    "jurisdiction_spine_ref",
+    "run_id",
+    "job_id",
+    "tenant_id",
+    "policy_intent_ref",
+    "runtime_authority_envelope",
+    "authority_level_taxonomy",
+    "jurisdictions",
+    "conflict_surfaces",
+    "unresolved_conflicts",
+    "blockers",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.jurisdiction_spine.v1"
+    },
+    "spine_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "jurisdiction_spine_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_intent_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime_authority_envelope": {
+      "type": "object"
+    },
+    "authority_level_taxonomy": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "supranational",
+          "national",
+          "regional",
+          "local"
+        ]
+      },
+      "minItems": 4
+    },
+    "jurisdictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "jurisdiction_id",
+          "authority_level",
+          "temporal_validity",
+          "competence",
+          "hierarchy",
+          "delegation",
+          "pre_emption"
+        ]
+      },
+      "minItems": 1
+    },
+    "conflict_surfaces": {
+      "type": "array"
+    },
+    "unresolved_conflicts": {
+      "type": "array"
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "blocked"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -26,8 +26,25 @@ def _load_fixture_builder() -> Callable[..., dict[str, object]]:
         if root_str not in sys.path:
             sys.path.insert(0, root_str)
 
-    module = importlib.import_module("fixtures.runtime_http")
+    module = importlib.import_module("_helpers.runtime_http")
     return module.build_runtime_api_env
+
+
+def _ensure_policy_engine_import_roots() -> None:
+    policy_engine_root = Path(__file__).resolve().parents[3]
+    for root in (policy_engine_root / "src", policy_engine_root, policy_engine_root / "tests"):
+        root_str = str(root)
+        if root_str not in sys.path:
+            sys.path.insert(0, root_str)
+
+
+def _assert_dashboard_fixture_clean(payload: object) -> None:
+    _ensure_policy_engine_import_roots()
+    from tools.ops_runners.runtime.quality_benchmark_authority import (
+        assert_no_benchmark_contamination,
+    )
+
+    assert_no_benchmark_contamination(payload, surface="dashboard_fixture")
 
 
 def main() -> None:
@@ -52,6 +69,7 @@ def main() -> None:
             for key, value in env.items()
             if key not in {"app", "client", "cas_root"}
         }
+        _assert_dashboard_fixture_clean(metadata)
         metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")

@@ -1,0 +1,3441 @@
+{
+  "mode": "read_only_inventory",
+  "owner": "team-quality",
+  "phase": "0.1",
+  "quality_artifact_fields": [
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.quality_surface",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.reason_code",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.remediation_link",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.report_ref",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.score",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "FabricDecisionData.quality",
+      "field_path": "QualityRef.status",
+      "owner_runtime_layer": "fabric_trust_envelope",
+      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "cas_manifest.producer",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.governance",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.inputs",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.producer",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.producer.component",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.producer.git",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "field_path": "core.cas_ownership_evidence.cas_manifest.producer.version",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "field_path": "fabric.materialization_refs.data_snapshot_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "field_path": "fabric.materialization_refs.input_bindings_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "field_path": "fabric.materialization_refs.production_data_quality_report_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "field_path": "fabric.materialization_refs.quality_report_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "field_path": "fabric.materialization_refs.registry_bundle_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "fabric.production_data_context.production_data_evidence.context.bundles",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "fabric.production_data_context.production_data_evidence.context.manifest_path",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "fabric.production_data_context.production_data_evidence.context.manifest_sha256",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "fabric.production_data_context.production_data_evidence.context.root",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "fabric.production_data_context.production_data_evidence.materialization_refs",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.candidate_sources",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.issues[].code",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.query_intent",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.rejected_sources",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.schema_version",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.selected_sources",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.status",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "field_path": "fabric.retrieval_trace.summary.selected_source_count",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.benchmark_suite_id",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.cases",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.issues",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.method_families",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.ref_key",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.schema_version",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "field_path": "foundry.causal_statistical_validity.status",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.issues[].code",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.schema_version",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods[].assumptions",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods[].input_refs",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods[].missingness",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods[].sensitivity",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.selected_methods[].uncertainty",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "field_path": "foundry.method_report.status",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "field_path": "ir.metric_taxonomy.metric_taxonomy.available",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "field_path": "ir.metric_taxonomy.metric_taxonomy.canonicalizer",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "field_path": "ir.metric_taxonomy.metric_taxonomy.fingerprint",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "field_path": "ir.metric_taxonomy.metric_taxonomy.metric_count",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "field_path": "ir.metric_taxonomy.metric_taxonomy.schema_version",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.applied_norms",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.issues[].code",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.issues[].next_action",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.recommendation_coverage",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.rejected_norms",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.schema_version",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.status",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "field_path": "lex.normative_evidence.target_context",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.conflicts",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.conflicts[].blocking",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.corpus_constraints",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.issues[].next_action",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.policy_claims",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.schema_version",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "field_path": "lex.policy_conflict_check.status",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "field_path": "llm.provider_preflight.provider_preflight.failure",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "field_path": "llm.provider_preflight.provider_preflight.models",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "field_path": "llm.provider_preflight.provider_preflight.retryable",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "field_path": "llm.provider_preflight.provider_preflight.status",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "field_path": "llm.provider_preflight.provider_preflight_ref",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "field_path": "production_data_evidence.materialization_refs.quality_report_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "tools.ops_runners.runtime.canary_evidence._extract_production_data_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.context.country",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.context.policy_domain",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.expected_evidence_contract.admissible_data_source_families",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.expected_evidence_contract.conflict_checks",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.expected_evidence_contract.foundry_method_expectations",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.expected_evidence_contract.normative_fact_classes",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "field_path": "quality.golden_scenario_contract.scenario_id",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "quality_scorecard.evidence_refs",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.differences",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.execution_summary_match",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.production_readiness",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.quality_summary_match",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.schema_version",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "field_path": "runtime.drift_explanation.status",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.quality_signals",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.reviewer_burden",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.schema_version",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.status",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.summary",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "field_path": "runtime.human_review_calibration.unresolved_disagreements",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.llm_model_variants[].cost_usd",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.llm_model_variants[].total_tokens",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.run_performance_summary.llm",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.run_performance_summary.phase_budgets",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.run_performance_summary.schema_version",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.run_performance_summary.steps_by_action",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "performance.json",
+      "field_path": "runtime.performance_summary.run_performance_summary.variant_rows",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.issues",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.override",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.production_data_sources",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.public_artifact_families",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.schema_version",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.status",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "field_path": "runtime.privacy_compliance_report.summary",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.claim_diagnostics",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.diagnostics",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.entity_counts",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.issues[].next_action",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.manifest_checksum",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.production_data_quality_report_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.row_counts",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.schema_version",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.source_bundle_versions",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "field_path": "runtime.production_data_quality.status",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.default_production_model",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.model_actions",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.observations",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.provider_model_quality_ledger_ref",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.quality_drift",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "field_path": "runtime.provider_model_quality_ledger.schema_version",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.blocking_quality_failures",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.evidence_refs",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.overall_score",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.quality_gates",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.quality_gates[].evidence_ref",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.quality_status",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.schema_version",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "field_path": "runtime.quality_scorecard.stage_scores",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.cas_refs",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.data_refs",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.dependency_fingerprints",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.git_sha",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.provider_model_metadata",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.quality_scorecard_ref",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.request_fingerprint",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "field_path": "runtime.replay_manifest.schema_version",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.operator_findings",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.resilience_report_ref",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.scenarios",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.schema_version",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.slo_budgets",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "field_path": "runtime.resilience_matrix.summary",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.findings",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.issues",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.schema_version",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.security_assurance_report_ref",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.status",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.surfaces",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.fabric",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.final_compiler",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.foundry",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.intent",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.lex",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.policy_intent_ref",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.schema_version",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.scientist",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.semantic_binding_ref",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "field_path": "runtime.semantic_binding_ledger.status",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#causal_statistical_validity_report_ref",
+      "field_path": "runtime_quality_refs.causal_statistical_validity_report_ref",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#conflict_check_ref",
+      "field_path": "runtime_quality_refs.conflict_check_ref",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_reissue_report_ref",
+      "field_path": "runtime_quality_refs.continuous_governance_reissue_report_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_stale_report_ref",
+      "field_path": "runtime_quality_refs.continuous_governance_stale_report_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_supersede_report_ref",
+      "field_path": "runtime_quality_refs.continuous_governance_supersede_report_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_withdraw_report_ref",
+      "field_path": "runtime_quality_refs.continuous_governance_withdraw_report_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#decision_artifact_quality_report_ref",
+      "field_path": "runtime_quality_refs.decision_artifact_quality_report_ref",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#drift_explanation_ref",
+      "field_path": "runtime_quality_refs.drift_explanation_ref",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#fabric_retrieval_trace_ref",
+      "field_path": "runtime_quality_refs.fabric_retrieval_trace_ref",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#foundry_method_report_ref",
+      "field_path": "runtime_quality_refs.foundry_method_report_ref",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#human_review_calibration_report_ref",
+      "field_path": "runtime_quality_refs.human_review_calibration_report_ref",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#normative_applicability_report_ref",
+      "field_path": "runtime_quality_refs.normative_applicability_report_ref",
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#policy_grounding_matrix_ref",
+      "field_path": "runtime_quality_refs.policy_grounding_matrix_ref",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#privacy_compliance_report_ref",
+      "field_path": "runtime_quality_refs.privacy_compliance_report_ref",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#production_data_quality_report_ref",
+      "field_path": "runtime_quality_refs.production_data_quality_report_ref",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#provider_model_quality_ledger_ref",
+      "field_path": "runtime_quality_refs.provider_model_quality_ledger_ref",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#replay_manifest_ref",
+      "field_path": "runtime_quality_refs.replay_manifest_ref",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#resilience_report_ref",
+      "field_path": "runtime_quality_refs.resilience_report_ref",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#security_assurance_report_ref",
+      "field_path": "runtime_quality_refs.security_assurance_report_ref",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#semantic_binding_ledger_ref",
+      "field_path": "runtime_quality_refs.semantic_binding_ledger_ref",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.authority_requirements",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.cas_artifact_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.decision_packet_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.decision_status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.degradation_ledger_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.effective_mode_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.lifecycle_decision",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.monitor_event_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.report_id",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.runtime_quality_ref_key",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.schema_compatibility",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.schema_version",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "field_path": "scientist.continuous_governance_reissue.status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.authority_requirements",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.cas_artifact_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.decision_packet_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.decision_status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.degradation_ledger_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.effective_mode_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.lifecycle_decision",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.monitor_event_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.report_id",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.runtime_quality_ref_key",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.schema_compatibility",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.schema_version",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "field_path": "scientist.continuous_governance_stale.status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.authority_requirements",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.cas_artifact_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.decision_packet_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.decision_status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.degradation_ledger_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.effective_mode_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.lifecycle_decision",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.monitor_event_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.report_id",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.runtime_quality_ref_key",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.schema_compatibility",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.schema_version",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "field_path": "scientist.continuous_governance_supersede.status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.authority_requirements",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.cas_artifact_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.decision_packet_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.decision_status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.degradation_ledger_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.effective_mode_ref",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.lifecycle_decision",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.monitor_event_refs",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.report_id",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.runtime_quality_ref_key",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.schema_compatibility",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.schema_version",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "field_path": "scientist.continuous_governance_withdraw.status",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.decision_artifact_quality_report_ref",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.input_refs",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.issues",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.schema_version",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.status",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "field_path": "scientist.decision_artifact_quality.summary",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.claims",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.claims[].data_refs",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.claims[].method_refs",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.claims[].norm_refs",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.issues[].missing_evidence_type",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.model_variants",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.schema_version",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "field_path": "scientist.policy_grounding_matrix.status",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "status": "runtime_emitted"
+    }
+  ],
+  "quality_reports": [
+    {
+      "artifact_fields": [
+        "scenario_id",
+        "context.country",
+        "context.policy_domain",
+        "expected_evidence_contract.normative_fact_classes",
+        "expected_evidence_contract.admissible_data_source_families",
+        "expected_evidence_contract.foundry_method_expectations",
+        "expected_evidence_contract.conflict_checks"
+      ],
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "first_missing_producer": null,
+      "id": "quality.golden_scenario_contract",
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": {
+        "current_emission": "Canary evidence freezes the checked-in benchmark scenario contract into every serious runtime evidence bundle.",
+        "kind": "runtime_bundle_emitter",
+        "name": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+        "source_exists": true,
+        "source_path": "tools/ops_runners/runtime/quality_scenarios.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Golden scenario expected evidence contract",
+      "validators": [
+        "tools.ops_runners.runtime.quality_scenarios.validate_quality_scenario_contract"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "target_context",
+        "applied_norms",
+        "rejected_norms",
+        "recommendation_coverage",
+        "issues[].code",
+        "issues[].next_action"
+      ],
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "first_missing_producer": null,
+      "id": "lex.normative_evidence",
+      "owner_runtime_layer": "lex",
+      "producer": {
+        "current_emission": "NL pipeline persists normative_applicability_report_ref; canary bundles resolve it into quality_evidence/normative_evidence.json.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/lex/normpack/applicability_report.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Lex normative applicability report",
+      "validators": [
+        "polisyos.lex.normpack.applicability_report.normalize_normative_applicability_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "query_intent",
+        "candidate_sources",
+        "selected_sources",
+        "rejected_sources",
+        "issues[].code",
+        "summary.selected_source_count"
+      ],
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "first_missing_producer": null,
+      "id": "fabric.retrieval_trace",
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": {
+        "current_emission": "NL pipeline persists fabric_retrieval_trace_ref; canary bundles resolve it into quality_evidence/fabric_retrieval_trace.json.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+        "source_exists": true,
+        "source_path": "src/polisyos/fabric/catalog/source_selection_audit.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Fabric source-selection quality trace",
+      "validators": [
+        "polisyos.fabric.catalog.source_selection_audit.normalize_fabric_retrieval_trace"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "selected_methods",
+        "selected_methods[].input_refs",
+        "selected_methods[].assumptions",
+        "selected_methods[].uncertainty",
+        "selected_methods[].missingness",
+        "selected_methods[].sensitivity",
+        "issues[].code"
+      ],
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "first_missing_producer": null,
+      "id": "foundry.method_report",
+      "owner_runtime_layer": "foundry_methods",
+      "producer": {
+        "current_emission": "NL pipeline persists foundry_method_report_ref; canary bundles resolve it into quality_evidence/foundry_method_report.json.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/foundry/validation/method_quality.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Foundry method-quality report",
+      "validators": [
+        "polisyos.foundry.validation.method_quality.normalize_foundry_method_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "claims",
+        "claims[].data_refs",
+        "claims[].method_refs",
+        "claims[].norm_refs",
+        "model_variants",
+        "issues[].missing_evidence_type"
+      ],
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "first_missing_producer": null,
+      "id": "scientist.policy_grounding_matrix",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": {
+        "current_emission": "NL pipeline persists policy_grounding_matrix_ref from final policy claims; canary bundles resolve it into the scorecard evidence pack.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/validation/policy_grounding.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Scientist policy grounding matrix",
+      "validators": [
+        "polisyos.scientist.validation.policy_grounding.normalize_policy_grounding_matrix"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "semantic_binding_ref",
+        "policy_intent_ref",
+        "intent",
+        "lex",
+        "fabric",
+        "foundry",
+        "scientist",
+        "final_compiler"
+      ],
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "first_missing_producer": null,
+      "id": "runtime.semantic_binding_ledger",
+      "owner_runtime_layer": "semantic_binding",
+      "producer": {
+        "current_emission": "NL pipeline persists semantic_binding_ledger_ref after building Lex, Fabric, Foundry, Scientist, and final compiler binding records; canary bundles resolve it into scorecard evidence.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/semantic_binding.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Runtime semantic binding ledger",
+      "validators": [
+        "polisyos.runtime.quality.semantic_binding.deserialize_semantic_binding_ledger",
+        "polisyos.runtime.quality.semantic_binding.evaluate_semantic_binding_ledger"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "policy_claims",
+        "corpus_constraints",
+        "conflicts",
+        "conflicts[].blocking",
+        "issues[].next_action"
+      ],
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "first_missing_producer": null,
+      "id": "lex.policy_conflict_check",
+      "owner_runtime_layer": "normative_conflict",
+      "producer": {
+        "current_emission": "NL pipeline persists conflict_check_ref against the active corpus; canary bundles resolve it into quality_evidence/conflict_check.json.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/lex/normpack/conflict_check.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Lex policy conflict check",
+      "validators": [
+        "polisyos.lex.normpack.conflict_check.normalize_policy_conflict_check_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "production_data_quality_report_ref",
+        "manifest_checksum",
+        "source_bundle_versions",
+        "row_counts",
+        "entity_counts",
+        "diagnostics",
+        "claim_diagnostics",
+        "issues[].next_action"
+      ],
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "first_missing_producer": null,
+      "id": "runtime.production_data_quality",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": {
+        "current_emission": "NL production materialization and canary evidence emit production data quality reports.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/data_quality.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Production data quality diagnostics",
+      "validators": [
+        "polisyos.runtime.quality.data_quality.normalize_production_data_quality_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "ref_key",
+        "benchmark_suite_id",
+        "method_families",
+        "cases",
+        "issues"
+      ],
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "first_missing_producer": null,
+      "id": "foundry.causal_statistical_validity",
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": {
+        "current_emission": "Canary evidence assembles deterministic offline benchmark evidence.",
+        "kind": "deterministic_benchmark_builder",
+        "name": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/foundry/validation/causal_validity.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Causal and statistical validity benchmark report",
+      "validators": [
+        "polisyos.foundry.validation.causal_validity.normalize_causal_statistical_validity_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "request_fingerprint",
+        "git_sha",
+        "dependency_fingerprints",
+        "provider_model_metadata",
+        "data_refs",
+        "cas_refs",
+        "quality_scorecard_ref"
+      ],
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "first_missing_producer": null,
+      "id": "runtime.replay_manifest",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": {
+        "current_emission": "Canary evidence and replay bundle tooling emit sanitized replay manifests.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.replay.build_replay_manifest",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/replay.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Deterministic replay manifest",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "production_readiness",
+        "execution_summary_match",
+        "quality_summary_match",
+        "differences"
+      ],
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "first_missing_producer": null,
+      "id": "runtime.drift_explanation",
+      "owner_runtime_layer": "runtime_replay",
+      "producer": {
+        "current_emission": "Canary evidence compares deterministic manifests and records typed drift evidence.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.replay.explain_replay_drift",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/replay.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Replay drift explanation",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "resilience_report_ref",
+        "slo_budgets",
+        "summary",
+        "operator_findings",
+        "scenarios"
+      ],
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "first_missing_producer": null,
+      "id": "runtime.resilience_matrix",
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": {
+        "current_emission": "Canary evidence embeds the deterministic resilience matrix.",
+        "kind": "deterministic_matrix_builder",
+        "name": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+        "source_exists": true,
+        "source_path": "tools/quality/testing/runtime_resilience_matrix.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Runtime resilience matrix",
+      "validators": [
+        "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "summary",
+        "quality_signals",
+        "reviewer_burden",
+        "unresolved_disagreements"
+      ],
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "first_missing_producer": null,
+      "id": "runtime.human_review_calibration",
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": {
+        "current_emission": "Canary evidence emits calibration evidence from review events or deterministic empty fixtures.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/human_review.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Human-review calibration report",
+      "validators": [
+        "polisyos.runtime.quality.human_review.evaluate_review_packet"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "summary",
+        "production_data_sources",
+        "public_artifact_families",
+        "issues",
+        "override"
+      ],
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "first_missing_producer": null,
+      "id": "runtime.privacy_compliance_report",
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": {
+        "current_emission": "NL pipeline and canary evidence emit compliance evidence without raw sensitive records.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/data_forge/compliance.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Privacy, licensing, and compliance report",
+      "validators": [
+        "polisyos.runtime.quality.compliance.normalize_runtime_privacy_compliance_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "security_assurance_report_ref",
+        "surfaces",
+        "findings",
+        "issues"
+      ],
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "first_missing_producer": null,
+      "id": "runtime.security_assurance_report",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": {
+        "current_emission": "Canary evidence emits sanitized LLM/tool/data/artifact/runtime/dashboard security assurance reports.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/security/quality_gates.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Security assurance report",
+      "validators": [
+        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "provider_model_quality_ledger_ref",
+        "default_production_model",
+        "observations",
+        "model_actions",
+        "quality_drift"
+      ],
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "first_missing_producer": null,
+      "id": "runtime.provider_model_quality_ledger",
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": {
+        "current_emission": "Canary evidence builds provider_model_quality_ledger from completed default production model observations and persists it in the bundle.",
+        "kind": "runtime_quality_ledger_builder",
+        "name": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+        "source_exists": true,
+        "source_path": "tools/ops_runners/runtime/provider_quality_ledger.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Provider and model quality drift ledger",
+      "validators": [
+        "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "decision_artifact_quality_report_ref",
+        "input_refs",
+        "summary",
+        "issues"
+      ],
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "first_missing_producer": null,
+      "id": "scientist.decision_artifact_quality",
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": {
+        "current_emission": "Canary evidence compiles public decision artifacts and emits decision quality evidence.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/validation/decision_artifact_quality.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Decision artifact quality report",
+      "validators": [
+        "polisyos.scientist.validation.decision_artifact_quality.normalize_decision_artifact_quality_report"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "run_performance_summary.schema_version",
+        "run_performance_summary.llm",
+        "run_performance_summary.phase_budgets",
+        "run_performance_summary.steps_by_action",
+        "run_performance_summary.variant_rows",
+        "llm_model_variants[].total_tokens",
+        "llm_model_variants[].cost_usd"
+      ],
+      "expected_ref": "performance.json",
+      "first_missing_producer": null,
+      "id": "runtime.performance_summary",
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": {
+        "current_emission": "Builds run_performance_summary and canary_evidence writes performance.json when present.",
+        "kind": "runtime_emitter",
+        "name": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/http/services/control/nl_pipeline.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Runtime performance and LLM accounting summary",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._llm_gates"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "metric_taxonomy.available",
+        "metric_taxonomy.schema_version",
+        "metric_taxonomy.metric_count",
+        "metric_taxonomy.fingerprint",
+        "metric_taxonomy.canonicalizer"
+      ],
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "first_missing_producer": null,
+      "id": "ir.metric_taxonomy",
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": {
+        "current_emission": "Summarizes DEFAULT_METRIC_REGISTRY into bundle.json.",
+        "kind": "runtime_bundle_emitter",
+        "name": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+        "source_exists": true,
+        "source_path": "tools/ops_runners/runtime/canary_evidence.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Metric taxonomy summary",
+      "validators": [
+        "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "provider_preflight.status",
+        "provider_preflight.models",
+        "provider_preflight.failure",
+        "provider_preflight.retryable",
+        "provider_preflight_ref"
+      ],
+      "expected_ref": "provider_preflight.json",
+      "first_missing_producer": null,
+      "id": "llm.provider_preflight",
+      "owner_runtime_layer": "llm_gateway",
+      "producer": {
+        "current_emission": "Runs provider preflight for research/governed/production profiles and persists failed preflight refs.",
+        "kind": "runtime_preflight_emitter",
+        "name": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "LLM provider preflight report",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._llm_gates"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "production_data_evidence.context.root",
+        "production_data_evidence.context.manifest_path",
+        "production_data_evidence.context.manifest_sha256",
+        "production_data_evidence.context.bundles",
+        "production_data_evidence.materialization_refs"
+      ],
+      "expected_ref": "production_data_evidence.json",
+      "first_missing_producer": null,
+      "id": "fabric.production_data_context",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": {
+        "current_emission": "Builds production_data_evidence_context; canary_evidence writes production_data_evidence.json when refs/context exist.",
+        "kind": "runtime_context_emitter",
+        "name": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/http/services/control/production_data.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Production-data evidence context",
+      "validators": [
+        "tools.ops_runners.runtime.canary_evidence._extract_production_data_evidence"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "data_snapshot_ref",
+        "input_bindings_ref",
+        "registry_bundle_ref",
+        "quality_report_ref",
+        "production_data_quality_report_ref"
+      ],
+      "expected_ref": "artifacts.json#materialization_refs",
+      "first_missing_producer": null,
+      "id": "fabric.materialization_refs",
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": {
+        "current_emission": "Emits data_snapshot_ref, input_bindings_ref, registry_bundle_ref, and quality_report_ref for production-data runs.",
+        "kind": "runtime_materialization_emitter",
+        "name": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/http/services/control/nl_pipeline.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Production materialization refs",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "quality_status",
+        "overall_score",
+        "stage_scores",
+        "quality_gates",
+        "quality_gates[].evidence_ref",
+        "blocking_quality_failures",
+        "evidence_refs"
+      ],
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "first_missing_producer": null,
+      "id": "runtime.quality_scorecard",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": {
+        "current_emission": "canary_evidence builds and writes quality_evidence/quality_scorecard.json.",
+        "kind": "runtime_scorecard_builder",
+        "name": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/scorecard.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Production quality scorecard",
+      "validators": [
+        "polisyos.runtime.quality.scorecard.build_quality_scorecard"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "cas_manifest.producer",
+        "cas_manifest.producer.component",
+        "cas_manifest.producer.version",
+        "cas_manifest.producer.git",
+        "cas_manifest.governance",
+        "cas_manifest.inputs"
+      ],
+      "expected_ref": "cas_manifest#producer",
+      "first_missing_producer": null,
+      "id": "core.cas_ownership_evidence",
+      "owner_runtime_layer": "core_artifacts",
+      "producer": {
+        "current_emission": "Runtime quality artifacts and canary bundles include CAS manifest producer, governance, and input ownership metadata.",
+        "kind": "cas_manifest_writer",
+        "name": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+        "source_exists": true,
+        "source_path": "src/polisyos/core/artifacts/store.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "CAS ownership evidence on persisted quality artifacts",
+      "validators": [
+        "polisyos.core.artifacts.manifest.ArtifactManifest"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "report_id",
+        "lifecycle_decision",
+        "decision_status",
+        "decision_packet_ref",
+        "monitor_event_refs",
+        "cas_artifact_refs",
+        "schema_compatibility",
+        "effective_mode_ref",
+        "degradation_ledger_ref",
+        "runtime_quality_ref_key",
+        "authority_requirements"
+      ],
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "first_missing_producer": null,
+      "id": "scientist.continuous_governance_stale",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": {
+        "current_emission": "Continuous governance monitors persist runtime-owned stale lifecycle authority evidence with CAS refs, diagnostic events, and authority envelopes.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/governance/continuous/monitors.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Continuous governance stale lifecycle report",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "report_id",
+        "lifecycle_decision",
+        "decision_status",
+        "decision_packet_ref",
+        "monitor_event_refs",
+        "cas_artifact_refs",
+        "schema_compatibility",
+        "effective_mode_ref",
+        "degradation_ledger_ref",
+        "runtime_quality_ref_key",
+        "authority_requirements"
+      ],
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "first_missing_producer": null,
+      "id": "scientist.continuous_governance_reissue",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": {
+        "current_emission": "Continuous governance monitors persist runtime-owned reissue lifecycle authority evidence with CAS refs, diagnostic events, and authority envelopes.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/governance/continuous/monitors.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Continuous governance reissue lifecycle report",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "report_id",
+        "lifecycle_decision",
+        "decision_status",
+        "decision_packet_ref",
+        "monitor_event_refs",
+        "cas_artifact_refs",
+        "schema_compatibility",
+        "effective_mode_ref",
+        "degradation_ledger_ref",
+        "runtime_quality_ref_key",
+        "authority_requirements"
+      ],
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "first_missing_producer": null,
+      "id": "scientist.continuous_governance_supersede",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": {
+        "current_emission": "Continuous governance monitors persist runtime-owned supersede lifecycle authority evidence with CAS refs, diagnostic events, and authority envelopes.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/governance/continuous/monitors.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Continuous governance supersede lifecycle report",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "report_id",
+        "lifecycle_decision",
+        "decision_status",
+        "decision_packet_ref",
+        "monitor_event_refs",
+        "cas_artifact_refs",
+        "schema_compatibility",
+        "effective_mode_ref",
+        "degradation_ledger_ref",
+        "runtime_quality_ref_key",
+        "authority_requirements"
+      ],
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "first_missing_producer": null,
+      "id": "scientist.continuous_governance_withdraw",
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": {
+        "current_emission": "Continuous governance monitors persist runtime-owned withdraw lifecycle authority evidence with CAS refs, diagnostic events, and authority envelopes.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+        "source_exists": true,
+        "source_path": "src/polisyos/scientist/governance/continuous/monitors.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Continuous governance withdraw lifecycle report",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    }
+  ],
+  "readiness_aggregator_contract": {
+    "blocking_statuses_for_serious_profile": [
+      "manual_input",
+      "fixture_input",
+      "missing"
+    ],
+    "primary_keys": {
+      "quality_artifact_fields": "field_path",
+      "quality_reports": "id",
+      "serious_profile_required_refs": "expected_ref",
+      "validators": "id"
+    },
+    "sort_keys": true,
+    "stable_json": true
+  },
+  "schema_version": "policyos.production_quality_evidence_inventory.v1",
+  "serious_profile_required_refs": [
+    {
+      "expected_ref": "artifacts.json#data_snapshot_ref",
+      "field_path": "data_snapshot_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#input_bindings_ref",
+      "field_path": "input_bindings_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#production_data_quality_report_ref",
+      "field_path": "production_data_quality_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#quality_report_ref",
+      "field_path": "quality_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#registry_bundle_ref",
+      "field_path": "registry_bundle_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._materialize_production_data_artifacts",
+      "report_id": "fabric.materialization_refs",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._materialization_gate"
+      ]
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "metric_taxonomy",
+      "producer": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "report_id": "ir.metric_taxonomy",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary"
+      ]
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "core_artifacts",
+      "producer": "polisyos.core.artifacts.store.FileSystemCAS.put_json",
+      "report_id": "core.cas_ownership_evidence",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.core.artifacts.manifest.ArtifactManifest"
+      ]
+    },
+    {
+      "expected_ref": "performance.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "nl_pipeline",
+      "producer": "polisyos.runtime.http.services.control.nl_pipeline._build_run_performance_summary",
+      "report_id": "runtime.performance_summary",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._llm_gates"
+      ]
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.http.services.control.production_data.production_data_evidence_context",
+      "report_id": "fabric.production_data_context",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.ops_runners.runtime.canary_evidence._extract_production_data_evidence"
+      ]
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "llm_gateway",
+      "producer": "polisyos.runtime.http.services.control.run_lifecycle.queue_natural_language_run",
+      "report_id": "llm.provider_preflight",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard._llm_gates"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/causal_statistical_validity.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "report_id": "foundry.causal_statistical_validity",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.foundry.validation.causal_validity.normalize_causal_statistical_validity_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "report_id": "lex.policy_conflict_check",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.lex.normpack.conflict_check.normalize_policy_conflict_check_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_reissue_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_reissue",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_stale_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_stale",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_supersede_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_supersede",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/continuous_governance_withdraw_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_withdraw",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/decision_artifact_quality.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "report_id": "scientist.decision_artifact_quality",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.validation.decision_artifact_quality.normalize_decision_artifact_quality_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/drift_explanation.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "report_id": "runtime.drift_explanation",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "report_id": "fabric.retrieval_trace",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.fabric.catalog.source_selection_audit.normalize_fabric_retrieval_trace"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "report_id": "foundry.method_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.foundry.validation.method_quality.normalize_foundry_method_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "quality_scenarios",
+      "producer": "tools.ops_runners.runtime.quality_scenarios.load_quality_scenario_contract",
+      "report_id": "quality.golden_scenario_contract",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.ops_runners.runtime.quality_scenarios.validate_quality_scenario_contract"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/human_review_calibration_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "report_id": "runtime.human_review_calibration",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.human_review.evaluate_review_packet"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "report_id": "lex.normative_evidence",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.lex.normpack.applicability_report.normalize_normative_applicability_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "report_id": "scientist.policy_grounding_matrix",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.validation.policy_grounding.normalize_policy_grounding_matrix"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/privacy_compliance_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "report_id": "runtime.privacy_compliance_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.compliance.normalize_runtime_privacy_compliance_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/production_data_quality.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "report_id": "runtime.production_data_quality",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.data_quality.normalize_production_data_quality_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/provider_model_quality_ledger.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "report_id": "runtime.provider_model_quality_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "producer": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "report_id": "runtime.quality_scorecard",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.scorecard.build_quality_scorecard"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/replay_manifest.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "report_id": "runtime.replay_manifest",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/resilience_matrix.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "report_id": "runtime.resilience_matrix",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "report_id": "runtime.security_assurance_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "report_id": "runtime.semantic_binding_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.semantic_binding.deserialize_semantic_binding_ledger",
+        "polisyos.runtime.quality.semantic_binding.evaluate_semantic_binding_ledger"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#causal_statistical_validity_report_ref",
+      "field_path": "causal_statistical_validity_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "foundry_causal_validity",
+      "producer": "polisyos.foundry.validation.causal_validity.build_causal_statistical_validity_report",
+      "report_id": "foundry.causal_statistical_validity",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.foundry.validation.causal_validity.normalize_causal_statistical_validity_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#conflict_check_ref",
+      "field_path": "conflict_check_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "normative_conflict",
+      "producer": "polisyos.lex.normpack.conflict_check.build_policy_conflict_check_report",
+      "report_id": "lex.policy_conflict_check",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.lex.normpack.conflict_check.normalize_policy_conflict_check_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_reissue_report_ref",
+      "field_path": "continuous_governance_reissue_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_reissue",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_stale_report_ref",
+      "field_path": "continuous_governance_stale_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_stale",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_supersede_report_ref",
+      "field_path": "continuous_governance_supersede_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_supersede",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#continuous_governance_withdraw_report_ref",
+      "field_path": "continuous_governance_withdraw_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_governance_lifecycle",
+      "producer": "polisyos.scientist.governance.continuous.emit_governance_lifecycle_evidence",
+      "report_id": "scientist.continuous_governance_withdraw",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.governance.continuous.monitors.emit_governance_lifecycle_evidence",
+        "polisyos.scientist.governance.continuous.monitors._validate_lifecycle_decision"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#decision_artifact_quality_report_ref",
+      "field_path": "decision_artifact_quality_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_decision_artifact",
+      "producer": "polisyos.scientist.validation.decision_artifact_quality.build_decision_artifact_quality_report",
+      "report_id": "scientist.decision_artifact_quality",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.validation.decision_artifact_quality.normalize_decision_artifact_quality_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#drift_explanation_ref",
+      "field_path": "drift_explanation_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.explain_replay_drift",
+      "report_id": "runtime.drift_explanation",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#fabric_retrieval_trace_ref",
+      "field_path": "fabric_retrieval_trace_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_retrieval",
+      "producer": "polisyos.fabric.catalog.source_selection_audit.build_fabric_source_selection_trace",
+      "report_id": "fabric.retrieval_trace",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.fabric.catalog.source_selection_audit.normalize_fabric_retrieval_trace"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#foundry_method_report_ref",
+      "field_path": "foundry_method_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "foundry_methods",
+      "producer": "polisyos.foundry.validation.method_quality.build_foundry_method_report",
+      "report_id": "foundry.method_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.foundry.validation.method_quality.normalize_foundry_method_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#human_review_calibration_report_ref",
+      "field_path": "human_review_calibration_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "human_review_calibration",
+      "producer": "polisyos.runtime.quality.human_review.build_human_review_calibration_report",
+      "report_id": "runtime.human_review_calibration",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.human_review.evaluate_review_packet"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#normative_applicability_report_ref",
+      "field_path": "normative_applicability_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "lex",
+      "producer": "polisyos.lex.normpack.applicability_report.build_normative_applicability_report",
+      "report_id": "lex.normative_evidence",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.lex.normpack.applicability_report.normalize_normative_applicability_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#policy_grounding_matrix_ref",
+      "field_path": "policy_grounding_matrix_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "producer": "polisyos.scientist.validation.policy_grounding.build_policy_grounding_matrix_report",
+      "report_id": "scientist.policy_grounding_matrix",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.scientist.validation.policy_grounding.normalize_policy_grounding_matrix"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#privacy_compliance_report_ref",
+      "field_path": "privacy_compliance_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "privacy_compliance",
+      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "report_id": "runtime.privacy_compliance_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.compliance.normalize_runtime_privacy_compliance_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#production_data_quality_report_ref",
+      "field_path": "production_data_quality_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "fabric_materialization",
+      "producer": "polisyos.runtime.quality.data_quality.build_production_data_quality_report",
+      "report_id": "runtime.production_data_quality",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.data_quality.normalize_production_data_quality_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#provider_model_quality_ledger_ref",
+      "field_path": "provider_model_quality_ledger_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "llm_orchestration",
+      "producer": "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+      "report_id": "runtime.provider_model_quality_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#replay_manifest_ref",
+      "field_path": "replay_manifest_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_replay",
+      "producer": "polisyos.runtime.quality.replay.build_replay_manifest",
+      "report_id": "runtime.replay_manifest",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.replay.explain_replay_drift"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#resilience_report_ref",
+      "field_path": "resilience_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "runtime_resilience",
+      "producer": "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload",
+      "report_id": "runtime.resilience_matrix",
+      "status": "runtime_emitted",
+      "validators": [
+        "tools.quality.testing.runtime_resilience_matrix.build_matrix_payload"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#security_assurance_report_ref",
+      "field_path": "security_assurance_report_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "report_id": "runtime.security_assurance_report",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#semantic_binding_ledger_ref",
+      "field_path": "semantic_binding_ledger_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "semantic_binding",
+      "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "report_id": "runtime.semantic_binding_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.semantic_binding.deserialize_semantic_binding_ledger",
+        "polisyos.runtime.quality.semantic_binding.evaluate_semantic_binding_ledger"
+      ]
+    }
+  ],
+  "snapshot_date": "2026-05-13",
+  "source_paths": {
+    "canary_evidence": "tools/ops_runners/runtime/canary_evidence.py",
+    "nl_pipeline": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+    "production_data": "src/polisyos/runtime/http/services/control/production_data.py",
+    "run_lifecycle": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+    "scorecard": "src/polisyos/runtime/quality/scorecard.py"
+  },
+  "status_model": {
+    "allowed_statuses": [
+      "manual_input",
+      "fixture_input",
+      "runtime_emitted",
+      "missing"
+    ],
+    "definitions": {
+      "fixture_input": "Evidence can be supplied by fixtures or CLI input but is not emitted by the runtime path yet.",
+      "manual_input": "Evidence is authored or selected by a human/operator.",
+      "missing": "The field/ref contract exists, but no current producer emits it.",
+      "runtime_emitted": "Evidence is emitted by the runtime/canary path today."
+    }
+  },
+  "summary": {
+    "missing_or_input_required_producers": [],
+    "quality_artifact_field_count": 247,
+    "quality_report_count": 28,
+    "quality_report_status_counts": {
+      "fixture_input": 0,
+      "manual_input": 0,
+      "missing": 0,
+      "runtime_emitted": 28
+    },
+    "required_ref_status_counts": {
+      "fixture_input": 0,
+      "manual_input": 0,
+      "missing": 0,
+      "runtime_emitted": 53
+    },
+    "required_serious_profile_ref_count": 53,
+    "validator_count": 15
+  },
+  "validators": [
+    {
+      "expected_ref": "quality_evidence/golden_scenario_contract.json",
+      "id": "tools.ops_runners.runtime.quality_scenarios.validate_quality_scenario_contract",
+      "owner_runtime_layer": "quality_scenarios",
+      "source_exists": true,
+      "source_path": "tools/ops_runners/runtime/quality_scenarios.py",
+      "validated_fields": [
+        "expected_evidence_contract",
+        "context"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/normative_evidence.json",
+      "id": "polisyos.lex.normpack.applicability_report.normalize_normative_applicability_report",
+      "owner_runtime_layer": "lex",
+      "source_exists": true,
+      "source_path": "src/polisyos/lex/normpack/applicability_report.py",
+      "validated_fields": [
+        "target_context",
+        "applied_norms",
+        "recommendation_coverage"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/fabric_retrieval_trace.json",
+      "id": "polisyos.fabric.catalog.source_selection_audit.normalize_fabric_retrieval_trace",
+      "owner_runtime_layer": "fabric_retrieval",
+      "source_exists": true,
+      "source_path": "src/polisyos/fabric/catalog/source_selection_audit.py",
+      "validated_fields": [
+        "query_intent",
+        "candidate_sources",
+        "selected_sources",
+        "rejected_sources"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/foundry_method_report.json",
+      "id": "polisyos.foundry.validation.method_quality.normalize_foundry_method_report",
+      "owner_runtime_layer": "foundry_methods",
+      "source_exists": true,
+      "source_path": "src/polisyos/foundry/validation/method_quality.py",
+      "validated_fields": [
+        "selected_methods",
+        "input_refs",
+        "assumptions",
+        "uncertainty"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/policy_grounding_matrix.json",
+      "id": "polisyos.scientist.validation.policy_grounding.normalize_policy_grounding_matrix",
+      "owner_runtime_layer": "scientist_policy_artifacts",
+      "source_exists": true,
+      "source_path": "src/polisyos/scientist/validation/policy_grounding.py",
+      "validated_fields": [
+        "claims",
+        "data_refs",
+        "method_refs",
+        "norm_refs",
+        "model_variants"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/semantic_binding_ledger.json",
+      "id": "polisyos.runtime.quality.semantic_binding.evaluate_semantic_binding_ledger",
+      "owner_runtime_layer": "semantic_binding",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/semantic_binding.py",
+      "validated_fields": [
+        "semantic_binding_ref",
+        "policy_intent_ref",
+        "lex",
+        "fabric",
+        "foundry",
+        "scientist",
+        "final_compiler"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/conflict_check.json",
+      "id": "polisyos.lex.normpack.conflict_check.normalize_policy_conflict_check_report",
+      "owner_runtime_layer": "normative_conflict",
+      "source_exists": true,
+      "source_path": "src/polisyos/lex/normpack/conflict_check.py",
+      "validated_fields": [
+        "policy_claims",
+        "corpus_constraints",
+        "conflicts"
+      ]
+    },
+    {
+      "expected_ref": "provider_preflight.json",
+      "id": "polisyos.runtime.quality.scorecard._llm_gates",
+      "owner_runtime_layer": "llm_gateway",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/scorecard.py",
+      "validated_fields": [
+        "provider_preflight",
+        "llm_model_variants",
+        "token_usage",
+        "cost_usd"
+      ]
+    },
+    {
+      "expected_ref": "artifacts.json#materialization_refs",
+      "id": "polisyos.runtime.quality.scorecard._materialization_gate",
+      "owner_runtime_layer": "fabric_materialization",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/scorecard.py",
+      "validated_fields": [
+        "data_snapshot_ref",
+        "input_bindings_ref",
+        "registry_bundle_ref",
+        "quality_report_ref",
+        "production_data_quality_report_ref"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/*",
+      "id": "polisyos.runtime.quality.scorecard._report_gates",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/scorecard.py",
+      "validated_fields": [
+        "golden_scenario_contract",
+        "production_data_quality",
+        "normative_evidence",
+        "fabric_retrieval_trace",
+        "foundry_method_report",
+        "policy_grounding_matrix",
+        "semantic_binding_ledger",
+        "conflict_check",
+        "causal_statistical_validity",
+        "replay_manifest",
+        "drift_explanation",
+        "resilience_matrix",
+        "human_review_calibration",
+        "decision_artifact_quality",
+        "provider_model_quality_ledger",
+        "prompt_tool_ledger",
+        "security_assurance_report",
+        "privacy_compliance_report",
+        "data_forge_snapshot_binding",
+        "continuous_governance_stale",
+        "continuous_governance_reissue",
+        "continuous_governance_supersede",
+        "continuous_governance_withdraw",
+        "source_truth_conflicts"
+      ]
+    },
+    {
+      "expected_ref": "quality_scorecard.evidence_refs",
+      "id": "polisyos.runtime.quality.scorecard._evidence_refs",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/scorecard.py",
+      "validated_fields": [
+        "evidence_refs"
+      ]
+    },
+    {
+      "expected_ref": "quality_evidence/quality_scorecard.json",
+      "id": "polisyos.runtime.quality.scorecard.build_quality_scorecard",
+      "owner_runtime_layer": "runtime_quality_scorecard",
+      "source_exists": true,
+      "source_path": "src/polisyos/runtime/quality/scorecard.py",
+      "validated_fields": [
+        "quality_status",
+        "stage_scores",
+        "quality_gates",
+        "blocking_quality_failures"
+      ]
+    },
+    {
+      "expected_ref": "bundle.json#metric_taxonomy",
+      "id": "tools.ops_runners.runtime.canary_evidence._metric_taxonomy_summary",
+      "owner_runtime_layer": "metric_taxonomy",
+      "source_exists": true,
+      "source_path": "tools/ops_runners/runtime/canary_evidence.py",
+      "validated_fields": [
+        "metric_taxonomy.schema_version",
+        "metric_taxonomy.fingerprint"
+      ]
+    },
+    {
+      "expected_ref": "production_data_evidence.json",
+      "id": "tools.ops_runners.runtime.canary_evidence._extract_production_data_evidence",
+      "owner_runtime_layer": "fabric_materialization",
+      "source_exists": true,
+      "source_path": "tools/ops_runners/runtime/canary_evidence.py",
+      "validated_fields": [
+        "production_data_evidence_context",
+        "data_snapshot_ref",
+        "input_bindings_ref",
+        "registry_bundle_ref",
+        "quality_report_ref",
+        "production_data_quality_report_ref"
+      ]
+    },
+    {
+      "expected_ref": "cas_manifest#producer",
+      "id": "polisyos.core.artifacts.manifest.ArtifactManifest",
+      "owner_runtime_layer": "core_artifacts",
+      "source_exists": true,
+      "source_path": "src/polisyos/core/artifacts/manifest.py",
+      "validated_fields": [
+        "producer",
+        "governance",
+        "inputs",
+        "schema"
+      ]
+    }
+  ]
+}

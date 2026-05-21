@@ -10,7 +10,6 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.governance.human_review.decisions import human_review_status
 from polisyos.scientist.governance.human_review.models import (
     HumanReviewDecision,
@@ -18,6 +17,7 @@ from polisyos.scientist.governance.human_review.models import (
     HumanReviewStatus,
     ReviewRiskTier,
 )
+from polisyos.scientist.governance.report import GovernanceReport
 
 HUMAN_REVIEW_REQUIREMENT_FLAG = (
     "scientist.best_in_class.wave1.phase1_6.require_human_review_for_publication"
@@ -48,6 +48,10 @@ class HumanReviewRequirement(BaseModel):
     risk_tier: ReviewRiskTier = ReviewRiskTier.MEDIUM
     reasons: list[str] = Field(default_factory=list)
     required_reviewer_count: int = Field(default=1, ge=1, le=4)
+    reviewer_independence_required: bool = False
+    separation_of_duty_required: bool = False
+    minimum_time_spent_seconds: int = Field(default=0, ge=0)
+    require_change_request_or_dissent: bool = False
 
 
 class HumanReviewValidationResult(BaseModel):
@@ -93,11 +97,20 @@ def evaluate_human_review_requirement(
     if _truthy(resolved_params.get("two_person_review"), default=False):
         required_reviewer_count = max(required_reviewer_count, 2)
         reasons.append("two_person_review_requested")
+    high_risk_independence = risk_tier in {
+        ReviewRiskTier.HIGH,
+        ReviewRiskTier.PUBLIC_SECTOR_HIGH,
+    }
     return HumanReviewRequirement(
         required=bool(reasons),
         risk_tier=risk_tier,
         reasons=sorted(set(reasons)),
         required_reviewer_count=required_reviewer_count,
+        reviewer_independence_required=high_risk_independence
+        or required_reviewer_count > 1,
+        separation_of_duty_required=high_risk_independence,
+        minimum_time_spent_seconds=300 if high_risk_independence else 0,
+        require_change_request_or_dissent=high_risk_independence,
     )
 
 

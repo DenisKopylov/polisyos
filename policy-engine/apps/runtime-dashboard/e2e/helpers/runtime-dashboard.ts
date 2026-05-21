@@ -280,16 +280,23 @@ export async function applyRuntimeApiScenario(
         return;
       }
 
-      const upstreamResponse = contractFixture ? null : await route.fetch();
+      const staticOverrideBody =
+        override &&
+        typeof override.body !== "function" &&
+        typeof override.body !== "undefined";
+      const upstreamResponse =
+        contractFixture || staticOverrideBody ? null : await route.fetch();
       const upstreamResponseBody = upstreamResponse
         ? await upstreamResponse.text()
         : "";
       const upstreamPayload = contractFixture
         ? contractFixture.payload
-        : readJsonPayload(
-            upstreamResponseBody,
-            upstreamResponse?.headers()["content-type"],
-          );
+        : upstreamResponse
+          ? readJsonPayload(
+              upstreamResponseBody,
+              upstreamResponse.headers()["content-type"],
+            )
+          : undefined;
 
       let nextPayload =
         scenario === "empty"

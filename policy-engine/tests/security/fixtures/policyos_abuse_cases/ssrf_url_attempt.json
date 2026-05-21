@@ -1,0 +1,8 @@
+{
+  "case_id": "ssrf_url_attempt",
+  "surface": "runtime_api",
+  "expected_code": "ssrf_url_blocked",
+  "payload": {
+    "fetch_url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+  }
+}

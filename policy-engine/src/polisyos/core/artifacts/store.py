@@ -74,7 +74,9 @@ from .manifest import (
     ArtifactManifest,
     ArtifactRef,
     CanonInfo,
+    InputRef,
 )
+from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from .signing import (
     BulkSigningReport,
     BulkVerificationReport,
@@ -107,6 +109,43 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
+def _current_access_scope() -> object | None:
+    try:
+        from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+    except ImportError:
+        return None
+    return get_current_access_scope_or_none()
+
+
+def _current_tenant_id() -> str | None:
+    try:
+        from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+    except ImportError:
+        return None
+    return get_current_tenant_id_or_none()
+
+
+def _current_cell_id() -> str | None:
+    try:
+        from polisyos.core.security.tenant_context import get_current_cell_id
+    except ImportError:
+        return None
+    return get_current_cell_id()
+
+
+def _coerce_input_ref(value: object) -> InputRef:
+    if isinstance(value, InputRef):
+        return value
+    if isinstance(value, dict):
+        return InputRef.model_validate(value)
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return InputRef.model_validate(model_dump(mode="python"))
+    artifact_id = getattr(value, "artifact_id", None)
+    role = getattr(value, "role", None)
+    return InputRef.model_validate({"artifact_id": artifact_id, "role": role})
+
+
 class FileSystemCAS:
     """Store immutable artifacts in a sharded filesystem content-addressed store.
 
@@ -130,6 +169,11 @@ class FileSystemCAS:
         signing_config: SigningConfig | None = None,
         metrics: MetricsRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        ownership_enforced: bool | None = None,
+        ownership_requires_scope: bool = True,
+        ownership_index: ArtifactOwnershipIndex | None = None,
     ) -> None:
         self.root = root
         self._layout = _CASPathLayout(root)
@@ -152,6 +196,13 @@ class FileSystemCAS:
         self._signer_lock = threading.Lock()
         self._artifact_locks: dict[str, threading.Lock] = {}
         self._artifact_locks_guard = threading.Lock()
+        self._tenant_id = tenant_id
+        self._cell_id = cell_id
+        self._ownership_enforced = (
+            tenant_id is not None if ownership_enforced is None else bool(ownership_enforced)
+        )
+        self._ownership_requires_scope = bool(ownership_requires_scope)
+        self._ownership_index = ownership_index or ArtifactOwnershipIndex(root)
 
     def _paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         return self._layout.paths(artifact_id)
@@ -165,6 +216,74 @@ class FileSystemCAS:
         from .backends.config import ArtifactStoreConfig
 
         return ArtifactStoreConfig(backend="filesystem", root=str(self.root))
+
+    def for_tenant(self, tenant_id: str, cell_id: str | None = None) -> FileSystemCAS:
+        """Return a tenant-scoped view over the same immutable CAS root."""
+        return FileSystemCAS(
+            self.root,
+            signing_config=self._signing_config,
+            metrics=self._metrics,
+            tracer=self._tracer,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            ownership_enforced=True,
+            ownership_requires_scope=True,
+            ownership_index=self._ownership_index,
+        )
+
+    def with_ambient_ownership_enforcement(self) -> FileSystemCAS:
+        """Return a shared-CAS view that enforces ownership when a tenant scope exists."""
+        return FileSystemCAS(
+            self.root,
+            signing_config=self._signing_config,
+            metrics=self._metrics,
+            tracer=self._tracer,
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            ownership_enforced=True,
+            ownership_requires_scope=False,
+            ownership_index=self._ownership_index,
+        )
+
+    def record_artifact_owner(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        writer: str | None = None,
+    ) -> None:
+        """Record a tenant ownership claim without changing the artifact ID."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        owner_tenant, owner_cell = self._resolve_owner(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            required=True,
+        )
+        self._ownership_index.record_owner(
+            artifact_id,
+            tenant_id=owner_tenant,
+            cell_id=owner_cell,
+            writer=writer,
+        )
+
+    def ownership_evidence(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+    ) -> dict[str, object]:
+        """Return ownership-index evidence for debug and canary bundles."""
+        owner_tenant, owner_cell = self._resolve_owner(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            required=False,
+        )
+        return self._ownership_index.evidence(
+            tenant_id=owner_tenant,
+            cell_id=owner_cell,
+        )
 
     def _sig_path(self, artifact_id: ArtifactID) -> Path:
         return self._layout.sig_path(artifact_id)
@@ -181,6 +300,65 @@ class FileSystemCAS:
         recorder = getattr(self._metrics, "record_artifact_integrity_failure", None)
         if callable(recorder):
             recorder(backend="filesystem", reason=reason)
+
+    def _resolve_owner(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        required: bool,
+    ) -> tuple[str | None, str | None]:
+        owner_tenant = tenant_id or self._tenant_id
+        owner_cell = cell_id if cell_id is not None else self._cell_id
+        if owner_tenant is None:
+            access_scope = _current_access_scope()
+            if access_scope is not None:
+                owner_tenant = getattr(access_scope, "tenant_id", None)
+                owner_cell = owner_cell or getattr(access_scope, "cell_id", None)
+        if owner_tenant is None:
+            owner_tenant = _current_tenant_id()
+            owner_cell = owner_cell or _current_cell_id()
+        if required and not owner_tenant:
+            raise ArtifactOwnershipError(
+                "Tenant-scoped artifact operation requires an active tenant owner"
+            )
+        return owner_tenant, owner_cell
+
+    def _require_artifact_owner(self, artifact_id: ArtifactID, *, operation: str) -> None:
+        if not self._ownership_enforced:
+            return
+        tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            return
+        self._ownership_index.require_owner(
+            artifact_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            operation=operation,
+        )
+
+    def _record_write_owner(self, artifact_id: ArtifactID) -> None:
+        if not self._ownership_enforced:
+            return
+        tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            return
+        self._ownership_index.record_owner(
+            artifact_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            writer="FileSystemCAS",
+        )
+
+    def _require_input_owners(self, opts: PutOptions) -> None:
+        if not self._ownership_enforced:
+            return
+        for input_ref in opts.inputs or []:
+            input_ref = _coerce_input_ref(input_ref)
+            self._require_artifact_owner(
+                input_ref.artifact_id,
+                operation=f"write input:{input_ref.role}",
+            )
 
     def _ensure_default_signer(self) -> Ed25519Signer:
         if self._default_signer is not None:
@@ -210,10 +388,20 @@ class FileSystemCAS:
                 ) from exc
             raise SigningError(f"Failed to sign artifact on put: {exc}") from exc
 
-    def has(self, artifact_id: ArtifactID) -> bool:
+    def has(self, artifact_id: ArtifactID | str) -> bool:
         """Return whether both the blob and manifest sidecar exist for `artifact_id`."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
         blob, manifest = self._paths(artifact_id)
         exists = blob.exists() and manifest.exists()
+        if exists and self._ownership_enforced:
+            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+            if tenant_id is not None:
+                exists = self._ownership_index.is_owned_by(
+                    artifact_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
         if self._hpc_enabled and self._metrics:
             if exists and self._metrics.artifact_cache_hits_total:
                 self._metrics.artifact_cache_hits_total.add(1, {"kind": "existence_check"})
@@ -221,13 +409,16 @@ class FileSystemCAS:
                 self._metrics.artifact_cache_misses_total.add(1, {"kind": "existence_check"})
         return exists
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes:
+    def get_bytes(self, artifact_id: ArtifactID | str) -> bytes:
         """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
 
         Raises:
             FileNotFoundError: If the blob file is missing.
             OSError: If the blob file cannot be read.
         """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read")
         blob, _ = self._paths(artifact_id)
         if not self._hpc_enabled or self._tracer is None:
             return self._read_verified_blob(artifact_id, blob)
@@ -276,13 +467,16 @@ class FileSystemCAS:
 
             return data
 
-    def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
+    def get_manifest(self, artifact_id: ArtifactID | str) -> ArtifactManifest:
         """Load and validate the manifest sidecar for one artifact.
 
         Raises:
             FileNotFoundError: If the manifest file is missing.
             ValueError: If the manifest JSON does not match `ArtifactManifest`.
         """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read_manifest")
         _, manp = self._paths(artifact_id)
         manifest = self._manifests.read(manp)
         try:
@@ -292,18 +486,24 @@ class FileSystemCAS:
             raise
         return manifest
 
-    def get_manifest_bytes(self, artifact_id: ArtifactID) -> bytes:
+    def get_manifest_bytes(self, artifact_id: ArtifactID | str) -> bytes:
         """Return raw manifest bytes for signature verification/export paths."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read_manifest")
         _, manp = self._paths(artifact_id)
         return manp.read_bytes()
 
-    def put_signature(self, artifact_id: ArtifactID, signature: DetachedSignature) -> Path:
+    def put_signature(self, artifact_id: ArtifactID | str, signature: DetachedSignature) -> Path:
         """Write a detached signature sidecar after validating the artifact binding.
 
         Raises:
             ValueError: If `signature.artifact_id` does not match `artifact_id`.
             OSError: If the sidecar cannot be written atomically.
         """
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="write_signature")
         return _put_signature(
             artifact_id=artifact_id,
             signature=signature,
@@ -311,15 +511,21 @@ class FileSystemCAS:
             atomic_write=self._atomic_write,
         )
 
-    def get_signature(self, artifact_id: ArtifactID) -> DetachedSignature | None:
+    def get_signature(self, artifact_id: ArtifactID | str) -> DetachedSignature | None:
         """Load a detached signature sidecar or return `None` when unsigned."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read_signature")
         return _get_signature(
             artifact_id=artifact_id,
             sig_path_for_artifact=self._sig_path,
         )
 
-    def has_signature(self, artifact_id: ArtifactID) -> bool:
+    def has_signature(self, artifact_id: ArtifactID | str) -> bool:
         """Return whether a detached signature sidecar exists for `artifact_id`."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="read_signature")
         return _has_signature(
             artifact_id=artifact_id,
             sig_path_for_artifact=self._sig_path,
@@ -437,11 +643,13 @@ class FileSystemCAS:
         """Store raw bytes under their content hash and create the immutable manifest sidecar."""
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
+        self._require_input_owners(opts)
         blob, _manp = self._paths(aid)
         blob.parent.mkdir(parents=True, exist_ok=True)
 
         if not self._hpc_enabled or self._tracer is None:
             self._put_blob_and_manifest_once(data=data, opts=opts, aid=aid, sha=sha)
+            self._record_write_owner(aid)
             self._maybe_sign_on_put(aid)
             return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
 
@@ -463,6 +671,7 @@ class FileSystemCAS:
                 aid=aid,
                 sha=sha,
             )
+            self._record_write_owner(aid)
 
             duration = time.perf_counter() - start
 
@@ -513,11 +722,17 @@ class FileSystemCAS:
             inputs=opts.inputs,
             canon=canon,
             governance=getattr(opts, "governance", None),
+            tenant_context=getattr(opts, "tenant_context", None),
+            same_input_closure=getattr(opts, "same_input_closure", None),
+            authority=getattr(opts, "authority", None),
         )
         return self.put_bytes(data, opts2)
 
-    def verify(self, artifact_id: ArtifactID) -> VerificationReport:
+    def verify(self, artifact_id: ArtifactID | str) -> VerificationReport:
         """Check blob presence, manifest presence, content digest, and manifest integrity."""
+        if isinstance(artifact_id, str):
+            artifact_id = ArtifactID.model_validate(artifact_id)
+        self._require_artifact_owner(artifact_id, operation="verify")
         if not self._hpc_enabled or self._tracer is None:
             blob, manp = self._paths(artifact_id)
             return _verify_filesystem_artifact(
@@ -555,7 +770,19 @@ class FileSystemCAS:
             hex64 = name[: -len(".manifest.json")]
             if not re.fullmatch(r"[0-9a-f]{64}", hex64):
                 continue
-            ids.append(ArtifactID.from_sha256_hex(hex64))
+            artifact_id = ArtifactID.from_sha256_hex(hex64)
+            if self._ownership_enforced:
+                tenant_id, cell_id = self._resolve_owner(
+                    required=self._ownership_requires_scope
+                )
+                if tenant_id is not None:
+                    if not self._ownership_index.is_owned_by(
+                        artifact_id,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    ):
+                        continue
+            ids.append(artifact_id)
         return ids
 
     def export_subgraph(
@@ -567,6 +794,9 @@ class FileSystemCAS:
         include_manifests: bool = True,
     ) -> ExportReport:
         """Export a CAS subgraph to a tarball or directory using the stable CAS layout."""
+        artifact_ids = list(artifact_ids)
+        for artifact_id in artifact_ids:
+            self._require_artifact_owner(artifact_id, operation="export")
         return _export_subgraph(
             root=self.root,
             get_paths=self._paths,

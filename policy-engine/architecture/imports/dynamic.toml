@@ -17,15 +17,15 @@ verifier_semantics = "verifier names the gate, smoke test, or owner review that 
 
 [[pattern]]
 id = "dynamic-69f4211849d2"
-pattern = "fixtures.runtime_http"
+pattern = "_helpers.runtime_http"
 source_file = "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
 line = 29
 call = "importlib.import_module"
 owner = "team-frontend"
-target = "fixtures.runtime_http"
+target = "_helpers.runtime_http"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = []
-notes = "Dynamic pattern has no static in-repo target."
+allowed_targets = ["_helpers.runtime_http"]
+notes = "Fixture runtime server imports the canonical Runtime HTTP test helper from tests/_helpers."
 
 [[pattern]]
 id = "dynamic-459252109d7c"

@@ -1,182 +1,262 @@
+# ruff: noqa: S101
+
 from __future__ import annotations
 
+import copy
 import tomllib
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-REGISTRY_PATH = REPO_ROOT / "architecture" / "production_quality" / "invariant_registry.toml"
+from polisyos.runtime.quality.invariants import (
+    DEFAULT_REGISTRY_RELATIVE_PATH,
+    build_production_invariant_registry_report,
+    validate_invariant_registry_payload,
+)
+from tools.quality.validation import check_production_invariant_registry
 
-REQUIRED_INVARIANT_FIELDS = {
-    "invariant_id",
-    "minimum_closeout_gate",
-    "pql_id",
-    "final_owner",
-    "producer_owners",
-    "runtime_event_names",
-    "required_artifact_kinds",
-    "required_ref_keys",
-    "evidence_classes",
-    "allowed_provenance_kinds",
-    "required_schema_contracts",
-    "scorecard_gate_names",
-    "readiness_check",
-    "approval_policy",
-    "override_policy",
-    "non_overridable_blockers",
-    "dashboard_projection_policy",
-    "public_artifact_policy",
-    "conflict_policy",
-    "failure_code",
-    "diagnostic_owner",
-    "dependencies",
-    "consumers",
-    "next_diagnostic_command",
-    "negative_tests",
-}
-REQUIRED_STRING_FIELDS = {
-    "invariant_id",
-    "minimum_closeout_gate",
-    "pql_id",
-    "final_owner",
-    "readiness_check",
-    "approval_policy",
-    "override_policy",
-    "dashboard_projection_policy",
-    "public_artifact_policy",
-    "conflict_policy",
-    "failure_code",
-    "diagnostic_owner",
-    "next_diagnostic_command",
-}
-REQUIRED_NON_EMPTY_LIST_FIELDS = {
-    "producer_owners",
-    "runtime_event_names",
-    "required_artifact_kinds",
-    "required_ref_keys",
-    "evidence_classes",
-    "allowed_provenance_kinds",
-    "required_schema_contracts",
-    "scorecard_gate_names",
-    "non_overridable_blockers",
-    "consumers",
-    "negative_tests",
-}
-OPTIONAL_LIST_FIELDS = {"dependencies"}
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_every_production_invariant_declares_implementation_ownership() -> None:
-    registry = _load_registry()
-    invariants = registry.get("invariants")
+    report = build_production_invariant_registry_report(repo_root=REPO_ROOT)
 
-    assert isinstance(invariants, list)
-    assert invariants, "architecture/production_quality/invariant_registry.toml is empty"
-
-    non_table_rows = [
-        f"invariants[{index}]"
-        for index, invariant in enumerate(invariants, start=1)
-        if not isinstance(invariant, dict)
-    ]
-    assert non_table_rows == []
-
-    missing_by_invariant = {
-        _invariant_label(invariant, index): sorted(
-            REQUIRED_INVARIANT_FIELDS - set(invariant)
-        )
-        for index, invariant in enumerate(invariants, start=1)
-        if REQUIRED_INVARIANT_FIELDS - set(invariant)
-    }
-
-    assert missing_by_invariant == {}
-
-    invalid_shape_by_invariant = {
-        _invariant_label(invariant, index): _invalid_shape_fields(invariant)
-        for index, invariant in enumerate(invariants, start=1)
-        if _invalid_shape_fields(invariant)
-    }
-    assert invalid_shape_by_invariant == {}
-
-    missing_negative_tests = {
-        _invariant_label(invariant, index): _missing_negative_test_refs(invariant)
-        for index, invariant in enumerate(invariants, start=1)
-        if _missing_negative_test_refs(invariant)
-    }
-    assert missing_negative_tests == {}
+    assert report["status"] == "pass", report["issues"]
+    assert report["source"]["registry_path"] == DEFAULT_REGISTRY_RELATIVE_PATH.as_posix()
+    assert report["summary"]["invariant_count"] >= 1
+    assert report["summary"]["issue_count"] == 0
 
 
 def test_production_invariant_registry_rejects_empty_or_wrong_shaped_rows() -> None:
-    invalid = {
-        field: "value"
-        for field in REQUIRED_INVARIANT_FIELDS
-        if field
-        not in REQUIRED_NON_EMPTY_LIST_FIELDS
-        | OPTIONAL_LIST_FIELDS
-        | {"invariant_id"}
+    row = _valid_row()
+    row["invariant_id"] = ""
+    row["producer_owners"] = []
+    row["dependencies"] = "not-a-list"
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert _issue_codes(result.as_dict()) >= {
+        "invariant_field_invalid",
+        "invariant_list_field_empty",
+        "invariant_list_field_invalid",
     }
-    invalid["invariant_id"] = ""
-    for field in REQUIRED_NON_EMPTY_LIST_FIELDS:
-        invalid[field] = []
-    for field in OPTIONAL_LIST_FIELDS:
-        invalid[field] = "not-a-list"
-
-    invalid_fields = _invalid_shape_fields(invalid)
-
-    assert "invariant_id" in invalid_fields
-    assert REQUIRED_NON_EMPTY_LIST_FIELDS <= set(invalid_fields)
-    assert OPTIONAL_LIST_FIELDS <= set(invalid_fields)
 
 
-def _load_registry() -> dict[str, Any]:
-    with REGISTRY_PATH.open("rb") as stream:
-        return tomllib.load(stream)
+def test_registry_rejects_missing_final_owner() -> None:
+    row = _valid_row()
+    row.pop("final_owner")
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_final_owner_missing" in _issue_codes(result.as_dict())
 
 
-def _invariant_label(invariant: dict[str, Any], index: int) -> str:
-    invariant_id = invariant.get("invariant_id")
-    if isinstance(invariant_id, str) and invariant_id:
-        return invariant_id
-    return f"invariants[{index}]"
+def test_registry_rejects_multi_owner_final_authority() -> None:
+    row = _valid_row()
+    row["final_owner"] = ["runtime.quality.closeout", "runtime.dashboard"]
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_final_owner_count_invalid" in _issue_codes(result.as_dict())
 
 
-def _invalid_shape_fields(invariant: dict[str, Any]) -> list[str]:
-    invalid: list[str] = []
-    for field in REQUIRED_STRING_FIELDS:
-        if not _non_empty_string(invariant.get(field)):
-            invalid.append(field)
-    for field in REQUIRED_NON_EMPTY_LIST_FIELDS:
-        if not _non_empty_string_list(invariant.get(field)):
-            invalid.append(field)
-    for field in OPTIONAL_LIST_FIELDS:
-        if not _string_list(invariant.get(field)):
-            invalid.append(field)
-    return sorted(invalid)
+def test_registry_rejects_missing_override_policy() -> None:
+    row = _valid_row()
+    row.pop("override_policy")
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_override_policy_missing" in _issue_codes(result.as_dict())
 
 
-def _missing_negative_test_refs(invariant: dict[str, Any]) -> list[str]:
-    missing: list[str] = []
-    negative_tests = invariant.get("negative_tests")
-    if not isinstance(negative_tests, list):
-        return ["negative_tests"]
-    for raw_ref in negative_tests:
-        ref = str(raw_ref)
-        path_text, separator, node = ref.partition("::")
-        path = REPO_ROOT / path_text
-        if separator != "::" or not node.startswith("test_") or not path.is_file():
-            missing.append(ref)
-            continue
-        source = path.read_text(encoding="utf-8")
-        if f"def {node}" not in source and f"async def {node}" not in source:
-            missing.append(ref)
-    return missing
+def test_registry_rejects_missing_projection_policy() -> None:
+    row = _valid_row()
+    row.pop("dashboard_projection_policy")
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_dashboard_projection_policy_missing" in _issue_codes(
+        result.as_dict()
+    )
 
 
-def _non_empty_string(value: Any) -> bool:
-    return isinstance(value, str) and bool(value.strip())
+def test_registry_rejects_missing_failure_code() -> None:
+    row = _valid_row()
+    row.pop("failure_code")
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_failure_code_missing" in _issue_codes(result.as_dict())
 
 
-def _non_empty_string_list(value: Any) -> bool:
-    return _string_list(value) and bool(value)
+def test_registry_rejects_unreferenced_minimum_closeout_gate_rows() -> None:
+    row = _valid_row()
+    row["minimum_closeout_gate"] = "not_a_minimum_closeout_gate"
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_minimum_closeout_gate_unknown" in _issue_codes(result.as_dict())
 
 
-def _string_list(value: Any) -> bool:
-    return isinstance(value, list) and all(_non_empty_string(item) for item in value)
+def test_registry_rejects_missing_known_minimum_closeout_gate() -> None:
+    payload = _actual_registry_payload()
+    payload["invariants"] = [
+        row
+        for row in payload["invariants"]
+        if row["minimum_closeout_gate"] != "closeout_matrix_dashboard_api_smoke"
+    ]
+
+    result = validate_invariant_registry_payload(payload, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_minimum_closeout_gate_unregistered" in _issue_codes(
+        result.as_dict()
+    )
+
+
+def test_registry_rejects_duplicate_minimum_closeout_gate_without_policy() -> None:
+    payload = _actual_registry_payload()
+    duplicate = copy.deepcopy(payload["invariants"][0])
+    duplicate["invariant_id"] = "HDS-MCG-DUPLICATE"
+    payload["invariants"].append(duplicate)
+
+    result = validate_invariant_registry_payload(payload, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert "invariant_minimum_closeout_gate_duplicate" in _issue_codes(result.as_dict())
+
+
+def test_registry_rejects_unknown_reader_and_enforcer_mappings() -> None:
+    row = _valid_row()
+    row["scorecard_gate_names"] = ["not_a_scorecard_gate"]
+    row["readiness_check"] = "not_a_readiness_check"
+    row["runtime_event_names"] = ["not_a_runtime_event"]
+
+    result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
+
+    assert result.status == "fail"
+    assert _issue_codes(result.as_dict()) >= {
+        "invariant_scorecard_gate_unknown",
+        "invariant_readiness_check_unknown",
+        "invariant_runtime_event_unknown",
+    }
+
+
+def test_registry_cli_reports_diffs_and_fails_invalid_registry(tmp_path: Path) -> None:
+    registry = tmp_path / "invariant_registry.toml"
+    registry.write_text(
+        "\n".join(
+            [
+                "[[invariants]]",
+                'invariant_id = "HDS-MCG-999"',
+                'minimum_closeout_gate = "not_a_minimum_closeout_gate"',
+                'pql_id = "PQL-999"',
+                'final_owner = "runtime.quality.closeout"',
+                'producer_owners = ["runtime.nl_pipeline"]',
+                'runtime_event_names = ["not_a_runtime_event"]',
+                'required_artifact_kinds = ["quality_report"]',
+                'required_ref_keys = ["quality_report_ref"]',
+                'evidence_classes = ["authority_bearing"]',
+                'allowed_provenance_kinds = ["runtime_emitted"]',
+                'required_schema_contracts = ["runtime_quality.quality_report.v1"]',
+                'scorecard_gate_names = ["not_a_scorecard_gate"]',
+                'readiness_check = "not_a_readiness_check"',
+                'approval_policy = "requires_verified_scorecard"',
+                'override_policy = "not_overridable"',
+                'non_overridable_blockers = ["authority_cas_missing"]',
+                'dashboard_projection_policy = "projection_only"',
+                'public_artifact_policy = "not_public_exportable"',
+                'conflict_policy = "fail_closed"',
+                'failure_code = "hds_unknown_gate"',
+                'diagnostic_owner = "team-runtime"',
+                "dependencies = []",
+                'consumers = ["runtime.scorecard"]',
+                (
+                    'next_diagnostic_command = "uv run pytest '
+                    'tests/unit/runtime/quality/test_scorecard.py -q"'
+                ),
+                (
+                    'negative_tests = ["tests/unit/runtime/quality/test_scorecard.py::'
+                    'test_runtime_quality_scorecard_fails_closed_for_serious_profiles_'
+                    'missing_runtime_refs"]'
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    exit_code = check_production_invariant_registry.main(
+        [
+            "--repo-root",
+            str(REPO_ROOT),
+            "--registry",
+            str(registry),
+            "--output-format",
+            "json",
+        ]
+    )
+
+    assert exit_code == 1
+
+
+def _valid_row() -> dict[str, Any]:
+    return copy.deepcopy(
+        {
+            "invariant_id": "HDS-MCG-TEST",
+            "minimum_closeout_gate": "serious_canary_runtime_refs",
+            "pql_id": "PQL-001",
+            "final_owner": "runtime.quality.closeout",
+            "producer_owners": [
+                "runtime.nl_pipeline",
+                "lex.normative_applicability",
+            ],
+            "runtime_event_names": [
+                "polisyos.runtime.evidence.normative_applicability_report.v1",
+            ],
+            "required_artifact_kinds": ["normative_applicability_report"],
+            "required_ref_keys": ["normative_applicability_report_ref"],
+            "evidence_classes": ["authority_bearing"],
+            "allowed_provenance_kinds": ["runtime_emitted"],
+            "required_schema_contracts": [
+                "runtime_quality.normative_applicability_report.v1",
+            ],
+            "scorecard_gate_names": ["normative_evidence_present"],
+            "readiness_check": "production_quality.runtime_required_refs",
+            "approval_policy": "requires_verified_scorecard",
+            "override_policy": "not_overridable",
+            "non_overridable_blockers": ["authority_cas_missing"],
+            "dashboard_projection_policy": "projection_only",
+            "public_artifact_policy": "not_public_exportable",
+            "conflict_policy": "fail_closed",
+            "failure_code": "hds_runtime_refs_missing",
+            "diagnostic_owner": "team-runtime",
+            "dependencies": [],
+            "consumers": ["runtime.scorecard"],
+            "next_diagnostic_command": (
+                "uv run pytest tests/unit/runtime/quality/test_scorecard.py -q"
+            ),
+            "negative_tests": [
+                "tests/unit/runtime/quality/test_scorecard.py::test_runtime_quality_scorecard_fails_closed_for_serious_profiles_missing_runtime_refs",
+            ],
+        }
+    )
+
+
+def _actual_registry_payload() -> dict[str, Any]:
+    with (REPO_ROOT / DEFAULT_REGISTRY_RELATIVE_PATH).open("rb") as handle:
+        return tomllib.load(handle)
+
+
+def _issue_codes(report: dict[str, Any]) -> set[str]:
+    return {
+        str(issue["code"])
+        for issue in report.get("issues", [])
+        if isinstance(issue, dict)
+    }

@@ -1,0 +1,227 @@
+[[trust_boundaries]]
+boundary_id = "runtime_worker"
+name = "Runtime worker"
+classification = "runtime_authority"
+functionary = "runtime_worker"
+producer_owner = "team-runtime"
+consumer = "runtime.scorecard"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["run_request", "execution_profile", "input_refs"]
+expected_product_kinds = ["runtime_quality_refs", "authority_evidence"]
+scorecard_gate_name = "runtime_worker_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "attestation_missing"
+next_action = "Persist a verified runtime_worker attestation before production closeout."
+
+[[trust_boundaries]]
+boundary_id = "cas_writer"
+name = "CAS writer"
+classification = "cas_authority"
+functionary = "cas_writer"
+producer_owner = "team-runtime"
+consumer = "runtime.scorecard"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["payload_bytes", "schema_identity", "tenant_identity"]
+expected_product_kinds = ["cas_ref", "artifact_manifest"]
+scorecard_gate_name = "cas_writer_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "cas_writer_attestation_missing"
+next_action = "Persist a CAS writer attestation for authority-bearing artifact writes."
+
+[[trust_boundaries]]
+boundary_id = "bundle_assembler"
+name = "Bundle assembler"
+classification = "packaging_only"
+functionary = "bundle_assembler"
+producer_owner = "team-runtime-quality"
+consumer = "runtime.scorecard"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["runtime_refs", "scorecard_ref", "readiness_ref"]
+expected_product_kinds = ["observer_bundle", "redacted_overlay"]
+scorecard_gate_name = "bundle_assembler_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "bundle_assembler_attestation_missing"
+next_action = "Persist a bundle assembler attestation without upgrading runtime truth."
+
+[[trust_boundaries]]
+boundary_id = "scorecard_builder"
+name = "Scorecard builder"
+classification = "reader_enforcer"
+functionary = "scorecard_builder"
+producer_owner = "team-quality-closeout"
+consumer = "runtime.readiness"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["authority_envelopes", "diagnostic_events", "runtime_refs"]
+expected_product_kinds = ["quality_scorecard"]
+scorecard_gate_name = "scorecard_builder_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "scorecard_builder_attestation_missing"
+next_action = "Persist a scorecard builder attestation before using scorecard authority."
+
+[[trust_boundaries]]
+boundary_id = "readiness_aggregator"
+name = "Readiness aggregator"
+classification = "reader_enforcer"
+functionary = "readiness_aggregator"
+producer_owner = "team-quality-closeout"
+consumer = "runtime.approval"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["quality_scorecard", "invariant_registry", "runtime_refs"]
+expected_product_kinds = ["readiness_summary"]
+scorecard_gate_name = "readiness_aggregator_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "readiness_aggregator_attestation_missing"
+next_action = "Persist a readiness aggregator attestation before closeout readiness."
+
+[[trust_boundaries]]
+boundary_id = "approval_packet_builder"
+name = "Approval packet builder"
+classification = "reader_enforcer"
+functionary = "approval_packet_builder"
+producer_owner = "team-quality-closeout"
+consumer = "runtime.approval"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["scorecard_ref", "readiness_summary", "review_packet"]
+expected_product_kinds = ["approval_packet"]
+scorecard_gate_name = "approval_packet_builder_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "approval_packet_builder_attestation_missing"
+next_action = "Persist an approval packet builder attestation before approval publication."
+
+[[trust_boundaries]]
+boundary_id = "dashboard_projection"
+name = "Dashboard projection"
+classification = "projection_only"
+functionary = "dashboard_projection"
+producer_owner = "team-runtime-ui"
+consumer = "runtime.dashboard"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["scorecard_ref", "readiness_ref", "approval_ref"]
+expected_product_kinds = ["dashboard_projection"]
+scorecard_gate_name = "dashboard_projection_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "dashboard_projection_attestation_missing"
+next_action = "Persist dashboard projection attestation and preserve projection-only status."
+
+[[trust_boundaries]]
+boundary_id = "public_export_renderer"
+name = "Public export renderer"
+classification = "public_export"
+functionary = "public_export_renderer"
+producer_owner = "team-runtime-ui"
+consumer = "public.export"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["approval_ref", "redaction_policy", "source_refs"]
+expected_product_kinds = ["public_export"]
+scorecard_gate_name = "public_export_renderer_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "public_export_renderer_attestation_missing"
+next_action = "Persist public export renderer attestation before publishing exports."
+
+[[trust_boundaries]]
+boundary_id = "provider_model_gateway"
+name = "Provider/model gateway"
+classification = "external_gateway"
+functionary = "provider_model_gateway"
+producer_owner = "team-runtime-ops"
+consumer = "runtime.worker"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["prompt_ref", "model_policy", "provider_request"]
+expected_product_kinds = ["provider_response", "provider_quality_ledger"]
+scorecard_gate_name = "provider_model_gateway_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "provider_model_gateway_attestation_missing"
+next_action = "Persist provider/model gateway attestation for external model calls."
+
+[[trust_boundaries]]
+boundary_id = "external_data_connector"
+name = "External data connector"
+classification = "external_connector"
+functionary = "external_data_connector"
+producer_owner = "team-data-forge"
+consumer = "runtime.worker"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["connector_request", "source_contract", "credential_scope"]
+expected_product_kinds = ["source_snapshot", "selection_audit"]
+scorecard_gate_name = "external_data_connector_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "external_data_connector_attestation_missing"
+next_action = "Persist external data connector attestation for production source snapshots."
+
+[[trust_boundaries]]
+boundary_id = "legal_kg_connector"
+name = "Legal KG connector"
+classification = "external_connector"
+functionary = "legal_kg_connector"
+producer_owner = "team-policy-semantics"
+consumer = "runtime.worker"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = false
+service_generated_required = true
+expected_material_kinds = ["jurisdiction_filter", "legal_snapshot_ref", "query_ref"]
+expected_product_kinds = ["norm_refs", "conflict_report"]
+scorecard_gate_name = "legal_kg_connector_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "legal_kg_connector_attestation_missing"
+next_action = "Persist legal KG connector attestation for legal source reads."
+
+[[trust_boundaries]]
+boundary_id = "prompt_tool_parser_executor"
+name = "Prompt/tool/parser executor"
+classification = "tool_execution"
+functionary = "prompt_tool_parser_executor"
+producer_owner = "team-runtime-ops"
+consumer = "runtime.worker"
+requires_attestation = true
+production_closeout_required = true
+diagnostic_readable_without_attestation = true
+isolation_required = true
+service_generated_required = true
+expected_material_kinds = ["prompt_ref", "tool_contract", "parser_schema"]
+expected_product_kinds = ["tool_result", "parser_result", "repair_ledger"]
+scorecard_gate_name = "prompt_tool_parser_executor_attestation_verified"
+scorecard_stage = "ops"
+failure_code = "prompt_tool_parser_executor_attestation_missing"
+next_action = "Persist prompt/tool/parser executor attestation for repaired or tool-derived outputs."

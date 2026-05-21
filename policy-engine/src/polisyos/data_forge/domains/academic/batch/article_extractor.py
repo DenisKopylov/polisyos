@@ -775,17 +775,33 @@ def _find_supporting_spans(
     return deduped
 
 
-def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
+def _normalize_empirical_parameter(
+    payload: Any,
+    *,
+    diagnostics: list[str] | None = None,
+) -> EvidenceParameter | None:
     if not isinstance(payload, dict):
+        if diagnostics is not None:
+            diagnostics.append("dropped:non_object")
         return None
 
-    name = _normalized_text(
-        payload.get("name") or payload.get("parameter") or payload.get("variable")
-    )
+    name_source = ""
+    name = ""
+    for candidate_key in ("name", "parameter", "variable", "variable_hint"):
+        name = _normalized_text(payload.get(candidate_key))
+        if name:
+            name_source = candidate_key
+            break
     if not name:
+        if diagnostics is not None:
+            diagnostics.append("dropped:missing_name")
         return None
     if name in {"sample_size", "study.sample_size", "n", "n_observations"}:
+        if diagnostics is not None:
+            diagnostics.append(f"dropped:sample_size_parameter:{name}")
         return None
+    if diagnostics is not None and name_source and name_source != "name":
+        diagnostics.append(f"mapped:{name_source}->name")
 
     value = _coerce_float(payload.get("value"))
     value_range = _coerce_number_pair(payload.get("value_range"))
@@ -800,6 +816,47 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         if (value is not None or value_range is not None)
         else ParameterType.QUALITATIVE.value
     )
+    confidence_interval = _coerce_number_pair(payload.get("confidence_interval"))
+    if confidence_interval is None:
+        confidence_interval = _coerce_number_pair([payload.get("ci_low"), payload.get("ci_high")])
+        if confidence_interval is not None and diagnostics is not None:
+            diagnostics.append("mapped:ci_low/ci_high->confidence_interval")
+
+    transfer_conditions = _coerce_text_list(payload.get("transfer_conditions"))
+    pattern_name = _normalized_text(
+        payload.get("pattern_name") or payload.get("extraction_pattern")
+    )
+    if pattern_name:
+        transfer_conditions.append(f"extraction_pattern:{pattern_name}")
+        if diagnostics is not None:
+            diagnostics.append("retained:pattern_name->transfer_conditions")
+    confidence = _coerce_float(payload.get("confidence"))
+    if confidence is not None:
+        transfer_conditions.append(f"extraction_confidence:{confidence:g}")
+        if diagnostics is not None:
+            diagnostics.append("retained:confidence->transfer_conditions")
+
+    heterogeneity_note = (
+        _normalized_text(
+            payload.get("heterogeneity_note")
+            or payload.get("context")
+            or payload.get("context_snippet")
+            or payload.get("source")
+        )
+        or None
+    )
+    if (
+        diagnostics is not None
+        and heterogeneity_note
+        and not _normalized_text(payload.get("heterogeneity_note"))
+    ):
+        if _normalized_text(payload.get("context_snippet")):
+            diagnostics.append("mapped:context_snippet->heterogeneity_note")
+        elif _normalized_text(payload.get("context")):
+            diagnostics.append("mapped:context->heterogeneity_note")
+        elif _normalized_text(payload.get("source")):
+            diagnostics.append("mapped:source->heterogeneity_note")
+
     candidate = {
         "name": name,
         "display_name": _normalized_text(payload.get("display_name")) or name,
@@ -809,7 +866,7 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         "value": value,
         "value_range": value_range,
         "value_qualitative": value_qualitative or None,
-        "confidence_interval": _coerce_number_pair(payload.get("confidence_interval")),
+        "confidence_interval": confidence_interval,
         "std_error": _coerce_float(payload.get("std_error")),
         "unit": _normalize_parameter_unit(payload.get("unit")),
         "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
@@ -817,19 +874,16 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         "time_period": _normalized_text(payload.get("time_period")),
         "aggregation_level": _normalized_text(payload.get("aggregation_level")),
         "transferability": _normalized_text(payload.get("transferability")) or "unknown",
-        "transfer_conditions": _coerce_text_list(payload.get("transfer_conditions")),
-        "heterogeneity_note": (
-            _normalized_text(
-                payload.get("heterogeneity_note") or payload.get("context") or payload.get("source")
-            )
-            or None
-        ),
+        "transfer_conditions": transfer_conditions,
+        "heterogeneity_note": heterogeneity_note,
         "subgroup_estimates": _coerce_subgroup_estimates(payload.get("subgroup_estimates")),
     }
     try:
         return EvidenceParameter.model_validate(candidate)
     except (TypeError, ValueError) as exc:
         logger.debug("EvidenceParameter validation failed: {}", exc)
+        if diagnostics is not None:
+            diagnostics.append(f"dropped:validation_failed:{type(exc).__name__}")
         return None
 
 
@@ -1083,14 +1137,16 @@ def _normalize_extraction_payload(
     evidence_bundle: dict[str, Any],
     source_kind: str,
 ) -> dict[str, Any]:
-    empirical_parameters = [
-        item
-        for item in (
-            _normalize_empirical_parameter(raw)
-            for raw in _as_list(parsed.get("empirical_parameters"))
+    normalization_warnings: list[str] = []
+    empirical_parameters: list[EvidenceParameter] = []
+    for index, raw_parameter in enumerate(_as_list(parsed.get("empirical_parameters"))):
+        diagnostics: list[str] = []
+        parameter = _normalize_empirical_parameter(raw_parameter, diagnostics=diagnostics)
+        if parameter is not None:
+            empirical_parameters.append(parameter)
+        normalization_warnings.extend(
+            f"empirical_parameters[{index}]:{diagnostic}" for diagnostic in diagnostics
         )
-        if item is not None
-    ]
     causal_claims = [
         item
         for item in (
@@ -1173,7 +1229,10 @@ def _normalize_extraction_payload(
         ),
         "supporting_spans": supporting_spans,
         "method_spans": method_spans,
-        "extraction_warnings": _coerce_text_list(parsed.get("extraction_warnings")),
+        "extraction_warnings": [
+            *_coerce_text_list(parsed.get("extraction_warnings")),
+            *normalization_warnings,
+        ],
         "empirical_parameters": empirical_parameters,
         "causal_claims": causal_claims,
         "mechanisms": mechanisms,

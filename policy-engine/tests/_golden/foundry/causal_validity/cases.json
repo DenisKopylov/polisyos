@@ -1,0 +1,328 @@
+{
+  "schema_version": "policyos.tests.foundry.causal_validity_fixtures.v1",
+  "benchmark_suite_id": "foundry-causal-statistical-validity-offline-v1",
+  "cases": [
+    {
+      "case_id": "did_known_answer_credit_uptake",
+      "method_family": "difference_in_differences",
+      "scenario": "known_answer",
+      "estimand": "ATT",
+      "fixture_seed": 5201,
+      "input_shape": {
+        "unit": "firm_month",
+        "rows": 480,
+        "treated_units": 60,
+        "control_units": 60,
+        "time_periods": 8,
+        "required_columns": ["unit_id", "period", "treated", "post", "outcome"]
+      },
+      "expected_effect": 0.04,
+      "observed_effect": 0.041,
+      "tolerance": 0.003,
+      "uncertainty": {
+        "type": "cluster_bootstrap_ci",
+        "level": 0.95,
+        "interval": [0.033, 0.049],
+        "standard_error": 0.004
+      },
+      "sample_diagnostics": {
+        "sample_size": 480,
+        "min_required_sample_size": 240,
+        "effective_sample_size": 420,
+        "power": 0.84,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "parallel_trends": "pass",
+        "stable_composition": "pass",
+        "no_anticipation": "pass"
+      },
+      "sensitivity": {
+        "status": "pass",
+        "robustness": "moderate",
+        "e_value": 1.8
+      },
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.03,
+        "max_missing_rate": 0.1
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.94,
+        "target_coverage": 0.95,
+        "tolerance": 0.03
+      }
+    },
+    {
+      "case_id": "synthetic_control_known_answer_exports",
+      "method_family": "synthetic_control",
+      "scenario": "known_answer",
+      "estimand": "ATT",
+      "fixture_seed": 5202,
+      "input_shape": {
+        "unit": "region_month",
+        "rows": 360,
+        "treated_units": 1,
+        "donor_units": 44,
+        "pre_periods": 6,
+        "post_periods": 2,
+        "required_columns": ["unit_id", "period", "treated_unit", "outcome"]
+      },
+      "expected_effect": -0.025,
+      "observed_effect": -0.026,
+      "tolerance": 0.004,
+      "uncertainty": {
+        "type": "placebo_permutation_interval",
+        "level": 0.9,
+        "interval": [-0.034, -0.017],
+        "standard_error": 0.005
+      },
+      "sample_diagnostics": {
+        "sample_size": 360,
+        "min_required_sample_size": 180,
+        "effective_sample_size": 310,
+        "power": 0.82,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "convex_hull_overlap": "pass",
+        "pre_treatment_fit": "pass",
+        "no_interference": "pass"
+      },
+      "sensitivity": {
+        "status": "pass",
+        "leave_one_donor_out_max_shift": 0.003
+      },
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.01,
+        "max_missing_rate": 0.08
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.91,
+        "target_coverage": 0.9,
+        "tolerance": 0.04
+      }
+    },
+    {
+      "case_id": "rd_known_answer_benefit_cutoff",
+      "method_family": "regression_discontinuity",
+      "scenario": "known_answer",
+      "estimand": "LATE",
+      "fixture_seed": 5203,
+      "input_shape": {
+        "unit": "applicant",
+        "rows": 420,
+        "bandwidth_rows": 240,
+        "required_columns": ["running_variable", "cutoff", "treatment", "outcome"]
+      },
+      "expected_effect": 0.12,
+      "observed_effect": 0.118,
+      "tolerance": 0.006,
+      "uncertainty": {
+        "type": "robust_bias_corrected_ci",
+        "level": 0.95,
+        "interval": [0.103, 0.133],
+        "standard_error": 0.008
+      },
+      "sample_diagnostics": {
+        "sample_size": 420,
+        "min_required_sample_size": 220,
+        "effective_sample_size": 240,
+        "power": 0.86,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "continuity_at_cutoff": "pass",
+        "no_sorting_at_cutoff": "pass",
+        "bandwidth_robustness": "pass"
+      },
+      "sensitivity": {
+        "status": "pass",
+        "bandwidth_shift_max": 0.004
+      },
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.02,
+        "max_missing_rate": 0.08
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.96,
+        "target_coverage": 0.95,
+        "tolerance": 0.03
+      }
+    },
+    {
+      "case_id": "did_placebo_pre_period",
+      "method_family": "difference_in_differences",
+      "scenario": "placebo",
+      "estimand": "ATT",
+      "fixture_seed": 5204,
+      "expected_effect": 0.0,
+      "observed_effect": 0.002,
+      "tolerance": 0.006,
+      "recommendation_confidence": 0.18,
+      "degradation_status": "degraded",
+      "uncertainty": {
+        "type": "cluster_bootstrap_ci",
+        "level": 0.95,
+        "interval": [-0.006, 0.009],
+        "standard_error": 0.004
+      },
+      "sample_diagnostics": {
+        "sample_size": 360,
+        "min_required_sample_size": 240,
+        "effective_sample_size": 330,
+        "power": 0.81,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "parallel_trends": "pass",
+        "stable_composition": "pass",
+        "no_anticipation": "pass"
+      },
+      "sensitivity": {"status": "pass"},
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.03,
+        "max_missing_rate": 0.1
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.94,
+        "target_coverage": 0.95,
+        "tolerance": 0.04
+      }
+    },
+    {
+      "case_id": "synthetic_control_negative_control_outcome",
+      "method_family": "synthetic_control",
+      "scenario": "negative_control",
+      "estimand": "ATT",
+      "fixture_seed": 5205,
+      "expected_effect": 0.0,
+      "observed_effect": -0.001,
+      "tolerance": 0.005,
+      "recommendation_confidence": 0.12,
+      "degradation_status": "degraded",
+      "negative_control": {
+        "outcome": "pre_policy_weather_index",
+        "expected_relationship": "none"
+      },
+      "uncertainty": {
+        "type": "placebo_permutation_interval",
+        "level": 0.9,
+        "interval": [-0.008, 0.006],
+        "standard_error": 0.004
+      },
+      "sample_diagnostics": {
+        "sample_size": 300,
+        "min_required_sample_size": 180,
+        "effective_sample_size": 280,
+        "power": 0.82,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "convex_hull_overlap": "pass",
+        "pre_treatment_fit": "pass",
+        "no_interference": "pass"
+      },
+      "sensitivity": {"status": "pass"},
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.02,
+        "max_missing_rate": 0.08
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.9,
+        "target_coverage": 0.9,
+        "tolerance": 0.04
+      }
+    },
+    {
+      "case_id": "did_missingness_stress",
+      "method_family": "difference_in_differences",
+      "scenario": "missingness_stress",
+      "estimand": "ATT",
+      "fixture_seed": 5206,
+      "expected_effect": 0.04,
+      "observed_effect": 0.039,
+      "tolerance": 0.005,
+      "uncertainty": {
+        "type": "cluster_bootstrap_ci",
+        "level": 0.95,
+        "interval": [0.03, 0.048],
+        "standard_error": 0.005
+      },
+      "sample_diagnostics": {
+        "sample_size": 432,
+        "min_required_sample_size": 240,
+        "effective_sample_size": 390,
+        "power": 0.83,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "parallel_trends": "pass",
+        "stable_composition": "pass",
+        "no_anticipation": "pass"
+      },
+      "sensitivity": {"status": "pass"},
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.09,
+        "max_missing_rate": 0.1,
+        "stress_pattern": "mnar_tail"
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.94,
+        "target_coverage": 0.95,
+        "tolerance": 0.04
+      }
+    },
+    {
+      "case_id": "rd_uncertainty_calibration",
+      "method_family": "regression_discontinuity",
+      "scenario": "uncertainty_calibration",
+      "estimand": "LATE",
+      "fixture_seed": 5207,
+      "expected_effect": 0.12,
+      "observed_effect": 0.119,
+      "tolerance": 0.006,
+      "uncertainty": {
+        "type": "robust_bias_corrected_ci",
+        "level": 0.95,
+        "interval": [0.104, 0.134],
+        "standard_error": 0.008
+      },
+      "sample_diagnostics": {
+        "sample_size": 420,
+        "min_required_sample_size": 220,
+        "effective_sample_size": 240,
+        "power": 0.85,
+        "min_power": 0.8
+      },
+      "assumption_checks": {
+        "continuity_at_cutoff": "pass",
+        "no_sorting_at_cutoff": "pass",
+        "bandwidth_robustness": "pass"
+      },
+      "sensitivity": {"status": "pass"},
+      "missingness": {
+        "status": "pass",
+        "missing_rate": 0.02,
+        "max_missing_rate": 0.08
+      },
+      "uncertainty_calibration": {
+        "status": "pass",
+        "coverage": 0.951,
+        "target_coverage": 0.95,
+        "tolerance": 0.02
+      }
+    }
+  ]
+}

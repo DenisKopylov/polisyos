@@ -417,10 +417,13 @@ class Calibrator:
         if self.inputs.constraint_values:
             constraint_values.update(self.inputs.constraint_values)
         handles: list[ConstraintHandle] = []
-        ids = cfg.constraint_loss.constraint_ids or registry.constraints.keys()
+        explicit_constraint_ids = cfg.constraint_loss.constraint_ids
+        ids = explicit_constraint_ids or registry.constraints.keys()
         for constraint_id in ids:
             spec = registry.constraints.get(constraint_id)
             if spec is None or spec.slot_id is None or spec.operator is None:
+                if not explicit_constraint_ids and spec is not None:
+                    continue
                 raise ValueError(f"Constraint '{constraint_id}' missing slot_id/operator")
             if constraint_id not in constraint_values:
                 raise ValueError(f"Constraint '{constraint_id}' missing value for penalty")

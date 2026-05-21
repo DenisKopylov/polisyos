@@ -1,0 +1,122 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_concept_spine_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Concept Spine",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "contract_id",
+    "node_type",
+    "record_id",
+    "run_id",
+    "job_id",
+    "tenant_id",
+    "policy_intent_ref",
+    "runtime_authority_envelope",
+    "source_projection",
+    "canonical_concept_ids",
+    "canonical_concepts",
+    "reconciliation_trace",
+    "normalization_trace",
+    "unresolved_concepts",
+    "conflicting_concepts",
+    "claim_numerical_semantics_refs",
+    "blockers",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.concept_spine.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.concept_spine_contract.v1"
+    },
+    "node_type": {
+      "const": "concept_spine"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_intent_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime_authority_envelope": {
+      "type": "object"
+    },
+    "source_projection": {
+      "type": "object"
+    },
+    "canonical_concept_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonical_concepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "canonical_concept_id",
+          "aliases",
+          "source_terms",
+          "metric_bindings",
+          "dataset_column_bindings",
+          "legal_concept_bindings",
+          "method_requirement_bindings",
+          "objective_tradeoff_bindings",
+          "geography",
+          "population",
+          "time",
+          "units",
+          "currency",
+          "price_bases",
+          "exchange_rates",
+          "inflation_adjustments",
+          "calendars",
+          "freshness",
+          "world_refs"
+        ]
+      }
+    },
+    "reconciliation_trace": {
+      "type": "array"
+    },
+    "normalization_trace": {
+      "type": "array"
+    },
+    "unresolved_concepts": {
+      "type": "array"
+    },
+    "conflicting_concepts": {
+      "type": "array"
+    },
+    "claim_numerical_semantics_refs": {
+      "type": "array"
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "blocked"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

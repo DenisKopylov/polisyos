@@ -23,7 +23,7 @@ export default function PublicDecisionViewerPage() {
             PolicyOS
           </Link>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge kind={verification.valid ? "ok" : "fail"}>
+            <Badge kind={verification.valid ? "neutral" : "fail"}>
               {verification.valid
                 ? t("phase35.viewer.verified")
                 : t("phase35.viewer.invalid")}

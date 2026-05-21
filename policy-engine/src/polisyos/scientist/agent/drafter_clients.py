@@ -24,7 +24,9 @@ class MockLLM:
         {
           "schema_version": "2.0",
           "semantic": {
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "context_snapshot_ref": (
+                "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+            ),
             "time_semantics": {
               "frequency": "M",
               "start_date": "2024-01-01",
@@ -231,16 +233,25 @@ class MockDrafterAgent:
         prior_drafts: list[DraftResult] | None,
     ) -> str:
         rationale_parts = [
-            f"This approach was chosen to directly address the core problem: {problem_frame.problem_statement[:100]}",
+            (
+                "This approach was chosen to directly address the core problem: "
+                f"{problem_frame.problem_statement[:100]}"
+            ),
         ]
 
         if prior_drafts:
             rationale_parts.append(
-                f"Building on {len(prior_drafts)} prior draft(s), this iteration incorporates lessons learned."
+                (
+                    f"Building on {len(prior_drafts)} prior draft(s), this iteration "
+                    "incorporates lessons learned."
+                )
             )
 
         rationale_parts.append(
-            "The interventions are designed to work within the stated constraints while maximizing impact."
+            (
+                "The interventions are designed to work within the stated constraints "
+                "while maximizing impact."
+            )
         )
 
         return " ".join(rationale_parts)
@@ -256,7 +267,10 @@ class MockDrafterAgent:
                 "Hsiao, W. (2007). Why Is A Systemic View Of Health Financing Necessary?",
             ],
             "education": [
-                "Heckman, J. (2006). Skill Formation and the Economics of Investing in Disadvantaged Children",
+                (
+                    "Heckman, J. (2006). Skill Formation and the Economics of "
+                    "Investing in Disadvantaged Children"
+                ),
             ],
         }
         return refs.get(domain.lower(), ["General policy literature"])
@@ -491,13 +505,40 @@ def _context_claim_supports(problem_frame: ProblemFrame) -> list[dict[str, Any]]
     context = getattr(problem_frame, "context", None)
     if not isinstance(context, dict):
         return []
+    supports: list[dict[str, Any]] = []
     payload = context.get("web_evidence")
-    if not isinstance(payload, dict):
-        return []
-    supports = payload.get("claim_supports")
-    if not isinstance(supports, list):
-        return []
-    return [dict(item) for item in supports if isinstance(item, dict)][:12]
+    if isinstance(payload, dict):
+        raw_supports = payload.get("claim_supports")
+        if isinstance(raw_supports, list):
+            supports.extend(dict(item) for item in raw_supports if isinstance(item, dict))
+    for source in (context, payload if isinstance(payload, dict) else None):
+        if not isinstance(source, dict):
+            continue
+        for key in (
+            "policy_recommendations",
+            "recommendation_claims",
+            "recommendations",
+            "policy_claims",
+        ):
+            raw_items = source.get(key)
+            if isinstance(raw_items, list):
+                supports.extend(dict(item) for item in raw_items if isinstance(item, dict))
+
+    deduped: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(supports):
+        fingerprint = str(
+            item.get("claim_id")
+            or item.get("id")
+            or item.get("text")
+            or item.get("claim")
+            or index
+        )
+        if fingerprint in seen:
+            continue
+        seen.add(fingerprint)
+        deduped.append(item)
+    return deduped[:12]
 
 
 def _context_grounding_notes(problem_frame: ProblemFrame) -> list[str]:

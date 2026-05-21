@@ -32,7 +32,12 @@ import {
   parseRunDetailLegacySearchParams,
 } from "@/features/runs/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
+import {
+  cn,
+  formatDate,
+  formatDuration,
+  formatNumber,
+} from "@/shared/lib/utils";
 import {
   PageErrorBoundary,
   PanelErrorBoundary,
@@ -43,6 +48,7 @@ import {
   Button,
   Card,
   DetailLayout,
+  OperatorDiagnosticPanel,
   ProvenanceStrip,
 } from "@/shared/ui";
 import {
@@ -765,6 +771,11 @@ function RunInspectorContent() {
                 </section>
 
                 <ScientificDepthPanel runId={runId} summary={summary} />
+                {run.operator_diagnostic ? (
+                  <OperatorDiagnosticPanel
+                    diagnostic={run.operator_diagnostic}
+                  />
+                ) : null}
                 <PublicSectorReadinessPanel runId={runId} summary={summary} />
                 <PublicationReadinessPanel runId={runId} summary={summary} />
                 <OperatorCraftPanel runId={runId} summary={summary} />

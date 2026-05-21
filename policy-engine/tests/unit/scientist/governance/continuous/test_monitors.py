@@ -1,8 +1,16 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.scientist.governance.continuous import monitors
 from polisyos.scientist.governance.continuous.monitors import (
     DecisionValidityStatus,
+    GovernanceMonitorEvent,
     aggregate_validity_status,
     build_drift_monitor_event,
     recommend_validity_action,
@@ -14,6 +22,16 @@ def _ref(seed: str, *, kind: str = "scientist.decision_packet") -> ArtifactRef:
         artifact_id="sha256:" + seed * 64,
         kind=kind,
         media_type="application/json",
+    )
+
+
+def _event_log(tmp_path, store: FileSystemCAS) -> RuntimeDiagnosticEventLog:
+    return RuntimeDiagnosticEventLog(
+        store=ControlPlaneStore(
+            backend="sqlite",
+            sqlite_path=tmp_path / "control.sqlite3",
+        ),
+        artifact_store=store,
     )
 
 
@@ -64,3 +82,86 @@ def test_info_monitor_event_keeps_artifact_monitoring() -> None:
 
     assert recommendation.status is DecisionValidityStatus.MONITORING
     assert recommendation.recommended_action == "continue_monitoring"
+
+
+def test_stale_lifecycle_decision_emits_runtime_authority_evidence(tmp_path) -> None:
+    emit = getattr(monitors, "emit_governance_lifecycle_evidence", None)
+    assert emit is not None, "Phase 2.7 must expose runtime lifecycle evidence emission"
+
+    store = FileSystemCAS(tmp_path)
+    event_log = _event_log(tmp_path, store)
+    decision_ref = _ref("1")
+    monitor_event_ref = _ref("2", kind="scientist.governance_monitor_event")
+    event = GovernanceMonitorEvent(
+        event_id="stale-source-event",
+        decision_packet_ref=decision_ref,
+        event_type="source_invalidation",
+        severity="warning",
+        affected_claim_ids=["claim_1"],
+        reason="Source freshness TTL expired.",
+    )
+    recommendation = recommend_validity_action(event)
+
+    result = emit(
+        store,
+        lifecycle_decision="stale",
+        decision_packet_ref=decision_ref,
+        status=recommendation.status,
+        reason=recommendation.reason,
+        monitor_event_refs=[monitor_event_ref],
+        run_id="R_lifecycle",
+        job_id="job-lifecycle",
+        tenant_id="tenant-1",
+        cell_id="cell-a",
+        trace_id="trace-lifecycle",
+        span_id="span-stale",
+        effective_mode_ref="sha256:" + "3" * 64,
+        fallback_degradation_ref="sha256:" + "4" * 64,
+        event_log=event_log,
+    )
+
+    assert result.runtime_quality_ref_key == "continuous_governance_stale_report_ref"
+    assert result.runtime_quality_refs == {
+        "continuous_governance_stale_report_ref": str(result.report_ref.artifact_id)
+    }
+    assert result.report_ref.kind == "governance_lifecycle_report"
+    assert result.diagnostic_event_ref.kind == "runtime_quality.diagnostic_event"
+    assert result.authority_envelope_ref.kind == "runtime_quality.evidence_authority_envelope"
+    assert result.report["schema_compatibility"]["decision"] == "compatible"
+    assert result.report["effective_mode_ref"] == "sha256:" + "3" * 64
+    assert result.report["fallback_degradation_ref"] == "sha256:" + "4" * 64
+    persisted_report = from_canonical_bytes(store.get_bytes(result.report_ref.artifact_id))
+    assert persisted_report == result.report
+    assert result.payload_sha256 == content_hash(
+        to_canonical_bytes(result.report, CanonSpec(forbid_floats=False))
+    )
+    assert result.diagnostic_event["event_type"] == (
+        "polisyos.runtime.diagnostic.governance_lifecycle_decision.v1"
+    )
+    assert result.authority_envelope["cas_ref"] == str(result.report_ref.artifact_id)
+
+
+def test_serious_lifecycle_decision_requires_durable_event_log(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    decision_ref = _ref("1")
+    monitor_event_ref = _ref("2", kind="scientist.governance_monitor_event")
+
+    with pytest.raises(ValueError, match="event_log"):
+        monitors.emit_governance_lifecycle_evidence(
+            store,
+            lifecycle_decision="stale",
+            decision_packet_ref=decision_ref,
+            status=DecisionValidityStatus.STALE,
+            reason="Source freshness TTL expired.",
+            monitor_event_refs=[monitor_event_ref],
+            run_id="R_lifecycle",
+            job_id="job-lifecycle",
+            tenant_id="tenant-1",
+            cell_id="cell-a",
+            trace_id="trace-lifecycle",
+            span_id="span-stale",
+            effective_mode_ref="sha256:" + "3" * 64,
+            fallback_degradation_ref="sha256:" + "4" * 64,
+            requested_execution_profile="production",
+            effective_execution_profile="production",
+        )

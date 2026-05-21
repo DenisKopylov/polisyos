@@ -29,6 +29,18 @@
     "degradation_kind": "legacy_unknown",
     "downstream_impact": "Unknown; legacy record does not declare affected gates or produced artifacts with authority refs.",
     "override_policy": "unknown",
+    "provenance_refs": [
+      "event://diagnostic/evt_hds_phase02_legacy_fallback_quarantine",
+      "legacy://fallbacks/provider_note.json"
+    ],
+    "typed_blocker": {
+      "code": "degradation_legacy_record_quarantined",
+      "message": "Legacy fallback record lacks accepted schema, allowed profiles, override policy, and diagnostic command identity.",
+      "severity": "critical",
+      "next_action": "Replace the legacy note with a runtime_quality.degradation_ledger.v1 record.",
+      "blocking": true,
+      "may_satisfy_serious_gate": false
+    },
     "blocking_status": "blocking",
     "owner": "team-runtime-ops",
     "generated_at": "2026-05-14T12:11:00Z",

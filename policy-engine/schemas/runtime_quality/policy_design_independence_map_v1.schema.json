@@ -1,0 +1,157 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_independence_map_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Evidence Independence Map",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "map_id",
+    "raw_evidence_line_count",
+    "effective_independent_evidence_count",
+    "collapse_clusters"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.independence_map.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.independence_map.v1"
+    },
+    "map_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "portfolio_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "raw_evidence_line_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "effective_independent_evidence_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "collapse_dimensions_used": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "collapse_clusters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "line_ids",
+          "raw_line_count",
+          "collapse_dimensions"
+        ],
+        "properties": {
+          "cluster_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "raw_line_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "representative_line_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "collapse_dimensions": {
+            "type": "object",
+            "required": [
+              "claim_ids",
+              "evidence_strand",
+              "method_cluster_id",
+              "source_lineage_cluster_id",
+              "corpus_ancestry_cluster_id",
+              "author_institution_pool_id",
+              "preprocessing_cluster_id",
+              "assumption_cluster_id",
+              "identification_strategy_id",
+              "shared_failure_mode_cluster_id"
+            ],
+            "properties": {
+              "claim_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "evidence_strand": {
+                "type": "string",
+                "minLength": 1
+              },
+              "method_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_lineage_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "corpus_ancestry_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "author_institution_pool_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "preprocessing_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "assumption_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "identification_strategy_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "shared_failure_mode_cluster_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "evidence_ref": {
+      "type": "string"
+    },
+    "runtime_event_ref": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

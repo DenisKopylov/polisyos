@@ -77,6 +77,19 @@ const runErrorsPayload = {
 const runAgentsPayload = {
   meta,
   pipeline: {
+    performance_summary: {
+      llm: {
+        latency_ms: 125_000,
+      },
+      phase_budgets: [
+        {
+          budget_ms: 10_000,
+          duration_ms: 15_000,
+          phase: "retrieval.materialize",
+          status: "over_budget",
+        },
+      ],
+    },
     run_id: runId,
     source_kind: "core_run",
     total_attempts: 1,
@@ -308,8 +321,18 @@ describe("run query hooks", () => {
         endpoint: "/api/v1/runs/{run_id}/agents",
         hook: useRunAgentsHook,
         queryOptions: runAgentsQueryOptions(runId),
-        assertData: (data: { pipeline: { attempts: unknown[] } }) => {
+        assertData: (data: {
+          pipeline: {
+            attempts: unknown[];
+            performance_summary?: {
+              phase_budgets?: Array<{ phase?: string }>;
+            };
+          };
+        }) => {
           expect(data.pipeline.attempts).toEqual([]);
+          expect(
+            data.pipeline.performance_summary?.phase_budgets?.[0]?.phase,
+          ).toBe("retrieval.materialize");
         },
         payload: runAgentsPayload,
       },

@@ -1,0 +1,763 @@
+[registry]
+schema_version = "policyos.diagnostic_fitness_functions.v1"
+owner = "team-assurance"
+adr = "ADR-0153"
+description = "Fitness functions that prove HDS invariant closeout evidence is executable, not prose or bundle theater."
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-001.serious_canary_runtime_refs"
+invariant_id = "HDS-MCG-001"
+minimum_closeout_gate = "serious_canary_runtime_refs"
+pql_id = "PQL-001"
+fitness_type = "negative_control"
+failure_code = "hds_runtime_refs_missing"
+runtime_events = [
+  "polisyos.runtime.evidence.normative_applicability_report.v1",
+  "polisyos.runtime.evidence.fabric_retrieval_trace.v1",
+  "polisyos.runtime.evidence.foundry_method_report.v1",
+  "polisyos.runtime.evidence.policy_grounding_matrix.v1",
+  "polisyos.runtime.evidence.conflict_check.v1",
+]
+cas_artifact_kinds = [
+  "normative_applicability_report",
+  "fabric_retrieval_trace",
+  "foundry_method_report",
+  "policy_grounding_matrix",
+  "conflict_check_report",
+]
+ref_keys = [
+  "normative_applicability_report_ref",
+  "fabric_retrieval_trace_ref",
+  "foundry_method_report_ref",
+  "policy_grounding_matrix_ref",
+  "conflict_check_ref",
+]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "normative_evidence_present",
+  "fabric_retrieval_trace_present",
+  "foundry_method_evidence_present",
+  "policy_grounding_matrix_present",
+  "conflict_check_present",
+]
+readiness_checks = ["production_quality.runtime_required_refs"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_authority_envelope_contract.py::test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/http/test_nl_pipeline_materialization.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_authority_envelope_contract.py::test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-002.scorecard_persisted_runtime_refs"
+invariant_id = "HDS-MCG-002"
+minimum_closeout_gate = "scorecard_persisted_runtime_refs"
+pql_id = "PQL-005"
+fitness_type = "negative_control"
+failure_code = "hds_scorecard_runtime_refs_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.producer_execution.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+  "polisyos.runtime.diagnostic.ref_publication.v1",
+]
+cas_artifact_kinds = ["quality_scorecard"]
+ref_keys = ["quality_scorecard_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.scorecard_persisted_runtime_refs"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/tools/test_canary_evidence_authority.py::test_quality_status_pass_in_input_progress_bundle_or_dashboard_is_projection_only"]
+next_diagnostic_commands = ["uv run pytest tests/unit/tools/test_canary_evidence_authority.py -q"]
+proof_sources = ["tests/unit/tools/test_canary_evidence_authority.py::test_quality_status_pass_in_input_progress_bundle_or_dashboard_is_projection_only"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-003.final_policy_major_claims_grounded"
+invariant_id = "HDS-MCG-003"
+minimum_closeout_gate = "final_policy_major_claims_grounded"
+pql_id = "PQL-002"
+fitness_type = "negative_control"
+failure_code = "hds_final_claims_not_grounded"
+runtime_events = ["polisyos.runtime.evidence.policy_grounding_matrix.v1"]
+cas_artifact_kinds = ["policy_grounding_matrix"]
+ref_keys = ["policy_grounding_matrix_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "policy_grounding_matrix_present",
+  "scientist_workflow_report_passed",
+]
+readiness_checks = ["production_quality.policy_grounding"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/tools/test_canary_evidence.py::test_assemble_canary_evidence_fails_policy_grounding_for_unsupported_claim"]
+next_diagnostic_commands = ["uv run pytest tests/unit/scientist/validation/test_policy_grounding_matrix.py -q"]
+proof_sources = ["tests/unit/tools/test_canary_evidence.py::test_assemble_canary_evidence_fails_policy_grounding_for_unsupported_claim"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-004.metric_taxonomy_unknown_metrics_fail"
+invariant_id = "HDS-MCG-004"
+minimum_closeout_gate = "metric_taxonomy_unknown_metrics_fail"
+pql_id = "PQL-003"
+fitness_type = "negative_control"
+failure_code = "hds_unknown_metric_blocked"
+runtime_events = ["polisyos.runtime.diagnostic.blocker.v1"]
+cas_artifact_kinds = ["metric_taxonomy_report"]
+ref_keys = ["metric_taxonomy_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.metric_taxonomy"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/core/phase0/test_metrics.py::test_metric_canonicalizer_suggests_close_matches_for_unknown_metrics"]
+next_diagnostic_commands = ["uv run pytest tests/contract/test_trinity_linker_contract.py tests/unit/core/phase0/test_metrics.py -q"]
+proof_sources = ["tests/unit/core/phase0/test_metrics.py::test_metric_canonicalizer_suggests_close_matches_for_unknown_metrics"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-005.benchmark_authority_packs"
+invariant_id = "HDS-MCG-005"
+minimum_closeout_gate = "benchmark_authority_packs"
+pql_id = "PQL-007"
+fitness_type = "negative_control"
+failure_code = "hds_benchmark_authority_missing"
+runtime_events = ["polisyos.runtime.diagnostic.producer_execution.v1"]
+cas_artifact_kinds = ["benchmark_authority_pack"]
+ref_keys = ["benchmark_authority_pack_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.benchmark_authority"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/repo_quality/tools/test_quality_benchmark_authority.py::test_public_export_guard_fails_if_quarantined_answer_is_injected"]
+next_diagnostic_commands = ["uv run pytest tests/repo_quality/tools/test_quality_benchmark_authority.py -q"]
+proof_sources = ["tests/repo_quality/tools/test_quality_benchmark_authority.py::test_public_export_guard_fails_if_quarantined_answer_is_injected"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-006.performance_budget_evidence"
+invariant_id = "HDS-MCG-006"
+minimum_closeout_gate = "performance_budget_evidence"
+pql_id = "PQL-011"
+fitness_type = "negative_control"
+failure_code = "hds_performance_budget_missing"
+runtime_events = ["polisyos.runtime.diagnostic.producer_execution.v1"]
+cas_artifact_kinds = ["performance_budget_report"]
+ref_keys = ["performance_budget_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.performance_budget"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/performance/test_runtime_hot_paths.py::test_canary_performance_budget_report_covers_runtime_hot_path_layers"]
+next_diagnostic_commands = ["uv run pytest tests/performance/test_runtime_hot_paths.py -q"]
+proof_sources = ["tests/performance/test_runtime_hot_paths.py::test_canary_performance_budget_report_covers_runtime_hot_path_layers"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-007.tenant_scoped_artifact_ownership"
+invariant_id = "HDS-MCG-007"
+minimum_closeout_gate = "tenant_scoped_artifact_ownership"
+pql_id = "PQL-012"
+fitness_type = "negative_control"
+failure_code = "hds_tenant_artifact_ownership_missing"
+runtime_events = ["polisyos.runtime.diagnostic.cas_write.v1"]
+cas_artifact_kinds = ["cas_ownership_manifest"]
+ref_keys = ["cas_ownership_manifest_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["data_materialization_refs_present"]
+readiness_checks = ["production_quality.tenant_artifact_ownership"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/core/artifacts/test_artifact_id_serialization_contract.py::test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_reads"]
+next_diagnostic_commands = ["uv run pytest tests/unit/core/artifacts/test_artifact_id_serialization_contract.py -q"]
+proof_sources = ["tests/unit/core/artifacts/test_artifact_id_serialization_contract.py::test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_reads"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-008.production_approval_or_signed_override"
+invariant_id = "HDS-MCG-008"
+minimum_closeout_gate = "production_approval_or_signed_override"
+pql_id = "PQL-006"
+fitness_type = "negative_control"
+failure_code = "hds_approval_packet_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.approval_decision.v1",
+  "polisyos.runtime.diagnostic.blocker.v1",
+]
+cas_artifact_kinds = ["approval_packet"]
+ref_keys = ["approval_packet_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.approval_packet"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_approval.py::test_blocking_quality_performance_and_conflict_status_reject_approval"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_approval.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_approval.py::test_blocking_quality_performance_and_conflict_status_reject_approval"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-009.continuous_governance_lifecycle"
+invariant_id = "HDS-MCG-009"
+minimum_closeout_gate = "continuous_governance_lifecycle"
+pql_id = "PQL-014"
+fitness_type = "negative_control"
+failure_code = "hds_governance_lifecycle_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.reconciliation_result.v1",
+  "polisyos.runtime.diagnostic.schema_migration.v1",
+  "polisyos.runtime.diagnostic.effective_mode.v1",
+  "polisyos.runtime.diagnostic.fallback_degradation.v1",
+]
+cas_artifact_kinds = ["governance_lifecycle_report"]
+ref_keys = [
+  "continuous_governance_stale_report_ref",
+  "continuous_governance_reissue_report_ref",
+  "continuous_governance_supersede_report_ref",
+  "continuous_governance_withdraw_report_ref",
+]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "continuous_governance_stale_report_present",
+  "continuous_governance_reissue_report_present",
+  "continuous_governance_supersede_report_present",
+  "continuous_governance_withdraw_report_present",
+]
+readiness_checks = ["production_quality.continuous_governance_lifecycle"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_scorecard.py::test_pql_014_code_presence_cannot_satisfy_published_lifecycle_scope"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_scorecard.py::test_pql_014_code_presence_cannot_satisfy_published_lifecycle_scope tests/unit/scientist/governance/continuous/test_monitors.py::test_stale_lifecycle_decision_emits_runtime_authority_evidence tests/unit/scientist/governance/continuous/test_reissue.py::test_reissue_lifecycle_decisions_emit_runtime_authority_evidence -q"]
+proof_sources = ["tests/unit/runtime/quality/test_scorecard.py::test_pql_014_code_presence_cannot_satisfy_published_lifecycle_scope"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-010.production_data_quality_reports"
+invariant_id = "HDS-MCG-010"
+minimum_closeout_gate = "production_data_quality_reports"
+pql_id = "PQL-015"
+fitness_type = "negative_control"
+failure_code = "production_data_quality_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.producer_execution.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+]
+cas_artifact_kinds = ["production_data_quality_report"]
+ref_keys = ["production_data_quality_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["production_data_quality_present"]
+readiness_checks = ["production_quality.data_quality"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_data_quality.py::test_report_fails_fixture_like_or_missing_production_evidence"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_data_quality.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_data_quality.py::test_report_fails_fixture_like_or_missing_production_evidence"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-011.causal_statistical_method_reports"
+invariant_id = "HDS-MCG-011"
+minimum_closeout_gate = "causal_statistical_method_reports"
+pql_id = "PQL-016"
+fitness_type = "negative_control"
+failure_code = "causal_statistical_validity_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.producer_execution.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+]
+cas_artifact_kinds = ["causal_statistical_validity_report"]
+ref_keys = ["causal_statistical_validity_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "causal_statistical_validity_present",
+  "foundry_method_evidence_present",
+]
+readiness_checks = ["production_quality.causal_statistical_validity"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/foundry/validation/test_causal_validity.py::test_placebo_and_negative_controls_block_confident_causal_outputs"]
+next_diagnostic_commands = ["uv run pytest tests/unit/foundry/validation/test_causal_validity.py -q"]
+proof_sources = ["tests/unit/foundry/validation/test_causal_validity.py::test_placebo_and_negative_controls_block_confident_causal_outputs"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-012.security_abuse_resistance_gates"
+invariant_id = "HDS-MCG-012"
+minimum_closeout_gate = "security_abuse_resistance_gates"
+pql_id = "PQL-017"
+fitness_type = "negative_control"
+failure_code = "security_assurance_failed"
+runtime_events = [
+  "polisyos.runtime.diagnostic.blocker.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+]
+cas_artifact_kinds = ["security_assurance_report"]
+ref_keys = ["security_assurance_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["security_assurance_report_passed"]
+readiness_checks = ["production_quality.security_assurance"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
+next_diagnostic_commands = ["uv run pytest tests/security/test_policyos_runtime_abuse_gates.py -q"]
+proof_sources = ["tests/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-013.privacy_compliance_evidence"
+invariant_id = "HDS-MCG-013"
+minimum_closeout_gate = "privacy_compliance_evidence"
+pql_id = "PQL-018"
+fitness_type = "negative_control"
+failure_code = "privacy_compliance_report_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.blocker.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+]
+cas_artifact_kinds = ["privacy_compliance_report"]
+ref_keys = ["privacy_compliance_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["privacy_compliance_report_present"]
+readiness_checks = ["production_quality.privacy_compliance"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_compliance.py::test_pii_like_field_without_basis_or_redaction_blocks_compliance"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_compliance.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_compliance.py::test_pii_like_field_without_basis_or_redaction_blocks_compliance"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-014.deterministic_replay_or_typed_drift"
+invariant_id = "HDS-MCG-014"
+minimum_closeout_gate = "deterministic_replay_or_typed_drift"
+pql_id = "PQL-019"
+fitness_type = "negative_control"
+failure_code = "hds_replay_or_drift_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.replay_result.v1",
+  "polisyos.runtime.diagnostic.reconciliation_result.v1",
+]
+cas_artifact_kinds = [
+  "replay_manifest",
+  "drift_explanation",
+]
+ref_keys = [
+  "replay_manifest_ref",
+  "drift_explanation_ref",
+]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "replay_manifest_present",
+  "drift_explanation_present",
+]
+readiness_checks = ["production_quality.replay_determinism"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_replay.py::test_unexplained_drift_fails_production_readiness"]
+next_diagnostic_commands = ["uv run pytest tests/repo_quality/tools/test_replay_canary_bundle.py tests/unit/runtime/quality/test_replay.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_replay.py::test_unexplained_drift_fails_production_readiness"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-015.resilience_readiness_lanes"
+invariant_id = "HDS-MCG-015"
+minimum_closeout_gate = "resilience_readiness_lanes"
+pql_id = "PQL-020"
+fitness_type = "negative_control"
+failure_code = "hds_resilience_matrix_missing"
+runtime_events = ["polisyos.runtime.diagnostic.producer_execution.v1"]
+cas_artifact_kinds = ["resilience_matrix"]
+ref_keys = ["resilience_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["resilience_matrix_present"]
+readiness_checks = ["production_quality.resilience_matrix"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/repo_quality/tools/test_runtime_resilience_matrix.py::test_matrix_distinguishes_performance_operational_and_quality_failures"]
+next_diagnostic_commands = ["uv run pytest tests/repo_quality/tools/test_runtime_resilience_matrix.py -q"]
+proof_sources = ["tests/repo_quality/tools/test_runtime_resilience_matrix.py::test_matrix_distinguishes_performance_operational_and_quality_failures"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-016.human_review_calibration_evidence"
+invariant_id = "HDS-MCG-016"
+minimum_closeout_gate = "human_review_calibration_evidence"
+pql_id = "PQL-021"
+fitness_type = "negative_control"
+failure_code = "human_review_calibration_missing"
+runtime_events = ["polisyos.runtime.diagnostic.approval_decision.v1"]
+cas_artifact_kinds = ["human_review_calibration_report"]
+ref_keys = ["human_review_calibration_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["human_review_calibration_present"]
+readiness_checks = ["production_quality.human_review_calibration"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_human_review.py::test_low_agreement_and_high_override_rate_emit_fail_quality_signals"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_human_review.py tests/unit/runtime/quality/test_approval.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_human_review.py::test_low_agreement_and_high_override_rate_emit_fail_quality_signals"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-017.provider_model_quality_drift"
+invariant_id = "HDS-MCG-017"
+minimum_closeout_gate = "provider_model_quality_drift"
+pql_id = "PQL-022"
+fitness_type = "negative_control"
+failure_code = "provider_model_quality_ledger_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.producer_execution.v1",
+  "polisyos.runtime.diagnostic.fallback_degradation.v1",
+]
+cas_artifact_kinds = ["provider_model_quality_ledger"]
+ref_keys = ["provider_model_quality_ledger_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = [
+  "provider_model_quality_ledger_passed",
+  "llm_model_variants_present",
+]
+readiness_checks = ["production_quality.provider_model_quality"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/repo_quality/tools/test_provider_quality_ledger.py::test_provider_quality_ledger_keeps_live_provider_metrics_optional_in_ci"]
+next_diagnostic_commands = ["uv run pytest tests/repo_quality/tools/test_provider_quality_ledger.py tests/unit/scientist/orchestration/llm/test_provider_quality.py -q"]
+proof_sources = ["tests/repo_quality/tools/test_provider_quality_ledger.py::test_provider_quality_ledger_keeps_live_provider_metrics_optional_in_ci"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-018.serious_effective_mode_allowed"
+invariant_id = "HDS-MCG-018"
+minimum_closeout_gate = "serious_effective_mode_allowed"
+pql_id = "PQL-013"
+fitness_type = "negative_control"
+failure_code = "mode_policy_failure"
+runtime_events = ["polisyos.runtime.diagnostic.effective_mode.v1"]
+cas_artifact_kinds = ["effective_mode_ledger"]
+ref_keys = ["effective_mode_ledger_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["effective_mode_allowed"]
+readiness_checks = ["production_quality.effective_mode_allowed"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_effective_mode.py::test_disallowed_modes_cannot_satisfy_serious_closeout"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_effective_mode.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_effective_mode.py::test_disallowed_modes_cannot_satisfy_serious_closeout"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-019.final_decision_artifact_quality"
+invariant_id = "HDS-MCG-019"
+minimum_closeout_gate = "final_decision_artifact_quality"
+pql_id = "PQL-023"
+fitness_type = "negative_control"
+failure_code = "decision_artifact_quality_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.producer_execution.v1",
+  "polisyos.runtime.diagnostic.cas_write.v1",
+]
+cas_artifact_kinds = ["decision_artifact_quality_report"]
+ref_keys = ["decision_artifact_quality_report_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["decision_artifact_quality_present"]
+readiness_checks = ["production_quality.decision_artifact_quality"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "draft_projection_only_until_claim_evidence_contract_passes",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = [
+  "tests/unit/scientist/artifacts/test_decision_compiler.py::test_publishable_decision_artifact_requires_statement_evidence_or_typed_blocker",
+  "tests/unit/scientist/artifacts/test_decision_compiler.py::test_publishable_decision_artifact_blocks_gate_failures",
+  "tests/unit/scientist/validation/test_decision_artifact_quality.py::test_quality_report_fails_overstated_certainty_and_public_secrets",
+]
+next_diagnostic_commands = ["uv run pytest tests/unit/scientist/artifacts/test_decision_compiler.py tests/unit/scientist/validation/test_decision_artifact_quality.py -q"]
+proof_sources = [
+  "tests/unit/scientist/artifacts/test_decision_compiler.py::test_publishable_decision_artifact_requires_statement_evidence_or_typed_blocker",
+  "tests/unit/scientist/artifacts/test_decision_compiler.py::test_publishable_decision_artifact_blocks_gate_failures",
+  "tests/unit/scientist/validation/test_decision_artifact_quality.py::test_quality_report_fails_overstated_certainty_and_public_secrets",
+]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-020.closeout_matrix_dashboard_api_smoke"
+invariant_id = "HDS-MCG-020"
+minimum_closeout_gate = "closeout_matrix_dashboard_api_smoke"
+pql_id = "PQL-024"
+fitness_type = "negative_control"
+failure_code = "hds_closeout_matrix_smoke_missing"
+runtime_events = [
+  "polisyos.runtime.diagnostic.readiness_closeout.v1",
+  "polisyos.runtime.diagnostic.dashboard_projection.v1",
+]
+cas_artifact_kinds = ["closeout_matrix_report"]
+ref_keys = ["closeout_matrix_ref"]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.closeout_matrix_smoke"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py::test_serious_evidence_bundle_missing_required_ref_fails_with_guidance"]
+next_diagnostic_commands = ["uv run pytest tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py -q"]
+proof_sources = ["tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py::test_serious_evidence_bundle_missing_required_ref_fails_with_guidance"]
+
+[[fitness_functions]]
+fitness_id = "fitness.hds-mcg-021.serious_phase_barriers_closed"
+invariant_id = "HDS-MCG-021"
+minimum_closeout_gate = "serious_phase_barriers_closed"
+pql_id = "PQL-025"
+fitness_type = "negative_control"
+failure_code = "hds_phase_barrier_not_closed"
+runtime_events = [
+  "polisyos.runtime.diagnostic.phase_transition.v1",
+  "polisyos.runtime.diagnostic.blocker.v1",
+]
+cas_artifact_kinds = [
+  "run_state_snapshot",
+  "phase_barrier_ledger",
+]
+ref_keys = [
+  "run_state_snapshot_ref",
+  "phase_barrier_ledger_ref",
+]
+bundle_packaging_files = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+]
+scorecard_gates = ["execution_completed"]
+readiness_checks = ["production_quality.phase_barriers_closed"]
+approval_public_policies = [
+  "requires_verified_scorecard",
+  "not_public_exportable",
+]
+dashboard_projection_policies = ["projection_only"]
+negative_tests = ["tests/unit/runtime/quality/test_run_state.py::test_missing_phase_barrier_record_blocks_scorecard_readiness"]
+next_diagnostic_commands = ["uv run pytest tests/unit/runtime/quality/test_run_state.py -q"]
+proof_sources = ["tests/unit/runtime/quality/test_run_state.py::test_missing_phase_barrier_record_blocks_scorecard_readiness"]
+
+[[scorecard_gates]]
+gate_name = "normative_evidence_present"
+invariant_id = "HDS-MCG-001"
+
+[[scorecard_gates]]
+gate_name = "fabric_retrieval_trace_present"
+invariant_id = "HDS-MCG-001"
+
+[[scorecard_gates]]
+gate_name = "foundry_method_evidence_present"
+invariant_id = "HDS-MCG-001"
+
+[[scorecard_gates]]
+gate_name = "policy_grounding_matrix_present"
+invariant_id = "HDS-MCG-001"
+
+[[scorecard_gates]]
+gate_name = "conflict_check_present"
+invariant_id = "HDS-MCG-001"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-002"
+
+[[scorecard_gates]]
+gate_name = "policy_grounding_matrix_present"
+invariant_id = "HDS-MCG-003"
+
+[[scorecard_gates]]
+gate_name = "scientist_workflow_report_passed"
+invariant_id = "HDS-MCG-003"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-004"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-005"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-006"
+
+[[scorecard_gates]]
+gate_name = "data_materialization_refs_present"
+invariant_id = "HDS-MCG-007"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-008"
+
+[[scorecard_gates]]
+gate_name = "continuous_governance_stale_report_present"
+invariant_id = "HDS-MCG-009"
+
+[[scorecard_gates]]
+gate_name = "continuous_governance_reissue_report_present"
+invariant_id = "HDS-MCG-009"
+
+[[scorecard_gates]]
+gate_name = "continuous_governance_supersede_report_present"
+invariant_id = "HDS-MCG-009"
+
+[[scorecard_gates]]
+gate_name = "continuous_governance_withdraw_report_present"
+invariant_id = "HDS-MCG-009"
+
+[[scorecard_gates]]
+gate_name = "production_data_quality_present"
+invariant_id = "HDS-MCG-010"
+
+[[scorecard_gates]]
+gate_name = "causal_statistical_validity_present"
+invariant_id = "HDS-MCG-011"
+
+[[scorecard_gates]]
+gate_name = "foundry_method_evidence_present"
+invariant_id = "HDS-MCG-011"
+
+[[scorecard_gates]]
+gate_name = "security_assurance_report_passed"
+invariant_id = "HDS-MCG-012"
+
+[[scorecard_gates]]
+gate_name = "privacy_compliance_report_present"
+invariant_id = "HDS-MCG-013"
+
+[[scorecard_gates]]
+gate_name = "replay_manifest_present"
+invariant_id = "HDS-MCG-014"
+
+[[scorecard_gates]]
+gate_name = "drift_explanation_present"
+invariant_id = "HDS-MCG-014"
+
+[[scorecard_gates]]
+gate_name = "resilience_matrix_present"
+invariant_id = "HDS-MCG-015"
+
+[[scorecard_gates]]
+gate_name = "human_review_calibration_present"
+invariant_id = "HDS-MCG-016"
+
+[[scorecard_gates]]
+gate_name = "provider_model_quality_ledger_passed"
+invariant_id = "HDS-MCG-017"
+
+[[scorecard_gates]]
+gate_name = "llm_model_variants_present"
+invariant_id = "HDS-MCG-017"
+
+[[scorecard_gates]]
+gate_name = "effective_mode_allowed"
+invariant_id = "HDS-MCG-018"
+
+[[scorecard_gates]]
+gate_name = "decision_artifact_quality_present"
+invariant_id = "HDS-MCG-019"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-020"
+
+[[scorecard_gates]]
+gate_name = "execution_completed"
+invariant_id = "HDS-MCG-021"

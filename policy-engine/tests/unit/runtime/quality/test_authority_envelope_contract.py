@@ -4,9 +4,8 @@ from copy import deepcopy
 
 import pytest
 
-from polisyos.runtime.quality.scorecard import QUALITY_REPORT_RUNTIME_REFS
 from tests._helpers.hds_quality import (
-    HDS_XFAIL_REASON,
+    authority_envelope_for,
     blocking_codes,
     bundle_local_runtime_refs,
     complete_job_payload,
@@ -16,17 +15,14 @@ from tests._helpers.hds_quality import (
     sha,
 )
 
-HDS_RED_XFAIL = pytest.mark.xfail(strict=True, reason=HDS_XFAIL_REASON)
 
-
-@HDS_RED_XFAIL
 def test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates() -> None:
     scorecard = scorecard_for(
         job_payload=complete_job_payload(runtime_refs=bundle_local_runtime_refs()),
     )
 
     assert scorecard["quality_status"] == "fail"
-    assert "bundle_local_ref_used_as_runtime_authority" in blocking_codes(scorecard)
+    assert "hds_bundle_ref_used_as_runtime_ref" in blocking_codes(scorecard)
     assert {
         gate["name"]
         for gate in scorecard["quality_gates"]
@@ -39,8 +35,6 @@ def test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates() 
         "conflict_check_present",
     }
 
-
-@HDS_RED_XFAIL
 def test_report_embedded_ref_must_match_runtime_cas_ref() -> None:
     evidence = complete_quality_evidence()
     evidence["policy_grounding_matrix"]["policy_grounding_matrix_ref"] = sha("0")
@@ -54,11 +48,10 @@ def test_report_embedded_ref_must_match_runtime_cas_ref() -> None:
     )
 
     assert scorecard["quality_status"] == "fail"
-    assert "runtime_cas_ref_mismatch" in blocking_codes(scorecard)
+    assert "hds_ref_identity_mismatch" in blocking_codes(scorecard)
 
 
 @pytest.mark.parametrize("canary_kind", ["research", "governed", "production"])
-@HDS_RED_XFAIL
 def test_fixture_only_authority_envelope_blocks_serious_closeout(canary_kind: str) -> None:
     evidence = complete_quality_evidence()
     fixture_envelope = {
@@ -80,10 +73,89 @@ def test_fixture_only_authority_envelope_blocks_serious_closeout(canary_kind: st
     )
 
     assert scorecard["quality_status"] == "fail"
-    assert "fixture_only_evidence_not_authoritative" in blocking_codes(scorecard)
+    assert "hds_unknown_provenance" in blocking_codes(scorecard)
+
+    failure = next(
+        item
+        for item in scorecard["blocking_quality_failures"]
+        if item["code"] == "hds_unknown_provenance"
+    )
+    assert failure["root_cause_class"] == "missing_provenance"
+    assert failure["first_failing_artifact_ref"]
 
 
-@HDS_RED_XFAIL
+def test_packaging_only_manifest_cannot_satisfy_producer_authority() -> None:
+    from polisyos.runtime.quality.authority import (
+        AuthorityEnvelopeError,
+        classify_authority_failure,
+        assert_runtime_emitted,
+    )
+
+    envelope = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=runtime_cas_refs()["policy_grounding_matrix_ref"],
+    )
+    envelope["authority_role"] = "packaging_only"
+    envelope["provenance_kind"] = "bundle_packaged"
+
+    with pytest.raises(AuthorityEnvelopeError) as exc:
+        assert_runtime_emitted(envelope)
+
+    assert exc.value.code == "packaging_used_as_authority"
+    classification = classify_authority_failure(
+        authority_error_code=exc.value.code,
+        envelope=envelope,
+        artifact_ref="quality_evidence/quality_scorecard.json",
+    )
+    assert classification.root_cause_class == "packaging_only_projection"
+    assert classification.producer_authority["authority_role"] == "packaging_only"
+
+
+def test_borrowed_report_authority_envelope_is_not_missing_provenance() -> None:
+    from polisyos.runtime.quality.authority import (
+        authority_envelope_ownership_issues,
+        classify_authority_failure,
+    )
+
+    runtime_ref = runtime_cas_refs()["continuous_governance_stale_report_ref"]
+    borrowed = authority_envelope_for(
+        report_key="production_data_quality",
+        ref_key="production_data_quality_report_ref",
+        ref_value=runtime_ref,
+    )
+    borrowed["artifact_ref"] = runtime_ref
+    borrowed["cas_ref"] = runtime_ref
+    borrowed["output_refs"] = [runtime_ref]
+    borrowed["payload_sha256"] = runtime_ref
+
+    issues = authority_envelope_ownership_issues(
+        envelope=borrowed,
+        report_key="continuous_governance_stale",
+        report={
+            "schema_version": "policyos.runtime.governance_lifecycle_report.v1",
+            "status": "pass",
+            "continuous_governance_stale_report_ref": runtime_ref,
+        },
+        ref_key="continuous_governance_stale_report_ref",
+        runtime_ref=runtime_ref,
+    )
+
+    assert {issue["code"] for issue in issues} >= {
+        "authority_envelope_artifact_kind_mismatch",
+        "authority_envelope_schema_mismatch",
+    }
+
+    classification = classify_authority_failure(
+        authority_error_code="hds_borrowed_authority_envelope",
+        envelope=borrowed,
+        artifact_ref=runtime_ref,
+    )
+
+    assert classification.root_cause_class == "borrowed_authority_envelope"
+    assert classification.producer_authority["artifact_kind"] == "production_data_quality"
+
+
 def test_warn_scorecards_fail_serious_deterministic_closeout() -> None:
     evidence = complete_quality_evidence()
     evidence["provider_model_quality_ledger"] = {
@@ -109,13 +181,11 @@ def test_warn_scorecards_fail_serious_deterministic_closeout() -> None:
     assert scorecard["approval_state"] == "quality_failed"
     assert "serious_warn_scorecard_blocks_closeout" in blocking_codes(scorecard)
 
-
-@HDS_RED_XFAIL
 def test_every_runtime_ref_scorecard_gate_requires_authority_envelope_identity() -> None:
-    scorecard = scorecard_for(job_payload=complete_job_payload(runtime_refs=runtime_cas_refs()))
+    scorecard = scorecard_for(
+        job_payload=complete_job_payload(runtime_refs=runtime_cas_refs()),
+        quality_evidence=complete_quality_evidence(authority_envelopes=False),
+    )
 
     assert scorecard["quality_status"] == "fail"
-    assert {
-        f"{ref_key}_authority_envelope_missing"
-        for ref_key in QUALITY_REPORT_RUNTIME_REFS.values()
-    } <= blocking_codes(scorecard)
+    assert "hds_unknown_provenance" in blocking_codes(scorecard)

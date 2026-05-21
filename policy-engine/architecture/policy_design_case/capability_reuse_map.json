@@ -1,0 +1,467 @@
+{
+  "schema_version": "policyos.policy_design_case.reuse_map.v1",
+  "tool": "quality.validation.check-policy-design-case-reuse-map",
+  "generated_at": "2026-05-17T00:00:00Z",
+  "source": {
+    "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+    "sdd_section": "Capability Realization Map"
+  },
+  "summary": {
+    "target_capability_count": 27,
+    "classification_counts": {
+      "build-new": 1,
+      "consolidate-existing": 1,
+      "extend-existing": 7,
+      "wire-existing": 18
+    },
+    "missing_classification_count": 0,
+    "build_new_count": 1,
+    "sensitive_overlap_domain_count": 10
+  },
+  "entries": [
+    {
+      "target_capability_id": "runtime_assurance_case_and_substrate_quality_authority",
+      "target_capability": "Runtime assurance-case and substrate quality authority",
+      "existing_owner_or_surface": "src/polisyos/runtime/quality/assurance_case.py, authority*.py, semantic_binding.py, prompt_tool_ledger.py, performance_budget.py, human_review.py, approval.py, attestation.py, degradation.py, public_export.py, metamorphic_controls.py, phase_barriers.py, invariants.py, scorecard.py, schema_compat.py, effective_mode.py, source_truth.py, event_log.py, replay.py",
+      "sdd_status": "wire-existing / extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "The Policy Design Case profiles and extends runtime quality records; implementation must not create a parallel serious-run case object or authority ledger.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 1
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "runtime_quality"
+      ]
+    },
+    {
+      "target_capability_id": "core_governance_and_execution_profiles",
+      "target_capability": "Core governance and execution profiles",
+      "existing_owner_or_surface": "src/polisyos/core/governance/profiles.py; src/polisyos/core/contracts/control.py; src/polisyos/runtime/quality/effective_mode.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Map research/governed/production authority levels to existing validation profiles, execution profiles, and effective-mode checks instead of inventing a second profile system.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 2
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "runtime_quality",
+        "core_governance"
+      ]
+    },
+    {
+      "target_capability_id": "intent_policy_candidate_objective_and_critique_surfaces",
+      "target_capability": "Intent, policy candidate, objective, and critique surfaces",
+      "existing_owner_or_surface": "src/polisyos/scientist/policy_design/schema.py, objectives.py, critic.py, search.py, output.py; src/polisyos/ir/governance/problem_frame.py",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Add canonical intent/requester-capture case records and authority refs around existing policy-design payloads.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 3
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "capability_selection_mode_fallback_and_budget_aware_orchestration",
+      "target_capability": "Capability selection, mode, fallback, and budget-aware orchestration",
+      "existing_owner_or_surface": "src/polisyos/scientist/orchestration/engine/*; Foundry method-selection advisor; runtime quality ledgers",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Add serious-run capability ledger projections; do not build a second router until existing orchestration cannot expose the needed duties.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 4
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "runtime_quality"
+      ]
+    },
+    {
+      "target_capability_id": "concept_spine_and_multi_jurisdiction_reconciliation",
+      "target_capability": "Concept spine and multi-jurisdiction reconciliation",
+      "existing_owner_or_surface": "src/polisyos/fabric/entity_resolution/*; src/polisyos/scientist/cross_graph/*; src/polisyos/ir/linker/*, registry, world; src/polisyos/ir/analytics/cross_graph.py, normative_arbitration.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Emit a per-run concept/jurisdiction spine over existing entity-resolution, cross-graph, gatherer, and IR linking results.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 5
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "ir_analytics"
+      ]
+    },
+    {
+      "target_capability_id": "legal_authority_retrieval_and_norm_binding",
+      "target_capability": "Legal authority retrieval and norm binding",
+      "existing_owner_or_surface": "src/polisyos/lex/knowledge/*, legal_evaluation/*, normpack/*, provenance.py; Lex production data; IR loading norm packs; legal/normative analytics surfaces",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Bind Lex retrieval outputs to jurisdiction/time/context records instead of treating legal-shaped payloads as authority.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 6
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "data_forge_production_corpus_builds_and_read_snapshots",
+      "target_capability": "Data Forge production corpus builds and read snapshots",
+      "existing_owner_or_surface": "src/polisyos/data_forge/*; src/polisyos/data_forge/read_api/*; Data Forge kernel manifests, snapshots, quality gates, legal/catalog/academic/domain pipelines",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Legal, dataset, academic, and domain production evidence should bind to Data Forge snapshot and read-API contracts; runtime plans should not reimplement corpus build provenance.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 7
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "data_forge"
+      ]
+    },
+    {
+      "target_capability_id": "fabric_source_evidence_provenance_and_data_quality",
+      "target_capability": "Fabric source evidence, provenance, and data quality",
+      "existing_owner_or_surface": "src/polisyos/fabric/connectors/*, contracts/*, quality/*, federation/*, provenance, entity_resolution",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Expose source families, rights, quality, lineage, and field-level bindings as case records.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 8
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "scholar_academic_and_grey_literature_evidence",
+      "target_capability": "Scholar academic and grey-literature evidence",
+      "existing_owner_or_surface": "src/polisyos/scholar/discover/*, search/*, freshness.py, orchestrator/*, provenance.py, api.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Treat Scholar as a first-class producer for literature strands: retrieval plan, scoring, freshness, citations, conflict links, and claim support.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 9
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "scholar"
+      ]
+    },
+    {
+      "target_capability_id": "method_catalog_method_selection_and_analytical_validity",
+      "target_capability": "Method catalog, method selection, and analytical validity",
+      "existing_owner_or_surface": "src/polisyos/foundry/methods/catalog/*, methods/selection/*, methods/cost_model.py, Foundry uncertainty and welfare modules",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Use the existing catalog/advisor/cost/uncertainty stack as the method authority surface.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 10
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "ir_analytical_evidence_and_proof_surface",
+      "target_capability": "IR analytical evidence and proof surface",
+      "existing_owner_or_surface": "src/polisyos/ir/analytics/falsification_report.py, evidence_bundle.py, transportability.py, privacy_transportability.py, partial_identification.py, recoverability.py, path_specific_identification.py, causal_ensemble.py, distributional.py, fairness*.py, mobility.py, welfare.py, strategic.py, negative_certificate.py, dual_certificate.py, certified_tightening.py, proof_composability.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Severe testing, identification, transportability, distributional/fairness, strategic-behavior, and certificate/proof records should project over IR analytics before new analytical proof surfaces are built.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 11
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "ir_analytics"
+      ]
+    },
+    {
+      "target_capability_id": "foundry_method_consensus_equivalence_and_independence_collapse",
+      "target_capability": "Foundry method consensus, equivalence, and independence collapse",
+      "existing_owner_or_surface": "src/polisyos/foundry/methods/consensus.py; src/polisyos/foundry/methods/components/consensus.py; src/polisyos/foundry/methods/equivalence/*",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Evidence convergence and effective independent evidence count should reuse method consensus/equivalence machinery, then add lineage and assumption collapse where missing.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 12
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "foundry_consensus_equivalence"
+      ]
+    },
+    {
+      "target_capability_id": "evidence_portfolio_multiverse_sensitivity_and_specification_curves",
+      "target_capability": "Evidence portfolio, multiverse, sensitivity, and specification curves",
+      "existing_owner_or_surface": "src/polisyos/scientist/methods/doe/*; src/polisyos/scientist/methods/discovery/*; Foundry sensitivity catalog; IR causal ensemble and falsification surfaces",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "evidence_portfolio_and_synthesis.v1 is primarily a case-record projection over DOE, discovery, Foundry sensitivity, IR ensemble, and falsification outputs.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 13
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "scientist_doe_discovery",
+        "ir_analytics"
+      ]
+    },
+    {
+      "target_capability_id": "evidence_synthesis_stability_and_utility_judging",
+      "target_capability": "Evidence synthesis, stability, and utility judging",
+      "existing_owner_or_surface": "src/polisyos/scientist/methods/discovery/aggregator.py, stability.py, utility_judge.py, priors.py, prior_miner.py, active.py; backtesting trust scorer",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Add portfolio-level independence, effective-count, synthesis-rule, and certainty projections over existing aggregation and stability outputs.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 14
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "scientist_doe_discovery"
+      ]
+    },
+    {
+      "target_capability_id": "pre_publication_adversarial_challenge",
+      "target_capability": "Pre-publication adversarial challenge",
+      "existing_owner_or_surface": "src/polisyos/scientist/policy_design/adversary.py, critic.py, objectives.py, search.py; src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Persist adversarial scenario bundles and challenge-suite outcomes as assurance rebuttal/counter-evidence nodes.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 15
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "bounded_explanation_reliability_and_warrant_diagnostics",
+      "target_capability": "Bounded explanation reliability and warrant diagnostics",
+      "existing_owner_or_surface": "src/polisyos/berl/*; ExplanationBundle, validation thresholds, empirical reliability bounds, local infidelity diagnostics",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Assurance warrants and reviewer-facing explanations should include BERL reliability bounds where explanation trust influences claim acceptance or human oversight.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 16
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "berl"
+      ]
+    },
+    {
+      "target_capability_id": "human_oversight_and_value_of_information_escalation",
+      "target_capability": "Human oversight and value-of-information escalation",
+      "existing_owner_or_surface": "src/polisyos/scientist/governance/human_review/*",
+      "sdd_status": "extend-existing",
+      "classification": "extend-existing",
+      "design_implication": "Add review-effectiveness telemetry, exposure-order controls, dissent/change metrics, and rubber-stamp risk over existing review packets and decisions.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 17
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "calibration_ex_post_validation_and_track_record",
+      "target_capability": "Calibration, ex-post validation, and track record",
+      "existing_owner_or_surface": "src/polisyos/calibration/*; src/polisyos/scientist/governance/calibration*.py; src/polisyos/scientist/methods/backtesting/*",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Project calibration leaderboard, validation bundles, backtest matrix, and diagnostics into case-level calibration and ex-post ledgers.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 18
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "case_lifecycle_reissue_supersession_withdrawal_and_recall",
+      "target_capability": "Case lifecycle, reissue, supersession, withdrawal, and recall",
+      "existing_owner_or_surface": "src/polisyos/scientist/governance/continuous/*; claim lifecycle evidence modules",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Use existing monitors, incident reports, reissue packets, withdrawal records, and validity reports as lifecycle authority.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 19
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "drift_degradation_readiness_incidents_and_root_cause_monitoring",
+      "target_capability": "Drift, degradation, readiness, incidents, and root-cause monitoring",
+      "existing_owner_or_surface": "src/polisyos/ddm/*; DriftAndDegradationMonitor, shift/degradation events, incident payloads, model-registry readiness records, registry gate decisions",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Post-market monitoring, shift/degradation detection, root-cause evidence, and registry readiness should project over DDM. ddm_15_7 is a compatibility shim, not the canonical owner.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 20
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "ddm"
+      ]
+    },
+    {
+      "target_capability_id": "learning_without_cross_run_contamination",
+      "target_capability": "Learning without cross-run contamination",
+      "existing_owner_or_surface": "src/polisyos/scientist/orchestration/memory/*; search lessons/failure-card registry",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Keep learning warning-only unless case records prove scope, applicability, revocation, and contamination checks.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 21
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "objectives_welfare_social_weights_uncertainty_and_distributional_effects",
+      "target_capability": "Objectives, welfare, social weights, uncertainty, and distributional effects",
+      "existing_owner_or_surface": "src/polisyos/foundry/welfare/*; src/polisyos/foundry/uncertainty/*; src/polisyos/scientist/policy_design/objectives.py; IR welfare/distributional analytics",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Reuse existing welfare and uncertainty outputs as option/tradeoff records and distributional strands.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 22
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "agent_based_simulation_and_synthetic_worlds",
+      "target_capability": "Agent-based simulation and synthetic worlds",
+      "existing_owner_or_surface": "src/polisyos/foundry/agent_sim/*; src/polisyos/foundry/agent_sim/world/*; src/polisyos/synthetic_world compatibility facade",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Make agent simulation a distinct evidence-line family with different failure modes from econometrics and legal/literature evidence.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 23
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "conflict_checking_and_social_weight_compatibility_roots",
+      "target_capability": "Conflict checking and social-weight compatibility roots",
+      "existing_owner_or_surface": "src/polisyos/foundry/conflict_checker and social_weights compatibility shims, backed by foundry.validation.conflict_checker and foundry.welfare.social_weights",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "Treat root packages as public shims; implementation plans should target canonical backing modules.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 24
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": []
+    },
+    {
+      "target_capability_id": "run_cost_proportionality_and_evidence_depth_budget",
+      "target_capability": "Run-cost proportionality and evidence-depth budget",
+      "existing_owner_or_surface": "src/polisyos/runtime/quality/performance_budget.py; src/polisyos/foundry/methods/cost_model.py, methods/selection/advisor.py, src/polisyos/scientist/orchestration/engine/budget*.py, DOE/cross-graph/search budgets",
+      "sdd_status": "consolidate-existing",
+      "classification": "consolidate-existing",
+      "design_implication": "Build a unified case-level proportionality ledger over runtime performance budgets and existing cost/budget records rather than starting from an empty cost model.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 25
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "runtime_quality",
+        "scientist_doe_discovery"
+      ]
+    },
+    {
+      "target_capability_id": "external_audit_prov_slsa_export_standalone_verification_and_safe_archive",
+      "target_capability": "External audit, PROV/SLSA export, standalone verification, and safe archive",
+      "existing_owner_or_surface": "src/polisyos/core/audit/prov_json.py, _assembler_slsa.py, verifier.py, standalone_verifier_template.py, safe_tar.py",
+      "sdd_status": "wire-existing",
+      "classification": "wire-existing",
+      "design_implication": "External audit pass-rate and replayability should use existing portable audit archives, PROV mapping, SLSA attestation, and standalone verifier machinery.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 26
+      },
+      "rejected_reuse_evidence": [],
+      "sensitive_overlap_domains": [
+        "core_audit"
+      ]
+    },
+    {
+      "target_capability_id": "formal_substrate_invariant_specification",
+      "target_capability": "Formal substrate invariant specification",
+      "existing_owner_or_surface": "Honest diagnostics substrate tests and validation tools; no TLA+/PlusCal owner yet",
+      "sdd_status": "build-new",
+      "classification": "build-new",
+      "design_implication": "Add lightweight model specs for a small set of closeout-critical state-machine invariants.",
+      "source": {
+        "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+        "sdd_section": "Capability Realization Map",
+        "sdd_row_number": 27
+      },
+      "rejected_reuse_evidence": [
+        {
+          "rejected_owner_or_surface": "Honest diagnostics substrate tests and validation tools",
+          "finding": "Existing substrate tests and validation tools prove runtime behavior, but no existing owner emits lightweight formal/model specs for closeout-critical state-machine invariants.",
+          "decision_ref": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md#capability-realization-map"
+        }
+      ],
+      "sensitive_overlap_domains": [
+        "runtime_quality"
+      ]
+    }
+  ]
+}

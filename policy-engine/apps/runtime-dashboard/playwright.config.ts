@@ -68,9 +68,12 @@ export default defineConfig({
       cwd: policyEngineRoot,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      env: {
+        POLISYOS_LLM_SIMULATION_MODE: "1",
+      },
     },
     {
-      command: "corepack pnpm run dev -- --host 127.0.0.1",
+      command: "corepack pnpm exec vite --host 127.0.0.1",
       url: "http://127.0.0.1:5173",
       cwd: dashboardRoot,
       reuseExistingServer: !process.env.CI,

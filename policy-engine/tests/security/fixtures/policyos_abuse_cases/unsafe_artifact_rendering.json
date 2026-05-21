@@ -1,0 +1,9 @@
+{
+  "case_id": "unsafe_artifact_rendering",
+  "surface": "artifact",
+  "expected_code": "unsafe_artifact_rendering_detected",
+  "payload": {
+    "artifact_id": "artifact-xss",
+    "rendered_content": "<img src=x onerror=\"window.__POLICYOS_XSS__=true\"><script>alert('x')</script>"
+  }
+}

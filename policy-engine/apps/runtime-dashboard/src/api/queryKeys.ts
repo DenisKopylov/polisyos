@@ -197,6 +197,8 @@ export const queryKeys = {
     ] as const,
 
   // Control-plane keys
+  controlJobStatus: (jobId: string) =>
+    ["control", "jobs", jobId, "status"] as const,
   connectors: () => ["control", "connectors"] as const,
   cacheStatus: () => ["control", "cache"] as const,
   sourceProfiles: () => ["control", "profiles"] as const,

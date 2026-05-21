@@ -40,6 +40,7 @@ class IndexedRunRecord:
     experiment_state_ref: ArtifactRef | None
     decision_packet_ref: ArtifactRef | None
     manifest_errors: tuple[dict[str, Any], ...]
+    sort_mtime_ns: int = 0
 
 
 @dataclass(frozen=True)
@@ -374,6 +375,7 @@ def _core_result_to_indexed(
         experiment_state_ref=result.experiment_state_ref,
         decision_packet_ref=result.decision_packet_ref,
         manifest_errors=result.errors,
+        sort_mtime_ns=_trace_mtime_ns(result.trace_path),
     )
 
 
@@ -407,6 +409,13 @@ def _fingerprint_run_dir(run_dir: Path) -> _RunDirFingerprint | None:
     )
 
 
+def _trace_mtime_ns(path: Path) -> int:
+    try:
+        return int(path.stat().st_mtime_ns)
+    except OSError:
+        return 0
+
+
 def _as_utc(value: datetime | None) -> datetime | None:
     if value is None:
         return None
@@ -417,9 +426,13 @@ def _as_utc(value: datetime | None) -> datetime | None:
 
 def _run_sort_key(record: IndexedRunRecord) -> tuple[float, str]:
     started = _as_utc(record.summary.started_at)
-    if started is None:
+    started_ns = (
+        int(started.timestamp() * 1_000_000_000) if started is not None else 0
+    )
+    freshness_ns = max(int(record.sort_mtime_ns), started_ns)
+    if freshness_ns <= 0:
         return (float("inf"), record.run_id)
-    return (-started.timestamp(), record.run_id)
+    return (-float(freshness_ns), record.run_id)
 
 
 def _register_artifact_tenants(

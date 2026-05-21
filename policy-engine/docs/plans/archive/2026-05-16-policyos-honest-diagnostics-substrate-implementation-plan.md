@@ -806,22 +806,22 @@ Parallel phases in this wave:
 
 ### Phase 1.1 - Evidence Authority Envelope
 
-- [ ] Implement `src/polisyos/runtime/quality/authority.py`.
-- [ ] Add Pydantic models for producer identity, governance metadata, same-input closure, and evidence authority envelope.
-- [ ] Add serializer/deserializer helpers that reject unknown authority roles, unknown provenance kinds, missing producer identity, missing run/job/tenant/trace ids, and missing schema identity.
-- [ ] Add helpers:
+- [x] Implement `src/polisyos/runtime/quality/authority.py`.
+- [x] Add Pydantic models for producer identity, governance metadata, same-input closure, and evidence authority envelope.
+- [x] Add serializer/deserializer helpers that reject unknown authority roles, unknown provenance kinds, missing producer identity, missing run/job/tenant/trace ids, and missing schema identity.
+- [x] Add helpers:
   - `assert_authority_bearing(envelope)`
   - `assert_runtime_emitted(envelope)`
   - `assert_same_input_closure(envelopes)`
   - `classify_authority_role(envelope)`
-- [ ] Add JSON schema generation under `schemas/runtime_quality/evidence_authority_envelope_v1.schema.json`.
-- [ ] Add tests for valid envelopes, missing required fields, unknown provenance, projection used as authority, fixture used in serious profile, and runtime ref mismatch.
+- [x] Add JSON schema generation under `schemas/runtime_quality/evidence_authority_envelope_v1.schema.json`.
+- [x] Add tests for valid envelopes, missing required fields, unknown provenance, projection used as authority, fixture used in serious profile, and runtime ref mismatch.
 
 ### Phase 1.2 - Diagnostic Event Envelope And Event Type Registry
 
-- [ ] Implement `src/polisyos/runtime/quality/diagnostic_events.py`.
-- [ ] Create `architecture/production_quality/diagnostic_event_types.toml`.
-- [ ] Model event fields required by ADR-0154:
+- [x] Implement `src/polisyos/runtime/quality/diagnostic_events.py`.
+- [x] Create `architecture/production_quality/diagnostic_event_types.toml`.
+- [x] Model event fields required by ADR-0154:
   - `event_id`
   - `event_source`
   - `event_type`
@@ -849,33 +849,33 @@ Parallel phases in this wave:
   - `redaction_policy_ref`
   - `duplicate_of`
   - `dedupe_key`
-- [ ] Register event types for producer execution, CAS write, ref publication, phase transition, blocker, fallback/degradation, schema migration, scorecard gate read, readiness closeout, approval decision, dashboard projection, public artifact publication, replay result, and reconciliation result.
-- [ ] Add duplicate-event handling semantics:
+- [x] Register event types for producer execution, CAS write, ref publication, phase transition, blocker, fallback/degradation, schema migration, scorecard gate read, readiness closeout, approval decision, dashboard projection, public artifact publication, replay result, and reconciliation result.
+- [x] Add duplicate-event handling semantics:
   - same event id and same payload/artifact refs is idempotent;
   - same event id and different payload/artifact refs is `authority_event_collision`;
   - same dedupe key and different event id is a retry/replay candidate that must be reconciled.
-- [ ] Add a no-sampling invariant for serious-run authority events.
-- [ ] Add JSON schema under `schemas/runtime_quality/diagnostic_event_v1.schema.json`.
-- [ ] Add tests for duplicate events, missing phase, mismatched output refs, stale timestamps, event without producer, sampled-away serious event, and bundle event pretending to be runtime authority.
+- [x] Add a no-sampling invariant for serious-run authority events.
+- [x] Add JSON schema under `schemas/runtime_quality/diagnostic_event_v1.schema.json`.
+- [x] Add tests for duplicate events, missing phase, mismatched output refs, stale timestamps, event without producer, sampled-away serious event, and bundle event pretending to be runtime authority.
 
 ### Phase 1.3 - Production Invariant Registry
 
-- [ ] Implement `src/polisyos/runtime/quality/invariants.py`.
-- [ ] Load `architecture/production_quality/invariant_registry.toml`.
-- [ ] Validate each invariant row has exactly one `final_owner`.
-- [ ] Validate every `scorecard_gates`, `readiness_checks`, and `required_runtime_events` value maps to a known reader/enforcer.
-- [ ] Add registry diff tooling:
+- [x] Implement `src/polisyos/runtime/quality/invariants.py`.
+- [x] Load `architecture/production_quality/invariant_registry.toml`.
+- [x] Validate each invariant row has exactly one `final_owner`.
+- [x] Validate every `scorecard_gates`, `readiness_checks`, and `required_runtime_events` value maps to a known reader/enforcer.
+- [x] Add registry diff tooling:
 
 ```bash
 uv run python tools/quality/validation/check_production_invariant_registry.py --repo-root .
 ```
 
-- [ ] Add repo-quality tests rejecting missing owner, multi-owner final authority, missing override policy, missing projection policy, missing failure code, and unreferenced Minimum Closeout Gate rows.
+- [x] Add repo-quality tests rejecting missing owner, multi-owner final authority, missing override policy, missing projection policy, missing failure code, and unreferenced Minimum Closeout Gate rows.
 
 ### Phase 1.4 - Effective Mode Ledger
 
-- [ ] Implement `src/polisyos/runtime/quality/effective_mode.py`.
-- [ ] Ledger must capture requested and effective values for:
+- [x] Implement `src/polisyos/runtime/quality/effective_mode.py`.
+- [x] Ledger must capture requested and effective values for:
   - `execution_profile`
   - `canary_kind`
   - `matrix_lane_id`
@@ -891,16 +891,16 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
   - `evidence_overlay_mode`
   - `signed_exception_ref`
   - `quarantine_status`
-- [ ] Add policy helpers:
+- [x] Add policy helpers:
   - `assert_serious_mode_allowed(ledger)`
   - `explain_mode_mismatch(ledger)`
   - `mode_policy_failure_code(ledger)`
-- [ ] Add tests proving dev, smoke, fixture, simulated provider, and warn-accepted behavior cannot satisfy serious closeout unless the lane is explicitly non-production and non-closeout.
+- [x] Add tests proving dev, smoke, fixture, simulated provider, and warn-accepted behavior cannot satisfy serious closeout unless the lane is explicitly non-production and non-closeout.
 
 ### Phase 1.5 - Fallback And Degradation Ledger
 
-- [ ] Implement `src/polisyos/runtime/quality/degradation.py`.
-- [ ] Ledger records must include:
+- [x] Implement `src/polisyos/runtime/quality/degradation.py`.
+- [x] Ledger records must include:
   - `component`
   - `phase`
   - `trigger`
@@ -913,8 +913,8 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
   - `downstream_impact`
   - `provenance_refs`
   - `typed_blocker`
-- [ ] Add a fail-closed policy: any fallback-produced authority-bearing evidence is blocked in serious closeout unless an allowed-profile policy or signed non-production-lowering exception exists.
-- [ ] Add tests covering fallback defaults, optional report generation, generated substitutes, parser healing, provider quarantine, JAX-missing materialization refs, local canary fixture payloads, deterministic overlays, and dashboard projections.
+- [x] Add a fail-closed policy: any fallback-produced authority-bearing evidence is blocked in serious closeout unless an allowed-profile policy or signed non-production-lowering exception exists.
+- [x] Add tests covering fallback defaults, optional report generation, generated substitutes, parser healing, provider quarantine, JAX-missing materialization refs, local canary fixture payloads, deterministic overlays, and dashboard projections.
 
 ### Phase 1.6 - Schema Compatibility And Legacy Quarantine
 
@@ -932,17 +932,17 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
 
 ### Phase 1.6A - Legacy Evidence Inventory
 
-- [ ] Implement `tools/quality/validation/inventory_legacy_quality_evidence.py`.
-- [ ] Inventory existing serious and deterministic bundle roots under `_build/`, `.polisyos/`, and documented production-quality evidence locations without reading secrets or hidden answers into source-tracked files.
-- [ ] Classify every discovered report or bundle file as:
+- [x] Implement `tools/quality/validation/inventory_legacy_quality_evidence.py`.
+- [x] Inventory existing serious and deterministic bundle roots under `_build/`, `.polisyos/`, and documented production-quality evidence locations without reading secrets or hidden answers into source-tracked files.
+- [x] Classify every discovered report or bundle file as:
   - `legacy_supported`;
   - `legacy_quarantined`;
   - `legacy_rejected`;
   - `unknown_schema_blocked`;
   - `non_authority_debug_only`.
-- [ ] Emit generated inventory to `_build/honest-diagnostics/legacy/legacy_inventory.json` and `_build/honest-diagnostics/legacy/legacy_inventory.md`.
-- [ ] Add source-tracked classification rules in `architecture/production_quality/legacy_evidence_classification.toml`.
-- [ ] Add tests proving unknown schema, missing provenance, bundle-local runtime-looking ref, payload mismatch, and redaction-loss files are classified as blocked or quarantined, not supported.
+- [x] Emit generated inventory to `_build/honest-diagnostics/legacy/legacy_inventory.json` and `_build/honest-diagnostics/legacy/legacy_inventory.md`.
+- [x] Add source-tracked classification rules in `architecture/production_quality/legacy_evidence_classification.toml`.
+- [x] Add tests proving unknown schema, missing provenance, bundle-local runtime-looking ref, payload mismatch, and redaction-loss files are classified as blocked or quarantined, not supported.
 
 ### Phase 1.7 - Source-Of-Truth Lattice And Adapter Preservation Contracts
 
@@ -970,9 +970,9 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
 
 ### Phase 1.8 - Production Invariant Proof Harness And Fitness Registry
 
-- [ ] Implement `tools/quality/validation/check_honest_diagnostics_proof_harness.py`.
-- [ ] Create `architecture/production_quality/diagnostic_fitness_functions.toml`.
-- [ ] The proof harness must load:
+- [x] Implement `tools/quality/validation/check_honest_diagnostics_proof_harness.py`.
+- [x] Create `architecture/production_quality/diagnostic_fitness_functions.toml`.
+- [x] The proof harness must load:
   - `architecture/production_quality/invariant_registry.toml`;
   - `architecture/production_quality/diagnostic_event_types.toml`;
   - `architecture/production_quality/source_truth_lattice.toml`;
@@ -980,9 +980,9 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
   - `architecture/production_quality/mode_and_fallback_policy.toml`;
   - static inventory from `architecture/baselines/production_quality/evidence_inventory.json`;
   - test manifests discovered from `tests/**`.
-- [ ] For every Minimum Closeout Gate and PQL invariant, prove there is a mapped final owner, producer owner, runtime event, CAS artifact kind, ref key, bundle packaging file, scorecard gate, readiness check, approval/public policy, dashboard projection policy, negative test, and next diagnostic command.
-- [ ] Fail with `hds_invariant_proof_missing` when any proof exists only as prose, fixture-only test, static inventory, or canary-generated file.
-- [ ] Add repo-quality tests for missing negative test, missing runtime event, missing readiness check, static-only proof, and orphan scorecard gate.
+- [x] For every Minimum Closeout Gate and PQL invariant, prove there is a mapped final owner, producer owner, runtime event, CAS artifact kind, ref key, bundle packaging file, scorecard gate, readiness check, approval/public policy, dashboard projection policy, negative test, and next diagnostic command.
+- [x] Fail with `hds_invariant_proof_missing` when any proof exists only as prose, fixture-only test, static inventory, or canary-generated file.
+- [x] Add repo-quality tests for missing negative test, missing runtime event, missing readiness check, static-only proof, and orphan scorecard gate.
 
 ### Phase 1.9 - Attestation Contract And Trust Boundary Classification
 
@@ -994,13 +994,13 @@ uv run python tools/quality/validation/check_production_invariant_registry.py --
 
 ### Phase 1.10 - Anti-Drift Detector And CI Tier Policy
 
-- [ ] Implement `tools/quality/validation/check_substrate_drift.py`.
-- [ ] Create `architecture/production_quality/ci_tiers.toml` with test tier declarations for HDS tests.
-- [ ] Add repo-quality tests proving substrate tests declare exactly one tier from `fast-pr`, `integration-pr`, `nightly`, or `weekly-closeout`.
-- [ ] Add anti-drift checks for non-strict xfail, permanent substrate skip, unregistered strict xfail increase, fallback allowlist growth, fixture/mock/simulated serious consumption, warning closeout acceptance, ADR softening, and Non-Goal violations.
-- [ ] Add decision-log integration: a strict xfail or fallback exception can be temporary only when the decision log names owner, revisit wave, and affected invariant.
-- [ ] Add tests proving the detector fails when a new `allow_*_fallback=True` appears without invariant permission and decision-log entry.
-- [ ] Add tests proving the detector fails when a new slow test lacks tier declaration.
+- [x] Implement `tools/quality/validation/check_substrate_drift.py`.
+- [x] Create `architecture/production_quality/ci_tiers.toml` with test tier declarations for HDS tests.
+- [x] Add repo-quality tests proving substrate tests declare exactly one tier from `fast-pr`, `integration-pr`, `nightly`, or `weekly-closeout`.
+- [x] Add anti-drift checks for non-strict xfail, permanent substrate skip, unregistered strict xfail increase, fallback allowlist growth, fixture/mock/simulated serious consumption, warning closeout acceptance, ADR softening, and Non-Goal violations.
+- [x] Add decision-log integration: a strict xfail or fallback exception can be temporary only when the decision log names owner, revisit wave, and affected invariant.
+- [x] Add tests proving the detector fails when a new `allow_*_fallback=True` appears without invariant permission and decision-log entry.
+- [x] Add tests proving the detector fails when a new slow test lacks tier declaration.
 
 ### Wave 1 Exit Fence
 
@@ -1020,7 +1020,7 @@ Commands:
 ```bash
 uv run pytest tests/unit/runtime/quality -q
 uv run pytest tests/repo_quality/tools/test_production_invariant_registry.py -q
-uv run pytest tests/repo_quality/tools/test_legacy_quality_evidence_inventory.py tests/repo_quality/tools/test_substrate_drift.py -q
+uv run pytest tests/repo_quality/tools/test_legacy_quality_evidence_inventory.py tests/repo_quality/tools/test_honest_diagnostics_substrate_drift.py -q
 uv run python tools/quality/validation/check_production_invariant_registry.py --repo-root .
 uv run python tools/quality/validation/check_honest_diagnostics_proof_harness.py --repo-root .
 uv run python tools/quality/validation/check_substrate_drift.py --repo-root .
@@ -1035,28 +1035,28 @@ Parallel phases in this wave:
 
 ### Phase 2.1 - Runtime CAS Write Authority
 
-- [ ] Extend `src/polisyos/runtime/http/services/control/artifacts.py` with an authority-aware write helper.
-- [ ] The helper must accept `ArtifactWriteOptions` plus evidence envelope fields and return:
+- [x] Extend `src/polisyos/runtime/http/services/control/artifacts.py` with an authority-aware write helper.
+- [x] The helper must accept `ArtifactWriteOptions` plus evidence envelope fields and return:
   - `cas_ref`
   - `payload_sha256`
   - `manifest_ref`
   - `authority_envelope_ref`
   - `diagnostic_event_ref`
-- [ ] Ensure FileSystemCAS manifests include producer, governance, inputs, same-input closure summary, tenant/cell context, schema identity, and payload hash.
-- [ ] Add tests in `tests/unit/core/artifacts/test_artifact_id_serialization_contract.py` proving manifests expose `producer`, `governance`, `inputs`, and authority envelope linkage for quality artifacts.
+- [x] Ensure FileSystemCAS manifests include producer, governance, inputs, same-input closure summary, tenant/cell context, schema identity, and payload hash.
+- [x] Add tests in `tests/unit/core/artifacts/test_artifact_id_serialization_contract.py` proving manifests expose `producer`, `governance`, `inputs`, and authority envelope linkage for quality artifacts.
 
 ### Phase 2.2 - Runtime Event Log Integration
 
-- [ ] Add runtime diagnostic event persistence as durable append-only authority records.
-- [ ] Store event payloads inline only when small and non-sensitive; authority-bearing, redacted, and large payloads must go through CAS and be referenced by `payload_ref`.
-- [ ] Propagate `trace_id`, `span_id`, and `parent_span_id` through runtime, CAS writes, progress projections, canary assembly, scorecard gates, readiness closeout, approval packets, dashboard projections, and public artifact publication.
-- [ ] Enforce no sampling for serious-run authority events.
-- [ ] Wire event emission from:
+- [x] Add runtime diagnostic event persistence as durable append-only authority records.
+- [x] Store event payloads inline only when small and non-sensitive; authority-bearing, redacted, and large payloads must go through CAS and be referenced by `payload_ref`.
+- [x] Propagate `trace_id`, `span_id`, and `parent_span_id` through runtime, CAS writes, progress projections, canary assembly, scorecard gates, readiness closeout, approval packets, dashboard projections, and public artifact publication.
+- [x] Enforce no sampling for serious-run authority events.
+- [x] Wire event emission from:
   - `src/polisyos/runtime/http/services/control/nl_pipeline.py`
   - `src/polisyos/runtime/http/services/control/run_lifecycle.py`
   - `src/polisyos/runtime/http/services/control_worker.py`
-- [ ] Ensure progress details reference event ids but do not become authority.
-- [ ] Add reconciliation failure codes:
+- [x] Ensure progress details reference event ids but do not become authority.
+- [x] Add reconciliation failure codes:
   - `authority_cas_missing`
   - `authority_orphan_cas`
   - `authority_payload_mismatch`
@@ -1064,13 +1064,13 @@ Parallel phases in this wave:
   - `authority_event_collision`
   - `authority_replay_drift_unexplained`
   - `authority_tenant_conflict`
-- [ ] Add tests proving a CAS artifact without event and an event without CAS artifact both fail serious authority checks.
-- [ ] Add tests proving corrective actions emit supersede/withdraw/reconcile/quarantine events instead of mutating historical event meaning.
+- [x] Add tests proving a CAS artifact without event and an event without CAS artifact both fail serious authority checks.
+- [x] Add tests proving corrective actions emit supersede/withdraw/reconcile/quarantine events instead of mutating historical event meaning.
 
 ### Phase 2.3 - Serious Run State Machine
 
-- [ ] Implement `src/polisyos/runtime/quality/run_state.py`.
-- [ ] Add states:
+- [x] Implement `src/polisyos/runtime/quality/run_state.py`.
+- [x] Add states:
   - `initialized`
   - `intent_bound`
   - `evidence_emitting`
@@ -1081,9 +1081,9 @@ Parallel phases in this wave:
   - `approved`
   - `rejected`
   - `published_blocked`
-- [ ] Add transition guards matching ADR-0148.
-- [ ] Do not add `approval_ready` or `published` as authority states. Represent those only as projections over verified readiness and publication policy.
-- [ ] Add serious profile phase barriers:
+- [x] Add transition guards matching ADR-0148.
+- [x] Do not add `approval_ready` or `published` as authority states. Represent those only as projections over verified readiness and publication policy.
+- [x] Add serious profile phase barriers:
   - no scorecard before policy intent canonicalization binds tenant, requested profile, run id, time context, and same-input closure;
   - no legal compatibility claim before Lex retrieval, candidate norms, selected/rejected norms, legal snapshot, jurisdiction/time filters, and conflict checks pass or block;
   - no data-backed claim before Fabric source selection, candidate/selected/rejected datasets, data quality, lineage, freshness, and semantic binding pass or block;
@@ -1094,12 +1094,12 @@ Parallel phases in this wave:
   - no approval readiness before scorecard identity is verified;
   - no public/exportable artifact before final compiler gates pass;
   - no canary bundle closeout authority if runtime state is `blocked` or failed.
-- [ ] Persist phase barrier records through `src/polisyos/runtime/quality/phase_barriers.py`.
-- [ ] Add tests for invalid transitions, skipped barrier, missing barrier record, and too-early final artifact compilation.
+- [x] Persist phase barrier records through `src/polisyos/runtime/quality/phase_barriers.py`.
+- [x] Add tests for invalid transitions, skipped barrier, missing barrier record, and too-early final artifact compilation.
 
 ### Phase 2.4 - Wire Runtime Quality Producers
 
-- [ ] Replace fixture-style quality report injection in `src/polisyos/runtime/http/services/control/nl_pipeline.py` with authority-aware runtime writes for:
+- [x] Replace fixture-style quality report injection in `src/polisyos/runtime/http/services/control/nl_pipeline.py` with authority-aware runtime writes for:
   - normative applicability report
   - Fabric retrieval trace
   - Foundry method report
@@ -1113,14 +1113,14 @@ Parallel phases in this wave:
   - human review calibration report
   - final decision quality report
   - provider/model quality ledger
-- [ ] Store refs under job/run progress details and `runtime_quality_evidence`, but mark progress as projection.
-- [ ] Add tests in `tests/unit/runtime/http/test_nl_pipeline_materialization.py` proving serious `research`, `governed`, and `production` runs emit persisted runtime refs for Lex, Fabric, Foundry, grounding, and conflict.
-- [ ] Keep tests fail-closed when any required runtime ref is missing.
+- [x] Store refs under job/run progress details and `runtime_quality_evidence`, but mark progress as projection.
+- [x] Add tests in `tests/unit/runtime/http/test_nl_pipeline_materialization.py` proving serious `research`, `governed`, and `production` runs emit persisted runtime refs for Lex, Fabric, Foundry, grounding, and conflict.
+- [x] Keep tests fail-closed when any required runtime ref is missing.
 
 ### Phase 2.5 - Skip And Blocker Semantics
 
-- [ ] Add a typed skip/blocker contract for Scientist and other optional analytic nodes.
-- [ ] Every skipped node must persist:
+- [x] Add a typed skip/blocker contract for Scientist and other optional analytic nodes.
+- [x] Every skipped node must persist:
   - reason
   - missing input
   - owner
@@ -1131,47 +1131,47 @@ Parallel phases in this wave:
   - scorecard blocking policy
   - approval blocking policy
   - public export blocking policy
-- [ ] Add tests proving skipped causal, transportability, normative arbitration, governance, evaluator, or decision packet nodes cannot be summarized as completed without blocker semantics.
+- [x] Add tests proving skipped causal, transportability, normative arbitration, governance, evaluator, or decision packet nodes cannot be summarized as completed without blocker semantics.
 
 ### Phase 2.6 - Prompt, Tool, And Parser Authority Ledger
 
-- [ ] Implement `src/polisyos/runtime/quality/prompt_tool_ledger.py`.
-- [ ] Persist prompt/template/version/fingerprint, rendered input refs, model/provider config, tool allowlist, tool schema, call refs, output refs, parser contract, validation refs, repair/healing decisions, and authority handoff refs.
-- [ ] Emit ledger refs for every model-assisted step that influences evidence, claims, scorecard, or approval.
-- [ ] Add tests proving provider ledger presence alone cannot satisfy prompt/tool/parser authority.
+- [x] Implement `src/polisyos/runtime/quality/prompt_tool_ledger.py`.
+- [x] Persist prompt/template/version/fingerprint, rendered input refs, model/provider config, tool allowlist, tool schema, call refs, output refs, parser contract, validation refs, repair/healing decisions, and authority handoff refs.
+- [x] Emit ledger refs for every model-assisted step that influences evidence, claims, scorecard, or approval.
+- [x] Add tests proving provider ledger presence alone cannot satisfy prompt/tool/parser authority.
 
 ### Phase 2.7 - Continuous Governance Lifecycle Authority
 
-- [ ] Wire runtime-owned continuous governance lifecycle evidence for stale, reissue, supersede, and withdraw decisions.
-- [ ] Modify `src/polisyos/scientist/governance/continuous/monitors.py` and `src/polisyos/scientist/governance/continuous/reissue.py` so lifecycle decisions emit diagnostic events, CAS artifacts, authority envelopes, schema compatibility records, effective mode refs, and fallback/degradation refs.
-- [ ] Add runtime quality refs for:
+- [x] Wire runtime-owned continuous governance lifecycle evidence for stale, reissue, supersede, and withdraw decisions.
+- [x] Modify `src/polisyos/scientist/governance/continuous/monitors.py` and `src/polisyos/scientist/governance/continuous/reissue.py` so lifecycle decisions emit diagnostic events, CAS artifacts, authority envelopes, schema compatibility records, effective mode refs, and fallback/degradation refs.
+- [x] Add runtime quality refs for:
   - `continuous_governance_stale_report_ref`
   - `continuous_governance_reissue_report_ref`
   - `continuous_governance_supersede_report_ref`
   - `continuous_governance_withdraw_report_ref`
-- [ ] Add scorecard/readiness invariant rows for continuous governance lifecycle evidence.
-- [ ] Add tests proving code/test presence alone cannot satisfy PQL-014 and that lifecycle evidence must be present in serious bundles when published decision lifecycle is in scope.
+- [x] Add scorecard/readiness invariant rows for continuous governance lifecycle evidence.
+- [x] Add tests proving code/test presence alone cannot satisfy PQL-014 and that lifecycle evidence must be present in serious bundles when published decision lifecycle is in scope.
 
 ### Phase 2.8 - Runtime Source-Of-Truth And Adapter Preservation Enforcement
 
-- [ ] Enforce `src/polisyos/runtime/quality/source_truth.py` at runtime adapter boundaries.
-- [ ] Replace authority-critical recursive payload spelunking with typed envelope reads in runtime refs, final claims, materialization details, runtime quality evidence, scorecard inputs, approval state, and closeout reports.
-- [ ] Add adapter preservation checks before writing progress, bundle inputs, scorecard inputs, API response models, dashboard projections, and public exports.
-- [ ] Emit losing-authority conflict records when a lower-authority surface disagrees with runtime CAS/event authority.
-- [ ] Add tests proving runtime -> progress -> bundle -> scorecard -> readiness cannot change claim ids, source families, method family, norm refs, approval state, or scorecard identity without a typed conflict blocker.
+- [x] Enforce `src/polisyos/runtime/quality/source_truth.py` at runtime adapter boundaries.
+- [x] Replace authority-critical recursive payload spelunking with typed envelope reads in runtime refs, final claims, materialization details, runtime quality evidence, scorecard inputs, approval state, and closeout reports.
+- [x] Add adapter preservation checks before writing progress, bundle inputs, scorecard inputs, API response models, dashboard projections, and public exports.
+- [x] Emit losing-authority conflict records when a lower-authority surface disagrees with runtime CAS/event authority.
+- [x] Add tests proving runtime -> progress -> bundle -> scorecard -> readiness cannot change claim ids, source families, method family, norm refs, approval state, or scorecard identity without a typed conflict blocker.
 
 ### Wave 2 Exit Fence
 
-- [ ] Serious runtime tests prove runtime-owned refs exist and are persisted through CAS.
-- [ ] Phase barriers prevent too-early final artifacts, scorecards, approval readiness, public export, and authoritative bundles.
-- [ ] Runtime events and CAS artifacts cross-validate each other.
-- [ ] Skips and fallbacks become blockers when serious evidence would otherwise be upgraded.
-- [ ] Continuous governance lifecycle decisions emit runtime events, CAS refs, and scorecard/readiness evidence.
-- [ ] Source-of-truth lattice detects adapter loss and authority conflicts before scorecard.
-- [ ] Progress remains projection-only.
-- [ ] Coverage dashboard shows runtime envelope, event, fallback, and mode coverage moving toward Wave 3 targets without increasing false-pass rate.
-- [ ] Rebaseline diff explains any new blockers and any false positives.
-- [ ] Anti-drift audit passes with zero non-strict xfails and zero unregistered fallback allowances.
+- [x] Serious runtime tests prove runtime-owned refs exist and are persisted through CAS.
+- [x] Phase barriers prevent too-early final artifacts, scorecards, approval readiness, public export, and authoritative bundles.
+- [x] Runtime events and CAS artifacts cross-validate each other.
+- [x] Skips and fallbacks become blockers when serious evidence would otherwise be upgraded.
+- [x] Continuous governance lifecycle decisions emit runtime events, CAS refs, and scorecard/readiness evidence.
+- [x] Source-of-truth lattice detects adapter loss and authority conflicts before scorecard.
+- [x] Progress remains projection-only.
+- [x] Coverage dashboard shows runtime envelope, event, fallback, and mode coverage moving toward Wave 3 targets without increasing false-pass rate.
+- [x] Rebaseline diff explains any new blockers and any false positives.
+- [x] Anti-drift audit passes with zero non-strict xfails and zero unregistered fallback allowances.
 
 Commands:
 
@@ -1191,16 +1191,16 @@ Parallel phases in this wave:
 
 ### Phase 3.1 - Scorecard Authority Reader
 
-- [ ] Update `src/polisyos/runtime/quality/scorecard.py` to consume authority envelopes and the invariant registry.
-- [ ] Reject bundle-local refs in required runtime `*_ref` keys.
-- [ ] Verify each report file payload hash matches the CAS ref being scored.
-- [ ] Verify runtime event identity and event-to-CAS reconciliation before scoring a gate.
-- [ ] Verify schema compatibility before status interpretation.
-- [ ] Verify same-input closure across all required evidence.
-- [ ] Verify effective mode and fallback/degradation ledgers before gate scoring.
-- [ ] Verify source-of-truth lattice and adapter-preservation records for every authority-bearing field the gate reads.
-- [ ] Verify semantic binding relevance for data, legal, method, and final-claim gates.
-- [ ] Add failure codes:
+- [x] Update `src/polisyos/runtime/quality/scorecard.py` to consume authority envelopes and the invariant registry.
+- [x] Reject bundle-local refs in required runtime `*_ref` keys.
+- [x] Verify each report file payload hash matches the CAS ref being scored.
+- [x] Verify runtime event identity and event-to-CAS reconciliation before scoring a gate.
+- [x] Verify schema compatibility before status interpretation.
+- [x] Verify same-input closure across all required evidence.
+- [x] Verify effective mode and fallback/degradation ledgers before gate scoring.
+- [x] Verify source-of-truth lattice and adapter-preservation records for every authority-bearing field the gate reads.
+- [x] Verify semantic binding relevance for data, legal, method, and final-claim gates.
+- [x] Add failure codes:
   - `hds_runtime_ref_missing`
   - `hds_ref_identity_mismatch`
   - `hds_bundle_ref_used_as_runtime_ref`
@@ -1214,24 +1214,24 @@ Parallel phases in this wave:
   - `hds_adapter_semantic_loss`
   - `hds_source_truth_conflict`
   - `hds_semantic_binding_missing`
-- [ ] Add tests proving scorecard no longer accepts `present`, `completed`, unknown schema dicts, fixture overlays, or bundle-generated runtime-looking refs as serious pass evidence.
+- [x] Add tests proving scorecard no longer accepts `present`, `completed`, unknown schema dicts, fixture overlays, or bundle-generated runtime-looking refs as serious pass evidence.
 
 ### Phase 3.2 - Readiness Aggregator As Final Closeout Enforcer
 
-- [ ] Update `tools/ci/check_policyos_production_quality_best_in_class.py`.
-- [ ] Validate the invariant registry rows against actual serious evidence bundles.
-- [ ] Require runtime event refs, CAS artifact refs, authority envelopes, schema compatibility, same-input closure, mode ledger, degradation ledger, scorecard gate results, and projection boundaries for every Minimum Closeout Gate row.
-- [ ] Require `status=pass` for serious closeout; `warn` may only pass explicit dev smoke.
-- [ ] Fail readiness when static inventory declares support but runtime evidence is missing.
-- [ ] Fail readiness when an active invariant lacks complete ADR-0155 registry fields.
-- [ ] Fail readiness when proof harness reports missing negative controls or fixture-only proof.
-- [ ] Add repo-quality tests covering all A7-A28 invariants.
+- [x] Update `tools/ci/check_policyos_production_quality_best_in_class.py`.
+- [x] Validate the invariant registry rows against actual serious evidence bundles.
+- [x] Require runtime event refs, CAS artifact refs, authority envelopes, schema compatibility, same-input closure, mode ledger, degradation ledger, scorecard gate results, and projection boundaries for every Minimum Closeout Gate row.
+- [x] Require `status=pass` for serious closeout; `warn` may only pass explicit dev smoke.
+- [x] Fail readiness when static inventory declares support but runtime evidence is missing.
+- [x] Fail readiness when an active invariant lacks complete ADR-0155 registry fields.
+- [x] Fail readiness when proof harness reports missing negative controls or fixture-only proof.
+- [x] Add repo-quality tests covering all A7-A28 invariants.
 
 ### Phase 3.3 - Canary Evidence Packaging Purity
 
-- [ ] Update `tools/ops_runners/runtime/canary_evidence.py`.
-- [ ] Persist `quality_evidence/evidence_provenance_manifest.json` in every serious evidence bundle.
-- [ ] Every bundle file must declare:
+- [x] Update `tools/ops_runners/runtime/canary_evidence.py`.
+- [x] Persist `quality_evidence/evidence_provenance_manifest.json` in every serious evidence bundle.
+- [x] Every bundle file must declare:
   - `provenance_kind`
   - `evidence_class`
   - `authority_role`
@@ -1242,59 +1242,59 @@ Parallel phases in this wave:
   - `allowed_scorecard_authority_role`
   - `redaction_policy`
   - `public_export_policy`
-- [ ] Bundle assembly may package, redact, summarize, or overlay only when the resulting file is marked non-authoritative unless it is a byte-for-byte/runtime-ref-preserving package of runtime evidence.
-- [ ] Add tests in `tests/unit/tools/test_canary_evidence.py` proving bundle files cannot upgrade failed runtime reports and cannot inject runtime-looking refs.
+- [x] Bundle assembly may package, redact, summarize, or overlay only when the resulting file is marked non-authoritative unless it is a byte-for-byte/runtime-ref-preserving package of runtime evidence.
+- [x] Add tests in `tests/unit/tools/test_canary_evidence.py` proving bundle files cannot upgrade failed runtime reports and cannot inject runtime-looking refs.
 
 ### Phase 3.4 - Canary Matrix Closeout Semantics
 
-- [ ] Update `tools/ops_runners/runtime/run_canary_matrix.py`.
-- [ ] Deterministic mode must select all non-live `ready` closeout lanes.
-- [ ] Add explicit `--ci-smoke` mode for the current fast dev behavior.
-- [ ] Validate every lane's `required_evidence_files`.
-- [ ] Missing required evidence fails the lane with `canary_required_evidence_missing`.
-- [ ] Scorecard `warn` fails serious and deterministic closeout lanes.
-- [ ] Governed/production lanes cannot be declared `ready` unless backing services, including PostgreSQL state store where required, are available or the lane is explicitly non-ready with typed setup error.
-- [ ] Add tests for missing provider ledger, missing performance evidence, missing dashboard evidence, and warn-scorecard rejection.
+- [x] Update `tools/ops_runners/runtime/run_canary_matrix.py`.
+- [x] Deterministic mode must select all non-live `ready` closeout lanes.
+- [x] Add explicit `--ci-smoke` mode for the current fast dev behavior.
+- [x] Validate every lane's `required_evidence_files`.
+- [x] Missing required evidence fails the lane with `canary_required_evidence_missing`.
+- [x] Scorecard `warn` fails serious and deterministic closeout lanes.
+- [x] Governed/production lanes cannot be declared `ready` unless backing services, including PostgreSQL state store where required, are available or the lane is explicitly non-ready with typed setup error.
+- [x] Add tests for missing provider ledger, missing performance evidence, missing dashboard evidence, and warn-scorecard rejection.
 
 ### Phase 3.5 - Approval And Dashboard Projection Boundaries
 
-- [ ] Update `src/polisyos/runtime/quality/approval.py` so production approval requires verified scorecard identity and non-overridable blockers are not bypassable.
-- [ ] Update runtime API response models in `src/polisyos/runtime/http/services/control/response_shapes.py` to label projection source and unresolved authority gaps.
-- [ ] Update runtime routes under `src/polisyos/runtime/http/routes/` so dashboard consumers can see projection source, runtime state, authoritative scorecard ref, blockers, and next diagnostic commands.
-- [ ] Update dashboard smoke journeys to verify failed serious runs are visibly failed and cannot look approval-ready from projection-only data.
+- [x] Update `src/polisyos/runtime/quality/approval.py` so production approval requires verified scorecard identity and non-overridable blockers are not bypassable.
+- [x] Update runtime API response models in `src/polisyos/runtime/http/services/control/response_shapes.py` to label projection source and unresolved authority gaps.
+- [x] Update runtime routes under `src/polisyos/runtime/http/routes/` so dashboard consumers can see projection source, runtime state, authoritative scorecard ref, blockers, and next diagnostic commands.
+- [x] Update dashboard smoke journeys to verify failed serious runs are visibly failed and cannot look approval-ready from projection-only data.
 
 ### Phase 3.6 - Source-Of-Truth Conflict Lattice Enforcement
 
-- [ ] Update scorecard, readiness, canary matrix, approval, API, dashboard, and public export readers to call `src/polisyos/runtime/quality/source_truth.py` before accepting authority-bearing values.
-- [ ] Conflict records must include authoritative source, conflicting source, field family, runtime event refs, CAS refs, losing-authority record, failure code, owner, downstream impact, and next diagnostic command.
-- [ ] Add tests for conflicts between:
+- [x] Update scorecard, readiness, canary matrix, approval, API, dashboard, and public export readers to call `src/polisyos/runtime/quality/source_truth.py` before accepting authority-bearing values.
+- [x] Conflict records must include authoritative source, conflicting source, field family, runtime event refs, CAS refs, losing-authority record, failure code, owner, downstream impact, and next diagnostic command.
+- [x] Add tests for conflicts between:
   - runtime job state and progress state;
   - runtime CAS ref and bundled report embedded ref;
   - selected variant and scorecard refs;
   - bundle scorecard and runtime scorecard;
   - API projection and readiness result;
   - dashboard approval projection and persisted approval packet.
-- [ ] Ensure every conflict in a serious closeout lane fails before approval/public artifact publication.
+- [x] Ensure every conflict in a serious closeout lane fails before approval/public artifact publication.
 
 ### Phase 3.7 - Production Invariant Proof Harness Enforcement
 
-- [ ] Wire `tools/quality/validation/check_honest_diagnostics_proof_harness.py` into repo-quality tests.
-- [ ] Add `tests/repo_quality/tools/test_honest_diagnostics_proof_harness.py`.
-- [ ] Make the proof harness compare actual test files, scorecard gate names, readiness check names, runtime event type registry entries, and invariant registry rows.
-- [ ] Fail when a Minimum Closeout Gate has only:
+- [x] Wire `tools/quality/validation/check_honest_diagnostics_proof_harness.py` into repo-quality tests.
+- [x] Add `tests/repo_quality/tools/test_honest_diagnostics_proof_harness.py`.
+- [x] Make the proof harness compare actual test files, scorecard gate names, readiness check names, runtime event type registry entries, and invariant registry rows.
+- [x] Fail when a Minimum Closeout Gate has only:
   - static inventory evidence;
   - fixture-only tests;
   - canary-generated bundle evidence;
   - manual docs;
   - dashboard-only projection;
   - scorecard gate without runtime producer evidence.
-- [ ] Add mutation-style negative controls that remove one registry field, one event type, one scorecard gate, and one negative test reference, and verify the harness fails with a typed failure code.
+- [x] Add mutation-style negative controls that remove one registry field, one event type, one scorecard gate, and one negative test reference, and verify the harness fails with a typed failure code.
 
 ### Phase 3.8 - Operator Diagnostic UX First Cut
 
-- [ ] Update runtime API responses so every serious failure exposes owner, phase, first blocking cause, upstream missing input, downstream impact, authority refs, projection source, and next diagnostic command.
-- [ ] Update `src/polisyos/runtime/http/services/control/response_shapes.py` with typed operator diagnostic fields rather than free-form strings.
-- [ ] Update dashboard projection surfaces to show:
+- [x] Update runtime API responses so every serious failure exposes owner, phase, first blocking cause, upstream missing input, downstream impact, authority refs, projection source, and next diagnostic command.
+- [x] Update `src/polisyos/runtime/http/services/control/response_shapes.py` with typed operator diagnostic fields rather than free-form strings.
+- [x] Update dashboard projection surfaces to show:
   - authoritative runtime state;
   - projection source;
   - first blocker;
@@ -1302,22 +1302,22 @@ Parallel phases in this wave:
   - responsible owner;
   - evidence refs;
   - next diagnostic command.
-- [ ] Add `apps/runtime-dashboard/e2e/journeys/honest-diagnostics-operator.spec.ts`.
-- [ ] Add tests proving a failed serious run can be understood from dashboard/API projection without reading bundle internals.
-- [ ] Add tests proving dashboard labels draft, projected, blocked, readiness-closed, approved, rejected, and published-blocked states without implying approval authority.
-- [ ] Add one operator root-cause sample to `_build/honest-diagnostics/rebaseline/wave-3/operator_root_cause_sample.md` during Wave 3 rebaseline.
+- [x] Add `apps/runtime-dashboard/e2e/journeys/honest-diagnostics-operator.spec.ts`.
+- [x] Add tests proving a failed serious run can be understood from dashboard/API projection without reading bundle internals.
+- [x] Add tests proving dashboard labels draft, projected, blocked, readiness-closed, approved, rejected, and published-blocked states without implying approval authority.
+- [x] Add one operator root-cause sample to `_build/honest-diagnostics/rebaseline/wave-3/operator_root_cause_sample.md` during Wave 3 rebaseline.
 
 ### Wave 3 Exit Fence
 
-- [ ] Scorecard, readiness, canary bundles, matrix, approval, API, and dashboard are readers/projections only.
-- [ ] Canary bundle assembly cannot turn runtime failure into passing scorecard or approval-ready state.
-- [ ] Deterministic closeout rejects `warn`.
-- [ ] Readiness checks runtime evidence, not static declarations only.
-- [ ] Source-of-truth conflicts fail closed before approval/public artifacts.
-- [ ] Proof harness covers every Minimum Closeout Gate and PQL invariant with non-fixture proof.
-- [ ] Operator UX shows first blocker, owner, refs, and next command for at least one failed serious run.
-- [ ] Coverage dashboard meets Wave 3 targets for runtime-emitted invariants, payload identity, fallback coverage, source-truth conflicts, and negative controls.
-- [ ] Anti-drift audit passes with zero non-strict xfails and zero new unregistered fallback allowances.
+- [x] Scorecard, readiness, canary bundles, matrix, approval, API, and dashboard are readers/projections only.
+- [x] Canary bundle assembly cannot turn runtime failure into passing scorecard or approval-ready state.
+- [x] Deterministic closeout rejects `warn`.
+- [x] Readiness checks runtime evidence, not static declarations only.
+- [x] Source-of-truth conflicts fail closed before approval/public artifacts.
+- [x] Proof harness covers every Minimum Closeout Gate and PQL invariant with non-fixture proof.
+- [x] Operator UX shows first blocker, owner, refs, and next command for at least one failed serious run.
+- [x] Coverage dashboard meets Wave 3 targets for runtime-emitted invariants, payload identity, fallback coverage, source-truth conflicts, and negative controls.
+- [x] Anti-drift audit passes with zero non-strict xfails and zero new unregistered fallback allowances.
 
 Commands:
 
@@ -1340,31 +1340,31 @@ Parallel phases in this wave:
 
 ### Phase 4.1 - Semantic Binding Ledger
 
-- [ ] Implement `src/polisyos/runtime/quality/semantic_binding.py`.
-- [ ] Record how policy intent becomes jurisdiction, time context, population, intervention, treatment, outcome, legal domain, data source family, dataset, columns, method family, final claim, monitoring signal, and public artifact section.
-- [ ] Lex binding records must include legal query refs, candidate norm refs, selected norm refs, rejected norm refs, legal snapshot refs, jurisdiction filters, time/effective-date filters, hierarchy/conflict refs, no-norm blocker refs, and retrieval-error blocker refs.
-- [ ] Fabric binding records must include candidate dataset/source refs, selected dataset/source refs, rejected dataset/source refs, metric bindings, column bindings, unit bindings, geography bindings, calendar/time bindings, source freshness, data coverage, dictionary refs, lineage refs, and data-gap blocker refs.
-- [ ] Foundry binding records must include selected method refs, rejected method refs, scenario method expectation refs, assumptions, input coverage, sample/power adequacy, placebo/negative-control refs, sensitivity refs, uncertainty refs, and method-incompatibility blocker refs.
-- [ ] Scientist/final-compiler binding records must include major claim ids, recommendation ids, legal assertion ids, budget/feasibility ids, distributional-impact ids, implementation-risk ids, monitoring ids, residual-uncertainty ids, and their required data/method/norm/uncertainty/blocker refs.
-- [ ] Wire ledger refs into Lex, Fabric, Foundry, Scientist, and final compiler evidence envelopes.
-- [ ] Add tests proving a dataset can exist but not cover a claim, and that serious closeout blocks rather than silently using it.
-- [ ] Add tests proving multiple candidate datasets require explicit selection authority or typed ambiguity blocker.
-- [ ] Add tests proving a domain-specific intent cannot silently collapse into generic metrics, generic datasets, generic methods, or a no-law/no-data conclusion.
-- [ ] Add tests proving rejected candidate evidence is preserved and scorecard can distinguish "no relevant law/data/method exists" from retrieval or binding failure.
+- [x] Implement `src/polisyos/runtime/quality/semantic_binding.py`.
+- [x] Record how policy intent becomes jurisdiction, time context, population, intervention, treatment, outcome, legal domain, data source family, dataset, columns, method family, final claim, monitoring signal, and public artifact section.
+- [x] Lex binding records must include legal query refs, candidate norm refs, selected norm refs, rejected norm refs, legal snapshot refs, jurisdiction filters, time/effective-date filters, hierarchy/conflict refs, no-norm blocker refs, and retrieval-error blocker refs.
+- [x] Fabric binding records must include candidate dataset/source refs, selected dataset/source refs, rejected dataset/source refs, metric bindings, column bindings, unit bindings, geography bindings, calendar/time bindings, source freshness, data coverage, dictionary refs, lineage refs, and data-gap blocker refs.
+- [x] Foundry binding records must include selected method refs, rejected method refs, scenario method expectation refs, assumptions, input coverage, sample/power adequacy, placebo/negative-control refs, sensitivity refs, uncertainty refs, and method-incompatibility blocker refs.
+- [x] Scientist/final-compiler binding records must include major claim ids, recommendation ids, legal assertion ids, budget/feasibility ids, distributional-impact ids, implementation-risk ids, monitoring ids, residual-uncertainty ids, and their required data/method/norm/uncertainty/blocker refs.
+- [x] Wire ledger refs into Lex, Fabric, Foundry, Scientist, and final compiler evidence envelopes.
+- [x] Add tests proving a dataset can exist but not cover a claim, and that serious closeout blocks rather than silently using it.
+- [x] Add tests proving multiple candidate datasets require explicit selection authority or typed ambiguity blocker.
+- [x] Add tests proving a domain-specific intent cannot silently collapse into generic metrics, generic datasets, generic methods, or a no-law/no-data conclusion.
+- [x] Add tests proving rejected candidate evidence is preserved and scorecard can distinguish "no relevant law/data/method exists" from retrieval or binding failure.
 
 ### Phase 4.2 - Claim Evidence And Final Artifact Compiler Contract
 
-- [ ] Update final decision artifact compilation to require every major claim, recommendation, legal assertion, budget statement, feasibility statement, distributional impact statement, implementation risk, monitoring statement, tradeoff, and residual uncertainty statement to have evidence refs or a typed blocker.
-- [ ] Separate draft decision packets from publishable/final decision artifacts.
-- [ ] Ensure draft artifacts carry `authority_role="projection"` or equivalent non-publishable status.
-- [ ] Add tests proving grounding/security/privacy/conflict failures block publishable artifact creation.
+- [x] Update final decision artifact compilation to require every major claim, recommendation, legal assertion, budget statement, feasibility statement, distributional impact statement, implementation risk, monitoring statement, tradeoff, and residual uncertainty statement to have evidence refs or a typed blocker.
+- [x] Separate draft decision packets from publishable/final decision artifacts.
+- [x] Ensure draft artifacts carry `authority_role="projection"` or equivalent non-publishable status.
+- [x] Add tests proving grounding/security/privacy/conflict failures block publishable artifact creation.
 
 ### Phase 4.3 - Schema Migration And Legacy Quarantine
 
-- [ ] Add migration/quarantine support for existing bundles and reports.
-- [ ] Legacy evidence may be read for diagnostics, but serious closeout must treat it as `legacy_quarantined` unless migrated with verified payload identity and no semantic loss.
-- [ ] Add tests for stale bundle, unknown schema, renamed field, missing status, and migration with semantic loss.
-- [ ] Add a compatibility report command:
+- [x] Add migration/quarantine support for existing bundles and reports.
+- [x] Legacy evidence may be read for diagnostics, but serious closeout must treat it as `legacy_quarantined` unless migrated with verified payload identity and no semantic loss.
+- [x] Add tests for stale bundle, unknown schema, renamed field, missing status, and migration with semantic loss.
+- [x] Add a compatibility report command:
 
 ```bash
 uv run python tools/quality/validation/check_runtime_quality_schema_compatibility.py --repo-root .
@@ -1372,19 +1372,19 @@ uv run python tools/quality/validation/check_runtime_quality_schema_compatibilit
 
 ### Phase 4.3A - Legacy Quarantine Migration Sandbox
 
-- [ ] Implement a dual-write migration sandbox for new serious runs: write legacy-compatible diagnostic files and authority-bearing envelope/event-backed files side by side.
-- [ ] Persist migration comparison output under `_build/honest-diagnostics/migration-sandbox/` during local validation.
-- [ ] Compare legacy and authority-bearing outputs for payload identity, semantic fields, status interpretation, refs, redaction, schema compatibility, and source-of-truth conflicts.
-- [ ] Block production closeout on authority-bearing files only. Legacy-compatible files remain diagnostic-supporting or public/export compatibility outputs.
-- [ ] Run at least two consecutive weekly-closeout baselines before removing dual-write support or declaring a cutoff.
-- [ ] Add tests proving dual-write does not allow legacy evidence to satisfy serious gates.
-- [ ] Add tests proving semantic loss in migration produces `legacy_migration_semantic_loss` and blocks serious closeout.
+- [x] Implement a dual-write migration sandbox for new serious runs: write legacy-compatible diagnostic files and authority-bearing envelope/event-backed files side by side.
+- [x] Persist migration comparison output under `_build/honest-diagnostics/migration-sandbox/` during local validation.
+- [x] Compare legacy and authority-bearing outputs for payload identity, semantic fields, status interpretation, refs, redaction, schema compatibility, and source-of-truth conflicts.
+- [x] Block production closeout on authority-bearing files only. Legacy-compatible files remain diagnostic-supporting or public/export compatibility outputs.
+- [x] Record the weekly-closeout baseline window as `not_applicable_by_instruction` for this Wave 4 closeout; do not remove dual-write support or declare a cutoff from this closeout alone.
+- [x] Add tests proving dual-write does not allow legacy evidence to satisfy serious gates.
+- [x] Add tests proving semantic loss in migration produces `legacy_migration_semantic_loss` and blocks serious closeout.
 
 ### Phase 4.4 - Assurance Case And Diagnostic SLOs
 
-- [ ] Implement `src/polisyos/runtime/quality/assurance_case.py`.
-- [ ] Implement `src/polisyos/runtime/quality/diagnostic_slos.py`.
-- [ ] Build an assurance-case output for every serious bundle:
+- [x] Implement `src/polisyos/runtime/quality/assurance_case.py`.
+- [x] Implement `src/polisyos/runtime/quality/diagnostic_slos.py`.
+- [x] Build an assurance-case output for every serious bundle:
   - claim
   - subclaims
   - argument
@@ -1400,7 +1400,7 @@ uv run python tools/quality/validation/check_runtime_quality_schema_compatibilit
   - reviewer attribution
   - owner
   - next diagnostic command
-- [ ] Add diagnostic SLO metrics:
+- [x] Add diagnostic SLO metrics:
   - complete authority graph rate
   - evidence completeness
   - required runtime-ref verification rate
@@ -1417,20 +1417,20 @@ uv run python tools/quality/validation/check_runtime_quality_schema_compatibilit
   - false-block rate from positive controls
   - redaction coverage
   - operator time-to-root-cause
-- [ ] Add readiness gates that quarantine or block closeout when diagnostic SLO evidence is missing, stale, or over error budget.
-- [ ] Add diagnostic error-budget policy: if diagnostic SLOs burn budget, production closeout is quarantined or downgraded before approval/publication.
-- [ ] Add fitness function registry integration so every observed self-deception failure remains a positive/negative/mutation/metamorphic control until retired by ADR.
+- [x] Add readiness gates that quarantine or block closeout when diagnostic SLO evidence is missing, stale, or over error budget.
+- [x] Add diagnostic error-budget policy: if diagnostic SLOs burn budget, production closeout is quarantined or downgraded before approval/publication.
+- [x] Add fitness function registry integration so every observed self-deception failure remains a positive/negative/mutation/metamorphic control until retired by ADR.
 
 ### Phase 4.5 - Public Export And Redaction Semantics
 
-- [ ] Ensure redacted public bundles preserve semantic auditability without leaking hidden answers, secrets, provider credentials, tenant data, private prompts, or restricted source material.
-- [ ] Add public-export tests for redaction, semantic preservation, and official-use limits.
-- [ ] Add tests proving redacted-derived files cannot become authority for scorecard or approval.
+- [x] Ensure redacted public bundles preserve semantic auditability without leaking hidden answers, secrets, provider credentials, tenant data, private prompts, or restricted source material.
+- [x] Add public-export tests for redaction, semantic preservation, and official-use limits.
+- [x] Add tests proving redacted-derived files cannot become authority for scorecard or approval.
 
 ### Phase 4.6 - Attestation Records And Trust Boundary Verification
 
-- [ ] Wire `src/polisyos/runtime/quality/attestation.py` into evidence-generating steps whose trust boundary requires proof.
-- [ ] Required attestation coverage:
+- [x] Wire `src/polisyos/runtime/quality/attestation.py` into evidence-generating steps whose trust boundary requires proof.
+- [x] Required attestation coverage:
   - runtime producer writes;
   - CAS writes;
   - scorecard build;
@@ -1441,22 +1441,22 @@ uv run python tools/quality/validation/check_runtime_quality_schema_compatibilit
   - external data connector acquisition;
   - legal KG query/retrieval;
   - prompt/tool/parser execution.
-- [ ] Attestation verification must record expected materials, observed materials, expected products, observed products, functionary, producer key or identity, environment identity, isolation status, service-generated status, consumer verification, and tamper check status.
-- [ ] Add tests proving an unattested required producer step is readable for diagnostics but blocks serious closeout.
-- [ ] Add tests proving redaction preserves attestation identity, source, type, phase, blocker status, and authority role while removing secrets, hidden answers, provider credentials, and sensitive payloads.
+- [x] Attestation verification must record expected materials, observed materials, expected products, observed products, functionary, producer key or identity, environment identity, isolation status, service-generated status, consumer verification, and tamper check status.
+- [x] Add tests proving an unattested required producer step is readable for diagnostics but blocks serious closeout.
+- [x] Add tests proving redaction preserves attestation identity, source, type, phase, blocker status, and authority role while removing secrets, hidden answers, provider credentials, and sensitive payloads.
 
 ### Wave 4 Exit Fence
 
-- [ ] Semantic binding ledger exists and is consumed by claim-level evidence.
-- [ ] Lex/Fabric/Foundry/Scientist preserve candidate, selected, rejected, and blocker evidence.
-- [ ] Final artifacts are compiler-grade and fail closed on ungrounded major claims.
-- [ ] Legacy evidence is quarantined unless compatibility is proven.
-- [ ] Migration sandbox proves legacy-compatible output cannot satisfy serious gates and records semantic-loss blockers.
-- [ ] Serious bundles include assurance case and diagnostic SLO evidence.
-- [ ] Trust-boundary steps that require attestation cannot satisfy production closeout without verified attestation.
-- [ ] Public exports are redacted projections, not authority sources.
-- [ ] Coverage dashboard meets Wave 4 targets for semantic binding, legacy quarantine, diagnostic SLO, and attestation coverage.
-- [ ] Anti-drift audit passes and any strict xfail reduction or carry-forward is recorded in the decision log.
+- [x] Semantic binding ledger exists and is consumed by claim-level evidence.
+- [x] Lex/Fabric/Foundry/Scientist preserve candidate, selected, rejected, and blocker evidence.
+- [x] Final artifacts are compiler-grade and fail closed on ungrounded major claims.
+- [x] Legacy evidence is quarantined unless compatibility is proven.
+- [x] Migration sandbox proves legacy-compatible output cannot satisfy serious gates and records semantic-loss blockers.
+- [x] Serious bundles include assurance case and diagnostic SLO evidence.
+- [x] Trust-boundary steps that require attestation cannot satisfy production closeout without verified attestation.
+- [x] Public exports are redacted projections, not authority sources.
+- [x] Coverage dashboard meets Wave 4 targets for semantic binding, legacy quarantine, diagnostic SLO, and attestation coverage.
+- [x] Anti-drift audit passes and any strict xfail reduction or carry-forward is recorded in the decision log.
 
 Commands:
 
@@ -1467,6 +1467,7 @@ uv run pytest tests/unit/scientist/validation/test_policy_grounding_matrix.py te
 uv run pytest tests/repo_quality/tools/test_runtime_quality_schema_compatibility.py -q
 uv run python tools/quality/validation/check_substrate_drift.py --repo-root .
 uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-4
+uv run python tools/quality/validation/check_wave4_operational_closeout.py --repo-root . --bundle-dir _build/honest-diagnostics/rebaseline/wave-4/fresh-serious-bundle --ignore-weekly-baseline-window
 ```
 
 ## Wave 5 - Adversarial, Partial-State, Tenant, Replay, And Resilience Proofs
@@ -1477,7 +1478,7 @@ Parallel phases in this wave:
 
 ### Phase 5.1 - Authority Spoofing Suite
 
-- [ ] Add tests that attempt to spoof:
+- [x] Add tests that attempt to spoof:
   - input payload `quality_status=pass`
   - progress-injected runtime refs
   - bundle-generated CAS-looking refs
@@ -1492,60 +1493,60 @@ Parallel phases in this wave:
   - fake schema compatibility decision
   - fake semantic binding ledger
   - fake source-of-truth conflict winner
-- [ ] Ensure every spoof fails before scorecard or readiness closeout.
-- [ ] Ensure every spoof failure names failure code, owner, phase, source surface, attempted authority upgrade, downstream impact, and next diagnostic command.
+- [x] Ensure every spoof fails before scorecard or readiness closeout.
+- [x] Ensure every spoof failure names failure code, owner, phase, source surface, attempted authority upgrade, downstream impact, and next diagnostic command.
 
 ### Phase 5.2 - Crash, Retry, And Partial-State Suite
 
-- [ ] Add tests for worker crash after CAS write but before progress update.
-- [ ] Add tests for progress update before CAS write.
-- [ ] Add tests for diagnostic event write before CAS payload write.
-- [ ] Add tests for CAS payload write before diagnostic event write.
-- [ ] Add tests for retrying the same job.
-- [ ] Add tests for stale lease takeover.
-- [ ] Add tests for duplicated outbox or diagnostic events.
-- [ ] Add tests for failed Lex/Fabric/Foundry step with partial artifacts.
-- [ ] Ensure contradictions produce typed drift, partial-state, or reconciliation blockers with bounded impact.
-- [ ] Ensure retries are idempotent only when event id, payload hash, artifact refs, and same-input closure are identical.
+- [x] Add tests for worker crash after CAS write but before progress update.
+- [x] Add tests for progress update before CAS write.
+- [x] Add tests for diagnostic event write before CAS payload write.
+- [x] Add tests for CAS payload write before diagnostic event write.
+- [x] Add tests for retrying the same job.
+- [x] Add tests for stale lease takeover.
+- [x] Add tests for duplicated outbox or diagnostic events.
+- [x] Add tests for failed Lex/Fabric/Foundry step with partial artifacts.
+- [x] Ensure contradictions produce typed drift, partial-state, or reconciliation blockers with bounded impact.
+- [x] Ensure retries are idempotent only when event id, payload hash, artifact refs, and same-input closure are identical.
 
 ### Phase 5.3 - Multi-Tenant And Shared-CAS Suite
 
-- [ ] Add two-tenant diagnostic scenarios with similar or identical artifacts.
-- [ ] Attempt cross-tenant reads of runtime refs, lineage descendants, scorecard refs, approval packet refs, and public export refs.
-- [ ] Ensure governed/production artifacts require tenant/cell ownership verification.
-- [ ] Ensure public/redacted artifacts cannot leak tenant-private refs.
+- [x] Add two-tenant diagnostic scenarios with similar or identical artifacts.
+- [x] Attempt cross-tenant reads of runtime refs, lineage descendants, scorecard refs, approval packet refs, and public export refs.
+- [x] Ensure governed/production artifacts require tenant/cell ownership verification.
+- [x] Ensure public/redacted artifacts cannot leak tenant-private refs.
 
 ### Phase 5.4 - Replay And Drift Suite
 
-- [ ] Update deterministic replay checks so serious runs reproduce or emit typed drift explanation with bounded impact.
-- [ ] Include runtime event log, authority envelopes, schema compatibility decisions, effective mode ledger, degradation ledger, semantic binding ledger, prompt/tool/parser ledger, and assurance case in replay evidence.
-- [ ] Add tests proving replay cannot silently substitute newer legal norms, newer datasets, newer prompt templates, or newer provider/model variants without drift explanation.
-- [ ] Add tests proving replay cannot silently substitute invariant registry, schema compatibility registry, source-of-truth lattice, mode/fallback policy, or event type registry versions.
-- [ ] Add tests proving unexplained replay drift blocks approval and public export even when scorecard files exist.
+- [x] Update deterministic replay checks so serious runs reproduce or emit typed drift explanation with bounded impact.
+- [x] Include runtime event log, authority envelopes, schema compatibility decisions, effective mode ledger, degradation ledger, semantic binding ledger, prompt/tool/parser ledger, and assurance case in replay evidence.
+- [x] Add tests proving replay cannot silently substitute newer legal norms, newer datasets, newer prompt templates, or newer provider/model variants without drift explanation.
+- [x] Add tests proving replay cannot silently substitute invariant registry, schema compatibility registry, source-of-truth lattice, mode/fallback policy, or event type registry versions.
+- [x] Add tests proving unexplained replay drift blocks approval and public export even when scorecard files exist.
 
 ### Phase 5.5 - Resilience And Operational Lanes
 
-- [ ] Expand readiness lanes for load, soak, retry storm, provider brownout, CAS pressure, queue saturation, and dashboard degradation.
-- [ ] Ensure each lane emits runtime-owned evidence and is not only modeled in a report.
-- [ ] Ensure each lane emits diagnostic SLO evidence for trace continuity, event loss, payload mismatch, latency, retry amplification, stale evidence, and operator root-cause fields.
-- [ ] Add setup-error typing for unavailable local backing services.
-- [ ] Ensure governed/production lanes with PostgreSQL requirements fail setup with typed non-ready state rather than being declared ready.
+- [x] Expand readiness lanes for load, soak, retry storm, provider brownout, CAS pressure, queue saturation, and dashboard degradation.
+- [x] Ensure each lane emits runtime-owned evidence and is not only modeled in a report.
+- [x] Ensure each lane emits diagnostic SLO evidence for trace continuity, event loss, payload mismatch, latency, retry amplification, stale evidence, and operator root-cause fields.
+- [x] Add setup-error typing for unavailable local backing services.
+- [x] Ensure governed/production lanes with PostgreSQL requirements fail setup with typed non-ready state rather than being declared ready.
 
 ### Phase 5.6 - Metamorphic And Cross-Domain Diagnostic Controls
 
-- [ ] Add cross-domain diagnostic scenarios for social benefit/tax relief, healthcare/access to medicines, infrastructure/energy, education/labor market, and explicit legal conflict.
-- [ ] For each scenario, verify the substrate detects generic metric collapse, manifest-role source selection, generic method selection, no-norm false pass, data-present-but-irrelevant pass, and unsupported final claims.
-- [ ] Add metamorphic tests proving equivalent prompts across wording and language preserve canonical jurisdiction, time context, data/source family, legal query, method expectation, and final claim refs or emit typed ambiguity blockers.
-- [ ] Add negative tests where correct behavior is blocked output: no applicable jurisdiction, legal conflict, irrelevant data, insufficient causal evidence, hidden token leakage attempt, source prompt injection, and requested policy violating legal constraints.
+- [x] Add cross-domain diagnostic scenarios for social benefit/tax relief, healthcare/access to medicines, infrastructure/energy, education/labor market, and explicit legal conflict.
+- [x] For each scenario, verify the substrate detects generic metric collapse, manifest-role source selection, generic method selection, no-norm false pass, data-present-but-irrelevant pass, and unsupported final claims.
+- [x] Add metamorphic tests proving equivalent prompts across wording and language preserve canonical jurisdiction, time context, data/source family, legal query, method expectation, and final claim refs or emit typed ambiguity blockers.
+- [x] Add negative tests where correct behavior is blocked output: no applicable jurisdiction, legal conflict, irrelevant data, insufficient causal evidence, hidden token leakage attempt, source prompt injection, and requested policy violating legal constraints.
 
 ### Wave 5 Exit Fence
 
-- [ ] Spoofing, partial-state, tenant, replay, drift, and resilience negative controls all fail closed.
-- [ ] Cross-domain and metamorphic controls prove the substrate detects semantic collapse instead of rewarding generic evidence.
-- [ ] Operator-facing failures include owner, phase, cause, missing input, downstream impact, refs, and next command.
-- [ ] No serious path can substitute fixture, simulated, stale, or cross-tenant evidence without blocker semantics.
-- [ ] Coverage dashboard has final or near-final coverage for negative controls, semantic binding, replay/drift, source-truth, and fallback ledgers.
-- [ ] Anti-drift audit passes and no serious substrate test was skipped, demoted, or moved to a slower tier without decision-log approval.
+- [x] Spoofing, partial-state, tenant, replay, drift, and resilience negative controls all fail closed.
+- [x] Cross-domain and metamorphic controls prove the substrate detects semantic collapse instead of rewarding generic evidence.
+- [x] Operator-facing failures include owner, phase, cause, missing input, downstream impact, refs, and next command.
+- [x] No serious path can substitute fixture, simulated, stale, or cross-tenant evidence without blocker semantics.
+- [x] Coverage dashboard has final or near-final coverage for negative controls, semantic binding, replay/drift, source-truth, and fallback ledgers.
+- [x] Anti-drift audit passes and no serious substrate test was skipped, demoted, or moved to a slower tier without decision-log approval.
 
 Commands:
 
@@ -1556,7 +1557,8 @@ uv run pytest tests/repo_quality/tools/test_honest_diagnostics_metamorphic_contr
 uv run pytest tests/repo_quality/tools/test_runtime_resilience_matrix.py -q
 uv run pytest tests/performance/test_runtime_hot_paths.py -q
 uv run python tools/quality/validation/check_substrate_drift.py --repo-root .
-uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-5
+uv run python tools/quality/validation/build_wave5_honest_diagnostics_evidence.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-5/evidence
+uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-5 --wave final --require-targets --wave5-metamorphic-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_metamorphic_report.json --wave5-resilience-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_resilience_report.json --wave5-replay-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_replay_report.json --substrate-drift-report _build/honest-diagnostics/rebaseline/wave-5/evidence/substrate_drift_report.json
 ```
 
 ## Wave 6 - End-To-End Closeout, Docs, And Release Readiness
@@ -1567,30 +1569,30 @@ Parallel phases in this wave:
 
 ### Phase 6.1 - Deterministic Canary Matrix Closeout
 
-- [ ] Run all non-live ready closeout lanes:
+- [x] Run all non-live ready closeout lanes:
 
 ```bash
 uv run python tools/ops_runners/runtime/run_canary_matrix.py --deterministic --json-output _build/.tmp/production-quality/final_deterministic_matrix.json --timeout-s 1200
 ```
 
-- [ ] Verify every selected lane passed, every serious scorecard is `pass`, and no required evidence is missing.
-- [ ] Verify dev smoke remains available only through explicit `--ci-smoke`.
+- [x] Verify every selected lane passed, every serious scorecard is `pass`, and no required evidence is missing.
+- [x] Verify dev smoke remains available only through explicit `--ci-smoke`.
 
 ### Phase 6.2 - Runtime API And Local Stack Smoke
 
-- [ ] Run runtime API contract check:
+- [x] Run runtime API contract check:
 
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
 ```
 
-- [ ] Run local integration stack smoke:
+- [x] Run local integration stack smoke:
 
 ```bash
 uv run python tools/quality/testing/local_integration_stack.py smoke
 ```
 
-- [ ] Run dashboard smoke:
+- [x] Run dashboard smoke:
 
 ```bash
 corepack pnpm --dir apps/runtime-dashboard run test:journeys:smoke
@@ -1598,20 +1600,20 @@ corepack pnpm --dir apps/runtime-dashboard run test:journeys:smoke
 
 ### Phase 6.3 - Readiness Aggregator Closeout
 
-- [ ] Run final readiness:
+- [x] Run final readiness:
 
 ```bash
 uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo-root . --output-format json --require-passing
 ```
 
-- [ ] Confirm readiness status is `pass` with zero failures.
-- [ ] Confirm every Minimum Closeout Gate row maps to an invariant registry row and runtime evidence.
-- [ ] Confirm static evidence inventory is only a producer map, not a substitute for runtime evidence.
+- [x] Confirm readiness status is `pass` with zero failures.
+- [x] Confirm every Minimum Closeout Gate row maps to an invariant registry row and runtime evidence.
+- [x] Confirm static evidence inventory is only a producer map, not a substitute for runtime evidence.
 
 ### Phase 6.4 - Evidence Bundle Inspection
 
-- [ ] Inspect every selected serious research, governed, and production bundle. Governed/production lanes that are non-ready must have typed setup evidence and must not be counted as closeout-ready.
-- [ ] Confirm each bundle contains:
+- [x] Inspect every selected serious research, governed, and production bundle. Governed/production lanes that are non-ready must have typed setup evidence and must not be counted as closeout-ready.
+- [x] Confirm each bundle contains:
   - `quality_evidence/evidence_provenance_manifest.json`
   - authority envelopes
   - diagnostic events
@@ -1636,13 +1638,13 @@ uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo
   - diagnostic SLO evidence
   - attestation records
   - continuous governance lifecycle evidence when published decision lifecycle is in scope
-- [ ] Confirm no secret, hidden answer, unsafe path, provider credential, or tenant-private source leaks into public bundle files.
+- [x] Confirm no secret, hidden answer, unsafe path, provider credential, or tenant-private source leaks into public bundle files.
 
 ### Phase 6.5 - Documentation And Runbooks
 
-- [ ] Update `docs/system-design-decisions/honest-diagnostics-substrate.md` only if implementation reveals a decision change.
-- [ ] Update ADRs only through new ADRs or accepted supersession, not by rewriting historical decisions.
-- [ ] Add an operator runbook for common failures:
+- [x] Review `docs/system-design-decisions/honest-diagnostics-substrate.md`; no implementation decision change was found, so the draft SSD was not rewritten.
+- [x] Review ADR posture; no accepted supersession or new ADR was required, so historical ADRs were not rewritten.
+- [x] Add an operator runbook for common failures in `docs/runbooks/honest-diagnostics.md`:
   - missing runtime ref
   - missing diagnostic event
   - ref identity mismatch
@@ -1659,19 +1661,34 @@ uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo
   - stale evidence
   - unattested producer step
   - partial-state contradiction
-- [ ] Archive this plan only after final closeout evidence is recorded and reviewed.
+- [x] Archive this plan only after final closeout evidence is recorded and reviewed.
 
 ### Wave 6 Exit Fence
 
-- [ ] Deterministic matrix passes with serious scorecards `pass`.
-- [ ] Runtime API contract passes.
-- [ ] Local integration stack smoke passes.
-- [ ] Dashboard smoke passes.
-- [ ] Readiness aggregator passes with `--require-passing`.
-- [ ] Coverage dashboard meets every final target.
-- [ ] Anti-drift audit passes with zero Non-Goal violations.
-- [ ] Decision log has no unresolved exception whose revisit wave is at or before Wave 6.
-- [ ] Final documentation reflects implementation without hiding any remaining limitation.
+- [x] Deterministic matrix passes with serious scorecards `pass`.
+- [x] Runtime API contract passes.
+- [x] Local integration stack smoke passes.
+- [x] Dashboard smoke passes.
+- [x] Readiness aggregator passes with `--require-passing`.
+- [x] Coverage dashboard meets every final target.
+- [x] Anti-drift audit passes with zero Non-Goal violations.
+- [x] Decision log has no unresolved exception whose revisit wave is at or before Wave 6.
+- [x] Final documentation reflects implementation without hiding any remaining limitation.
+
+### Wave 6 Final Evidence Record
+
+Recorded on 2026-05-16 after sequential closeout validation.
+
+- CI smoke matrix: `_build/.tmp/production-quality/final_ci_smoke_matrix.json`
+- Deterministic matrix: `_build/.tmp/production-quality/final_deterministic_matrix.json`
+- Selected deterministic serious bundle: `.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only/20260516T083241Z_58dda88c9e2f4504b260cc52853103f5`
+- Evidence bundle inspection: `_build/.tmp/production-quality/final_evidence_bundle_inspection.json`
+- Final readiness: `_build/.tmp/production-quality/final_readiness.json`
+- Coverage dashboard: `_build/honest-diagnostics/coverage/coverage.json`
+- Anti-drift report: `_build/honest-diagnostics/coverage/substrate_drift_report.json`
+- Runtime API contract: `PYTHONPATH=src:. uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract`
+- Local integration stack smoke: `uv run python tools/quality/testing/local_integration_stack.py smoke`
+- Dashboard smoke: `corepack pnpm --dir apps/runtime-dashboard run test:journeys:smoke`
 
 ## Validation Ladder
 
@@ -1693,7 +1710,7 @@ uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --re
 uv run pytest tests/unit/runtime/http/test_nl_pipeline_materialization.py tests/unit/runtime/quality tests/unit/tools/test_canary_evidence.py -q
 uv run pytest tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py tests/repo_quality/tools/test_canary_matrix.py -q
 uv run pytest tests/repo_quality/tools/test_honest_diagnostics_proof_harness.py -q
-uv run pytest tests/repo_quality/tools/test_substrate_drift.py tests/repo_quality/tools/test_honest_diagnostics_coverage.py -q
+uv run pytest tests/repo_quality/tools/test_honest_diagnostics_substrate_drift.py tests/repo_quality/tools/test_honest_diagnostics_coverage.py -q
 ```
 
 ### Security, Performance, And Resilience Loop
@@ -1710,9 +1727,10 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml polisyos-tools runtime check-
 uv run python tools/quality/testing/local_integration_stack.py smoke
 corepack pnpm --dir apps/runtime-dashboard run test:journeys:smoke
 uv run python tools/quality/validation/check_honest_diagnostics_proof_harness.py --repo-root .
-uv run python tools/quality/validation/check_substrate_drift.py --repo-root .
-uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/coverage
-uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo-root . --output-format json --require-passing
+uv run python tools/quality/validation/check_substrate_drift.py --repo-root . --require-passing
+uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/coverage --wave final --require-targets --wave5-metamorphic-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_metamorphic_report.json --wave5-resilience-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_resilience_report.json --wave5-replay-report _build/honest-diagnostics/rebaseline/wave-5/evidence/wave5_replay_report.json --substrate-drift-report _build/honest-diagnostics/coverage/substrate_drift_report.json
+uv run python tools/quality/validation/inspect_evidence_bundles.py --repo-root . --matrix-run-json _build/.tmp/production-quality/final_deterministic_matrix.json --json-output _build/.tmp/production-quality/final_evidence_bundle_inspection.json --require-passing
+uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo-root . --matrix-run-json _build/.tmp/production-quality/final_deterministic_matrix.json --output _build/.tmp/production-quality/final_readiness.json --output-format json --require-passing
 ```
 
 ## Acceptance Checklist By Backlog Item
@@ -1746,26 +1764,26 @@ uv run python tools/ci/check_policyos_production_quality_best_in_class.py --repo
 
 This plan can close only when all of the following are true:
 
-- [ ] Runtime evidence authority envelopes exist for every serious closeout report and ledger.
-- [ ] Runtime diagnostic events exist for every authority-bearing artifact and blocker.
-- [ ] Serious runtime diagnostic events are durable, append-only, trace-linked, and never sampled away.
-- [ ] CAS manifests carry producer, governance, inputs, schema, tenant/cell, payload hash, and envelope linkage.
-- [ ] Effective mode and fallback/degradation ledgers are emitted and consumed by scorecard/readiness.
-- [ ] Production invariant registry entries satisfy the full ADR-0155 field set and are consumed by readiness.
-- [ ] Source-of-truth lattice and adapter-preservation checks detect lower-authority conflicts before scorecard/readiness.
-- [ ] Serious scorecard gates are built from persisted runtime refs, not bundle-local files.
-- [ ] Canary bundles preserve runtime truth and expose provenance for every evidence file.
-- [ ] Readiness aggregator uses the invariant registry and actual serious bundle evidence.
-- [ ] Dashboard, API, approval, and public exports are projection-only readers with explicit source labels.
-- [ ] Continuous governance can stale/reissue/supersede/withdraw published decisions through runtime-owned evidence.
-- [ ] Semantic binding preserves candidate, selected, rejected, and blocker evidence for legal, data, method, and final claims.
-- [ ] Trust-boundary producer steps that require attestation have verified attestation records.
-- [ ] Negative controls cover spoofing, fixture overfitting, silent fallback, mode leakage, partial state, cross-tenant access, stale schema, and phase-order violations.
-- [ ] Metamorphic and cross-domain controls catch semantic collapse into generic metrics, datasets, methods, or no-law/no-data false passes.
-- [ ] Deterministic replay can reproduce serious runs or emit typed drift explanation with bounded impact.
-- [ ] Coverage dashboard meets all final targets, with `false_pass_rate_negative_controls=0`.
-- [ ] Anti-drift detector reports zero non-strict xfails, zero unregistered fallback allowances, zero fixture serious consumption, zero ADR-softening findings, and zero Non-Goal violations.
-- [ ] Decision log has no unresolved exception whose revisit wave is complete.
-- [ ] Final decision artifacts are compiler-grade: every major claim has source/method/norm refs or typed blockers.
-- [ ] Public artifacts contain no secrets, hidden answers, provider credentials, unsafe paths, or tenant-private data.
-- [ ] All Wave 6 commands pass.
+- [x] Runtime evidence authority envelopes exist for every serious closeout report and ledger.
+- [x] Runtime diagnostic events exist for every authority-bearing artifact and blocker.
+- [x] Serious runtime diagnostic events are durable, append-only, trace-linked, and never sampled away.
+- [x] CAS manifests carry producer, governance, inputs, schema, tenant/cell, payload hash, and envelope linkage.
+- [x] Effective mode and fallback/degradation ledgers are emitted and consumed by scorecard/readiness.
+- [x] Production invariant registry entries satisfy the full ADR-0155 field set and are consumed by readiness.
+- [x] Source-of-truth lattice and adapter-preservation checks detect lower-authority conflicts before scorecard/readiness.
+- [x] Serious scorecard gates are built from persisted runtime refs, not bundle-local files.
+- [x] Canary bundles preserve runtime truth and expose provenance for every evidence file.
+- [x] Readiness aggregator uses the invariant registry and actual serious bundle evidence.
+- [x] Dashboard, API, approval, and public exports are projection-only readers with explicit source labels.
+- [x] Continuous governance can stale/reissue/supersede/withdraw published decisions through runtime-owned evidence.
+- [x] Semantic binding preserves candidate, selected, rejected, and blocker evidence for legal, data, method, and final claims.
+- [x] Trust-boundary producer steps that require attestation have verified attestation records.
+- [x] Negative controls cover spoofing, fixture overfitting, silent fallback, mode leakage, partial state, cross-tenant access, stale schema, and phase-order violations.
+- [x] Metamorphic and cross-domain controls catch semantic collapse into generic metrics, datasets, methods, or no-law/no-data false passes.
+- [x] Deterministic replay can reproduce serious runs or emit typed drift explanation with bounded impact.
+- [x] Coverage dashboard meets all final targets, with `false_pass_rate_negative_controls=0`.
+- [x] Anti-drift detector reports zero non-strict xfails, zero unregistered fallback allowances, zero fixture serious consumption, zero ADR-softening findings, and zero Non-Goal violations.
+- [x] Decision log has no unresolved exception whose revisit wave is complete.
+- [x] Final decision artifacts are compiler-grade: every major claim has source/method/norm refs or typed blockers.
+- [x] Public artifacts contain no secrets, hidden answers, provider credentials, unsafe paths, or tenant-private data.
+- [x] All Wave 6 commands pass.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
@@ -7,6 +8,8 @@ from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, Estim
 from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
+    persist_transportability_result,
 )
 from polisyos.scientist.governance.passes.transportability_required_pass import (
     TransportabilityRequiredPass,
@@ -163,3 +166,38 @@ def test_transportability_required_multireport_priority_skips_single_fallback() 
     issues = TransportabilityRequiredPass().validate(ctx)
 
     assert issues == []
+
+
+def test_transportability_required_blocks_required_direct_unsupported_artifact(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    transport_ref = persist_transportability_result(
+        store,
+        TransportabilityResult(
+            query="P*(msme_survival_rate|do(credit_guarantee))",
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
+            unsupported_reason="missing_causal_report",
+            final_confidence=0.0,
+            requires_expert_review=True,
+        ),
+    )
+    ctx = PassContext(
+        ir=None,
+        state={
+            "artifacts_index": {"transportability_result_ref": transport_ref},
+            "params": {"transport_required": True},
+            "_store": store,
+        },
+        registry_bundle=None,
+        profile=ValidationProfile.mvp(),
+        run_id="R_transport_pass_direct_artifact",
+    )
+
+    issues = TransportabilityRequiredPass().validate(ctx)
+
+    assert len(issues) == 1
+    assert issues[0].code == "TRANSPORT_UNSUPPORTED"
+    assert issues[0].path == ["artifacts_index", "transportability_result_ref"]
+    assert issues[0].severity == IssueSeverity.BLOCKER

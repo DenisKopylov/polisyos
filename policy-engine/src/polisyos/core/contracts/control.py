@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -34,8 +35,26 @@ PreviewStatus = Literal["ok", "insufficient_coverage", "error"]
 PromotionStatus = Literal["pending", "approved", "rejected"]
 CapabilityStage = Literal["active", "planned", "deferred"]
 ExecutionProfile = Literal["dev", "research", "governed", "production"]
+PolicyAuthorityProfile = Literal["research", "governed", "production"]
+PolicyValidationProfile = Literal["fast", "mvp", "strict"]
+PolicyFallbackProfile = Literal["serious_fallback_fail_closed"]
 ControlJobState = Literal["pending", "running", "completed", "failed"]
 ControlJobKind = Literal["workflow_run", "natural_language_run", "lex_pipeline"]
+OperatorProjectionAuthority = Literal["runtime_authority", "projection_only"]
+OperatorProjectionState = Literal[
+    "draft",
+    "projection_only",
+    "redacted",
+    "stale",
+    "contested",
+    "projected",
+    "blocked",
+    "readiness_closed",
+    "approved",
+    "rejected",
+    "published_blocked",
+    "publishable",
+]
 
 _SUPPORTED_LOCALES: tuple[Literal["en", "uk"], ...] = ("en", "uk")
 _SUPPORTED_EXECUTION_PROFILES: tuple[ExecutionProfile, ...] = (
@@ -44,6 +63,75 @@ _SUPPORTED_EXECUTION_PROFILES: tuple[ExecutionProfile, ...] = (
     "governed",
     "production",
 )
+SUPPORTED_EXECUTION_PROFILES = _SUPPORTED_EXECUTION_PROFILES
+EXECUTION_PROFILE_ORDER: dict[ExecutionProfile, int] = {
+    "dev": 0,
+    "research": 1,
+    "governed": 2,
+    "production": 3,
+}
+POLICY_AUTHORITY_PROFILES: tuple[PolicyAuthorityProfile, ...] = (
+    "research",
+    "governed",
+    "production",
+)
+POLICY_AUTHORITY_TO_EXECUTION_PROFILE: dict[
+    PolicyAuthorityProfile,
+    ExecutionProfile,
+] = {
+    "research": "research",
+    "governed": "governed",
+    "production": "production",
+}
+POLICY_AUTHORITY_TO_VALIDATION_PROFILE: dict[
+    PolicyAuthorityProfile,
+    PolicyValidationProfile,
+] = {
+    "research": "mvp",
+    "governed": "strict",
+    "production": "strict",
+}
+POLICY_AUTHORITY_TO_FALLBACK_PROFILE: dict[
+    PolicyAuthorityProfile,
+    PolicyFallbackProfile,
+] = {
+    "research": "serious_fallback_fail_closed",
+    "governed": "serious_fallback_fail_closed",
+    "production": "serious_fallback_fail_closed",
+}
+EXECUTION_PROFILE_TO_VALIDATION_PROFILE: dict[ExecutionProfile, PolicyValidationProfile] = {
+    "dev": "fast",
+    "research": "mvp",
+    "governed": "strict",
+    "production": "strict",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyAuthorityProfileMapping:
+    """Canonical mapping from policy authority to existing runtime profiles."""
+
+    authority_profile: PolicyAuthorityProfile
+    execution_profile: ExecutionProfile
+    validation_profile: PolicyValidationProfile
+    fallback_policy: PolicyFallbackProfile
+
+
+def policy_authority_profile_mapping(
+    authority_profile: str,
+) -> PolicyAuthorityProfileMapping:
+    """Return the one supported mapping for a policy authority profile."""
+
+    normalized = authority_profile.strip().casefold().replace("-", "_")
+    if normalized not in POLICY_AUTHORITY_PROFILES:
+        raise ValueError(f"unsupported policy authority profile: {authority_profile!r}")
+    profile = cast("PolicyAuthorityProfile", normalized)
+    return PolicyAuthorityProfileMapping(
+        authority_profile=profile,
+        execution_profile=POLICY_AUTHORITY_TO_EXECUTION_PROFILE[profile],
+        validation_profile=POLICY_AUTHORITY_TO_VALIDATION_PROFILE[profile],
+        fallback_policy=POLICY_AUTHORITY_TO_FALLBACK_PROFILE[profile],
+    )
 
 
 def _default_supported_locales() -> list[Literal["en", "uk"]]:
@@ -125,6 +213,7 @@ class DecisionValidityLifecycleSummary(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    status: DecisionValidityStatus | None = None
     events: list[DecisionDependencyEvent] = Field(default_factory=list)
     transitions: list[DecisionValidityTransition] = Field(default_factory=list)
     pending_reviews: list[DecisionValidityPendingReview] = Field(default_factory=list)
@@ -142,6 +231,7 @@ class DecisionValiditySummaryResponse(BaseModel):
     run_id: str | None = None
     decision_packet_ref: ArtifactRef
     status: DecisionValidityStatus
+    lifecycle_status: DecisionValidityStatus
     checked_at: datetime
     reasons: list[str] = Field(default_factory=list)
     triggers: list[DecisionTriggerRecord] = Field(default_factory=list)
@@ -881,6 +971,229 @@ class CapabilityManifestResponse(BaseModel):
     constraints: dict[str, Any] = Field(default_factory=dict)
 
 
+class OperatorProjectionStateLabel(BaseModel):
+    """Projection lifecycle label with explicit authority semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state: OperatorProjectionState
+    label: str
+    authority: OperatorProjectionAuthority
+
+
+class OperatorDiagnostic(BaseModel):
+    """Typed operator root-cause projection for serious runtime failures."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    authoritative_runtime_state: str
+    projection_source: str
+    owner: str
+    phase: str
+    first_blocking_cause: str
+    upstream_missing_input: str | None = None
+    downstream_impact: str
+    authority_refs: dict[str, str] = Field(default_factory=dict)
+    blocker_overridable: bool = False
+    evidence_refs: list[str] = Field(default_factory=list)
+    next_diagnostic_command: str
+    projection_labels: list[OperatorProjectionStateLabel] = Field(default_factory=list)
+
+
+class ControlFailureEnvelope(BaseModel):
+    """Stable operator-facing failure envelope for durable control jobs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str
+    layer: str
+    phase: str | None = None
+    message: str
+    retryable: bool = False
+    next_action: str | None = None
+    model: str | None = None
+    provider: str | None = None
+    run_id: str | None = None
+    job_id: str | None = None
+    artifact_refs: dict[str, Any] = Field(default_factory=dict)
+    variant_failures: list[dict[str, Any]] = Field(default_factory=list)
+    operator_diagnostic: OperatorDiagnostic | None = None
+
+
+class ControlQualityGate(BaseModel):
+    """Stable operator-facing quality gate emitted by canary scorecards."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    code: str | None = None
+    status: str
+    layer: str
+    phase: str | None = None
+    message: str
+    evidence_ref: str | None = None
+    next_action: str | None = None
+    next_diagnostic_command: str | None = None
+    blocking: bool = True
+    operator_diagnostic: OperatorDiagnostic | None = None
+
+
+class ControlQualityFailure(BaseModel):
+    """Operator-facing blocking quality failure summary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gate: str
+    code: str | None = None
+    layer: str
+    phase: str | None = None
+    message: str
+    evidence_ref: str | None = None
+    next_action: str | None = None
+    next_diagnostic_command: str | None = None
+    operator_diagnostic: OperatorDiagnostic | None = None
+
+
+class ControlProjectionSource(BaseModel):
+    """Label the projection surface used to shape a dashboard response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_surface: str
+    source_detail: str
+    authority_level: str
+    projection_policy: str
+
+
+class ControlAuthorityGap(BaseModel):
+    """Operator-facing unresolved authority gap exposed through API projections."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str
+    layer: str
+    phase: str | None = None
+    message: str
+    owner: str | None = None
+    evidence_ref: str | None = None
+    next_action: str | None = None
+    next_diagnostic_command: str | None = None
+
+
+class ControlApprovalProjection(BaseModel):
+    """Fail-closed approval projection for dashboard readers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state: str | None = None
+    eligible: bool = False
+    reasons: list[str] = Field(default_factory=list)
+    source_surface: str
+    authority_level: str
+
+
+ProductionApprovalDecision = Literal["approved", "approved_with_override", "blocked"]
+
+
+class ProductionApprovalOverrideRequest(BaseModel):
+    """Reviewer-attributed override request for exceptional production approval."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer_identity: str = Field(..., min_length=1, max_length=256)
+    reason: str = Field(..., min_length=1, max_length=2_000)
+    scope: str = Field(..., min_length=1, max_length=512)
+    expires_at: datetime
+    evidence_refs: list[str] = Field(..., min_length=1, max_length=50)
+    signature: str | None = Field(default=None, min_length=1, max_length=256)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_evidence_refs(self) -> ProductionApprovalOverrideRequest:
+        refs = [str(ref).strip() for ref in self.evidence_refs if str(ref).strip()]
+        if not refs:
+            raise ValueError("override evidence_refs must contain at least one non-empty ref")
+        if any(any(char in ref for char in "\r\n\t") for ref in refs):
+            raise ValueError("override evidence_refs must not contain control characters")
+        self.evidence_refs = refs
+        return self
+
+
+class ProductionApprovalOverridePacket(BaseModel):
+    """Persisted reviewer override packet with deterministic attribution signature."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer_identity: str
+    reason: str
+    scope: str
+    expires_at: datetime
+    evidence_refs: list[str] = Field(default_factory=list)
+    signed_at: datetime
+    signature: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProductionApprovalEligibility(BaseModel):
+    """Machine-readable production approval eligibility projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    eligible: bool
+    execution_completed: bool
+    quality_passed: bool
+    blocking_failure_count: int = Field(ge=0)
+    performance_status: str | None = None
+    performance_blocking: bool = False
+    conflict_status: str | None = None
+    conflict_blocking: bool = False
+    reasons: list[str] = Field(default_factory=list)
+
+
+class ProductionApprovalPacket(BaseModel):
+    """Immutable approval packet derived from a quality scorecard and optional override."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.production_approval_packet.v1"] = (
+        "policyos.production_approval_packet.v1"
+    )
+    generated_at: datetime
+    run_id: str | None = None
+    job_id: str | None = None
+    canary_kind: str | None = None
+    decision: ProductionApprovalDecision
+    eligibility: ProductionApprovalEligibility
+    scorecard_ref: str | None = None
+    scorecard_digest: str
+    scorecard_generated_at: str | None = None
+    evidence_refs: dict[str, str] = Field(default_factory=dict)
+    override: ProductionApprovalOverridePacket | None = None
+
+
+class ProductionApprovalRequest(BaseModel):
+    """Request to materialize a production approval packet for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    quality_scorecard_ref: str | None = Field(default=None, min_length=1)
+    quality_scorecard: dict[str, Any] | None = None
+    override: ProductionApprovalOverrideRequest | None = None
+
+
+class ProductionApprovalResponse(BaseModel):
+    """Return persisted production approval packet metadata and payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    decision: ProductionApprovalDecision
+    packet: ProductionApprovalPacket
+    approval_packet_ref: ArtifactRef
+    evidence_bundle_packet_path: str | None = None
+
+
 class ControlJobResponse(BaseModel):
     """Represent one durable control-plane job and its progress/error state."""
 
@@ -899,6 +1212,36 @@ class ControlJobResponse(BaseModel):
     started_at: datetime | None = None
     finished_at: datetime | None = None
     error_message: str | None = None
+    failure: ControlFailureEnvelope | None = None
+    execution_status: str | None = None
+    quality_status: str | None = None
+    quality_scorecard_ref: str | None = None
+    authoritative_scorecard_ref: str | None = None
+    projection_source: ControlProjectionSource = Field(
+        default_factory=lambda: ControlProjectionSource(
+            source_surface="runtime.control_job",
+            source_detail="control_store_progress",
+            authority_level="projection_only",
+            projection_policy="projection_only",
+        )
+    )
+    runtime_state: str | None = None
+    approval_projection: ControlApprovalProjection = Field(
+        default_factory=lambda: ControlApprovalProjection(
+            state=None,
+            eligible=False,
+            reasons=[],
+            source_surface="runtime.control_job",
+            authority_level="projection_only",
+        )
+    )
+    unresolved_authority_gaps: list[ControlAuthorityGap] = Field(default_factory=list)
+    next_diagnostic_commands: list[str] = Field(default_factory=list)
+    policy_design_case_projection: dict[str, Any] | None = None
+    quality_evidence_bundle_path: str | None = None
+    quality_gates: list[ControlQualityGate] = Field(default_factory=list)
+    blocking_quality_failures: list[ControlQualityFailure] = Field(default_factory=list)
+    operator_diagnostic: OperatorDiagnostic | None = None
     progress: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -1077,6 +1420,12 @@ class LexSearchResponse(BaseModel):
 
 
 __all__ = [
+    "EXECUTION_PROFILE_ORDER",
+    "POLICY_AUTHORITY_PROFILES",
+    "POLICY_AUTHORITY_TO_EXECUTION_PROFILE",
+    "POLICY_AUTHORITY_TO_FALLBACK_PROFILE",
+    "POLICY_AUTHORITY_TO_VALIDATION_PROFILE",
+    "SUPPORTED_EXECUTION_PROFILES",
     "BindingProfileInfo",
     "BindingProfilesListResponse",
     "CacheEntryInfo",
@@ -1093,11 +1442,17 @@ __all__ = [
     "CheckpointPolicyType",
     "ConnectorInfo",
     "ConnectorsListResponse",
+    "ControlApprovalProjection",
+    "ControlAuthorityGap",
+    "ControlFailureEnvelope",
     "ControlJobKind",
     "ControlJobResponse",
     "ControlJobState",
     "ControlOutboxEventInfo",
     "ControlOutboxEventsResponse",
+    "ControlProjectionSource",
+    "ControlQualityFailure",
+    "ControlQualityGate",
     "ControlWorkerLeaseInfo",
     "ControlWorkersResponse",
     "DataCatalogSearchResponse",
@@ -1141,8 +1496,23 @@ __all__ = [
     "ModelProfileInfo",
     "ModelProfilesListResponse",
     "NaturalLanguageRunRequest",
+    "OperatorDiagnostic",
+    "OperatorProjectionAuthority",
+    "OperatorProjectionState",
+    "OperatorProjectionStateLabel",
+    "PolicyAuthorityProfile",
+    "PolicyAuthorityProfileMapping",
+    "PolicyFallbackProfile",
     "PolicyFlags",
+    "PolicyValidationProfile",
     "PreviewStatus",
+    "ProductionApprovalDecision",
+    "ProductionApprovalEligibility",
+    "ProductionApprovalOverridePacket",
+    "ProductionApprovalOverrideRequest",
+    "ProductionApprovalPacket",
+    "ProductionApprovalRequest",
+    "ProductionApprovalResponse",
     "PromotionCandidate",
     "PromotionCandidatesResponse",
     "PromotionDecisionRequest",
@@ -1155,4 +1525,5 @@ __all__ = [
     "SourceProfileInfo",
     "SourceProfilesListResponse",
     "WorkflowRunRequest",
+    "policy_authority_profile_mapping",
 ]

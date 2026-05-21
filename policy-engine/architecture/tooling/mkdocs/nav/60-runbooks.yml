@@ -18,3 +18,8 @@
       - Artifact Corruption Recovery: runbooks/artifact-corruption-recovery.md
       - Docs Publication Failure: runbooks/docs-publication-failure.md
       - Benchmark Regression Triage: runbooks/benchmark-regression-triage.md
+      - Production Quality Canary: runbooks/production-quality-canary.md
+      - Cloud Production Debugging: runbooks/cloud-production-debugging.md
+      - Production Quality Triage: runbooks/production-quality-triage.md
+      - Honest Diagnostics Operator Triage: runbooks/honest-diagnostics.md
+      - Policy Design Case Operator Triage: runbooks/policy-design-case-operator-triage.md

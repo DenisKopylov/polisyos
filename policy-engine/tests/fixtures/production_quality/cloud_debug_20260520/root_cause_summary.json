@@ -1,0 +1,196 @@
+{
+  "schema_version": "policyos.cloud_prod_debug_root_cause_summary.v1",
+  "generated_at": "2026-05-20T08:32:44+00:00",
+  "source_run": {
+    "account_context": "repairkyiv4@gmail.com",
+    "gcp_project": "lex-1-494208",
+    "lane_id": "profile-research__provider-live_gonka_proxy__data-canonical_production__scenario-public_golden__ui-api_only",
+    "vm": "policyos-prod-debug-20260520",
+    "zone": "europe-west1-b"
+  },
+  "source_artifacts": [
+    "_build/cloud-prod-debug-20260520/cloud_prod_debug_ten_checks_summary.json",
+    "_build/cloud-prod-debug-20260520/root_cause_bundle_dir_inspection.json",
+    "_build/cloud-prod-debug-20260520/root_cause_replay_refs.json",
+    "_build/cloud-prod-debug-20260520/root_cause_fabric_source_contracts.json",
+    "_build/cloud-prod-debug-20260520/root_cause_fabric_decision_data_coverage.json",
+    "_build/cloud-prod-debug-20260520/root_cause_local_prod_data_static.json",
+    "gs://lex-1-494208-data/real_runs/policyos-prod-debug-20260520/"
+  ],
+  "bundle_path": ".polisyos/canary_evidence/local-prod-debug/live-research/profile-research__provider-live_gonka_proxy__data-canonical_production__scenario-public_golden__ui-api_only/20260520T080028Z_33b5bf0188564b2184f2d47a930b8bf0",
+  "quality_status": "fail",
+  "approval_state": "quality_failed",
+  "overall_score": 0.34375,
+  "blocking_quality_failure_count": 32,
+  "scorecard_codes": [
+    "data_dictionary_missing",
+    "data_forge_snapshot_binding_missing",
+    "hds_unknown_provenance",
+    "legacy_migration_redaction_gap",
+    "major_claim_missing_grounding",
+    "major_recommendation_missing_required_section",
+    "method_family_not_expected",
+    "no_relevant_norm_found",
+    "policy_design_case_maturity_profile_missing",
+    "policy_design_concept_unresolved",
+    "policy_design_dormant_capability_inventory_missing",
+    "policy_design_freshness_policy_time_semantics_missing",
+    "policy_design_jurisdiction_unresolved_competence_blocker",
+    "policy_design_partial_state_consistency_record_missing",
+    "policy_design_pass1b_hardening_record_missing",
+    "policy_design_scholar_academic_evidence_missing",
+    "policy_design_self_fmea_record_missing",
+    "policy_design_skip_causality_ledger_missing",
+    "policy_design_substrate_residual_verification_record_missing",
+    "prompt_tool_parser_authority_ledger_not_passing",
+    "provider_model_quality_default_model_demoted",
+    "selected_source_family_not_admissible",
+    "semantic_binding_ledger_invalid"
+  ],
+  "expected_source_families": [
+    "production_msme_panel",
+    "credit_program_registry",
+    "regional_displacement_indicators"
+  ],
+  "selected_source_families": [
+    "datasets",
+    "lex",
+    "curated",
+    "academic",
+    "ukraine_simulation"
+  ],
+  "selected_source_ids": [
+    "datasets_full_phase3full_20260327_183054",
+    "lex-amendment-only-optimized-20260501-v3",
+    "local_data_20260501",
+    "policyos_academic_runtime_slim_20260411T112032Z",
+    "ukraine_agent_simulation_baseline_20260410"
+  ],
+  "selected_source_missing_facets": [
+    "source_rights",
+    "dictionary_ref",
+    "schema_ref",
+    "field_refs",
+    "unit_refs",
+    "geography_refs",
+    "time_coverage_refs",
+    "quality_refs",
+    "missingness_refs",
+    "lineage_refs",
+    "transformation_refs",
+    "derived_feature_bindings"
+  ],
+  "lex_query_terms": [
+    "wartime_msme_support",
+    "UA",
+    "Provide one-time, needs-based cash grants to MSMEs to cover immediate operational costs such as payroll, rent, and utilities.",
+    "Offer partial government guarantees on emergency loans issued by financial institutions to MSMEs, reducing lender risk and improving credit access.",
+    "Issue redeemable digital vouchers to MSMEs for use with certified logistics providers to restore supply chain connectivity."
+  ],
+  "lex_candidate_norm_count": 0,
+  "lex_selected_norm_count": 0,
+  "lex_rejected_norm_count": 0,
+  "lex_retrieval_status": "no_relevant_norm_found",
+  "direct_lex_probe": {
+    "підприєм": 67126,
+    "кредит": 30738,
+    "грант": 5223,
+    "воєн": 15370,
+    "msme": 0,
+    "small business": 0,
+    "wartime": 0,
+    "credit": 13,
+    "grant": 7
+  },
+  "semantic_binding_error": "runtime_report_status.extra_forbidden",
+  "semantic_binding_runtime_report_status": "blocked",
+  "semantic_binding_empty_axes": [
+    "canonical_concept_refs",
+    "fabric.column_refs",
+    "lex.selected_norm_refs",
+    "foundry.uncertainty_refs",
+    "scientist.required_data_refs",
+    "scientist.required_method_refs",
+    "scientist.required_norm_refs"
+  ],
+  "policy_design_case_status": "pass",
+  "policy_design_case_missing_record_family_codes": [
+    "policy_design_substrate_residual_verification_record_missing",
+    "policy_design_self_fmea_record_missing",
+    "policy_design_partial_state_consistency_record_missing",
+    "policy_design_case_maturity_profile_missing",
+    "policy_design_dormant_capability_inventory_missing",
+    "policy_design_skip_causality_ledger_missing",
+    "policy_design_freshness_policy_time_semantics_missing",
+    "policy_design_pass1b_hardening_record_missing"
+  ],
+  "policy_design_case_related_blockers": [
+    "policy_design_scholar_academic_evidence_missing",
+    "policy_design_concept_unresolved",
+    "policy_design_jurisdiction_unresolved_competence_blocker"
+  ],
+  "hds_unknown_provenance_count": 10,
+  "authority_classification_samples": [
+    {
+      "gate": "production_data_quality_present",
+      "layer": "fabric_materialization",
+      "owner": "team-runtime-quality",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/production_data_quality.json"
+    },
+    {
+      "gate": "normative_evidence_present",
+      "layer": "lex",
+      "owner": "team-policy-semantics",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/normative_evidence.json"
+    },
+    {
+      "gate": "fabric_retrieval_trace_present",
+      "layer": "fabric_retrieval",
+      "owner": "team-fabric",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/fabric_retrieval_trace.json"
+    },
+    {
+      "gate": "foundry_method_evidence_present",
+      "layer": "foundry_methods",
+      "owner": "team-foundry",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/foundry_method_report.json"
+    },
+    {
+      "gate": "policy_grounding_matrix_present",
+      "layer": "scientist_policy_artifacts",
+      "owner": "team-policy-semantics",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/policy_grounding_matrix.json"
+    },
+    {
+      "gate": "decision_artifact_quality_present",
+      "layer": "scientist_decision_artifact",
+      "owner": "team-policy-semantics",
+      "phase": "authority_contract",
+      "code": "hds_unknown_provenance",
+      "evidence_ref": "quality_evidence/decision_artifact_quality.json"
+    }
+  ],
+  "failure_envelope": {
+    "type": "cloud_production_debug_root_cause_fixture",
+    "code": "cloud_prod_debug_root_causes_preserved",
+    "readiness_state": "not_ready",
+    "phase": "root_cause_regression",
+    "owner": "team-runtime-quality",
+    "next_action": "Implement the evidence-binding remediation waves before using this lane as production approval evidence.",
+    "evidence_refs": [
+      "_build/cloud-prod-debug-20260520/root_cause_bundle_dir_inspection.json",
+      "_build/cloud-prod-debug-20260520/root_cause_replay_refs.json",
+      "_build/cloud-prod-debug-20260520/root_cause_local_prod_data_static.json"
+    ]
+  }
+}

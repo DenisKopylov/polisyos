@@ -837,6 +837,64 @@ describe("run detail surfaces", () => {
     );
   });
 
+  it("renders honest-diagnostics operator root cause fields from run projection", async () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: {
+          duration_ms: 1200,
+          operator_diagnostic: {
+            authoritative_runtime_state: "failed",
+            projection_source: "runtime_run_details",
+            owner: "team-policy-semantics",
+            phase: "policy_grounding",
+            first_blocking_cause: "policy_grounding_matrix_ref_missing",
+            upstream_missing_input: "policy_grounding_matrix_ref",
+            downstream_impact:
+              "Readiness and approval projections remain closed.",
+            authority_refs: {
+              quality_scorecard: "quality_evidence/quality_scorecard.json",
+              runtime_event_log: "sha256:bbbb",
+            },
+            blocker_overridable: false,
+            evidence_refs: ["quality_evidence/policy_grounding_matrix.json"],
+            next_diagnostic_command:
+              "uv run pytest tests/unit/runtime/quality/test_scorecard.py -q",
+          },
+          root_artifacts: [
+            { artifact_id: "artifact-1", kind: "decision_card" },
+          ],
+          run_id: "run-1",
+          source_kind: "core_run",
+          started_at: "2026-03-09T10:00:00Z",
+          status: "failed",
+        },
+      }),
+    );
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const diagnosticPanel = await screen.findByTestId(
+      "operator-diagnostic-panel",
+    );
+    expect(
+      within(diagnosticPanel).getByText("runtime_run_details"),
+    ).toBeInTheDocument();
+    expect(within(diagnosticPanel).getByText("failed")).toBeInTheDocument();
+    expect(
+      within(diagnosticPanel).getByText("team-policy-semantics"),
+    ).toBeInTheDocument();
+    expect(
+      within(diagnosticPanel).getByText("policy_grounding_matrix_ref_missing"),
+    ).toBeInTheDocument();
+    expect(
+      within(diagnosticPanel).getByText("policy_grounding_matrix_ref"),
+    ).toBeInTheDocument();
+    expect(
+      within(diagnosticPanel).getByText(
+        "uv run pytest tests/unit/runtime/quality/test_scorecard.py -q",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("renders comparison, report, and deck pages", async () => {
     renderRoute("/runs/compare", "/runs/compare", <RunComparePage />);
     expect(

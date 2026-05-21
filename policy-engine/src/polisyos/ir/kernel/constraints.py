@@ -23,7 +23,7 @@ class ConstraintSpec(KernelModel):
 
 
 class ConstraintRegistry(KernelModel):
-    """Registry of reusable constraints that ``link_trinity`` and governance checks resolve by id."""
+    """Registry of reusable constraints resolved by Trinity linkers and governance checks."""
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     constraints: dict[str, ConstraintSpec] = Field(default_factory=dict)
@@ -51,7 +51,16 @@ DEFAULT_CONSTRAINT_REGISTRY = ConstraintRegistry(
             slot_id="government.balance",
             operator=">=",
             description="Minimum acceptable government balance",
-        )
+        ),
+        "wartime_budget_feasibility": ConstraintSpec(
+            constraint_id="wartime_budget_feasibility",
+            description=(
+                "Budget feasibility review for high-rate or overlapping wartime support "
+                "interventions."
+            ),
+            constraint_type="budget",
+            repair_strategy="tighten eligibility, lower support rate, or add funding source",
+        ),
     },
     notes=["default constraints"],
 )

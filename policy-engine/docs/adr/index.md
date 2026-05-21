@@ -8,7 +8,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | Status | Count |
 | --- | --- |
-| `accepted` | 58 |
+| `accepted` | 77 |
 | `approved` | 6 |
 | `completed` | 1 |
 | `proposed` | 91 |
@@ -63,6 +63,25 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0132](0132-scientist-voi-compute-law.md) | `accepted` | `observation` | `polisyos.scientist` | Scientist VOI Compute Law | - |
 | [0133](0133-fabric-streaming-scale-semantics.md) | `accepted` | `product-domain` | `polisyos.fabric` | Fabric Streaming Scale Semantics | - |
 | [0146](0146-product-root-decision.md) | `accepted` | `repository-structure` | `repository` | Product Root Decision | 0096, 0111, RSR-0130, RSR-0131 |
+| [0147](0147-production-evidence-authority-ordering.md) | `accepted` | `runtime-state` | `repository` | Production Evidence Authority Ordering | 0010, 0098, 0101, 0104, 0123, 0148, 0149, 0150, ADR-043 |
+| [0148](0148-serious-run-state-machine-and-phase-barriers.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Serious Run State Machine And Phase Barriers | 0008, 0009, 0097, 0099, 0101, 0147, 0149, 0150 |
+| [0149](0149-effective-mode-and-fallback-degradation-ledger.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Effective Mode And Fallback Degradation Ledger | 0097, 0101, 0116, 0147, 0148, 0150, RSR-0137 |
+| [0150](0150-scorecard-readiness-approval-projection-boundaries.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Scorecard, Readiness, Approval, And Projection Boundaries | 0007, 0099, 0100, 0101, 0147, 0148, 0149, ADR-043, ADR-044 |
+| [0151](0151-evidence-schema-compatibility-and-legacy-quarantine.md) | `accepted` | `schemas` | `repository` | Evidence Schema Compatibility And Legacy Quarantine | 0005, 0108, 0114, 0123, 0147, 0148, 0150 |
+| [0152](0152-semantic-binding-lineage-and-claim-evidence.md) | `accepted` | `product-domain` | `repository` | Semantic Binding, Lineage, And Claim Evidence | 0015, 0021, 0043, 0123, 0147, 0148, 0150, 0151, ADR-043 |
+| [0153](0153-diagnostic-slos-assurance-case-and-attestation.md) | `accepted` | `observation` | `repository` | Diagnostic SLOs, Assurance Case, And Attestation | 0006, 0010, 0116, 0128, 0147, 0148, 0149, 0150, 0151, 0152 |
+| [0154](0154-diagnostic-event-envelope-and-runtime-log-contract.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Diagnostic Event Envelope And Runtime Log Contract | 0097, 0101, 0116, 0124, 0147, 0148, 0149, 0150, 0151, 0153 |
+| [0155](0155-production-invariant-registry-and-ownership-contract.md) | `accepted` | `runtime-state` | `repository` | Production Invariant Registry And Ownership Contract | 0147, 0148, 0149, 0150, 0151, 0152, 0153, 0154 |
+| [0156](0156-policy-design-case-runtime-quality-assurance-profile.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Policy Design Case Runtime Quality Assurance Profile | 0147, 0150, 0152, 0153, 0155, 0157, 0161 |
+| [0157](0157-policy-intent-capability-ledger-authority-profile.md) | `accepted` | `product-domain` | `repository` | Policy Intent Envelope, Capability Ledger, And Authority Profile Mapping | 0129, 0131, 0149, 0150, 0152, 0156, 0158 |
+| [0158](0158-concept-spine-multi-jurisdiction-reconciliation.md) | `accepted` | `product-domain` | `polisyos.ir` | Concept Spine And Multi-Jurisdiction Reconciliation | 0036, 0051, 0147, 0152, 0156, 0157, 0159 |
+| [0159](0159-production-evidence-producer-contracts.md) | `accepted` | `product-domain` | `repository` | Production Evidence Producer Contracts For Lex, Fabric, Scholar, And Data Forge | 0015, 0021, 0112, 0122, 0152, 0156, 0158, 0160 |
+| [0160](0160-evidence-portfolio-independence-multiverse-synthesis.md) | `accepted` | `observation` | `repository` | Evidence Portfolio, Independence Map, Multiverse, And Synthesis | 0020, 0028, 0041, 0129, 0152, 0156, 0159, 0161 |
+| [0161](0161-claim-argument-warrant-compiler-closeout-gate.md) | `accepted` | `product-domain` | `repository` | Claim Argument, Warrant Reliability, And Compiler Closeout Gate | 0129, 0147, 0152, 0153, 0156, 0160 |
+| [0162](0162-human-oversight-publication-external-audit-authority.md) | `accepted` | `runtime-state` | `repository` | Human Oversight, Publication, And External Audit Authority | 0147, 0150, 0153, 0154, 0156, 0157, 0161, 0163 |
+| [0163](0163-lifecycle-ddm-ex-post-calibration.md) | `accepted` | `runtime-state` | `repository` | Lifecycle, DDM, Ex-Post Outcomes, And Calibration | 0149, 0150, 0154, 0156, 0160, 0161, 0162, 0164 |
+| [0164](0164-run-cost-proportionality-evidence-budget-governance.md) | `accepted` | `observation` | `repository` | Run Cost, Proportionality, And Evidence Budget Governance | 0150, 0156, 0157, 0160, 0161, 0163, 0165 |
+| [0165](0165-formal-policy-case-substrate-invariant-specs.md) | `accepted` | `testing` | `repository` | Formal Policy Case And Substrate Invariant Specs | 0147, 0148, 0149, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 0162, 0163, 0164 |
 | [RSR-0130](repository-structure-0130-workspace-boundary.md) | `accepted` | `repository-structure` | `repository` | Workspace Boundary | 0096, 0111 |
 | [RSR-0135](repository-structure-0135-versioning-out-of-package-names.md) | `accepted` | `repository-structure` | `repository` | Versioning Out of Package Names And Compatibility Contracts | 0118 |
 | [RSR-0136](repository-structure-0136-foundry-methods-flat-vs-catalog.md) | `accepted` | `repository-structure` | `polisyos.foundry` | Foundry Methods Flat vs Catalog | RSR-0129 |

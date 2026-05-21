@@ -5,7 +5,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world_query.py`, `tests/unit/fabric/data_plane/**`, `tests/unit/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
+Source of truth: `src/polisyos/fabric/data_plane/**`, `src/polisyos/fabric/world/query.py`, `tests/unit/fabric/data_plane/**`, `tests/unit/fabric/test_{semantic_diff,lineage,world_time_travel}.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 Processing guarantees: [processing-guarantees.md](processing-guarantees.md)
 
@@ -30,7 +30,7 @@ network fetches.
 | `benchmarks`    | Ingestion, stream, materialization, and query benchmark reports with latency/correctness counters              | Phase 5/8   |
 | `docs.*`        | Raw document ingest, text normalization, anchor extraction, and chunking with `DocMeta` lineage                | Phase 0/3   |
 | `claims.*`      | Claim extraction, canonicalization, conflict resolution, trust scoring, and evidence bundles                   | Phase 0/3/5 |
-| `world_query`   | Governed read-only query helpers over materialized world tables with column masking                            | Phase 3/4   |
+| `world.query`   | Governed read-only query helpers over materialized world tables with column masking                            | Phase 3/4   |
 
 ## Execution Modes
 
@@ -147,4 +147,4 @@ uv run pytest tests/unit/fabric/test_world_materialization.py tests/unit/fabric/
 
 ::: polisyos.fabric.claims.conflicts.types
 
-::: polisyos.fabric.world_query
+::: polisyos.fabric.world.query

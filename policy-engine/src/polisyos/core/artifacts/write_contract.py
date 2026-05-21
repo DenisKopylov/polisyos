@@ -7,7 +7,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .manifest import (
+        ArtifactAuthorityInfo,
         ArtifactGovernanceInfo,
+        ArtifactSameInputClosureInfo,
+        ArtifactTenantContextInfo,
         CanonInfo,
         EnvInfo,
         InputRef,
@@ -28,6 +31,9 @@ class ArtifactWriteOptions:
     inputs: list[InputRef] | None = None
     canon: CanonInfo | None = None
     governance: ArtifactGovernanceInfo | None = None
+    tenant_context: ArtifactTenantContextInfo | None = None
+    same_input_closure: ArtifactSameInputClosureInfo | None = None
+    authority: ArtifactAuthorityInfo | None = None
 
 
 __all__ = ["ArtifactWriteOptions"]

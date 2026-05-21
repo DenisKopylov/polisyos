@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import os
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
@@ -90,7 +91,8 @@ class BlockingDependencyGuard:
                 detail=f"{self._dependency_name} circuit breaker is open",
             )
         try:
-            future = self._executor.submit(func, *args, **kwargs)
+            context = contextvars.copy_context()
+            future = self._executor.submit(context.run, func, *args, **kwargs)
         except RuntimeError as exc:
             raise RuntimeDependencyUnavailableError(
                 self._dependency_name,
@@ -103,12 +105,13 @@ class BlockingDependencyGuard:
             self._breaker.record_failure(lease)
             raise RuntimeDependencyTimeoutError(self._dependency_name) from exc
         except Exception as exc:
-            self._breaker.record_failure(lease)
             if self._is_unavailable_exception(exc):
+                self._breaker.record_failure(lease)
                 raise RuntimeDependencyUnavailableError(
                     self._dependency_name,
                     detail=str(exc) or f"{self._dependency_name} is temporarily unavailable",
                 ) from exc
+            self._breaker.record_success(lease)
             raise
         self._breaker.record_success(lease)
         return result
@@ -166,12 +169,13 @@ class AsyncDependencyGuard:
             self._release_cancelled_lease(lease)
             raise
         except Exception as exc:
-            self._breaker.record_failure(lease)
             if self._is_unavailable_exception(exc):
+                self._breaker.record_failure(lease)
                 raise RuntimeDependencyUnavailableError(
                     self._dependency_name,
                     detail=str(exc) or f"{self._dependency_name} is temporarily unavailable",
                 ) from exc
+            self._breaker.record_success(lease)
             raise
         self._breaker.record_success(lease)
         return result
@@ -244,9 +248,9 @@ def build_runtime_cas_guard() -> BlockingDependencyGuard:
         breaker=_build_breaker(circuit_id="runtime.cas", env_prefix="POLISYOS_RUNTIME_CAS"),
         executor_max_workers=_env_int("POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS", 4),
         executor=get_shared_executor(),
-        unavailable_exception_types=(OSError,),
+        unavailable_exception_types=(),
         unavailable_exception_predicate=lambda exc: isinstance(exc, OSError)
-        and not isinstance(exc, FileNotFoundError),
+        and not isinstance(exc, FileNotFoundError | PermissionError),
     )
 
 

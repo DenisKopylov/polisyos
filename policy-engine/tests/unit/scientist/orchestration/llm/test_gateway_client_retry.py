@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -38,6 +39,36 @@ class TestHTTPError:
         err = _HTTPError("bad", status=429)
         assert err.status == 429
         assert "bad" in str(err)
+
+
+class TestSessionLifecycle:
+    async def test_transport_failure_closes_session_before_raising(self):
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+            max_retries=0,
+        )
+
+        class _FailingSession:
+            closed = False
+            close_called = False
+
+            def post(self, *args, **kwargs):
+                raise asyncio.TimeoutError()
+
+            async def close(self):
+                self.close_called = True
+                self.closed = True
+
+        session = _FailingSession()
+        client._session = session
+
+        with pytest.raises(RuntimeError, match="Failed LLM gateway call"):
+            await client.generate(user="hello")
+
+        assert session.close_called is True
+        assert client._session is None
 
 
 class TestConnectionPooling:
@@ -489,6 +520,146 @@ class TestPresetAndPlugins:
             {"id": "audit-trace", "mode": "compact"},
             {"id": "response-healing"},
         ]
+
+
+class TestResponseFormatFallback:
+    @pytest.mark.asyncio
+    async def test_response_format_unsupported_is_memoized_per_client(self):
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+            max_retries=0,
+        )
+        seen_payloads: list[dict[str, object]] = []
+
+        class _FakeResp:
+            headers = {}
+
+            def __init__(self, status: int) -> None:
+                self.status = status
+
+            async def text(self):
+                if self.status == 400:
+                    return json.dumps(
+                        {"error": {"message": "feature 'json_object' is temporarily unavailable"}}
+                    )
+                return json.dumps(
+                    {
+                        "model": "m",
+                        "choices": [{"message": {"content": "ok"}}],
+                    }
+                )
+
+        class _FakeSession:
+            closed = False
+
+            def post(self, *a, **kw):
+                payload = dict(kw["json"])
+                seen_payloads.append(payload)
+                status = 400 if len(seen_payloads) == 1 else 200
+                return _AsyncCtx(_FakeResp(status))
+
+            async def close(self):
+                pass
+
+        class _AsyncCtx:
+            def __init__(self, resp):
+                self._resp = resp
+
+            async def __aenter__(self):
+                return self._resp
+
+            async def __aexit__(self, *args):
+                pass
+
+        client._session = _FakeSession()
+
+        first = await client.generate(
+            user="one",
+            response_format={"type": "json_object"},
+        )
+        second = await client.generate(
+            user="two",
+            response_format={"type": "json_object"},
+        )
+
+        assert first.content == "ok"
+        assert second.content == "ok"
+        assert [("response_format" in payload) for payload in seen_payloads] == [
+            True,
+            False,
+            False,
+        ]
+        client._session = None
+
+    @pytest.mark.asyncio
+    async def test_response_format_fallback_is_preserved_in_response_raw(self):
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+            max_retries=0,
+        )
+
+        class _FakeResp:
+            headers = {}
+
+            def __init__(self, status: int) -> None:
+                self.status = status
+
+            async def text(self):
+                if self.status == 400:
+                    return json.dumps(
+                        {"error": {"message": "feature 'json_object' is temporarily unavailable"}}
+                    )
+                return json.dumps(
+                    {
+                        "model": "m",
+                        "choices": [{"message": {"content": "ok"}}],
+                    }
+                )
+
+        class _FakeSession:
+            closed = False
+            call_count = 0
+
+            def post(self, *a, **kw):
+                self.call_count += 1
+                status = 400 if self.call_count == 1 else 200
+                return _AsyncCtx(_FakeResp(status))
+
+            async def close(self):
+                pass
+
+        class _AsyncCtx:
+            def __init__(self, resp):
+                self._resp = resp
+
+            async def __aenter__(self):
+                return self._resp
+
+            async def __aexit__(self, *args):
+                pass
+
+        client._session = _FakeSession()
+        degraded_event = {
+            "reason": "response_format_unsupported_retry_plain_json",
+            "component": "llm.gateway_client",
+        }
+        with patch(
+            "polisyos.scientist.orchestration.llm.gateway_client.emit_degraded_path",
+            return_value=degraded_event,
+        ):
+            response = await client.generate(
+                user="one",
+                response_format={"type": "json_object"},
+            )
+
+        assert response.content == "ok"
+        assert response.raw is not None
+        assert response.raw["_gateway_degraded_events"] == [degraded_event]
+        client._session = None
 
 
 class TestModelCatalog:

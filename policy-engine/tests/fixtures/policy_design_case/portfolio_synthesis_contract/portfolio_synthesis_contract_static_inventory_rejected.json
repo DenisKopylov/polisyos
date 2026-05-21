@@ -1,0 +1,59 @@
+{
+  "fixture_id": "portfolio_synthesis_contract_static_inventory_rejected",
+  "adr": "ADR-0160",
+  "contract_name": "policy_design_case.portfolio_synthesis_contract.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "pdc_portfolio_static_inventory_not_authority",
+  "sdd_record_families": [
+    "evidence_portfolio_and_synthesis.v1"
+  ],
+  "description": "A post-hoc static list of successful evidence refs is not a predeclared portfolio.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0160_static_inventory_rejected",
+    "artifact_ref": "repo://docs/plans/active/POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#phase-11---freeze-contract-fixtures",
+    "cas_ref": null,
+    "authority_role": "not_authoritative",
+    "provenance_kind": "static_inventory",
+    "static_inventory_ref": "repo://docs/plans/active/POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#phase-11---freeze-contract-fixtures",
+    "producer_component": "docs.plan.fixture_inventory",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-science-quality",
+    "runtime_event_ref": "event://policy_design_case/adr0160/portfolio_synthesis/static_inventory_rejected",
+    "schema_name": "policy_design_case.portfolio_synthesis_contract",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.portfolio_synthesis_contract.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_portfolio_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:04:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0160_static_inventory_rejected",
+      "status": "blocked",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "repo://docs/plans/active/POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#phase-11---freeze-contract-fixtures"
+      ],
+      "closure_sha256": null
+    },
+    "validation_status": "blocked",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "pdc_portfolio_static_inventory_not_authority",
+      "reason": "Static evidence list is post-hoc and lacks runtime independence, multiverse, disconfirming, synthesis, and stopping-rule refs."
+    }
+  },
+  "payload": {
+    "static_inventory_candidate": {
+      "inventory_ref": "repo://docs/plans/active/POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#phase-11---freeze-contract-fixtures",
+      "post_hoc_evidence_refs": [
+        "local://bundle/evidence.json"
+      ]
+    },
+    "missing_predeclared_portfolio": true,
+    "missing_independence_map": true,
+    "missing_accepted_single_line_deficit": true
+  }
+}

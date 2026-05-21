@@ -244,8 +244,6 @@ def create_runtime_api_app(
 
 
 def _default_core_runs_root(cas_root: Path) -> Path:
-    if cas_root.name == "cas" and cas_root.parent.name == ".polisyos":
-        return cas_root.parent / "runs"
     return cas_root / "runs"
 
 

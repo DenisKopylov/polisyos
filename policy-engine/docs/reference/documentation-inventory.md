@@ -180,6 +180,20 @@ Total required file coverage: `97/97`.
 
 ### Current Audit Notes
 
+- 2026-05-15: Honest Diagnostics Phase 6.5 added the operator-facing triage
+  runbook for runtime ref, diagnostic event, source-truth, adapter, mode,
+  fallback, phase-barrier, projection, semantic binding, tenant, stale evidence,
+  attestation, and partial-state failures. The design decision and accepted ADR
+  set were reviewed for this documentation pass; no decision supersession was
+  required.
+- 2026-05-13: Production-quality Phase 6.2 documents the cross-lane impact of
+  runtime quality, Fabric source-selection audit, compliance, frontend
+  operator dashboard, provider-quality, replay, resilience, approval, reissue,
+  and withdrawal changes. Operator evidence now lives in
+  `docs/runbooks/production-quality-canary.md`,
+  `docs/runbooks/production-quality-triage.md`, and
+  `docs/reference/runtime/production-quality-approval.md`; generated command
+  coverage is refreshed in `docs/reference/tools.md`.
 - 2026-04-28: Fabric Phase 7 touched public package facades under
   `src/polisyos/fabric/{security,world}` and regenerated the runtime client for
   temporal capability fields. The impact is covered by

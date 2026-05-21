@@ -1,0 +1,325 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_evidence_synthesis_report_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Evidence Synthesis Report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_id",
+    "claim_ids",
+    "portfolio_id",
+    "weighting_model",
+    "heterogeneity_model",
+    "certainty_framework",
+    "publication_bias_treatment",
+    "inclusion_policy",
+    "exclusion_policy",
+    "synthesis_estimate",
+    "claim_direction",
+    "sensitivity_to_synthesis_rules",
+    "information_saturation",
+    "run_cost_proportionality",
+    "divergence_assessment",
+    "previous_wave_refs",
+    "evidence_ref",
+    "runtime_event_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.evidence_synthesis_report.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.evidence_synthesis_report.v1"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "portfolio_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "multiverse_curve_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "disconfirming_ledger_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "weighting_model": {
+      "type": "object",
+      "required": ["strategy"],
+      "properties": {
+        "strategy": {
+          "enum": ["equal", "inverse_variance", "quality_weight"]
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "included_decisions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "heterogeneity_model": {
+      "type": "object",
+      "required": ["model"],
+      "additionalProperties": true
+    },
+    "certainty_framework": {
+      "type": "object",
+      "required": ["framework"],
+      "additionalProperties": true
+    },
+    "publication_bias_treatment": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": true
+    },
+    "inclusion_policy": {
+      "type": "object",
+      "required": ["policy_id"],
+      "additionalProperties": true
+    },
+    "exclusion_policy": {
+      "type": "object",
+      "required": ["policy_id"],
+      "additionalProperties": true
+    },
+    "synthesis_estimate": {
+      "type": "object",
+      "required": [
+        "rule_id",
+        "estimate",
+        "direction",
+        "included_specification_ids"
+      ],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estimate": {
+          "type": "number"
+        },
+        "direction": {
+          "enum": ["positive", "negative", "zero"]
+        },
+        "included_specification_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "total_weight": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "claim_direction": {
+      "enum": ["positive", "negative", "zero"]
+    },
+    "sensitivity_to_synthesis_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "weighting",
+          "included_decisions",
+          "estimate",
+          "direction",
+          "direction_changed",
+          "included_specification_ids"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "weighting": {
+            "type": "string",
+            "minLength": 1
+          },
+          "included_decisions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "estimate": {
+            "type": "number"
+          },
+          "direction": {
+            "enum": ["positive", "negative", "zero"]
+          },
+          "reasonable": {
+            "type": "boolean"
+          },
+          "direction_changed": {
+            "type": "boolean"
+          },
+          "included_specification_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "information_saturation": {
+      "type": "object",
+      "required": [
+        "status",
+        "effective_independent_evidence_count",
+        "minimum_effective_independent_evidence_count",
+        "recent_direction_changes",
+        "stopping_decision"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["saturated", "not_saturated", "blocked"]
+        },
+        "effective_independent_evidence_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimum_effective_independent_evidence_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recent_direction_changes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stopping_decision": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "run_cost_proportionality": {
+      "type": "object",
+      "required": [
+        "status",
+        "budget_tier",
+        "marginal_cost_usd",
+        "marginal_information_gain",
+        "cost_evidence_ref",
+        "proportionality_rationale"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budget_tier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estimated_run_cost_usd": {
+          "type": "number"
+        },
+        "marginal_cost_usd": {
+          "type": "number"
+        },
+        "marginal_information_gain": {
+          "type": "number"
+        },
+        "cost_evidence_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proportionality_rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "divergence_assessment": {
+      "type": "object",
+      "required": ["status", "reason_codes"],
+      "properties": {
+        "status": {
+          "enum": ["convergent", "divergent", "blocked"]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "divergence_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "kind", "evidence_ref"],
+        "additionalProperties": true
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["status", "code", "message", "evidence_ref", "runtime_event_ref"],
+        "additionalProperties": true
+      }
+    },
+    "previous_wave_refs": {
+      "type": "object",
+      "required": [
+        "portfolio_design_refs",
+        "evidence_line_refs",
+        "independence_map_refs",
+        "multiverse_curve_refs",
+        "disconfirming_ledger_refs"
+      ],
+      "additionalProperties": true
+    },
+    "evidence_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime_event_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

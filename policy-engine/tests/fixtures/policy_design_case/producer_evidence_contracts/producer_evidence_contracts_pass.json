@@ -1,0 +1,76 @@
+{
+  "fixture_id": "producer_evidence_contracts_pass",
+  "adr": "ADR-0159",
+  "contract_name": "policy_design_case.producer_evidence_contracts.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "legal_authority_and_competence.v1",
+    "data_source_semantic_lineage.v1",
+    "scholar_academic_evidence.v1"
+  ],
+  "description": "Lex, Fabric, Scholar, and Data Forge evidence records carry producer-owned runtime refs.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0159_pass",
+    "artifact_ref": "cas://sha256/0159015901590159015901590159015901590159015901590159015901590159",
+    "cas_ref": "cas://sha256/0159015901590159015901590159015901590159015901590159015901590159",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.runtime.quality.producer_evidence",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-domain-producers",
+    "runtime_event_ref": "event://policy_design_case/adr0159/producer_evidence/pass",
+    "schema_name": "policy_design_case.producer_evidence_contracts",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.producer_evidence_contracts.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_producer_evidence_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:03:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0159_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+        "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999"
+      ],
+      "closure_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "producer_records": [
+      {
+        "producer": "lex",
+        "family": "legal_authority_and_competence.v1",
+        "runtime_ref": "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+        "candidate_count": 2,
+        "rejected_candidate_count": 1
+      },
+      {
+        "producer": "fabric",
+        "family": "data_source_semantic_lineage.v1",
+        "runtime_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+        "field_lineage_ref": "cas://sha256/abababababababababababababababababababababababababababababababab"
+      },
+      {
+        "producer": "scholar",
+        "family": "scholar_academic_evidence.v1",
+        "runtime_ref": "cas://sha256/cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "query_graph_ref": "cas://sha256/efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+      },
+      {
+        "producer": "data_forge",
+        "family": "data_source_semantic_lineage.v1",
+        "snapshot_ref": "cas://sha256/1212121212121212121212121212121212121212121212121212121212121212",
+        "read_api_contract_ref": "cas://sha256/3434343434343434343434343434343434343434343434343434343434343434"
+      }
+    ],
+    "static_inventory_substitution_allowed": false
+  }
+}

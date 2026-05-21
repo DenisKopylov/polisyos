@@ -89,6 +89,21 @@ _ERROR_WELFARE_OUTPUT_NONFINITE = "ERROR_WELFARE_OUTPUT_NONFINITE"
 _ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID = "ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID"
 _ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED = "ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED"
 
+_EXPLICIT_WELFARE_RESPONSE_KEYS = frozenset(("pe_response", "metric_order", "weights"))
+_EXPLICIT_GE_UNCERTAINTY_KEYS = frozenset(
+    (
+        "ge_uncertainty_ref",
+        "ge_matrix",
+        "ge_lower_matrix",
+        "ge_upper_matrix",
+        "ge_technical_coefficients",
+        "ge_lower_technical_coefficients",
+        "ge_upper_technical_coefficients",
+        "ge_model_ref",
+        "ge_entry_map",
+    )
+)
+
 _DEFAULT_CONDITION_THRESHOLD = 1e12
 _DEFAULT_MAX_VERTEX_ENUMERATION = 10
 
@@ -248,6 +263,27 @@ class PropagateWelfareNode:
 
         try:
             collection = _collect_input_envelopes(ctx, state, welfare_params=welfare_params)
+            if (
+                not collection.envelopes
+                and not _has_explicit_welfare_request(
+                    welfare_params,
+                    keys=_EXPLICIT_WELFARE_RESPONSE_KEYS | _EXPLICIT_GE_UNCERTAINTY_KEYS,
+                )
+            ):
+                return NodeOutcome(
+                    status="skip",
+                    state=state,
+                    events=[
+                        NodeEvent(
+                            level="info",
+                            code="welfare.inputs_missing",
+                            message=(
+                                "No welfare target or PE/GE uncertainty inputs supplied; "
+                                "skip welfare propagation"
+                            ),
+                        )
+                    ],
+                )
             context = _resolve_welfare_context(
                 ctx,
                 welfare_params=welfare_params,
@@ -537,6 +573,20 @@ def _load_welfare_params(state: ExperimentState) -> dict[str, Any]:
         if key.startswith("welfare_"):
             resolved[key[8:]] = value
     return resolved
+
+
+def _has_explicit_welfare_request(
+    welfare_params: Mapping[str, Any],
+    *,
+    keys: frozenset[str],
+) -> bool:
+    for key in keys:
+        if welfare_params.get(key) is not None:
+            return True
+        prefixed_key = f"welfare_{key}"
+        if welfare_params.get(prefixed_key) is not None:
+            return True
+    return False
 
 
 def _extract_numeric_metrics(metrics: Metrics) -> dict[str, float]:

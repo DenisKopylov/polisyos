@@ -36,6 +36,19 @@
     "degradation_kind": "generated_substitute",
     "downstream_impact": "Would replace missing runtime authority with bundle-local generated evidence.",
     "override_policy": "not_overridable",
+    "provenance_refs": [
+      "event://diagnostic/evt_hds_phase02_generated_substitute_rejected",
+      "cas://sha256/1414141414141414141414141414141414141414141414141414141414141414",
+      "bundle://quality_evidence/normative_evidence.json"
+    ],
+    "typed_blocker": {
+      "code": "degradation_generated_substitute_not_allowed",
+      "message": "Generated substitutes are allowed only for dev smoke and cannot satisfy production closeout.",
+      "severity": "critical",
+      "next_action": "Persist runtime-owned normative applicability evidence before bundle assembly.",
+      "blocking": true,
+      "may_satisfy_serious_gate": false
+    },
     "blocking_status": "non_overridable",
     "owner": "team-runtime-ops",
     "generated_at": "2026-05-14T12:06:00Z",

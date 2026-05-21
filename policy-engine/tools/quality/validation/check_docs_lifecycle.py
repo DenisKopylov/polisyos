@@ -89,6 +89,21 @@ NAV_REQUIRED_TOKENS = (
     "ADRs By Topic: adr/by-topic.md",
     "Authoring Contract: adr/AUTHORING.md",
 )
+POLICY_DESIGN_CASE_SECOND_PACK_ADRS = {
+    "0162": "docs/adr/0162-human-oversight-publication-external-audit-authority.md",
+    "0163": "docs/adr/0163-lifecycle-ddm-ex-post-calibration.md",
+    "0164": "docs/adr/0164-run-cost-proportionality-evidence-budget-governance.md",
+    "0165": "docs/adr/0165-formal-policy-case-substrate-invariant-specs.md",
+}
+POLICY_DESIGN_CASE_SECOND_PACK_SURFACES = (
+    "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+    "docs/plans/archive/2026-05-19-policyos-policy-design-case-implementation-plan.md",
+    "docs/system-design-decisions/policy-design-case-decision-log.md",
+)
+POLICY_DESIGN_CASE_WAVE26_PLAN_CHECKBOXES = (
+    "- [x] Second ADR pack is accepted and indexed.",
+    "- [x] Later governance work has explicit ADR authority.",
+)
 KNOWN_REDIRECT_STUBS = (
     "frontend",
 )
@@ -123,10 +138,13 @@ REFERENCE_SCAN_EXCLUDED_DIRS = frozenset(
         ".pytest_cache",
         ".ruff_cache",
         ".venv",
+        ".polisyos",
         "_build",
         "_cache",
         "__pycache__",
         "node_modules",
+        "production_data",
+        "runs",
     )
 )
 REFERENCE_SCAN_EXCLUDED_FILENAMES = frozenset(("package-lock.json", "pnpm-lock.yaml"))
@@ -318,6 +336,90 @@ def check_docs_nav(repo_root: Path) -> list[LifecycleFinding]:
                 findings.append(
                     LifecycleFinding("docs_nav", _repo_path(repo_root, path), f"missing {token}")
                 )
+    return findings
+
+
+def check_policy_design_case_second_governance_pack(repo_root: Path) -> list[LifecycleFinding]:
+    findings: list[LifecycleFinding] = []
+    index_path = repo_root / "docs" / "adr" / "index.toml"
+    indexed_rows: dict[str, dict[str, object]] = {}
+    if index_path.is_file():
+        data = _load_toml(index_path)
+        rows = data.get("adr", [])
+        if isinstance(rows, list):
+            indexed_rows = {
+                str(row.get("id", "")): row
+                for row in rows
+                if isinstance(row, dict) and str(row.get("id", "")).startswith("016")
+            }
+
+    for adr_id, adr_path in POLICY_DESIGN_CASE_SECOND_PACK_ADRS.items():
+        full_path = repo_root / adr_path
+        if not full_path.is_file():
+            findings.append(
+                LifecycleFinding("pdc_second_adr_pack", adr_path, "second-pack ADR file missing.")
+            )
+            continue
+        row = indexed_rows.get(adr_id)
+        if row is None:
+            findings.append(
+                LifecycleFinding(
+                    "pdc_second_adr_pack",
+                    adr_path,
+                    "second-pack ADR is missing from docs/adr/index.toml.",
+                )
+            )
+            continue
+        if row.get("path") != adr_path or row.get("status") != "accepted":
+            findings.append(
+                LifecycleFinding(
+                    "pdc_second_adr_pack",
+                    adr_path,
+                    "second-pack ADR index row must preserve accepted status and path.",
+                )
+            )
+
+    for surface in POLICY_DESIGN_CASE_SECOND_PACK_SURFACES:
+        path = repo_root / surface
+        if not path.is_file():
+            findings.append(
+                LifecycleFinding(
+                    "pdc_second_adr_pack",
+                    surface,
+                    "second-pack governance surface missing.",
+                )
+            )
+            continue
+        text = path.read_text(encoding="utf-8")
+        for adr_id, adr_path in POLICY_DESIGN_CASE_SECOND_PACK_ADRS.items():
+            if f"ADR-{adr_id}" not in text:
+                findings.append(
+                    LifecycleFinding(
+                        "pdc_second_adr_pack",
+                        surface,
+                        f"surface does not cite ADR-{adr_id}.",
+                    )
+                )
+            if surface.endswith("policyos-policy-design-case-implementation-plan.md"):
+                filename = Path(adr_path).name
+                if filename not in text:
+                    findings.append(
+                        LifecycleFinding(
+                            "pdc_second_adr_pack",
+                            surface,
+                            f"plan does not link {filename}.",
+                        )
+                    )
+        if surface.endswith("policyos-policy-design-case-implementation-plan.md"):
+            for checkbox in POLICY_DESIGN_CASE_WAVE26_PLAN_CHECKBOXES:
+                if checkbox not in text:
+                    findings.append(
+                        LifecycleFinding(
+                            "pdc_second_adr_pack",
+                            surface,
+                            f"Wave 26 exit fence is not checked: {checkbox}",
+                        )
+                    )
     return findings
 
 
@@ -590,6 +692,7 @@ def run_checks(repo_root: Path) -> list[LifecycleFinding]:
     checks: tuple[Iterable[LifecycleFinding], ...] = (
         check_adr_index(repo_root),
         check_docs_nav(repo_root),
+        check_policy_design_case_second_governance_pack(repo_root),
         check_active_plans(repo_root),
         check_redirect_stubs(repo_root),
         check_removed_stub_references(repo_root),

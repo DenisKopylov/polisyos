@@ -72,14 +72,8 @@ class AcademicGatherer:
                 target_context=target_context,
             )
             gathered = GathererResult(
-                status=(
-                    result.evidence_status.value
-                    if hasattr(result.evidence_status, "value")
-                    else str(result.evidence_status)
-                ),
-                confidence=(
-                    result.transport_confidence if hasattr(result, "transport_confidence") else 0.5
-                ),
+                status=_result_evidence_status(result),
+                confidence=_result_confidence(result),
                 diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
                 provenance_refs=(
                     list(result.provenance_refs) if hasattr(result, "provenance_refs") else []
@@ -135,6 +129,23 @@ class AcademicGatherer:
                 **context_metadata,
             },
         )
+
+
+def _result_evidence_status(result: Any) -> str:
+    status = getattr(result, "evidence_status", None)
+    if status is None:
+        status = getattr(result, "status", EvidenceStatus.INSUFFICIENT)
+    return status.value if hasattr(status, "value") else str(status)
+
+
+def _result_confidence(result: Any) -> float:
+    confidence = getattr(result, "transport_confidence", None)
+    if confidence is None:
+        confidence = getattr(result, "confidence", 0.5)
+    try:
+        return float(confidence)
+    except (TypeError, ValueError):
+        return 0.5
 
 
 def _attach_environment_audit_diagnostics(
@@ -378,7 +389,8 @@ def _environment_audit_diagnostics(
             code="cross_graph.academic.environment_audit_advisory",
             need_id=need.need_id,
             message=(
-                "Academic evidence exists, but the environment audit reported instability or feature drift."
+                "Academic evidence exists, but the environment audit reported "
+                "instability or feature drift."
             ),
             details={
                 "environment_audit_status": audit_status or None,

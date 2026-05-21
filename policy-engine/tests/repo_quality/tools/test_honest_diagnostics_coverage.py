@@ -23,7 +23,11 @@ EXPECTED_METRICS = {
     "source_truth_conflict_gate_pct",
     "semantic_binding_gate_pct",
     "legacy_quarantine_classified_pct",
+    "diagnostic_slo_metric_coverage_pct",
+    "attestation_observed_material_coverage_pct",
+    "public_redaction_projection_coverage_pct",
     "false_pass_rate_negative_controls",
+    "replay_drift_gate_pct",
     "operator_ttrc_p50_minutes",
     "operator_ttrc_p90_minutes",
 }
@@ -50,7 +54,7 @@ def test_coverage_builder_writes_required_metric_dashboard(tmp_path: Path) -> No
     assert payload["source"]["invariant_registry"].endswith(
         "architecture/production_quality/invariant_registry.toml"
     )
-    assert "| Metric | Value | Numerator | Denominator |" in markdown
+    assert "| Metric | Value | Numerator | Denominator | Denominator Changed | Wave 0 | Wave 1 | Wave 3 | Wave 4 | Final |" in markdown
 
     for metric_id in EXPECTED_METRICS:
         metric = metrics[metric_id]
@@ -62,10 +66,220 @@ def test_coverage_builder_writes_required_metric_dashboard(tmp_path: Path) -> No
     for metric_id in ("operator_ttrc_p50_minutes", "operator_ttrc_p90_minutes"):
         metric = metrics[metric_id]
         assert metric["value"] is None
-        assert metric["numerator"] == 0
         assert metric["denominator"] == 0
-        assert metric["measurement_status"] == "not_measured"
+        assert metric["measurement_status"] == "missing_wave5_runtime_evidence"
     assert "| `operator_ttrc_p50_minutes` | null | 0 | 0 |" in markdown
+
+
+def test_coverage_builder_strict_wave5_requires_explicit_evidence_inputs() -> None:
+    payload = coverage.build_coverage_payload(
+        repo_root=REPO_ROOT,
+        wave="final",
+        require_targets=True,
+    )
+
+    assert payload["summary"]["status"] == "fail"
+    assert {
+        item["code"] for item in payload["missing_evidence"]
+    } == {
+        "hds_wave5_metamorphic_report_missing",
+        "hds_wave5_resilience_report_missing",
+        "hds_wave5_replay_report_missing",
+        "hds_substrate_drift_report_missing",
+    }
+
+
+def test_coverage_builder_computes_wave5_metrics_from_supplied_reports(
+    tmp_path: Path,
+) -> None:
+    metamorphic_report = _write_json(
+        tmp_path / "metamorphic.json",
+        {
+            "schema_version": "policyos.hds.wave5.metamorphic_closeout.v1",
+            "scenario_reports": [
+                {
+                    "scenario_id": "scenario-a",
+                    "semantic_binding_report": {"status": "pass"},
+                    "negative_controls": {
+                        "controls": [
+                            {
+                                "control_id": "hidden_token_leakage_attempt",
+                                "status": "pass",
+                                "observed_status": "blocked",
+                                "failure_codes": ["hds_hidden_token_leakage"],
+                                "expected_failure_codes": ["hds_hidden_token_leakage"],
+                            },
+                            {
+                                "control_id": "source_prompt_injection",
+                                "status": "fail",
+                                "observed_status": "pass",
+                                "failure_codes": [],
+                                "expected_failure_codes": ["hds_source_prompt_injection"],
+                            },
+                        ]
+                    },
+                }
+            ],
+        },
+    )
+    resilience_report = _write_json(
+        tmp_path / "resilience.json",
+        {
+            "schema_version": "policyos.runtime_resilience_matrix.v1",
+            "operator_ttrc_minutes": {"p50": 4.0, "p90": 8.0},
+            "scenarios": [
+                {
+                    "readiness_lane": {"lane_id": "load"},
+                    "runtime_owned_evidence": {
+                        "runtime_owned": True,
+                        "emission_mode": "runtime_cas_event",
+                    },
+                    "diagnostic_slo_evidence": {
+                        "runtime_owned": True,
+                        "emission_mode": "runtime_cas_event",
+                        "metrics": [
+                            {"metric_id": metric_id, "evidence_ref": "sha256:" + "a" * 64}
+                            for metric_id in (
+                                "trace_continuity",
+                                "event_loss",
+                                "payload_mismatch",
+                                "latency",
+                                "retry_amplification",
+                                "stale_evidence",
+                                "operator_root_cause_fields",
+                            )
+                        ],
+                    },
+                }
+            ],
+        },
+    )
+    replay_report = _write_json(
+        tmp_path / "replay.json",
+        {
+            "schema_version": "policyos.hds.wave5.replay_drift_closeout.v1",
+            "cases": [
+                {"case_id": "match", "status": "pass"},
+                {"case_id": "high-impact", "status": "pass"},
+            ],
+        },
+    )
+    substrate_drift_report = _write_json(
+        tmp_path / "substrate-drift.json",
+        {
+            "schema_version": "policyos.honest_diagnostics_substrate_drift.v1",
+            "status": "pass",
+        },
+    )
+
+    payload = coverage.build_coverage_payload(
+        repo_root=REPO_ROOT,
+        wave5_metamorphic_report_path=metamorphic_report,
+        wave5_resilience_report_path=resilience_report,
+        wave5_replay_report_path=replay_report,
+        substrate_drift_report_path=substrate_drift_report,
+        wave="final",
+        require_targets=True,
+    )
+
+    assert payload["summary"]["status"] == "fail"
+    assert payload["metrics"]["false_pass_rate_negative_controls"]["numerator"] == 1
+    assert payload["metrics"]["false_pass_rate_negative_controls"]["denominator"] == 2
+    assert payload["metrics"]["semantic_binding_gate_pct"]["value"] == 100.0
+    assert payload["metrics"]["diagnostic_slo_metric_coverage_pct"]["value"] == 100.0
+    assert payload["metrics"]["operator_ttrc_p50_minutes"]["value"] == 4.0
+    assert payload["metrics"]["operator_ttrc_p90_minutes"]["value"] == 8.0
+    assert payload["metrics"]["replay_drift_gate_pct"]["value"] == 100.0
+
+
+def test_coverage_builder_requires_passing_substrate_drift_report(
+    tmp_path: Path,
+) -> None:
+    metamorphic_report = _write_json(
+        tmp_path / "metamorphic.json",
+        {
+            "schema_version": "policyos.hds.wave5.metamorphic_closeout.v1",
+            "scenario_reports": [],
+        },
+    )
+    resilience_report = _write_json(
+        tmp_path / "resilience.json",
+        {"schema_version": "policyos.runtime_resilience_matrix.v1", "scenarios": []},
+    )
+    replay_report = _write_json(
+        tmp_path / "replay.json",
+        {"schema_version": "policyos.hds.wave5.replay_drift_closeout.v1", "cases": []},
+    )
+    substrate_drift_report = _write_json(
+        tmp_path / "substrate-drift.json",
+        {
+            "schema_version": "policyos.honest_diagnostics_substrate_drift.v1",
+            "status": "fail",
+            "violations": [
+                {
+                    "code": "hds_scan_path_missing",
+                    "path": "docs/plans/active/old.md",
+                    "line": 1,
+                    "message": "scan path missing",
+                }
+            ],
+        },
+    )
+
+    payload = coverage.build_coverage_payload(
+        repo_root=REPO_ROOT,
+        wave5_metamorphic_report_path=metamorphic_report,
+        wave5_resilience_report_path=resilience_report,
+        wave5_replay_report_path=replay_report,
+        substrate_drift_report_path=substrate_drift_report,
+        wave="final",
+        require_targets=True,
+    )
+
+    assert payload["summary"]["status"] == "fail"
+    assert {
+        item["code"] for item in payload["missing_evidence"]
+    } >= {"hds_substrate_drift_report_not_passing"}
+
+
+def test_coverage_builder_uses_wave4_operational_closeout_report(tmp_path: Path) -> None:
+    closeout_report = tmp_path / "wave4_operational_closeout.json"
+    closeout_report.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.honest_diagnostics.wave4_closeout.v1",
+                "status": "pass",
+                "exit_fence_items": [
+                    {"item_id": "semantic_binding_claim_level", "status": "pass"},
+                    {"item_id": "legacy_quarantined_unless_compatible", "status": "pass"},
+                    {"item_id": "public_exports_projection_only", "status": "pass"},
+                ],
+                "diagnostic_slo_refs": {
+                    f"metric_{index}": f"sha256:{index}"
+                    for index in range(16)
+                },
+                "attestation_refs": {
+                    f"boundary_{index}": f"sha256:{index}"
+                    for index in range(12)
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = coverage.build_coverage_payload(
+        repo_root=REPO_ROOT,
+        operational_closeout_report_path=closeout_report,
+    )
+
+    metrics = payload["metrics"]
+    assert metrics["semantic_binding_gate_pct"]["measurement_status"] == (
+        "measured_from_wave4_closeout"
+    )
+    assert metrics["semantic_binding_gate_pct"]["value"] == 100.0
+    assert metrics["diagnostic_slo_metric_coverage_pct"]["numerator"] == 16
+    assert metrics["attestation_observed_material_coverage_pct"]["numerator"] == 12
 
 
 def test_coverage_builder_rejects_missing_metric_definitions() -> None:
@@ -300,6 +514,14 @@ def _write_payload(directory: Path, payload: dict[str, object]) -> Path:
         encoding="utf-8",
     )
     return directory
+
+
+def _write_json(path: Path, payload: dict[str, object]) -> Path:
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return path
 
 
 def _metric_ids(rows: list[dict[str, object]]) -> set[str]:

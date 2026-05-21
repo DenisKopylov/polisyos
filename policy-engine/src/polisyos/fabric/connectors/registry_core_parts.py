@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import threading
+import weakref
 from collections import OrderedDict
 from collections.abc import Iterator
 from datetime import UTC, datetime
@@ -55,6 +57,7 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 MAX_CONNECTION_POOLS = 512
+_POOL_KEY_STATE_KEY = "__polisyos_connector_pool_key"
 
 
 class ConnectorRegistry(RegistryLifecycleMixin):
@@ -93,9 +96,16 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             },
         )
 
-        # Connection pool management (keyed by (fqid, config_fingerprint))
-        self._connection_pools: OrderedDict[tuple[str, str], ConnectionPool] = OrderedDict()
+        # Connection pool management is scoped by event loop because pools own
+        # asyncio primitives; fresh-loop callers must not share those objects.
+        self._connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool] = (
+            OrderedDict()
+        )
         self._max_connection_pools = MAX_CONNECTION_POOLS
+        self._loop_scope_ids: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, int] = (
+            weakref.WeakKeyDictionary()
+        )
+        self._next_loop_scope_id = 1
 
         # Instance lock for thread-safe mutations
         self._instance_lock = threading.RLock()
@@ -670,7 +680,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             )
 
         fingerprint = self._config_fingerprint(effective_config)
-        pool_key = (fqid, fingerprint)
+        with self._instance_lock:
+            pool_scope = self._current_pool_scope_locked()
+        pool_key = (fqid, fingerprint, pool_scope)
 
         with self._instance_lock:
             pool = self._get_connection_pool_locked(pool_key)
@@ -710,7 +722,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 connector_factory=entry.factory,
                 config=effective_config,
                 pool_config=pool_config,
-                pool_id=f"pool-{fqid}-{fingerprint[:8]}",
+                pool_id=f"pool-{fqid}-{fingerprint[:8]}-loop{pool_scope}",
                 circuit_breaker=breaker,
             )
             evicted_pools: list[ConnectionPool] = []
@@ -722,7 +734,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             for evicted_pool in evicted_pools:
                 await evicted_pool.close_all()
 
-        return await pool.acquire()
+        handle = await pool.acquire()
+        handle.set_state(_POOL_KEY_STATE_KEY, pool_key)
+        return handle
 
     async def release_connection(
         self,
@@ -732,7 +746,18 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         """Release a connection back to the pool."""
         fqid = self._resolve_id(connector_id)
         fingerprint = self._config_fingerprint(handle.config)
-        pool_key = (fqid, fingerprint)
+        stored_pool_key = handle.get_state(_POOL_KEY_STATE_KEY)
+        if (
+            isinstance(stored_pool_key, tuple)
+            and len(stored_pool_key) == 3
+            and stored_pool_key[0] == fqid
+            and stored_pool_key[1] == fingerprint
+            and isinstance(stored_pool_key[2], int)
+        ):
+            pool_key = stored_pool_key
+        else:
+            with self._instance_lock:
+                pool_key = (fqid, fingerprint, self._current_pool_scope_locked())
 
         with self._instance_lock:
             pool = self._get_connection_pool_locked(pool_key)
@@ -757,9 +782,25 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
         return content_hash(payload_json, prefix=True)
 
+    def _current_pool_scope_locked(self) -> int:
+        """Return the current event-loop pool scope.
+
+        ``ConnectionPool`` contains ``asyncio.Lock``/``Semaphore`` instances, so
+        sharing one pool across fresh event loops can raise "bound to a different
+        event loop" under contention. The registry singleton is process-wide,
+        therefore pool keys include a small stable id for the active loop.
+        """
+        loop = asyncio.get_running_loop()
+        scope = self._loop_scope_ids.get(loop)
+        if scope is None:
+            scope = self._next_loop_scope_id
+            self._next_loop_scope_id += 1
+            self._loop_scope_ids[loop] = scope
+        return scope
+
     def _get_connection_pool_locked(
         self,
-        pool_key: tuple[str, str],
+        pool_key: tuple[str, str, int],
     ) -> ConnectionPool | None:
         pool = self._connection_pools.get(pool_key)
         if pool is not None:
@@ -768,7 +809,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
     def _store_connection_pool_locked(
         self,
-        pool_key: tuple[str, str],
+        pool_key: tuple[str, str, int],
         pool: ConnectionPool,
     ) -> list[ConnectionPool]:
         self._connection_pools[pool_key] = pool

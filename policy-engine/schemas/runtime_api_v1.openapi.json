@@ -315,7 +315,7 @@
           "decision_packet_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -335,7 +335,7 @@
           "execution_plan_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -366,7 +366,7 @@
           "method_catalog_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -379,6 +379,18 @@
             },
             "title": "Notes",
             "type": "array"
+          },
+          "performance_summary": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Performance Summary"
           },
           "preflight": {
             "anyOf": [
@@ -393,7 +405,7 @@
           "reflexion_terminal_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -882,12 +894,36 @@
         "title": "ArtifactManifestView",
         "type": "object"
       },
-      "ArtifactRef": {
+      "ArtifactRef-Input": {
         "additionalProperties": false,
         "description": "Reference an artifact across service, registry, and governance boundaries.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "ArtifactRef-Output": {
+        "additionalProperties": false,
+        "description": "Reference an artifact across service, registry, and governance boundaries.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "title": "Kind",
@@ -1027,7 +1063,7 @@
           "exec_plan_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ExecPlanRef"
+                "$ref": "#/components/schemas/ExecPlanRef-Input"
               },
               {
                 "type": "null"
@@ -1047,7 +1083,7 @@
           "feedback_result_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/FeedbackResultRef"
+                "$ref": "#/components/schemas/FeedbackResultRef-Input"
               },
               {
                 "type": "null"
@@ -1084,7 +1120,7 @@
           "model_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Input"
               },
               {
                 "type": "null"
@@ -1128,7 +1164,7 @@
           "simulation_result_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SimulationResultRef"
+                "$ref": "#/components/schemas/SimulationResultRef-Input"
               },
               {
                 "type": "null"
@@ -1283,7 +1319,7 @@
           "exec_plan_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ExecPlanRef"
+                "$ref": "#/components/schemas/ExecPlanRef-Output"
               },
               {
                 "type": "null"
@@ -1293,7 +1329,7 @@
           "feedback_result_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/FeedbackResultRef"
+                "$ref": "#/components/schemas/FeedbackResultRef-Output"
               },
               {
                 "type": "null"
@@ -1309,7 +1345,7 @@
           "model_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -1338,7 +1374,7 @@
           "simulation_result_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SimulationResultRef"
+                "$ref": "#/components/schemas/SimulationResultRef-Output"
               },
               {
                 "type": "null"
@@ -1364,7 +1400,7 @@
         "description": "Artifact reference for a multi-attractor analysis summary.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "type": "string"
           },
           "kind": {
             "default": "foundry.attractor_analysis_result",
@@ -1502,7 +1538,7 @@
           "proof_artifact_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -1764,7 +1800,7 @@
           "invariant_set_artifact_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -1774,7 +1810,7 @@
           "orbit_artifact_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -2221,7 +2257,7 @@
         "description": "Artifact reference for dense basin membership samples.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "type": "string"
           },
           "kind": {
             "default": "foundry.basin_map",
@@ -3507,7 +3543,7 @@
           "causal_diagnostics_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -3517,7 +3553,7 @@
           "dependence_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -3527,7 +3563,7 @@
           "governance_artifact_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -3537,7 +3573,7 @@
           "quality_certificate_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -3547,7 +3583,7 @@
           "sae_estimates_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -4443,7 +4479,7 @@
         "description": "Artifact reference for an equilibrium, cycle, or bifurcation continuation branch.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "type": "string"
           },
           "kind": {
             "default": "foundry.continuation_branch",
@@ -4462,14 +4498,277 @@
         "title": "ContinuationBranchRef",
         "type": "object"
       },
+      "ControlApprovalProjection": {
+        "additionalProperties": false,
+        "description": "Fail-closed approval projection for dashboard readers.",
+        "properties": {
+          "authority_level": {
+            "title": "Authority Level",
+            "type": "string"
+          },
+          "eligible": {
+            "default": false,
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "source_surface": {
+            "title": "Source Surface",
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          }
+        },
+        "required": [
+          "source_surface",
+          "authority_level"
+        ],
+        "title": "ControlApprovalProjection",
+        "type": "object"
+      },
+      "ControlAuthorityGap": {
+        "additionalProperties": false,
+        "description": "Operator-facing unresolved authority gap exposed through API projections.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "layer": {
+            "title": "Layer",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "next_diagnostic_command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Diagnostic Command"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          }
+        },
+        "required": [
+          "code",
+          "layer",
+          "message"
+        ],
+        "title": "ControlAuthorityGap",
+        "type": "object"
+      },
+      "ControlFailureEnvelope": {
+        "additionalProperties": false,
+        "description": "Stable operator-facing failure envelope for durable control jobs.",
+        "properties": {
+          "artifact_refs": {
+            "additionalProperties": true,
+            "title": "Artifact Refs",
+            "type": "object"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "layer": {
+            "title": "Layer",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "operator_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "retryable": {
+            "default": false,
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "variant_failures": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Variant Failures",
+            "type": "array"
+          }
+        },
+        "required": [
+          "code",
+          "layer",
+          "message"
+        ],
+        "title": "ControlFailureEnvelope",
+        "type": "object"
+      },
       "ControlJobResponse": {
         "additionalProperties": false,
         "description": "Represent one durable control-plane job and its progress/error state.",
         "properties": {
+          "approval_projection": {
+            "$ref": "#/components/schemas/ControlApprovalProjection"
+          },
+          "authoritative_scorecard_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authoritative Scorecard Ref"
+          },
+          "blocking_quality_failures": {
+            "items": {
+              "$ref": "#/components/schemas/ControlQualityFailure"
+            },
+            "title": "Blocking Quality Failures",
+            "type": "array"
+          },
           "capability_manifest_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -4496,6 +4795,27 @@
               }
             ],
             "title": "Error Message"
+          },
+          "execution_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Status"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ControlFailureEnvelope"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "finished_at": {
             "anyOf": [
@@ -4525,6 +4845,23 @@
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
           },
+          "next_diagnostic_commands": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Next Diagnostic Commands",
+            "type": "array"
+          },
+          "operator_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "pipeline_id": {
             "anyOf": [
               {
@@ -4536,10 +4873,65 @@
             ],
             "title": "Pipeline Id"
           },
+          "policy_design_case_projection": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Design Case Projection"
+          },
           "progress": {
             "additionalProperties": true,
             "title": "Progress",
             "type": "object"
+          },
+          "projection_source": {
+            "$ref": "#/components/schemas/ControlProjectionSource"
+          },
+          "quality_evidence_bundle_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Evidence Bundle Path"
+          },
+          "quality_gates": {
+            "items": {
+              "$ref": "#/components/schemas/ControlQualityGate"
+            },
+            "title": "Quality Gates",
+            "type": "array"
+          },
+          "quality_scorecard_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Scorecard Ref"
+          },
+          "quality_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Status"
           },
           "requested_execution_profile": {
             "anyOf": [
@@ -4568,6 +4960,17 @@
               }
             ],
             "title": "Run Id"
+          },
+          "runtime_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime State"
           },
           "started_at": {
             "anyOf": [
@@ -4602,6 +5005,13 @@
               }
             ],
             "title": "Submitted At"
+          },
+          "unresolved_authority_gaps": {
+            "items": {
+              "$ref": "#/components/schemas/ControlAuthorityGap"
+            },
+            "title": "Unresolved Authority Gaps",
+            "type": "array"
           }
         },
         "required": [
@@ -4746,6 +5156,226 @@
           "meta"
         ],
         "title": "ControlOutboxEventsResponse",
+        "type": "object"
+      },
+      "ControlProjectionSource": {
+        "additionalProperties": false,
+        "description": "Label the projection surface used to shape a dashboard response.",
+        "properties": {
+          "authority_level": {
+            "title": "Authority Level",
+            "type": "string"
+          },
+          "projection_policy": {
+            "title": "Projection Policy",
+            "type": "string"
+          },
+          "source_detail": {
+            "title": "Source Detail",
+            "type": "string"
+          },
+          "source_surface": {
+            "title": "Source Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_surface",
+          "source_detail",
+          "authority_level",
+          "projection_policy"
+        ],
+        "title": "ControlProjectionSource",
+        "type": "object"
+      },
+      "ControlQualityFailure": {
+        "additionalProperties": false,
+        "description": "Operator-facing blocking quality failure summary.",
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "gate": {
+            "title": "Gate",
+            "type": "string"
+          },
+          "layer": {
+            "title": "Layer",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "next_diagnostic_command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Diagnostic Command"
+          },
+          "operator_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          }
+        },
+        "required": [
+          "gate",
+          "layer",
+          "message"
+        ],
+        "title": "ControlQualityFailure",
+        "type": "object"
+      },
+      "ControlQualityGate": {
+        "additionalProperties": false,
+        "description": "Stable operator-facing quality gate emitted by canary scorecards.",
+        "properties": {
+          "blocking": {
+            "default": true,
+            "title": "Blocking",
+            "type": "boolean"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "layer": {
+            "title": "Layer",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "next_diagnostic_command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Diagnostic Command"
+          },
+          "operator_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperatorDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "layer",
+          "message"
+        ],
+        "title": "ControlQualityGate",
         "type": "object"
       },
       "ControlWorkerLeaseInfo": {
@@ -6657,6 +7287,12 @@
       "DecisionTriggerType": {
         "description": "Identify the external or internal event that changed packet validity.",
         "enum": [
+          "norm_invalidation",
+          "data_invalidation",
+          "source_invalidation",
+          "metric_invalidation",
+          "model_invalidation",
+          "conflict_invalidation",
           "law_change",
           "dataset_superseded",
           "historical_semantic_revision",
@@ -6818,7 +7454,7 @@
           },
           "reissue_candidates": {
             "items": {
-              "$ref": "#/components/schemas/ArtifactRef"
+              "$ref": "#/components/schemas/ArtifactRef-Output"
             },
             "title": "Reissue Candidates",
             "type": "array"
@@ -6829,6 +7465,16 @@
             },
             "title": "Scheduled Jobs",
             "type": "array"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionValidityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "transitions": {
             "items": {
@@ -6877,7 +7523,10 @@
           "active",
           "warning",
           "stale",
+          "review_required",
           "superseded",
+          "reissued",
+          "withdrawn",
           "revoked",
           "requires_human_review"
         ],
@@ -6898,12 +7547,12 @@
             "type": "string"
           },
           "decision_packet_ref": {
-            "$ref": "#/components/schemas/ArtifactRef"
+            "$ref": "#/components/schemas/ArtifactRef-Output"
           },
           "evaluation_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -6912,6 +7561,9 @@
           },
           "lifecycle": {
             "$ref": "#/components/schemas/DecisionValidityLifecycleSummary"
+          },
+          "lifecycle_status": {
+            "$ref": "#/components/schemas/DecisionValidityStatus"
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -6949,7 +7601,7 @@
           "superseded_by_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -6959,7 +7611,7 @@
           "supersedes_decision_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -6978,6 +7630,7 @@
           "meta",
           "decision_packet_ref",
           "status",
+          "lifecycle_status",
           "checked_at",
           "decision_lineage_key",
           "recommended_action"
@@ -7217,7 +7870,7 @@
         "description": "Derived artifact public type.",
         "properties": {
           "ref": {
-            "$ref": "#/components/schemas/ArtifactRef"
+            "$ref": "#/components/schemas/ArtifactRef-Output"
           },
           "role": {
             "title": "Role",
@@ -7954,7 +8607,7 @@
           "report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -8036,12 +8689,36 @@
         "title": "EvaluatorScoresView",
         "type": "object"
       },
-      "ExecPlanRef": {
+      "ExecPlanRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the resolved Foundry execution plan and runtime posture.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
+          },
+          "kind": {
+            "default": "foundry.exec_plan",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "ExecPlanRef",
+        "type": "object"
+      },
+      "ExecPlanRef-Output": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the resolved Foundry execution plan and runtime posture.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "default": "foundry.exec_plan",
@@ -8722,7 +9399,7 @@
           "compare_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -8739,7 +9416,7 @@
           "monitoring_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -8749,7 +9426,7 @@
           "reissue_plan_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -8814,12 +9491,36 @@
         "title": "FeedbackJacobianDiagnosticsRef",
         "type": "object"
       },
-      "FeedbackResultRef": {
+      "FeedbackResultRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the top-level feedback solve result.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
+          },
+          "kind": {
+            "default": "foundry.feedback_result",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "FeedbackResultRef",
+        "type": "object"
+      },
+      "FeedbackResultRef-Output": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the top-level feedback solve result.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "default": "foundry.feedback_result",
@@ -9289,7 +9990,7 @@
                 "additionalProperties": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/ArtifactRef"
+                      "$ref": "#/components/schemas/ArtifactRef-Output"
                     },
                     {
                       "type": "null"
@@ -9307,7 +10008,7 @@
           "normative_arbitration_result_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -9347,7 +10048,7 @@
           "report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -9706,7 +10407,7 @@
         "description": "Declare one upstream artifact edge in a manifest lineage DAG.",
         "properties": {
           "artifact_id": {
-            "$ref": "#/components/schemas/ArtifactID"
+            "type": "string"
           },
           "role": {
             "title": "Role",
@@ -9776,7 +10477,7 @@
           "state_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -10893,7 +11594,7 @@
           "bounds_bundle_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -10916,7 +11617,7 @@
           "mobility_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -10954,7 +11655,7 @@
             "$ref": "#/components/schemas/ApiMeta"
           },
           "mobility_report_ref": {
-            "$ref": "#/components/schemas/ArtifactRef"
+            "$ref": "#/components/schemas/ArtifactRef-Output"
           }
         },
         "required": [
@@ -11235,7 +11936,7 @@
           "bounds_bundle_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -11248,7 +11949,7 @@
           "mobility_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -11276,7 +11977,7 @@
             "$ref": "#/components/schemas/ApiMeta"
           },
           "mobility_report_ref": {
-            "$ref": "#/components/schemas/ArtifactRef"
+            "$ref": "#/components/schemas/ArtifactRef-Output"
           },
           "report": {
             "additionalProperties": true,
@@ -11858,6 +12559,131 @@
         "title": "NodeDebugView",
         "type": "object"
       },
+      "OperatorDiagnostic": {
+        "additionalProperties": false,
+        "description": "Typed operator root-cause projection for serious runtime failures.",
+        "properties": {
+          "authoritative_runtime_state": {
+            "title": "Authoritative Runtime State",
+            "type": "string"
+          },
+          "authority_refs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Authority Refs",
+            "type": "object"
+          },
+          "blocker_overridable": {
+            "default": false,
+            "title": "Blocker Overridable",
+            "type": "boolean"
+          },
+          "downstream_impact": {
+            "title": "Downstream Impact",
+            "type": "string"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "first_blocking_cause": {
+            "title": "First Blocking Cause",
+            "type": "string"
+          },
+          "next_diagnostic_command": {
+            "title": "Next Diagnostic Command",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "projection_labels": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorProjectionStateLabel"
+            },
+            "title": "Projection Labels",
+            "type": "array"
+          },
+          "projection_source": {
+            "title": "Projection Source",
+            "type": "string"
+          },
+          "upstream_missing_input": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upstream Missing Input"
+          }
+        },
+        "required": [
+          "authoritative_runtime_state",
+          "projection_source",
+          "owner",
+          "phase",
+          "first_blocking_cause",
+          "downstream_impact",
+          "next_diagnostic_command"
+        ],
+        "title": "OperatorDiagnostic",
+        "type": "object"
+      },
+      "OperatorProjectionStateLabel": {
+        "additionalProperties": false,
+        "description": "Projection lifecycle label with explicit authority semantics.",
+        "properties": {
+          "authority": {
+            "enum": [
+              "runtime_authority",
+              "projection_only"
+            ],
+            "title": "Authority",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "draft",
+              "projection_only",
+              "redacted",
+              "stale",
+              "contested",
+              "projected",
+              "blocked",
+              "readiness_closed",
+              "approved",
+              "rejected",
+              "published_blocked",
+              "publishable"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "authority"
+        ],
+        "title": "OperatorProjectionStateLabel",
+        "type": "object"
+      },
       "PolicyFlags": {
         "additionalProperties": false,
         "description": "Carry opt-in execution relaxations requested by the client.\n\n`allow_mock_fallback=True` is privileged in governed/production profiles and\nmay be rejected by the runtime execution-policy resolver.",
@@ -11941,7 +12767,7 @@
           "report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -11950,6 +12776,398 @@
           }
         },
         "title": "PreflightReportView",
+        "type": "object"
+      },
+      "ProductionApprovalEligibility": {
+        "additionalProperties": false,
+        "description": "Machine-readable production approval eligibility projection.",
+        "properties": {
+          "blocking_failure_count": {
+            "minimum": 0.0,
+            "title": "Blocking Failure Count",
+            "type": "integer"
+          },
+          "conflict_blocking": {
+            "default": false,
+            "title": "Conflict Blocking",
+            "type": "boolean"
+          },
+          "conflict_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conflict Status"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "execution_completed": {
+            "title": "Execution Completed",
+            "type": "boolean"
+          },
+          "performance_blocking": {
+            "default": false,
+            "title": "Performance Blocking",
+            "type": "boolean"
+          },
+          "performance_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Performance Status"
+          },
+          "quality_passed": {
+            "title": "Quality Passed",
+            "type": "boolean"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "eligible",
+          "execution_completed",
+          "quality_passed",
+          "blocking_failure_count"
+        ],
+        "title": "ProductionApprovalEligibility",
+        "type": "object"
+      },
+      "ProductionApprovalOverridePacket": {
+        "additionalProperties": false,
+        "description": "Persisted reviewer override packet with deterministic attribution signature.",
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviewer_identity": {
+            "title": "Reviewer Identity",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          },
+          "signed_at": {
+            "format": "date-time",
+            "title": "Signed At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reviewer_identity",
+          "reason",
+          "scope",
+          "expires_at",
+          "signed_at",
+          "signature"
+        ],
+        "title": "ProductionApprovalOverridePacket",
+        "type": "object"
+      },
+      "ProductionApprovalOverrideRequest": {
+        "additionalProperties": false,
+        "description": "Reviewer-attributed override request for exceptional production approval.",
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviewer_identity": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Reviewer Identity",
+            "type": "string"
+          },
+          "scope": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Scope",
+            "type": "string"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature"
+          }
+        },
+        "required": [
+          "reviewer_identity",
+          "reason",
+          "scope",
+          "expires_at",
+          "evidence_refs"
+        ],
+        "title": "ProductionApprovalOverrideRequest",
+        "type": "object"
+      },
+      "ProductionApprovalPacket": {
+        "additionalProperties": false,
+        "description": "Immutable approval packet derived from a quality scorecard and optional override.",
+        "properties": {
+          "canary_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canary Kind"
+          },
+          "decision": {
+            "enum": [
+              "approved",
+              "approved_with_override",
+              "blocked"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/ProductionApprovalEligibility"
+          },
+          "evidence_refs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "object"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "override": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductionApprovalOverridePacket"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "schema_version": {
+            "const": "policyos.production_approval_packet.v1",
+            "default": "policyos.production_approval_packet.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scorecard_digest": {
+            "title": "Scorecard Digest",
+            "type": "string"
+          },
+          "scorecard_generated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scorecard Generated At"
+          },
+          "scorecard_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scorecard Ref"
+          }
+        },
+        "required": [
+          "generated_at",
+          "decision",
+          "eligibility",
+          "scorecard_digest"
+        ],
+        "title": "ProductionApprovalPacket",
+        "type": "object"
+      },
+      "ProductionApprovalRequest": {
+        "additionalProperties": false,
+        "description": "Request to materialize a production approval packet for one run.",
+        "properties": {
+          "override": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductionApprovalOverrideRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quality_scorecard": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Scorecard"
+          },
+          "quality_scorecard_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Scorecard Ref"
+          }
+        },
+        "title": "ProductionApprovalRequest",
+        "type": "object"
+      },
+      "ProductionApprovalResponse": {
+        "additionalProperties": false,
+        "description": "Return persisted production approval packet metadata and payload.",
+        "properties": {
+          "approval_packet_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "decision": {
+            "enum": [
+              "approved",
+              "approved_with_override",
+              "blocked"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "evidence_bundle_packet_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Bundle Packet Path"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "packet": {
+            "$ref": "#/components/schemas/ProductionApprovalPacket"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "decision",
+          "packet",
+          "approval_packet_ref"
+        ],
+        "title": "ProductionApprovalResponse",
         "type": "object"
       },
       "PromotionCandidate": {
@@ -12689,7 +13907,7 @@
           "manifest_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -12954,7 +14172,7 @@
           "capability_manifest_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -12991,7 +14209,7 @@
           "decision_superseded_by_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13068,16 +14286,38 @@
           "manifest_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
               }
             ]
           },
+          "operator_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunOperatorDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "policy_design_case_projection": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Design Case Projection"
+          },
           "root_artifacts": {
             "items": {
-              "$ref": "#/components/schemas/ArtifactRef"
+              "$ref": "#/components/schemas/ArtifactRef-Output"
             },
             "title": "Root Artifacts",
             "type": "array"
@@ -13121,7 +14361,7 @@
           "trace_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13138,7 +14378,7 @@
           "workflow_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13224,7 +14464,7 @@
           "report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13365,7 +14605,7 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13375,7 +14615,7 @@
           "evidence_bundle_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13385,7 +14625,17 @@
           "execution_plan_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fabric_retrieval_trace_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -13402,12 +14652,24 @@
           "input_bindings_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
               }
             ]
+          },
+          "materialization_refs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Materialization Refs",
+            "type": "object"
+          },
+          "production_data_evidence_context": {
+            "additionalProperties": true,
+            "title": "Production Data Evidence Context",
+            "type": "object"
           },
           "promotion_candidates": {
             "items": {
@@ -13418,7 +14680,7 @@
           },
           "related_artifacts": {
             "items": {
-              "$ref": "#/components/schemas/ArtifactRef"
+              "$ref": "#/components/schemas/ArtifactRef-Output"
             },
             "title": "Related Artifacts",
             "type": "array"
@@ -13775,7 +15037,7 @@
           "decision_packet_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -14076,6 +15338,131 @@
         "title": "RunNodesResponse",
         "type": "object"
       },
+      "RunOperatorDiagnostic": {
+        "additionalProperties": false,
+        "description": "Typed operator root-cause projection attached to run details.",
+        "properties": {
+          "authoritative_runtime_state": {
+            "title": "Authoritative Runtime State",
+            "type": "string"
+          },
+          "authority_refs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Authority Refs",
+            "type": "object"
+          },
+          "blocker_overridable": {
+            "default": false,
+            "title": "Blocker Overridable",
+            "type": "boolean"
+          },
+          "downstream_impact": {
+            "title": "Downstream Impact",
+            "type": "string"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "first_blocking_cause": {
+            "title": "First Blocking Cause",
+            "type": "string"
+          },
+          "next_diagnostic_command": {
+            "title": "Next Diagnostic Command",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "projection_labels": {
+            "items": {
+              "$ref": "#/components/schemas/RunOperatorProjectionStateLabel"
+            },
+            "title": "Projection Labels",
+            "type": "array"
+          },
+          "projection_source": {
+            "title": "Projection Source",
+            "type": "string"
+          },
+          "upstream_missing_input": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upstream Missing Input"
+          }
+        },
+        "required": [
+          "authoritative_runtime_state",
+          "projection_source",
+          "owner",
+          "phase",
+          "first_blocking_cause",
+          "downstream_impact",
+          "next_diagnostic_command"
+        ],
+        "title": "RunOperatorDiagnostic",
+        "type": "object"
+      },
+      "RunOperatorProjectionStateLabel": {
+        "additionalProperties": false,
+        "description": "Projection lifecycle label with explicit authority semantics.",
+        "properties": {
+          "authority": {
+            "enum": [
+              "runtime_authority",
+              "projection_only"
+            ],
+            "title": "Authority",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "draft",
+              "projection_only",
+              "redacted",
+              "stale",
+              "contested",
+              "projected",
+              "blocked",
+              "readiness_closed",
+              "approved",
+              "rejected",
+              "published_blocked",
+              "publishable"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "authority"
+        ],
+        "title": "RunOperatorProjectionStateLabel",
+        "type": "object"
+      },
       "RunQuantitiesResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run quantity inventory endpoint.",
@@ -14162,7 +15549,7 @@
           "decision_superseded_by_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -14792,7 +16179,7 @@
           "workflow_report_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -14802,7 +16189,7 @@
           "workflow_spec_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ArtifactRef"
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -15890,12 +17277,36 @@
         "title": "ScenarioRef",
         "type": "object"
       },
-      "SimulationResultRef": {
+      "SimulationResultRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the top-level simulation result bundle returned by Foundry.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
+          },
+          "kind": {
+            "default": "foundry.simulation_result",
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "SimulationResultRef",
+        "type": "object"
+      },
+      "SimulationResultRef-Output": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the top-level simulation result bundle returned by Foundry.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "default": "foundry.simulation_result",
@@ -41273,6 +42684,288 @@
           }
         },
         "summary": "Get Run Nodes",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/production-approval": {
+      "post": {
+        "operationId": "create_run_production_approval",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductionApprovalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "create_run_production_approval response example",
+                    "value": {
+                      "approval_packet_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "runtime.production_approval_packet",
+                        "media_type": "application/json"
+                      },
+                      "decision": "blocked",
+                      "evidence_bundle_packet_path": ".polisyos/canary_evidence/sample/production_approval_packet.json",
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "packet": {
+                        "canary_kind": "governed",
+                        "decision": "blocked",
+                        "eligibility": {
+                          "blocking_failure_count": 1,
+                          "conflict_blocking": false,
+                          "conflict_status": "pass",
+                          "eligible": false,
+                          "execution_completed": true,
+                          "performance_blocking": false,
+                          "performance_status": "pass",
+                          "quality_passed": false,
+                          "reasons": [
+                            "quality_not_passing",
+                            "blocking_quality_failures"
+                          ]
+                        },
+                        "evidence_refs": {
+                          "quality_scorecard": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "readiness_aggregator": "docs/archive/reports/readiness_aggregator.json",
+                          "resilience_matrix": "docs/archive/reports/resilience_matrix.json"
+                        },
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "job_id": "job_ctrl_abcdef01",
+                        "override": null,
+                        "run_id": "R_core_api_001",
+                        "schema_version": "policyos.production_approval_packet.v1",
+                        "scorecard_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                        "scorecard_generated_at": "2026-02-11T12:00:00Z",
+                        "scorecard_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      },
+                      "run_id": "R_core_api_001"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionApprovalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/production-approval",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Create Run Production Approval",
         "tags": [
           "runtime-runs"
         ]

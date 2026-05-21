@@ -41,6 +41,11 @@ Component bundle index: `ops/components/README.md`.
 | [Artifact Corruption Recovery](artifact-corruption-recovery.md)                                       | Read-time integrity verification выявила corrupted blob или manifest mismatch             | `@platform-owners` + affected owner |
 | [Docs Publication Failure](docs-publication-failure.md)                                               | `mkdocs build --strict` или repo-tracked documentation gate не проходит                   | `@docs-owners`                      |
 | [Benchmark Regression Triage](benchmark-regression-triage.md)                                         | Benchmark suite ушёл вниз по quality, latency или stability                               | `@foundry-owners`                   |
+| [Production Quality Canary](production-quality-canary.md)                                             | Production-quality canary, scenario matrix, approval, override, replay, or live-provider review | `@platform-owners` + runtime        |
+| [Cloud Production Debugging](cloud-production-debugging.md)                                           | Google Cloud production-debug host, data staging, secure env, and live lane validation          | `@platform-owners` + runtime        |
+| [Production Quality Triage](production-quality-triage.md)                                             | PQL-001 through PQL-024 failure triage by layer, phase, report, and next action           | `@platform-owners`                  |
+| [Honest Diagnostics Operator Triage](honest-diagnostics.md)                                           | Serious closeout fails on runtime ref, diagnostic event, source-truth, mode, fallback, phase-barrier, semantic, tenant, attestation, stale, or partial-state evidence | `@platform-owners` + runtime        |
+| [Policy Design Case Operator Triage](policy-design-case-operator-triage.md)                           | Serious policy-design closeout fails on missing case, intent, spine, producer refs, portfolio/synthesis/claim support, BERL, DDM, audit, maturity, invariant, consultation, proportionality, or benchmarking evidence | `@platform-owners` + runtime        |
 
 ## Postmortem Minimum
 

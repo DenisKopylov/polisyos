@@ -25,6 +25,34 @@ from polisyos.foundry.methods.base import (
 )
 
 
+RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE: dict[str, tuple[str, ...] | str] = {
+    "method_family": "mechanism_runtime_execution",
+    "satisfies_method_obligations": (),
+    "not_sufficient_for_method_obligations": (
+        "analytical_proof_surfaces",
+        "assumptions",
+        "causal_effect_estimation",
+        "distributional_evidence",
+        "heterogeneity_by_region_or_firm_size",
+        "implementation_feasibility",
+        "limitations",
+        "missingness_diagnostics",
+        "objective_tradeoff_evidence",
+        "sensitivity_or_transportability_diagnostic",
+        "uncertainty_interval",
+    ),
+}
+_RUNTIME_METHOD_FAMILY = str(
+    RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE["method_family"]
+)
+_RUNTIME_METHOD_NOT_SUFFICIENT_FOR = tuple(
+    str(item)
+    for item in RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE[
+        "not_sufficient_for_method_obligations"
+    ]
+)
+
+
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
 
@@ -145,6 +173,11 @@ class TaxSubsidyMechanismMethod:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
+    method_authority_family: ClassVar[str] = _RUNTIME_METHOD_FAMILY
+    satisfies_method_obligations: ClassVar[tuple[str, ...]] = ()
+    not_sufficient_for_method_obligations: ClassVar[tuple[str, ...]] = (
+        _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
+    )
     runtime_mechanism_type: ClassVar[str] = "tax_subsidy"
     runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:TaxSubsidy"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
@@ -203,6 +236,11 @@ class IncomeTaxMechanismMethod:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
+    method_authority_family: ClassVar[str] = _RUNTIME_METHOD_FAMILY
+    satisfies_method_obligations: ClassVar[tuple[str, ...]] = ()
+    not_sufficient_for_method_obligations: ClassVar[tuple[str, ...]] = (
+        _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
+    )
     runtime_mechanism_type: ClassVar[str] = "income_tax"
     runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:IncomeTax"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
@@ -261,6 +299,11 @@ class LaborMarketMechanismMethod:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
+    method_authority_family: ClassVar[str] = _RUNTIME_METHOD_FAMILY
+    satisfies_method_obligations: ClassVar[tuple[str, ...]] = ()
+    not_sufficient_for_method_obligations: ClassVar[tuple[str, ...]] = (
+        _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
+    )
     runtime_mechanism_type: ClassVar[str] = "labor_market"
     runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:LaborMarketMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
@@ -325,6 +368,11 @@ class QueueMechanismMethod:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
+    method_authority_family: ClassVar[str] = _RUNTIME_METHOD_FAMILY
+    satisfies_method_obligations: ClassVar[tuple[str, ...]] = ()
+    not_sufficient_for_method_obligations: ClassVar[tuple[str, ...]] = (
+        _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
+    )
     runtime_mechanism_type: ClassVar[str] = "queue"
     runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.queue:QueueMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
@@ -390,6 +438,11 @@ class AdaptiveAgentMechanismMethod:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax", "equinox", "optax")
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
+    method_authority_family: ClassVar[str] = _RUNTIME_METHOD_FAMILY
+    satisfies_method_obligations: ClassVar[tuple[str, ...]] = ()
+    not_sufficient_for_method_obligations: ClassVar[tuple[str, ...]] = (
+        _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
+    )
     runtime_mechanism_type: ClassVar[str] = "adaptive_agent"
     runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.agents:AdaptiveAgentMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
@@ -408,10 +461,10 @@ class AdaptiveAgentMechanismMethod:
         ),
         output_slots=_result_slot(),
         parameters=(
-            ParameterSpec(name="observation_space", default=(), is_static=True),
+            ParameterSpec(name="observation_space", default=("agents.income",), is_static=True),
             ParameterSpec(
                 name="action_space",
-                default={"type": "continuous", "affects": ["policy.tax_rate"]},
+                default={"type": "continuous", "affects": ["agents.income"]},
                 is_static=True,
             ),
             ParameterSpec(name="utility", default=None, is_static=True),
@@ -466,5 +519,6 @@ __all__ = [
     "IncomeTaxMechanismMethod",
     "LaborMarketMechanismMethod",
     "QueueMechanismMethod",
+    "RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE",
     "TaxSubsidyMechanismMethod",
 ]

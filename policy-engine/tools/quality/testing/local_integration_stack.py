@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import signal
 import subprocess
 import time
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -22,7 +24,12 @@ DEFAULT_RUNTIME_HOST = "127.0.0.1"
 DEFAULT_RUNTIME_PORT = 8000
 DEFAULT_DASHBOARD_HOST = "127.0.0.1"
 DEFAULT_DASHBOARD_PORT = 5173
-DEFAULT_METADATA_FILE = DASHBOARD_ROOT / ".tmp" / "fixture-runtime.local.json"
+DEFAULT_METADATA_FILE = (
+    REPO_ROOT / "_build" / "apps" / "runtime-dashboard" / ".tmp" / "fixture-runtime.json"
+)
+DEFAULT_DASHBOARD_TIMING_FILE = (
+    REPO_ROOT / "_build" / "apps" / "runtime-dashboard" / ".tmp" / "dashboard-smoke-timing.json"
+)
 
 
 @dataclass(frozen=True)
@@ -32,6 +39,7 @@ class StackConfig:
     dashboard_host: str
     dashboard_port: int
     metadata_file: Path | None
+    dashboard_timing_file: Path | None
     demo_data: str
     health_timeout_seconds: float
 
@@ -56,7 +64,7 @@ def _http_ok(url: str) -> bool:
     try:
         with urlopen(url, timeout=2) as response:  # noqa: S310 - local-only URLs
             return 200 <= response.status < 300
-    except URLError:
+    except (OSError, TimeoutError, URLError):
         return False
 
 
@@ -100,6 +108,10 @@ def _dashboard_command(config: StackConfig) -> list[str]:
     ]
 
 
+def _runtime_env_overrides() -> dict[str, str]:
+    return {"POLISYOS_LLM_SIMULATION_MODE": "1"}
+
+
 def _spawn_process(
     name: str,
     command: list[str],
@@ -122,6 +134,7 @@ def _build_stack(config: StackConfig) -> list[ManagedProcess]:
         "runtime-api",
         _runtime_command(config),
         cwd=REPO_ROOT,
+        env_overrides=_runtime_env_overrides(),
     )
     dashboard = _spawn_process(
         "runtime-dashboard",
@@ -170,9 +183,53 @@ def _run_smoke_suite(config: StackConfig) -> int:
     smoke_env = os.environ.copy()
     smoke_env["RUNTIME_API_URL"] = f"http://{config.runtime_host}:{config.runtime_port}"
     smoke_env["VITE_DISABLE_RUNS_LIVE"] = "true"
+    smoke_env["POLISYOS_LLM_SIMULATION_MODE"] = "1"
     smoke_env.setdefault("PLAYWRIGHT_RETRIES", "0")
+    if config.dashboard_timing_file is not None:
+        smoke_env["POLISYOS_DASHBOARD_TIMING_PATH"] = str(config.dashboard_timing_file)
     command = ["npm", "run", "test:e2e:smoke"]
-    return subprocess.run(command, cwd=DASHBOARD_ROOT, env=smoke_env, check=False).returncode
+    started = time.perf_counter()
+    returncode = subprocess.run(
+        command,
+        cwd=DASHBOARD_ROOT,
+        env=smoke_env,
+        check=False,
+    ).returncode
+    duration_ms = (time.perf_counter() - started) * 1000.0
+    _write_dashboard_smoke_timing(config, duration_ms=duration_ms, returncode=returncode)
+    return returncode
+
+
+def _write_dashboard_smoke_timing(
+    config: StackConfig,
+    *,
+    duration_ms: float,
+    returncode: int,
+) -> None:
+    if config.dashboard_timing_file is None:
+        return
+    dashboard_base = f"http://{config.dashboard_host}:{config.dashboard_port}"
+    payload = {
+        "schema_version": "policyos.dashboard_smoke_timing.v1",
+        "captured_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "journey": "runtime-dashboard smoke",
+        "base_url": dashboard_base,
+        "status": "passed" if returncode == 0 else "failed",
+        "suite_duration_ms": round(duration_ms, 3),
+        "routes": [
+            {
+                "path": "/",
+                "render_duration_ms": round(duration_ms, 3),
+                "source": "local_integration_stack",
+                "status": "passed" if returncode == 0 else "failed",
+            }
+        ],
+    }
+    config.dashboard_timing_file.parent.mkdir(parents=True, exist_ok=True)
+    config.dashboard_timing_file.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def _run_stack_until_interrupted(config: StackConfig) -> int:
@@ -241,6 +298,11 @@ def _parse_args() -> argparse.Namespace:
             help="where the fixture metadata file should be written when demo-data=fixture",
         )
         subparser.add_argument(
+            "--dashboard-timing-file",
+            default=str(DEFAULT_DASHBOARD_TIMING_FILE),
+            help="where smoke route timing evidence should be written",
+        )
+        subparser.add_argument(
             "--health-timeout-seconds",
             type=float,
             default=120.0,
@@ -261,6 +323,9 @@ def _config_from_args(args: argparse.Namespace) -> StackConfig:
         dashboard_host=args.dashboard_host,
         dashboard_port=args.dashboard_port,
         metadata_file=metadata_file,
+        dashboard_timing_file=Path(args.dashboard_timing_file).resolve()
+        if args.dashboard_timing_file
+        else None,
         demo_data=args.demo_data,
         health_timeout_seconds=args.health_timeout_seconds,
     )

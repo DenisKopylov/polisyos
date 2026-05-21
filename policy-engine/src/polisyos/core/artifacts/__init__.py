@@ -33,6 +33,7 @@ from .manifest import (
     SchemaInfo,
     WarningRecord,
 )
+from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from .protocol import ArtifactStore, AsyncArtifactStore
 from .registry import RegistryBundle
 from .signing import (
@@ -57,6 +58,8 @@ from .store import FileSystemCAS, PutOptions
 __all__ = [
     "ArtifactID",
     "ArtifactManifest",
+    "ArtifactOwnershipError",
+    "ArtifactOwnershipIndex",
     "ArtifactRef",
     "ArtifactSigner",
     "ArtifactSigningResult",

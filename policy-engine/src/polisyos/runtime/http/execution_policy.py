@@ -9,16 +9,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, cast
 
-from polisyos.core.contracts.control import ExecutionProfile, PolicyFlags
+from polisyos.core.contracts.control import (
+    EXECUTION_PROFILE_ORDER,
+    SUPPORTED_EXECUTION_PROFILES,
+    ExecutionProfile,
+    PolicyFlags,
+)
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 
-_PROFILE_ORDER: dict[str, int] = {
-    "dev": 0,
-    "research": 1,
-    "governed": 2,
-    "production": 3,
-}
-_SUPPORTED_PROFILES: tuple[ExecutionProfile, ...] = ("dev", "research", "governed", "production")
 _PRIVILEGED_ROLES = frozenset({PolicyOSRole.ADMIN, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM})
 
 
@@ -55,6 +53,7 @@ class RuntimePrincipal:
 
     subject: str = "anonymous"
     tenant_id: str | None = None
+    cell_id: str | None = None
     roles: frozenset[str] = frozenset()
     authenticated: bool = False
 
@@ -71,6 +70,7 @@ class RuntimePrincipal:
         return cls(
             subject=claims.sub,
             tenant_id=claims.tenant_id,
+            cell_id=claims.cell_id,
             roles=frozenset(role.value for role in claims.roles),
             authenticated=True,
         )
@@ -171,12 +171,12 @@ class RuntimeExecutionPolicyResolver:
     @staticmethod
     def supported_profiles() -> tuple[ExecutionProfile, ...]:
         """Return the ordered set of accepted execution profiles."""
-        return _SUPPORTED_PROFILES
+        return SUPPORTED_EXECUTION_PROFILES
 
     @classmethod
     def _coerce_profile(cls, value: str | ExecutionProfile) -> ExecutionProfile:
         normalized = str(value or "").strip().lower()
-        if normalized not in _PROFILE_ORDER:
+        if normalized not in EXECUTION_PROFILE_ORDER:
             raise ExecutionProfileError(
                 "invalid_execution_profile",
                 f"Unsupported execution profile: {value!r}",
@@ -186,7 +186,7 @@ class RuntimeExecutionPolicyResolver:
     @classmethod
     def _profile_rank(cls, value: str | ExecutionProfile) -> int:
         profile = cls._coerce_profile(value)
-        return _PROFILE_ORDER[profile]
+        return EXECUTION_PROFILE_ORDER[profile]
 
     def resolve(
         self,
@@ -288,6 +288,7 @@ class RuntimeExecutionPolicyResolver:
             actor={
                 "subject": actor.subject,
                 "tenant_id": actor.tenant_id,
+                "cell_id": actor.cell_id,
                 "roles": sorted(actor.roles),
                 "authenticated": actor.authenticated,
             },

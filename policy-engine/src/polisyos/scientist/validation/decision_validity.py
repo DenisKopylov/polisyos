@@ -92,7 +92,7 @@ class _DecisionDependencyIndex(BaseModel):
 
 
 class DecisionValidityStateStore:
-    """Decision validity state store implementation."""
+    """Persist decision validity packets, lineage heads, dependencies, and dedupe state."""
 
     def __init__(self, cas: ArtifactStore | Path) -> None:
         root_value = getattr(cas, "root", cas)
@@ -191,7 +191,7 @@ class DecisionValidityStateStore:
 
 
 class DecisionValidityService:
-    """Decision validity service implementation."""
+    """Coordinate decision packet registration, dependency tracking, and re-evaluation."""
 
     def __init__(
         self,
@@ -322,6 +322,7 @@ class DecisionValidityService:
         )
         return {
             "status": evaluation.status.value,
+            "lifecycle_status": evaluation.status.value,
             "checked_at": evaluation.evaluated_at.isoformat(),
             "reasons": list(evaluation.reasons),
             "triggers": [item.model_dump(mode="json") for item in evaluation.triggers],
@@ -691,7 +692,7 @@ class DecisionValidityService:
                 "occurred_at": event.occurred_at.isoformat(),
             }
             for event in state.lifecycle_events
-            if event.status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW
+            if _is_review_required_status(event.status)
         ]
         reissue_candidates = []
         if state.latest_reissue_plan_ref:
@@ -841,7 +842,7 @@ class DecisionValidityService:
                 triggers=triggers,
                 dependency_keys=[],
                 recommended_action=_recommended_action(status),
-                review_required=status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+                review_required=_is_review_required_status(status),
                 superseded_by_ref=superseded_by_ref,
             )
 
@@ -895,7 +896,7 @@ class DecisionValidityService:
                     if baseline.dependency_keys
                     else envelope.dependency_keys()
                 ),
-                "review_required": status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+                "review_required": _is_review_required_status(status),
                 "recommended_action": _recommended_action(status),
                 "supersedes_decision_ref": (
                     current_state.supersedes_decision_ref if current_state is not None else None
@@ -1140,8 +1141,17 @@ def _recommended_action(status: DecisionValidityStatus) -> str:
         return "monitor"
     if status == DecisionValidityStatus.STALE:
         return "refresh_decision"
+    if status in {
+        DecisionValidityStatus.REVIEW_REQUIRED,
+        DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+    }:
+        return "human_review"
     if status == DecisionValidityStatus.SUPERSEDED:
         return "review_superseded"
+    if status == DecisionValidityStatus.REISSUED:
+        return "record_reissue"
+    if status == DecisionValidityStatus.WITHDRAWN:
+        return "record_withdrawal"
     if status == DecisionValidityStatus.REVOKED:
         return "record_revocation"
     return "human_review"
@@ -1155,11 +1165,22 @@ def _max_status(
         DecisionValidityStatus.ACTIVE: 0,
         DecisionValidityStatus.WARNING: 1,
         DecisionValidityStatus.STALE: 2,
+        DecisionValidityStatus.REVIEW_REQUIRED: 3,
         DecisionValidityStatus.REQUIRES_HUMAN_REVIEW: 3,
         DecisionValidityStatus.SUPERSEDED: 4,
-        DecisionValidityStatus.REVOKED: 5,
+        DecisionValidityStatus.REISSUED: 5,
+        DecisionValidityStatus.REVOKED: 6,
+        DecisionValidityStatus.WITHDRAWN: 7,
     }
     return right if order[right] > order[left] else left
+
+
+def _is_review_required_status(status: DecisionValidityStatus) -> bool:
+    return status in {
+        DecisionValidityStatus.REVIEW_REQUIRED,
+        DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+        DecisionValidityStatus.WITHDRAWN,
+    }
 
 
 __all__ = [

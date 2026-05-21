@@ -1,13 +1,9 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
-import pytest
-
 from tests._helpers.hds_quality import (
-    HDS_XFAIL_REASON,
     blocking_codes,
     complete_job_payload,
     complete_quality_evidence,
@@ -16,12 +12,13 @@ from tests._helpers.hds_quality import (
 from tools.ci import check_policyos_production_quality_best_in_class as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-HDS_RED_XFAIL = pytest.mark.xfail(strict=True, reason=HDS_XFAIL_REASON)
 HDS_RED_TEST_FILES = (
     REPO_ROOT / "tests/unit/runtime/quality/test_authority_envelope_contract.py",
     REPO_ROOT / "tests/unit/runtime/quality/test_diagnostic_event_contract.py",
+    REPO_ROOT / "tests/unit/runtime/quality/test_semantic_binding.py",
     REPO_ROOT / "tests/unit/tools/test_canary_evidence_authority.py",
     REPO_ROOT / "tests/repo_quality/tools/test_honest_diagnostics_substrate_red_controls.py",
+    REPO_ROOT / "tests/repo_quality/tools/test_honest_diagnostics_metamorphic_controls.py",
 )
 
 
@@ -38,27 +35,28 @@ def test_hds_red_controls_use_strict_narrow_xfail_markers() -> None:
         "silent_fallback_requires_degradation_ledger",
         "no_norms_retrieved_requires_lex_no_norm_authority_blocker",
         "data_exists_requires_semantic_binding_ledger",
+        "dataset_exists_but_not_covering_claim_blocks_serious_scorecard",
+        "multiple_candidate_datasets_require_selection_or_typed_ambiguity_blocker",
+        "domain_specific_intent_cannot_collapse_to_generic_evidence",
+        "rejected_candidates_distinguish_no_relevant_from_retrieval_or_binding_failure",
+        "cross_domain_controls_detect_semantic_collapse_for_each_scenario",
+        "metamorphic_prompt_variants_preserve_canonical_bindings",
+        "negative_controls_block_outputs_with_typed_failure_codes",
     }
     combined = "\n".join(path.read_text(encoding="utf-8") for path in HDS_RED_TEST_FILES)
 
-    assert re.search(r"^pytestmark\s*=", combined, flags=re.MULTILINE) is None
-    assert re.search(r"@pytest\.mark\.skip", combined) is None
-    assert re.search(r"pytest\.mark\.xfail\([^)]*strict=False", combined) is None
-    assert (
-        len(
-            re.findall(
-                r"^HDS_RED_XFAIL = pytest\.mark\.xfail\(strict=True, reason=HDS_XFAIL_REASON\)",
-                combined,
-                flags=re.MULTILINE,
-            )
-        )
-        == 4
-    )
+    skip_token = "@pytest.mark." + "skip"
+    xfail_token = "pytest.mark." + "xfail"
+    red_xfail_token = "HDS_RED_" + "XFAIL"
+    pytestmark_token = "pytestmark" + " ="
+    assert pytestmark_token not in combined
+    assert skip_token not in combined
+    assert xfail_token not in combined
+    assert red_xfail_token not in combined
     for case in required_cases:
         assert case in combined
 
 
-@HDS_RED_XFAIL
 def test_no_norms_retrieved_requires_lex_no_norm_authority_blocker() -> None:
     evidence = complete_quality_evidence()
     evidence["normative_evidence"] = {
@@ -100,8 +98,6 @@ def test_no_norms_retrieved_requires_lex_no_norm_authority_blocker() -> None:
     assert scorecard["quality_status"] == "fail"
     assert "lex_no_norm_authority_blocker_missing" in blocking_codes(scorecard)
 
-
-@HDS_RED_XFAIL
 def test_data_exists_requires_semantic_binding_ledger() -> None:
     evidence = complete_quality_evidence()
     evidence["fabric_retrieval_trace"]["candidate_sources"][0].update(
@@ -129,10 +125,8 @@ def test_data_exists_requires_semantic_binding_ledger() -> None:
     )
 
     assert scorecard["quality_status"] == "fail"
-    assert "semantic_binding_ledger_missing" in blocking_codes(scorecard)
+    assert "hds_semantic_binding_missing" in blocking_codes(scorecard)
 
-
-@HDS_RED_XFAIL
 def test_quality_status_pass_in_bundle_files_cannot_satisfy_readiness_runtime_refs(
     monkeypatch,
     tmp_path,
@@ -212,3 +206,8 @@ def test_quality_status_pass_in_bundle_files_cannot_satisfy_readiness_runtime_re
     assert payload["required_serious_profile_ref_failures"][0]["report_id"] == (
         "scientist.policy_grounding_matrix"
     )
+    conflict = payload["required_serious_profile_ref_failures"][0]["source_truth_conflict"]
+    assert conflict["field_family"] == "runtime_refs"
+    assert conflict["authoritative_source"] == "runtime.cas"
+    assert conflict["conflicting_source"] == "runtime.canary_bundle"
+    assert conflict["failure_code"] == "hds_runtime_ref_authority_conflict"

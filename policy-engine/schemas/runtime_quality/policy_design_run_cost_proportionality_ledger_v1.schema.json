@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/runtime_quality/policy_design_run_cost_proportionality_ledger_v1.schema.json",
+  "title": "Policy Design Run-Cost Proportionality Ledger",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "ledger_id",
+    "run_id",
+    "authority_level",
+    "public_impact",
+    "runtime_performance_budget",
+    "foundry_cost_model",
+    "scientist_budget",
+    "doe_search_budget",
+    "provider_cost",
+    "elapsed_time_budget",
+    "human_review_burden",
+    "evidence_depth_budget",
+    "evidence_ref",
+    "runtime_event_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.run_cost_proportionality_ledger.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.run_cost_proportionality_ledger.v1"
+    },
+    "ledger_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "authority_level": {"type": "string", "minLength": 1},
+    "public_impact": {"type": "string", "minLength": 1},
+    "runtime_performance_budget": {"$ref": "#/$defs/cost_component"},
+    "foundry_cost_model": {"$ref": "#/$defs/cost_component"},
+    "scientist_budget": {"$ref": "#/$defs/cost_component"},
+    "doe_search_budget": {"$ref": "#/$defs/cost_component"},
+    "provider_cost": {"$ref": "#/$defs/cost_component"},
+    "elapsed_time_budget": {"$ref": "#/$defs/elapsed_time_budget"},
+    "human_review_burden": {"$ref": "#/$defs/human_review_burden"},
+    "evidence_depth_budget": {"$ref": "#/$defs/evidence_depth_budget"},
+    "proportionality_evidence": {"$ref": "#/$defs/proportionality_evidence"},
+    "blockers": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/typed_blocker"}
+    },
+    "budget_change_records": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "total_actual_cost_usd": {"type": "number", "minimum": 0},
+    "total_budget_usd": {"type": "number", "minimum": 0},
+    "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"},
+    "runtime_event_ref": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "runtime_artifact_ref": {
+      "type": "string",
+      "minLength": 1,
+      "anyOf": [
+        {"pattern": "^sha256:[A-Fa-f0-9]{64}$"},
+        {"pattern": "^cas://sha256/[A-Fa-f0-9]{64}$"},
+        {"pattern": "^artifact://"}
+      ]
+    },
+    "cost_component": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["evidence_ref"],
+      "properties": {
+        "actual_cost_usd": {"type": "number", "minimum": 0},
+        "budget_usd": {"type": "number", "minimum": 0},
+        "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"}
+      }
+    },
+    "elapsed_time_budget": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["actual_seconds", "budget_seconds", "evidence_ref"],
+      "properties": {
+        "actual_seconds": {"type": "number", "minimum": 0},
+        "budget_seconds": {"type": "number", "minimum": 0},
+        "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"}
+      }
+    },
+    "human_review_burden": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["actual_reviewer_hours", "evidence_ref"],
+      "properties": {
+        "actual_reviewer_hours": {"type": "number", "minimum": 0},
+        "budget_reviewer_hours": {"type": "number", "minimum": 0},
+        "review_count": {"type": "number", "minimum": 0},
+        "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"}
+      }
+    },
+    "evidence_depth_budget": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "authority_level",
+        "public_impact",
+        "observed_heterogeneity",
+        "effective_independent_evidence_count",
+        "minimum_effective_independent_evidence_count",
+        "stopping_rule",
+        "stopping_decision"
+      ],
+      "properties": {
+        "authority_level": {"type": "string", "minLength": 1},
+        "public_impact": {"type": "string", "minLength": 1},
+        "observed_heterogeneity": {},
+        "effective_independent_evidence_count": {"type": "integer", "minimum": 0},
+        "minimum_effective_independent_evidence_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stopping_rule": {"type": "string", "minLength": 1},
+        "stopping_decision": {"type": "string", "minLength": 1},
+        "stopping_rule_result_ref": {"$ref": "#/$defs/runtime_artifact_ref"}
+      }
+    },
+    "proportionality_evidence": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "rationale", "evidence_ref"],
+      "properties": {
+        "status": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"}
+      }
+    },
+    "typed_blocker": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "code", "message", "evidence_ref", "runtime_event_ref"],
+      "properties": {
+        "status": {"const": "blocked"},
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "evidence_ref": {"$ref": "#/$defs/runtime_artifact_ref"},
+        "runtime_event_ref": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

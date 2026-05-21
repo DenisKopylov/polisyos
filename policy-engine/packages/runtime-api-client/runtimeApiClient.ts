@@ -57,15 +57,18 @@ export type AgentPipelineStep = {
 
 export type AgentPipelineView = {
   attempts?: Array<AgentPipelineAttempt>;
-  decision_packet_ref?: ArtifactRef | null;
+  decision_packet_ref?: ArtifactRefOutput | null;
   evaluator?: EvaluatorReportView | null;
-  execution_plan_ref?: ArtifactRef | null;
+  execution_plan_ref?: ArtifactRefOutput | null;
   iteration_lifecycle?: IterationLifecycleView | null;
   latest_verdict?: string | null;
-  method_catalog_snapshot_ref?: ArtifactRef | null;
+  method_catalog_snapshot_ref?: ArtifactRefOutput | null;
   notes?: Array<string>;
+  performance_summary?: {
+  [key: string]: unknown;
+} | null;
   preflight?: PreflightReportView | null;
-  reflexion_terminal_ref?: ArtifactRef | null;
+  reflexion_terminal_ref?: ArtifactRefOutput | null;
   reproducibility?: ReproducibilityView | null;
   retrieval?: RetrievalTelemetryView | null;
   run_id: string;
@@ -159,8 +162,14 @@ export type ArtifactManifestView = {
   schema_version?: string | null;
 };
 
-export type ArtifactRef = {
+export type ArtifactRefInput = {
   artifact_id: ArtifactID;
+  kind: string;
+  media_type: string;
+};
+
+export type ArtifactRefOutput = {
+  artifact_id: string;
   kind: string;
   media_type: string;
 };
@@ -187,22 +196,22 @@ export type AttractorAnalysisProvenance = {
 
 export type AttractorAnalysisRequest = {
   analysis_modes?: Array<"attractors" | "continuation" | "basin_map" | "lyapunov">;
-  exec_plan_ref?: ExecPlanRef | null;
+  exec_plan_ref?: ExecPlanRefInput | null;
   feedback_jacobian_diagnostics_ref?: FeedbackJacobianDiagnosticsRef | null;
-  feedback_result_ref?: FeedbackResultRef | null;
+  feedback_result_ref?: FeedbackResultRefInput | null;
   initial_states?: Array<{
   [key: string]: number;
 }>;
   largest_lyapunov_exponent?: number | null;
   max_period?: number;
-  model_ref?: ArtifactRef | null;
+  model_ref?: ArtifactRefInput | null;
   notes?: Array<string>;
   parameter_point?: AttractorParameterPoint;
   persist_artifact?: boolean;
   rtol?: number;
   schema_version?: string;
   seeds?: Array<number>;
-  simulation_result_ref?: SimulationResultRef | null;
+  simulation_result_ref?: SimulationResultRefInput | null;
   state_projection?: AttractorStateProjection | null;
   stochastic_model?: boolean;
   tolerance?: number;
@@ -225,21 +234,21 @@ export type AttractorAnalysisResult = {
   analysis_id: string;
   attractors?: Array<AttractorSummary>;
   bifurcations?: Array<BifurcationEvent>;
-  exec_plan_ref?: ExecPlanRef | null;
-  feedback_result_ref?: FeedbackResultRef | null;
+  exec_plan_ref?: ExecPlanRefOutput | null;
+  feedback_result_ref?: FeedbackResultRefOutput | null;
   kind?: string;
-  model_ref?: ArtifactRef | null;
+  model_ref?: ArtifactRefOutput | null;
   notes?: Array<string>;
   parameter_point?: AttractorParameterPoint;
   provenance?: AttractorAnalysisProvenance;
   schema_version?: string;
-  simulation_result_ref?: SimulationResultRef | null;
+  simulation_result_ref?: SimulationResultRefOutput | null;
   state_projection: AttractorStateProjection;
   uncertainty_summary?: AttractorUncertaintySummary;
 };
 
 export type AttractorAnalysisResultRef = {
-  artifact_id: ArtifactID;
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };
@@ -257,7 +266,7 @@ export type AttractorCertificate = {
   V_description?: string | null;
   evidence_strength?: number | null;
   notes?: Array<string>;
-  proof_artifact_ref?: ArtifactRef | null;
+  proof_artifact_ref?: ArtifactRefOutput | null;
   status?: "not_attempted" | "not_applicable" | "numerically_supported" | "proved_local" | "proved_global" | "failed";
   type?: string;
 };
@@ -304,8 +313,8 @@ export type AttractorStateRepresentation = {
   equilibrium?: {
   [key: string]: number;
 } | null;
-  invariant_set_artifact_ref?: ArtifactRef | null;
-  orbit_artifact_ref?: ArtifactRef | null;
+  invariant_set_artifact_ref?: ArtifactRefOutput | null;
+  orbit_artifact_ref?: ArtifactRefOutput | null;
   orbit_points?: Array<{
   [key: string]: number;
 }>;
@@ -388,7 +397,7 @@ export type BasinMap = {
 };
 
 export type BasinMapRef = {
-  artifact_id: ArtifactID;
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };
@@ -619,11 +628,11 @@ export type CausalFrontierExposureRecord = {
 };
 
 export type CausalFrontierOutputRefs = {
-  causal_diagnostics_ref?: ArtifactRef | null;
-  dependence_ref?: ArtifactRef | null;
-  governance_artifact_ref?: ArtifactRef | null;
-  quality_certificate_ref?: ArtifactRef | null;
-  sae_estimates_ref?: ArtifactRef | null;
+  causal_diagnostics_ref?: ArtifactRefOutput | null;
+  dependence_ref?: ArtifactRefOutput | null;
+  governance_artifact_ref?: ArtifactRefOutput | null;
+  quality_certificate_ref?: ArtifactRefOutput | null;
+  sae_estimates_ref?: ArtifactRefOutput | null;
 };
 
 export type CausalFrontierSAEEstimate = {
@@ -800,28 +809,84 @@ export type ContinuationBranchPointOutput = {
 };
 
 export type ContinuationBranchRef = {
-  artifact_id: ArtifactID;
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };
 
+export type ControlApprovalProjection = {
+  authority_level: string;
+  eligible?: boolean;
+  reasons?: Array<string>;
+  source_surface: string;
+  state?: string | null;
+};
+
+export type ControlAuthorityGap = {
+  code: string;
+  evidence_ref?: string | null;
+  layer: string;
+  message: string;
+  next_action?: string | null;
+  next_diagnostic_command?: string | null;
+  owner?: string | null;
+  phase?: string | null;
+};
+
+export type ControlFailureEnvelope = {
+  artifact_refs?: {
+  [key: string]: unknown;
+};
+  code: string;
+  job_id?: string | null;
+  layer: string;
+  message: string;
+  model?: string | null;
+  next_action?: string | null;
+  operator_diagnostic?: OperatorDiagnostic | null;
+  phase?: string | null;
+  provider?: string | null;
+  retryable?: boolean;
+  run_id?: string | null;
+  variant_failures?: Array<{
+  [key: string]: unknown;
+}>;
+};
+
 export type ControlJobResponse = {
-  capability_manifest_ref?: ArtifactRef | null;
+  approval_projection?: ControlApprovalProjection;
+  authoritative_scorecard_ref?: string | null;
+  blocking_quality_failures?: Array<ControlQualityFailure>;
+  capability_manifest_ref?: ArtifactRefOutput | null;
   effective_execution_profile: "dev" | "research" | "governed" | "production";
   error_message?: string | null;
+  execution_status?: string | null;
+  failure?: ControlFailureEnvelope | null;
   finished_at?: string | null;
   job_id: string;
   kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
   meta: ApiMeta;
+  next_diagnostic_commands?: Array<string>;
+  operator_diagnostic?: OperatorDiagnostic | null;
   pipeline_id?: string | null;
+  policy_design_case_projection?: {
+  [key: string]: unknown;
+} | null;
   progress?: {
   [key: string]: unknown;
 };
+  projection_source?: ControlProjectionSource;
+  quality_evidence_bundle_path?: string | null;
+  quality_gates?: Array<ControlQualityGate>;
+  quality_scorecard_ref?: string | null;
+  quality_status?: string | null;
   requested_execution_profile?: "dev" | "research" | "governed" | "production" | null;
   run_id?: string | null;
+  runtime_state?: string | null;
   started_at?: string | null;
   state: "pending" | "running" | "completed" | "failed";
   submitted_at?: string | null;
+  unresolved_authority_gaps?: Array<ControlAuthorityGap>;
 };
 
 export type ControlOutboxEventInfo = {
@@ -845,6 +910,39 @@ export type ControlOutboxEventsResponse = {
   limit?: number;
   meta: ApiMeta;
   state?: string | null;
+};
+
+export type ControlProjectionSource = {
+  authority_level: string;
+  projection_policy: string;
+  source_detail: string;
+  source_surface: string;
+};
+
+export type ControlQualityFailure = {
+  code?: string | null;
+  evidence_ref?: string | null;
+  gate: string;
+  layer: string;
+  message: string;
+  next_action?: string | null;
+  next_diagnostic_command?: string | null;
+  operator_diagnostic?: OperatorDiagnostic | null;
+  phase?: string | null;
+};
+
+export type ControlQualityGate = {
+  blocking?: boolean;
+  code?: string | null;
+  evidence_ref?: string | null;
+  layer: string;
+  message: string;
+  name: string;
+  next_action?: string | null;
+  next_diagnostic_command?: string | null;
+  operator_diagnostic?: OperatorDiagnostic | null;
+  phase?: string | null;
+  status: string;
 };
 
 export type ControlWorkerLeaseInfo = {
@@ -1152,7 +1250,7 @@ export type DecisionTriggerRecord = {
   trigger_type: DecisionTriggerType;
 };
 
-export type DecisionTriggerType = "law_change" | "dataset_superseded" | "historical_semantic_revision" | "contradicting_evidence" | "context_profile_drift" | "post_deployment_refutation" | "human_gate" | "expert_review" | "legacy_packet" | "superseded" | "revoked";
+export type DecisionTriggerType = "norm_invalidation" | "data_invalidation" | "source_invalidation" | "metric_invalidation" | "model_invalidation" | "conflict_invalidation" | "law_change" | "dataset_superseded" | "historical_semantic_revision" | "contradicting_evidence" | "context_profile_drift" | "post_deployment_refutation" | "human_gate" | "expert_review" | "legacy_packet" | "superseded" | "revoked";
 
 export type DecisionValidityEventRequest = {
   dedupe_key?: string | null;
@@ -1182,8 +1280,9 @@ export type DecisionValidityLifecycleSummary = {
   events?: Array<DecisionDependencyEvent>;
   latest_transition_at?: string | null;
   pending_reviews?: Array<DecisionValidityPendingReview>;
-  reissue_candidates?: Array<ArtifactRef>;
+  reissue_candidates?: Array<ArtifactRefOutput>;
   scheduled_jobs?: Array<DecisionLifecycleJob>;
+  status?: DecisionValidityStatus | null;
   transitions?: Array<DecisionValidityTransition>;
 };
 
@@ -1194,22 +1293,23 @@ export type DecisionValidityPendingReview = {
   trigger_type: DecisionTriggerType;
 };
 
-export type DecisionValidityStatus = "active" | "warning" | "stale" | "superseded" | "revoked" | "requires_human_review";
+export type DecisionValidityStatus = "active" | "warning" | "stale" | "review_required" | "superseded" | "reissued" | "withdrawn" | "revoked" | "requires_human_review";
 
 export type DecisionValiditySummaryResponse = {
   checked_at: string;
   decision_lineage_key: string;
-  decision_packet_ref: ArtifactRef;
-  evaluation_ref?: ArtifactRef | null;
+  decision_packet_ref: ArtifactRefOutput;
+  evaluation_ref?: ArtifactRefOutput | null;
   lifecycle?: DecisionValidityLifecycleSummary;
+  lifecycle_status: DecisionValidityStatus;
   meta: ApiMeta;
   reasons?: Array<string>;
   recommended_action: string;
   review_required?: boolean;
   run_id?: string | null;
   status: DecisionValidityStatus;
-  superseded_by_ref?: ArtifactRef | null;
-  supersedes_decision_ref?: ArtifactRef | null;
+  superseded_by_ref?: ArtifactRefOutput | null;
+  supersedes_decision_ref?: ArtifactRefOutput | null;
   triggers?: Array<DecisionTriggerRecord>;
 };
 
@@ -1251,7 +1351,7 @@ export type DeltaQuantity = {
 };
 
 export type DerivedArtifact = {
-  ref: ArtifactRef;
+  ref: ArtifactRefOutput;
   role: string;
 };
 
@@ -1376,7 +1476,7 @@ export type EvaluatorReportView = {
   notes?: Array<string>;
   reasons?: Array<string>;
   replanning_hints?: Array<string>;
-  report_ref?: ArtifactRef | null;
+  report_ref?: ArtifactRefOutput | null;
   scores?: EvaluatorScoresView;
   verdict?: "APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET" | null;
 };
@@ -1390,8 +1490,14 @@ export type EvaluatorScoresView = {
   uncertainty_score?: number;
 };
 
-export type ExecPlanRef = {
+export type ExecPlanRefInput = {
   artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type ExecPlanRefOutput = {
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };
@@ -1541,11 +1647,11 @@ export type FabricTrustBatchResponse = {
 
 export type FeedbackActionResponse = {
   action: "evaluate_feedback" | "reissue";
-  compare_report_ref?: ArtifactRef | null;
+  compare_report_ref?: ArtifactRefOutput | null;
   message: string;
   meta: ApiMeta;
-  monitoring_report_ref?: ArtifactRef | null;
-  reissue_plan_ref?: ArtifactRef | null;
+  monitoring_report_ref?: ArtifactRefOutput | null;
+  reissue_plan_ref?: ArtifactRefOutput | null;
   reissued_run_id?: string | null;
   run_id: string;
   status?: "completed" | "accepted";
@@ -1557,8 +1663,14 @@ export type FeedbackJacobianDiagnosticsRef = {
   media_type?: string;
 };
 
-export type FeedbackResultRef = {
+export type FeedbackResultRefInput = {
   artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type FeedbackResultRefOutput = {
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };
@@ -1646,15 +1758,15 @@ export type GovernanceDebugView = {
 }>;
   legal_executed?: boolean | null;
   links?: {
-  [key: string]: ArtifactRef | null;
+  [key: string]: ArtifactRefOutput | null;
 } | null;
-  normative_arbitration_result_ref?: ArtifactRef | null;
+  normative_arbitration_result_ref?: ArtifactRefOutput | null;
   normative_summary?: {
   [key: string]: unknown;
 } | null;
   notes?: Array<string>;
   report_kind?: string | null;
-  report_ref?: ArtifactRef | null;
+  report_ref?: ArtifactRefOutput | null;
   report_schema_version?: string | null;
   run_id: string;
   source_kind: string;
@@ -1717,7 +1829,7 @@ export type IngestResponse = {
 };
 
 export type InputRef = {
-  artifact_id: ArtifactID;
+  artifact_id: string;
   role: string;
 };
 
@@ -1726,7 +1838,7 @@ export type IterationLifecycleView = {
   last_verdict?: "APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET" | null;
   notes?: Array<string>;
   state?: "plan_created" | "preflight_running" | "preflight_failed" | "ready_to_run" | "executing" | "evaluating" | "replanning" | "approved" | "stopped_budget" | "stopped_no_delta" | "stopped_guardrail";
-  state_ref?: ArtifactRef | null;
+  state_ref?: ArtifactRefOutput | null;
   stop_reason?: "approved" | "budget_exhausted" | "no_delta" | "guardrail_violation" | null;
 };
 
@@ -1947,12 +2059,12 @@ export type MobilityBoundsResponse = {
   bounds: {
   [key: string]: unknown;
 };
-  bounds_bundle_ref?: ArtifactRef | null;
+  bounds_bundle_ref?: ArtifactRefOutput | null;
   cell_bounds?: {
   [key: string]: Array<number>;
 };
   meta: ApiMeta;
-  mobility_report_ref?: ArtifactRef | null;
+  mobility_report_ref?: ArtifactRefOutput | null;
   summary_bounds?: {
   [key: string]: Array<number>;
 };
@@ -1963,7 +2075,7 @@ export type MobilityDiagnosticsResponse = {
   [key: string]: unknown;
 };
   meta: ApiMeta;
-  mobility_report_ref: ArtifactRef;
+  mobility_report_ref: ArtifactRefOutput;
 };
 
 export type MobilityEstimateRequest = {
@@ -1995,9 +2107,9 @@ export type MobilityEstimateRequest = {
 };
 
 export type MobilityEstimateResponse = {
-  bounds_bundle_ref?: ArtifactRef | null;
+  bounds_bundle_ref?: ArtifactRefOutput | null;
   meta: ApiMeta;
-  mobility_report_ref?: ArtifactRef | null;
+  mobility_report_ref?: ArtifactRefOutput | null;
   report: {
   [key: string]: unknown;
 };
@@ -2005,7 +2117,7 @@ export type MobilityEstimateResponse = {
 
 export type MobilityReportResponse = {
   meta: ApiMeta;
-  mobility_report_ref: ArtifactRef;
+  mobility_report_ref: ArtifactRefOutput;
   report: {
   [key: string]: unknown;
 };
@@ -2121,6 +2233,29 @@ export type NodeDebugView = {
   timeline_events?: Array<RunTimelineEvent>;
 };
 
+export type OperatorDiagnostic = {
+  authoritative_runtime_state: string;
+  authority_refs?: {
+  [key: string]: string;
+};
+  blocker_overridable?: boolean;
+  downstream_impact: string;
+  evidence_refs?: Array<string>;
+  first_blocking_cause: string;
+  next_diagnostic_command: string;
+  owner: string;
+  phase: string;
+  projection_labels?: Array<OperatorProjectionStateLabel>;
+  projection_source: string;
+  upstream_missing_input?: string | null;
+};
+
+export type OperatorProjectionStateLabel = {
+  authority: "runtime_authority" | "projection_only";
+  label: string;
+  state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
+};
+
 export type PolicyFlags = {
   allow_mock_fallback?: boolean;
 };
@@ -2140,7 +2275,78 @@ export type PreflightReportView = {
   diagnostics?: Array<PreflightDiagnosticView>;
   notes?: Array<string>;
   ready_to_run?: boolean;
-  report_ref?: ArtifactRef | null;
+  report_ref?: ArtifactRefOutput | null;
+};
+
+export type ProductionApprovalEligibility = {
+  blocking_failure_count: number;
+  conflict_blocking?: boolean;
+  conflict_status?: string | null;
+  eligible: boolean;
+  execution_completed: boolean;
+  performance_blocking?: boolean;
+  performance_status?: string | null;
+  quality_passed: boolean;
+  reasons?: Array<string>;
+};
+
+export type ProductionApprovalOverridePacket = {
+  evidence_refs?: Array<string>;
+  expires_at: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  reviewer_identity: string;
+  scope: string;
+  signature: string;
+  signed_at: string;
+};
+
+export type ProductionApprovalOverrideRequest = {
+  evidence_refs: Array<string>;
+  expires_at: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  reviewer_identity: string;
+  scope: string;
+  signature?: string | null;
+};
+
+export type ProductionApprovalPacket = {
+  canary_kind?: string | null;
+  decision: "approved" | "approved_with_override" | "blocked";
+  eligibility: ProductionApprovalEligibility;
+  evidence_refs?: {
+  [key: string]: string;
+};
+  generated_at: string;
+  job_id?: string | null;
+  override?: ProductionApprovalOverridePacket | null;
+  run_id?: string | null;
+  schema_version?: string;
+  scorecard_digest: string;
+  scorecard_generated_at?: string | null;
+  scorecard_ref?: string | null;
+};
+
+export type ProductionApprovalRequest = {
+  override?: ProductionApprovalOverrideRequest | null;
+  quality_scorecard?: {
+  [key: string]: unknown;
+} | null;
+  quality_scorecard_ref?: string | null;
+};
+
+export type ProductionApprovalResponse = {
+  approval_packet_ref: ArtifactRefOutput;
+  decision: "approved" | "approved_with_override" | "blocked";
+  evidence_bundle_packet_path?: string | null;
+  meta: ApiMeta;
+  packet: ProductionApprovalPacket;
+  run_id: string;
 };
 
 export type PromotionCandidate = {
@@ -2250,7 +2456,7 @@ export type ReproducibilityView = {
   data_snapshot_hash?: string | null;
   determinism_tier?: string | null;
   input_bindings_hash?: string | null;
-  manifest_ref?: ArtifactRef | null;
+  manifest_ref?: ArtifactRefOutput | null;
   method_catalog_hash?: string | null;
   missing_refs?: Array<string>;
   notes?: Array<string>;
@@ -2296,11 +2502,11 @@ export type RunCompareView = {
 };
 
 export type RunDetails = {
-  capability_manifest_ref?: ArtifactRef | null;
+  capability_manifest_ref?: ArtifactRefOutput | null;
   cell_id?: string | null;
   control_job_id?: string | null;
   decision_review_required?: boolean;
-  decision_superseded_by_ref?: ArtifactRef | null;
+  decision_superseded_by_ref?: ArtifactRefOutput | null;
   decision_validity_checked_at?: string | null;
   decision_validity_status?: DecisionValidityStatus | null;
   duration_ms?: number | null;
@@ -2308,16 +2514,20 @@ export type RunDetails = {
   finished_at?: string | null;
   has_trace?: boolean;
   has_workflow_report?: boolean;
-  manifest_ref?: ArtifactRef | null;
-  root_artifacts?: Array<ArtifactRef>;
+  manifest_ref?: ArtifactRefOutput | null;
+  operator_diagnostic?: RunOperatorDiagnostic | null;
+  policy_design_case_projection?: {
+  [key: string]: unknown;
+} | null;
+  root_artifacts?: Array<ArtifactRefOutput>;
   run_id: string;
   source_kind: string;
   started_at?: string | null;
   status: string;
   tenant_id?: string | null;
-  trace_ref?: ArtifactRef | null;
+  trace_ref?: ArtifactRefOutput | null;
   warnings?: Array<string>;
-  workflow_report_ref?: ArtifactRef | null;
+  workflow_report_ref?: ArtifactRefOutput | null;
 };
 
 export type RunDetailsResponse = {
@@ -2334,7 +2544,7 @@ export type RunEquilibriaResponse = {
 export type RunEquilibriaView = {
   notes?: Array<string>;
   report?: EquilibriumMultiplicityReport | null;
-  report_ref?: ArtifactRef | null;
+  report_ref?: ArtifactRefOutput | null;
   run_id: string;
   source_kind: string;
 };
@@ -2363,13 +2573,20 @@ export type RunEvidenceContextResponse = {
 
 export type RunEvidenceContextView = {
   data_needs?: Array<RunEvidenceNeedView>;
-  data_snapshot_ref?: ArtifactRef | null;
-  evidence_bundle_ref?: ArtifactRef | null;
-  execution_plan_ref?: ArtifactRef | null;
+  data_snapshot_ref?: ArtifactRefOutput | null;
+  evidence_bundle_ref?: ArtifactRefOutput | null;
+  execution_plan_ref?: ArtifactRefOutput | null;
+  fabric_retrieval_trace_ref?: ArtifactRefOutput | null;
   fetch_plans?: Array<RunEvidencePlanView>;
-  input_bindings_ref?: ArtifactRef | null;
+  input_bindings_ref?: ArtifactRefOutput | null;
+  materialization_refs?: {
+  [key: string]: ArtifactRefOutput;
+};
+  production_data_evidence_context?: {
+  [key: string]: unknown;
+};
   promotion_candidates?: Array<RunEvidencePromotionView>;
-  related_artifacts?: Array<ArtifactRef>;
+  related_artifacts?: Array<ArtifactRefOutput>;
   run_id: string;
   source_kind: string;
   warnings?: Array<string>;
@@ -2431,7 +2648,7 @@ export type RunFeedbackResponse = {
 
 export type RunFeedbackView = {
   compare_report?: DecisionCompareReport | null;
-  decision_packet_ref?: ArtifactRef | null;
+  decision_packet_ref?: ArtifactRefOutput | null;
   decision_validity?: {
   [key: string]: unknown;
 } | null;
@@ -2485,6 +2702,29 @@ export type RunNodesResponse = {
   source_kind: string;
 };
 
+export type RunOperatorDiagnostic = {
+  authoritative_runtime_state: string;
+  authority_refs?: {
+  [key: string]: string;
+};
+  blocker_overridable?: boolean;
+  downstream_impact: string;
+  evidence_refs?: Array<string>;
+  first_blocking_cause: string;
+  next_diagnostic_command: string;
+  owner: string;
+  phase: string;
+  projection_labels?: Array<RunOperatorProjectionStateLabel>;
+  projection_source: string;
+  upstream_missing_input?: string | null;
+};
+
+export type RunOperatorProjectionStateLabel = {
+  authority: "runtime_authority" | "projection_only";
+  label: string;
+  state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
+};
+
 export type RunQuantitiesResponse = {
   coverage?: QuantityCoverageSummary;
   entries?: Array<QuantityCoverageEntry>;
@@ -2499,7 +2739,7 @@ export type RunSummary = {
   cell_id?: string | null;
   control_job_id?: string | null;
   decision_review_required?: boolean;
-  decision_superseded_by_ref?: ArtifactRef | null;
+  decision_superseded_by_ref?: ArtifactRefOutput | null;
   decision_validity_checked_at?: string | null;
   decision_validity_status?: DecisionValidityStatus | null;
   duration_ms?: number | null;
@@ -2606,8 +2846,8 @@ export type RunWorkflowView = {
   run_id: string;
   source_kind: string;
   summary: RunWorkflowSummary;
-  workflow_report_ref?: ArtifactRef | null;
-  workflow_spec_ref?: ArtifactRef | null;
+  workflow_report_ref?: ArtifactRefOutput | null;
+  workflow_spec_ref?: ArtifactRefOutput | null;
 };
 
 export type RunsBatchRequest = {
@@ -2774,8 +3014,14 @@ export type ScenarioRef = {
   temporal_scope?: TemporalScope | null;
 };
 
-export type SimulationResultRef = {
+export type SimulationResultRefInput = {
   artifact_id: ArtifactID;
+  kind?: string;
+  media_type?: string;
+};
+
+export type SimulationResultRefOutput = {
+  artifact_id: string;
   kind?: string;
   media_type?: string;
 };

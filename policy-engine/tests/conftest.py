@@ -215,6 +215,15 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
                 )
 
 
+def pytest_runtest_teardown(item: pytest.Item, nextitem: pytest.Item | None) -> None:
+    """Clean direct runtime API helper envs without importing the heavy helper eagerly."""
+    del item, nextitem
+    runtime_http = sys.modules.get("_helpers.runtime_http")
+    cleanup = getattr(runtime_http, "close_registered_runtime_api_envs", None)
+    if callable(cleanup):
+        cleanup()
+
+
 # --- FORCE SETTINGS FOR TESTS ---
 # Эти настройки должны сработать до любых других импортов в тестах
 

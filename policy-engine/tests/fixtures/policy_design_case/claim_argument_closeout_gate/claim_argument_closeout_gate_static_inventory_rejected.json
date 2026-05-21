@@ -1,0 +1,60 @@
+{
+  "fixture_id": "claim_argument_closeout_gate_static_inventory_rejected",
+  "adr": "ADR-0161",
+  "contract_name": "policy_design_case.claim_argument_closeout_gate.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "pdc_claim_argument_static_inventory_not_authority",
+  "sdd_record_families": [
+    "claim_argument_evidence_case.v1"
+  ],
+  "description": "Evidence-looking refs from a static bundle are rejected when argument, warrant, rebuttal, deficit, or BERL authority is missing.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0161_static_inventory_rejected",
+    "artifact_ref": "repo://docs/archive/reports/POLICYOS_PRODUCTION_QUALITY_BEST_IN_CLASS_ACCEPTANCE.md",
+    "cas_ref": null,
+    "authority_role": "not_authoritative",
+    "provenance_kind": "static_inventory",
+    "static_inventory_ref": "repo://docs/archive/reports/POLICYOS_PRODUCTION_QUALITY_BEST_IN_CLASS_ACCEPTANCE.md",
+    "producer_component": "docs.archive.report",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-claim-compiler",
+    "runtime_event_ref": "event://policy_design_case/adr0161/claim_argument/static_inventory_rejected",
+    "schema_name": "policy_design_case.claim_argument_closeout_gate",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.claim_argument_closeout_gate.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_claim_compiler_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:05:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0161_static_inventory_rejected",
+      "status": "blocked",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "repo://docs/archive/reports/POLICYOS_PRODUCTION_QUALITY_BEST_IN_CLASS_ACCEPTANCE.md"
+      ],
+      "closure_sha256": null
+    },
+    "validation_status": "blocked",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "pdc_claim_argument_static_inventory_not_authority",
+      "reason": "Static acceptance report cannot backfill claim compiler argument, warrant, rebuttal, counter-evidence, deficit, or BERL refs."
+    }
+  },
+  "payload": {
+    "static_inventory_candidate": {
+      "inventory_ref": "repo://docs/archive/reports/POLICYOS_PRODUCTION_QUALITY_BEST_IN_CLASS_ACCEPTANCE.md",
+      "claimed_evidence_refs": [
+        "bundle://quality_evidence/claim.json"
+      ]
+    },
+    "missing_argument": true,
+    "missing_warrant": true,
+    "missing_counter_evidence_assessment": true,
+    "missing_required_berl_reliability": true
+  }
+}

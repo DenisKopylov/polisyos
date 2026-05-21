@@ -5,6 +5,7 @@ import {
   GitBranch,
   MapPinned,
   Scale,
+  ShieldAlert,
   ScrollText,
   ShieldCheck,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import type {
   ArgumentMapNode,
   ConfidenceLadderItem,
   SignedPublicDecisionPacket,
+  TrustFramingScenario,
 } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
@@ -38,6 +40,20 @@ function ladderKind(item: ConfidenceLadderItem) {
   return "fail";
 }
 
+function trustScenarioKind(scenario: TrustFramingScenario) {
+  if (scenario === "disputed" || scenario === "untraced") {
+    return "fail";
+  }
+  if (
+    scenario === "low_confidence" ||
+    scenario === "override_approved" ||
+    scenario === "stale"
+  ) {
+    return "warn";
+  }
+  return "neutral";
+}
+
 export function PublicationPacketPanel({
   packet,
   publicMode = false,
@@ -58,7 +74,31 @@ export function PublicationPacketPanel({
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Badge kind="ok">{packet.signature}</Badge>
+          <Badge
+            kind="neutral"
+            title={packet.trustFraming.closeoutAuthorityCaveat}
+          >
+            {packet.signature}
+          </Badge>
+          <span
+            className="flex flex-wrap gap-2"
+            data-testid="publication-projection-semantics"
+          >
+            <Badge
+              kind={
+                packet.projectionSemantics.primaryState === "publishable"
+                  ? "ok"
+                  : packet.projectionSemantics.primaryState === "blocked"
+                    ? "fail"
+                    : "neutral"
+              }
+            >
+              {packet.projectionSemantics.primaryState}
+            </Badge>
+            <Badge kind="neutral">
+              {packet.projectionSemantics.authorityRole}
+            </Badge>
+          </span>
           {!publicMode ? (
             <Button href={packet.publicUrlPath} variant="ghost">
               <ExternalLink className="size-4" aria-hidden="true" />
@@ -86,6 +126,60 @@ export function PublicationPacketPanel({
               {packet.decision.confidence}
             </Badge>
           </div>
+        </div>
+      </section>
+
+      <section
+        className="border-line bg-surface/80 rounded-2xl border p-4"
+        data-testid="trust-framing-caveats"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow">{t("phase35.trust.eyebrow")}</p>
+            <h4 className="flex items-center gap-2">
+              <ShieldAlert className="size-4" aria-hidden="true" />
+              {t("phase35.trust.title")}
+            </h4>
+          </div>
+          <Badge kind="neutral">{packet.trustFraming.authorityRole}</Badge>
+        </div>
+        <p className="text-muted mt-2 text-sm">
+          {packet.trustFraming.visibleCaveat}
+        </p>
+        <p
+          className="text-muted mt-1 text-sm"
+          data-testid="trust-framing-closeout-caveat"
+        >
+          {packet.trustFraming.closeoutAuthorityCaveat}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {packet.trustFraming.mayNotBeUsedFor.map((authority) => (
+            <Badge key={authority} kind="neutral">
+              {authority}
+            </Badge>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {packet.trustFraming.scenarioCaveats.map((caveat) => (
+            <article
+              key={caveat.scenario}
+              className="border-line bg-background/55 rounded-xl border p-3"
+              data-testid={`trust-framing-${caveat.scenario}`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-semibold">{caveat.label}</p>
+                <Badge kind={trustScenarioKind(caveat.scenario)}>
+                  {caveat.badge}
+                </Badge>
+              </div>
+              <p className="text-muted mt-1 text-sm">
+                {caveat.authorityCaveat}
+              </p>
+              <p className="text-muted mt-2 font-mono text-xs">
+                {caveat.signatureCue}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
 

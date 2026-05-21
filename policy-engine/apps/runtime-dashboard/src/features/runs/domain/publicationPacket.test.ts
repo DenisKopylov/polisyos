@@ -120,6 +120,44 @@ const evidenceContext: RunEvidenceContext = {
   warnings: [],
 };
 
+const projectionMaskingCases = [
+  {
+    caseId: "missing",
+    code: "projection_masked_missing",
+    label: "missing evidence label",
+  },
+  {
+    caseId: "stale",
+    code: "projection_masked_stale",
+    label: "stale evidence label",
+  },
+  {
+    caseId: "conflicting",
+    code: "projection_masked_conflicting",
+    label: "conflicting evidence label",
+  },
+  {
+    caseId: "reissued",
+    code: "projection_masked_reissued",
+    label: "reissued evidence label",
+  },
+  {
+    caseId: "withdrawn",
+    code: "projection_masked_withdrawn",
+    label: "withdrawn evidence label",
+  },
+  {
+    caseId: "non_authoritative",
+    code: "projection_masked_non_authoritative",
+    label: "non-authoritative evidence label",
+  },
+  {
+    caseId: "projection_only",
+    code: "projection_masked_projection_only",
+    label: "projection-only evidence label",
+  },
+] as const;
+
 function issue(): GovernanceIssueView {
   return {
     code: "public_rebuttal",
@@ -181,16 +219,155 @@ describe("publication packet domain", () => {
 
     expect(signed.publicUrlPath).toMatch(/^\/public\/decisions\//u);
     expect(signed.signature).toMatch(/^sig:/u);
+    expect(signed.projectionSemantics.primaryState).toBe("projection_only");
+    expect(signed.projectionSemantics.authorityRole).toBe("projection_only");
     expect(verifySignedPublicDecisionPacket(signed.signedId)).toMatchObject({
       valid: true,
     });
+    const tamperedSuffix = signed.signedId.endsWith("0") ? "1" : "0";
     expect(
-      verifySignedPublicDecisionPacket(`${signed.signedId.slice(0, -1)}0`),
+      verifySignedPublicDecisionPacket(
+        `${signed.signedId.slice(0, -1)}${tamperedSuffix}`,
+      ),
     ).toMatchObject({
       reason: "bad_signature",
       valid: false,
     });
   });
+
+  it("blocks publishable Policy Design Case projection labels without making dashboard state authoritative", () => {
+    const signed = buildSignedPublicDecisionPacket({
+      decisionScore: 0.72,
+      decisionView,
+      evidenceContext,
+      governanceIssues: [issue()],
+      policyDesignCaseProjection: {
+        authority_role: "projection_only",
+        labels: [
+          {
+            authority_role: "projection_only",
+            label: "publishable",
+            state: "publishable",
+          },
+          {
+            authority_role: "projection_only",
+            label: "projection only",
+            state: "projection_only",
+          },
+        ],
+        may_not_be_used_for: ["scorecard_authority"],
+        primary_state: "publishable",
+        projection_policy: "reads_policy_design_case_only",
+        states: ["publishable", "projection_only"],
+      },
+      runId: "run-35",
+    });
+
+    expect(signed.projectionSemantics.primaryState).toBe("blocked");
+    expect(signed.projectionSemantics.authorityRole).toBe("projection_only");
+    expect(signed.projectionSemantics.labels).toEqual([
+      "projection only",
+      "blocked projection",
+    ]);
+    expect(signed.projectionSemantics.mayNotBeUsedFor).toContain(
+      "scorecard_authority",
+    );
+  });
+
+  it("fails closed when projection-only labels claim publishable authority", () => {
+    const signed = buildSignedPublicDecisionPacket({
+      decisionScore: 0.72,
+      decisionView,
+      evidenceContext,
+      governanceIssues: [issue()],
+      policyDesignCaseProjection: {
+        authority_role: "projection_only",
+        labels: [
+          {
+            authority_role: "projection_only",
+            label: "publishable",
+            state: "publishable",
+          },
+          {
+            authority_role: "projection_only",
+            label: "projection only",
+            state: "projection_only",
+          },
+        ],
+        may_not_be_used_for: [
+          "approval_authority",
+          "runtime_closeout_authority",
+          "scorecard_authority",
+        ],
+        primary_state: "publishable",
+        projection_policy: "reads_policy_design_case_only",
+        states: ["publishable", "projection_only"],
+      },
+      runId: "run-35",
+    });
+
+    expect(signed.projectionSemantics.primaryState).toBe("blocked");
+    expect(signed.projectionSemantics.states).toEqual([
+      "projection_only",
+      "blocked",
+    ]);
+    expect(signed.projectionSemantics.labels).toEqual([
+      "projection only",
+      "blocked projection",
+    ]);
+    expect(signed.projectionSemantics.mayNotBeUsedFor).toEqual(
+      expect.arrayContaining([
+        "approval_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+      ]),
+    );
+  });
+
+  it.each(projectionMaskingCases)(
+    "fails closed when projection labels mask $caseId evidence",
+    ({ code, label }) => {
+      const signed = buildSignedPublicDecisionPacket({
+        decisionScore: 0.72,
+        decisionView,
+        evidenceContext,
+        governanceIssues: [issue()],
+        policyDesignCaseProjection: {
+          authority_role: "projection_only",
+          labels: [
+            {
+              authority_role: "projection_only",
+              label,
+              state: "projection_only",
+            },
+          ],
+          may_not_be_used_for: ["scorecard_authority"],
+          primary_state: "projection_only",
+          projection_policy: "reads_policy_design_case_only",
+          states: ["projection_only"],
+        },
+        runId: "run-35",
+      });
+
+      expect(signed.projectionSemantics.primaryState).toBe("blocked");
+      expect(signed.projectionSemantics.states).toEqual([
+        "projection_only",
+        "blocked",
+      ]);
+      expect(signed.projectionSemantics.labels).toContain("blocked projection");
+      expect(signed.projectionSemantics.failClosedCodes).toContain(code);
+      expect(signed.projectionSemantics.maskingCases).toContain(
+        code.replace("projection_masked_", ""),
+      );
+      expect(signed.projectionSemantics.mayNotBeUsedFor).toEqual(
+        expect.arrayContaining([
+          "approval_authority",
+          "runtime_closeout_authority",
+          "scorecard_authority",
+        ]),
+      );
+    },
+  );
 
   it("keeps private governance text out of the signed public model", () => {
     const packet = buildPublicDecisionPacket({

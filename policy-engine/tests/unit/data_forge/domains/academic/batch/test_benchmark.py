@@ -176,6 +176,28 @@ def test_benchmark_writes_runtime_demand_backlog_and_canonical_metrics(tmp_path)
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     with duckdb.connect(str(config.db_path)) as con:
         ensure_skg_schema(con)
+        con.execute(
+            """
+            INSERT INTO ac_skg_parameters(param_id, canonical_name, openalex_id, parameter_json, context_json)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            [
+                "p_teacher_coaching",
+                "teacher_coaching_program",
+                "W_teacher",
+                json.dumps(
+                    {
+                        "value": 0.42,
+                        "ci_low": 0.2,
+                        "ci_high": 0.61,
+                        "context_snippet": "Teacher coaching treatment effect in RCT sample",
+                        "pattern_name": "resolve_extract",
+                        "confidence": 0.83,
+                    }
+                ),
+                json.dumps({"context_id": "KE", "publication_year": 2021}),
+            ],
+        )
 
     config.benchmark_suite_path.write_text(
         json.dumps(
@@ -225,3 +247,12 @@ def test_benchmark_writes_runtime_demand_backlog_and_canonical_metrics(tmp_path)
     )
     report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
     assert report["runtime_demand_backlog"]["items"] == len(backlog_rows)
+    parameter_candidate = report["scenarios"][0]["parameters"][0]["candidates"][0]
+    assert (
+        "mapped:ci_low/ci_high->confidence_interval"
+        in parameter_candidate["normalization_diagnostics"]
+    )
+    assert (
+        "mapped:context_snippet->heterogeneity_note"
+        in parameter_candidate["normalization_diagnostics"]
+    )

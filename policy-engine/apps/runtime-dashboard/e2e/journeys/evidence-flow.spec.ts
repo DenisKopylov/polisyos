@@ -46,9 +46,17 @@ test.describe("runtime-dashboard evidence flow", () => {
     );
 
     await approveButton.click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: /^Approve$/i })
+      .click();
     await expect(page.getByText(/status=approved/i)).toBeVisible();
 
     await rejectButton.click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: /^Reject$/i })
+      .click();
     await expect(page.getByText(/status=rejected/i)).toBeVisible();
 
     await page
@@ -57,10 +65,7 @@ test.describe("runtime-dashboard evidence flow", () => {
       .click();
     await expect(page).toHaveURL(/focus=artifact/);
 
-    await page
-      .getByRole("link", { name: /Open artifact/i })
-      .first()
-      .click();
+    await page.getByRole("link", { name: /^Open$/i }).first().click();
     await waitForDashboardSurface(page, "artifact");
 
     await page.getByRole("button", { name: /Lineage/i }).click();

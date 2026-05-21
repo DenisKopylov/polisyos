@@ -7,6 +7,20 @@ from polisyos.scientist.orchestration.engine.metrics_protocol import (
     NoopEngineMetrics,
 )
 
+
+class _Recorder:
+    def __init__(self):
+        self.calls: list[tuple[str, float | int, dict[str, str]]] = []
+
+    def add(self, value, attrs=None):
+        self.calls.append(("add", value, dict(attrs or {})))
+
+    def record(self, value, attrs=None):
+        self.calls.append(("record", value, dict(attrs or {})))
+
+    def set(self, value, attrs=None):
+        self.calls.append(("set", value, dict(attrs or {})))
+
 # ---------------------------------------------------------------------------
 # NoopEngineMetrics
 # ---------------------------------------------------------------------------
@@ -69,6 +83,93 @@ class TestNoopEngineMetrics:
             workflow_id="w",
             run_id="r",
         )
+
+
+class TestCoreMetricsRegistryBridge:
+    def test_core_metrics_registry_satisfies_engine_protocol(self):
+        from polisyos.core.observability import MetricsRegistry
+
+        assert isinstance(MetricsRegistry(), EngineMetricsCollector)
+
+    def test_core_metrics_registry_records_engine_metrics(self, monkeypatch):
+        from polisyos.core.observability import MetricsRegistry
+
+        registry = MetricsRegistry()
+        monkeypatch.setattr(registry, "_ensure_initialized", lambda: None)
+
+        starts = _Recorder()
+        durations = _Recorder()
+        executions = _Recorder()
+        retries = _Recorder()
+        tier_durations = _Recorder()
+        workflow_runs = _Recorder()
+        workflow_duration = _Recorder()
+        queue_depth = _Recorder()
+        semaphore_wait = _Recorder()
+        workflow_state = _Recorder()
+
+        monkeypatch.setattr(registry, "scientist_node_starts_total", starts, raising=False)
+        monkeypatch.setattr(registry, "scientist_node_duration_seconds", durations, raising=False)
+        monkeypatch.setattr(registry, "scientist_node_executions_total", executions, raising=False)
+        monkeypatch.setattr(registry, "scientist_node_retry_count", retries, raising=False)
+        monkeypatch.setattr(registry, "scientist_tier_duration_seconds", tier_durations, raising=False)
+        monkeypatch.setattr(registry, "slo_dag_runs_total", workflow_runs, raising=False)
+        monkeypatch.setattr(
+            registry,
+            "slo_dag_duration_seconds",
+            workflow_duration,
+            raising=False,
+        )
+        monkeypatch.setattr(registry, "scientist_tier_queue_depth", queue_depth, raising=False)
+        monkeypatch.setattr(
+            registry,
+            "scientist_semaphore_wait_seconds",
+            semaphore_wait,
+            raising=False,
+        )
+        monkeypatch.setattr(registry, "scientist_workflow_state", workflow_state, raising=False)
+
+        registry.record_node_started(alias="a", node_id="n", workflow_id="w")
+        registry.record_node_completed(
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=125,
+            cache_hit=False,
+            retry_count=1,
+        )
+        registry.record_tier_completed(
+            tier_index=0,
+            tier_size=2,
+            duration_ms=250,
+            workflow_id="w",
+        )
+        registry.record_workflow_completed(
+            workflow_id="w",
+            status="ok",
+            duration_ms=500,
+            node_count=3,
+        )
+        registry.record_backpressure(
+            tier_index=0,
+            queued_tasks=4,
+            active_tasks=2,
+            workflow_id="w",
+        )
+        registry.record_semaphore_wait(tier_index=0, wait_seconds=0.25, workflow_id="w")
+        registry.record_workflow_state(run_id="r", workflow_id="w", state="running")
+
+        assert starts.calls
+        assert durations.calls
+        assert executions.calls
+        assert retries.calls
+        assert tier_durations.calls
+        assert workflow_runs.calls
+        assert workflow_duration.calls
+        assert queue_depth.calls
+        assert semaphore_wait.calls
+        assert workflow_state.calls
 
 
 # ---------------------------------------------------------------------------

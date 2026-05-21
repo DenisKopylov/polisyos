@@ -207,3 +207,60 @@ class TestMergeEffectiveParams:
         )
 
         assert lowered_ir.mechanisms[0].selected_fidelity == "relaxed"
+
+    @patch("polisyos.foundry.compile._lowering.has_runtime_mechanism_support", return_value=True)
+    @patch(
+        "polisyos.foundry.compile._lowering.resolve_runtime_fidelity",
+        return_value=MagicMock(value="fluid"),
+    )
+    def test_soft_governance_constraint_without_runtime_semantics_is_not_lowered(
+        self,
+        mock_fidelity,
+        mock_support,
+    ) -> None:
+        bundle = _make_bundle(
+            soft_constraints=[
+                SimpleNamespace(
+                    constraint_id="wartime_budget_feasibility",
+                    slot_id=None,
+                    operator=None,
+                    value="fiscally_bounded_targeting_required",
+                    penalty_weight="1",
+                    notes=["requires governance review"],
+                )
+            ],
+        )
+        linked_bundle = MagicMock()
+        linked_bundle.bindings.interventions = []
+
+        registry_content = MagicMock()
+        registry_content.mechanism_registry.mechanisms = {}
+        registry_content.constraint_registry = MagicMock(
+            constraints={
+                "wartime_budget_feasibility": SimpleNamespace(
+                    slot_id=None,
+                    operator=None,
+                    unit_id=None,
+                    constraint_type="budget",
+                )
+            }
+        )
+
+        store = MagicMock()
+        store.put_json.return_value = ArtifactRef(
+            artifact_id=ArtifactID("sha256:" + "d" * 64),
+            kind="foundry.lowered_ir",
+            media_type="application/json",
+        )
+
+        _, lowered_ir, notes = lower_trinity(
+            store,
+            policy_ref=_artifact_ref("ir"),
+            registry_bundle_ref=_artifact_ref("registry"),
+            bundle=bundle,
+            linked_bundle=linked_bundle,
+            registry_content=registry_content,
+        )
+
+        assert lowered_ir.constraints == []
+        assert "governance_constraint_not_lowered:wartime_budget_feasibility" in notes

@@ -5,6 +5,7 @@ import json
 
 from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _build_evidence_bundle,
+    _normalize_empirical_parameter,
     run_article_extract,
 )
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
@@ -81,6 +82,35 @@ class _FakePool(_BaseFakePool):
             raw_content="{}",
             truncated_output=False,
         )
+
+
+def test_normalize_empirical_parameter_accepts_estimate_candidate_payload() -> None:
+    diagnostics: list[str] = []
+    parameter = _normalize_empirical_parameter(
+        {
+            "value": 0.18,
+            "ci_low": 0.08,
+            "ci_high": 0.31,
+            "std_error": 0.04,
+            "unit": "percentage points",
+            "context_snippet": "Employment increased by 0.18 percentage points.",
+            "pattern_name": "llm_extraction",
+            "confidence": 0.8,
+            "variable_hint": "employment_rate",
+        },
+        diagnostics=diagnostics,
+    )
+
+    assert parameter is not None
+    assert parameter.name == "employment_rate"
+    assert parameter.confidence_interval == (0.08, 0.31)
+    assert parameter.heterogeneity_note == "Employment increased by 0.18 percentage points."
+    assert "extraction_pattern:llm_extraction" in parameter.transfer_conditions
+    assert "extraction_confidence:0.8" in parameter.transfer_conditions
+    assert "mapped:variable_hint->name" in diagnostics
+    assert "mapped:ci_low/ci_high->confidence_interval" in diagnostics
+    assert "mapped:context_snippet->heterogeneity_note" in diagnostics
+    assert "retained:confidence->transfer_conditions" in diagnostics
 
 
 class _CoercingFakePool(_BaseFakePool):

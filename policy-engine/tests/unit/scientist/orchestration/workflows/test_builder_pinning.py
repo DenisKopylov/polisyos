@@ -4,16 +4,26 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_REGISTRY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import (
     _artifact_ref_or_none,
+    _resolve_store,
+    build_execution_context,
     run_causal_full_workflow,
     run_default_workflow,
     run_discovery_workflow,
@@ -132,6 +142,58 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     lock.release.assert_called_once_with()
 
 
+def test_build_execution_context_uses_access_scope_tenant_when_tenant_scope_absent(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    access_scope = AccessScope(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        principal_type="user",
+        user_sub="alice",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        max_pii_tier=PIIAccessLevel.NONE,
+        mfa_verified=True,
+    )
+
+    token = set_current_access_scope(access_scope)
+    try:
+        ctx = build_execution_context(
+            store,
+            _ref("a", "core.registry_bundle"),
+            run_id="R_access_scope_tenant",
+        )
+    finally:
+        reset_current_access_scope(token)
+
+    assert ctx.run.tenant_id == "tenant-a"
+    assert ctx.run.cell_id == "cell-a"
+    assert ctx.run.run_manifest.tenant_id == "tenant-a"
+    assert ctx.run.run_manifest.cell_id == "cell-a"
+
+
+def test_resolve_store_keeps_content_addressed_filesystem_cas_under_tenant_scope(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        resolved = _resolve_store(store)
+
+    assert resolved is store
+
+
+def test_resolve_store_keeps_guarded_content_addressed_filesystem_cas_under_tenant_scope(
+    tmp_path,
+) -> None:
+    guarded_store = SimpleNamespace(_target=FileSystemCAS(tmp_path))
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        resolved = _resolve_store(guarded_store)
+
+    assert resolved is guarded_store
+
+
 def test_artifact_ref_or_none_assertion_is_not_swallowed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -213,4 +275,85 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     assert state.inputs == {INPUT_REGISTRY_BUNDLE_REF: _ref("1", "core.registry_bundle")}
     assert captured_state["value"].params["nested"]["value"] == "updated"
     assert "branch_only" in captured_state["value"].inputs
+    lock.release.assert_called_once_with()
+
+
+def test_policy_workflow_requests_method_obligations_before_claim_drafting(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    state = ExperimentState(
+        run_id="R_policy_method_obligations",
+        execution_profile="research",
+        inputs={INPUT_REGISTRY_BUNDLE_REF: _ref("1", "core.registry_bundle")},
+        params={
+            "expected_method_expectations": [
+                "distributional_evidence",
+                "implementation_feasibility",
+            ],
+        },
+    )
+    store = FileSystemCAS(tmp_path)
+    lock = SimpleNamespace(release=MagicMock())
+    captured_state: dict[str, ExperimentState] = {}
+
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    class _Executor:
+        def execute(self, workflow, branch_state):
+            del workflow
+            captured_state["value"] = branch_state
+            obligation_ref = branch_state.params[
+                "foundry_method_obligation_report_ref"
+            ]
+            assert isinstance(obligation_ref, str)
+            assert obligation_ref.startswith("sha256:")
+            assert branch_state.params[
+                "foundry_method_obligations_requested_before_claims"
+            ] is True
+            assert branch_state.params["foundry_method_obligation_report_status"] == "fail"
+            assert branch_state.params[
+                "foundry_method_obligation_expected_method_expectations"
+            ] == [
+                "distributional_evidence",
+                "implementation_feasibility",
+            ]
+            assert (
+                branch_state.params[
+                    "foundry_method_obligation_report_blocking_issue_count"
+                ]
+                > 0
+            )
+            assert (
+                str(
+                    branch_state.reports_index[
+                        "foundry_method_obligation_report"
+                    ].artifact_id
+                )
+                == obligation_ref
+            )
+            return SimpleNamespace(report=MagicMock(status="ok"), state=branch_state)
+
+    monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
+    monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
+    monkeypatch.setattr(
+        builder,
+        "build_execution_context",
+        lambda *args, **kwargs: SimpleNamespace(
+            run=SimpleNamespace(run_manifest=SimpleNamespace())
+        ),
+    )
+    monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
+    monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
+    monkeypatch.setattr(builder, "WorkflowExecutor", lambda *args, **kwargs: _Executor())
+    monkeypatch.setattr(builder, "policy_design_workflow_spec", lambda: object())
+
+    result = run_policy_design_workflow(
+        state,
+        store=store,
+        foundry=object(),
+    )
+
+    assert result.state is captured_state["value"]
+    assert "foundry_method_report_ref" in result.state.params
     lock.release.assert_called_once_with()

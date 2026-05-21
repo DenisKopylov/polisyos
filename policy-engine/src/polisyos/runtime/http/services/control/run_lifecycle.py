@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import time
 import uuid
-from contextlib import contextmanager
+from collections.abc import Mapping
+from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -67,6 +68,7 @@ from polisyos.core.contracts.control import (
 )
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods.catalog.causal.capabilities import (
     build_causal_capability_contract,
     project_capability_features,
@@ -91,9 +93,27 @@ from polisyos.runtime.http.services.control.artifacts import (
     _resolve_curated_dir,
 )
 from polisyos.runtime.http.services.control.nl_pipeline import NaturalLanguageRunMixin
+from polisyos.runtime.http.services.control.production_data import (
+    production_data_evidence_context,
+)
 from polisyos.runtime.http.services.control.response_shapes import (
     _decision_validity_dedupe_payload,
 )
+from polisyos.runtime.quality.diagnostic_events import (
+    DIAGNOSTIC_EVENT_SCHEMA_NAME,
+    DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+    SERIOUS_EXECUTION_PROFILES,
+    DiagnosticEvent,
+)
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    RuntimeDiagnosticEventLog,
+)
+from polisyos.runtime.quality.source_truth import (
+    SourceTruthContractError,
+    detect_source_truth_conflict,
+)
+from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 from .._control_contracts import (
@@ -119,6 +139,7 @@ from ..control_plane_store import ControlJobRecord, ControlPlaneStore
 from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
+_SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
 def _default_runtime_metrics() -> Any:
@@ -127,6 +148,13 @@ def _default_runtime_metrics() -> Any:
 
 def _default_runtime_tracer() -> Any:
     return get_tracer()
+
+
+def _clean_runtime_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 if TYPE_CHECKING:
@@ -207,6 +235,10 @@ class ControlPlaneService(NaturalLanguageRunMixin):
             )
         else:
             self._control_store = control_store
+        self._diagnostic_event_log = RuntimeDiagnosticEventLog(
+            store=self._control_store,
+            artifact_store=self._artifact_store,
+        )
 
         self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
@@ -329,6 +361,11 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         telemetry: dict[str, Any] = {}
         if request_id:
             telemetry["request_id"] = request_id
+        telemetry["runtime_trace"] = {
+            "trace_id": f"trace_{uuid.uuid4().hex}",
+            "span_id": f"span_{uuid.uuid4().hex[:16]}",
+            "parent_span_id": None,
+        }
         carrier: dict[str, str] = {}
         inject_context = getattr(self._tracer, "inject_context", None)
         if callable(inject_context):
@@ -348,6 +385,142 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         if telemetry is not None:
             enriched_payload["_telemetry"] = telemetry
         return enriched_payload
+
+    def _job_trace_context(
+        self,
+        *,
+        job_id: str,
+        payload: Mapping[str, Any] | None = None,
+        parent_span_id: str | None = None,
+    ) -> dict[str, str | None]:
+        telemetry = payload.get("_telemetry") if isinstance(payload, Mapping) else None
+        runtime_trace = telemetry.get("runtime_trace") if isinstance(telemetry, Mapping) else None
+        trace_id = None
+        span_id = None
+        stored_parent_span_id = None
+        if isinstance(runtime_trace, Mapping):
+            trace_id = runtime_trace.get("trace_id")
+            span_id = runtime_trace.get("span_id")
+            stored_parent_span_id = runtime_trace.get("parent_span_id")
+        return {
+            "trace_id": str(trace_id or f"trace_{job_id}"),
+            "span_id": f"span_{uuid.uuid4().hex[:16]}",
+            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "")
+            or None,
+        }
+
+    def _emit_runtime_diagnostic_event(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        execution_profile: str,
+        phase: str,
+        event_type: str,
+        state_before: str | None = None,
+        state_after: str | None = None,
+        payload: Mapping[str, Any] | None = None,
+        event_payload: Mapping[str, Any] | None = None,
+        artifact_refs: list[str] | tuple[str, ...] | None = None,
+        input_refs: list[str] | tuple[str, ...] | None = None,
+        blocking_status: str | None = None,
+        authority_bearing_payload: bool = False,
+        producer_component: str = "polisyos.runtime.control",
+        parent_span_id: str | None = None,
+    ) -> str | None:
+        """Emit a durable runtime diagnostic event and return its event id."""
+
+        trace = self._job_trace_context(
+            job_id=job_id,
+            payload=payload,
+            parent_span_id=parent_span_id,
+        )
+        tenant_id = _clean_runtime_text((payload or {}).get("tenant_id")) or "tenant-unknown"
+        cell_id = _clean_runtime_text((payload or {}).get("cell_id")) or "cell-unknown"
+        event = DiagnosticEvent(
+            event_id=f"evt_{uuid.uuid4().hex[:24]}",
+            event_source="polisyos.runtime.control",
+            event_type=event_type,
+            event_time=datetime.now(UTC).replace(microsecond=0),
+            event_subject=f"run/{run_id or 'run-unknown'}/job/{job_id}/phase/{phase}",
+            schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+            schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+            trace_id=str(trace["trace_id"]),
+            span_id=str(trace["span_id"]),
+            parent_span_id=(
+                str(trace["parent_span_id"]) if trace.get("parent_span_id") else None
+            ),
+            run_id=str(run_id or "run-unknown"),
+            job_id=job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            producer_component=producer_component,
+            producer_version="2026.05.15+hds-phase2.2",
+            execution_profile=execution_profile,
+            phase=phase,
+            state_before=state_before,
+            state_after=state_after,
+            payload_ref=None,
+            artifact_refs=tuple(artifact_refs or ()),
+            input_refs=tuple(input_refs or ()),
+            blocking_status=blocking_status,
+            redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
+            duplicate_of=None,
+            dedupe_key=None,
+            sampling_decision="always_record",
+            sampling_rate=1.0,
+        )
+        try:
+            record = self._diagnostic_event_log.append(
+                event,
+                payload=event_payload,
+                payload_policy=DiagnosticEventPayloadPolicy(
+                    authority_bearing=authority_bearing_payload
+                ),
+            )
+        except Exception as exc:  # pragma: no cover - diagnostics cannot mask dev jobs
+            if execution_profile.strip().casefold() in SERIOUS_EXECUTION_PROFILES:
+                raise RuntimeError(
+                    f"runtime_diagnostic_event_persistence_failed:{job_id}:{phase}"
+                ) from exc
+            logger.debug(
+                "Failed to persist runtime diagnostic event for job %s phase %s: %s",
+                job_id,
+                phase,
+                exc,
+            )
+            return None
+        return str(record.event.event_id)
+
+    def _attach_job_actor_scope(
+        self,
+        payload: dict[str, Any],
+        *,
+        policy: ResolvedExecutionPolicy,
+    ) -> dict[str, Any]:
+        scoped_payload = dict(payload)
+        tenant_id = policy.actor.get("tenant_id")
+        cell_id = policy.actor.get("cell_id")
+        if isinstance(tenant_id, str) and tenant_id:
+            scoped_payload["tenant_id"] = tenant_id
+        if isinstance(cell_id, str) and cell_id:
+            scoped_payload["cell_id"] = cell_id
+        return scoped_payload
+
+    @contextmanager
+    def _job_tenant_scope(self, payload: dict[str, Any]) -> Any:
+        tenant_id = payload.get("tenant_id")
+        cell_id = payload.get("cell_id")
+        if not isinstance(tenant_id, str) or not tenant_id:
+            with nullcontext():
+                yield
+            return
+        with tenant_scope(
+            None,
+            tenant_id=tenant_id,
+            cell_id=cell_id if isinstance(cell_id, str) and cell_id else None,
+        ):
+            yield
 
     @contextmanager
     def _control_job_span(
@@ -438,6 +611,7 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         request_id: str | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
+        payload = self._attach_job_actor_scope(payload, policy=policy)
         payload = self._enrich_job_payload(payload, request_id=request_id)
         try:
             payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
@@ -460,6 +634,74 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                 payload_ref=payload_ref,
                 submitted_by=str(policy.actor.get("subject") or "anonymous"),
             )
+            diagnostic_event_ids = [
+                event_id
+                for event_id in (
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                        state_after="payload_persisted",
+                        payload=payload,
+                        event_payload={
+                            "artifact_ref": payload_ref,
+                            "artifact_kind": f"runtime.control_job_payload.{job_kind}",
+                            "projection_authority": "runtime_event_only",
+                        },
+                        artifact_refs=[payload_ref],
+                        authority_bearing_payload=(
+                            policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
+                        ),
+                    ),
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                        state_after="capability_manifest_persisted",
+                        payload=payload,
+                        event_payload={
+                            "artifact_ref": capability_manifest_ref,
+                            "artifact_kind": "runtime.capability_manifest",
+                            "projection_authority": "runtime_event_only",
+                        },
+                        artifact_refs=[capability_manifest_ref],
+                        input_refs=[payload_ref],
+                        authority_bearing_payload=(
+                            policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
+                        ),
+                    ),
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_after="pending",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job_kind,
+                            "pipeline_id": pipeline_id,
+                            "projection_authority": "progress_reference_only",
+                        },
+                    ),
+                )
+                if event_id is not None
+            ]
+            if diagnostic_event_ids:
+                self._control_store.update_progress_state(
+                    job_id=job_id,
+                    state="pending",
+                    progress={
+                        "state": "pending",
+                        "phase": "job_admission",
+                        "diagnostic_event_ids": diagnostic_event_ids,
+                        "diagnostic_event_authority": "progress_reference_only",
+                    },
+                )
             if self._worker is not None:
                 self._worker.wake()
         except Exception:
@@ -491,6 +733,134 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         if record is None:
             raise KeyError(job_id)
         return record.to_response(request_id=request_id)
+
+    def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
+        """Return the newest durable control job attached to one runtime run."""
+        return self._control_store.get_latest_job_by_run(run_id)
+
+    def record_production_approval_packet(
+        self,
+        *,
+        run_id: str,
+        approval_packet_ref: str,
+        decision: str,
+        scorecard: Mapping[str, Any] | None = None,
+        approval_packet: Mapping[str, Any] | None = None,
+    ) -> None:
+        """Attach a persisted approval packet ref to the latest run control progress."""
+        record = self.get_latest_job_for_run(run_id)
+        if record is None:
+            return
+
+        progress = dict(record.progress)
+        existing_scorecard = progress.get("quality_scorecard")
+        if scorecard is not None:
+            progress_scorecard: dict[str, Any] = dict(scorecard)
+        elif isinstance(existing_scorecard, Mapping):
+            progress_scorecard = dict(existing_scorecard)
+        else:
+            progress_scorecard = {}
+        if isinstance(existing_scorecard, Mapping):
+            progress_scorecard.update(dict(existing_scorecard))
+
+        evidence_refs = progress_scorecard.get("evidence_refs")
+        if not isinstance(evidence_refs, Mapping):
+            evidence_refs = {}
+        evidence_refs = dict(evidence_refs)
+        evidence_refs["approval_packet_ref"] = approval_packet_ref
+        evidence_refs.setdefault("approval_packet", approval_packet_ref)
+
+        existing_projection = dict(progress_scorecard)
+        existing_decision = existing_projection.get("approval_decision") or existing_projection.get(
+            "decision"
+        )
+        conflict = None
+        if (
+            existing_projection.get("approval_packet_ref") is not None
+            or existing_decision is not None
+        ):
+            try:
+                conflict = detect_source_truth_conflict(
+                    field_family="approval_readiness_public_status",
+                    authoritative_source="runtime.approval_packet",
+                    authoritative_surface="runtime.approval",
+                    authoritative_values={
+                        "approval_packet_ref": approval_packet_ref,
+                        "decision": decision,
+                    },
+                    conflicting_source="runtime.dashboard",
+                    conflicting_surface="runtime.dashboard",
+                    conflicting_values={
+                        "approval_packet_ref": existing_projection.get("approval_packet_ref"),
+                        "decision": existing_decision,
+                    },
+                    fields=("approval_packet_ref", "decision"),
+                    downstream_impact=(
+                        "Dashboard progress projection would disagree with the persisted packet."
+                    ),
+                )
+            except SourceTruthContractError:
+                conflict = None
+        if conflict is not None:
+            existing_conflicts = progress_scorecard.get("source_truth_conflicts")
+            progress_scorecard["source_truth_conflicts"] = [
+                *(existing_conflicts if isinstance(existing_conflicts, list) else []),
+                conflict,
+            ]
+
+        progress_scorecard["approval_packet_ref"] = approval_packet_ref
+        progress_scorecard["approval_decision"] = decision
+        progress_scorecard["approval_ready"] = decision in {
+            "approved",
+            "approved_with_override",
+        }
+        progress_scorecard["approval_state"] = (
+            "approval_ready" if progress_scorecard["approval_ready"] else "approval_blocked"
+        )
+        progress_scorecard["evidence_refs"] = evidence_refs
+        if approval_packet is not None:
+            packet_payload = dict(approval_packet)
+            progress_scorecard["approval_packet"] = packet_payload
+            eligibility = packet_payload.get("eligibility")
+            if isinstance(eligibility, Mapping):
+                progress_scorecard["approval_eligibility"] = dict(eligibility)
+                reasons = eligibility.get("reasons")
+                if isinstance(reasons, list):
+                    progress_scorecard["approval_reasons"] = list(reasons)
+
+        progress["quality_scorecard"] = progress_scorecard
+        progress["approval_packet_ref"] = approval_packet_ref
+        progress["approval_decision"] = decision
+        progress_evidence_refs = progress.get("evidence_refs")
+        progress_evidence_refs = (
+            dict(progress_evidence_refs) if isinstance(progress_evidence_refs, Mapping) else {}
+        )
+        progress_evidence_refs["approval_packet_ref"] = approval_packet_ref
+        progress["evidence_refs"] = {
+            **progress_evidence_refs,
+        }
+        approval_event_id = self._emit_runtime_diagnostic_event(
+            job_id=record.job_id,
+            run_id=run_id,
+            execution_profile=record.effective_execution_profile,
+            phase="approval_packet",
+            event_type="polisyos.runtime.diagnostic.approval_decision.v1",
+            state_after=decision,
+            payload=record.progress,
+            event_payload={
+                "approval_packet_ref": approval_packet_ref,
+                "decision": decision,
+                "projection_authority": "progress_reference_only",
+            },
+            artifact_refs=[approval_packet_ref],
+            authority_bearing_payload=True,
+        )
+        if approval_event_id is not None:
+            progress.setdefault("diagnostic_event_ids", [])
+            if isinstance(progress["diagnostic_event_ids"], list):
+                progress["diagnostic_event_ids"].append(approval_event_id)
+            progress["diagnostic_event_authority"] = "progress_reference_only"
+        self._control_store.upsert_progress(job_id=record.job_id, progress=progress)
 
     def list_control_workers(
         self,
@@ -579,11 +949,25 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         job: ControlJobRecord,
         observed_fallbacks: list[str] | None = None,
     ) -> str:
+        payload: dict[str, Any] = {}
+        if job.payload_ref:
+            try:
+                payload = self._load_payload_ref(job.payload_ref)
+            except Exception as exc:
+                logger.debug(
+                    "Failed to load payload scope while refreshing capability manifest for %s: %s",
+                    job.job_id,
+                    exc,
+                )
         policy = self._policy_resolver.resolve(
             requested_profile=job.requested_execution_profile,
             policy_flags=PolicyFlags.model_validate(job.policy_flags),
             principal=RuntimePrincipal(
                 subject=job.submitted_by or "control-plane",
+                tenant_id=(
+                    payload.get("tenant_id") if isinstance(payload.get("tenant_id"), str) else None
+                ),
+                cell_id=payload.get("cell_id") if isinstance(payload.get("cell_id"), str) else None,
                 roles=frozenset({"system"}),
                 authenticated=True,
             ),
@@ -619,11 +1003,27 @@ class ControlPlaneService(NaturalLanguageRunMixin):
         return state_payload
 
     def _process_control_job(self, job: ControlJobRecord) -> None:
+        payload: dict[str, Any] = {}
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
             payload = self._load_payload_ref(job.payload_ref)
-            with self._control_job_span(job=job, payload=payload):
+            with self._control_job_span(job=job, payload=payload), self._job_tenant_scope(payload):
+                self._emit_runtime_diagnostic_event(
+                    job_id=job.job_id,
+                    run_id=job.run_id,
+                    execution_profile=job.effective_execution_profile,
+                    phase="job_execution",
+                    event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+                    state_before=job.state,
+                    state_after="running",
+                    payload=payload,
+                    event_payload={
+                        "job_kind": job.kind,
+                        "attempt": job.attempt,
+                        "projection_authority": "runtime_event_only",
+                    },
+                )
                 if job.kind == "workflow_run":
                     capability_manifest_ref = (
                         job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
@@ -638,6 +1038,17 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                         job_id=job.job_id,
                         run_id=job.run_id,
                         capability_manifest_ref=capability_manifest_ref,
+                    )
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after="completed",
+                        payload=payload,
+                        event_payload={"job_kind": job.kind},
                     )
                     return
                 if job.kind == "natural_language_run":
@@ -672,6 +1083,11 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                         capability_manifest_ref=capability_manifest_ref,
                         allow_mock_fallback=bool(job.policy_flags.get("allow_mock_fallback"))
                         or job.effective_execution_profile == "dev",
+                        provider_preflight_payload=(
+                            dict(payload.get("provider_preflight"))
+                            if isinstance(payload.get("provider_preflight"), dict)
+                            else None
+                        ),
                         capability_manifest_updater=(
                             lambda fallbacks: self._refresh_capability_manifest(
                                 job=job,
@@ -687,6 +1103,21 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                         run_id=str(result.get("run_id") or job.run_id or ""),
                         capability_manifest_ref=final_manifest_ref,
                     )
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=str(result.get("run_id") or job.run_id or ""),
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after="completed",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job.kind,
+                            "capability_manifest_ref": final_manifest_ref,
+                        },
+                        artifact_refs=[final_manifest_ref],
+                    )
                     return
                 if job.kind == "lex_pipeline":
                     capability_manifest_ref = (
@@ -701,6 +1132,22 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                 raise RuntimeError(f"Unsupported control job kind: {job.kind}")
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
+            self._emit_runtime_diagnostic_event(
+                job_id=job.job_id,
+                run_id=job.run_id,
+                execution_profile=job.effective_execution_profile,
+                phase="job_execution",
+                event_type="polisyos.runtime.diagnostic.blocker.v1",
+                state_before=job.state,
+                state_after="failed",
+                payload=payload,
+                event_payload={
+                    "job_kind": job.kind,
+                    "error": str(exc)[:500],
+                    "projection_authority": "runtime_event_only",
+                },
+                blocking_status="blocking",
+            )
             self._control_store.fail_job(
                 job_id=job.job_id,
                 capability_manifest_ref=job.capability_manifest_ref,
@@ -880,6 +1327,7 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                 kind="scientist.decision_packet",
             ),
             status=summary["status"],
+            lifecycle_status=summary["status"],
             checked_at=summary["checked_at"],
             reasons=list(summary.get("reasons") or []),
             triggers=list(summary.get("triggers") or []),
@@ -899,6 +1347,7 @@ class ControlPlaneService(NaturalLanguageRunMixin):
             decision_lineage_key=str(summary.get("decision_lineage_key") or packet_ref),
             recommended_action=str(summary.get("recommended_action") or "none"),
             lifecycle=DecisionValidityLifecycleSummary(
+                status=summary["status"],
                 events=list(lifecycle_payload.get("events") or []),
                 transitions=list(lifecycle_payload.get("transitions") or []),
                 pending_reviews=[
@@ -969,14 +1418,14 @@ class ControlPlaneService(NaturalLanguageRunMixin):
             ),
         }
 
-    @staticmethod
     def _execute_workflow(
+        self,
         state_payload: dict[str, Any],
         checkpoint_policy: str,
     ) -> None:
         from polisyos.scientist.api import run_experiment
 
-        run_experiment(state_payload)
+        run_experiment(state_payload, store=self._artifact_store)
 
     # ---- NL launch (agent circuit) ----------------------------------------
 
@@ -1011,6 +1460,72 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                 "Mock-only NL runs require allow_mock_fallback outside the dev profile.",
                 code="mock_fallback_disallowed",
             )
+        provider_preflight_payload: dict[str, Any] | None = None
+        if requested_models and policy.effective_profile in {"research", "governed", "production"}:
+            preflight_report = await run_provider_preflight(models=requested_models)
+            provider_preflight_payload = preflight_report.model_dump(mode="json")
+            if preflight_report.status == "failed":
+                preflight_ref = self._put_json_artifact(
+                    provider_preflight_payload,
+                    kind="runtime.provider_preflight_report",
+                    schema_name="polisyos.runtime.ProviderPreflightReport",
+                )
+                capability_manifest_ref = self._persist_capability_manifest(
+                    policy=policy,
+                    job_id=job_id,
+                    run_id=run_id,
+                    pipeline_id=None,
+                    payload_ref=None,
+                )
+                self._control_store.create_job(
+                    job_id=job_id,
+                    kind="natural_language_run",
+                    run_id=run_id,
+                    pipeline_id=None,
+                    requested_execution_profile=policy.requested_profile,
+                    effective_execution_profile=policy.effective_profile,
+                    policy_flags=policy.policy_flags.model_dump(mode="json"),
+                    capability_manifest_ref=capability_manifest_ref,
+                    payload_ref=None,
+                    submitted_by=str(policy.actor.get("subject") or "anonymous"),
+                )
+                failure = dict(preflight_report.failure or {})
+                failure.setdefault("code", "llm_provider_preflight_failed")
+                failure.setdefault("layer", "llm_gateway")
+                failure.setdefault("phase", "provider_preflight")
+                failure.setdefault("message", "LLM provider preflight failed.")
+                failure.setdefault("retryable", bool(preflight_report.retryable))
+                failure.setdefault("run_id", run_id)
+                failure.setdefault("job_id", job_id)
+                artifact_refs = failure.get("artifact_refs")
+                if not isinstance(artifact_refs, dict):
+                    artifact_refs = {}
+                artifact_refs["provider_preflight_ref"] = preflight_ref
+                failure["artifact_refs"] = artifact_refs
+                self._control_store.fail_job(
+                    job_id=job_id,
+                    error_message=str(failure.get("message") or "LLM provider preflight failed."),
+                    capability_manifest_ref=capability_manifest_ref,
+                    progress={
+                        "state": "failed",
+                        "phase": "provider_preflight",
+                        "run_id": run_id,
+                        "provider_preflight_ref": preflight_ref,
+                        "provider_preflight": provider_preflight_payload,
+                        "failure": failure,
+                    },
+                )
+                return RunLaunchResponse(
+                    meta=_build_api_meta(request_id),
+                    status="rejected",
+                    run_id=run_id,
+                    job_id=job_id,
+                    effective_execution_profile=policy.effective_profile,
+                    message=(
+                        f"Natural-language run {run_id} was rejected by LLM provider "
+                        "preflight. Inspect the control job failure envelope."
+                    ),
+                )
         self._enqueue_job(
             job_id=job_id,
             job_kind="natural_language_run",
@@ -1035,6 +1550,7 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                 "stop_criteria": request.stop_criteria,
                 "governance_constraints": request.governance_constraints,
                 "expected_outputs": request.expected_outputs,
+                "provider_preflight": provider_preflight_payload,
             },
             policy=policy,
             request_id=request_id,
@@ -1532,6 +2048,7 @@ class ControlPlaneService(NaturalLanguageRunMixin):
     def get_capabilities(self, *, request_id: str | None = None) -> CapabilityManifestResponse:
         """Return the control-plane capability manifest, execution profiles, and feature gates."""
         causal_contract = build_causal_capability_contract()
+        production_data_context = production_data_evidence_context(None, allow_default=True)
         resolved_policy = self._policy_resolver.resolve(
             requested_profile=None,
             policy_flags=PolicyFlags(),
@@ -1747,6 +2264,11 @@ class ControlPlaneService(NaturalLanguageRunMixin):
                     resolved_policy.fallback_rules.get("local_control_plane_waiver_active")
                 ),
                 "causal_runtime": causal_contract.model_dump(mode="json"),
+                **(
+                    {"production_data": production_data_context}
+                    if production_data_context is not None
+                    else {}
+                ),
             },
         )
 
@@ -1872,6 +2394,22 @@ class ControlPlaneService(NaturalLanguageRunMixin):
             pipeline_id=job.pipeline_id,
             capability_manifest_ref=capability_manifest_ref,
             progress=final_progress,
+        )
+        self._emit_runtime_diagnostic_event(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            execution_profile=job.effective_execution_profile,
+            phase="lex_pipeline",
+            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+            state_before="running",
+            state_after="completed",
+            payload=payload,
+            event_payload={
+                "job_kind": job.kind,
+                "pipeline_id": job.pipeline_id,
+                "progress_event_authority": "progress_reference_only",
+            },
+            artifact_refs=[capability_manifest_ref],
         )
 
     def get_lex_pipeline_status(

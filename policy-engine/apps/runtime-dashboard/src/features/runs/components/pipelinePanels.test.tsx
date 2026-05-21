@@ -11,9 +11,9 @@ const { normalizeAgentPipelineMock, normalizeWorkflowMock } = vi.hoisted(
 );
 
 vi.mock("@/shared/lib/domain/agents", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/lib/domain/agents")>(
-    "@/shared/lib/domain/agents",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/lib/domain/agents")
+  >("@/shared/lib/domain/agents");
   return {
     ...actual,
     normalizeAgentPipeline: (...args: unknown[]) =>
@@ -22,9 +22,9 @@ vi.mock("@/shared/lib/domain/agents", async () => {
 });
 
 vi.mock("@/shared/lib/domain/workflow", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/lib/domain/workflow")>(
-    "@/shared/lib/domain/workflow",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/lib/domain/workflow")
+  >("@/shared/lib/domain/workflow");
   return {
     ...actual,
     normalizeWorkflow: (...args: unknown[]) => normalizeWorkflowMock(...args),
@@ -32,9 +32,9 @@ vi.mock("@/shared/lib/domain/workflow", async () => {
 });
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -181,6 +181,30 @@ describe("pipeline surfaces", () => {
       },
       latestVerdict: "APPROVE",
       notes: ["Fallback lane engaged"],
+      performanceSummary: {
+        llmLatencyMs: 125_000,
+        overBudgetCount: 1,
+        phaseBudgets: [
+          {
+            budgetMs: 10_000,
+            category: "retrieval",
+            durationMs: 15_000,
+            phase: "retrieval.materialize",
+            status: "over_budget",
+          },
+          {
+            budgetMs: 30_000,
+            category: "llm",
+            durationMs: 12_000,
+            phase: "llm.total",
+            status: "within_budget",
+          },
+        ],
+        totalTokens: 3400,
+        variantsCompleted: 1,
+        variantsFailed: 1,
+        variantsTotal: 2,
+      },
       preflight: {
         diagnostics: [
           {
@@ -224,6 +248,13 @@ describe("pipeline surfaces", () => {
     renderWithProviders(<AgentPipelinePanel payload={{}} />);
 
     expect(screen.getByText("Fallback lane engaged")).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.agentPipeline.performanceBudget"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('panels.agentPipeline.overBudget:{"count":"1"}'),
+    ).toBeInTheDocument();
+    expect(screen.getByText("retrieval.materialize")).toBeInTheDocument();
     expect(screen.getByText("Promotion lane fallback")).toBeInTheDocument();
     expect(screen.getByText("Draft plan")).toBeInTheDocument();
     expect(screen.getByText(/Grounded in evidence/)).toBeInTheDocument();
@@ -246,6 +277,7 @@ describe("pipeline surfaces", () => {
       iterationLifecycle: null,
       latestVerdict: null,
       notes: [],
+      performanceSummary: null,
       preflight: null,
       reproducibility: null,
       retrieval: null,

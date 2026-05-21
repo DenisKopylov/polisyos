@@ -49,7 +49,7 @@ def check_constraints(
     slot_registry: SlotRegistry,
     state: Any,
 ) -> ConstraintReport:
-    """Check constraints helper."""
+    """Evaluate lowered slot constraints against execution state and return violations."""
     verdicts: list[ConstraintViolation] = []
     hard_fail = False
     penalty_total = Decimal("0")

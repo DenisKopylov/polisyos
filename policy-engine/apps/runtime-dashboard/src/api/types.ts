@@ -1330,6 +1330,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/production-approval": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Run Production Approval */
+    post: operations["create_run_production_approval"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/quantities": {
     parameters: {
       query?: never;
@@ -1604,19 +1621,27 @@ export interface components {
     AgentPipelineView: {
       /** Attempts */
       attempts?: components["schemas"]["AgentPipelineAttempt"][];
-      decision_packet_ref?: components["schemas"]["ArtifactRef"] | null;
+      decision_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       evaluator?: components["schemas"]["EvaluatorReportView"] | null;
-      execution_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+      execution_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       iteration_lifecycle?:
         | components["schemas"]["IterationLifecycleView"]
         | null;
       /** Latest Verdict */
       latest_verdict?: string | null;
-      method_catalog_snapshot_ref?: components["schemas"]["ArtifactRef"] | null;
+      method_catalog_snapshot_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Notes */
       notes?: string[];
+      /** Performance Summary */
+      performance_summary?: {
+        [key: string]: unknown;
+      } | null;
       preflight?: components["schemas"]["PreflightReportView"] | null;
-      reflexion_terminal_ref?: components["schemas"]["ArtifactRef"] | null;
+      reflexion_terminal_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       reproducibility?: components["schemas"]["ReproducibilityView"] | null;
       retrieval?: components["schemas"]["RetrievalTelemetryView"] | null;
       /** Run Id */
@@ -1836,8 +1861,19 @@ export interface components {
      * ArtifactRef
      * @description Reference an artifact across service, registry, and governance boundaries.
      */
-    ArtifactRef: {
+    "ArtifactRef-Input": {
       artifact_id: components["schemas"]["ArtifactID"];
+      /** Kind */
+      kind: string;
+      /** Media Type */
+      media_type: string;
+    };
+    /**
+     * ArtifactRef
+     * @description Reference an artifact across service, registry, and governance boundaries.
+     */
+    "ArtifactRef-Output": {
+      artifact_id: string;
       /** Kind */
       kind: string;
       /** Media Type */
@@ -1893,11 +1929,13 @@ export interface components {
         | "basin_map"
         | "lyapunov"
       )[];
-      exec_plan_ref?: components["schemas"]["ExecPlanRef"] | null;
+      exec_plan_ref?: components["schemas"]["ExecPlanRef-Input"] | null;
       feedback_jacobian_diagnostics_ref?:
         | components["schemas"]["FeedbackJacobianDiagnosticsRef"]
         | null;
-      feedback_result_ref?: components["schemas"]["FeedbackResultRef"] | null;
+      feedback_result_ref?:
+        | components["schemas"]["FeedbackResultRef-Input"]
+        | null;
       /** Initial States */
       initial_states?: {
         [key: string]: number;
@@ -1909,7 +1947,7 @@ export interface components {
        * @default 12
        */
       max_period: number;
-      model_ref?: components["schemas"]["ArtifactRef"] | null;
+      model_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Notes */
       notes?: string[];
       parameter_point?: components["schemas"]["AttractorParameterPoint"];
@@ -1931,7 +1969,7 @@ export interface components {
       /** Seeds */
       seeds?: number[];
       simulation_result_ref?:
-        | components["schemas"]["SimulationResultRef"]
+        | components["schemas"]["SimulationResultRef-Input"]
         | null;
       state_projection?:
         | components["schemas"]["AttractorStateProjection"]
@@ -1990,15 +2028,17 @@ export interface components {
       attractors?: components["schemas"]["AttractorSummary"][];
       /** Bifurcations */
       bifurcations?: components["schemas"]["BifurcationEvent"][];
-      exec_plan_ref?: components["schemas"]["ExecPlanRef"] | null;
-      feedback_result_ref?: components["schemas"]["FeedbackResultRef"] | null;
+      exec_plan_ref?: components["schemas"]["ExecPlanRef-Output"] | null;
+      feedback_result_ref?:
+        | components["schemas"]["FeedbackResultRef-Output"]
+        | null;
       /**
        * Kind
        * @default foundry.attractor_analysis_result
        * @constant
        */
       kind: "foundry.attractor_analysis_result";
-      model_ref?: components["schemas"]["ArtifactRef"] | null;
+      model_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Notes */
       notes?: string[];
       parameter_point?: components["schemas"]["AttractorParameterPoint"];
@@ -2009,7 +2049,7 @@ export interface components {
        */
       schema_version: string;
       simulation_result_ref?:
-        | components["schemas"]["SimulationResultRef"]
+        | components["schemas"]["SimulationResultRef-Output"]
         | null;
       state_projection: components["schemas"]["AttractorStateProjection"];
       uncertainty_summary?: components["schemas"]["AttractorUncertaintySummary"];
@@ -2019,7 +2059,7 @@ export interface components {
      * @description Artifact reference for a multi-attractor analysis summary.
      */
     AttractorAnalysisResultRef: {
-      artifact_id: components["schemas"]["ArtifactID"];
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.attractor_analysis_result
@@ -2059,7 +2099,7 @@ export interface components {
       evidence_strength?: number | null;
       /** Notes */
       notes?: string[];
-      proof_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      proof_artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /**
        * Status
        * @default not_attempted
@@ -2174,8 +2214,10 @@ export interface components {
       equilibrium?: {
         [key: string]: number;
       } | null;
-      invariant_set_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
-      orbit_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      invariant_set_artifact_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      orbit_artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Orbit Points */
       orbit_points?: {
         [key: string]: number;
@@ -2362,7 +2404,7 @@ export interface components {
      * @description Artifact reference for dense basin membership samples.
      */
     BasinMapRef: {
-      artifact_id: components["schemas"]["ArtifactID"];
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.basin_map
@@ -2985,11 +3027,17 @@ export interface components {
      * @description Artifact references emitted by runtime causal-frontier SAE execution.
      */
     CausalFrontierOutputRefs: {
-      causal_diagnostics_ref?: components["schemas"]["ArtifactRef"] | null;
-      dependence_ref?: components["schemas"]["ArtifactRef"] | null;
-      governance_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
-      quality_certificate_ref?: components["schemas"]["ArtifactRef"] | null;
-      sae_estimates_ref?: components["schemas"]["ArtifactRef"] | null;
+      causal_diagnostics_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      dependence_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      governance_artifact_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      quality_certificate_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      sae_estimates_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * CausalFrontierSAEEstimate
@@ -3386,7 +3434,7 @@ export interface components {
      * @description Artifact reference for an equilibrium, cycle, or bifurcation continuation branch.
      */
     ContinuationBranchRef: {
-      artifact_id: components["schemas"]["ArtifactID"];
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.continuation_branch
@@ -3399,11 +3447,97 @@ export interface components {
       media_type: string;
     };
     /**
+     * ControlApprovalProjection
+     * @description Fail-closed approval projection for dashboard readers.
+     */
+    ControlApprovalProjection: {
+      /** Authority Level */
+      authority_level: string;
+      /**
+       * Eligible
+       * @default false
+       */
+      eligible: boolean;
+      /** Reasons */
+      reasons?: string[];
+      /** Source Surface */
+      source_surface: string;
+      /** State */
+      state?: string | null;
+    };
+    /**
+     * ControlAuthorityGap
+     * @description Operator-facing unresolved authority gap exposed through API projections.
+     */
+    ControlAuthorityGap: {
+      /** Code */
+      code: string;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Layer */
+      layer: string;
+      /** Message */
+      message: string;
+      /** Next Action */
+      next_action?: string | null;
+      /** Next Diagnostic Command */
+      next_diagnostic_command?: string | null;
+      /** Owner */
+      owner?: string | null;
+      /** Phase */
+      phase?: string | null;
+    };
+    /**
+     * ControlFailureEnvelope
+     * @description Stable operator-facing failure envelope for durable control jobs.
+     */
+    ControlFailureEnvelope: {
+      /** Artifact Refs */
+      artifact_refs?: {
+        [key: string]: unknown;
+      };
+      /** Code */
+      code: string;
+      /** Job Id */
+      job_id?: string | null;
+      /** Layer */
+      layer: string;
+      /** Message */
+      message: string;
+      /** Model */
+      model?: string | null;
+      /** Next Action */
+      next_action?: string | null;
+      operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
+      /** Phase */
+      phase?: string | null;
+      /** Provider */
+      provider?: string | null;
+      /**
+       * Retryable
+       * @default false
+       */
+      retryable: boolean;
+      /** Run Id */
+      run_id?: string | null;
+      /** Variant Failures */
+      variant_failures?: {
+        [key: string]: unknown;
+      }[];
+    };
+    /**
      * ControlJobResponse
      * @description Represent one durable control-plane job and its progress/error state.
      */
     ControlJobResponse: {
-      capability_manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+      approval_projection?: components["schemas"]["ControlApprovalProjection"];
+      /** Authoritative Scorecard Ref */
+      authoritative_scorecard_ref?: string | null;
+      /** Blocking Quality Failures */
+      blocking_quality_failures?: components["schemas"]["ControlQualityFailure"][];
+      capability_manifest_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /**
        * Effective Execution Profile
        * @enum {string}
@@ -3415,6 +3549,9 @@ export interface components {
         | "production";
       /** Error Message */
       error_message?: string | null;
+      /** Execution Status */
+      execution_status?: string | null;
+      failure?: components["schemas"]["ControlFailureEnvelope"] | null;
       /** Finished At */
       finished_at?: string | null;
       /** Job Id */
@@ -3425,18 +3562,36 @@ export interface components {
        */
       kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
       meta: components["schemas"]["ApiMeta"];
+      /** Next Diagnostic Commands */
+      next_diagnostic_commands?: string[];
+      operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
       /** Pipeline Id */
       pipeline_id?: string | null;
+      /** Policy Design Case Projection */
+      policy_design_case_projection?: {
+        [key: string]: unknown;
+      } | null;
       /** Progress */
       progress?: {
         [key: string]: unknown;
       };
+      projection_source?: components["schemas"]["ControlProjectionSource"];
+      /** Quality Evidence Bundle Path */
+      quality_evidence_bundle_path?: string | null;
+      /** Quality Gates */
+      quality_gates?: components["schemas"]["ControlQualityGate"][];
+      /** Quality Scorecard Ref */
+      quality_scorecard_ref?: string | null;
+      /** Quality Status */
+      quality_status?: string | null;
       /** Requested Execution Profile */
       requested_execution_profile?:
         | ("dev" | "research" | "governed" | "production")
         | null;
       /** Run Id */
       run_id?: string | null;
+      /** Runtime State */
+      runtime_state?: string | null;
       /** Started At */
       started_at?: string | null;
       /**
@@ -3446,6 +3601,8 @@ export interface components {
       state: "pending" | "running" | "completed" | "failed";
       /** Submitted At */
       submitted_at?: string | null;
+      /** Unresolved Authority Gaps */
+      unresolved_authority_gaps?: components["schemas"]["ControlAuthorityGap"][];
     };
     /**
      * ControlOutboxEventInfo
@@ -3498,6 +3655,73 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /** State */
       state?: string | null;
+    };
+    /**
+     * ControlProjectionSource
+     * @description Label the projection surface used to shape a dashboard response.
+     */
+    ControlProjectionSource: {
+      /** Authority Level */
+      authority_level: string;
+      /** Projection Policy */
+      projection_policy: string;
+      /** Source Detail */
+      source_detail: string;
+      /** Source Surface */
+      source_surface: string;
+    };
+    /**
+     * ControlQualityFailure
+     * @description Operator-facing blocking quality failure summary.
+     */
+    ControlQualityFailure: {
+      /** Code */
+      code?: string | null;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Gate */
+      gate: string;
+      /** Layer */
+      layer: string;
+      /** Message */
+      message: string;
+      /** Next Action */
+      next_action?: string | null;
+      /** Next Diagnostic Command */
+      next_diagnostic_command?: string | null;
+      operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
+      /** Phase */
+      phase?: string | null;
+    };
+    /**
+     * ControlQualityGate
+     * @description Stable operator-facing quality gate emitted by canary scorecards.
+     */
+    ControlQualityGate: {
+      /**
+       * Blocking
+       * @default true
+       */
+      blocking: boolean;
+      /** Code */
+      code?: string | null;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Layer */
+      layer: string;
+      /** Message */
+      message: string;
+      /** Name */
+      name: string;
+      /** Next Action */
+      next_action?: string | null;
+      /** Next Diagnostic Command */
+      next_diagnostic_command?: string | null;
+      operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
+      /** Phase */
+      phase?: string | null;
+      /** Status */
+      status: string;
     };
     /**
      * ControlWorkerLeaseInfo
@@ -4192,6 +4416,12 @@ export interface components {
      * @enum {string}
      */
     DecisionTriggerType:
+      | "norm_invalidation"
+      | "data_invalidation"
+      | "source_invalidation"
+      | "metric_invalidation"
+      | "model_invalidation"
+      | "conflict_invalidation"
       | "law_change"
       | "dataset_superseded"
       | "historical_semantic_revision"
@@ -4256,9 +4486,10 @@ export interface components {
       /** Pending Reviews */
       pending_reviews?: components["schemas"]["DecisionValidityPendingReview"][];
       /** Reissue Candidates */
-      reissue_candidates?: components["schemas"]["ArtifactRef"][];
+      reissue_candidates?: components["schemas"]["ArtifactRef-Output"][];
       /** Scheduled Jobs */
       scheduled_jobs?: components["schemas"]["DecisionLifecycleJob"][];
+      status?: components["schemas"]["DecisionValidityStatus"] | null;
       /** Transitions */
       transitions?: components["schemas"]["DecisionValidityTransition"][];
     };
@@ -4287,7 +4518,10 @@ export interface components {
       | "active"
       | "warning"
       | "stale"
+      | "review_required"
       | "superseded"
+      | "reissued"
+      | "withdrawn"
       | "revoked"
       | "requires_human_review";
     /**
@@ -4302,9 +4536,10 @@ export interface components {
       checked_at: string;
       /** Decision Lineage Key */
       decision_lineage_key: string;
-      decision_packet_ref: components["schemas"]["ArtifactRef"];
-      evaluation_ref?: components["schemas"]["ArtifactRef"] | null;
+      decision_packet_ref: components["schemas"]["ArtifactRef-Output"];
+      evaluation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       lifecycle?: components["schemas"]["DecisionValidityLifecycleSummary"];
+      lifecycle_status: components["schemas"]["DecisionValidityStatus"];
       meta: components["schemas"]["ApiMeta"];
       /** Reasons */
       reasons?: string[];
@@ -4318,8 +4553,10 @@ export interface components {
       /** Run Id */
       run_id?: string | null;
       status: components["schemas"]["DecisionValidityStatus"];
-      superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
-      supersedes_decision_ref?: components["schemas"]["ArtifactRef"] | null;
+      superseded_by_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      supersedes_decision_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Triggers */
       triggers?: components["schemas"]["DecisionTriggerRecord"][];
     };
@@ -4417,7 +4654,7 @@ export interface components {
      * @description Derived artifact public type.
      */
     DerivedArtifact: {
-      ref: components["schemas"]["ArtifactRef"];
+      ref: components["schemas"]["ArtifactRef-Output"];
       /** Role */
       role: string;
     };
@@ -4719,7 +4956,7 @@ export interface components {
       reasons?: string[];
       /** Replanning Hints */
       replanning_hints?: string[];
-      report_ref?: components["schemas"]["ArtifactRef"] | null;
+      report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       scores?: components["schemas"]["EvaluatorScoresView"];
       /** Verdict */
       verdict?:
@@ -4772,8 +5009,25 @@ export interface components {
      * ExecPlanRef
      * @description Artifact reference for the resolved Foundry execution plan and runtime posture.
      */
-    ExecPlanRef: {
+    "ExecPlanRef-Input": {
       artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.exec_plan
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * ExecPlanRef
+     * @description Artifact reference for the resolved Foundry execution plan and runtime posture.
+     */
+    "ExecPlanRef-Output": {
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.exec_plan
@@ -5081,12 +5335,14 @@ export interface components {
        * @enum {string}
        */
       action: "evaluate_feedback" | "reissue";
-      compare_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      compare_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Message */
       message: string;
       meta: components["schemas"]["ApiMeta"];
-      monitoring_report_ref?: components["schemas"]["ArtifactRef"] | null;
-      reissue_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+      monitoring_report_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      reissue_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Reissued Run Id */
       reissued_run_id?: string | null;
       /** Run Id */
@@ -5119,8 +5375,25 @@ export interface components {
      * FeedbackResultRef
      * @description Artifact reference for the top-level feedback solve result.
      */
-    FeedbackResultRef: {
+    "FeedbackResultRef-Input": {
       artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.feedback_result
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * FeedbackResultRef
+     * @description Artifact reference for the top-level feedback solve result.
+     */
+    "FeedbackResultRef-Output": {
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.feedback_result
@@ -5313,10 +5586,10 @@ export interface components {
       legal_executed?: boolean | null;
       /** Links */
       links?: {
-        [key: string]: components["schemas"]["ArtifactRef"] | null;
+        [key: string]: components["schemas"]["ArtifactRef-Output"] | null;
       } | null;
       normative_arbitration_result_ref?:
-        | components["schemas"]["ArtifactRef"]
+        | components["schemas"]["ArtifactRef-Output"]
         | null;
       /** Normative Summary */
       normative_summary?: {
@@ -5326,7 +5599,7 @@ export interface components {
       notes?: string[];
       /** Report Kind */
       report_kind?: string | null;
-      report_ref?: components["schemas"]["ArtifactRef"] | null;
+      report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Report Schema Version */
       report_schema_version?: string | null;
       /** Run Id */
@@ -5482,7 +5755,7 @@ export interface components {
      * @description Declare one upstream artifact edge in a manifest lineage DAG.
      */
     InputRef: {
-      artifact_id: components["schemas"]["ArtifactID"];
+      artifact_id: string;
       /** Role */
       role: string;
     };
@@ -5525,7 +5798,7 @@ export interface components {
         | "stopped_budget"
         | "stopped_no_delta"
         | "stopped_guardrail";
-      state_ref?: components["schemas"]["ArtifactRef"] | null;
+      state_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Stop Reason */
       stop_reason?:
         | ("approved" | "budget_exhausted" | "no_delta" | "guardrail_violation")
@@ -6075,13 +6348,13 @@ export interface components {
       bounds: {
         [key: string]: unknown;
       };
-      bounds_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
+      bounds_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Cell Bounds */
       cell_bounds?: {
         [key: string]: number[];
       };
       meta: components["schemas"]["ApiMeta"];
-      mobility_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      mobility_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Summary Bounds */
       summary_bounds?: {
         [key: string]: number[];
@@ -6097,7 +6370,7 @@ export interface components {
         [key: string]: unknown;
       };
       meta: components["schemas"]["ApiMeta"];
-      mobility_report_ref: components["schemas"]["ArtifactRef"];
+      mobility_report_ref: components["schemas"]["ArtifactRef-Output"];
     };
     /**
      * MobilityEstimateRequest
@@ -6185,9 +6458,9 @@ export interface components {
      * @description Response envelope returned after estimating a mobility report.
      */
     MobilityEstimateResponse: {
-      bounds_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
+      bounds_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       meta: components["schemas"]["ApiMeta"];
-      mobility_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      mobility_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Report */
       report: {
         [key: string]: unknown;
@@ -6199,7 +6472,7 @@ export interface components {
      */
     MobilityReportResponse: {
       meta: components["schemas"]["ApiMeta"];
-      mobility_report_ref: components["schemas"]["ArtifactRef"];
+      mobility_report_ref: components["schemas"]["ArtifactRef-Output"];
       /** Report */
       report: {
         [key: string]: unknown;
@@ -6465,6 +6738,71 @@ export interface components {
       timeline_events?: components["schemas"]["RunTimelineEvent"][];
     };
     /**
+     * OperatorDiagnostic
+     * @description Typed operator root-cause projection for serious runtime failures.
+     */
+    OperatorDiagnostic: {
+      /** Authoritative Runtime State */
+      authoritative_runtime_state: string;
+      /** Authority Refs */
+      authority_refs?: {
+        [key: string]: string;
+      };
+      /**
+       * Blocker Overridable
+       * @default false
+       */
+      blocker_overridable: boolean;
+      /** Downstream Impact */
+      downstream_impact: string;
+      /** Evidence Refs */
+      evidence_refs?: string[];
+      /** First Blocking Cause */
+      first_blocking_cause: string;
+      /** Next Diagnostic Command */
+      next_diagnostic_command: string;
+      /** Owner */
+      owner: string;
+      /** Phase */
+      phase: string;
+      /** Projection Labels */
+      projection_labels?: components["schemas"]["OperatorProjectionStateLabel"][];
+      /** Projection Source */
+      projection_source: string;
+      /** Upstream Missing Input */
+      upstream_missing_input?: string | null;
+    };
+    /**
+     * OperatorProjectionStateLabel
+     * @description Projection lifecycle label with explicit authority semantics.
+     */
+    OperatorProjectionStateLabel: {
+      /**
+       * Authority
+       * @enum {string}
+       */
+      authority: "runtime_authority" | "projection_only";
+      /** Label */
+      label: string;
+      /**
+       * State
+       * @enum {string}
+       */
+      state:
+        | "draft"
+        | "projection_only"
+        | "redacted"
+        | "stale"
+        | "contested"
+        | "projected"
+        | "blocked"
+        | "readiness_closed"
+        | "approved"
+        | "rejected"
+        | "published_blocked"
+        | "publishable";
+    };
+    /**
      * PolicyFlags
      * @description Carry opt-in execution relaxations requested by the client.
      *
@@ -6515,7 +6853,167 @@ export interface components {
        * @default false
        */
       ready_to_run: boolean;
-      report_ref?: components["schemas"]["ArtifactRef"] | null;
+      report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+    };
+    /**
+     * ProductionApprovalEligibility
+     * @description Machine-readable production approval eligibility projection.
+     */
+    ProductionApprovalEligibility: {
+      /** Blocking Failure Count */
+      blocking_failure_count: number;
+      /**
+       * Conflict Blocking
+       * @default false
+       */
+      conflict_blocking: boolean;
+      /** Conflict Status */
+      conflict_status?: string | null;
+      /** Eligible */
+      eligible: boolean;
+      /** Execution Completed */
+      execution_completed: boolean;
+      /**
+       * Performance Blocking
+       * @default false
+       */
+      performance_blocking: boolean;
+      /** Performance Status */
+      performance_status?: string | null;
+      /** Quality Passed */
+      quality_passed: boolean;
+      /** Reasons */
+      reasons?: string[];
+    };
+    /**
+     * ProductionApprovalOverridePacket
+     * @description Persisted reviewer override packet with deterministic attribution signature.
+     */
+    ProductionApprovalOverridePacket: {
+      /** Evidence Refs */
+      evidence_refs?: string[];
+      /**
+       * Expires At
+       * Format: date-time
+       */
+      expires_at: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Reason */
+      reason: string;
+      /** Reviewer Identity */
+      reviewer_identity: string;
+      /** Scope */
+      scope: string;
+      /** Signature */
+      signature: string;
+      /**
+       * Signed At
+       * Format: date-time
+       */
+      signed_at: string;
+    };
+    /**
+     * ProductionApprovalOverrideRequest
+     * @description Reviewer-attributed override request for exceptional production approval.
+     */
+    ProductionApprovalOverrideRequest: {
+      /** Evidence Refs */
+      evidence_refs: string[];
+      /**
+       * Expires At
+       * Format: date-time
+       */
+      expires_at: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Reason */
+      reason: string;
+      /** Reviewer Identity */
+      reviewer_identity: string;
+      /** Scope */
+      scope: string;
+      /** Signature */
+      signature?: string | null;
+    };
+    /**
+     * ProductionApprovalPacket
+     * @description Immutable approval packet derived from a quality scorecard and optional override.
+     */
+    ProductionApprovalPacket: {
+      /** Canary Kind */
+      canary_kind?: string | null;
+      /**
+       * Decision
+       * @enum {string}
+       */
+      decision: "approved" | "approved_with_override" | "blocked";
+      eligibility: components["schemas"]["ProductionApprovalEligibility"];
+      /** Evidence Refs */
+      evidence_refs?: {
+        [key: string]: string;
+      };
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      /** Job Id */
+      job_id?: string | null;
+      override?:
+        | components["schemas"]["ProductionApprovalOverridePacket"]
+        | null;
+      /** Run Id */
+      run_id?: string | null;
+      /**
+       * Schema Version
+       * @default policyos.production_approval_packet.v1
+       * @constant
+       */
+      schema_version: "policyos.production_approval_packet.v1";
+      /** Scorecard Digest */
+      scorecard_digest: string;
+      /** Scorecard Generated At */
+      scorecard_generated_at?: string | null;
+      /** Scorecard Ref */
+      scorecard_ref?: string | null;
+    };
+    /**
+     * ProductionApprovalRequest
+     * @description Request to materialize a production approval packet for one run.
+     */
+    ProductionApprovalRequest: {
+      override?:
+        | components["schemas"]["ProductionApprovalOverrideRequest"]
+        | null;
+      /** Quality Scorecard */
+      quality_scorecard?: {
+        [key: string]: unknown;
+      } | null;
+      /** Quality Scorecard Ref */
+      quality_scorecard_ref?: string | null;
+    };
+    /**
+     * ProductionApprovalResponse
+     * @description Return persisted production approval packet metadata and payload.
+     */
+    ProductionApprovalResponse: {
+      approval_packet_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Decision
+       * @enum {string}
+       */
+      decision: "approved" | "approved_with_override" | "blocked";
+      /** Evidence Bundle Packet Path */
+      evidence_bundle_packet_path?: string | null;
+      meta: components["schemas"]["ApiMeta"];
+      packet: components["schemas"]["ProductionApprovalPacket"];
+      /** Run Id */
+      run_id: string;
     };
     /**
      * PromotionCandidate
@@ -6792,7 +7290,7 @@ export interface components {
       determinism_tier?: string | null;
       /** Input Bindings Hash */
       input_bindings_hash?: string | null;
-      manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+      manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Method Catalog Hash */
       method_catalog_hash?: string | null;
       /** Missing Refs */
@@ -6916,7 +7414,9 @@ export interface components {
      * @description Run details public type.
      */
     RunDetails: {
-      capability_manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+      capability_manifest_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Cell Id */
       cell_id?: string | null;
       /** Control Job Id */
@@ -6926,7 +7426,9 @@ export interface components {
        * @default false
        */
       decision_review_required: boolean;
-      decision_superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
+      decision_superseded_by_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Decision Validity Checked At */
       decision_validity_checked_at?: string | null;
       decision_validity_status?:
@@ -6948,9 +7450,16 @@ export interface components {
        * @default false
        */
       has_workflow_report: boolean;
-      manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+      manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      operator_diagnostic?:
+        | components["schemas"]["RunOperatorDiagnostic"]
+        | null;
+      /** Policy Design Case Projection */
+      policy_design_case_projection?: {
+        [key: string]: unknown;
+      } | null;
       /** Root Artifacts */
-      root_artifacts?: components["schemas"]["ArtifactRef"][];
+      root_artifacts?: components["schemas"]["ArtifactRef-Output"][];
       /** Run Id */
       run_id: string;
       /**
@@ -6964,10 +7473,10 @@ export interface components {
       status: string;
       /** Tenant Id */
       tenant_id?: string | null;
-      trace_ref?: components["schemas"]["ArtifactRef"] | null;
+      trace_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Warnings */
       warnings?: string[];
-      workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      workflow_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * RunDetailsResponse
@@ -6994,7 +7503,7 @@ export interface components {
       /** Notes */
       notes?: string[];
       report?: components["schemas"]["EquilibriumMultiplicityReport"] | null;
-      report_ref?: components["schemas"]["ArtifactRef"] | null;
+      report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Run Id */
       run_id: string;
       /**
@@ -7052,16 +7561,27 @@ export interface components {
     RunEvidenceContextView: {
       /** Data Needs */
       data_needs?: components["schemas"]["RunEvidenceNeedView"][];
-      data_snapshot_ref?: components["schemas"]["ArtifactRef"] | null;
-      evidence_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
-      execution_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+      data_snapshot_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      evidence_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      execution_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      fabric_retrieval_trace_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Fetch Plans */
       fetch_plans?: components["schemas"]["RunEvidencePlanView"][];
-      input_bindings_ref?: components["schemas"]["ArtifactRef"] | null;
+      input_bindings_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Materialization Refs */
+      materialization_refs?: {
+        [key: string]: components["schemas"]["ArtifactRef-Output"];
+      };
+      /** Production Data Evidence Context */
+      production_data_evidence_context?: {
+        [key: string]: unknown;
+      };
       /** Promotion Candidates */
       promotion_candidates?: components["schemas"]["RunEvidencePromotionView"][];
       /** Related Artifacts */
-      related_artifacts?: components["schemas"]["ArtifactRef"][];
+      related_artifacts?: components["schemas"]["ArtifactRef-Output"][];
       /** Run Id */
       run_id: string;
       /**
@@ -7207,7 +7727,7 @@ export interface components {
      */
     RunFeedbackView: {
       compare_report?: components["schemas"]["DecisionCompareReport"] | null;
-      decision_packet_ref?: components["schemas"]["ArtifactRef"] | null;
+      decision_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Decision Validity */
       decision_validity?: {
         [key: string]: unknown;
@@ -7325,6 +7845,71 @@ export interface components {
       source_kind: "core_run";
     };
     /**
+     * RunOperatorDiagnostic
+     * @description Typed operator root-cause projection attached to run details.
+     */
+    RunOperatorDiagnostic: {
+      /** Authoritative Runtime State */
+      authoritative_runtime_state: string;
+      /** Authority Refs */
+      authority_refs?: {
+        [key: string]: string;
+      };
+      /**
+       * Blocker Overridable
+       * @default false
+       */
+      blocker_overridable: boolean;
+      /** Downstream Impact */
+      downstream_impact: string;
+      /** Evidence Refs */
+      evidence_refs?: string[];
+      /** First Blocking Cause */
+      first_blocking_cause: string;
+      /** Next Diagnostic Command */
+      next_diagnostic_command: string;
+      /** Owner */
+      owner: string;
+      /** Phase */
+      phase: string;
+      /** Projection Labels */
+      projection_labels?: components["schemas"]["RunOperatorProjectionStateLabel"][];
+      /** Projection Source */
+      projection_source: string;
+      /** Upstream Missing Input */
+      upstream_missing_input?: string | null;
+    };
+    /**
+     * RunOperatorProjectionStateLabel
+     * @description Projection lifecycle label with explicit authority semantics.
+     */
+    RunOperatorProjectionStateLabel: {
+      /**
+       * Authority
+       * @enum {string}
+       */
+      authority: "runtime_authority" | "projection_only";
+      /** Label */
+      label: string;
+      /**
+       * State
+       * @enum {string}
+       */
+      state:
+        | "draft"
+        | "projection_only"
+        | "redacted"
+        | "stale"
+        | "contested"
+        | "projected"
+        | "blocked"
+        | "readiness_closed"
+        | "approved"
+        | "rejected"
+        | "published_blocked"
+        | "publishable";
+    };
+    /**
      * RunQuantitiesResponse
      * @description Response envelope returned by the run quantity inventory endpoint.
      */
@@ -7358,7 +7943,9 @@ export interface components {
        * @default false
        */
       decision_review_required: boolean;
-      decision_superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
+      decision_superseded_by_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Decision Validity Checked At */
       decision_validity_checked_at?: string | null;
       decision_validity_status?:
@@ -7629,8 +8216,8 @@ export interface components {
        */
       source_kind: "core_run";
       summary: components["schemas"]["RunWorkflowSummary"];
-      workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
-      workflow_spec_ref?: components["schemas"]["ArtifactRef"] | null;
+      workflow_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      workflow_spec_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * RunsBatchRequest
@@ -8010,8 +8597,25 @@ export interface components {
      * SimulationResultRef
      * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
      */
-    SimulationResultRef: {
+    "SimulationResultRef-Input": {
       artifact_id: components["schemas"]["ArtifactID"];
+      /**
+       * Kind
+       * @default foundry.simulation_result
+       */
+      kind: string;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
+     * SimulationResultRef
+     * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
+     */
+    "SimulationResultRef-Output": {
+      artifact_id: string;
       /**
        * Kind
        * @default foundry.simulation_result
@@ -15422,6 +16026,96 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RunNodesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  create_run_production_approval: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ProductionApprovalRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductionApprovalResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

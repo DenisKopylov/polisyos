@@ -1,0 +1,60 @@
+{
+  "fixture_id": "intent_capability_authority_profile_static_inventory_rejected",
+  "adr": "ADR-0157",
+  "contract_name": "policy_design_case.intent_capability_authority_profile.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "pdc_intent_capability_static_inventory_not_authority",
+  "sdd_record_families": [
+    "intent_authoring_and_capture_risk.v1",
+    "capability_mode_and_fallback_selection.v1"
+  ],
+  "description": "Static capability map cannot replace a runtime intent envelope or skipped-duty ledger.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0157_static_inventory_rejected",
+    "artifact_ref": "repo://docs/system-design-decisions/policy-design-best-in-class-operating-model.md#capability-realization-map",
+    "cas_ref": null,
+    "authority_role": "not_authoritative",
+    "provenance_kind": "static_inventory",
+    "static_inventory_ref": "repo://docs/system-design-decisions/policy-design-best-in-class-operating-model.md#capability-realization-map",
+    "producer_component": "docs.sdd.capability_inventory",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-runtime-control",
+    "runtime_event_ref": "event://policy_design_case/adr0157/intent_capability/static_inventory_rejected",
+    "schema_name": "policy_design_case.intent_capability_authority_profile",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.intent_capability_authority_profile.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_intent_capability_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:01:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0157_static_inventory_rejected",
+      "status": "blocked",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "repo://docs/system-design-decisions/policy-design-best-in-class-operating-model.md#capability-realization-map"
+      ],
+      "closure_sha256": null
+    },
+    "validation_status": "blocked",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "pdc_intent_capability_static_inventory_not_authority",
+      "reason": "Capability inventory is not tenant-scoped runtime evidence and lacks skipped-duty blockers."
+    }
+  },
+  "payload": {
+    "static_inventory_candidate": {
+      "inventory_ref": "repo://docs/system-design-decisions/policy-design-best-in-class-operating-model.md#capability-realization-map",
+      "declared_families": [
+        "intent_authoring_and_capture_risk.v1",
+        "capability_mode_and_fallback_selection.v1"
+      ]
+    },
+    "missing_runtime_intent_envelope": true,
+    "missing_capability_ledger": true
+  }
+}

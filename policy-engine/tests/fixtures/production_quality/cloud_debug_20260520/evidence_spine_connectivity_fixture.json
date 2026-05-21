@@ -1,0 +1,346 @@
+{
+  "schema_version": "policyos.evidence_spine_connectivity_fixture.v1",
+  "generated_at": "2026-05-20T18:40:00+00:00",
+  "source_run": {
+    "account_context": "repairkyiv4@gmail.com",
+    "gcp_project": "lex-1-494208",
+    "lane_id": "profile-research__provider-live_gonka_proxy__data-canonical_production__scenario-public_golden__ui-api_only",
+    "vm": "policyos-prod-debug-20260520",
+    "zone": "europe-west1-b"
+  },
+  "source_artifacts": [
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/request.sanitized.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/bundle.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/fabric_retrieval_trace.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/normative_evidence.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/foundry_method_report.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/semantic_binding_ledger.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/policy_design_case.json",
+    "_build/.tmp/production-quality/cloud_wave11/bundle_full/quality_evidence/quality_scorecard.json",
+    "_build/.tmp/production-quality/cloud_wave11/production_data_metadata/source_bindings.json",
+    "_build/.tmp/production-quality/cloud_wave11/production_data_metadata/data_contracts.json"
+  ],
+  "request": {
+    "scenario_evidence_contract_id": "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1",
+    "requirement_count": 18
+  },
+  "bundle_command": {
+    "scenario_evidence_contract_id": "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1",
+    "git_sha": null
+  },
+  "fabric": {
+    "top_level_scenario_evidence_contract_id": null,
+    "nested_scenario_evidence_contract_id": "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1",
+    "scenario_binding_findings": [
+      {
+        "requirement_id": "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel",
+        "expected_family": "production_msme_panel",
+        "status": "blocked",
+        "candidate_ref": null
+      },
+      {
+        "requirement_id": "scenario:ukraine_msme_wartime_credit_support:data:credit_program_registry",
+        "expected_family": "credit_program_registry",
+        "status": "blocked",
+        "candidate_ref": null
+      },
+      {
+        "requirement_id": "scenario:ukraine_msme_wartime_credit_support:data:regional_displacement_indicators",
+        "expected_family": "regional_displacement_indicators",
+        "status": "blocked",
+        "candidate_ref": null
+      }
+    ],
+    "selected_contract_binding": null,
+    "selected_contract_bindings": [],
+    "selected_source_count": 5
+  },
+  "lex": {
+    "top_level_legal_requirement_count": 0,
+    "query_normalization_legal_requirement_count": 4,
+    "global_candidate_norm_ref_count": 33,
+    "global_selected_norm_ref_count": 33,
+    "global_rejected_norm_ref_count": 0,
+    "recommendation_coverage": [
+      {
+        "recommendation_id": "rec_adaptive_tax_relief_for_wartime_msmes",
+        "status": "fail",
+        "reason_code": "missing_normative_anchor",
+        "selected_norm_ref_count": 0,
+        "rejected_norm_ref_count": 0
+      },
+      {
+        "recommendation_id": "rec_emergency_wage_subsidy_program",
+        "status": "fail",
+        "reason_code": "missing_normative_anchor",
+        "selected_norm_ref_count": 0,
+        "rejected_norm_ref_count": 0
+      },
+      {
+        "recommendation_id": "rec_real_time_msme_monitoring_dashboard",
+        "status": "fail",
+        "reason_code": "missing_normative_anchor",
+        "selected_norm_ref_count": 0,
+        "rejected_norm_ref_count": 0
+      }
+    ]
+  },
+  "production_data": {
+    "curated_contract_ids": [
+      "us.macro.gdp_nominal",
+      "us.macro.unemployment_rate",
+      "agent.income.salary"
+    ],
+    "missing_scenario_families": [
+      "production_msme_panel",
+      "credit_program_registry",
+      "regional_displacement_indicators"
+    ],
+    "required_facets": [
+      "dataset_identity",
+      "source_family",
+      "dictionary_ref",
+      "schema_ref",
+      "field_refs",
+      "unit_refs",
+      "geography_coverage",
+      "time_coverage",
+      "freshness_ref",
+      "lineage_refs",
+      "transformation_refs",
+      "quality_assertion_refs",
+      "missingness_refs",
+      "outlier_refs",
+      "construct_validity_refs",
+      "claim_bindability_refs"
+    ]
+  },
+  "foundry": {
+    "expected_method_expectations": [
+      "causal_effect_estimation",
+      "heterogeneity_by_region_or_firm_size",
+      "sensitivity_or_transportability_diagnostic",
+      "uncertainty_interval"
+    ],
+    "selected_method_id": "foundry.execute",
+    "selected_method_family": "simulation",
+    "method_obligation_count": 0,
+    "rejected_method_count": 0,
+    "issue_codes": [
+      "method_family_not_expected",
+      "generic_simulation_false_pass",
+      "method_assumptions_missing",
+      "method_uncertainty_missing",
+      "method_missingness_diagnostics_missing",
+      "method_sensitivity_missing"
+    ]
+  },
+  "policy_grounding": {
+    "major_claim_count": 3,
+    "claims_missing_per_claim_refs": [
+      "data_refs",
+      "method_refs",
+      "norm_refs",
+      "portfolio_refs",
+      "argument_refs",
+      "warrant_refs",
+      "limitation_refs"
+    ]
+  },
+  "semantic_binding": {
+    "status": "pass",
+    "runtime_report_status": null,
+    "semantic_scorecard_failure_count": 108,
+    "claim_path_count": 3,
+    "per_claim_selected_norm_ref_count": 33,
+    "per_claim_method_output_ref_count": 1,
+    "missing_claim_axes": [
+      "scenario_requirement_refs",
+      "canonical_concept_refs",
+      "column_refs",
+      "argument_refs",
+      "warrant_refs",
+      "rebuttal_refs",
+      "counter_evidence_refs",
+      "limitation_refs"
+    ]
+  },
+  "policy_design_case": {
+    "status": "pass",
+    "records_present": false,
+    "record_families_present": false,
+    "summary_present": false,
+    "profile_only": true,
+    "missing_record_family_codes": [
+      "policy_design_substrate_residual_verification_record_missing",
+      "policy_design_self_fmea_record_missing",
+      "policy_design_partial_state_consistency_record_missing",
+      "policy_design_case_record_families_missing",
+      "policy_design_case_records_missing",
+      "policy_design_case_record_family_missing",
+      "policy_design_case_maturity_profile_missing",
+      "policy_design_dormant_capability_inventory_missing",
+      "policy_design_skip_causality_ledger_missing",
+      "policy_design_freshness_policy_time_semantics_missing",
+      "policy_design_pass1b_hardening_record_missing"
+    ]
+  },
+  "continuous_governance": {
+    "report_family": "continuous_governance",
+    "report_status": "pass",
+    "decision_status": "no_published_decision_mutation_required",
+    "borrowed_authority_envelope": {
+      "artifact_kind": "runtime.production_data_quality_report",
+      "schema_name": "polisyos.runtime.ProductionDataQualityReport",
+      "phase": "production_data_quality",
+      "validation_status": "fail"
+    }
+  },
+  "secondary_signals": {
+    "provider_preflight_status": "pass",
+    "provider_model_quality_default_action": "demote",
+    "provider_model_quality_sample_count": 1,
+    "provider_model_quality_quarantined_live_sample_count": 1,
+    "prompt_tool_ledger_status": "fail",
+    "prompt_tool_ledger_tool_count": 0,
+    "control_plane_progress_timeout_observed": true
+  },
+  "erasure_guards": {
+    "dropped_contract_id": {
+      "producer": "fabric_retrieval_trace",
+      "consumed_contract_id": "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1",
+      "emitted_contract_id": null,
+      "blocker_code": "evidence_spine_contract_dropped"
+    },
+    "global_to_claim_anchor_gap": {
+      "global_selected_norm_ref_count": 33,
+      "per_claim_selected_norm_ref_count": 0,
+      "per_claim_rejected_norm_ref_count": 0,
+      "reason_code": "missing_normative_anchor"
+    },
+    "producer_pass_reader_fail_gap": {
+      "semantic_binding_status": "pass",
+      "semantic_binding_runtime_report_status": null,
+      "semantic_scorecard_failure_count": 108,
+      "policy_design_case_status": "pass",
+      "policy_design_case_records_present": false,
+      "policy_design_case_record_families_present": false
+    },
+    "borrowed_envelope": {
+      "report_family": "continuous_governance",
+      "borrowed_artifact_kind": "runtime.production_data_quality_report",
+      "borrowed_schema_name": "polisyos.runtime.ProductionDataQualityReport",
+      "borrowed_phase": "production_data_quality"
+    }
+  },
+  "connectivity_patterns": [
+    {
+      "pattern_id": "context_exists_but_becomes_local_metadata",
+      "status": "preserved_regression",
+      "evidence": [
+        "request and bundle command carry the scenario contract id",
+        "Fabric nested contract report carries the same id",
+        "Fabric top-level scenario_evidence_contract_id is null",
+        "Lex query normalization carries legal requirements while top-level report does not"
+      ],
+      "plan_waves": [
+        "Wave 1",
+        "Wave 1A",
+        "Wave 10"
+      ]
+    },
+    {
+      "pattern_id": "data_availability_confused_with_scenario_admissibility",
+      "status": "preserved_regression",
+      "evidence": [
+        "curated contracts contain only three generic metric contracts",
+        "three scenario source families are absent",
+        "Fabric selected no admissible contract binding"
+      ],
+      "plan_waves": [
+        "Wave 2",
+        "Wave 3",
+        "Wave 12"
+      ]
+    },
+    {
+      "pattern_id": "global_evidence_pools_treated_as_claim_anchors",
+      "status": "preserved_regression",
+      "evidence": [
+        "Lex has 33 global selected norm refs",
+        "each recommendation has zero selected and rejected norm refs",
+        "semantic claim paths copy global norm refs but miss claim-bound axes"
+      ],
+      "plan_waves": [
+        "Wave 4",
+        "Wave 6",
+        "Wave 7"
+      ]
+    },
+    {
+      "pattern_id": "invalid_candidates_remain_selected",
+      "status": "preserved_regression",
+      "evidence": [
+        "Foundry expected causal, heterogeneity, sensitivity, and uncertainty methods",
+        "foundry.execute remains selected",
+        "Foundry emits generic_simulation_false_pass and method_family_not_expected"
+      ],
+      "plan_waves": [
+        "Wave 3",
+        "Wave 5",
+        "Wave 7"
+      ]
+    },
+    {
+      "pattern_id": "producers_pass_when_readers_know_closure_failed",
+      "status": "preserved_regression",
+      "evidence": [
+        "semantic_binding_ledger status is pass while semantic scorecard failures are present",
+        "policy_design_case status is pass without records or record_families"
+      ],
+      "plan_waves": [
+        "Wave 7",
+        "Wave 8",
+        "Wave 9",
+        "Wave 10"
+      ]
+    },
+    {
+      "pattern_id": "authority_envelopes_borrowed_across_report_kinds",
+      "status": "preserved_regression",
+      "evidence": [
+        "continuous governance reports are pass/no-op",
+        "their authority envelope artifact kind is runtime.production_data_quality_report",
+        "their authority envelope validation status is fail"
+      ],
+      "plan_waves": [
+        "Wave 9",
+        "Wave 10"
+      ]
+    },
+    {
+      "pattern_id": "deployed_combination_compatibility_not_verified",
+      "status": "preserved_regression",
+      "evidence": [
+        "bundle command carries scenario contract id",
+        "bundle git_sha is null",
+        "producer reports expose mixed runtime_report_status and contract propagation behavior"
+      ],
+      "plan_waves": [
+        "Wave 10"
+      ]
+    },
+    {
+      "pattern_id": "secondary_signals_confounded_by_upstream_connectivity",
+      "status": "preserved_regression",
+      "evidence": [
+        "provider preflight passed",
+        "provider model quality demotion used one quarantined live sample",
+        "prompt/tool and control-plane findings happened after evidence closure was already broken"
+      ],
+      "plan_waves": [
+        "Wave 11"
+      ]
+    }
+  ]
+}

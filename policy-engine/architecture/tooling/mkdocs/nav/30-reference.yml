@@ -21,6 +21,7 @@
           - reference/foundry/observability-reproducibility.md
           - reference/foundry/agent-sim.md
           - reference/foundry/state.md
+          - Causal Statistical Validity: reference/foundry/causal-statistical-validity.md
       - Scientist:
           - reference/scientist/index.md
           - reference/scientist/workflows.md
@@ -41,9 +42,13 @@
           - reference/scientist/continuous-governance.md
           - reference/scientist/decision-grade-compiler.md
           - reference/scientist/deep-research-evidence.md
+          - Source Quality Calibration: reference/scientist/source-quality-calibration.md
+          - Claim Support Semantics: reference/scientist/claim-support-semantics.md
+          - Citation Faithfulness: reference/scientist/citation-faithfulness.md
           - reference/scientist/agent-capability-promotion.md
           - reference/scientist/benchmark-authority.md
           - reference/scientist/human-oversight.md
+          - Decision Artifact Quality: reference/scientist/decision-artifact-quality.md
           - reference/scientist/best-in-class-readiness.md
           - reference/scientist/best-in-class-wave1-acceptance.md
           - reference/scientist/wave2-runtime-contracts.md
@@ -90,6 +95,17 @@
           - reference/api/error-semantics.md
           - reference/api/versioning.md
           - reference/api/migration-guide.md
+      - Runtime:
+          - Quality Scorecard: reference/runtime/quality-scorecard.md
+          - Production Quality Approval: reference/runtime/production-quality-approval.md
+          - Production Canary Matrix: reference/runtime/production-canary-matrix.md
+          - Production Data Quality: reference/runtime/production-data-quality.md
+          - Production Resilience Matrix: reference/runtime/production-resilience-matrix.md
+          - Deterministic Replay: reference/runtime/deterministic-replay.md
+          - Human Review Calibration: reference/runtime/human-review-calibration.md
+          - Privacy Compliance Evidence: reference/runtime/privacy-compliance-evidence.md
+          - Provider Model Quality: reference/runtime/provider-model-quality.md
+          - Production Quality Maturity: reference/runtime/production-quality-maturity.md
       - Frontend:
           - reference/frontend/index.md
           - Workspace Contract: reference/frontend/workspace-contract.md
@@ -133,4 +149,3 @@
           - Closeout and Acceptance:
               - Platform Acceptance Audit: reference/operations/platform-acceptance-audit.md
               - Core Runtime Closeout: reference/operations/core-runtime-closeout.md
-

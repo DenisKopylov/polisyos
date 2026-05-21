@@ -1,0 +1,485 @@
+schema_version = "policyos.hds_ci_tiers.v1"
+allowed_tiers = ["fast-pr", "integration-pr", "nightly", "weekly-closeout"]
+
+[anti_drift_baseline]
+xfail_strict_count = 0
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_approval.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_attestation.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_assurance_case.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_authority.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_authority_envelope_contract.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_compliance.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_data_quality.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_degradation.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_diagnostic_event_contract.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_diagnostic_slos.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_effective_mode.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_human_review.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_legacy_migration_sandbox.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_quality_refs.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_prompt_tool_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_replay.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_run_state.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_runtime_event_log.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_authority_reconciliation.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics runtime authority CAS/event reconciliation."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_authority_spoofing.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics authority spoofing red-control coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_crash_retry_partial_state.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Phase 5.2 crash, retry, and partial-state coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics multi-tenant shared-CAS coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_schema_compat.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_public_export.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_benchmarking.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case Wave 31 best-in-class benchmarking coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_false_passes.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case false-pass controls, including Wave 30 run-cost proportionality coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_record_registry.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case record registry coverage for Wave 30 run-cost proportionality facets."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_run_cost_proportionality.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case Wave 30 run-cost proportionality ledger coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_scorecard.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_scorecard_diagnostic_slos.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_semantic_binding.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_skip_blockers.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_source_truth_lattice.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/tools/test_canary_evidence_authority.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_coverage.py"
+tier = "integration-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_metamorphic_controls.py"
+tier = "integration-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics metamorphic and cross-domain negative-control coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_decision_log.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_proof_harness.py"
+tier = "integration-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_substrate_drift.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_honest_diagnostics_substrate_red_controls.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_inventory_legacy_quality_evidence.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_runtime_quality_contract_fixtures.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_wave4_operational_closeout.py"
+tier = "integration-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics Wave 4 operational closeout coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_production_invariant_registry.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Honest Diagnostics substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_authority_profile_mapping.py"
+tier = "fast-pr"
+owner = "team-runtime-control"
+purpose = "Policy Design Case authority profile mapping coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_berl_warrant_reliability.py"
+tier = "fast-pr"
+owner = "team-claim-compiler"
+purpose = "Policy Design Case BERL warrant reliability coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_case_maturity.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case maturity coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_claim_argument.py"
+tier = "fast-pr"
+owner = "team-claim-compiler"
+purpose = "Policy Design Case claim argument and warrant coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_consultation.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case consultation and legitimacy coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_data_forge_binding.py"
+tier = "fast-pr"
+owner = "team-domain-producers"
+purpose = "Policy Design Case Data Forge binding coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_disconfirming_evidence.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case disconfirming evidence coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_independence_map.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case evidence independence coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_line_model.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case evidence line coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_portfolio_design.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case evidence portfolio coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_synthesis_report.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case evidence synthesis coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_external_audit.py"
+tier = "fast-pr"
+owner = "team-core-audit"
+purpose = "Policy Design Case external audit coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_external_client_surface.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case external client boundary coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_formal_invariants.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case formal invariant coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_institutional_provenance.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case institutional provenance coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_multiverse_specification_curve.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Policy Design Case multiverse specification-curve coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_concept_spine.py"
+tier = "fast-pr"
+owner = "team-policy-semantics"
+purpose = "Policy Design Case concept spine coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_evidence_graph_threat_model.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case evidence-graph threat model coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_lifecycle.py"
+tier = "fast-pr"
+owner = "team-ddm"
+purpose = "Policy Design Case lifecycle and DDM coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_observability_static_audit.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case observability static-audit coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_pass1b_hardening.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Pass 1B hardening coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case projection semantics coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py"
+tier = "fast-pr"
+owner = "team-policy-semantics"
+purpose = "Policy Design Case jurisdiction spine coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_intent_envelope.py"
+tier = "fast-pr"
+owner = "team-runtime-control"
+purpose = "Policy Design Case intent envelope coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_scholar_academic_evidence.py"
+tier = "fast-pr"
+owner = "team-domain-producers"
+purpose = "Policy Design Case Scholar academic evidence coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_wave10_producer_spine_interfaces.py"
+tier = "fast-pr"
+owner = "team-policy-semantics"
+purpose = "Policy Design Case producer spine interface coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_policy_intent.py"
+tier = "fast-pr"
+owner = "team-runtime-control"
+purpose = "Archived Policy Design Case validation ladder compatibility for intent coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_concept_spine.py"
+tier = "fast-pr"
+owner = "team-policy-semantics"
+purpose = "Archived Policy Design Case validation ladder compatibility for concept spine coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_portfolio.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Archived Policy Design Case validation ladder compatibility for evidence portfolio coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_producer_contracts.py"
+tier = "fast-pr"
+owner = "team-domain-producers"
+purpose = "Archived Policy Design Case validation ladder compatibility for producer evidence contracts."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_portfolio.py"
+tier = "fast-pr"
+owner = "team-science-quality"
+purpose = "Archived Policy Design Case validation ladder compatibility for portfolio contract coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_public_export.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Archived Policy Design Case validation ladder compatibility for public export coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_external_audit.py"
+tier = "fast-pr"
+owner = "team-core-audit"
+purpose = "Archived Policy Design Case validation ladder compatibility for external audit coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_self_fmea.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Archived Policy Design Case validation ladder compatibility for self-FMEA coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_formal_invariants.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Archived Policy Design Case validation ladder compatibility for formal invariant coverage."
+
+[[tests]]
+path = "tests/repo_quality/tools/test_policy_design_case_benchmarking.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Archived Policy Design Case validation ladder compatibility for benchmarking coverage."

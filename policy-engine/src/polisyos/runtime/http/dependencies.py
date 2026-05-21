@@ -12,6 +12,7 @@ from polisyos.core.artifacts.backends.config import (
     build_artifact_store,
     build_async_artifact_store,
 )
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import ApiMeta, SourceKind
 from polisyos.core.security.access_scope import AccessScope
@@ -87,15 +88,18 @@ def build_runtime_api_context(
 ) -> RuntimeApiContext:
     """Create the service graph used by read-only runtime routes and artifact inspection."""
     store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
+    base_store = build_artifact_store(store_config, metrics=metrics, tracer=tracer)
+    if isinstance(base_store, FileSystemCAS):
+        base_store = base_store.with_ambient_ownership_enforcement()
     store = cast(
         "ArtifactStore",
-        guard_runtime_cas(build_artifact_store(store_config, metrics=metrics, tracer=tracer)),
+        guard_runtime_cas(base_store),
     )
     async_store = build_async_artifact_store(
         store_config,
         metrics=metrics,
         tracer=tracer,
-        sync_store=store,
+        sync_store=base_store,
     )
     timeline = TimelineService(metrics=metrics)
     lineage = LineageService(

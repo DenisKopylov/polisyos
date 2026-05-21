@@ -501,8 +501,14 @@ def inspect_symbol_target(
     module_paths: Mapping[str, Path],
     module_cache: dict[str, ModuleFile],
     facade_cache: dict[str, ModuleFacade],
+    seen: frozenset[str] | None = None,
 ) -> list[DocstringSubject]:
     """Inspect one concrete module member and recurse into public class methods."""
+    seen = seen or frozenset()
+    if target.ref.fqname in seen:
+        return []
+    next_seen = seen | {target.ref.fqname}
+
     module_file = module_cache.get(target.ref.module)
     if module_file is None:
         module_file = load_module_file(target.ref.module, module_paths)
@@ -536,7 +542,13 @@ def inspect_symbol_target(
             ref=TargetRef(module=alias_ref.module, qualname=alias_ref.qualname),
             origin=target.origin,
         )
-        return inspect_symbol_target(alias_target, module_paths, module_cache, facade_cache)
+        return inspect_symbol_target(
+            alias_target,
+            module_paths,
+            module_cache,
+            facade_cache,
+            next_seen,
+        )
     if (
         node is None
         and target.ref.qualname == root_name
@@ -550,6 +562,7 @@ def inspect_symbol_target(
             module_paths,
             module_cache,
             facade_cache,
+            next_seen,
         )
     if node is None:
         return []
@@ -577,10 +590,16 @@ def resolve_exported_symbol(
     facade: ModuleFacade,
 ) -> TargetRef:
     """Resolve one ``__all__`` entry to its implementation module or object."""
+    submodule_name = f"{package_module}.{export_name}"
     mapped = facade.import_map.get(export_name)
     if mapped is not None:
+        if (
+            mapped.module == package_module
+            and mapped.qualname == export_name
+            and submodule_name in module_paths
+        ):
+            return TargetRef(module=submodule_name, qualname=None)
         return mapped
-    submodule_name = f"{package_module}.{export_name}"
     if submodule_name in module_paths:
         return TargetRef(module=submodule_name, qualname=None)
     return TargetRef(module=package_module, qualname=export_name)

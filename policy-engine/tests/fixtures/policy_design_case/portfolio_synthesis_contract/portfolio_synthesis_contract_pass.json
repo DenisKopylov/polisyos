@@ -1,0 +1,68 @@
+{
+  "fixture_id": "portfolio_synthesis_contract_pass",
+  "adr": "ADR-0160",
+  "contract_name": "policy_design_case.portfolio_synthesis_contract.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "evidence_portfolio_and_synthesis.v1"
+  ],
+  "description": "Predeclared portfolio with independence collapse, disconfirming lines, multiverse, synthesis, and stopping rule refs.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0160_pass",
+    "artifact_ref": "cas://sha256/0160016001600160016001600160016001600160016001600160016001600160",
+    "cas_ref": "cas://sha256/0160016001600160016001600160016001600160016001600160016001600160",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.scientist.methods.doe.policy_portfolio",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-science-quality",
+    "runtime_event_ref": "event://policy_design_case/adr0160/portfolio_synthesis/pass",
+    "schema_name": "policy_design_case.portfolio_synthesis_contract",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.portfolio_synthesis_contract.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_portfolio_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:04:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0160_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/5656565656565656565656565656565656565656565656565656565656565656",
+        "cas://sha256/7878787878787878787878787878787878787878787878787878787878787878"
+      ],
+      "closure_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "major_claim_id": "claim.income_floor_reduces_extreme_poverty",
+    "portfolio_design_ref": "cas://sha256/5656565656565656565656565656565656565656565656565656565656565656",
+    "evidence_lines": [
+      {
+        "line_id": "line.admin_panel_did",
+        "producer_ref": "cas://sha256/7878787878787878787878787878787878787878787878787878787878787878",
+        "method_family": "difference_in_differences"
+      },
+      {
+        "line_id": "line.household_survey_rct_meta",
+        "producer_ref": "cas://sha256/9090909090909090909090909090909090909090909090909090909090909090",
+        "method_family": "meta_analysis"
+      }
+    ],
+    "independence_map_ref": "cas://sha256/1313131313131313131313131313131313131313131313131313131313131313",
+    "raw_evidence_line_count": 2,
+    "effective_independent_evidence_count": 2,
+    "multiverse_report_ref": "cas://sha256/1414141414141414141414141414141414141414141414141414141414141414",
+    "disconfirming_ledger_ref": "cas://sha256/1515151515151515151515151515151515151515151515151515151515151515",
+    "synthesis_report_ref": "cas://sha256/1616161616161616161616161616161616161616161616161616161616161616",
+    "certainty_rating": "moderate",
+    "stopping_rule_result": "information_saturation_reached"
+  }
+}

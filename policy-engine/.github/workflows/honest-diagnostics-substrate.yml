@@ -1,0 +1,38 @@
+name: Honest Diagnostics Substrate
+
+on:
+  pull_request:
+    paths:
+      - "architecture/production_quality/**"
+      - "schemas/runtime_quality/**"
+      - "src/polisyos/runtime/quality/**"
+      - "tests/unit/runtime/quality/**"
+      - "tests/unit/tools/test_canary_evidence_authority.py"
+      - "tests/repo_quality/tools/test_honest_diagnostics*.py"
+      - "tests/repo_quality/tools/test_inventory_legacy_quality_evidence.py"
+      - "tests/repo_quality/tools/test_production_invariant_registry.py"
+      - "tools/quality/validation/**"
+      - ".github/workflows/honest-diagnostics-substrate.yml"
+  workflow_dispatch:
+
+jobs:
+  fast-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install Python
+        run: uv python install
+      - name: Runtime quality contracts
+        run: uv run pytest tests/unit/runtime/quality -q
+      - name: Registry and proof gates
+        run: |
+          uv run pytest tests/repo_quality/tools/test_production_invariant_registry.py -q
+          uv run pytest tests/repo_quality/tools/test_honest_diagnostics_proof_harness.py -q
+          uv run python tools/quality/validation/check_production_invariant_registry.py --repo-root .
+          uv run python tools/quality/validation/check_honest_diagnostics_proof_harness.py --repo-root .
+      - name: Anti-drift and coverage
+        run: |
+          uv run python tools/quality/validation/check_substrate_drift.py --repo-root .
+          uv run python tools/quality/validation/build_honest_diagnostics_coverage.py --repo-root . --output-dir _build/honest-diagnostics/rebaseline/wave-1 --wave wave-1 --require-targets

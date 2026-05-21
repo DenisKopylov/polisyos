@@ -355,6 +355,47 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             "decision_superseded_by_ref": None,
         },
     },
+    "create_run_production_approval": {
+        "meta": _META_CORE_RUN,
+        "run_id": _RUN_ID_SAMPLE,
+        "decision": "blocked",
+        "packet": {
+            "schema_version": "policyos.production_approval_packet.v1",
+            "generated_at": _TS_SAMPLE,
+            "run_id": _RUN_ID_SAMPLE,
+            "job_id": "job_ctrl_abcdef01",
+            "canary_kind": "governed",
+            "decision": "blocked",
+            "eligibility": {
+                "eligible": False,
+                "execution_completed": True,
+                "quality_passed": False,
+                "blocking_failure_count": 1,
+                "performance_status": "pass",
+                "performance_blocking": False,
+                "conflict_status": "pass",
+                "conflict_blocking": False,
+                "reasons": ["quality_not_passing", "blocking_quality_failures"],
+            },
+            "scorecard_ref": _ARTIFACT_ID_SAMPLE,
+            "scorecard_digest": "sha256:" + "e" * 64,
+            "scorecard_generated_at": _TS_SAMPLE,
+            "evidence_refs": {
+                "quality_scorecard": _ARTIFACT_ID_SAMPLE,
+                "readiness_aggregator": "docs/archive/reports/readiness_aggregator.json",
+                "resilience_matrix": "docs/archive/reports/resilience_matrix.json",
+            },
+            "override": None,
+        },
+        "approval_packet_ref": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "runtime.production_approval_packet",
+            "media_type": "application/json",
+        },
+        "evidence_bundle_packet_path": (
+            ".polisyos/canary_evidence/sample/production_approval_packet.json"
+        ),
+    },
     "get_run_equilibria": {
         "meta": _META_CORE_RUN,
         "equilibria": {

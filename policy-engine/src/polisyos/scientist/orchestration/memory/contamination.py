@@ -7,7 +7,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.evals.leakage import detect_benchmark_contamination
+from polisyos.scientist.evals.leakage import (
+    detect_benchmark_contamination as detect_eval_ref_contamination,
+)
 from polisyos.scientist.methods.search.lessons import LessonCard
 
 FORBIDDEN_MEMORY_KEY_TOKENS: tuple[str, ...] = (
@@ -63,12 +65,13 @@ def detect_memory_contamination(
             severity=finding.severity,
             message=finding.message,
         )
-        for finding in detect_benchmark_contamination(
+        for finding in detect_eval_ref_contamination(
             payload,
             hidden_ref_ids=active_policy.hidden_ref_ids,
             hidden_suite_ids=active_policy.hidden_suite_ids,
         )
     ]
+    findings.extend(_detect_authority_benchmark_contamination(payload))
     rendered = json.dumps(payload, sort_keys=True, default=str)
     for canary in sorted(active_policy.canary_tokens):
         if canary and canary in rendered:
@@ -115,6 +118,31 @@ def _detect_forbidden_keys(value: Any, *, path: str = "payload") -> list[MemoryC
     elif isinstance(value, list | tuple):
         for index, item in enumerate(value):
             findings.extend(_detect_forbidden_keys(item, path=f"{path}[{index}]"))
+    return findings
+
+
+def _detect_authority_benchmark_contamination(
+    payload: Any,
+) -> list[MemoryContaminationFinding]:
+    try:
+        from tools.ops_runners.runtime.quality_benchmark_authority import (
+            detect_benchmark_contamination,
+        )
+    except Exception:
+        return []
+
+    findings: list[MemoryContaminationFinding] = []
+    for finding in detect_benchmark_contamination(
+        payload,
+        surface="reusable_memory",
+    ):
+        findings.append(
+            MemoryContaminationFinding(
+                token_kind=finding["token_kind"],
+                token=finding["token"],
+                message=finding["message"],
+            )
+        )
     return findings
 
 

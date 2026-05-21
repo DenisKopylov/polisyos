@@ -5,7 +5,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
 Source plan: `docs/plans/active/FABRIC_AUDIT_REMEDIATION_PLAN.md`, D1-L2 section in `docs/plans/active/DOCUMENTATION_SOTA_PLAN.md`
-Source of truth: `src/polisyos/fabric/world/store/snapshots.py`, `src/polisyos/fabric/world/materialize/duckdb.py`, `src/polisyos/fabric/world_query.py`, `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`
+Source of truth: `src/polisyos/fabric/world/store/snapshots.py`, `src/polisyos/fabric/world/materialize/duckdb.py`, `src/polisyos/fabric/world/query.py`, `tests/unit/fabric/test_world_time_travel.py`, `tests/unit/fabric/test_world_materialization.py`
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md)
 
 Fabric time travel combines bitemporal query predicates with retained world

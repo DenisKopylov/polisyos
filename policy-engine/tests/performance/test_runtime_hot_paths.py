@@ -40,6 +40,8 @@ from polisyos.fabric.data_plane.orchestrator import (
 )
 from polisyos.fabric.data_plane.streaming import StreamRuntimeOptions, process_stream_dataset
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+from polisyos.runtime.quality.performance_budget import build_canary_performance_budget
+from tools.quality.testing import runtime_resilience_matrix
 
 _INGESTION_VERSION = DataVersion(
     strategy=VersionStrategy.TIMESTAMP,
@@ -151,6 +153,90 @@ class _PerfTracer:
 class _PerfMetrics:
     def record_fabric_lineage_graph(self, **kwargs: object) -> None:
         del kwargs
+
+
+@pytest.mark.performance
+def test_canary_performance_budget_report_covers_runtime_hot_path_layers() -> None:
+    report = build_canary_performance_budget(
+        canary_kind="production",
+        job_payload={
+            "submitted_at": "2026-05-13T09:00:00Z",
+            "started_at": "2026-05-13T09:00:01Z",
+            "finished_at": "2026-05-13T09:00:06Z",
+        },
+        cas_samples=[
+            {"duration_ms": 4.0},
+            {"observed_duration_ms": 6.0},
+        ],
+        runtime_observations={
+            "run_index_refresh_ms": 17.0,
+            "run_index_list_ms": 8.0,
+            "timeline_api_ms": 12.0,
+            "lineage_api_ms": 22.0,
+        },
+        evidence_collection_duration_ms=33.0,
+        dashboard_evidence={
+            "routes": [
+                {
+                    "path": "/runs/R_hot/overview",
+                    "render_duration_ms": 44.0,
+                }
+            ]
+        },
+    )
+
+    rows = {row["phase"]: row for row in report["phase_budgets"]}
+    required_row_keys = {
+        "observed_duration_ms",
+        "budget_ms",
+        "status",
+        "layer",
+        "retryable",
+        "retryability",
+        "next_action",
+    }
+
+    assert report["schema_version"] == "policyos.canary_performance_budget.v1"
+    assert report["status"] == "pass"
+    assert rows["control.job_total"]["observed_duration_ms"] == 6000.0
+    assert rows["cas.round_trip_p95"]["observed_duration_ms"] == 6.0
+    assert rows["runtime.run_index_refresh"]["layer"] == "runtime_api"
+    assert rows["runtime.run_index_list"]["layer"] == "runtime_api"
+    assert rows["runtime.timeline_api"]["layer"] == "runtime_api"
+    assert rows["runtime.lineage_api"]["layer"] == "runtime_api"
+    assert rows["evidence.collection"]["layer"] == "canary_evidence"
+    assert rows["dashboard.route_render:/runs/R_hot/overview"]["layer"] == "dashboard"
+    assert rows["dashboard.route_render:/runs/R_hot/overview"]["path"] == (
+        "/runs/R_hot/overview"
+    )
+    assert all(required_row_keys <= set(row) for row in report["phase_budgets"])
+
+
+@pytest.mark.performance
+def test_runtime_resilience_matrix_covers_hot_path_pressure_budgets() -> None:
+    payload = runtime_resilience_matrix.build_matrix_payload(deterministic=True)
+    budgets = {budget["phase"]: budget for budget in payload["slo_budgets"]}
+    scenarios = {scenario["scenario_id"]: scenario for scenario in payload["scenarios"]}
+
+    for phase in (
+        "cas.put",
+        "cas.get",
+        "runtime.run_index_refresh",
+        "runtime.run_index_list",
+        "runtime.timeline_build",
+        "runtime.lineage_build",
+        "api.job_detail",
+    ):
+        assert budgets[phase]["budget_ms"] > 0
+        assert budgets[phase]["layer"]
+        assert budgets[phase]["next_action"]
+
+    cas_pressure = scenarios["cas_pressure"]
+    run_index_pressure = scenarios["run_index_pressure"]
+    assert cas_pressure["classification"] == "performance_warning"
+    assert cas_pressure["top_bottleneck"]["phase"] == "cas.put"
+    assert run_index_pressure["classification"] == "performance_warning"
+    assert run_index_pressure["top_bottleneck"]["phase"] == "runtime.run_index_refresh"
 
 
 @pytest.mark.performance

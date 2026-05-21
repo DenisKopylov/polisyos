@@ -170,7 +170,7 @@ PolicyOS має **дві категорії спроможностей**:
 
 **Будь-який значущий обчислювальний крок системи має бути replay-able.** Реалізується через комбінацію:
 
-1. **Detrministic seeds.** Шар Foundry використовує `TreasuryPlan` ([src/polisyos/foundry/mechanisms/treasury.py](../../src/polisyos/foundry/mechanisms/treasury.py:1)) — це детерміністичний seed plan із `root_seed` + `node_salts` + `stream_salts`, який забезпечує, що один і той самий ProgramGraph дасть біт-в-біт однаковий вивід.
+1. **Detrministic seeds.** Шар Foundry використовує `TreasuryPlan` (`src/polisyos/foundry/mechanisms/treasury.py`) — це детерміністичний seed plan із `root_seed` + `node_salts` + `stream_salts`, який забезпечує, що один і той самий ProgramGraph дасть біт-в-біт однаковий вивід.
 2. **Snapshot-based world.** Fabric-шар фіксує `data_snapshot_artifact_id: sha256:171f3da2779d…` — це означає, що weather/economy/agents/cells на момент компіляції зафіксовані; навіть якщо джерело даних оновиться через 5 хвилин, replay використає той самий snapshot.
 3. **Replay engine.** `polisyos.runtime.replay` + `polisyos.scientist.replay_backend` дозволяють виконати раніше записаний run з тими самими хешами входів.
 4. **Replay command artifact.** Будь-який експеримент пише `replay_command.sh` — однорядкову команду, яка повторює ввесь run.
@@ -1829,7 +1829,7 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
 
 #### 9.2.2. `compile_trinity` — backend
 
-Реалізація в [src/polisyos/foundry/compile/trinity_compiler.py](../../src/polisyos/foundry/compile/trinity_compiler.py:1):
+Реалізація в `src/polisyos/foundry/compile/trinity_compiler.py`:
 
 ```python
 def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
@@ -1927,7 +1927,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
 
 ### 9.4. Method catalog — 389 зареєстрованих методів
 
-`build_method_catalog_snapshot` ([src/polisyos/foundry/methods/catalog/snapshot.py](../../src/polisyos/foundry/methods/catalog/snapshot.py:1)) проходить весь registry і збирає `MethodCatalogEntry` для кожного методу. Snapshot містить:
+`build_method_catalog_snapshot` (`src/polisyos/foundry/methods/catalog/snapshot.py`) проходить весь registry і збирає `MethodCatalogEntry` для кожного методу. Snapshot містить:
 
 | Поле | Що означає |
 | --- | --- |
@@ -1962,7 +1962,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
 
 ### 9.5. Causal capability contract
 
-Усі методи каузальної родини реалізують `CausalCapabilityContract` ([src/polisyos/foundry/methods/catalog/causal/capabilities.py](../../src/polisyos/foundry/methods/catalog/causal/capabilities.py:1)):
+Усі методи каузальної родини реалізують `CausalCapabilityContract` (`src/polisyos/foundry/methods/catalog/causal/capabilities.py`):
 
 ```python
 class CausalCapabilityContract:
@@ -2022,7 +2022,7 @@ class TreasuryPlan(BaseModel):
 
 ### 9.8. Slot layout — `build_slot_layout`
 
-Метод `build_slot_layout` ([src/polisyos/foundry/methods/layout.py](../../src/polisyos/foundry/methods/layout.py:1)) створює **типізовану розкладку пам'яті** для всіх slots, що буде використано в exec.
+Метод `build_slot_layout` (`src/polisyos/foundry/methods/layout.py`) створює **типізовану розкладку пам'яті** для всіх slots, що буде використано в exec.
 
 Slot layout як артефакт:
 ```python
@@ -2249,7 +2249,7 @@ src/polisyos/scientist/
 
 ### 10.2. ExperimentState — головний контракт
 
-`ExperimentState` ([src/polisyos/scientist/orchestration/engine/state.py](../../src/polisyos/scientist/orchestration/engine/state.py:1)) — це **immutable state container**, що передається між нодами.
+`ExperimentState` (`src/polisyos/scientist/orchestration/engine/state.py`) — це **immutable state container**, що передається між нодами.
 
 ```python
 class ExperimentState(BaseModel):
@@ -2332,7 +2332,7 @@ LangGraph дає:
 | `discovery` | Causal discovery + structure learning |
 | `selection` | MCDA-вибір з кількох політик |
 
-Workflows билдяться через `WorkflowBuilder.build()` ([src/polisyos/scientist/orchestration/workflows/builder.py](../../src/polisyos/scientist/orchestration/workflows/builder.py:1)).
+Workflows билдяться через `WorkflowBuilder.build()` (`src/polisyos/scientist/orchestration/workflows/builder.py`).
 
 ### 10.5. LLM agents — ядро Drafter
 
@@ -3151,7 +3151,7 @@ sequenceDiagram
 
 ### 15.1. Causal gauntlet (E3 у експерименті)
 
-Класичний алгоритм перевірки методів через множинні DGP. Реалізація в [run_msme_final_fresg_suite_v3.py:303-360](../../tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py:303).
+Класичний алгоритм перевірки методів через множинні DGP. Реалізація в `tools/ops_runners/experiments/run_msme_final_fresg_suite_v3.py:303-360`.
 
 ```
 ALGORITHM: Causal Gauntlet
@@ -4213,7 +4213,6 @@ tools/ops/experiments/run_msme_final_fresg_suite_v2.py \
 **Кінець документа.**
 
 > Цей документ описує **архітектуру PolicyOS Policy Engine** станом на 2026-05-08. Кваліфікаційна робота використала фрагмент цієї архітектури в одному дедлайн-запуску. Те, що в експерименті не активовано, не означає, що архітектура не повна — це означає, що повний контур доступний для подальших production-деплоїв та research-runs.
-
 
 
 

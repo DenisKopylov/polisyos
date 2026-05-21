@@ -11056,6 +11056,27 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.foundry.validation.causal_validity",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/causal_validity.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.causal_validity",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/causal_validity.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.causal_validity",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/causal_validity.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.foundry.validation.conflict_checker",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/validation/conflict_checker.py",
@@ -11089,6 +11110,34 @@
       "source_file": "src/polisyos/foundry/validation/constraints_engine.py",
       "target_module": "polisyos.ir.kernel.values",
       "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.method_quality",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/method_quality.py",
+      "target_module": "polisyos.core.artifacts.ids",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.method_quality",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/method_quality.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.method_quality",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/method_quality.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.validation.method_quality",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/validation/method_quality.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.validation.phase0_closure",
@@ -12543,6 +12592,13 @@
       "source_module": "polisyos.runtime.http.dependencies",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/dependencies.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.http.dependencies",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/dependencies.py",
       "target_module": "polisyos.core.contracts.runtime",
       "target_root": "core"
     },
@@ -12823,6 +12879,27 @@
       "source_module": "polisyos.runtime.http.routes.runs",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/routes/runs.py",
+      "target_module": "polisyos.core.artifacts.ids",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.http.routes.runs",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/routes/runs.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.http.routes.runs",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/routes/runs.py",
+      "target_module": "polisyos.core.contracts.control",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.http.routes.runs",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/routes/runs.py",
       "target_module": "polisyos.core.contracts.runtime",
       "target_root": "core"
     },
@@ -13058,6 +13135,13 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.runtime.http.services.control.artifacts",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/artifacts.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
@@ -13131,6 +13215,13 @@
       "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.data_forge.compliance",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
       "target_module": "polisyos.fabric.retrieval",
       "target_root": "fabric"
     },
@@ -13154,6 +13245,34 @@
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
       "target_module": "polisyos.foundry.methods.catalog",
       "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.foundry.validation.method_quality",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.ir.kernel.metrics",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.lex.normpack.applicability_report",
+      "target_root": "lex"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.lex.normpack.conflict_check",
+      "target_root": "lex"
     },
     {
       "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
@@ -13208,7 +13327,21 @@
       "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.scientist.evidence.source_quality",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
       "target_module": "polisyos.scientist.orchestration.engine.iteration_state_machine",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.scientist.orchestration.llm.adjudication",
       "target_root": "scientist"
     },
     {
@@ -13224,6 +13357,27 @@
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
       "target_module": "polisyos.scientist.orchestration.llm.factory",
       "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.scientist.validation.citation_faithfulness",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "target_module": "polisyos.scientist.validation.policy_grounding",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.production_data",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/production_data.py",
+      "target_module": "polisyos.fabric.catalog.source_selection_audit",
+      "target_root": "fabric"
     },
     {
       "source_module": "polisyos.runtime.http.services.control.response_shapes",
@@ -13313,6 +13467,13 @@
       "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "target_module": "polisyos.core.security.tenant_context",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
       "target_module": "polisyos.data_forge.read_api.legal",
       "target_root": "data_forge"
     },
@@ -13384,6 +13545,13 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
       "target_module": "polisyos.scientist.api",
+      "target_root": "scientist"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "target_module": "polisyos.scientist.orchestration.llm.provider_verification",
       "target_root": "scientist"
     },
     {
@@ -13931,6 +14099,132 @@
       "source_file": "src/polisyos/runtime/manifest.py",
       "target_module": "polisyos.core.contracts.foundry",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.approval",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/approval.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.approval",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/approval.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.approval",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/approval.py",
+      "target_module": "polisyos.core.canon.canon_json",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.approval",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/approval.py",
+      "target_module": "polisyos.core.contracts.control",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.compliance",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/compliance.py",
+      "target_module": "polisyos.data_forge.compliance",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.human_review",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/human_review.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.human_review",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/human_review.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.human_review",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/human_review.py",
+      "target_module": "polisyos.core.canon.canon_json",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.performance_budget",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/performance_budget.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.performance_budget",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/performance_budget.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.replay",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/replay.py",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.replay",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/replay.py",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.replay",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/replay.py",
+      "target_module": "polisyos.core.canon.canon_json",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.scorecard",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/scorecard.py",
+      "target_module": "polisyos.fabric.catalog.source_selection_audit",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.scorecard",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/scorecard.py",
+      "target_module": "polisyos.foundry.validation.method_quality",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.scorecard",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/scorecard.py",
+      "target_module": "polisyos.lex.normpack.applicability_report",
+      "target_root": "lex"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.scorecard",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/scorecard.py",
+      "target_module": "polisyos.lex.normpack.conflict_check",
+      "target_root": "lex"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.scorecard",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/scorecard.py",
+      "target_module": "polisyos.scientist.validation.policy_grounding",
+      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.runtime.replay",
@@ -14734,6 +15028,13 @@
       "source_module": "polisyos.scientist.agent.critic",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/critic.py",
+      "target_module": "polisyos.common.logger",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.scientist.agent.critic",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/agent/critic.py",
       "target_module": "polisyos.core.canon",
       "target_root": "core"
     },
@@ -15021,6 +15322,13 @@
       "source_module": "polisyos.scientist.agent.formalizer",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/formalizer.py",
+      "target_module": "polisyos.ir.kernel.metrics",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.agent.formalizer",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/agent/formalizer.py",
       "target_module": "polisyos.ir.model_spec",
       "target_root": "ir"
     },
@@ -15232,13 +15540,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/agent/prompts.py",
       "target_module": "polisyos.ir.kernel",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.scientist.agent.prompts",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/agent/prompts.py",
-      "target_module": "polisyos.ir.trinity",
       "target_root": "ir"
     },
     {
@@ -23204,6 +23505,13 @@
       "source_module": "polisyos.scientist.orchestration.workflows.builder",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.workflows.builder",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
       "target_module": "polisyos.core.registry",
       "target_root": "core"
     },
@@ -23241,6 +23549,13 @@
       "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
       "target_module": "polisyos.core.security.tenant_context",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.workflows.builder",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
+      "target_module": "polisyos.foundry.validation.method_quality",
+      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.scientist.policy_design.adversary",

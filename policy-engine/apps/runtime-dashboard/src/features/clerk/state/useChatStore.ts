@@ -40,6 +40,7 @@ export type ChatMessage = {
   content: string;
   timestamp: number;
   runId?: string;
+  controlJobId?: string;
   runStatus?: string;
   error?: string;
   /** Structured data for rich response rendering. */

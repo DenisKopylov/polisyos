@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 import tomllib
 from pathlib import Path
 
@@ -16,6 +17,38 @@ OLD_FRONTEND_CLIENT = "frontend" + "/runtime-api-client"
 
 def test_phase6_4_docs_lifecycle_gate_passes_current_contract() -> None:
     assert check_docs_lifecycle.run_checks(REPO_ROOT) == []
+
+
+def test_decision_log_has_no_due_unresolved_hds_entries() -> None:
+    decision_log = (
+        REPO_ROOT
+        / "docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md"
+    )
+    text = decision_log.read_text(encoding="utf-8")
+    closure_targets = set(
+        re.findall(r"^- \*\*Closes\*\*: (DL-HDS-\d{4})$", text, flags=re.MULTILINE)
+    )
+    due_unresolved: list[str] = []
+
+    for block in re.split(r"(?m)^### ", text):
+        match = re.match(r"(DL-HDS-\d{4})\b", block)
+        if match is None:
+            continue
+        entry_id = match.group(1)
+        if entry_id in closure_targets:
+            continue
+        status = _decision_log_field(block, "Promotion status")
+        revisit_wave = _decision_log_field(block, "Revisit wave")
+        wave_match = re.search(r"Wave\s+(\d+)", revisit_wave or "")
+        wave = int(wave_match.group(1)) if wave_match else None
+        if (
+            status in {"log_only_pending_revisit", "operational_closeout_required"}
+            and wave is not None
+            and wave <= 6
+        ):
+            due_unresolved.append(entry_id)
+
+    assert due_unresolved == []
 
 
 def test_phase7_active_plan_with_accepted_closeout_is_rejected(tmp_path: Path) -> None:
@@ -151,6 +184,26 @@ def test_phase6_2_stale_removed_stub_references_are_rejected(tmp_path: Path) -> 
             f"stale direct reference `{OLD_FRONTEND_CLIENT}`; use `packages/runtime-api-client`.",
         ),
     ]
+
+
+def test_phase6_2_reference_scan_skips_runtime_data_roots(tmp_path: Path) -> None:
+    for root_name in ("production_data", ".polisyos", "runs"):
+        root = tmp_path / root_name
+        root.mkdir()
+        (root / "large.duckdb").write_text(
+            f"stale direct reference {OLD_FRONTEND_DASHBOARD}",
+            encoding="utf-8",
+        )
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "live.md").write_text("Live docs are scanned.\n", encoding="utf-8")
+
+    scanned = {
+        path.relative_to(tmp_path).as_posix()
+        for path in check_docs_lifecycle._iter_reference_scan_files(tmp_path)
+    }
+
+    assert scanned == {"docs/live.md"}
 
 
 def test_phase1_4_redirect_stub_without_created_date_is_rejected(
@@ -360,6 +413,10 @@ def test_phase6_4_adr_index_covers_every_adr_by_status_and_topic() -> None:
     assert all(row["topic"] for row in rows)
 
 
+def test_wave26_second_governance_adr_pack_is_lifecycle_checked() -> None:
+    assert check_docs_lifecycle.check_policy_design_case_second_governance_pack(REPO_ROOT) == []
+
+
 def test_phase6_4_docs_gate_dispatches_lifecycle_nav_and_example_smokes() -> None:
     plan = build_gate_plan(
         (
@@ -376,3 +433,8 @@ def test_phase6_4_docs_gate_dispatches_lifecycle_nav_and_example_smokes() -> Non
     assert "repository-sota-closeout" not in docs_command.argv
     assert "extension_examples" in command_keys
     assert "tool_configs" in command_keys
+
+
+def _decision_log_field(block: str, field: str) -> str | None:
+    match = re.search(rf"^- \*\*{re.escape(field)}\*\*: (.+)$", block, flags=re.MULTILINE)
+    return match.group(1).strip() if match else None

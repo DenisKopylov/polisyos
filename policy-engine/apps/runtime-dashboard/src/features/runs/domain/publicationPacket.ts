@@ -4,6 +4,13 @@ import type {
 } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import {
+  DEFAULT_PROJECTION_USE_LIMITS,
+  detectProjectionMaskingCases,
+  isProjectionPromotionLabel,
+  projectionFailClosedCodes,
+  type ProjectionMaskingCase,
+} from "@/shared/lib/domain/projectionFailClosed";
 
 export type ToulminNodeKind =
   | "backing"
@@ -178,8 +185,58 @@ export type PublicDecisionPacket = {
   glossary: GlossaryTerm[];
   modelCard: CitationModelCard;
   packetHash: string;
+  projectionSemantics: PublicProjectionSemantics;
   schema: "polisyos.public_decision_packet.v1";
   thresholdContract: ThresholdMicrocontract;
+  trustFraming: PublicTrustFraming;
+};
+
+export type PublicProjectionState =
+  | "blocked"
+  | "contested"
+  | "draft"
+  | "projection_only"
+  | "publishable"
+  | "redacted"
+  | "stale";
+
+export type PublicProjectionSemantics = {
+  authorityRole: "projection_only";
+  failClosedCodes: string[];
+  labels: string[];
+  mayNotBeUsedFor: string[];
+  maskingCases: ProjectionMaskingCase[];
+  primaryState: PublicProjectionState;
+  projectionPolicy: "reads_policy_design_case_only";
+  states: PublicProjectionState[];
+};
+
+export type TrustFramingScenario =
+  | "disputed"
+  | "draft"
+  | "frontend_signed"
+  | "low_confidence"
+  | "override_approved"
+  | "simulated"
+  | "stale"
+  | "untraced";
+
+export type TrustFramingCaveat = {
+  authorityCaveat: string;
+  badge: string;
+  label: string;
+  scenario: TrustFramingScenario;
+  signatureCue:
+    | "frontend_signature_not_authoritative"
+    | "no_signature_trust_upgrade";
+};
+
+export type PublicTrustFraming = {
+  authorityRole: "not_closeout_authority";
+  closeoutAuthorityCaveat: string;
+  mayNotBeUsedFor: string[];
+  scenarioCaveats: TrustFramingCaveat[];
+  visibleCaveat: string;
 };
 
 export type SignedPublicDecisionPacket = PublicDecisionPacket & {
@@ -194,6 +251,7 @@ export type PublicDecisionPacketInput = {
   evidenceContext?: RunEvidenceContext | null;
   governanceIssues?: GovernanceIssueView[];
   now?: string;
+  policyDesignCaseProjection?: Record<string, unknown> | null;
   runId: string;
 };
 
@@ -212,7 +270,68 @@ export type SignedPacketVerification =
 const PUBLIC_PACKET_SCHEMA = "polisyos.public_decision_packet.v1" as const;
 const SIGNATURE_SALT = "polisyos.atlas.public-viewer.v1";
 const FALLBACK_GENERATED_AT = "1970-01-01T00:00:00.000Z";
-
+const PUBLIC_PROJECTION_STATES = new Set<PublicProjectionState>([
+  "blocked",
+  "contested",
+  "draft",
+  "projection_only",
+  "publishable",
+  "redacted",
+  "stale",
+]);
+const TRUST_FRAMING_VISIBLE_CAVEAT =
+  "Use runtime scorecard/readiness authority before approval or closeout.";
+const TRUST_FRAMING_CLOSEOUT_CAVEAT =
+  "Frontend signatures, badges, labels, and projections are not closeout authority.";
+const TRUST_FRAMING_LABELS = {
+  disputed: {
+    badge: "Challenge open",
+    label: "Disputed",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  draft: {
+    badge: "Not publishable",
+    label: "Draft",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  frontend_signed: {
+    badge: "Projection signature",
+    label: "Frontend signed",
+    signatureCue: "frontend_signature_not_authoritative",
+  },
+  low_confidence: {
+    badge: "Needs review",
+    label: "Low confidence",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  override_approved: {
+    badge: "Override gated",
+    label: "Override",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  simulated: {
+    badge: "Research profile",
+    label: "Simulated",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  stale: {
+    badge: "Revalidate",
+    label: "Stale",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+  untraced: {
+    badge: "Trace missing",
+    label: "Untraced",
+    signatureCue: "no_signature_trust_upgrade",
+  },
+} as const satisfies Record<
+  TrustFramingScenario,
+  {
+    badge: string;
+    label: string;
+    signatureCue: TrustFramingCaveat["signatureCue"];
+  }
+>;
 const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     definition:
@@ -339,6 +458,72 @@ function stableHash(value: unknown) {
 
 function clamp(value: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, value));
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function stringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.flatMap((item) => {
+        const text = stringValue(item);
+        return text ? [text] : [];
+      })
+    : [];
+}
+
+function projectionState(value: unknown): PublicProjectionState | null {
+  const text = stringValue(value).replace(/-/gu, "_") as PublicProjectionState;
+  return PUBLIC_PROJECTION_STATES.has(text) ? text : null;
+}
+
+function isProjectionOnlyPromotionLabel(value: string) {
+  return isProjectionPromotionLabel(value);
+}
+
+function uniqueStrings(values: string[]) {
+  return Array.from(new Set(values));
+}
+
+function normalizedToken(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[-\s]+/gu, "_")
+    .replace(/_+/gu, "_")
+    .trim();
+}
+
+function normalizedText(value: string) {
+  return normalizedToken(value).replace(/_/gu, " ");
+}
+
+function collectProjectionText(value: unknown): string[] {
+  if (typeof value === "string") {
+    return [value];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(collectProjectionText);
+  }
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+  return Object.values(value as Record<string, unknown>).flatMap(
+    collectProjectionText,
+  );
+}
+
+function projectionMentions(
+  projection: Record<string, unknown> | null | undefined,
+  tokens: string[],
+) {
+  const normalized = collectProjectionText(projection).flatMap((value) => [
+    normalizedToken(value),
+    normalizedText(value),
+  ]);
+  return tokens.some((token) =>
+    normalized.some((value) => value === token || value.includes(token)),
+  );
 }
 
 function publicRef(value: string | null | undefined, fallback: string) {
@@ -912,6 +1097,163 @@ function unsignedPacketHash(packet: Omit<PublicDecisionPacket, "packetHash">) {
   return `pub:${stableHash(packet)}`;
 }
 
+function buildProjectionSemantics(
+  projection: Record<string, unknown> | null | undefined,
+): PublicProjectionSemantics {
+  const requestedPrimaryState =
+    projectionState(projection?.primary_state) ?? "projection_only";
+  const requestedStates = Array.from(
+    new Set([
+      ...stringArray(projection?.states).flatMap((state) => {
+        const normalized = projectionState(state);
+        return normalized ? [normalized] : [];
+      }),
+      requestedPrimaryState,
+      "projection_only" as const,
+    ]),
+  );
+  const rawLabels = Array.isArray(projection?.labels)
+    ? projection.labels.flatMap((item) => {
+        if (!item || typeof item !== "object") {
+          return [];
+        }
+        const record = item as Record<string, unknown>;
+        const authorityRole = stringValue(record.authority_role);
+        if (authorityRole && authorityRole !== "projection_only") {
+          return [];
+        }
+        const label = stringValue(record.label) || stringValue(record.state);
+        return label ? [label] : [];
+      })
+    : [];
+  const promotionAttempt =
+    requestedPrimaryState === "publishable" ||
+    requestedStates.includes("publishable") ||
+    rawLabels.some(isProjectionOnlyPromotionLabel);
+  const detectedMaskingCases = detectProjectionMaskingCases(projection);
+  const maskingCases = uniqueStrings([
+    ...detectedMaskingCases,
+    ...(promotionAttempt ? ["projection_only" as const] : []),
+  ]) as ProjectionMaskingCase[];
+  const failClosed = promotionAttempt || maskingCases.length > 0;
+  const primaryState = failClosed ? "blocked" : requestedPrimaryState;
+  const states = failClosed
+    ? Array.from(
+        new Set([
+          ...requestedStates.filter((state) => state !== "publishable"),
+          "blocked" as const,
+        ]),
+      )
+    : requestedStates;
+  const labels = failClosed
+    ? uniqueStrings([
+        ...rawLabels.filter((label) => !isProjectionOnlyPromotionLabel(label)),
+        "blocked projection",
+      ])
+    : rawLabels;
+  return {
+    authorityRole: "projection_only",
+    failClosedCodes: projectionFailClosedCodes(maskingCases),
+    labels: labels.length
+      ? labels
+      : states.map((state) =>
+          state === "projection_only" ? "projection only" : state,
+        ),
+    mayNotBeUsedFor: uniqueStrings([
+      ...DEFAULT_PROJECTION_USE_LIMITS,
+      ...stringArray(projection?.may_not_be_used_for),
+    ]),
+    maskingCases,
+    primaryState,
+    projectionPolicy: "reads_policy_design_case_only",
+    states,
+  };
+}
+
+function hasTraceableEvidence(
+  evidenceContext: RunEvidenceContext | null | undefined,
+) {
+  return Boolean(
+    evidenceContext?.evidenceBundleRef?.artifact_id ||
+    evidenceContext?.dataSnapshotRef?.artifact_id ||
+    evidenceContext?.inputBindingsRef?.artifact_id,
+  );
+}
+
+function trustFramingCaveat(
+  scenario: TrustFramingScenario,
+): TrustFramingCaveat {
+  const labels = TRUST_FRAMING_LABELS[scenario];
+  return {
+    authorityCaveat: TRUST_FRAMING_VISIBLE_CAVEAT,
+    badge: labels.badge,
+    label: labels.label,
+    scenario,
+    signatureCue: labels.signatureCue,
+  };
+}
+
+function buildTrustFraming(input: {
+  decision: PublicDecisionSummary;
+  evidenceContext?: RunEvidenceContext | null;
+  governanceIssues: GovernanceIssueView[];
+  projection?: Record<string, unknown> | null;
+  projectionSemantics: PublicProjectionSemantics;
+}): PublicTrustFraming {
+  const scenarios: TrustFramingScenario[] = [];
+  if (input.decision.confidence !== "HIGH") {
+    scenarios.push("low_confidence");
+  }
+  if (
+    input.governanceIssues.length > 0 ||
+    projectionMentions(input.projection, ["disputed", "contested"])
+  ) {
+    scenarios.push("disputed");
+  }
+  if (
+    !hasTraceableEvidence(input.evidenceContext) ||
+    projectionMentions(input.projection, ["untraced", "trace missing"])
+  ) {
+    scenarios.push("untraced");
+  }
+  if (projectionMentions(input.projection, ["simulated", "research profile"])) {
+    scenarios.push("simulated");
+  }
+  if (
+    input.projectionSemantics.states.includes("stale") ||
+    projectionMentions(input.projection, ["stale"])
+  ) {
+    scenarios.push("stale");
+  }
+  if (
+    input.projectionSemantics.states.includes("draft") ||
+    projectionMentions(input.projection, ["draft"])
+  ) {
+    scenarios.push("draft");
+  }
+  if (
+    projectionMentions(input.projection, [
+      "override",
+      "override approved",
+      "override_approved",
+    ])
+  ) {
+    scenarios.push("override_approved");
+  }
+  scenarios.push("frontend_signed");
+
+  return {
+    authorityRole: "not_closeout_authority",
+    closeoutAuthorityCaveat: TRUST_FRAMING_CLOSEOUT_CAVEAT,
+    mayNotBeUsedFor: uniqueStrings([
+      ...DEFAULT_PROJECTION_USE_LIMITS,
+      ...input.projectionSemantics.mayNotBeUsedFor,
+    ]),
+    scenarioCaveats: Array.from(new Set(scenarios)).map(trustFramingCaveat),
+    visibleCaveat: TRUST_FRAMING_VISIBLE_CAVEAT,
+  };
+}
+
 export function buildPublicDecisionPacket(
   input: PublicDecisionPacketInput,
 ): PublicDecisionPacket {
@@ -923,6 +1265,9 @@ export function buildPublicDecisionPacket(
     evidenceContext: input.evidenceContext,
     metrics,
   });
+  const projectionSemantics = buildProjectionSemantics(
+    input.policyDesignCaseProjection,
+  );
   const packetWithoutHash = {
     argumentMap: buildArgumentMap({
       decision,
@@ -950,11 +1295,19 @@ export function buildPublicDecisionPacket(
       evidenceContext: input.evidenceContext,
       metrics,
     }),
+    projectionSemantics,
     schema: PUBLIC_PACKET_SCHEMA,
     thresholdContract: buildThresholdMicrocontract({
       decisionScore: input.decisionScore,
       decisionView: input.decisionView,
       runId: input.runId,
+    }),
+    trustFraming: buildTrustFraming({
+      decision,
+      evidenceContext: input.evidenceContext,
+      governanceIssues,
+      projection: input.policyDesignCaseProjection,
+      projectionSemantics,
     }),
   } satisfies Omit<PublicDecisionPacket, "packetHash">;
 
@@ -1017,7 +1370,9 @@ function isSignedPublicDecisionPacket(
     Boolean(record.argumentMap) &&
     Boolean(record.modelCard) &&
     Boolean(record.coverageCaveat) &&
-    Boolean(record.thresholdContract)
+    Boolean(record.projectionSemantics) &&
+    Boolean(record.thresholdContract) &&
+    Boolean(record.trustFraming)
   );
 }
 
@@ -1090,7 +1445,9 @@ function isPublicDecisionPacket(value: unknown): value is PublicDecisionPacket {
     Boolean(record.argumentMap) &&
     Boolean(record.modelCard) &&
     Boolean(record.coverageCaveat) &&
-    Boolean(record.thresholdContract)
+    Boolean(record.projectionSemantics) &&
+    Boolean(record.thresholdContract) &&
+    Boolean(record.trustFraming)
   );
 }
 

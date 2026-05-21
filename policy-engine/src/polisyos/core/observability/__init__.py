@@ -135,6 +135,106 @@ else:
                 del alert_type, severity, workflow_id, run_id
                 return None
 
+            def record_node_started(
+                self,
+                *,
+                alias: str,
+                node_id: str,
+                workflow_id: str,
+            ) -> None:
+                del alias, node_id, workflow_id
+                return None
+
+            def record_node_completed(
+                self,
+                *,
+                alias: str,
+                node_id: str,
+                workflow_id: str,
+                status: str,
+                duration_ms: int,
+                cache_hit: bool,
+                retry_count: int,
+            ) -> None:
+                del alias, node_id, workflow_id, status, duration_ms, cache_hit, retry_count
+                return None
+
+            def record_tier_completed(
+                self,
+                *,
+                tier_index: int,
+                tier_size: int,
+                duration_ms: int,
+                workflow_id: str,
+            ) -> None:
+                del tier_index, tier_size, duration_ms, workflow_id
+                return None
+
+            def record_workflow_completed(
+                self,
+                *,
+                workflow_id: str,
+                status: str,
+                duration_ms: int,
+                node_count: int,
+            ) -> None:
+                del workflow_id, status, duration_ms, node_count
+                return None
+
+            def record_backpressure(
+                self,
+                *,
+                tier_index: int,
+                queued_tasks: int,
+                active_tasks: int,
+                workflow_id: str,
+            ) -> None:
+                del tier_index, queued_tasks, active_tasks, workflow_id
+                return None
+
+            def record_semaphore_wait(
+                self,
+                *,
+                tier_index: int,
+                wait_seconds: float,
+                workflow_id: str,
+            ) -> None:
+                del tier_index, wait_seconds, workflow_id
+                return None
+
+            def record_workflow_state(
+                self,
+                *,
+                run_id: str,
+                workflow_id: str,
+                state: str,
+            ) -> None:
+                del run_id, workflow_id, state
+                return None
+
+            def record_trace_correlation(
+                self,
+                *,
+                runner_backend: str,
+                workflow_id: str,
+                run_id: str,
+                trace_id: str | None = None,
+                span_id: str | None = None,
+            ) -> None:
+                del runner_backend, workflow_id, run_id, trace_id, span_id
+                return None
+
+            def record_operational_alert(
+                self,
+                *,
+                alert_type: str,
+                severity: str,
+                workflow_id: str | None = None,
+                run_id: str | None = None,
+            ) -> None:
+                del alert_type, severity, workflow_id, run_id
+                return None
+
             def record_cell_router_request(self, *, cell_id: str, tier: str, status: str) -> None:
                 return None
 

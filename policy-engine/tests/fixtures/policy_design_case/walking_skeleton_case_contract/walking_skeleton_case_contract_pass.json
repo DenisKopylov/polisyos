@@ -1,0 +1,338 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.v1",
+  "profile": "policy_design",
+  "case_id": "pdc-wave-6-walking-skeleton-research",
+  "run_id": "run_pdc_wave_6_research_001",
+  "job_id": "job_pdc_wave_6_walking_skeleton_001",
+  "tenant_id": "tenant_pdc_demo",
+  "effective_execution_profile": "research",
+  "owner": "team-runtime-quality",
+  "runtime_authority": {
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "cas_ref": "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+    "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/case",
+    "same_input_closure_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "effective_mode_ref": "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "schema_compatibility_ref": "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "intent_envelope": {
+    "schema_version": "policyos.runtime.policy_intent_envelope.v1",
+    "intent_id": "intent-wave-6-walking-skeleton",
+    "run_id": "run_pdc_wave_6_research_001",
+    "job_id": "job_pdc_wave_6_walking_skeleton_001",
+    "tenant_id": "tenant_pdc_demo",
+    "policy_problem": "Stub research policy case needs vertical runtime refs.",
+    "desired_outcome": "Prove the Policy Design Case reference path end to end.",
+    "proposed_intervention": "Use a non-production walking skeleton case contract.",
+    "jurisdiction": "UA",
+    "target_population": "research fixture population",
+    "policy_time": "2026-05-17",
+    "data_time": "fixture-only",
+    "requester_preferred_conclusion": null,
+    "requested_authority_level": "research",
+    "affected_stakeholders": ["runtime quality", "domain producer owners"],
+    "constraints": ["non-production walking skeleton only"],
+    "objectives": ["prove intent to evidence to claim refs"],
+    "assumptions": ["domain producer record families are not implemented yet"],
+    "evidence_expectations": ["stub producer evidence accepted only for research"],
+    "authoring_provenance": {
+      "captured_by": "polisyos.runtime.quality.assurance_case",
+      "capture_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "generated_at": "2026-05-17T08:30:00+00:00"
+  },
+  "capability_ledger": {
+    "schema_version": "policyos.runtime.policy_design_case.capability_ledger.v1",
+    "ledger_ref": "cas://sha256/7777777777777777777777777777777777777777777777777777777777777777",
+    "literature_evidence_required": false,
+    "duties": [
+      {
+        "capability": "lex",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/lex"
+      },
+      {
+        "capability": "fabric",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/fabric"
+      },
+      {
+        "capability": "scholar",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/scholar"
+      },
+      {
+        "capability": "foundry",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/foundry"
+      },
+      {
+        "capability": "scientist",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/scientist"
+      },
+      {
+        "capability": "compiler",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/compiler"
+      },
+      {
+        "capability": "review",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/review"
+      },
+      {
+        "capability": "publication",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/publication"
+      },
+      {
+        "capability": "audit",
+        "state": "selected",
+        "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/capability/audit"
+      }
+    ]
+  },
+  "case_registry_entry": {
+    "schema_version": "policyos.runtime.policy_design_case.registry_entry.v1",
+    "registry_ref": "policy_design_case.minimum_record_registry",
+    "readiness_check": "policy_design_case.minimum_record_registry",
+    "scorecard_gate": "policy_design_case.minimum_record_registry",
+    "enforcement_function": "polisyos.runtime.quality.policy_design_case.validate_policy_design_case_record_registry_payload",
+    "record_family_count": 19,
+    "generated_at": "2026-05-17T08:30:00+00:00"
+  },
+  "walking_skeleton_contract": {
+    "schema_version": "policyos.runtime.policy_design_case.walking_skeleton.v1",
+    "contract_id": "policy_design_case.walking_skeleton_case_contract.v1",
+    "profile": "research",
+    "non_production": true,
+    "domain_record_maturity": "stub",
+    "accepted_deficit_kind": "single_line_evidence_deficit",
+    "intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+    "concept_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+    "jurisdiction_ref": "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333",
+    "producer_evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+    "major_claim_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+    "accepted_deficit_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+    "blocked_profiles": ["governed", "production"]
+  },
+  "nodes": [
+    {
+      "node_type": "policy_intent",
+      "record_id": "intent.wave6.walking_skeleton",
+      "cas_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/intent.wave6.walking_skeleton",
+      "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/intent.wave6.walking_skeleton",
+      "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "schema_compatibility": {"decision": "compatible"},
+      "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "same_input_closure_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "same_input_closure": {
+        "status": "closed",
+        "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_input_refs": ["cas://sha256/1111111111111111111111111111111111111111111111111111111111111111"]
+      },
+      "runtime_authority_envelope": {
+        "artifact_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "cas_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+        "owner": "team-runtime-quality",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/intent.wave6.walking_skeleton",
+        "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/intent.wave6.walking_skeleton",
+        "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "same_input_closure_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "intent_envelope_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "stub_record": true
+    },
+    {
+      "node_type": "concept_spine",
+      "record_id": "concept.wave6.walking_skeleton",
+      "cas_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/concept.wave6.walking_skeleton",
+      "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/concept.wave6.walking_skeleton",
+      "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "schema_compatibility": {"decision": "compatible"},
+      "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "same_input_closure_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "same_input_closure": {
+        "status": "closed",
+        "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_input_refs": ["cas://sha256/1111111111111111111111111111111111111111111111111111111111111111"]
+      },
+      "runtime_authority_envelope": {
+        "artifact_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+        "cas_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+        "owner": "team-runtime-quality",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/concept.wave6.walking_skeleton",
+        "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/concept.wave6.walking_skeleton",
+        "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "same_input_closure_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "concept_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "jurisdiction_ref": "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333",
+      "canonical_concept_id": "stub.concept.policy_design_case_wave6",
+      "jurisdiction_code": "UA",
+      "stub_record": true
+    },
+    {
+      "node_type": "producer_evidence",
+      "record_id": "producer_evidence.wave6.walking_skeleton",
+      "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/producer_evidence.wave6.walking_skeleton",
+      "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/producer_evidence.wave6.walking_skeleton",
+      "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "schema_compatibility": {"decision": "compatible"},
+      "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "same_input_closure_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "same_input_closure": {
+        "status": "closed",
+        "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_input_refs": [
+          "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+          "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+          "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333"
+        ]
+      },
+      "runtime_authority_envelope": {
+        "artifact_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "cas_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+        "owner": "team-runtime-quality",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/producer_evidence.wave6.walking_skeleton",
+        "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/producer_evidence.wave6.walking_skeleton",
+        "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "same_input_closure_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444"
+      },
+      "intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "producer_evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "concept_ref": "cas://sha256/2222222222222222222222222222222222222222222222222222222222222222",
+      "jurisdiction_ref": "cas://sha256/3333333333333333333333333333333333333333333333333333333333333333",
+      "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+      "record_family": "walking_skeleton_stub_producer_evidence.v1",
+      "real_domain_producer": false,
+      "stub_record": true
+    },
+    {
+      "node_type": "claim",
+      "record_id": "claim.wave6.walking_skeleton",
+      "cas_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/claim.wave6.walking_skeleton",
+      "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/claim.wave6.walking_skeleton",
+      "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "schema_compatibility": {"decision": "compatible"},
+      "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "same_input_closure_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "same_input_closure": {
+        "status": "closed",
+        "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_input_refs": [
+          "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+          "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666"
+        ]
+      },
+      "runtime_authority_envelope": {
+        "artifact_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+        "cas_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+        "owner": "team-runtime-quality",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/claim.wave6.walking_skeleton",
+        "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/claim.wave6.walking_skeleton",
+        "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "same_input_closure_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      "claim_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "claim_id": "claim.wave6.walking_skeleton.major",
+      "text": "Wave 6 walking skeleton can carry runtime refs to a claim.",
+      "major": true,
+      "intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "concept_refs": ["cas://sha256/2222222222222222222222222222222222222222222222222222222222222222"],
+      "jurisdiction_refs": ["cas://sha256/3333333333333333333333333333333333333333333333333333333333333333"],
+      "producer_evidence_refs": ["cas://sha256/4444444444444444444444444444444444444444444444444444444444444444"],
+      "accepted_deficit_refs": ["cas://sha256/6666666666666666666666666666666666666666666666666666666666666666"],
+      "stub_record": true
+    },
+    {
+      "node_type": "deficit",
+      "record_id": "deficit.wave6.single_line_evidence_deficit",
+      "cas_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+      "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/deficit.wave6.single_line_evidence_deficit",
+      "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/deficit.wave6.single_line_evidence_deficit",
+      "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "schema_compatibility": {"decision": "compatible"},
+      "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "same_input_closure_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+      "same_input_closure": {
+        "status": "closed",
+        "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_input_refs": ["cas://sha256/4444444444444444444444444444444444444444444444444444444444444444"]
+      },
+      "runtime_authority_envelope": {
+        "artifact_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+        "cas_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": "polisyos.runtime.quality.assurance_case.walking_skeleton_stub",
+        "owner": "team-runtime-quality",
+        "runtime_event_ref": "event://policy_design_case/wave6/walking_skeleton/deficit.wave6.single_line_evidence_deficit",
+        "diagnostic_event_ref": "event://policy_design_case/wave6/walking_skeleton/deficit.wave6.single_line_evidence_deficit",
+        "schema_compatibility_ref": "cas://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "effective_mode_ref": "cas://sha256/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "same_input_closure_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666"
+      },
+      "deficit_ref": "cas://sha256/6666666666666666666666666666666666666666666666666666666666666666",
+      "deficit_kind": "single_line_evidence_deficit",
+      "status": "accepted",
+      "claim_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "producer_evidence_ref": "cas://sha256/4444444444444444444444444444444444444444444444444444444444444444",
+      "accepted_profiles": ["research"],
+      "rejected_profiles": ["governed", "production"],
+      "stub_record": true
+    }
+  ],
+  "major_claims": [
+    {
+      "claim_id": "claim.wave6.walking_skeleton.major",
+      "major": true,
+      "claim_ref": "cas://sha256/5555555555555555555555555555555555555555555555555555555555555555",
+      "producer_evidence_refs": ["cas://sha256/4444444444444444444444444444444444444444444444444444444444444444"],
+      "accepted_deficit_refs": ["cas://sha256/6666666666666666666666666666666666666666666666666666666666666666"]
+    }
+  ]
+}

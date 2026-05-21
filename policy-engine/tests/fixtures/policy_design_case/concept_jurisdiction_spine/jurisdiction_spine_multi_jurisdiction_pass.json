@@ -1,0 +1,228 @@
+{
+  "fixture_id": "jurisdiction_spine_multi_jurisdiction_pass",
+  "adr": "ADR-0158",
+  "contract_name": "policy_design_case.concept_jurisdiction_spine.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "concept_and_jurisdiction_spine.v1"
+  ],
+  "description": "Jurisdiction spine records supranational, national, regional, and local authority with temporal validity, competence, hierarchy, delegation, pre-emption, and conflict surfaces.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0158_jurisdiction_pass",
+    "artifact_ref": "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+    "cas_ref": "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.runtime.quality.assurance_case.jurisdiction_spine_projector",
+    "producer_version": "2026.05.17+pdc-phase8.2",
+    "owner": "team-policy-semantics",
+    "runtime_event_ref": "event://policy_design_case/adr0158/jurisdiction_spine/pass",
+    "schema_name": "policy_design_case.jurisdiction_spine",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.concept_jurisdiction_spine.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_8_2_multijurisdiction_001",
+    "job_id": "job_pdc_jurisdiction_spine_001",
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "production",
+    "generated_at": "2026-05-17T08:42:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0158_jurisdiction_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "closure_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "schema_version": "policyos.runtime.policy_design_case.jurisdiction_spine.v1",
+    "jurisdiction_spine_ref": "cas://sha256/8888888888888888888888888888888888888888888888888888888888888888",
+    "authority_level_taxonomy": [
+      "supranational",
+      "national",
+      "regional",
+      "local"
+    ],
+    "jurisdictions": [
+      {
+        "jurisdiction_id": "EU",
+        "authority_level": "supranational",
+        "temporal_validity": {
+          "valid_from": "2024-01-01",
+          "valid_to": null
+        },
+        "competence": {
+          "status": "resolved",
+          "authority": "European Commission",
+          "scope": "state_aid_control"
+        },
+        "hierarchy": {
+          "parent_jurisdiction_ids": [],
+          "child_jurisdiction_ids": [
+            "UA"
+          ]
+        },
+        "delegation": {
+          "delegated_from": [],
+          "delegated_to": [
+            "UA"
+          ],
+          "delegation_refs": [
+            "norm.eu.state_aid"
+          ]
+        },
+        "pre_emption": {
+          "preempts": [
+            "UA"
+          ],
+          "preempted_by": [],
+          "rule_refs": [
+            "norm.eu.state_aid:preemption"
+          ]
+        },
+        "source_norm_refs": [
+          "norm.eu.state_aid"
+        ]
+      },
+      {
+        "jurisdiction_id": "UA",
+        "authority_level": "national",
+        "temporal_validity": {
+          "valid_from": "2024-02-01",
+          "valid_to": null
+        },
+        "competence": {
+          "status": "resolved",
+          "authority": "Ministry of Economy",
+          "scope": "national_wartime_economic_support"
+        },
+        "hierarchy": {
+          "parent_jurisdiction_ids": [
+            "EU"
+          ],
+          "child_jurisdiction_ids": [
+            "UA-30"
+          ]
+        },
+        "delegation": {
+          "delegated_from": [
+            "EU"
+          ],
+          "delegated_to": [
+            "UA-30"
+          ],
+          "delegation_refs": [
+            "norm.ua.credit_eligibility"
+          ]
+        },
+        "pre_emption": {
+          "preempts": [],
+          "preempted_by": [
+            "EU"
+          ],
+          "rule_refs": []
+        },
+        "source_norm_refs": [
+          "norm.ua.credit_eligibility"
+        ]
+      },
+      {
+        "jurisdiction_id": "UA-30",
+        "authority_level": "regional",
+        "temporal_validity": {
+          "valid_from": "2024-05-01",
+          "valid_to": null
+        },
+        "competence": {
+          "status": "resolved",
+          "authority": "Kyiv Regional Military Administration",
+          "scope": "regional_delivery_coordination"
+        },
+        "hierarchy": {
+          "parent_jurisdiction_ids": [
+            "UA"
+          ],
+          "child_jurisdiction_ids": [
+            "UA-30-KYIV"
+          ]
+        },
+        "delegation": {
+          "delegated_from": [
+            "UA"
+          ],
+          "delegated_to": [
+            "UA-30-KYIV"
+          ],
+          "delegation_refs": [
+            "norm.ua_30.delivery"
+          ]
+        },
+        "pre_emption": {
+          "preempts": [],
+          "preempted_by": [],
+          "rule_refs": []
+        },
+        "source_norm_refs": [
+          "norm.ua_30.delivery"
+        ]
+      },
+      {
+        "jurisdiction_id": "UA-30-KYIV",
+        "authority_level": "local",
+        "temporal_validity": {
+          "valid_from": "2024-06-01",
+          "valid_to": null
+        },
+        "competence": {
+          "status": "resolved",
+          "authority": "Kyiv City Council",
+          "scope": "local_business_support_intake"
+        },
+        "hierarchy": {
+          "parent_jurisdiction_ids": [
+            "UA-30"
+          ],
+          "child_jurisdiction_ids": []
+        },
+        "delegation": {
+          "delegated_from": [
+            "UA-30"
+          ],
+          "delegated_to": [],
+          "delegation_refs": [
+            "norm.ua_30_kyiv.office"
+          ]
+        },
+        "pre_emption": {
+          "preempts": [],
+          "preempted_by": [],
+          "rule_refs": []
+        },
+        "source_norm_refs": [
+          "norm.ua_30_kyiv.office"
+        ]
+      }
+    ],
+    "conflict_surfaces": [
+      {
+        "surface": "ir.normative_arbitration",
+        "conflict_id": "right.equal_access",
+        "status": "resolved"
+      },
+      {
+        "surface": "scientist.cross_graph.conflict",
+        "conflict_id": "conflict.local.delivery.overlap",
+        "status": "resolved"
+      }
+    ],
+    "unresolved_conflicts": [],
+    "blockers": []
+  }
+}

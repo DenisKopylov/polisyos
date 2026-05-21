@@ -4,12 +4,21 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
+
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.control import IngestRequest
+from polisyos.core.contracts.control import IngestRequest, NaturalLanguageRunRequest
+from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.core.security.tenant_context import (
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
-from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+from polisyos.runtime.http.execution_policy import (
+    RuntimeExecutionPolicyResolver,
+    RuntimePrincipal,
+)
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
@@ -26,6 +35,124 @@ except ModuleNotFoundError:  # pragma: no cover
 class _NoOpRetrievalService:
     def list_promotion_candidates(self):
         return []
+
+
+def _fixture_claims() -> UserIdentityClaims:
+    return UserIdentityClaims(
+        sub="user-fixture",
+        email="fixture@example.test",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        roles=frozenset({PolicyOSRole.ANALYST}),
+        mfa_verified=True,
+        iss="https://idp.example/realms/polisyos",
+        aud="polisyos-web",
+        exp=9_999_999_999,
+        iat=1,
+        jti="jwt-fixture",
+    )
+
+
+def _build_control_service(tmp_path) -> ControlPlaneService:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+    return ControlPlaneService(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+        artifact_store=store,
+        retrieval_service=_NoOpRetrievalService(),
+        policy_resolver=resolver,
+        registry_providers=_build_registry_providers(),
+    )
+
+
+def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
+    cas_root = tmp_path / ".polisyos" / "cas"
+
+    app = create_runtime_api_app(cas_root=cas_root)
+
+    assert app.state.runtime_api_ctx.core_runs_root == cas_root / "runs"
+    assert app.state.runtime_container.config.core_runs_root == cas_root / "runs"
+
+
+def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:
+    principal = RuntimePrincipal.from_user_claims(_fixture_claims())
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+
+    policy = resolver.resolve(
+        requested_profile="dev",
+        policy_flags=None,
+        principal=principal,
+    )
+
+    assert principal.tenant_id == "tenant-fixture"
+    assert principal.cell_id == "cell-fixture"
+    assert policy.actor["tenant_id"] == "tenant-fixture"
+    assert policy.actor["cell_id"] == "cell-fixture"
+
+
+@pytest.mark.asyncio
+async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        launch = await service.launch_nl_run(
+            NaturalLanguageRunRequest(request="Check tenant propagation"),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        payload = service._load_payload_ref(str(record.payload_ref))
+
+        assert payload["tenant_id"] == "tenant-fixture"
+        assert payload["cell_id"] == "cell-fixture"
+    finally:
+        service.close()
+
+
+@pytest.mark.asyncio
+async def test_process_nl_job_enters_persisted_tenant_scope(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        launch = await service.launch_nl_run(
+            NaturalLanguageRunRequest(request="Check worker scope propagation"),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+
+        def _execute_nl_pipeline(**kwargs):
+            assert get_current_tenant_id_or_none() == "tenant-fixture"
+            assert get_current_cell_id() == "cell-fixture"
+            return {
+                "run_id": kwargs["run_id"],
+                "capability_manifest_ref": kwargs["capability_manifest_ref"],
+            }
+
+        monkeypatch.setattr(service, "_execute_nl_pipeline", _execute_nl_pipeline)
+
+        service._process_control_job(record)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None
+        assert completed.state == "completed"
+    finally:
+        service.close()
 
 
 def _build_registry_providers() -> ControlRegistryProviders:

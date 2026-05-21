@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import ComponentMetadata
+from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
@@ -50,6 +51,7 @@ class NodeOutcome(BaseModel):
     artifacts: list[ArtifactRef] = Field(default_factory=list)
     events: list[NodeEvent] = Field(default_factory=list)
     error: NodeError | None = None
+    skip_blocker: SkippedNodeBlocker | None = None
 
     @model_validator(mode="after")
     def _validate_error(self) -> NodeOutcome:
@@ -57,6 +59,8 @@ class NodeOutcome(BaseModel):
             raise ValueError("NodeOutcome.error must be set when status=fail")
         if self.status != "fail" and self.error is not None:
             raise ValueError("NodeOutcome.error must be null unless status=fail")
+        if self.status != "skip" and self.skip_blocker is not None:
+            raise ValueError("NodeOutcome.skip_blocker must be null unless status=skip")
         return self
 
 

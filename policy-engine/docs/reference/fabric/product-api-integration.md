@@ -4,7 +4,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Freshness: 2026-04-28.
 Owner: `@fabric-owners`
-Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration.py`, `src/polisyos/fabric/compatibility.py`, `apps/runtime-dashboard/src/test/contracts/**`, `tools/quality/validation/fabric_product_integration.py`
+Source of truth: `src/polisyos/runtime/http/routes/fabric.py`, `src/polisyos/runtime/http/services/fabric.py`, `src/polisyos/fabric/product_integration/**`, `src/polisyos/fabric/_internal/compatibility.py`, `apps/runtime-dashboard/src/test/contracts/**`, `tools/quality/validation/fabric_product_integration.py`
 
 Fabric Phase 10 closes the loop between governed data and downstream product
 surfaces. Runtime exposes additive endpoints for scorecards, quality/trust
@@ -70,7 +70,7 @@ and renderable quantities.
 ## Compatibility Bridges
 
 Every compatibility bridge has an owner, reason, sunset date, and migration
-issue in `polisyos.fabric.compatibility`.
+issue in `polisyos.fabric._internal.compatibility`.
 
 | Bridge | Owner | Sunset | Migration issue |
 | ------ | ----- | ------ | --------------- |
@@ -98,4 +98,4 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/shared/ui
 
 ::: polisyos.fabric.product_integration
 
-::: polisyos.fabric.compatibility
+::: polisyos.fabric._internal.compatibility

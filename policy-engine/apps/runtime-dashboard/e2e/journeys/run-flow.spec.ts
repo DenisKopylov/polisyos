@@ -32,6 +32,30 @@ test.describe("runtime-dashboard run flow", () => {
           status: "accepted",
         },
       },
+      {
+        matcher: /^\/api\/v1\/artifacts\/[^/]+\/content$/,
+        method: "GET",
+        body: ({ url }) => ({
+          artifact: {
+            artifact_id: decodeURIComponent(url.pathname.split("/").at(-2) ?? "artifact"),
+            kind: "runtime.fixture_artifact",
+            max_bytes: 262144,
+            media_type: "application/json",
+            mode: "json",
+            preview: {
+              fixture: "run-flow-artifact-content",
+              run_id: metadata.core_run_id,
+            },
+            size_bytes: 76,
+            truncated: false,
+          },
+          meta: {
+            generated_at: new Date().toISOString(),
+            request_id: "playwright-artifact-content",
+            source_kinds: ["core_run"],
+          },
+        }),
+      },
     ]);
 
     await page.goto("/compose");
@@ -98,7 +122,12 @@ test.describe("runtime-dashboard run flow", () => {
       page.getByRole("button", { name: /Export JSON/i }),
     ).toBeVisible();
 
-    await page.getByRole("link", { name: /Open deck/i }).click();
+    const openDeckLink = page.getByRole("link", { name: /Open deck/i });
+    await expect(openDeckLink).toBeVisible();
+    await openDeckLink.evaluate((element) => {
+      element.scrollIntoView({ block: "center", inline: "nearest" });
+    });
+    await openDeckLink.click();
     await expect(page).toHaveURL(new RegExp(`/runs/${launchedRunId}/deck`));
     await expect(page.getByTestId("run-deck-page")).toBeVisible();
     await expect(page.getByTestId("run-deck-slide-evidence")).toBeVisible();

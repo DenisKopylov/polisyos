@@ -1,0 +1,109 @@
+{
+  "fixture_id": "jurisdiction_spine_unresolved_competence_rejected",
+  "adr": "ADR-0158",
+  "contract_name": "policy_design_case.concept_jurisdiction_spine.v1",
+  "expected_status": "rejected",
+  "expected_failure_code": "policy_design_jurisdiction_unresolved_competence_blocker",
+  "sdd_record_families": [
+    "concept_and_jurisdiction_spine.v1"
+  ],
+  "description": "A jurisdiction spine may exist as runtime authority but must block when institutional competence is unresolved.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0158_jurisdiction_unresolved_competence",
+    "artifact_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "cas_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "authority_role": "runtime_blocker",
+    "provenance_kind": "runtime_blocker",
+    "producer_component": "polisyos.runtime.quality.assurance_case.jurisdiction_spine_projector",
+    "producer_version": "2026.05.17+pdc-phase8.2",
+    "owner": "team-policy-semantics",
+    "runtime_event_ref": "event://policy_design_case/adr0158/jurisdiction_spine/unresolved_competence",
+    "schema_name": "policy_design_case.jurisdiction_spine",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.concept_jurisdiction_spine.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_8_2_unresolved_competence_001",
+    "job_id": "job_pdc_jurisdiction_spine_001",
+    "requested_execution_profile": "production",
+    "effective_execution_profile": "production",
+    "generated_at": "2026-05-17T08:45:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0158_jurisdiction_unresolved_competence",
+      "status": "blocked",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "closure_sha256": null
+    },
+    "validation_status": "blocked",
+    "blocking_status": "non_overridable",
+    "rejection": {
+      "failure_code": "policy_design_jurisdiction_unresolved_competence_blocker",
+      "reason": "The target national jurisdiction lacks runtime evidence for institutional competence."
+    }
+  },
+  "payload": {
+    "schema_version": "policyos.runtime.policy_design_case.jurisdiction_spine.v1",
+    "jurisdiction_spine_ref": "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999",
+    "authority_level_taxonomy": [
+      "supranational",
+      "national",
+      "regional",
+      "local"
+    ],
+    "jurisdictions": [
+      {
+        "jurisdiction_id": "UA",
+        "authority_level": "national",
+        "temporal_validity": {
+          "valid_from": "2026-05-17",
+          "valid_to": null
+        },
+        "competence": {
+          "status": "unresolved",
+          "authority": null,
+          "scope": null
+        },
+        "hierarchy": {
+          "parent_jurisdiction_ids": [],
+          "child_jurisdiction_ids": []
+        },
+        "delegation": {
+          "delegated_from": [],
+          "delegated_to": [],
+          "delegation_refs": []
+        },
+        "pre_emption": {
+          "preempts": [],
+          "preempted_by": [],
+          "rule_refs": []
+        },
+        "source_norm_refs": [
+          "norm.ua.unresolved"
+        ]
+      }
+    ],
+    "unresolved_conflicts": [
+      {
+        "conflict_id": "jurisdiction_competence:UA",
+        "code": "policy_design_jurisdiction_unresolved_competence_blocker",
+        "severity": "blocker",
+        "blocking": true,
+        "jurisdiction_id": "UA",
+        "message": "Jurisdiction UA lacks competence evidence."
+      }
+    ],
+    "blockers": [
+      {
+        "code": "policy_design_jurisdiction_unresolved_competence_blocker",
+        "owner": "team-policy-semantics",
+        "missing_input": "competence evidence for UA",
+        "upstream_cause": "Lex selected a norm without competent authority or competence scope.",
+        "downstream_impact": "Claims cannot close over the jurisdiction spine.",
+        "next_command": "uv run pytest tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
+      }
+    ]
+  }
+}

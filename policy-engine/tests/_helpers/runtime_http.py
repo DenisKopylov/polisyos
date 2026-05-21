@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from contextlib import suppress
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -11,14 +12,14 @@ try:  # pragma: no cover - optional dependency guard
 except ModuleNotFoundError:  # pragma: no cover
     TestClient = None  # type: ignore[assignment]
 
+from _helpers.artifacts import put_json_artifact
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
+from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.control import ControlPlaneService
-
-from _helpers.artifacts import put_json_artifact
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -28,6 +29,35 @@ if TYPE_CHECKING:
 sys.modules.setdefault("polisyos_tests_runtime_http_conftest", sys.modules[__name__])
 
 _put_json = put_json_artifact
+_RUNTIME_API_ENVS: list[dict[str, object]] = []
+
+
+def close_runtime_api_env(env: dict[str, object]) -> None:
+    """Close resources created by ``build_runtime_api_env`` exactly once."""
+    if env.get("_runtime_api_env_closed") is True:
+        return
+    env["_runtime_api_env_closed"] = True
+    _RUNTIME_API_ENVS[:] = [
+        registered_env for registered_env in _RUNTIME_API_ENVS if registered_env is not env
+    ]
+
+    client = env.get("client")
+    client_close = getattr(client, "close", None)
+    if callable(client_close):
+        client_close()
+    app = env.get("app")
+    service = getattr(getattr(app, "state", None), "_control_service", None)
+    service_close = getattr(service, "close", None)
+    if callable(service_close):
+        service_close()
+
+
+def close_registered_runtime_api_envs() -> None:
+    """Close runtime API envs built directly by tests outside the fixture wrapper."""
+    while _RUNTIME_API_ENVS:
+        env = _RUNTIME_API_ENVS[-1]
+        with suppress(ValueError):
+            close_runtime_api_env(env)
 
 
 def build_runtime_api_env(
@@ -305,6 +335,80 @@ def build_runtime_api_env(
         },
         kind="foundry.input_bindings",
     )
+    materialization_refs = {
+        "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+        "input_bindings_ref": str(input_bindings_ref.artifact_id),
+        "registry_bundle_ref": str(registry_ref.artifact_id),
+        "quality_report_ref": str(quality_ref.artifact_id),
+    }
+    production_data_evidence_context = {
+        "root": "/var/lib/polisyos/production_data",
+        "manifest_path": "/var/lib/polisyos/production_data/manifest.json",
+        "manifest_sha256": "sha256:" + "9" * 64,
+        "bundles": {
+            "datasets": {
+                "version_id": "prod-msme-panel",
+                "source_family": "production_msme_panel",
+                "path": "datasets/msme_panel",
+                "readiness": "available",
+            }
+        },
+        "materialization_refs": materialization_refs,
+    }
+    fabric_retrieval_trace_ref = _put_json(
+        store,
+        build_fabric_source_selection_trace(
+            query_intent={
+                "policy_domain": "wartime_msme_support",
+                "query_outcome": "macro.gdp.real",
+            },
+            candidate_sources=[
+                {
+                    "source_id": "prod-msme-panel",
+                    "source_family": "production_msme_panel",
+                    "source_kind": "production_data",
+                    "freshness": {"status": "pass", "as_of": "2026-03-27"},
+                    "coverage": {
+                        "status": "pass",
+                        "geography": "USA",
+                        "population": "macro",
+                    },
+                    "schema_compatibility": {
+                        "status": "pass",
+                        "required_fields": ["macro.gdp.real"],
+                    },
+                    "relevance_score": 0.94,
+                    "relevance_rationale": (
+                        "Production panel covers the run outcome and materialized snapshot."
+                    ),
+                },
+                {
+                    "source_id": "macro-nearby-panel",
+                    "source_family": "macro_indicators",
+                    "source_kind": "catalog_candidate",
+                    "relevance_score": 0.64,
+                    "relevance_rationale": "Nearby macro source lacks the materialized binding.",
+                },
+            ],
+            selected_source_ids=["prod-msme-panel"],
+            rejected_sources=[
+                {
+                    "source_id": "macro-nearby-panel",
+                    "source_family": "macro_indicators",
+                    "reason_code": "not_materialized_for_run",
+                    "relevance_rationale": "Candidate was plausible but not bound to this run.",
+                }
+            ],
+            expected_source_families=["production_msme_panel"],
+            canary_kind="governed",
+            materialization_refs=materialization_refs,
+            production_data_evidence_context=production_data_evidence_context,
+        ),
+        kind="fabric.retrieval_trace",
+    )
+    production_data_evidence_context["fabric_retrieval_trace_ref"] = str(
+        fabric_retrieval_trace_ref.artifact_id
+    )
     decision_card_ref = _put_json(
         store,
         {
@@ -578,6 +682,46 @@ def build_runtime_api_env(
                     ],
                     "warnings": ["quality_review_required"],
                 },
+                "run_performance_summary": {
+                    "schema_version": "1.0",
+                    "variants": {"total": 2, "completed": 1, "failed": 1},
+                    "llm": {
+                        "latency_ms": 125000,
+                        "total_tokens": 3400,
+                        "cost_usd": 0.42,
+                    },
+                    "steps_by_action": {
+                        "create_problem_frame": {"count": 1, "duration_ms": 9000},
+                        "materialize_data": {"count": 1, "duration_ms": 65000},
+                    },
+                    "retrieval_phase_durations": {
+                        "retrieval.materialize": 65000,
+                    },
+                    "phase_budgets": [
+                        {
+                            "category": "llm",
+                            "phase": "llm.total",
+                            "duration_ms": 125000,
+                            "budget_ms": 120000,
+                            "status": "over_budget",
+                            "over_by_ms": 5000,
+                        },
+                        {
+                            "category": "retrieval",
+                            "phase": "retrieval.materialize",
+                            "duration_ms": 65000,
+                            "budget_ms": 60000,
+                            "status": "over_budget",
+                            "over_by_ms": 5000,
+                        },
+                    ],
+                    "budget_summary": {
+                        "phase_count": 2,
+                        "over_budget_count": 2,
+                        "slowest_phase": "llm.total",
+                        "slowest_duration_ms": 125000,
+                    },
+                },
                 "execution_plan_ref": str(execution_plan_ref.artifact_id),
                 "preflight_report_ref": str(preflight_ref.artifact_id),
                 "evaluator_report_ref": str(evaluator_ref.artifact_id),
@@ -627,8 +771,14 @@ def build_runtime_api_env(
                     "auto_data_source_refs": {
                         "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
                         "input_bindings_ref": str(input_bindings_ref.artifact_id),
+                        "registry_bundle_ref": str(registry_ref.artifact_id),
+                        "quality_report_ref": str(quality_ref.artifact_id),
                         "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
+                        "fabric_retrieval_trace_ref": str(
+                            fabric_retrieval_trace_ref.artifact_id
+                        ),
                     },
+                    "production_data_evidence_context": production_data_evidence_context,
                 },
             },
             "budgets": {},
@@ -763,6 +913,13 @@ def build_runtime_api_env(
     run.add_input(input_bindings_ref)
     run.add_input(evidence_bundle_ref)
     run.emit(
+        "fabric.source_selection",
+        "SOURCE_SELECTION_TRACE_PERSISTED:prod-msme-panel",
+        inputs=[data_snapshot_ref, input_bindings_ref, registry_ref, quality_ref],
+        outputs=[fabric_retrieval_trace_ref],
+        metrics={"selected_source_count": 1, "materialization_ref_count": 4},
+    )
+    run.emit(
         "scientist.node.compile_foundry",
         "NODE_OK",
         outputs=[experiment_state_ref],
@@ -784,6 +941,7 @@ def build_runtime_api_env(
     run.add_output(preflight_ref)
     run.add_output(evaluator_ref)
     run.add_output(reproducibility_ref)
+    run.add_output(fabric_retrieval_trace_ref)
     run.add_output(quality_ref)
     run.add_output(legal_ref)
     run.add_output(reflexion_terminal_ref)
@@ -873,7 +1031,7 @@ def build_runtime_api_env(
         container.install(app)
     client = TestClient(app) if include_test_client and TestClient is not None else None
 
-    return {
+    env = {
         "app": app,
         "client": client,
         "cas_root": cas_root,
@@ -902,11 +1060,14 @@ def build_runtime_api_env(
         "input_bindings_artifact_id": str(input_bindings_ref.artifact_id),
         "evidence_bundle_artifact_id": str(evidence_bundle_ref.artifact_id),
         "quality_artifact_id": str(quality_ref.artifact_id),
+        "fabric_retrieval_trace_artifact_id": str(fabric_retrieval_trace_ref.artifact_id),
         "legal_artifact_id": str(legal_ref.artifact_id),
         "promotion_candidate_id": "promotion_fixture_001",
         "tenant_a": tenant_a,
         "tenant_b": tenant_b,
     }
+    _RUNTIME_API_ENVS.append(env)
+    return env
 
 
 @pytest.fixture
@@ -918,12 +1079,4 @@ def runtime_api_env(tmp_path: Path):
     try:
         yield env
     finally:
-        client = env.get("client")
-        client_close = getattr(client, "close", None)
-        if callable(client_close):
-            client_close()
-        app = env.get("app")
-        service = getattr(getattr(app, "state", None), "_control_service", None)
-        service_close = getattr(service, "close", None)
-        if callable(service_close):
-            service_close()
+        close_runtime_api_env(env)

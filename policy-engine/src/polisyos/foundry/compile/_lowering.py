@@ -253,11 +253,17 @@ def lower_trinity(
         mechanism_registry=registry_content.mechanism_registry.mechanisms,
     )
 
+    lowered_constraints, constraint_notes = _lower_constraints(
+        bundle.problem_frame,
+        registry_content.constraint_registry,
+    )
+    semantic_notes.extend(constraint_notes)
+
     lowered_ir = LoweredIR(
         schema_version="0.2",
         ir_ref=policy_ref,
         mechanisms=lowered_mechanisms,
-        constraints=_lower_constraints(bundle.problem_frame, registry_content.constraint_registry),
+        constraints=lowered_constraints,
         parameter_specs=[item.model_dump(mode="json") for item in bundle.policy_spec.parameters],
         time_semantics=_model_dump(bundle.model_spec.time_semantics),
         environment_config=_model_dump(bundle.model_spec.environment_config),
@@ -360,8 +366,12 @@ def _validate_parameter_specs(
         raise ValueError(f"parameter_path_unresolved:{item.param_id}:{item.param_path}")
 
 
-def _lower_constraints(problem_frame: Any, constraint_registry: Any) -> list[LoweredConstraint]:
+def _lower_constraints(
+    problem_frame: Any,
+    constraint_registry: Any,
+) -> tuple[list[LoweredConstraint], list[str]]:
     lowered: list[LoweredConstraint] = []
+    notes: list[str] = []
     registry_constraints = getattr(constraint_registry, "constraints", {})
     for severity, items in (
         ("hard", problem_frame.hard_constraints),
@@ -372,6 +382,10 @@ def _lower_constraints(problem_frame: Any, constraint_registry: Any) -> list[Low
             slot_id = constraint.slot_id or getattr(registry_spec, "slot_id", None)
             operator = constraint.operator or getattr(registry_spec, "operator", None)
             if slot_id is None or operator is None:
+                constraint_type = getattr(registry_spec, "constraint_type", None)
+                if severity == "soft" and constraint_type in {"budget", "legal"}:
+                    notes.append(f"governance_constraint_not_lowered:{constraint.constraint_id}")
+                    continue
                 raise ValueError(f"constraint_missing_runtime_semantics:{constraint.constraint_id}")
             lowered.append(
                 LoweredConstraint(
@@ -387,7 +401,7 @@ def _lower_constraints(problem_frame: Any, constraint_registry: Any) -> list[Low
                     notes=list(constraint.notes),
                 )
             )
-    return lowered
+    return lowered, notes
 
 
 def _json_value(value: Any) -> Any:

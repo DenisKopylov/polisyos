@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.agent._llm_timeouts import resolve_agent_llm_timeout_s
 from polisyos.scientist.agent.feasibility import FeasibilityProbe
 from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
@@ -23,7 +26,10 @@ from polisyos.scientist.agent.protocols import (
     CritiqueSeverity,
     ProblemFrame,
 )
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.llm import TracedLLMClient
+
+logger = get_logger(__name__)
 
 _COMMON_WORDS = {
     "the",
@@ -61,6 +67,81 @@ def _to_trinity_bundle(ir: TrinityBundle) -> TrinityBundle:
 def _tokenize(text: str) -> set[str]:
     tokens = {token.strip().lower() for token in text.replace("_", " ").split()}
     return {token for token in tokens if token and token not in _COMMON_WORDS}
+
+
+def _is_stale_contract_issue(issue: CritiqueIssue) -> bool:
+    """Detect critic findings that contradict the current validated Trinity contract.
+
+    The LLM critic receives an already Pydantic-validated bundle. It may still
+    lean on older schema memories, so stale schema blockers are suppressed here
+    while genuine feasibility/alignment warnings stay intact.
+    """
+
+    location = issue.location.lower()
+    message = issue.message.lower()
+    haystack = f"{location} {message}"
+
+    if "policy_spec.problem_frame_ref" in haystack:
+        return any(term in message for term in ("missing", "required", "must"))
+
+    if "adaptive_agent" in haystack:
+        return any(
+            term in message
+            for term in (
+                "unsupported",
+                "not supported",
+                "not a supported",
+                "unknown mechanism",
+                "invalid mechanism",
+            )
+        )
+
+    if "problem_frame.objectives" in location and ".weight" in location:
+        return "string" in message and any(term in message for term in ("numeric", "number"))
+
+    if "problem_frame.objectives" in location and ".target" in location:
+        return any(term in message for term in ("null", "none", "missing", "required"))
+
+    if "problem_frame.success_criteria" in location:
+        return "empty" in message and any(term in message for term in ("must", "schema"))
+
+    if "model_spec.assumptions" in location and "assumption_type" in location:
+        return "boundary" in message and any(term in message for term in ("invalid", "allowed"))
+
+    if "tax_subsidy" in haystack:
+        return any(term in message for term in ("non-tax instrument", "direct_transfer"))
+
+    return False
+
+
+def _normalize_llm_critic_issues(
+    issues: list[CritiqueIssue],
+) -> tuple[list[CritiqueIssue], list[CritiqueIssue]]:
+    retained: list[CritiqueIssue] = []
+    suppressed: list[CritiqueIssue] = []
+    for issue in issues:
+        if _is_stale_contract_issue(issue):
+            suppressed.append(issue)
+        else:
+            retained.append(issue)
+    return retained, suppressed
+
+
+def _normalized_critic_verdict(
+    *,
+    raw_verdict: object,
+    issues: list[CritiqueIssue],
+    alignment_score: float,
+) -> str:
+    raw = str(raw_verdict or "").strip().upper()
+    has_blockers = any(issue.severity == CritiqueSeverity.BLOCKER for issue in issues)
+    warning_count = sum(1 for issue in issues if issue.severity == CritiqueSeverity.WARNING)
+
+    if has_blockers:
+        return "REJECT" if raw == "REJECT" else "NEEDS_REVISION"
+    if warning_count > 2 or alignment_score < 0.7:
+        return "NEEDS_REVISION"
+    return "APPROVE"
 
 
 class MockCriticAgent:
@@ -257,7 +338,10 @@ class MockCriticAgent:
                             issue_id=f"deep_rate_{idx}_{param_name}",
                             category=CritiqueCategory.FEASIBILITY,
                             severity=CritiqueSeverity.WARNING,
-                            message=f"Intervention parameter {param_name}={numeric} is likely unrealistic.",
+                            message=(
+                                f"Intervention parameter {param_name}={numeric} "
+                                "is likely unrealistic."
+                            ),
                             location=f"policy_spec.interventions[{idx}].params.{param_name}",
                             suggestion="Use rates in [0, 1] unless intentionally scaled.",
                         )
@@ -338,6 +422,11 @@ class LLMCriticAgent:
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
         else:
             self._llm = llm_client
+        self._fallback = MockCriticAgent()
+        self._timeout_s = resolve_agent_llm_timeout_s(
+            "POLISYOS_CRITIC_LLM_TIMEOUT_S",
+            default=60.0,
+        )
 
     async def critique(
         self,
@@ -375,11 +464,33 @@ WEB EVIDENCE:
 Provide your critique as a JSON object.
 """
 
-        response = await self._llm.generate(
-            system=prompt,
-            user=user_message,
-            response_format={"type": "json_object"},
-        )
+        try:
+            response = await asyncio.wait_for(
+                self._llm.generate(
+                    system=prompt,
+                    user=user_message,
+                    response_format={"type": "json_object"},
+                    timeout=self._timeout_s,
+                ),
+                timeout=self._timeout_s + 5.0,
+            )
+        except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+            emit_degraded_path(
+                component="agent.critic",
+                operation="critique",
+                reason="llm_call_failed",
+                exc=exc,
+                details={
+                    "problem_frame_ref": problem_frame.frame_id,
+                    "timeout_s": self._timeout_s,
+                },
+                log=logger,
+            )
+            return await self._fallback.critique(
+                bundle,
+                problem_frame,
+                depth=depth,
+            )
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
@@ -411,21 +522,42 @@ Provide your critique as a JSON object.
             if not ir_ref:
                 ir_ref = content_hash(bundle_json)
 
+            issues, suppressed_issues = _normalize_llm_critic_issues(issues)
+            alignment_score = float(data.get("alignment_score", 0.5))
+            completeness_score = float(data.get("completeness_score", 0.5))
+            overall_quality = float(data.get("overall_quality", 0.5))
+            verdict = _normalized_critic_verdict(
+                raw_verdict=data.get("verdict", "NEEDS_REVISION"),
+                issues=issues,
+                alignment_score=alignment_score,
+            )
+            reflexion_hint = data.get("reflexion_hint", "")
+            if suppressed_issues and not issues:
+                reflexion_hint = (
+                    "Only stale contract issues were reported; "
+                    "no actionable critique remains."
+                )
+
             return CritiqueReport(
                 report_id=data.get("report_id", str(uuid.uuid4())),
                 ir_ref=ir_ref,
                 problem_frame_ref=problem_frame.frame_id,
-                verdict=data.get("verdict", "NEEDS_REVISION"),
+                verdict=verdict,
                 issues=issues,
-                alignment_score=float(data.get("alignment_score", 0.5)),
-                completeness_score=float(data.get("completeness_score", 0.5)),
-                overall_quality=float(data.get("overall_quality", 0.5)),
-                reflexion_hint=data.get("reflexion_hint", ""),
+                alignment_score=alignment_score,
+                completeness_score=completeness_score,
+                overall_quality=overall_quality,
+                reflexion_hint=reflexion_hint,
                 citations=_context_citations(problem_frame),
                 metadata={
                     "artifact_kind": "trinity_bundle",
                     "depth": depth,
                     "web_grounding": _context_web_grounding(problem_frame),
+                    "raw_verdict": data.get("verdict"),
+                    "suppressed_stale_contract_issue_count": len(suppressed_issues),
+                    "suppressed_stale_contract_issue_ids": [
+                        issue.issue_id for issue in suppressed_issues
+                    ],
                 },
                 created_at=datetime.now(UTC),
             )

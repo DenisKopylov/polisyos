@@ -183,6 +183,116 @@ export default function AgentPipelinePanel({
         </div>
       ) : null}
 
+      {pipeline.performanceSummary ? (
+        <section className="bg-panel/65 border-line rounded-xl border p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold">
+              {t("panels.agentPipeline.performanceBudget")}
+            </h4>
+            <Badge
+              kind={
+                pipeline.performanceSummary.overBudgetCount > 0 ? "warn" : "ok"
+              }
+            >
+              {pipeline.performanceSummary.overBudgetCount > 0
+                ? t("panels.agentPipeline.overBudget", {
+                    count: formatNumber(
+                      pipeline.performanceSummary.overBudgetCount,
+                    ),
+                  })
+                : t("panels.agentPipeline.withinBudget")}
+            </Badge>
+          </div>
+          <div className="grid gap-2 md:grid-cols-4">
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-xs">
+              <p className="text-muted uppercase">
+                {t("panels.agentPipeline.variantsCompleted")}
+              </p>
+              <p className="text-sm font-semibold">
+                {formatNumber(pipeline.performanceSummary.variantsCompleted)} /{" "}
+                {formatNumber(pipeline.performanceSummary.variantsTotal)}
+              </p>
+            </div>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-xs">
+              <p className="text-muted uppercase">
+                {t("panels.agentPipeline.failedVariants")}
+              </p>
+              <p className="text-sm font-semibold">
+                {formatNumber(pipeline.performanceSummary.variantsFailed)}
+              </p>
+            </div>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-xs">
+              <p className="text-muted uppercase">
+                {t("panels.agentPipeline.llmLatency")}
+              </p>
+              <p className="text-sm font-semibold">
+                {formatDuration(pipeline.performanceSummary.llmLatencyMs)}
+              </p>
+            </div>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-xs">
+              <p className="text-muted uppercase">
+                {t("panels.agentPipeline.totalTokens")}
+              </p>
+              <p className="text-sm font-semibold">
+                {formatNumber(pipeline.performanceSummary.totalTokens)}
+              </p>
+            </div>
+          </div>
+          {pipeline.performanceSummary.phaseBudgets.length > 0 ? (
+            <div className="mt-3 space-y-2">
+              {pipeline.performanceSummary.phaseBudgets.map((row, idx) => (
+                <div
+                  key={`${row.phase}:${idx}`}
+                  className={
+                    row.status === "over_budget"
+                      ? "border-warning/35 bg-warning/5 grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-5"
+                      : "bg-canvas/30 border-line grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-5"
+                  }
+                >
+                  <div className="md:col-span-2">
+                    <p className="text-muted uppercase">
+                      {t("panels.agentPipeline.phase")}
+                    </p>
+                    <p className="font-semibold break-words">{row.phase}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted uppercase">
+                      {t("panels.agentPipeline.category")}
+                    </p>
+                    <p>{row.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted uppercase">
+                      {t("panels.agentPipeline.observed")}
+                    </p>
+                    <p>{formatDuration(row.durationMs)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted uppercase">
+                      {t("panels.agentPipeline.budget")}
+                    </p>
+                    <p>{formatDuration(row.budgetMs)}</p>
+                  </div>
+                  <div className="md:col-span-5">
+                    <Badge
+                      kind={
+                        row.status === "over_budget"
+                          ? "warn"
+                          : row.status === "within_budget"
+                            ? "ok"
+                            : "neutral"
+                      }
+                    >
+                      {row.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
       {pipeline.retrieval ? (
         <section className="bg-panel/65 border-line rounded-xl border p-3">
           <div className="mb-2 flex items-center justify-between gap-2">

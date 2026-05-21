@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
 import subprocess
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -12,10 +12,11 @@ from tools.quality.validation.check_docstring_quality import (
     DocstringSubject,
     TargetRef,
     filter_subjects_by_prefix,
+    inspect_public_subjects,
 )
 
-if TYPE_CHECKING:
-    from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _command_keys(plan) -> set[str]:
@@ -141,6 +142,17 @@ def test_frontend_api_client_changes_run_contract_check_and_require_docs() -> No
     assert "frontend_docs" not in _finding_ids(with_docs)
 
 
+def test_production_quality_maturity_reference_is_published_in_nav() -> None:
+    nav_source = (
+        REPO_ROOT / "architecture" / "tooling" / "mkdocs" / "nav" / "30-reference.yml"
+    )
+
+    assert (
+        "Production Quality Maturity: reference/runtime/production-quality-maturity.md"
+        in nav_source.read_text(encoding="utf-8")
+    )
+
+
 def test_docs_accuracy_rejects_planning_docs_in_nav(tmp_path: Path) -> None:
     repo_root = tmp_path
     docs_root = repo_root / "docs"
@@ -203,3 +215,31 @@ def test_docstring_filter_scopes_subjects_to_requested_prefixes(tmp_path: Path) 
     )
 
     assert filtered == [matching]
+
+
+def test_docstring_quality_resolves_reexported_submodule_without_recursion(
+    tmp_path: Path,
+) -> None:
+    src_root = tmp_path / "src"
+    docs_root = tmp_path / "docs" / "reference"
+    package_root = src_root / "polisyos" / "example"
+    docs_root.mkdir(parents=True)
+    package_root.mkdir(parents=True)
+    (src_root / "polisyos" / "__init__.py").write_text(
+        '"""Root package used by the docstring-quality regression test."""\n',
+        encoding="utf-8",
+    )
+    (package_root / "__init__.py").write_text(
+        '"""Example facade package."""\n'
+        "from . import foo\n\n"
+        "__all__ = ['foo']\n",
+        encoding="utf-8",
+    )
+    (package_root / "foo.py").write_text(
+        '"""Foo submodule with semantic documentation."""\n',
+        encoding="utf-8",
+    )
+
+    subjects = inspect_public_subjects(docs_root=docs_root, src_root=src_root)
+
+    assert any(subject.ref.fqname == "polisyos.example.foo" for subject in subjects)

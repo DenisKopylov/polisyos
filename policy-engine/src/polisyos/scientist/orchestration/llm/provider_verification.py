@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
 import re
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
+from urllib.parse import urlsplit, urlunsplit
+from urllib.request import Request, urlopen
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -45,6 +49,8 @@ _PROVIDER_VERIFICATION_PARSE_ERRORS = (
 
 __all__ = [
     "ProviderCapabilityVerification",
+    "ProviderPreflightCheck",
+    "ProviderPreflightReport",
     "ProviderSmokeCheck",
     "ProviderSmokeReport",
     "is_provider_capability_verified",
@@ -52,6 +58,7 @@ __all__ = [
     "provider_verification_path",
     "resolve_gonka_api_key",
     "run_gonka_provider_smoke",
+    "run_provider_preflight",
     "save_provider_verification",
 ]
 
@@ -106,6 +113,41 @@ class ProviderSmokeReport(BaseModel):
     checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     verification: ProviderCapabilityVerification
     checks: list[ProviderSmokeCheck] = Field(default_factory=list)
+
+
+class ProviderPreflightCheck(BaseModel):
+    """One runtime-gate check against the real LLM provider."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    status: str
+    latency_ms: int | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
+
+
+class ProviderPreflightReport(BaseModel):
+    """Additive runtime preflight report persisted with canary/control evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    provider: str
+    base_url: str
+    models: list[str] = Field(default_factory=list)
+    checks: list[ProviderPreflightCheck] = Field(default_factory=list)
+    pricing: dict[str, Any] = Field(default_factory=dict)
+    capabilities: dict[str, Any] = Field(default_factory=dict)
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    retryable: bool = False
+    failure: dict[str, Any] | None = None
+    cache_hit: bool = False
+    api_key_env: str | None = None
+    api_key_fingerprint: str | None = None
+
+
+_PREFLIGHT_CACHE: dict[tuple[str, tuple[str, ...], str], tuple[float, ProviderPreflightReport]] = {}
 
 
 def provider_verification_path(
@@ -191,12 +233,419 @@ def is_provider_capability_verified(
 
 
 def resolve_gonka_api_key() -> tuple[str | None, str | None]:
-    """Resolve the only allowed default Gonka smoke-test key."""
-    env_name = "GONKA_API_KEY_3"
-    value = os.getenv(env_name)
-    if isinstance(value, str) and value.strip():
-        return value.strip(), env_name
+    """Resolve a Gonka smoke-test key without exposing secret values."""
+    canonical_env = "POLISYOS_LLM_GATEWAY_API_KEY"
+    canonical_value = os.getenv(canonical_env)
+    if isinstance(canonical_value, str) and _looks_like_proxy_key(canonical_value):
+        return canonical_value.strip(), canonical_env
+
+    legacy_env = "GONKA_API_KEY_3"
+    legacy_value = os.getenv(legacy_env)
+    if isinstance(legacy_value, str) and legacy_value.strip():
+        return legacy_value.strip(), legacy_env
     return None, None
+
+
+def _secret_fingerprint(value: str | None) -> str | None:
+    if not value:
+        return None
+    return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()[:12]
+
+
+def _looks_like_proxy_key(value: str) -> bool:
+    key = value.strip()
+    return key.startswith("sk-") and len(key) >= 16 and not any(char.isspace() for char in key)
+
+
+def _provider_root_url(base_url: str) -> str:
+    parts = urlsplit(base_url.rstrip("/"))
+    path = parts.path.rstrip("/")
+    if path.endswith("/v1"):
+        path = path[:-3].rstrip("/")
+    return urlunsplit((parts.scheme, parts.netloc, path, "", ""))
+
+
+def _join_url(base_url: str, path: str) -> str:
+    return f"{base_url.rstrip('/')}/{path.lstrip('/')}"
+
+
+def _extract_model_ids(payload: Mapping[str, Any] | dict[str, Any]) -> list[str]:
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, list):
+        data = payload.get("models") if isinstance(payload, dict) else None
+    ids: list[str] = []
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, str) and item.strip():
+                ids.append(item.strip())
+            elif isinstance(item, dict):
+                model_id = item.get("id") or item.get("model") or item.get("model_id")
+                if isinstance(model_id, str) and model_id.strip():
+                    ids.append(model_id.strip())
+    return list(dict.fromkeys(ids))
+
+
+def _preflight_failure_payload(
+    *,
+    message: str,
+    provider: str,
+    model: str | None,
+    retryable: bool,
+) -> dict[str, Any]:
+    return {
+        "code": "llm_provider_preflight_failed",
+        "layer": "llm_gateway",
+        "phase": "provider_preflight",
+        "message": message,
+        "retryable": retryable,
+        "model": model,
+        "provider": provider,
+        "next_action": (
+            "Retry after provider recovery or check gateway credentials, base URL, "
+            "model id, and provider status."
+            if retryable
+            else "Check POLISYOS_LLM_GATEWAY_API_KEY, provider base URL, and configured model id."
+        ),
+    }
+
+
+def _is_retryable_preflight_error(error: BaseException | str) -> bool:
+    text = str(error).lower()
+    return any(
+        marker in text
+        for marker in (
+            "timeout",
+            "timed out",
+            "temporarily",
+            "unavailable",
+            "connection reset",
+            "connection refused",
+            "too many requests",
+            "429",
+            "500",
+            "502",
+            "503",
+            "504",
+        )
+    )
+
+
+async def _default_fetch_json(
+    url: str,
+    *,
+    headers: dict[str, str] | None = None,
+    timeout_s: float = 10.0,
+) -> dict[str, Any]:
+    def _fetch() -> dict[str, Any]:
+        request = Request(url, headers=headers or {}, method="GET")
+        with urlopen(request, timeout=timeout_s) as response:
+            payload = response.read()
+        parsed = json.loads(payload.decode("utf-8"))
+        if not isinstance(parsed, dict):
+            raise RuntimeError(f"{url} returned non-object JSON")
+        return parsed
+
+    return await asyncio.to_thread(_fetch)
+
+
+async def run_provider_preflight(
+    *,
+    models: list[str],
+    base_url: str | None = None,
+    provider: str | None = None,
+    api_key: str | None = None,
+    api_key_env: str | None = None,
+    timeout_s: float = 10.0,
+    ttl_s: int = 300,
+    fetch_json: Any | None = None,
+    client_factory: Any = GatewayLLMClient,
+) -> ProviderPreflightReport:
+    """Run a short real-provider gate before expensive NL workflows."""
+    resolved_provider = (
+        provider or os.getenv("POLISYOS_LLM_GATEWAY_PROVIDER") or "gateway"
+    ).strip()
+    resolved_base_url = (
+        base_url or os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL") or "https://proxy.gonka.gg/v1"
+    ).strip().rstrip("/")
+    requested_models = [item.strip() for item in models if isinstance(item, str) and item.strip()]
+    checked_at = datetime.now(UTC)
+    if not requested_models:
+        failure = _preflight_failure_payload(
+            message="No real LLM model id was configured for provider preflight.",
+            provider=resolved_provider,
+            model=None,
+            retryable=False,
+        )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=[],
+            checked_at=checked_at,
+            retryable=False,
+            failure=failure,
+        )
+    if os.getenv("POLISYOS_LLM_SIMULATION_MODE", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return ProviderPreflightReport(
+            status="skipped",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checks=[
+                ProviderPreflightCheck(
+                    name="simulation_mode",
+                    status="skipped",
+                    details={"reason": "POLISYOS_LLM_SIMULATION_MODE is enabled"},
+                )
+            ],
+            checked_at=checked_at,
+        )
+
+    resolved_env = api_key_env or "POLISYOS_LLM_GATEWAY_API_KEY"
+    resolved_api_key = api_key if api_key is not None else os.getenv(resolved_env)
+    api_key_fingerprint = _secret_fingerprint(resolved_api_key)
+    if not isinstance(resolved_api_key, str) or not _looks_like_proxy_key(resolved_api_key):
+        failure = _preflight_failure_payload(
+            message=(
+                f"{resolved_env} is missing or does not look like an OpenAI-compatible "
+                "provider key."
+            ),
+            provider=resolved_provider,
+            model=requested_models[0] if requested_models else None,
+            retryable=False,
+        )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checked_at=checked_at,
+            retryable=False,
+            failure=failure,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+        )
+
+    cache_key = (
+        resolved_base_url,
+        tuple(requested_models),
+        api_key_fingerprint or "",
+    )
+    cached = _PREFLIGHT_CACHE.get(cache_key)
+    now_monotonic = time.monotonic()
+    if cached is not None and now_monotonic - cached[0] <= max(0, ttl_s):
+        return cached[1].model_copy(update={"cache_hit": True})
+
+    fetch = fetch_json or _default_fetch_json
+    root_url = _provider_root_url(resolved_base_url)
+    headers = {"Authorization": f"Bearer {resolved_api_key}"}
+    checks: list[ProviderPreflightCheck] = []
+    pricing: dict[str, Any] = {}
+    capabilities: dict[str, Any] = {}
+
+    async def _run_json_check(name: str, url: str) -> dict[str, Any] | None:
+        started = time.perf_counter()
+        try:
+            payload = await fetch(url, headers=headers, timeout_s=timeout_s)
+            if not isinstance(payload, dict):
+                raise RuntimeError(f"{name} returned non-object JSON")
+            checks.append(
+                ProviderPreflightCheck(
+                    name=name,
+                    status="ok",
+                    latency_ms=int((time.perf_counter() - started) * 1000),
+                    details={"url": url},
+                )
+            )
+            return payload
+        except Exception as exc:
+            checks.append(
+                ProviderPreflightCheck(
+                    name=name,
+                    status="failed",
+                    latency_ms=int((time.perf_counter() - started) * 1000),
+                    details={"url": url},
+                    error=str(exc),
+                )
+            )
+            retryable = _is_retryable_preflight_error(exc)
+            failure = _preflight_failure_payload(
+                message=f"{name} check failed: {exc}",
+                provider=resolved_provider,
+                model=requested_models[0] if requested_models else None,
+                retryable=retryable,
+            )
+            raise RuntimeError(json.dumps({"failure": failure, "retryable": retryable})) from exc
+
+    try:
+        await _run_json_check("health", _join_url(root_url, "/health"))
+        models_payload = await _run_json_check("models", _join_url(resolved_base_url, "/models"))
+        capabilities = await _run_json_check(
+            "capabilities",
+            _join_url(root_url, "/api/models/capabilities"),
+        ) or {}
+        pricing = await _run_json_check("pricing", _join_url(root_url, "/api/pricing")) or {}
+    except RuntimeError as exc:
+        try:
+            failure_payload = json.loads(str(exc)).get("failure")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            retryable = _is_retryable_preflight_error(exc)
+            failure_payload = _preflight_failure_payload(
+                message=str(exc),
+                provider=resolved_provider,
+                model=requested_models[0] if requested_models else None,
+                retryable=retryable,
+            )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checks=checks,
+            pricing=pricing,
+            capabilities=capabilities,
+            checked_at=checked_at,
+            retryable=bool(failure_payload.get("retryable")),
+            failure=failure_payload,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+        )
+
+    available_model_ids = _extract_model_ids(models_payload or {})
+    missing_models = [item for item in requested_models if item not in set(available_model_ids)]
+    if missing_models:
+        model = missing_models[0]
+        failure = _preflight_failure_payload(
+            message=f"model_id '{model}' not returned by /v1/models",
+            provider=resolved_provider,
+            model=model,
+            retryable=False,
+        )
+        checks.append(
+            ProviderPreflightCheck(
+                name="model_present",
+                status="failed",
+                details={
+                    "requested_models": requested_models,
+                    "available_models": available_model_ids[:64],
+                    "missing_models": missing_models,
+                },
+                error=f"missing models: {', '.join(missing_models)}",
+            )
+        )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checks=checks,
+            pricing=pricing,
+            capabilities=capabilities,
+            checked_at=checked_at,
+            retryable=False,
+            failure=failure,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+        )
+    checks.append(
+        ProviderPreflightCheck(
+            name="model_present",
+            status="ok",
+            details={
+                "requested_models": requested_models,
+                "available_models": available_model_ids[:64],
+            },
+        )
+    )
+
+    client = client_factory(
+        base_url=resolved_base_url,
+        api_key=resolved_api_key,
+        model=requested_models[0],
+        provider_hint=resolved_provider,
+        max_retries=0,
+        timeout_s=timeout_s,
+    )
+    try:
+        started = time.perf_counter()
+        response = await client.generate(
+            system="Return compact JSON only.",
+            user='Return {"status":"ok"} now.',
+            response_format={"type": "json_object"},
+            max_tokens=32,
+            temperature=0.0,
+        )
+        raw_response = getattr(response, "raw", None)
+        degraded_events = (
+            raw_response.get("_gateway_degraded_events")
+            if isinstance(raw_response, dict)
+            else None
+        )
+        details: dict[str, Any] = {
+            "request_id": getattr(response, "request_id", None),
+            "content_preview": str(getattr(response, "content", ""))[:80],
+        }
+        if isinstance(degraded_events, list) and degraded_events:
+            details["degraded_events"] = degraded_events
+            details["response_format_mode"] = "fallback_plain_json"
+        else:
+            details["response_format_mode"] = "json_object"
+        checks.append(
+            ProviderPreflightCheck(
+                name="tiny_completion",
+                status="ok",
+                latency_ms=int((time.perf_counter() - started) * 1000),
+                details=details,
+            )
+        )
+    except Exception as exc:
+        retryable = _is_retryable_preflight_error(exc)
+        failure = _preflight_failure_payload(
+            message=f"tiny completion failed: {exc}",
+            provider=resolved_provider,
+            model=requested_models[0] if requested_models else None,
+            retryable=retryable,
+        )
+        checks.append(
+            ProviderPreflightCheck(
+                name="tiny_completion",
+                status="failed",
+                error=str(exc),
+            )
+        )
+        return ProviderPreflightReport(
+            status="failed",
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checks=checks,
+            pricing=pricing,
+            capabilities=capabilities,
+            checked_at=checked_at,
+            retryable=retryable,
+            failure=failure,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+        )
+    finally:
+        aclose = getattr(client, "aclose", None)
+        if callable(aclose):
+            await aclose()
+
+    report = ProviderPreflightReport(
+        status="ok",
+        provider=resolved_provider,
+        base_url=resolved_base_url,
+        models=requested_models,
+        checks=checks,
+        pricing=pricing,
+        capabilities=capabilities,
+        checked_at=checked_at,
+        api_key_env=resolved_env,
+        api_key_fingerprint=api_key_fingerprint,
+    )
+    _PREFLIGHT_CACHE[cache_key] = (now_monotonic, report)
+    return report
 
 
 async def run_gonka_provider_smoke(

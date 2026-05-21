@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import type { components } from "./types";
+import {
+  normalizeApiProjectionFailClosed,
+  normalizeOperatorProjectionLabelFailClosed,
+} from "@/shared/lib/domain/projectionFailClosed";
 
 const apiMetaSchema = z.object({
   request_id: z.string(),
@@ -87,6 +91,46 @@ const artifactRefSchema = z.object({
   media_type: z.string().optional(),
 });
 
+const operatorProjectionStateLabelSchema = z
+  .object({
+    authority: z.enum(["runtime_authority", "projection_only"]),
+    label: z.string(),
+    state: z.enum([
+      "draft",
+      "projection_only",
+      "redacted",
+      "stale",
+      "contested",
+      "projected",
+      "blocked",
+      "readiness_closed",
+      "approved",
+      "rejected",
+      "published_blocked",
+      "publishable",
+    ]),
+  })
+  .transform(normalizeOperatorProjectionLabelFailClosed);
+
+const policyDesignCaseProjectionSchema = z
+  .record(z.string(), z.unknown())
+  .transform(normalizeApiProjectionFailClosed);
+
+const operatorDiagnosticSchema = z.object({
+  authoritative_runtime_state: z.string(),
+  projection_source: z.string(),
+  owner: z.string(),
+  phase: z.string(),
+  first_blocking_cause: z.string(),
+  upstream_missing_input: z.string().nullable().optional(),
+  downstream_impact: z.string(),
+  authority_refs: z.record(z.string(), z.string()).optional(),
+  blocker_overridable: z.boolean().default(false),
+  evidence_refs: z.array(z.string()).optional(),
+  next_diagnostic_command: z.string(),
+  projection_labels: z.array(operatorProjectionStateLabelSchema).optional(),
+});
+
 const runSummarySchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
@@ -113,6 +157,10 @@ const runDetailsSchemaInner = z.object({
   has_trace: z.boolean().optional(),
   has_workflow_report: z.boolean().optional(),
   manifest_ref: artifactRefSchema.nullable().optional(),
+  operator_diagnostic: operatorDiagnosticSchema.nullable().optional(),
+  policy_design_case_projection: policyDesignCaseProjectionSchema
+    .nullable()
+    .optional(),
   trace_ref: artifactRefSchema.nullable().optional(),
   workflow_report_ref: artifactRefSchema.nullable().optional(),
   root_artifacts: z.array(artifactRefSchema).optional(),
@@ -331,6 +379,28 @@ const reproducibilityViewSchema = z.object({
   notes: z.array(z.string()).optional(),
 });
 
+const performancePhaseBudgetSchema = z.object({
+  budget_ms: z.number().nullable().optional(),
+  category: z.string().optional(),
+  duration_ms: z.number().optional(),
+  over_by_ms: z.number().optional(),
+  phase: z.string(),
+  status: z.string().optional(),
+});
+
+const runPerformanceSummarySchema = z
+  .object({
+    budget_summary: z.record(z.string(), z.unknown()).optional(),
+    llm: z.record(z.string(), z.unknown()).optional(),
+    phase_budgets: z.array(performancePhaseBudgetSchema).optional(),
+    retrieval_phase_durations: z.record(z.string(), z.unknown()).optional(),
+    schema_version: z.string().optional(),
+    steps_by_action: z.record(z.string(), z.unknown()).optional(),
+    variant_rows: z.array(z.record(z.string(), z.unknown())).optional(),
+    variants: z.record(z.string(), z.unknown()).optional(),
+  })
+  .loose();
+
 const agentPipelineViewSchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
@@ -346,6 +416,7 @@ const agentPipelineViewSchema = z.object({
   evaluator: evaluatorReportViewSchema.nullable().optional(),
   iteration_lifecycle: iterationLifecycleViewSchema.nullable().optional(),
   reproducibility: reproducibilityViewSchema.nullable().optional(),
+  performance_summary: runPerformanceSummarySchema.nullable().optional(),
   source: z.string().nullable().optional(),
   notes: z.array(z.string()).optional(),
 });

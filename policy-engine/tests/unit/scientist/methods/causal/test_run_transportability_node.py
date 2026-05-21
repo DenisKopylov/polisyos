@@ -7,6 +7,8 @@ import pytest
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
+from polisyos.ir.refs import PrivacyAwareTransportCertificateRef
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -44,14 +46,11 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     load_transportability_result,
 )
-from polisyos.ir.refs import PrivacyAwareTransportCertificateRef
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
     LegalConstraint,
     LegalConstraintSet,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     RunTransportabilityNode,
     TransportabilityResolutionLoop,
@@ -62,6 +61,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -165,6 +166,66 @@ def test_run_transportability_node_graceful_skip_without_source_context(tmp_path
     assert "transportability_warning" in outcome.state.params
 
 
+def test_run_transportability_research_profile_persists_blocking_result_without_report(
+    tmp_path,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_missing_report")
+    state = ExperimentState(
+        run_id="R_transport_missing_report",
+        params={
+            "source_context": {"context_id": "EU"},
+            "target_context": {"context_id": "UA"},
+            "query_treatment": "credit_guarantee",
+            "query_outcome": "msme_survival_rate",
+        },
+        execution_profile="research",
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
+    transport_result = load_transportability_result(ctx.store, transport_ref)
+    assert transport_result.status is TransportabilityStatus.UNSUPPORTED
+    assert transport_result.transport_mode is TransportMode.NONE
+    assert transport_result.unsupported_reason == "missing_causal_report"
+    assert transport_result.final_confidence == 0.0
+    assert transport_result.requires_expert_review is True
+    assert outcome.state.params["transport_required"] is True
+    assert "missing_causal_report" in outcome.state.params["transportability_warning"]
+
+
+def test_run_transportability_research_profile_persists_blocking_result_without_graph(
+    tmp_path,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_missing_graph")
+    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    state = ExperimentState(
+        run_id="R_transport_missing_graph",
+        artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: report_ref},
+        params={
+            "source_context": {"context_id": "EU"},
+            "target_context": {"context_id": "UA"},
+            "query_treatment": "credit_guarantee",
+            "query_outcome": "msme_survival_rate",
+        },
+        execution_profile="research",
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    transport_ref = outcome.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
+    transport_result = load_transportability_result(ctx.store, transport_ref)
+    assert transport_result.status is TransportabilityStatus.UNSUPPORTED
+    assert transport_result.unsupported_reason == "missing_causal_graph"
+    assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] != report_ref
+    updated_report = load_causal_effect_report(
+        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    )
+    assert updated_report.transport_result == transport_result
+
+
 @pytest.mark.parametrize("execution_profile", ["research", "governed", "production"])
 def test_run_transportability_rejects_degraded_transport_outside_dev(
     tmp_path,
@@ -249,7 +310,10 @@ def test_resolution_loop_hard_legal_constraint_sets_infeasible(
 
 @pytest.mark.skipif(
     _Y0_INSTALLED,
-    reason="y0 is installed — symbolic identification succeeds; test verifies bounds fallback when unavailable",
+    reason=(
+        "y0 is installed — symbolic identification succeeds; "
+        "test verifies bounds fallback when unavailable"
+    ),
 )
 def test_resolution_loop_data_gap_and_convergence(
     monkeypatch: pytest.MonkeyPatch,

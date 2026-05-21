@@ -17,8 +17,16 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.analytics.transportability import TransportabilityStatus
-from polisyos.ir.refs import CausalEffectReportRef, CrossGraphEvidenceProfileRef
+from polisyos.ir.analytics.transportability import (
+    TransportabilityResult,
+    TransportabilityStatus,
+    load_transportability_result,
+)
+from polisyos.ir.refs import (
+    CausalEffectReportRef,
+    CrossGraphEvidenceProfileRef,
+    TransportabilityResultRef,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 _EXTERNAL_SOURCE_TYPES: frozenset[str] = frozenset(
@@ -54,14 +62,15 @@ class TransportabilityRequiredPass(ValidatorPass):
         if ctx.profile.level is ProfileLevel.FAST:
             return []
 
+        issues: list[ComplianceIssue] = []
         profile = _resolve_cross_graph_profile(ctx)
         if profile is not None:
-            return _issues_from_cross_graph_profile(ctx, profile)
+            issues.extend(_issues_from_cross_graph_profile(ctx, profile))
 
         severity = _unsupported_transport_severity(ctx)
 
-        issues: list[ComplianceIssue] = []
-        for report_path, report in _resolve_reports_with_paths(ctx):
+        reports = _resolve_reports_with_paths(ctx)
+        for report_path, report in reports:
             if not _is_external_source(report):
                 continue
             issue = _issue_for_transport_result(
@@ -69,6 +78,14 @@ class TransportabilityRequiredPass(ValidatorPass):
                 ctx,
                 report_path,
                 report,
+                missing_severity=severity,
+            )
+            if issue is not None:
+                issues.append(issue)
+        if not reports:
+            issue = _issue_for_direct_transport_result(
+                self.pass_id,
+                ctx,
                 missing_severity=severity,
             )
             if issue is not None:
@@ -243,6 +260,88 @@ def _resolve_cross_graph_profile(ctx: PassContext) -> CrossGraphEvidenceProfile 
             reason="artifact_load_failed",
             exc=exc,
             details={"raw_ref": raw_ref},
+        )
+        return None
+
+
+def _issue_for_direct_transport_result(
+    pass_id: str,
+    ctx: PassContext,
+    *,
+    missing_severity: IssueSeverity,
+) -> ComplianceIssue | None:
+    transport = _resolve_direct_transport_result(ctx)
+    if transport is None:
+        return None
+    path = ["artifacts_index", "transportability_result_ref"]
+    if transport.status is TransportabilityStatus.IDENTIFIED:
+        return None
+    if transport.status is TransportabilityStatus.PARTIALLY_IDENTIFIED:
+        return ComplianceIssue(
+            pass_id=pass_id,
+            path=path,
+            message="Transportability artifact is only partially identified.",
+            severity=_severity_for_partial_transport(ctx),
+            code="TRANSPORT_PARTIAL_IDENTIFICATION",
+            suggestion=(
+                "Review partial-identification regions or add stronger target-context evidence."
+            ),
+        )
+    if transport.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
+        return ComplianceIssue(
+            pass_id=pass_id,
+            path=path,
+            message="Transportability artifact is bounds-only.",
+            severity=_severity_for_partial_transport(ctx),
+            code="TRANSPORT_BOUNDS_ONLY",
+            suggestion="Treat result as bounds-only or collect target-context evidence.",
+        )
+    return ComplianceIssue(
+        pass_id=pass_id,
+        path=path,
+        message="Transportability artifact is unsupported.",
+        severity=missing_severity,
+        code="TRANSPORT_UNSUPPORTED",
+        suggestion=(
+            "Do not approve automatically; add a causal report/graph, target-context "
+            "evidence, or an approved degraded override."
+        ),
+    )
+
+
+def _resolve_direct_transport_result(ctx: PassContext) -> TransportabilityResult | None:
+    artifacts_index = ctx.state.get("artifacts_index")
+    if not isinstance(artifacts_index, dict):
+        return None
+    raw_ref = artifacts_index.get("transportability_result_ref")
+    if raw_ref is None:
+        return None
+    store = ctx.state.get("_store")
+    if store is None:
+        return None
+
+    ref_payload = raw_ref
+    if hasattr(raw_ref, "model_dump"):
+        try:
+            ref_payload = raw_ref.model_dump(mode="json")
+        except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+            emit_degraded_path(
+                component="governance.transportability_required_pass",
+                operation="resolve_direct_transport_result",
+                reason="artifact_ref_serialize_failed",
+                exc=exc,
+            )
+            return None
+    try:
+        ref = TransportabilityResultRef.model_validate(ref_payload)
+        return load_transportability_result(store, ref)
+    except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+        emit_degraded_path(
+            component="governance.transportability_required_pass",
+            operation="resolve_direct_transport_result",
+            reason="artifact_load_failed",
+            exc=exc,
+            details={"raw_ref": ref_payload},
         )
         return None
 

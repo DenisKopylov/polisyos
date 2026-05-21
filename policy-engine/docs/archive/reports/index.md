@@ -1,7 +1,7 @@
 # Generated Index: Archived Reports
 
 Owner: `team-docs`
-Last updated: 2026-05-05
+Last updated: 2026-05-19
 
 This local index gives Phase 4.10 closure for the high-volume reports archive.
 Phase 6.4 may replace it with docs navigation generation.
@@ -13,6 +13,7 @@ Phase 6.4 may replace it with docs navigation generation.
 | `REPOSITORY_*` | Repository structure, SOTA, and best-in-class inventories. |
 | `platform-acceptance.*` | Platform acceptance records. |
 | `core-runtime-closeout.*` | Core runtime closeout evidence. |
+| `2026-05-19-policy-design-case-wave41-closeout.md` | Policy Design Case Wave 41 reviewed closeout and archive handoff evidence. |
 | `benchmarks/` | Reviewed benchmark evidence summaries. |
 | `ADR_STALE_LINK_REPORT.md` | ADR link-health evidence. |
 | `DATA_STORAGE_*` | Data storage migration/audit evidence. |

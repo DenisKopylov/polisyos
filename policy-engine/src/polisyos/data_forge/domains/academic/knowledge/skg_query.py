@@ -60,6 +60,7 @@ class ParameterCandidate:
     linked_edge_ids: tuple[str, ...] = ()
     uncertainty_source: str = ""
     quality_flags: tuple[str, ...] = ()
+    normalization_diagnostics: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -417,7 +418,12 @@ class SKGQuery:
             payload = self._parse_json_dict(parameter_json)
             if payload is None:
                 continue
-            parameter = self._to_evidence_parameter(parameter_name, payload)
+            normalization_diagnostics: list[str] = []
+            parameter = self._to_evidence_parameter(
+                parameter_name,
+                payload,
+                diagnostics=normalization_diagnostics,
+            )
             if parameter is None:
                 continue
             source_context = self._parse_context_profile(context_json)
@@ -448,6 +454,7 @@ class SKGQuery:
                     if parameter.std_error is not None
                     else "",
                     quality_flags=tuple(quality_flags),
+                    normalization_diagnostics=tuple(normalization_diagnostics),
                 )
             )
         return out
@@ -1322,19 +1329,118 @@ class SKGQuery:
         return best
 
     @staticmethod
-    def _to_evidence_parameter(name: str, payload: dict[str, Any]) -> EvidenceParameter | None:
+    def _normalize_evidence_parameter_payload(
+        name: str,
+        payload: dict[str, Any],
+        *,
+        diagnostics: list[str] | None = None,
+    ) -> dict[str, Any]:
+        normalized = dict(payload)
+        candidate_name = str(normalized.get("name") or "").strip()
+        if not candidate_name:
+            for key in ("parameter", "canonical_name", "variable", "variable_hint"):
+                candidate_name = str(normalized.get(key) or "").strip()
+                if candidate_name:
+                    if diagnostics is not None:
+                        diagnostics.append(f"mapped:{key}->name")
+                    break
+        normalized["name"] = candidate_name or name
+        normalized.setdefault("display_name", normalized["name"])
+
+        if (
+            normalized.get("confidence_interval") is None
+            and normalized.get("ci_low") is not None
+            and normalized.get("ci_high") is not None
+        ):
+            normalized["confidence_interval"] = (
+                normalized.get("ci_low"),
+                normalized.get("ci_high"),
+            )
+            if diagnostics is not None:
+                diagnostics.append("mapped:ci_low/ci_high->confidence_interval")
+
+        context_snippet = str(normalized.get("context_snippet") or "").strip()
+        if context_snippet and not normalized.get("heterogeneity_note"):
+            normalized["heterogeneity_note"] = context_snippet
+            if diagnostics is not None:
+                diagnostics.append("mapped:context_snippet->heterogeneity_note")
+
+        transfer_conditions = normalized.get("transfer_conditions")
+        if isinstance(transfer_conditions, list):
+            retained_conditions = [str(item) for item in transfer_conditions if str(item)]
+        else:
+            retained_conditions = []
+        pattern_name = str(normalized.get("pattern_name") or "").strip()
+        if pattern_name:
+            retained_conditions.append(f"pattern:{pattern_name}")
+            if diagnostics is not None:
+                diagnostics.append("retained:pattern_name->transfer_conditions")
+        variable_hint = str(normalized.get("variable_hint") or "").strip()
+        if variable_hint and variable_hint != normalized["name"]:
+            retained_conditions.append(f"variable_hint:{variable_hint}")
+            if diagnostics is not None:
+                diagnostics.append("retained:variable_hint->transfer_conditions")
+        confidence = normalized.get("confidence")
+        if confidence is not None:
+            try:
+                retained_conditions.append(f"extraction_confidence:{float(confidence):g}")
+            except (TypeError, ValueError):
+                retained_conditions.append(f"extraction_confidence:{confidence}")
+            if diagnostics is not None:
+                diagnostics.append("retained:confidence->transfer_conditions")
+        if retained_conditions:
+            normalized["transfer_conditions"] = sorted(set(retained_conditions))
+
+        allowed_fields = set(EvidenceParameter.model_fields)
+        canonical_payload = {
+            key: value for key, value in normalized.items() if key in allowed_fields
+        }
+        if diagnostics is not None:
+            known_alias_fields = {
+                "canonical_name",
+                "ci_high",
+                "ci_low",
+                "confidence",
+                "context_snippet",
+                "parameter",
+                "pattern_name",
+                "variable",
+                "variable_hint",
+            }
+            for key in sorted(set(normalized) - allowed_fields - known_alias_fields):
+                diagnostics.append(f"dropped:{key}")
+        return canonical_payload
+
+    @staticmethod
+    def _to_evidence_parameter(
+        name: str,
+        payload: dict[str, Any],
+        *,
+        diagnostics: list[str] | None = None,
+    ) -> EvidenceParameter | None:
+        normalized_payload = SKGQuery._normalize_evidence_parameter_payload(
+            name,
+            payload,
+            diagnostics=diagnostics,
+        )
         try:
-            return EvidenceParameter.model_validate(payload)
+            return EvidenceParameter.model_validate(normalized_payload)
         except (ValidationError, ValueError, TypeError) as exc:
             logger.debug("EvidenceParameter.model_validate fallback: %s", exc)
+            if diagnostics is not None:
+                diagnostics.append(f"fallback:validation_failed:{type(exc).__name__}")
 
         raw_value = payload.get("value", payload.get("estimate"))
         if raw_value is None:
+            if diagnostics is not None:
+                diagnostics.append("dropped:missing_value")
             return None
 
         try:
             value = float(raw_value)
         except (ValueError, TypeError):
+            if diagnostics is not None:
+                diagnostics.append("dropped:non_numeric_value")
             return None
 
         confidence_interval: tuple[float, float] | None = None
@@ -1366,7 +1472,7 @@ class SKGQuery:
             evidence_strength = EvidenceStrength.UNKNOWN
 
         try:
-            return EvidenceParameter(
+            parameter = EvidenceParameter(
                 name=name,
                 display_name=str(payload.get("display_name") or name),
                 parameter_type=ParameterType.QUANTITATIVE,
@@ -1382,7 +1488,12 @@ class SKGQuery:
                 time_period=str(payload.get("time_period") or ""),
                 geographic_scope=str(payload.get("geographic_scope") or ""),
             )
+            if diagnostics is not None:
+                diagnostics.append("fallback:manual_evidence_parameter")
+            return parameter
         except (ValidationError, ValueError, TypeError):
+            if diagnostics is not None:
+                diagnostics.append("dropped:manual_fallback_validation_failed")
             return None
 
     def latest_skg_version_id(self) -> int | None:

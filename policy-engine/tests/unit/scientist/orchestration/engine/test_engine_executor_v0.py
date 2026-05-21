@@ -4,6 +4,7 @@ import json
 import logging
 
 import pytest
+from polisyos.core.contracts.skip_blockers import SKIP_BLOCKER_REQUIRED_FIELDS
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -13,6 +14,7 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import CycleDetectedError, UnknownNodeError
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
@@ -39,6 +41,40 @@ class AlwaysFailNode:
             status="fail",
             state=state,
             error=NodeError(code="node.fail", message="boom"),
+        )
+
+
+class AlwaysSkipAnalyticNode:
+    def __init__(self) -> None:
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_run_causal_queries_test@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Skip Causal",
+            description="Skips a causal analytic node",
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        self._spec = NodeSpec(metadata=metadata)
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        return NodeOutcome(
+            status="skip",
+            state=state,
+            events=[
+                NodeEvent(
+                    level="info",
+                    code="causal_query_missing",
+                    message="No params.causal_query; skip causal query execution.",
+                    attrs={
+                        "skip_reason": "missing_causal_query",
+                        "missing_input": "params.causal_query",
+                    },
+                )
+            ],
         )
 
 
@@ -199,6 +235,66 @@ def test_executor_runs_dag_and_emits_trace(tmp_path):
     assert {"set", "emit", "noop"}.issubset(aliases)
 
 
+def test_executor_emits_memory_authority_before_serious_run_nodes(tmp_path):
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    workflow = WorkflowSpec(
+        workflow_id="serious_memory_authority",
+        required_binds=["run_id"],
+        nodes=[
+            NodeInvocation(
+                alias="noop",
+                node_id=ComponentId.parse("scientist.node_noop@1.0.0"),
+                params={},
+            ),
+        ],
+    )
+    state = ExperimentState(
+        run_id="R_test",
+        execution_profile="production",
+        inputs={"registry_bundle_ref": bundle.bundle_ref},
+        params={
+            "tenant_id": "tenant-wave35g",
+            "cell_id": "cell-wave35g",
+            "prompt_authority_refs": {
+                "serious_run_prompt": "tests/fixtures/policy_design_case/serious_prompt.md"
+            },
+        },
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+    record = result.state.params.get("memory_authority_record")
+    assert isinstance(record, dict)
+    assert record["authority_kind"] == "no_memory_abstention"
+    assert record["runtime_owned"] is True
+    assert record["memory_used"] is False
+    assert record["replay_surface_empty"] is True
+    assert record["emitted_before_serious_output_influence"] is True
+    assert record["tenant_scope"] == {
+        "tenant_id": "tenant-wave35g",
+        "cell_id": "cell-wave35g",
+    }
+    assert (
+        record["prompt_authority_refs"]["serious_run_prompt"]
+        == "tests/fixtures/policy_design_case/serious_prompt.md"
+    )
+    assert "workflow_executor" in record["tool_authority_refs"]
+
+    trace_ref = ctx.run.run_manifest.trace_ref
+    assert trace_ref is not None
+    trace_data = store.get_bytes(trace_ref.artifact_id).decode("utf-8")
+    events = [json.loads(line) for line in trace_data.splitlines() if line.strip()]
+    memory_event_index = next(
+        index
+        for index, event in enumerate(events)
+        if event.get("event") == "MEMORY_AUTHORITY_RECORDED"
+    )
+    first_node_start_index = next(
+        index for index, event in enumerate(events) if event.get("event") == "NODE_STARTED"
+    )
+    assert memory_event_index < first_node_start_index
+
+
 def test_executor_unknown_node(tmp_path):
     _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
     workflow = WorkflowSpec(
@@ -267,6 +363,34 @@ def test_skip_propagation_continue_policy(tmp_path):
     assert statuses["downstream"] == "skip"
     downstream = next(rec for rec in result.report.nodes if rec.alias == "downstream")
     assert downstream.skip_reason == "upstream_failed"
+
+
+def test_executor_persists_typed_skip_blocker_for_skipped_analytic_node(tmp_path):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    registry.register(AlwaysSkipAnalyticNode())
+
+    workflow = WorkflowSpec(
+        workflow_id="skip_blocker_report",
+        nodes=[
+            NodeInvocation(
+                alias="run_causal_queries",
+                node_id=ComponentId.parse("scientist.node_run_causal_queries_test@1.0.0"),
+            ),
+        ],
+    )
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+    executor = WorkflowExecutor(ctx, registry)
+    result = executor.execute(workflow, state)
+
+    record = result.report.nodes[0]
+
+    assert record.status == "skip"
+    assert record.skip_blocker is not None
+    payload = record.skip_blocker.model_dump(mode="json")
+    assert set(SKIP_BLOCKER_REQUIRED_FIELDS) <= set(payload)
+    assert payload["reason"] == "missing_causal_query"
+    assert payload["missing_input"] == "params.causal_query"
+    assert payload["scorecard_blocking_policy"] == "blocks_scorecard_pass"
 
 
 def test_executor_branch_state_isolates_declared_nested_writes(tmp_path):

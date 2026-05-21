@@ -29,7 +29,7 @@ test.describe("runtime-dashboard knowledge flow", () => {
           meta: {
             generated_at: new Date().toISOString(),
             request_id: "playwright-lex-search",
-            source_kinds: ["lex"],
+            source_kinds: ["core_run"],
           },
           query: "budget",
           results: [
@@ -62,12 +62,12 @@ test.describe("runtime-dashboard knowledge flow", () => {
     await searchInput.fill("budget");
     await page.getByRole("button", { name: /^Search$/i }).click();
 
-    await expect(page.getByText(/result\(s\) for "budget"/i)).toBeVisible({
+    await expect(page.getByText(/1 result for .budget./i)).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole("table").last()).toBeVisible();
 
-    await page.getByTestId("shell-nav-evidenceFabric").click();
+    await page.getByRole("link", { name: /^Evidence Fabric$/i }).last().click();
     await waitForDashboardSurface(page, "evidence");
   });
 });

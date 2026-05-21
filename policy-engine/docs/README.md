@@ -26,6 +26,12 @@ compliance corpus.
 - Wave 1 / Wave 2 design evidence: `docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md`
 - Wave 1 release evidence: `release/design-wave1-release-notes.md`
 
+## System Design Decisions
+
+- [System design decision index](./system-design-decisions/README.md)
+- [Honest diagnostics substrate](./system-design-decisions/honest-diagnostics-substrate.md)
+- [Best-in-class policy design operating model](./system-design-decisions/policy-design-best-in-class-operating-model.md) - includes the reuse-first capability realization map and Scholar academic evidence producer.
+
 ## ADR
 
 - [ADR template](./adr/_template.md)

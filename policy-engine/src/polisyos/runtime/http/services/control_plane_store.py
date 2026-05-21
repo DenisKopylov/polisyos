@@ -8,21 +8,41 @@ import os
 import sqlite3
 import threading
 import uuid
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterator, cast
+from typing import Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
+    ControlFailureEnvelope,
     ControlJobKind,
     ControlJobResponse,
     ControlJobState,
+    ControlQualityFailure,
+    ControlQualityGate,
     ExecutionProfile,
+    OperatorDiagnostic,
 )
 from polisyos.core.contracts.runtime import ApiMeta
+from polisyos.runtime.http.services.control.response_shapes import (
+    _operator_diagnostic_from_failure_payload,
+    _operator_diagnostic_from_quality_payload,
+    build_control_job_projection_shape,
+)
+from polisyos.runtime.quality.diagnostic_events import (
+    DiagnosticEvent,
+    DiagnosticEventContractError,
+    classify_duplicate_event,
+)
+from polisyos.runtime.quality.evidence_spine_handoff import (
+    append_evidence_spine_handoff,
+    control_plane_handoff,
+)
 
 
 def _utc_now() -> datetime:
@@ -52,9 +72,697 @@ def _job_event_topic(event_type: str) -> str:
     return f"control.job.{normalized}"
 
 
+def _progress_carrier_ref(
+    *,
+    progress: Mapping[str, Any] | None,
+    job_id: str,
+    payload_ref: str | None = None,
+) -> str:
+    if isinstance(progress, Mapping):
+        handoffs = progress.get("evidence_spine_handoffs")
+        if isinstance(handoffs, list):
+            for handoff in handoffs:
+                if isinstance(handoff, Mapping):
+                    carrier_ref = _string_or_none(handoff.get("carrier_ref"))
+                    if carrier_ref is not None:
+                        return carrier_ref
+        carrier_ref = _string_or_none(progress.get("evidence_spine_carrier_ref"))
+        if carrier_ref is not None:
+            return carrier_ref
+    return payload_ref or f"control-job:{job_id}:carrier"
+
+
 _CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
 _CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
 _EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
+_SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+
+_RUNTIME_QUALITY_REF_GATES = (
+    {
+        "ref_key": "normative_applicability_report_ref",
+        "gate_name": "normative_evidence_present",
+        "stage": "lex",
+        "layer": "lex",
+        "pass_message": "Normative applicability evidence is present.",
+    },
+    {
+        "ref_key": "fabric_retrieval_trace_ref",
+        "gate_name": "fabric_retrieval_trace_present",
+        "stage": "fabric",
+        "layer": "fabric_retrieval",
+        "pass_message": "Fabric source-selection evidence is present.",
+    },
+    {
+        "ref_key": "foundry_method_report_ref",
+        "gate_name": "foundry_method_evidence_present",
+        "stage": "foundry",
+        "layer": "foundry_methods",
+        "pass_message": "Foundry method validity evidence is present.",
+    },
+    {
+        "ref_key": "policy_grounding_matrix_ref",
+        "gate_name": "policy_grounding_matrix_present",
+        "stage": "policy_output",
+        "layer": "scientist_policy_artifacts",
+        "pass_message": "Policy grounding matrix is present.",
+    },
+    {
+        "ref_key": "conflict_check_ref",
+        "gate_name": "conflict_check_present",
+        "stage": "lex",
+        "layer": "normative_conflict",
+        "pass_message": "Policy conflict check is present.",
+    },
+    {
+        "ref_key": "causal_statistical_validity_report_ref",
+        "gate_name": "causal_statistical_validity_present",
+        "stage": "foundry",
+        "layer": "foundry_causal_validity",
+        "pass_message": "Causal/statistical validity benchmark evidence is present.",
+    },
+    {
+        "ref_key": "replay_manifest_ref",
+        "gate_name": "replay_manifest_present",
+        "stage": "ops",
+        "layer": "runtime_replay",
+        "pass_message": "Deterministic replay manifest is present.",
+    },
+    {
+        "ref_key": "drift_explanation_ref",
+        "gate_name": "drift_explanation_present",
+        "stage": "ops",
+        "layer": "runtime_replay",
+        "pass_message": "Replay drift explanation evidence is present.",
+    },
+    {
+        "ref_key": "resilience_report_ref",
+        "gate_name": "resilience_matrix_present",
+        "stage": "ops",
+        "layer": "runtime_resilience",
+        "pass_message": "Load, soak, and resilience matrix evidence is present.",
+    },
+    {
+        "ref_key": "human_review_calibration_report_ref",
+        "gate_name": "human_review_calibration_present",
+        "stage": "ops",
+        "layer": "human_review_calibration",
+        "pass_message": "Human-review calibration evidence is present.",
+    },
+    {
+        "ref_key": "privacy_compliance_report_ref",
+        "gate_name": "privacy_compliance_report_present",
+        "stage": "ops",
+        "layer": "privacy_compliance",
+        "pass_message": "Privacy, licensing, and compliance evidence is present.",
+    },
+    {
+        "ref_key": "decision_artifact_quality_report_ref",
+        "gate_name": "decision_artifact_quality_present",
+        "stage": "policy_output",
+        "layer": "scientist_decision_artifact",
+        "pass_message": "Decision-artifact quality evidence is present.",
+    },
+)
+_SCORECARD_PROGRESS_KEYS = (
+    "schema_version",
+    "generated_at",
+    "execution_status",
+    "quality_status",
+    "performance_status",
+    "approval_state",
+    "canary_kind",
+    "job_id",
+    "run_id",
+    "quality_scorecard_ref",
+    "quality_evidence_bundle_path",
+    "overall_score",
+    "stage_scores",
+    "quality_gates",
+    "blocking_quality_failures",
+    "warnings",
+    "approval_eligibility",
+    "approval_decision",
+    "approval_next_action",
+    "approval_packet",
+    "approval_packet_ref",
+    "approval_ready",
+    "approval_reasons",
+    "evidence_refs",
+    "override_evidence",
+    "source_truth_conflicts",
+)
+
+
+def _string_or_none(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _operator_next_action(*, layer: str, retryable: bool) -> str:
+    if layer == "llm_gateway":
+        return (
+            "Retry after provider recovery or check gateway credentials, base URL, "
+            "model id, and provider status."
+        )
+    if layer == "fabric_materialization":
+        return (
+            "Inspect production_data paths, materialization refs, quality diagnostics, "
+            "and lineage before retrying."
+        )
+    if retryable:
+        return "Retry the job after the transient dependency or runtime condition recovers."
+    return "Inspect the job progress, artifacts, and runtime logs before retrying."
+
+
+def _derive_failure_envelope(record: "ControlJobRecord") -> ControlFailureEnvelope | None:
+    failure_payload = record.progress.get("failure")
+    if isinstance(failure_payload, Mapping):
+        code = _string_or_none(failure_payload.get("code")) or "control_job_failed"
+        layer = _string_or_none(failure_payload.get("layer")) or "control_plane"
+        phase = _string_or_none(failure_payload.get("phase")) or _string_or_none(
+            record.progress.get("phase")
+        )
+        message = (
+            _string_or_none(failure_payload.get("message"))
+            or _string_or_none(record.error_message)
+            or code
+        )
+        retryable = bool(failure_payload.get("retryable"))
+        artifact_refs = failure_payload.get("artifact_refs")
+        variant_failures = failure_payload.get("variant_failures")
+        if not isinstance(variant_failures, list):
+            variant_failures = failure_payload.get("variants")
+        if not isinstance(variant_failures, list):
+            variant_failures = []
+        operator_diagnostic = _operator_diagnostic_from_failure_payload(
+            failure_payload,
+            authoritative_runtime_state=record.state,
+            fallback_phase=phase,
+            fallback_message=message,
+            job_id=record.job_id,
+        )
+        return ControlFailureEnvelope(
+            code=code,
+            layer=layer,
+            phase=phase,
+            message=message,
+            retryable=retryable,
+            next_action=_string_or_none(failure_payload.get("next_action"))
+            or _operator_next_action(layer=layer, retryable=retryable),
+            model=_string_or_none(failure_payload.get("model")),
+            provider=_string_or_none(failure_payload.get("provider")),
+            run_id=_string_or_none(failure_payload.get("run_id")) or record.run_id,
+            job_id=_string_or_none(failure_payload.get("job_id")) or record.job_id,
+            artifact_refs=dict(artifact_refs) if isinstance(artifact_refs, Mapping) else {},
+            variant_failures=[
+                dict(item)
+                for item in variant_failures
+                if isinstance(item, Mapping)
+            ],
+            operator_diagnostic=operator_diagnostic,
+        )
+    if record.state != "failed" and not record.error_message:
+        return None
+    message = _string_or_none(record.error_message) or "Control job failed."
+    phase = _string_or_none(record.progress.get("phase"))
+    return ControlFailureEnvelope(
+        code="control_job_failed",
+        layer="control_plane",
+        phase=phase,
+        message=message,
+        retryable=False,
+        next_action=_operator_next_action(layer="control_plane", retryable=False),
+        run_id=record.run_id,
+        job_id=record.job_id,
+        operator_diagnostic=_operator_diagnostic_from_failure_payload(
+            {
+                "code": "control_job_failed",
+                "layer": "control_plane",
+                "phase": phase,
+                "message": message,
+            },
+            authoritative_runtime_state=record.state,
+            fallback_phase=phase,
+            fallback_message=message,
+            job_id=record.job_id,
+        ),
+    )
+
+
+def _status_or_none(value: Any) -> str | None:
+    status = _string_or_none(value)
+    if status is None:
+        return None
+    normalized = status.lower()
+    status_aliases = {
+        "passed": "pass",
+        "success": "pass",
+        "ok": "pass",
+        "warning": "warn",
+        "degraded": "warn",
+        "failed": "fail",
+        "error": "fail",
+    }
+    normalized = status_aliases.get(normalized, normalized)
+    if normalized in {"pass", "warn", "fail"}:
+        return normalized
+    return status
+
+
+def _quality_scorecard_payload(progress: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    for key in ("quality_scorecard", "quality"):
+        payload = progress.get(key)
+        if isinstance(payload, Mapping):
+            return payload
+    if any(
+        key in progress
+        for key in ("quality_status", "quality_gates", "blocking_quality_failures")
+    ):
+        return progress
+    return None
+
+
+def _progress_with_quality_scorecard_summary(
+    progress: dict[str, Any],
+) -> dict[str, Any]:
+    existing = progress.get("quality_scorecard")
+    has_scorecard_fields = any(key in progress for key in _SCORECARD_PROGRESS_KEYS)
+    if not isinstance(existing, Mapping) and not has_scorecard_fields:
+        return progress
+
+    normalized = deepcopy(progress)
+    summary: dict[str, Any] = dict(existing) if isinstance(existing, Mapping) else {}
+    for key in _SCORECARD_PROGRESS_KEYS:
+        if key in normalized and key not in summary:
+            summary[key] = deepcopy(normalized[key])
+
+    evidence_refs = summary.get("evidence_refs")
+    if not isinstance(evidence_refs, Mapping):
+        evidence_refs = normalized.get("evidence_refs")
+        if isinstance(evidence_refs, Mapping):
+            summary["evidence_refs"] = dict(evidence_refs)
+
+    if isinstance(evidence_refs, Mapping):
+        scorecard_ref = _string_or_none(
+            summary.get("quality_scorecard_ref") or evidence_refs.get("quality_scorecard")
+        )
+        if scorecard_ref is not None:
+            summary["quality_scorecard_ref"] = scorecard_ref
+            normalized.setdefault("quality_scorecard_ref", scorecard_ref)
+
+    bundle_path = _string_or_none(
+        summary.get("quality_evidence_bundle_path")
+        or normalized.get("quality_evidence_bundle_path")
+        or normalized.get("evidence_bundle_path")
+    )
+    if bundle_path is not None:
+        summary["quality_evidence_bundle_path"] = bundle_path
+        normalized.setdefault("quality_evidence_bundle_path", bundle_path)
+
+    normalized["quality_scorecard"] = summary
+    return normalized
+
+
+def _coerce_quality_gate(
+    payload: Any,
+    *,
+    record: "ControlJobRecord",
+    quality_scorecard_ref: str | None = None,
+    quality_evidence_bundle_path: str | None = None,
+) -> ControlQualityGate | None:
+    if not isinstance(payload, Mapping):
+        return None
+    name = _string_or_none(payload.get("name"))
+    status = _status_or_none(payload.get("status"))
+    layer = _string_or_none(payload.get("layer")) or "quality_scorecard"
+    message = _string_or_none(payload.get("message")) or name or "Quality gate."
+    if not name or not status:
+        return None
+    return ControlQualityGate(
+        name=name,
+        code=_string_or_none(payload.get("code")),
+        status=status,
+        layer=layer,
+        phase=_string_or_none(payload.get("phase")),
+        message=message,
+        evidence_ref=_string_or_none(payload.get("evidence_ref")),
+        next_action=_string_or_none(payload.get("next_action")),
+        next_diagnostic_command=_string_or_none(payload.get("next_diagnostic_command")),
+        blocking=bool(payload.get("blocking", True)),
+        operator_diagnostic=(
+            _operator_diagnostic_from_quality_payload(
+                payload,
+                authoritative_runtime_state=record.state,
+                fallback_phase=_string_or_none(payload.get("phase")),
+                job_id=record.job_id,
+                quality_scorecard_ref=quality_scorecard_ref,
+                quality_evidence_bundle_path=quality_evidence_bundle_path,
+            )
+            if status == "fail" or bool(payload.get("operator_diagnostic"))
+            else None
+        ),
+    )
+
+
+def _coerce_quality_failure(
+    payload: Any,
+    *,
+    record: "ControlJobRecord",
+    quality_scorecard_ref: str | None = None,
+    quality_evidence_bundle_path: str | None = None,
+) -> ControlQualityFailure | None:
+    if not isinstance(payload, Mapping):
+        return None
+    gate = _string_or_none(payload.get("gate") or payload.get("name"))
+    layer = _string_or_none(payload.get("layer")) or "quality_scorecard"
+    message = _string_or_none(payload.get("message")) or gate or "Quality failure."
+    if not gate:
+        return None
+    return ControlQualityFailure(
+        gate=gate,
+        code=_string_or_none(payload.get("code")),
+        layer=layer,
+        phase=_string_or_none(payload.get("phase")),
+        message=message,
+        evidence_ref=_string_or_none(payload.get("evidence_ref")),
+        next_action=_string_or_none(payload.get("next_action")),
+        next_diagnostic_command=_string_or_none(payload.get("next_diagnostic_command")),
+        operator_diagnostic=_operator_diagnostic_from_quality_payload(
+            payload,
+            authoritative_runtime_state=record.state,
+            fallback_phase=_string_or_none(payload.get("phase")),
+            job_id=record.job_id,
+            quality_scorecard_ref=quality_scorecard_ref,
+            quality_evidence_bundle_path=quality_evidence_bundle_path,
+        ),
+    )
+
+
+def _quality_evidence_missing_gate(record: "ControlJobRecord") -> ControlQualityGate:
+    payload = {
+        "name": "quality_evidence_present",
+        "code": "quality_evidence_missing",
+        "layer": "quality_scorecard",
+        "phase": "scorecard_projection",
+        "message": "Completed control job is missing quality scorecard evidence.",
+        "upstream_missing_input": "quality_scorecard",
+        "downstream_impact": "Readiness, approval, and publication projections remain closed.",
+        "next_diagnostic_command": (
+            "uv run pytest tests/unit/runtime/http/test_control_plane_store.py -q"
+        ),
+    }
+    return ControlQualityGate(
+        name="quality_evidence_present",
+        code="quality_evidence_missing",
+        status="fail",
+        layer="quality_scorecard",
+        phase="scorecard_projection",
+        message="Completed control job is missing quality scorecard evidence.",
+        evidence_ref=None,
+        next_action=(
+            "Persist quality_status, quality_gates, and blocking_quality_failures "
+            "before treating the run as production-successful."
+        ),
+        blocking=True,
+        operator_diagnostic=_operator_diagnostic_from_quality_payload(
+            payload,
+            authoritative_runtime_state=record.state,
+            fallback_phase="scorecard_projection",
+            job_id=record.job_id,
+        ),
+    )
+
+
+def _nested_get(payload: Any, key: str) -> Any:
+    if isinstance(payload, Mapping):
+        if key in payload:
+            return payload[key]
+        for value in payload.values():
+            found = _nested_get(value, key)
+            if found is not None:
+                return found
+    elif isinstance(payload, list):
+        for value in payload:
+            found = _nested_get(value, key)
+            if found is not None:
+                return found
+    return None
+
+
+def _nested_runtime_quality_ref(payload: Any, key: str) -> Any:
+    if isinstance(payload, Mapping):
+        if key in payload:
+            return payload[key]
+        for payload_key, value in payload.items():
+            if payload_key == "optional_runtime_quality_refs":
+                continue
+            found = _nested_runtime_quality_ref(value, key)
+            if found is not None:
+                return found
+    elif isinstance(payload, list):
+        for value in payload:
+            found = _nested_runtime_quality_ref(value, key)
+            if found is not None:
+                return found
+    return None
+
+
+def _runtime_quality_ref_optional_reason(record: "ControlJobRecord", ref_key: str) -> str | None:
+    optional_refs = _nested_get(record.progress, "optional_runtime_quality_refs")
+    if not isinstance(optional_refs, Mapping) or ref_key not in optional_refs:
+        return None
+    return _string_or_none(optional_refs.get(ref_key)) or "Runtime ref is optional."
+
+
+def _runtime_quality_ref_missing_gate(
+    *,
+    record: "ControlJobRecord",
+    ref_key: str,
+    gate_name: str,
+    layer: str,
+    pass_message: str,
+) -> ControlQualityGate | None:
+    if _nested_runtime_quality_ref(record.progress, ref_key):
+        return None
+
+    optional_reason = _runtime_quality_ref_optional_reason(record, ref_key)
+    serious = record.effective_execution_profile in _SERIOUS_EXECUTION_PROFILES
+    status = "fail" if serious and optional_reason is None else "warn"
+    code_suffix = "missing" if status == "fail" else "optional_missing"
+    next_action = f"Persist {ref_key} from the owning runtime layer before production approval."
+    if optional_reason is not None:
+        next_action = f"Persist {ref_key} when this profile requires it. {optional_reason}"
+    return ControlQualityGate(
+        name=gate_name,
+        code=f"{ref_key}_{code_suffix}",
+        status=status,
+        layer=layer,
+        phase="quality_evidence",
+        message=f"{pass_message} Runtime-owned {ref_key} is missing.",
+        evidence_ref=None,
+        next_action=next_action,
+        blocking=status == "fail",
+        operator_diagnostic=(
+            _operator_diagnostic_from_quality_payload(
+                {
+                    "name": gate_name,
+                    "code": f"{ref_key}_{code_suffix}",
+                    "layer": layer,
+                    "phase": "quality_evidence",
+                    "message": f"{pass_message} Runtime-owned {ref_key} is missing.",
+                    "owner": "team-runtime",
+                    "upstream_missing_input": ref_key,
+                    "downstream_impact": (
+                        "Readiness, approval, and publication projections remain closed."
+                    ),
+                    "next_diagnostic_command": (
+                        "uv run pytest tests/unit/runtime/quality/test_scorecard.py -q"
+                    ),
+                },
+                authoritative_runtime_state=record.state,
+                fallback_phase="quality_evidence",
+                job_id=record.job_id,
+            )
+            if status == "fail"
+            else None
+        ),
+    )
+
+
+def _enforce_runtime_quality_refs(
+    *,
+    record: "ControlJobRecord",
+    gates: list[ControlQualityGate],
+    failures: list[ControlQualityFailure],
+) -> tuple[list[ControlQualityGate], list[ControlQualityFailure]]:
+    if record.state != "completed":
+        return gates, failures
+
+    updated_gates = list(gates)
+    by_name = {gate.name: index for index, gate in enumerate(updated_gates)}
+    for spec in _RUNTIME_QUALITY_REF_GATES:
+        gate_name = str(spec["gate_name"])
+        current_gate = updated_gates[by_name[gate_name]] if gate_name in by_name else None
+        if current_gate is not None and current_gate.status != "pass":
+            continue
+        missing_gate = _runtime_quality_ref_missing_gate(
+            record=record,
+            ref_key=str(spec["ref_key"]),
+            gate_name=gate_name,
+            layer=str(spec["layer"]),
+            pass_message=str(spec["pass_message"]),
+        )
+        if missing_gate is None:
+            continue
+        if gate_name in by_name:
+            updated_gates[by_name[gate_name]] = missing_gate
+        else:
+            by_name[gate_name] = len(updated_gates)
+            updated_gates.append(missing_gate)
+
+    updated_failures = _blocking_failures_from_gates(updated_gates)
+    if not updated_failures:
+        updated_failures = failures
+    return updated_gates, updated_failures
+
+
+def _blocking_failures_from_gates(gates: list[ControlQualityGate]) -> list[ControlQualityFailure]:
+    return [
+        ControlQualityFailure(
+            gate=gate.name,
+            code=gate.code or gate.name,
+            layer=gate.layer,
+            phase=gate.phase,
+            message=gate.message,
+            evidence_ref=gate.evidence_ref,
+            next_action=gate.next_action,
+            operator_diagnostic=gate.operator_diagnostic,
+        )
+        for gate in gates
+        if gate.blocking and gate.status == "fail"
+    ]
+
+
+def _derive_quality_summary(
+    record: "ControlJobRecord",
+) -> tuple[str | None, list[ControlQualityGate], list[ControlQualityFailure]]:
+    scorecard = _quality_scorecard_payload(record.progress)
+    if scorecard is not None:
+        evidence_refs = scorecard.get("evidence_refs")
+        if not isinstance(evidence_refs, Mapping):
+            evidence_refs = {}
+        quality_scorecard_ref = _string_or_none(
+            scorecard.get("quality_scorecard_ref")
+            or scorecard.get("scorecard_ref")
+            or evidence_refs.get("quality_scorecard")
+        )
+        quality_evidence_bundle_path = _string_or_none(
+            scorecard.get("quality_evidence_bundle_path")
+            or scorecard.get("evidence_bundle_path")
+            or record.progress.get("quality_evidence_bundle_path")
+            or record.progress.get("evidence_bundle_path")
+        )
+        raw_gates = scorecard.get("quality_gates")
+        raw_gates = raw_gates if isinstance(raw_gates, list) else []
+        gates = [
+            gate
+            for gate in (
+                _coerce_quality_gate(
+                    item,
+                    record=record,
+                    quality_scorecard_ref=quality_scorecard_ref,
+                    quality_evidence_bundle_path=quality_evidence_bundle_path,
+                )
+                for item in raw_gates
+            )
+            if gate is not None
+        ]
+        raw_failures = scorecard.get("blocking_quality_failures")
+        raw_failures = raw_failures if isinstance(raw_failures, list) else []
+        failures = [
+            failure
+            for failure in (
+                _coerce_quality_failure(
+                    item,
+                    record=record,
+                    quality_scorecard_ref=quality_scorecard_ref,
+                    quality_evidence_bundle_path=quality_evidence_bundle_path,
+                )
+                for item in raw_failures
+            )
+            if failure is not None
+        ]
+        if not failures:
+            failures = _blocking_failures_from_gates(gates)
+        gates, failures = _enforce_runtime_quality_refs(
+            record=record,
+            gates=gates,
+            failures=failures,
+        )
+        quality_status = _status_or_none(scorecard.get("quality_status"))
+        if failures:
+            quality_status = "fail"
+        elif any(gate.status == "warn" for gate in gates):
+            quality_status = "warn"
+        elif quality_status is None:
+            if failures:
+                quality_status = "fail"
+            elif any(gate.status == "warn" for gate in gates):
+                quality_status = "warn"
+            elif gates:
+                quality_status = "pass"
+        return quality_status, gates, failures
+
+    if record.state == "completed":
+        gate = _quality_evidence_missing_gate(record)
+        return "fail", [gate], _blocking_failures_from_gates([gate])
+    return None, [], []
+
+
+def _derive_quality_refs(record: "ControlJobRecord") -> tuple[str | None, str | None]:
+    scorecard = _quality_scorecard_payload(record.progress)
+    if scorecard is None:
+        return None, None
+    evidence_refs = scorecard.get("evidence_refs")
+    if not isinstance(evidence_refs, Mapping):
+        evidence_refs = {}
+    quality_scorecard_ref = _string_or_none(
+        scorecard.get("quality_scorecard_ref")
+        or scorecard.get("scorecard_ref")
+        or evidence_refs.get("quality_scorecard")
+    )
+    quality_evidence_bundle_path = _string_or_none(
+        scorecard.get("quality_evidence_bundle_path")
+        or scorecard.get("evidence_bundle_path")
+        or record.progress.get("quality_evidence_bundle_path")
+        or record.progress.get("evidence_bundle_path")
+    )
+    return quality_scorecard_ref, quality_evidence_bundle_path
+
+
+def _derive_operator_diagnostic(
+    *,
+    record: "ControlJobRecord",
+    failure: ControlFailureEnvelope | None,
+    quality_gates: list[ControlQualityGate],
+    blocking_quality_failures: list[ControlQualityFailure],
+) -> OperatorDiagnostic | None:
+    raw_diagnostic = record.progress.get("operator_diagnostic")
+    if isinstance(raw_diagnostic, Mapping):
+        try:
+            return OperatorDiagnostic.model_validate(raw_diagnostic)
+        except Exception:
+            pass
+    if failure is not None and failure.operator_diagnostic is not None:
+        return failure.operator_diagnostic
+    for failure_item in blocking_quality_failures:
+        if failure_item.operator_diagnostic is not None:
+            return failure_item.operator_diagnostic
+    for gate in quality_gates:
+        if gate.operator_diagnostic is not None:
+            return gate.operator_diagnostic
+    return None
 
 
 def _coerce_control_job_kind(value: Any) -> ControlJobKind:
@@ -117,6 +825,23 @@ class ControlJobRecord:
                 kind="runtime.capability_manifest",
                 media_type="application/json",
             )
+        quality_status, quality_gates, blocking_quality_failures = _derive_quality_summary(self)
+        quality_scorecard_ref, quality_evidence_bundle_path = _derive_quality_refs(self)
+        failure = _derive_failure_envelope(self)
+        projection_shape = build_control_job_projection_shape(
+            record=self,
+            quality_status=quality_status,
+            quality_scorecard_ref=quality_scorecard_ref,
+            quality_gates=quality_gates,
+            blocking_quality_failures=blocking_quality_failures,
+        )
+        projection_operator_diagnostic = projection_shape.pop("operator_diagnostic", None)
+        operator_diagnostic = projection_operator_diagnostic or _derive_operator_diagnostic(
+            record=self,
+            failure=failure,
+            quality_gates=quality_gates,
+            blocking_quality_failures=blocking_quality_failures,
+        )
         return ControlJobResponse(
             meta=ApiMeta(request_id=request_id or "control-job"),
             job_id=self.job_id,
@@ -131,6 +856,15 @@ class ControlJobRecord:
             started_at=self.started_at,
             finished_at=self.finished_at,
             error_message=self.error_message,
+            failure=failure,
+            execution_status=self.state,
+            quality_status=quality_status,
+            quality_scorecard_ref=quality_scorecard_ref,
+            **projection_shape,
+            quality_evidence_bundle_path=quality_evidence_bundle_path,
+            quality_gates=quality_gates,
+            blocking_quality_failures=blocking_quality_failures,
+            operator_diagnostic=operator_diagnostic,
             progress=dict(self.progress),
         )
 
@@ -165,6 +899,18 @@ class ControlOutboxRecord:
     published_at: datetime | None
     attempt: int
     error_message: str | None
+
+
+@dataclass(frozen=True)
+class ControlDiagnosticEventRecord:
+    """Represent one durable append-only runtime diagnostic event record."""
+
+    row_id: int
+    event: DiagnosticEvent
+    payload_ref: str | None
+    payload_inline: dict[str, Any] | None
+    payload_sha256: str | None
+    created_at: datetime
 
 
 @dataclass(frozen=True)
@@ -229,9 +975,25 @@ class ControlPlaneStore:
         payload_ref: str | None,
         submitted_by: str | None,
     ) -> ControlJobRecord:
-        """Insert a pending job, initialize progress/event rows, and enqueue a created outbox event."""
+        """Insert a pending job, initialize progress/event rows, and enqueue an event."""
         created_at = _utc_now()
-        progress: dict[str, Any] = {}
+        progress: dict[str, Any] = append_evidence_spine_handoff(
+            {},
+            control_plane_handoff(
+                handoff_kind="nl_request_creation",
+                job_id=job_id,
+                producer_ref="runtime.api.nl_request",
+                consumer_ref="runtime.control_plane_store",
+                input_refs=tuple(
+                    ref
+                    for ref in (payload_ref, capability_manifest_ref, "control.request")
+                    if ref
+                ),
+                output_refs=(f"control-job:{job_id}",),
+                carrier_ref=payload_ref,
+                parent_spine_ref=payload_ref or f"control-job:{job_id}:carrier",
+            ),
+        )
         sql = """
             INSERT INTO control_jobs (
                 job_id, job_kind, state, run_id, pipeline_id,
@@ -336,6 +1098,42 @@ class ControlPlaneStore:
             return None
         return self._row_to_record(row)
 
+    def get_latest_job_by_run(self, run_id: str) -> ControlJobRecord | None:
+        """Return the newest durable control job associated with one runtime run."""
+        row = self._fetchone(
+            """
+            SELECT
+                j.job_id,
+                j.job_kind,
+                j.state,
+                j.run_id,
+                j.pipeline_id,
+                j.requested_profile,
+                j.effective_profile,
+                j.policy_flags_json,
+                j.capability_manifest_ref,
+                j.payload_ref,
+                j.submitted_by,
+                j.created_at,
+                j.started_at,
+                j.finished_at,
+                j.lease_owner,
+                j.lease_expires_at,
+                j.attempt,
+                j.error_message,
+                p.progress_json
+            FROM control_jobs j
+            LEFT JOIN control_job_progress p ON p.job_id = j.job_id
+            WHERE j.run_id = ?
+            ORDER BY (j.finished_at IS NULL) ASC, j.finished_at DESC, j.created_at DESC
+            LIMIT 1
+            """,
+            (run_id,),
+        )
+        if row is None:
+            return None
+        return self._row_to_record(row)
+
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
         """Append one immutable job lifecycle/progress event row."""
         self._execute(
@@ -349,7 +1147,8 @@ class ControlPlaneStore:
     def upsert_progress(self, *, job_id: str, progress: dict[str, Any]) -> None:
         """Create or replace the latest JSON progress snapshot for one job."""
         now = _iso(_utc_now())
-        progress_json = json.dumps(progress, sort_keys=True)
+        normalized_progress = _progress_with_quality_scorecard_summary(progress)
+        progress_json = json.dumps(normalized_progress, sort_keys=True)
         if self.backend == "sqlite":
             self._execute(
                 """
@@ -385,6 +1184,24 @@ class ControlPlaneStore:
         else:
             record = self._lease_next_postgres(worker_id=worker_id, lease_seconds=lease_seconds)
         if record is not None:
+            progress = append_evidence_spine_handoff(
+                record.progress,
+                control_plane_handoff(
+                    handoff_kind="control_plane_job_lease",
+                    job_id=record.job_id,
+                    producer_ref="runtime.control_plane_store",
+                    consumer_ref=f"runtime.control_worker:{worker_id}",
+                    input_refs=(f"control-job:{record.job_id}",),
+                    output_refs=(f"control-job:{record.job_id}:lease:{record.attempt}",),
+                    carrier_ref=_progress_carrier_ref(
+                        progress=record.progress,
+                        job_id=record.job_id,
+                        payload_ref=record.payload_ref,
+                    ),
+                ),
+            )
+            self.upsert_progress(job_id=record.job_id, progress=progress)
+            record = self.get_job(record.job_id) or record
             payload = {
                 "state": "running",
                 "lease_owner": worker_id,
@@ -443,6 +1260,8 @@ class ControlPlaneStore:
     ) -> None:
         """Mark one job completed, clear lease/error state, and emit completion events."""
         now = _utc_now()
+        if progress is not None:
+            progress = _progress_with_quality_scorecard_summary(progress)
         self._execute(
             """
             UPDATE control_jobs
@@ -474,6 +1293,8 @@ class ControlPlaneStore:
     ) -> None:
         """Mark one job failed, persist a truncated error message, and emit failure events."""
         now = _utc_now()
+        if progress is not None:
+            progress = _progress_with_quality_scorecard_summary(progress)
         self._execute(
             """
             UPDATE control_jobs
@@ -558,6 +1379,24 @@ class ControlPlaneStore:
         error_message: str | None = None,
     ) -> None:
         """Update progress/error state and emit a `job_progress` event/outbox row."""
+        progress = _progress_with_quality_scorecard_summary(progress)
+        existing = self.get_job(job_id)
+        progress = append_evidence_spine_handoff(
+            progress,
+            control_plane_handoff(
+                handoff_kind="workflow_state_persistence",
+                job_id=job_id,
+                producer_ref="runtime.control_plane_store",
+                consumer_ref="runtime.control_progress_readers",
+                input_refs=(f"control-job:{job_id}",),
+                output_refs=(f"control-job:{job_id}:progress",),
+                carrier_ref=_progress_carrier_ref(
+                    progress=(existing.progress if existing is not None else progress),
+                    job_id=job_id,
+                    payload_ref=(existing.payload_ref if existing is not None else None),
+                ),
+            ),
+        )
         self.upsert_progress(job_id=job_id, progress=progress)
         self._execute(
             "UPDATE control_jobs SET error_message = COALESCE(?, error_message) WHERE job_id = ?",
@@ -671,7 +1510,8 @@ class ControlPlaneStore:
         self._execute(
             """
             UPDATE control_worker_leases
-            SET state = ?, active_job_id = NULL, heartbeat_at = ?, lease_expires_at = ?, updated_at = ?
+            SET state = ?, active_job_id = NULL, heartbeat_at = ?,
+                lease_expires_at = ?, updated_at = ?
             WHERE worker_id = ?
             """,
             (state, _iso(now), _iso(now), _iso(now), worker_id),
@@ -835,6 +1675,133 @@ class ControlPlaneStore:
             return None
         return self._row_to_outbox_record(row)
 
+    def append_diagnostic_event(
+        self,
+        *,
+        event: DiagnosticEvent | Mapping[str, Any],
+        payload_ref: str | None = None,
+        payload_inline: dict[str, Any] | None = None,
+        payload_sha256: str | None = None,
+    ) -> ControlDiagnosticEventRecord:
+        """Append one durable runtime diagnostic authority event."""
+
+        diagnostic_event = (
+            event if isinstance(event, DiagnosticEvent) else DiagnosticEvent.model_validate(event)
+        )
+        if (
+            payload_ref
+            and diagnostic_event.payload_ref
+            and payload_ref != diagnostic_event.payload_ref
+        ):
+            raise DiagnosticEventContractError(
+                "authority_payload_mismatch",
+                "Diagnostic event payload_ref does not match stored payload_ref.",
+                details={
+                    "event_id": diagnostic_event.event_id,
+                    "event_payload_ref": diagnostic_event.payload_ref,
+                    "record_payload_ref": payload_ref,
+                },
+            )
+        stored_payload_ref = payload_ref or diagnostic_event.payload_ref
+        existing = self.list_diagnostic_events(
+            event_id=diagnostic_event.event_id,
+            limit=100,
+        )
+        duplicate = classify_duplicate_event(
+            [record.event for record in existing],
+            diagnostic_event,
+        )
+        if duplicate.status == "idempotent_duplicate":
+            existing_payload_sha256 = existing[0].payload_sha256
+            if existing_payload_sha256 != payload_sha256:
+                raise DiagnosticEventContractError(
+                    "authority_event_collision",
+                    "Same diagnostic event id points at different payload hashes.",
+                    details={
+                        "event_id": diagnostic_event.event_id,
+                        "existing_payload_sha256": existing_payload_sha256,
+                        "incoming_payload_sha256": payload_sha256,
+                    },
+                )
+            return existing[0]
+
+        created_at = _utc_now()
+        self._execute(
+            """
+            INSERT INTO control_diagnostic_events (
+                event_id, event_type, run_id, job_id, trace_id, span_id,
+                event_json, payload_ref, payload_inline_json, payload_sha256, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                diagnostic_event.event_id,
+                diagnostic_event.event_type,
+                diagnostic_event.run_id,
+                diagnostic_event.job_id,
+                diagnostic_event.trace_id,
+                diagnostic_event.span_id,
+                json.dumps(diagnostic_event.model_dump(mode="json"), sort_keys=True),
+                stored_payload_ref,
+                (
+                    json.dumps(payload_inline, sort_keys=True)
+                    if payload_inline is not None
+                    else None
+                ),
+                payload_sha256,
+                _iso(created_at),
+            ),
+        )
+        record = self.list_diagnostic_events(
+            event_id=diagnostic_event.event_id,
+            limit=1,
+        )
+        if not record:
+            raise RuntimeError(
+                f"Failed to persist diagnostic event {diagnostic_event.event_id}"
+            )
+        return record[0]
+
+    def list_diagnostic_events(
+        self,
+        *,
+        event_id: str | None = None,
+        run_id: str | None = None,
+        job_id: str | None = None,
+        limit: int = 500,
+    ) -> list[ControlDiagnosticEventRecord]:
+        """List durable diagnostic events in append order."""
+
+        page_size = max(1, min(int(limit), 1000))
+        clauses: list[str] = []
+        params_list: list[Any] = []
+        if event_id is not None:
+            clauses.append("event_id = ?")
+            params_list.append(event_id)
+        if run_id is not None:
+            clauses.append("run_id = ?")
+            params_list.append(run_id)
+        if job_id is not None:
+            clauses.append("job_id = ?")
+            params_list.append(job_id)
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        rows = self._fetchall(
+            f"""
+            SELECT
+                row_id,
+                event_json,
+                payload_ref,
+                payload_inline_json,
+                payload_sha256,
+                created_at
+            FROM control_diagnostic_events
+            {where}
+            ORDER BY row_id ASC
+            LIMIT ?
+            """,
+            (*params_list, page_size),
+        )
+        return [self._row_to_diagnostic_event_record(row) for row in rows]
+
     def _row_to_record(self, row: Any) -> ControlJobRecord:
         progress_json = row["progress_json"] if "progress_json" in row.keys() else "{}"
         policy_flags_json = row["policy_flags_json"] if "policy_flags_json" in row.keys() else "{}"
@@ -890,6 +1857,23 @@ class ControlPlaneStore:
             published_at=_parse_dt(row["published_at"]),
             attempt=int(row["attempt"] or 0),
             error_message=row["error_message"],
+        )
+
+    def _row_to_diagnostic_event_record(self, row: Any) -> ControlDiagnosticEventRecord:
+        payload_inline_json = (
+            row["payload_inline_json"] if "payload_inline_json" in row.keys() else None
+        )
+        return ControlDiagnosticEventRecord(
+            row_id=int(row["row_id"]),
+            event=DiagnosticEvent.model_validate_json(row["event_json"]),
+            payload_ref=row["payload_ref"],
+            payload_inline=(
+                json.loads(payload_inline_json)
+                if isinstance(payload_inline_json, str) and payload_inline_json
+                else None
+            ),
+            payload_sha256=row["payload_sha256"],
+            created_at=_parse_dt(row["created_at"]) or _utc_now(),
         )
 
     def _row_to_dead_letter_record(self, row: Any) -> ControlDeadLetterRecord:
@@ -994,7 +1978,11 @@ class ControlPlaneStore:
                         SELECT job_id
                         FROM control_jobs
                         WHERE state = 'pending'
-                           OR (state = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= ?)
+                           OR (
+                                state = 'running'
+                                AND lease_expires_at IS NOT NULL
+                                AND lease_expires_at <= ?
+                           )
                         ORDER BY created_at ASC
                         LIMIT 1
                         """,
@@ -1034,7 +2022,11 @@ class ControlPlaneStore:
                     SELECT job_id
                     FROM control_jobs
                     WHERE state = 'pending'
-                       OR (state = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= %s)
+                       OR (
+                            state = 'running'
+                            AND lease_expires_at IS NOT NULL
+                            AND lease_expires_at <= %s
+                       )
                     ORDER BY created_at ASC
                     FOR UPDATE SKIP LOCKED
                     LIMIT 1
@@ -1123,6 +2115,20 @@ class ControlPlaneStore:
                         attempt INTEGER NOT NULL DEFAULT 0,
                         error_message TEXT
                     );
+                    CREATE TABLE IF NOT EXISTS control_diagnostic_events (
+                        row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        event_id TEXT NOT NULL,
+                        event_type TEXT NOT NULL,
+                        run_id TEXT NOT NULL,
+                        job_id TEXT NOT NULL,
+                        trace_id TEXT NOT NULL,
+                        span_id TEXT NOT NULL,
+                        event_json TEXT NOT NULL,
+                        payload_ref TEXT,
+                        payload_inline_json TEXT,
+                        payload_sha256 TEXT,
+                        created_at TEXT NOT NULL
+                    );
                     CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
                         job_id TEXT PRIMARY KEY,
                         job_kind TEXT NOT NULL,
@@ -1145,6 +2151,10 @@ class ControlPlaneStore:
                     CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
                         ON control_outbox_events(topic, event_key)
                         WHERE event_key IS NOT NULL;
+                    CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_event_id
+                        ON control_diagnostic_events(event_id);
+                    CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_run_job
+                        ON control_diagnostic_events(run_id, job_id, row_id);
                     CREATE INDEX IF NOT EXISTS idx_control_dead_letter_ack_failed_at
                         ON control_dead_letter_jobs(acknowledged_at, failed_at);
                     """
@@ -1231,6 +2241,24 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS control_diagnostic_events (
+                    row_id BIGSERIAL PRIMARY KEY,
+                    event_id TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    run_id TEXT NOT NULL,
+                    job_id TEXT NOT NULL,
+                    trace_id TEXT NOT NULL,
+                    span_id TEXT NOT NULL,
+                    event_json TEXT NOT NULL,
+                    payload_ref TEXT,
+                    payload_inline_json TEXT,
+                    payload_sha256 TEXT,
+                    created_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
                     job_id TEXT PRIMARY KEY,
                     job_kind TEXT NOT NULL,
@@ -1261,6 +2289,18 @@ class ControlPlaneStore:
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
                 ON control_outbox_events(topic, event_key)
                 WHERE event_key IS NOT NULL
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_event_id
+                ON control_diagnostic_events(event_id)
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_run_job
+                ON control_diagnostic_events(run_id, job_id, row_id)
                 """
             )
             cur.execute(
@@ -1348,6 +2388,7 @@ class ControlPlaneStore:
 
 __all__ = [
     "ControlDeadLetterRecord",
+    "ControlDiagnosticEventRecord",
     "ControlJobRecord",
     "ControlOutboxRecord",
     "ControlPlaneStore",

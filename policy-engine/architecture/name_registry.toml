@@ -41,8 +41,8 @@ sunset = "none"
 
 [[shared_name]]
 name = "artifacts"
-allowed_in = ["core", "foundry", "ir"]
-semantic_axis = "artifact contracts, Foundry method artifact helpers, and IR artifact projections"
+allowed_in = ["core", "foundry", "ir", "scientist"]
+semantic_axis = "artifact contracts, Foundry method artifact helpers, IR artifact projections, and Scientist public decision artifacts"
 disambiguation = "qualified imports required"
 owner = "team-architecture"
 target_phase = "4.8"
@@ -618,7 +618,7 @@ decision = "scoped_ok"
 owner = "team-architecture"
 target_phase = "0.4"
 sunset = "none"
-rationale = "Core artifact primitives and IR artifact projections are separate bounded-context concepts."
+rationale = "Core artifact primitives, Foundry method artifacts, IR artifact projections, and Scientist public decision artifacts are separate bounded-context concepts."
 
 [[phase0_4_name_decision]]
 name = "calibration"

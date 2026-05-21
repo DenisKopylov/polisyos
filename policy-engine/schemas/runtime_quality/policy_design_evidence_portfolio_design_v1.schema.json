@@ -1,0 +1,164 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_evidence_portfolio_design_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Evidence Portfolio Design",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "portfolio_id",
+    "claim_ids",
+    "predeclared",
+    "declared_at",
+    "authority_level",
+    "strands",
+    "candidate_data_source_families",
+    "candidate_method_families",
+    "inclusion_rules",
+    "exclusion_rules",
+    "disconfirming_lines",
+    "synthesis_rules",
+    "stopping_rules",
+    "cost_proportionality"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.evidence_portfolio_design.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.evidence_portfolio_design.v1"
+    },
+    "portfolio_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "predeclared": {
+      "const": true
+    },
+    "declared_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "declared_before_producer_execution": {
+      "type": "boolean"
+    },
+    "accepted_exception": {
+      "type": "object"
+    },
+    "authority_level": {
+      "type": "string",
+      "minLength": 1
+    },
+    "strands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "strand_id",
+          "claim_id",
+          "authority_level",
+          "candidate_data_source_families",
+          "candidate_method_families",
+          "defensible_specification_space",
+          "inclusion_rules",
+          "exclusion_rules",
+          "disconfirming_lines",
+          "synthesis_rules",
+          "stopping_rules",
+          "cost_proportionality"
+        ],
+        "properties": {
+          "strand_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authority_level": {
+            "type": "string",
+            "minLength": 1
+          },
+          "candidate_data_source_families": {
+            "type": "array",
+            "minItems": 1
+          },
+          "candidate_method_families": {
+            "type": "array",
+            "minItems": 1
+          },
+          "defensible_specification_space": {
+            "type": "object"
+          },
+          "inclusion_rules": {
+            "type": "array",
+            "minItems": 1
+          },
+          "exclusion_rules": {
+            "type": "array",
+            "minItems": 1
+          },
+          "disconfirming_lines": {
+            "type": "array",
+            "minItems": 1
+          },
+          "synthesis_rules": {
+            "type": "object"
+          },
+          "stopping_rules": {
+            "type": "object"
+          },
+          "cost_proportionality": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "candidate_data_source_families": {
+      "type": "array",
+      "minItems": 1
+    },
+    "candidate_method_families": {
+      "type": "array",
+      "minItems": 1
+    },
+    "inclusion_rules": {
+      "type": "array",
+      "minItems": 1
+    },
+    "exclusion_rules": {
+      "type": "array",
+      "minItems": 1
+    },
+    "disconfirming_lines": {
+      "type": "array",
+      "minItems": 1
+    },
+    "synthesis_rules": {
+      "type": "object"
+    },
+    "stopping_rules": {
+      "type": "object"
+    },
+    "cost_proportionality": {
+      "type": "object"
+    },
+    "cas_ref": {
+      "type": "string"
+    },
+    "runtime_event_ref": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

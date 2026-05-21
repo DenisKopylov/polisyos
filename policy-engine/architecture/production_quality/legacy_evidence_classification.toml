@@ -1,0 +1,134 @@
+schema_version = "policyos.legacy_evidence_classification_rules.v1"
+owner = "team-architecture"
+decision_source = "ADR-0151"
+purpose = "Classify pre-Honest-Diagnostics quality reports and bundle files without allowing legacy artifacts to satisfy serious closeout authority by shape alone."
+
+[classification]
+allowed_classes = [
+  "legacy_supported",
+  "legacy_quarantined",
+  "legacy_rejected",
+  "unknown_schema_blocked",
+  "non_authority_debug_only",
+]
+fail_closed_classes = [
+  "legacy_quarantined",
+  "legacy_rejected",
+  "unknown_schema_blocked",
+]
+serious_closeout_supported_classes = ["legacy_supported"]
+
+[discovery]
+root_paths = [
+  "_build",
+  ".polisyos",
+  "docs/archive/reports",
+  "docs/reference/runtime",
+  "docs/reference/scientist",
+  "docs/runbooks",
+  "tests/_golden/quality",
+]
+include_extensions = [
+  ".json",
+  ".jsonl",
+  ".md",
+]
+candidate_keywords = [
+  "approval",
+  "benchmark",
+  "bundle",
+  "canary",
+  "coverage",
+  "deterministic",
+  "diagnostic",
+  "evidence",
+  "ledger",
+  "manifest",
+  "matrix",
+  "quality",
+  "readiness",
+  "report",
+  "scorecard",
+  "summary",
+  "validation",
+]
+exclude_path_prefixes = [
+  "_build/honest-diagnostics/legacy",
+]
+sensitive_path_markers = [
+  ".env",
+  "answer_key",
+  "api_key",
+  "auth_token",
+  "credential",
+  "hidden_answer",
+  "password",
+  "private_key",
+  "secret",
+  "token",
+]
+debug_path_markers = [
+  "_build/frontend/",
+  "_build/logs/",
+  "_build/scratch/",
+  "coverage/",
+  "playwright-report/",
+  "storybook-static/",
+  "test-results/",
+]
+
+[schema_policy]
+known_schema_prefixes = [
+  "policyos.",
+  "runtime_quality.",
+]
+known_schema_names = [
+  "runtime_quality.evidence_authority_envelope",
+  "runtime_quality.diagnostic_event",
+  "runtime_quality.normative_applicability_report",
+  "runtime_quality.fabric_retrieval_trace",
+  "runtime_quality.foundry_method_report",
+  "runtime_quality.policy_grounding_matrix",
+  "runtime_quality.conflict_check_report",
+]
+debug_schema_prefixes = [
+  "debug.",
+  "local_debug.",
+  "storybook.",
+]
+unknown_schema_tokens = [
+  "",
+  "unknown",
+  "legacy.unknown_quality_report",
+]
+
+[provenance_policy]
+supported_provenance_kinds = [
+  "runtime_emitted",
+  "runtime_blocker",
+  "deterministic_runtime_emitted",
+]
+quarantined_provenance_kinds = [
+  "bundle_overlay",
+  "fixture_input",
+  "generated_substitute",
+  "legacy_quarantined",
+  "manual_input",
+  "projection",
+  "simulation",
+]
+required_supported_ref_schemes = [
+  "cas://sha256/",
+]
+
+[reason_codes]
+bundle_local_runtime_ref = "A field shaped as a runtime ref points to a bundle-local or relative file path."
+debug_only_path = "File lives under a known debug-only output path."
+debug_only_schema = "File declares a debug-only schema prefix."
+legacy_or_non_runtime_provenance = "Provenance is known but cannot satisfy serious closeout authority."
+missing_authority_ref = "Known-schema evidence lacks a CAS authority ref."
+missing_provenance = "Known-schema evidence lacks runtime provenance fields."
+payload_sha256_mismatch = "Embedded payload does not match declared payload_sha256."
+redaction_loss = "File records lossy redaction or dropped evidence fields."
+sensitive_path_skipped = "File path looks secret-bearing or answer-bearing, so content was not read."
+unknown_schema = "Schema identity is missing, unknown, or outside accepted reader prefixes."

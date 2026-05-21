@@ -1,0 +1,303 @@
+{
+  "schema_version": "policyos.scientist.citation_faithfulness.golden.v1",
+  "owner": "team-quality",
+  "regeneration": "Reviewed hand-authored Phase 3.3 fixtures; update only with test changes.",
+  "required_mismatch_dimensions": [
+    "legal_scope",
+    "jurisdiction",
+    "date",
+    "population",
+    "exception"
+  ],
+  "cases": [
+    {
+      "case_id": "supports_public_legal_claim",
+      "claim": {
+        "claim_id": "legal.supported",
+        "claim_family": "legal",
+        "public": true,
+        "text": "Ukrainian MSME grants are available to registered businesses in Kyiv in 2026, excluding sanctioned entities.",
+        "citation_refs": ["law.ua.grants.art3"],
+        "jurisdiction": "UA",
+        "legal_scope": "msme_grant_eligibility",
+        "as_of": "2026-03-01",
+        "population": "registered_msmes",
+        "exceptions": ["sanctioned_entities"]
+      },
+      "evidence": [
+        {
+          "ref_id": "law.ua.grants.art3",
+          "text": "Article 3 establishes MSME grant eligibility for registered businesses in Ukraine, including Kyiv, during 2026. Sanctioned entities are excluded.",
+          "supports_claim_ids": ["legal.supported"],
+          "jurisdiction": "UA",
+          "legal_scope": "msme_grant_eligibility",
+          "effective_from": "2026-01-01",
+          "effective_to": "2026-12-31",
+          "population": "registered_msmes",
+          "exceptions": ["sanctioned_entities"]
+        }
+      ],
+      "expected_labels": {
+        "law.ua.grants.art3": "supports"
+      },
+      "expected_status": "pass"
+    },
+    {
+      "case_id": "legal_scope_mismatch_scope_limited",
+      "mismatch_dimension": "legal_scope",
+      "claim": {
+        "claim_id": "legal.scope_mismatch",
+        "claim_family": "legal",
+        "public": true,
+        "text": "The emergency procurement rule authorizes direct MSME grant awards.",
+        "citation_refs": ["law.ua.procurement.art9"],
+        "jurisdiction": "UA",
+        "legal_scope": "msme_grant_awards",
+        "as_of": "2026-02-01",
+        "population": "registered_msmes"
+      },
+      "evidence": [
+        {
+          "ref_id": "law.ua.procurement.art9",
+          "text": "Article 9 authorizes direct procurement contracts during emergencies; it does not govern MSME grant awards.",
+          "supports_claim_ids": ["legal.scope_mismatch"],
+          "jurisdiction": "UA",
+          "legal_scope": "emergency_procurement",
+          "effective_from": "2025-01-01",
+          "effective_to": "2026-12-31",
+          "population": "public_buyers"
+        }
+      ],
+      "expected_labels": {
+        "law.ua.procurement.art9": "scope_limited"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "jurisdiction_mismatch_scope_limited",
+      "mismatch_dimension": "jurisdiction",
+      "claim": {
+        "claim_id": "legal.jurisdiction_mismatch",
+        "claim_family": "legal",
+        "public": true,
+        "text": "Ukrainian firms qualify for the Polish liquidity support exemption.",
+        "citation_refs": ["law.pl.liquidity.exemption"],
+        "jurisdiction": "UA",
+        "legal_scope": "liquidity_support_exemption",
+        "as_of": "2026-03-01",
+        "population": "ukrainian_firms"
+      },
+      "evidence": [
+        {
+          "ref_id": "law.pl.liquidity.exemption",
+          "text": "The Polish liquidity support exemption applies to firms registered in Poland.",
+          "supports_claim_ids": ["legal.jurisdiction_mismatch"],
+          "jurisdiction": "PL",
+          "legal_scope": "liquidity_support_exemption",
+          "effective_from": "2026-01-01",
+          "effective_to": "2026-12-31",
+          "population": "polish_registered_firms"
+        }
+      ],
+      "expected_labels": {
+        "law.pl.liquidity.exemption": "scope_limited"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "date_mismatch_scope_limited",
+      "mismatch_dimension": "date",
+      "claim": {
+        "claim_id": "legal.date_mismatch",
+        "claim_family": "legal",
+        "public": true,
+        "text": "The 2026 export subsidy cap is UAH 2 million.",
+        "citation_refs": ["law.ua.exports.2024"],
+        "jurisdiction": "UA",
+        "legal_scope": "export_subsidy_cap",
+        "as_of": "2026-05-01",
+        "population": "exporters"
+      },
+      "evidence": [
+        {
+          "ref_id": "law.ua.exports.2024",
+          "text": "For calendar year 2024, the export subsidy cap was UAH 2 million.",
+          "supports_claim_ids": ["legal.date_mismatch"],
+          "jurisdiction": "UA",
+          "legal_scope": "export_subsidy_cap",
+          "effective_from": "2024-01-01",
+          "effective_to": "2024-12-31",
+          "population": "exporters"
+        }
+      ],
+      "expected_labels": {
+        "law.ua.exports.2024": "scope_limited"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "population_mismatch_scope_limited",
+      "mismatch_dimension": "population",
+      "claim": {
+        "claim_id": "factual.population_mismatch",
+        "claim_family": "factual",
+        "public": true,
+        "text": "All Ukrainian MSMEs received bridge loans in 2025.",
+        "citation_refs": ["survey.ua.kyiv_msme_loans"],
+        "jurisdiction": "UA",
+        "population": "all_ukrainian_msmes",
+        "as_of": "2025-12-31"
+      },
+      "evidence": [
+        {
+          "ref_id": "survey.ua.kyiv_msme_loans",
+          "text": "The Kyiv MSME survey found bridge-loan receipt among surveyed Kyiv firms in 2025.",
+          "supports_claim_ids": ["factual.population_mismatch"],
+          "jurisdiction": "UA",
+          "population": "surveyed_kyiv_msmes",
+          "effective_from": "2025-01-01",
+          "effective_to": "2025-12-31"
+        }
+      ],
+      "expected_labels": {
+        "survey.ua.kyiv_msme_loans": "scope_limited"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "exception_mismatch_partially_supports",
+      "mismatch_dimension": "exception",
+      "claim": {
+        "claim_id": "legal.exception_mismatch",
+        "claim_family": "legal",
+        "public": true,
+        "text": "MSME bridge grants are available to registered firms in occupied territories.",
+        "citation_refs": ["law.ua.bridge_grants.exception"],
+        "jurisdiction": "UA",
+        "legal_scope": "bridge_grant_eligibility",
+        "as_of": "2026-03-01",
+        "population": "registered_msmes",
+        "exceptions": []
+      },
+      "evidence": [
+        {
+          "ref_id": "law.ua.bridge_grants.exception",
+          "text": "Registered MSMEs may receive bridge grants, except firms operating in temporarily occupied territories.",
+          "supports_claim_ids": ["legal.exception_mismatch"],
+          "jurisdiction": "UA",
+          "legal_scope": "bridge_grant_eligibility",
+          "effective_from": "2026-01-01",
+          "effective_to": "2026-12-31",
+          "population": "registered_msmes",
+          "exceptions": ["temporarily_occupied_territories"]
+        }
+      ],
+      "expected_labels": {
+        "law.ua.bridge_grants.exception": "partially_supports"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "contradicts_public_legal_claim",
+      "claim": {
+        "claim_id": "legal.contradicted",
+        "claim_family": "legal",
+        "public": true,
+        "text": "The 2026 emergency decree permits grants to sanctioned entities.",
+        "citation_refs": ["law.ua.decree.sanctions"],
+        "jurisdiction": "UA",
+        "legal_scope": "grant_eligibility",
+        "as_of": "2026-04-01",
+        "population": "registered_msmes"
+      },
+      "evidence": [
+        {
+          "ref_id": "law.ua.decree.sanctions",
+          "text": "The 2026 emergency decree prohibits grants to sanctioned entities.",
+          "contradicts_claim_ids": ["legal.contradicted"],
+          "jurisdiction": "UA",
+          "legal_scope": "grant_eligibility",
+          "effective_from": "2026-01-01",
+          "effective_to": "2026-12-31",
+          "population": "registered_msmes"
+        }
+      ],
+      "expected_labels": {
+        "law.ua.decree.sanctions": "contradicts"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "irrelevant_public_factual_claim",
+      "claim": {
+        "claim_id": "factual.irrelevant",
+        "claim_family": "factual",
+        "public": true,
+        "text": "The 2025 MSME credit program increased firm survival.",
+        "citation_refs": ["news.energy.prices"],
+        "jurisdiction": "UA",
+        "population": "msmes",
+        "as_of": "2025-12-31"
+      },
+      "evidence": [
+        {
+          "ref_id": "news.energy.prices",
+          "text": "Electricity spot prices fell in neighboring countries in 2025.",
+          "jurisdiction": "UA",
+          "population": "energy_consumers",
+          "effective_from": "2025-01-01",
+          "effective_to": "2025-12-31"
+        }
+      ],
+      "expected_labels": {
+        "news.energy.prices": "irrelevant"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "fabricated_missing_ref",
+      "claim": {
+        "claim_id": "legal.fabricated",
+        "claim_family": "legal",
+        "public": true,
+        "text": "The fabricated statute creates a universal credit entitlement.",
+        "citation_refs": ["law.ua.fabricated.art404"],
+        "jurisdiction": "UA",
+        "legal_scope": "credit_entitlement",
+        "as_of": "2026-03-01",
+        "population": "registered_msmes"
+      },
+      "evidence": [],
+      "expected_labels": {
+        "law.ua.fabricated.art404": "fabricated"
+      },
+      "expected_status": "fail"
+    },
+    {
+      "case_id": "unverifiable_blocked_source",
+      "claim": {
+        "claim_id": "factual.unverifiable",
+        "claim_family": "factual",
+        "public": true,
+        "text": "A blocked page reports a 12 percent MSME survival increase.",
+        "citation_refs": ["web.blocked.survival"],
+        "jurisdiction": "UA",
+        "population": "msmes",
+        "as_of": "2026-01-31"
+      },
+      "evidence": [
+        {
+          "ref_id": "web.blocked.survival",
+          "text": "",
+          "fetch_status": "blocked",
+          "jurisdiction": "UA",
+          "population": "msmes"
+        }
+      ],
+      "expected_labels": {
+        "web.blocked.survival": "unverifiable"
+      },
+      "expected_status": "fail"
+    }
+  ]
+}

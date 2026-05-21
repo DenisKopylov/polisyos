@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import atexit
 import concurrent.futures
+import contextvars
 import functools
 import os
 import threading
@@ -131,7 +132,8 @@ async def run_blocking_async[T](
     timeout = _normalize_timeout(timeout_seconds)
     loop = asyncio.get_running_loop()
     call = functools.partial(func, *args, **kwargs)
-    future = loop.run_in_executor(_get_shared_executor(), call)
+    context = contextvars.copy_context()
+    future = loop.run_in_executor(_get_shared_executor(), context.run, call)
     try:
         return await asyncio.wait_for(future, timeout=timeout)
     except TimeoutError as exc:

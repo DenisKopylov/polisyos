@@ -91,6 +91,15 @@ _AGENT_ALIASES: dict[str, str] = {
     "critic_review": "critic",
     "reflexion": "reflexion",
 }
+_MATERIALIZATION_REF_KINDS = {
+    "data_snapshot_ref": "fabric.data_snapshot",
+    "input_bindings_ref": "foundry.input_bindings",
+    "registry_bundle_ref": "core.registry_bundle",
+    "quality_report_ref": "fabric.quality_report",
+    "input_binding_report_ref": "foundry.input_binding_report",
+    "evidence_bundle_ref": "fabric.evidence_bundle",
+    "fabric_retrieval_trace_ref": "fabric.retrieval_trace",
+}
 
 
 logger = get_logger(__name__)
@@ -442,6 +451,10 @@ class DebugService:
         evaluator_payload = self._load_json_artifact(evaluator_report_ref)
         iteration_payload = self._load_json_artifact(iteration_state_ref)
         reproducibility_payload = self._load_json_artifact(reproducibility_manifest_ref)
+        performance_summary = _performance_summary_from_state_payload(
+            state_payload,
+            sensitive_keys=self._sensitive_keys,
+        )
 
         preflight_view = (
             PreflightReportView(
@@ -532,6 +545,7 @@ class DebugService:
             evaluator=evaluator_view,
             iteration_lifecycle=iteration_view,
             reproducibility=reproducibility_view,
+            performance_summary=performance_summary,
             source=source,
             notes=notes,
         )
@@ -691,30 +705,60 @@ class DebugService:
             )
 
         auto_refs = _as_dict(retrieval_context_dict.get("auto_data_source_refs"))
+        production_data_context = _as_dict(
+            retrieval_context_dict.get("production_data_evidence_context")
+        )
+        artifact_ownership = _artifact_ownership_evidence_from_store(
+            self._store,
+            tenant_id=run.details.tenant_id,
+            cell_id=run.details.cell_id,
+        )
+        if artifact_ownership:
+            production_data_context.setdefault("artifact_ownership", artifact_ownership)
+        materialization_refs = _materialization_refs_from_payload(auto_refs)
+        if not materialization_refs:
+            materialization_refs = _materialization_refs_from_payload(
+                _as_dict(production_data_context.get("materialization_refs"))
+            )
+        fabric_retrieval_trace_ref = (
+            materialization_refs.get("fabric_retrieval_trace_ref")
+            or _artifact_ref_from_string(
+                _as_str(production_data_context.get("fabric_retrieval_trace_ref")),
+                kind="fabric.retrieval_trace",
+            )
+        )
+        if fabric_retrieval_trace_ref is not None:
+            materialization_refs["fabric_retrieval_trace_ref"] = fabric_retrieval_trace_ref
+            production_data_context.setdefault(
+                "fabric_retrieval_trace_ref",
+                str(fabric_retrieval_trace_ref.artifact_id),
+            )
+        if materialization_refs:
+            production_data_context.setdefault(
+                "materialization_refs",
+                {
+                    key: str(ref.artifact_id)
+                    for key, ref in materialization_refs.items()
+                },
+            )
         packet_inputs = _as_dict(decision_packet_payload.get("inputs"))
         data_snapshot_ref = (
             self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
-            or _artifact_ref_from_string(
-                _as_str(auto_refs.get("data_snapshot_ref")), kind="fabric.data_snapshot"
-            )
+            or materialization_refs.get("data_snapshot_ref")
             or _artifact_ref_from_string(
                 _as_str(packet_inputs.get("data_snapshot_ref")), kind="fabric.data_snapshot"
             )
         )
         input_bindings_ref = (
             self._find_run_input_ref_by_kind(run, "foundry.input_bindings")
-            or _artifact_ref_from_string(
-                _as_str(auto_refs.get("input_bindings_ref")), kind="foundry.input_bindings"
-            )
+            or materialization_refs.get("input_bindings_ref")
             or _artifact_ref_from_string(
                 _as_str(packet_inputs.get("input_bindings_ref")), kind="foundry.input_bindings"
             )
         )
         evidence_bundle_ref = (
             self._find_run_input_ref_by_kind(run, "fabric.evidence_bundle")
-            or _artifact_ref_from_string(
-                _as_str(auto_refs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
-            )
+            or materialization_refs.get("evidence_bundle_ref")
             or _artifact_ref_from_string(
                 _as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
             )
@@ -723,9 +767,13 @@ class DebugService:
         related_artifacts = _dedupe_artifact_refs(
             [
                 execution_plan_ref,
+                fabric_retrieval_trace_ref,
                 data_snapshot_ref,
                 input_bindings_ref,
                 evidence_bundle_ref,
+                materialization_refs.get("registry_bundle_ref"),
+                materialization_refs.get("quality_report_ref"),
+                materialization_refs.get("input_binding_report_ref"),
                 _artifact_ref_from_string(
                     _path_get_as_str(decision_packet_payload, ("artifacts", "decision_card_ref")),
                     kind="scientist.decision_card",
@@ -753,8 +801,11 @@ class DebugService:
             source_kind=run.source_kind,
             execution_plan_ref=execution_plan_ref,
             evidence_bundle_ref=evidence_bundle_ref,
+            fabric_retrieval_trace_ref=fabric_retrieval_trace_ref,
             data_snapshot_ref=data_snapshot_ref,
             input_bindings_ref=input_bindings_ref,
+            materialization_refs=materialization_refs,
+            production_data_evidence_context=production_data_context,
             related_artifacts=related_artifacts,
             data_needs=needs,
             fetch_plans=plans,
@@ -1231,6 +1282,20 @@ def _retrieval_from_state_payload(payload: dict[str, Any]) -> RetrievalTelemetry
         phases=phases,
         notes=notes,
     )
+
+
+def _performance_summary_from_state_payload(
+    payload: dict[str, Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> dict[str, Any] | None:
+    params = payload.get("params")
+    if not isinstance(params, dict):
+        return None
+    summary = params.get("run_performance_summary")
+    if not isinstance(summary, dict):
+        return None
+    return _sanitize_payload(summary, sensitive_keys=sensitive_keys)
 
 
 def _normalize_agent(value: str | None) -> str | None:
@@ -1763,6 +1828,31 @@ def _artifact_ref_from_string(
     if artifact_id is None:
         return None
     return ArtifactRef(artifact_id=artifact_id, kind=kind, media_type=media_type)
+
+
+def _materialization_refs_from_payload(value: dict[str, Any]) -> dict[str, ArtifactRef]:
+    refs: dict[str, ArtifactRef] = {}
+    for key, kind in _MATERIALIZATION_REF_KINDS.items():
+        ref = _artifact_ref_from_string(_as_str(value.get(key)), kind=kind)
+        if ref is not None:
+            refs[key] = ref
+    return refs
+
+
+def _artifact_ownership_evidence_from_store(
+    store: object,
+    *,
+    tenant_id: str | None,
+    cell_id: str | None,
+) -> dict[str, Any] | None:
+    evidence = getattr(store, "ownership_evidence", None)
+    if not callable(evidence):
+        return None
+    try:
+        payload = evidence(tenant_id=tenant_id, cell_id=cell_id)
+    except Exception:
+        return None
+    return dict(payload) if isinstance(payload, dict) else None
 
 
 def _path_get_as_str(payload: dict[str, Any], path: tuple[str, ...]) -> str | None:

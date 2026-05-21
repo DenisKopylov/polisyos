@@ -110,6 +110,29 @@ export type ReproducibilityModel = {
   notes: string[];
 };
 
+export type PerformanceBudgetStatus =
+  | "over_budget"
+  | "within_budget"
+  | "unknown";
+
+export type PerformancePhaseBudgetView = {
+  category: string;
+  phase: string;
+  durationMs: number;
+  budgetMs: number | null;
+  status: PerformanceBudgetStatus;
+};
+
+export type RunPerformanceSummaryModel = {
+  variantsTotal: number;
+  variantsCompleted: number;
+  variantsFailed: number;
+  llmLatencyMs: number;
+  totalTokens: number;
+  phaseBudgets: PerformancePhaseBudgetView[];
+  overBudgetCount: number;
+};
+
 export type AgentPipelineModel = {
   runId: string;
   totalAttempts: number;
@@ -122,6 +145,7 @@ export type AgentPipelineModel = {
   evaluator: EvaluatorModel | null;
   iterationLifecycle: IterationLifecycleModel | null;
   reproducibility: ReproducibilityModel | null;
+  performanceSummary: RunPerformanceSummaryModel | null;
   notes: string[];
 };
 
@@ -325,6 +349,61 @@ function normalizeReproducibility(raw: unknown): ReproducibilityModel | null {
   };
 }
 
+function normalizePerformanceStatus(raw: unknown): PerformanceBudgetStatus {
+  const status = (asString(raw) ?? "").toLowerCase();
+  if (status === "over_budget" || status === "within_budget") {
+    return status;
+  }
+  return "unknown";
+}
+
+function normalizePerformancePhaseBudget(
+  raw: unknown,
+): PerformancePhaseBudgetView | null {
+  const row = asRecord(raw);
+  if (!row) {
+    return null;
+  }
+  const phase = asString(row.phase);
+  if (!phase) {
+    return null;
+  }
+  return {
+    budgetMs: asNumber(row.budget_ms),
+    category: asString(row.category) ?? "runtime",
+    durationMs: Math.max(0, asNumber(row.duration_ms) ?? 0),
+    phase,
+    status: normalizePerformanceStatus(row.status),
+  };
+}
+
+function normalizeRunPerformanceSummary(
+  raw: unknown,
+): RunPerformanceSummaryModel | null {
+  const payload = asRecord(raw);
+  if (!payload) {
+    return null;
+  }
+  const variants = asRecord(payload.variants);
+  const llm = asRecord(payload.llm);
+  const phaseBudgets = asArray(payload.phase_budgets)
+    .map((item) => normalizePerformancePhaseBudget(item))
+    .filter((item): item is PerformancePhaseBudgetView => item !== null);
+  const overBudgetCount = phaseBudgets.filter(
+    (row) => row.status === "over_budget",
+  ).length;
+
+  return {
+    variantsTotal: Math.max(0, asNumber(variants?.total) ?? 0),
+    variantsCompleted: Math.max(0, asNumber(variants?.completed) ?? 0),
+    variantsFailed: Math.max(0, asNumber(variants?.failed) ?? 0),
+    llmLatencyMs: Math.max(0, asNumber(llm?.latency_ms) ?? 0),
+    totalTokens: Math.max(0, asNumber(llm?.total_tokens) ?? 0),
+    phaseBudgets,
+    overBudgetCount,
+  };
+}
+
 function normalizeStep(raw: unknown): AgentStepView | null {
   const step = asRecord(raw);
   if (!step) {
@@ -430,6 +509,9 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
       pipeline.iteration_lifecycle,
     ),
     reproducibility: normalizeReproducibility(pipeline.reproducibility),
+    performanceSummary: normalizeRunPerformanceSummary(
+      pipeline.performance_summary,
+    ),
     notes: asArray(pipeline.notes)
       .map((item) => asString(item))
       .filter((item): item is string => item !== null),

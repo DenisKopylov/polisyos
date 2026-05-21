@@ -33,6 +33,21 @@ ComparabilityStatus = Literal["compatible", "warning", "blocked"]
 CompareCandidateRelation = Literal["baseline", "previous", "selected", "recommended"]
 CompareResponseStatus = Literal["computed", "client_computable"]
 DeltaSignificance = Literal["improved", "worsened", "mixed", "uncertain", "not_comparable"]
+OperatorProjectionAuthority = Literal["runtime_authority", "projection_only"]
+OperatorProjectionState = Literal[
+    "draft",
+    "projection_only",
+    "redacted",
+    "stale",
+    "contested",
+    "projected",
+    "blocked",
+    "readiness_closed",
+    "approved",
+    "rejected",
+    "published_blocked",
+    "publishable",
+]
 DeltaDominance = Literal["a", "b", "none", "mixed", "unknown"]
 CounterfactualMode = Literal["actual", "actual_vs_scenario", "scenario_only"]
 ScenarioStatus = Literal["draft", "computed", "stale", "failed"]
@@ -421,9 +436,7 @@ class TrustMetadataRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     subject_id: str = Field(min_length=1)
-    subject_kind: Literal["quantity", "authored_text", "artifact", "lineage", "chart"] = (
-        "lineage"
-    )
+    subject_kind: Literal["quantity", "authored_text", "artifact", "lineage", "chart"] = "lineage"
     trust_metadata: VerificationMetadata
 
 
@@ -1096,6 +1109,35 @@ class RunSummary(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
 
 
+class RunOperatorProjectionStateLabel(BaseModel):
+    """Projection lifecycle label with explicit authority semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state: OperatorProjectionState
+    label: str
+    authority: OperatorProjectionAuthority
+
+
+class RunOperatorDiagnostic(BaseModel):
+    """Typed operator root-cause projection attached to run details."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    authoritative_runtime_state: str
+    projection_source: str
+    owner: str
+    phase: str
+    first_blocking_cause: str
+    upstream_missing_input: str | None = None
+    downstream_impact: str
+    authority_refs: dict[str, str] = Field(default_factory=dict)
+    blocker_overridable: bool = False
+    evidence_refs: list[str] = Field(default_factory=list)
+    next_diagnostic_command: str
+    projection_labels: list[RunOperatorProjectionStateLabel] = Field(default_factory=list)
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -1110,6 +1152,8 @@ class RunDetails(RunRecordV1):
     decision_validity_checked_at: datetime | None = None
     decision_review_required: bool = False
     decision_superseded_by_ref: ArtifactRef | None = None
+    operator_diagnostic: RunOperatorDiagnostic | None = None
+    policy_design_case_projection: dict[str, Any] | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -1446,8 +1490,11 @@ class RunEvidenceContextView(BaseModel):
     source_kind: SourceKind
     execution_plan_ref: ArtifactRef | None = None
     evidence_bundle_ref: ArtifactRef | None = None
+    fabric_retrieval_trace_ref: ArtifactRef | None = None
     data_snapshot_ref: ArtifactRef | None = None
     input_bindings_ref: ArtifactRef | None = None
+    materialization_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    production_data_evidence_context: dict[str, Any] = Field(default_factory=dict)
     related_artifacts: list[ArtifactRef] = Field(default_factory=list)
     data_needs: list[RunEvidenceNeedView] = Field(default_factory=list)
     fetch_plans: list[RunEvidencePlanView] = Field(default_factory=list)
@@ -1474,6 +1521,7 @@ class AgentPipelineView(BaseModel):
     evaluator: EvaluatorReportView | None = None
     iteration_lifecycle: IterationLifecycleView | None = None
     reproducibility: ReproducibilityView | None = None
+    performance_summary: dict[str, Any] | None = None
     source: str | None = None
     notes: list[str] = Field(default_factory=list)
 
@@ -2203,6 +2251,8 @@ __all__ = [
     "RunLineageResponse",
     "RunNodeRecord",
     "RunNodesResponse",
+    "RunOperatorDiagnostic",
+    "RunOperatorProjectionStateLabel",
     "RunQuantitiesResponse",
     "RunRecordV1",
     "RunSummary",

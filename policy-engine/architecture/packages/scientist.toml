@@ -22,12 +22,13 @@ layout_owner = "team-scientist"
 source_root = "src/polisyos/scientist"
 readme = "src/polisyos/scientist/README.md"
 root_facade_policy = "root package remains a public facade; resolved_root_facade permits only __init__.py, api.py, _api.py, and registered python_reexport shims; implementation lives in semantic subpackages or _internal"
-canonical_first_level_root_cap = 18
+canonical_first_level_root_cap = 19
 canonical_first_level_roots = [
   "src/polisyos/scientist/_adapters",
   "src/polisyos/scientist/_internal",
   "src/polisyos/scientist/adapters",
   "src/polisyos/scientist/agent",
+  "src/polisyos/scientist/artifacts",
   "src/polisyos/scientist/compute",
   "src/polisyos/scientist/cross_graph",
   "src/polisyos/scientist/evals",
@@ -45,6 +46,7 @@ canonical_first_level_roots = [
 ]
 ignored_first_level_roots = ["__pycache__"]
 implementation_roots = [
+  "src/polisyos/scientist/artifacts",
   "src/polisyos/scientist/compute",
   "src/polisyos/scientist/evidence",
   "src/polisyos/scientist/feedback",

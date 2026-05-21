@@ -12,6 +12,7 @@ from polisyos.core.llm.traced_client import TracedLLMClient
 from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
 from .prompt_cache import CachingLLMClient, InMemoryPromptCache
+from .simulated_gateway import SimulatedGatewayLLMClient
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -21,6 +22,11 @@ def _as_bool(value: str | None, *, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _is_plausible_gateway_api_key(value: str) -> bool:
+    key = value.strip()
+    return key.startswith("sk-") and len(key) >= 16 and not any(char.isspace() for char in key)
 
 
 @dataclass(frozen=True)
@@ -51,6 +57,10 @@ class GatewayLLMConfig:
         if not base_url:
             return None
         api_key = os.getenv("POLISYOS_LLM_GATEWAY_API_KEY", "").strip()
+        if not api_key:
+            return None
+        if not _is_plausible_gateway_api_key(api_key):
+            return None
         try:
             timeout_s = float(os.getenv("POLISYOS_LLM_GATEWAY_TIMEOUT_S", "60").strip())
         except ValueError:
@@ -115,6 +125,23 @@ def create_traced_gateway_client(
     metrics: Any | None = None,
 ) -> TracedLLMClient | None:
     """Create traced LLM client from env-backed gateway config."""
+    if _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False):
+        raw_client = SimulatedGatewayLLMClient(
+            model=model_name,
+            provider_hint=provider_hint or "simulated_gateway",
+        )
+        return TracedLLMClient(
+            raw_client,
+            model_name=model_name,
+            capture_prompt=False,
+            run_id=run_id,
+            model_variant_id=model_variant_id,
+            call_observer=call_observer,
+            provider_name="simulated_gateway",
+            prompt_sanitizer=None,
+            tracer=tracer,
+            metrics=metrics,
+        )
     cfg = config or GatewayLLMConfig.from_env()
     if cfg is None:
         return None

@@ -8,6 +8,7 @@ import { ClerkStructuredResponse } from "./ClerkStructuredResponse";
 import { ClerkProgressiveStream } from "./ClerkProgressiveStream";
 import { ClerkSuggestionChips } from "./ClerkSuggestionChips";
 import { AIDiffView } from "./AIDiffView";
+import { ControlFailurePanel } from "./ControlFailurePanel";
 
 type ChatMessageProps = {
   message: ChatMessageType;
@@ -104,6 +105,10 @@ export function ChatMessage({
                 {message.error}
               </AuthoredText>
             )}
+
+            {message.controlJobId ? (
+              <ControlFailurePanel jobId={message.controlJobId} />
+            ) : null}
 
             {/* Structured response card */}
             {message.structured &&

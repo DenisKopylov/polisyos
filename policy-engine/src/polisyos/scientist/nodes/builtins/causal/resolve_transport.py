@@ -76,10 +76,6 @@ from polisyos.lex.legal_evaluation.transport_constraints import (
     LegalConstraintSet,
     LegalToDAGMapping,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
@@ -88,6 +84,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 
@@ -99,6 +104,9 @@ MAX_ROUNDS = 3
 PROXY_FALLBACK_THRESHOLD = 0.3
 _VALID_TRANSPORT_SOLVER_MODES: frozenset[str] = frozenset(
     {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
+)
+_SERIOUS_TRANSPORT_PROFILES: frozenset[str] = frozenset(
+    {"research", "governed", "production"}
 )
 
 _METADATA = ComponentMetadata(
@@ -150,6 +158,7 @@ _SPEC = NodeSpec(
         "params.transportability_capability_hash",
         "params.transportability_degradation_policy",
         "params.transportability_warning",
+        "params.transport_required",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF}",
         f"artifacts_index.{ARTIFACT_TRANSPORTABILITY_RESULT_REF}",
@@ -523,7 +532,10 @@ class TransportabilityResolutionLoop:
                                 joined_violations = (
                                     "; ".join(checklist.violations) or "validation_failed"
                                 )
-                                reason = f"proxy_validation:{z_var}:{best.proxy_variable}:{joined_violations}"
+                                reason = (
+                                    f"proxy_validation:{z_var}:{best.proxy_variable}:"
+                                    f"{joined_violations}"
+                                )
                                 if reason not in expert_review_reasons:
                                     expert_review_reasons.append(reason)
                             p_star_values[z_var] = PStarZResult(
@@ -692,6 +704,16 @@ class RunTransportabilityNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         report_ref_raw = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
         if report_ref_raw is None:
+            if _is_serious_transport_profile(state):
+                return _persist_blocking_transportability_result(
+                    ctx=ctx,
+                    state=state,
+                    reason="missing_causal_report",
+                    message=(
+                        "No causal report artifact found; persisted unsupported "
+                        "transportability result for serious workflow traceability."
+                    ),
+                )
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -721,6 +743,20 @@ class RunTransportabilityNode:
         source_context = _resolve_context_profile(state.params.get("source_context"))
         target_context = _resolve_context_profile(state.params.get("target_context"))
         if source_context is None or target_context is None:
+            if _is_serious_transport_profile(state):
+                return _persist_blocking_transportability_result(
+                    ctx=ctx,
+                    state=state,
+                    reason="missing_source_or_target_context",
+                    message=(
+                        "Missing source/target context profile; persisted unsupported "
+                        "transportability result for serious workflow traceability."
+                    ),
+                    causal_report=causal_report,
+                    report_ref=report_ref,
+                    source_context=source_context,
+                    target_context=target_context,
+                )
             new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["transportability_warning"] = (
                 "missing_source_or_target_context: transportability skipped"
@@ -740,6 +776,20 @@ class RunTransportabilityNode:
 
         graph = _resolve_causal_graph(ctx, state)
         if graph is None:
+            if _is_serious_transport_profile(state):
+                return _persist_blocking_transportability_result(
+                    ctx=ctx,
+                    state=state,
+                    reason="missing_causal_graph",
+                    message=(
+                        "No causal graph available; persisted unsupported "
+                        "transportability result for serious workflow traceability."
+                    ),
+                    causal_report=causal_report,
+                    report_ref=report_ref,
+                    source_context=source_context,
+                    target_context=target_context,
+                )
             new_state = branch_state(state, write_paths=_SPEC.state_writes).state
             new_state.params["transportability_warning"] = (
                 "missing_causal_graph: transportability skipped"
@@ -880,6 +930,168 @@ class RunTransportabilityNode:
                 )
             ],
         )
+
+
+def _persist_blocking_transportability_result(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    reason: str,
+    message: str,
+    causal_report: CausalEffectReport | None = None,
+    report_ref: CausalEffectReportRef | None = None,
+    source_context: ContextProfile | None = None,
+    target_context: ContextProfile | None = None,
+) -> NodeOutcome:
+    capability_contract, capability_ref = _resolve_or_build_capability_contract(ctx, state)
+    input_refs: list[InputRef] = []
+    if report_ref is not None:
+        input_refs.append(InputRef(artifact_id=report_ref.artifact_id, role="causal_report"))
+
+    transport_result = _build_blocking_transportability_result(
+        state=state,
+        reason=reason,
+        message=message,
+        causal_report=causal_report,
+        source_context=source_context,
+        target_context=target_context,
+    )
+    transport_ref = persist_transportability_result(
+        ctx.store,
+        transport_result,
+        inputs=input_refs,
+    )
+
+    artifacts = [capability_ref, transport_ref]
+    new_state = branch_state(state, write_paths=_SPEC.state_writes).state
+    new_state.params["transportability_status"] = transport_result.status.value
+    new_state.params["transportability_transport_mode"] = (
+        transport_result.transport_mode.value
+    )
+    new_state.params["transportability_identification_engine"] = (
+        transport_result.identification_engine
+    )
+    new_state.params["transportability_capability_hash"] = (
+        capability_contract.dependency_fingerprint
+    )
+    new_state.params["transportability_degradation_policy"] = (
+        capability_contract.degradation_policy
+    )
+    new_state.params.pop("transportability_id_confidence_under_pag", None)
+    new_state.params["transportability_warning"] = f"{reason}: {message}"
+    new_state.params["transport_required"] = True
+    new_state.artifacts_index[ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF] = capability_ref
+    new_state.causal_capability_contract_ref = capability_ref
+    new_state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF] = transport_ref
+
+    if causal_report is not None and report_ref is not None:
+        updated_report = causal_report.model_copy(update={"transport_result": transport_result})
+        updated_report_ref = persist_causal_effect_report(
+            ctx.store,
+            updated_report,
+            inputs=[
+                InputRef(artifact_id=report_ref.artifact_id, role="causal_report_prev"),
+                InputRef(artifact_id=transport_ref.artifact_id, role="transportability_result"),
+            ],
+        )
+        new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = updated_report_ref
+        artifacts.append(updated_report_ref)
+
+    profile = _transport_execution_profile(state)
+    return NodeOutcome(
+        status="ok",
+        state=new_state,
+        artifacts=artifacts,
+        events=[
+            NodeEvent(
+                level="warn",
+                code="transportability.blocked_prerequisite",
+                message=message,
+                attrs={"reason": reason, "execution_profile": profile or "unknown"},
+            )
+        ],
+    )
+
+
+def _build_blocking_transportability_result(
+    *,
+    state: ExperimentState,
+    reason: str,
+    message: str,
+    causal_report: CausalEffectReport | None,
+    source_context: ContextProfile | None,
+    target_context: ContextProfile | None,
+) -> TransportabilityResult:
+    treatment = _resolve_query_treatment_for_blocking(state, causal_report)
+    outcome = _resolve_query_outcome_for_blocking(state, causal_report)
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        base_confidence=0.0,
+        final_confidence=0.0,
+        feasible=False,
+        identification_engine="prerequisite_gate",
+        identification_trace=[f"prerequisite_gate:{reason}"],
+        unsupported_reason=reason,
+        unsupported_cases=[reason],
+        requires_expert_review=True,
+        expert_review_reasons=[reason, "operator_review_required"],
+        source_context_id=_context_id_for_blocking(
+            source_context,
+            state.params.get("source_context"),
+        ),
+        target_context_id=_context_id_for_blocking(
+            target_context,
+            state.params.get("target_context"),
+        ),
+        warnings=[message],
+        metadata={
+            "blocking_prerequisite": reason,
+            "owner_node": "run_transportability",
+            "execution_profile": _transport_execution_profile(state),
+        },
+        notes=[message],
+    )
+
+
+def _transport_execution_profile(state: ExperimentState) -> str:
+    raw_profile = state.execution_profile or state.params.get("execution_profile") or ""
+    return str(raw_profile).strip().lower()
+
+
+def _is_serious_transport_profile(state: ExperimentState) -> bool:
+    return _transport_execution_profile(state) in _SERIOUS_TRANSPORT_PROFILES
+
+
+def _resolve_query_treatment_for_blocking(
+    state: ExperimentState,
+    report: CausalEffectReport | None,
+) -> str:
+    if report is not None:
+        return _resolve_query_treatment(state, report)
+    raw = state.params.get("query_treatment")
+    return raw.strip() if isinstance(raw, str) and raw.strip() else "treatment"
+
+
+def _resolve_query_outcome_for_blocking(
+    state: ExperimentState,
+    report: CausalEffectReport | None,
+) -> str:
+    if report is not None:
+        return _resolve_query_outcome(state, report)
+    raw = state.params.get("query_outcome")
+    return raw.strip() if isinstance(raw, str) and raw.strip() else "outcome"
+
+
+def _context_id_for_blocking(profile: ContextProfile | None, raw: Any) -> str:
+    if profile is not None and profile.context_id:
+        return profile.context_id
+    if isinstance(raw, Mapping):
+        raw_context_id = raw.get("context_id")
+        if isinstance(raw_context_id, str) and raw_context_id.strip():
+            return raw_context_id.strip()
+    return ""
 
 
 def _build_final_result(

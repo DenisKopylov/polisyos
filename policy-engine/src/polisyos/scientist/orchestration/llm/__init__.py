@@ -14,7 +14,9 @@ __all__ = [
     "ProviderCapabilityVerification",
     "ProviderSmokeCheck",
     "ProviderSmokeReport",
+    "SimulatedGatewayLLMClient",
     "TracedLLMClient",
+    "build_model_variant_adjudication",
     "create_traced_gateway_client",
     "is_provider_capability_verified",
     "load_provider_verification",
@@ -30,9 +32,20 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.orchestration.llm.factory",
         "create_traced_gateway_client",
     ),
+    "build_model_variant_adjudication": (
+        "polisyos.scientist.orchestration.llm.adjudication",
+        "build_model_variant_adjudication",
+    ),
     "GatewayLLMClient": ("polisyos.scientist.orchestration.llm.gateway_client", "GatewayLLMClient"),
-    "GatewayLLMResponse": ("polisyos.scientist.orchestration.llm.gateway_client", "GatewayLLMResponse"),
+    "GatewayLLMResponse": (
+        "polisyos.scientist.orchestration.llm.gateway_client",
+        "GatewayLLMResponse",
+    ),
     "GatewayUsage": ("polisyos.scientist.orchestration.llm.gateway_client", "GatewayUsage"),
+    "SimulatedGatewayLLMClient": (
+        "polisyos.scientist.orchestration.llm.simulated_gateway",
+        "SimulatedGatewayLLMClient",
+    ),
     "ProviderCapabilityVerification": (
         "polisyos.scientist.orchestration.llm.provider_verification",
         "ProviderCapabilityVerification",
@@ -69,14 +82,19 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.orchestration.llm.provider_verification",
         "save_provider_verification",
     ),
-    "LLMClientProtocol": ("polisyos.scientist.orchestration.llm.traced_client", "LLMClientProtocol"),
+    "LLMClientProtocol": (
+        "polisyos.scientist.orchestration.llm.traced_client",
+        "LLMClientProtocol",
+    ),
     "TracedLLMClient": ("polisyos.scientist.orchestration.llm.traced_client", "TracedLLMClient"),
 }
 
 
 def __getattr__(name: str) -> Any:
     if name not in _LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.scientist.orchestration.llm' has no attribute {name!r}")
+        raise AttributeError(
+            f"module 'polisyos.scientist.orchestration.llm' has no attribute {name!r}"
+        )
     module_name, attr_name = _LAZY_IMPORTS[name]
     value = getattr(importlib.import_module(module_name), attr_name)
     globals()[name] = value

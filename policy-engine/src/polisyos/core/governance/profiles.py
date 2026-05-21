@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, cast
+
+from polisyos.core.contracts.control import (
+    EXECUTION_PROFILE_TO_VALIDATION_PROFILE,
+    POLICY_AUTHORITY_PROFILES,
+    PolicyAuthorityProfile,
+    PolicyValidationProfile,
+)
 
 
 class ProfileLevel(Enum):
@@ -162,3 +169,54 @@ class ValidationProfile:
             thresholds=data.get("thresholds", {}),
             short_circuit_on_blocker=data.get("short_circuit_on_blocker", True),
         )
+
+
+_VALIDATION_PROFILE_BUILDERS = {
+    "fast": ValidationProfile.fast,
+    "mvp": ValidationProfile.mvp,
+    "strict": ValidationProfile.strict,
+}
+
+
+def validation_profile_name_for_execution_profile(
+    execution_profile: str,
+) -> PolicyValidationProfile:
+    """Map an existing execution profile to its governance validation profile."""
+
+    normalized = execution_profile.strip().casefold().replace("-", "_")
+    try:
+        return EXECUTION_PROFILE_TO_VALIDATION_PROFILE[normalized]  # type: ignore[index]
+    except KeyError as exc:
+        raise ValueError(
+            f"unsupported execution profile for validation mapping: {execution_profile!r}"
+        ) from exc
+
+
+def validation_profile_for_execution_profile(execution_profile: str) -> ValidationProfile:
+    """Return the concrete governance profile for an execution profile."""
+
+    profile_name = validation_profile_name_for_execution_profile(execution_profile)
+    return _VALIDATION_PROFILE_BUILDERS[profile_name]()
+
+
+def policy_authority_validation_profiles() -> dict[
+    PolicyAuthorityProfile,
+    PolicyValidationProfile,
+]:
+    """Return authority-level validation mapping without introducing new names."""
+
+    return {
+        cast("PolicyAuthorityProfile", profile): validation_profile_name_for_execution_profile(
+            profile
+        )
+        for profile in POLICY_AUTHORITY_PROFILES
+    }
+
+
+__all__ = [
+    "ProfileLevel",
+    "ValidationProfile",
+    "policy_authority_validation_profiles",
+    "validation_profile_for_execution_profile",
+    "validation_profile_name_for_execution_profile",
+]

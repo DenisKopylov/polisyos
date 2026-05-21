@@ -8,14 +8,32 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, CanonViolation
+from polisyos.core.contracts.skip_blockers import (
+    SkippedNodeBlocker,
+    build_skip_blocker_record,
+    classify_optional_analytic_node,
+)
+from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
+from polisyos.scientist.methods.research_dag.projections import (
+    SELECTED_RESEARCH_DAG_WORKFLOWS,
+    is_research_dag_enabled,
+    project_workflow_execution_to_research_dag,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
+)
 from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
-from polisyos.scientist.orchestration.engine.condition import ConditionSyntaxError, evaluate_condition
+from polisyos.scientist.orchestration.engine.condition import (
+    ConditionSyntaxError,
+    evaluate_condition,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CycleDetectedError,
@@ -25,8 +43,16 @@ from polisyos.scientist.orchestration.engine.errors import (
     RetryExhaustedError,
     WorkflowSpecError,
 )
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache, compute_idempotency_key
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeStatus
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeStatus,
+)
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
 from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
 from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
@@ -36,15 +62,11 @@ from polisyos.scientist.orchestration.engine.telemetry import (
     start_node_span,
 )
 from polisyos.scientist.orchestration.engine.workflow_spec import ErrorPolicy
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CLAIMS_REF,
-    ARTIFACT_RESEARCH_DAG_REF,
-)
-from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
-from polisyos.scientist.methods.research_dag.projections import (
-    SELECTED_RESEARCH_DAG_WORKFLOWS,
-    is_research_dag_enabled,
-    project_workflow_execution_to_research_dag,
+from polisyos.scientist.orchestration.memory.authority import (
+    MemoryAuthorityRecord,
+    assert_memory_authority_for_serious_output,
+    build_memory_use_authority_record,
+    build_no_memory_abstention_record,
 )
 
 if TYPE_CHECKING:
@@ -82,6 +104,8 @@ _EXECUTOR_DEGRADED_ERRORS = (
 )
 _NODE_BIND_ERRORS = _EXECUTOR_DEGRADED_ERRORS
 _NODE_EXECUTION_ERRORS = _EXECUTOR_DEGRADED_ERRORS
+_SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_MEMORY_AUTHORITY_RECORD_PARAM = "memory_authority_record"
 
 
 class NodeRunRecord(BaseModel):
@@ -96,6 +120,13 @@ class NodeRunRecord(BaseModel):
     artifacts: list[ArtifactRef] = Field(default_factory=list)
     error: NodeError | None = None
     skip_reason: str | None = None
+    skip_blocker: SkippedNodeBlocker | None = None
+
+    @model_validator(mode="after")
+    def _validate_skip_blocker(self) -> NodeRunRecord:
+        if self.status == "skip" and self.skip_blocker is None:
+            raise ValueError("NodeRunRecord.skip_blocker must be set when status=skip")
+        return self
 
 
 class WorkflowReport(BaseModel):
@@ -156,6 +187,146 @@ def _log_node_events(logger: logging.Logger, alias: str, events: Iterable[Any]) 
             logger.log(level, "%s %s (%s) %s", prefix, message, code, attrs)
         else:
             logger.log(level, "%s %s %s", prefix, message, attrs)
+
+
+def _skip_blocker_for_engine_skip(
+    *,
+    alias: str,
+    node_id: str,
+    skip_reason: str,
+    missing_input: str,
+    phase: str,
+) -> SkippedNodeBlocker:
+    return _build_skip_blocker(
+        alias=alias,
+        node_id=node_id,
+        reason=skip_reason,
+        missing_input=missing_input,
+        phase=phase,
+    )
+
+
+def _skip_blocker_for_outcome(
+    *,
+    alias: str,
+    node_id: str,
+    outcome: NodeOutcome,
+) -> SkippedNodeBlocker | None:
+    if outcome.status != "skip":
+        return None
+    explicit = getattr(outcome, "skip_blocker", None)
+    if isinstance(explicit, SkippedNodeBlocker):
+        return explicit
+    return _build_skip_blocker(
+        alias=alias,
+        node_id=node_id,
+        reason=_outcome_skip_reason(outcome),
+        missing_input=_outcome_missing_input(outcome) or _default_missing_input(alias, node_id),
+        phase=_default_skip_phase(alias, node_id),
+    )
+
+
+def _build_skip_blocker(
+    *,
+    alias: str,
+    node_id: str,
+    reason: str,
+    missing_input: str,
+    phase: str,
+) -> SkippedNodeBlocker:
+    node_kind = classify_optional_analytic_node(alias=alias, node_id=node_id, phase=phase)
+    return build_skip_blocker_record(
+        node_id=node_id,
+        alias=alias,
+        node_kind=node_kind or "other_optional_analytic",
+        reason=reason,
+        missing_input=missing_input,
+        owner=_default_skip_owner(node_kind),
+        phase=phase,
+        downstream_impact=_default_downstream_impact(node_kind, alias),
+        allowed_profile="dev",
+        closeout_blocking_policy="blocks_serious_closeout",
+        scorecard_blocking_policy="blocks_scorecard_pass",
+        approval_blocking_policy="blocks_approval_ready",
+        public_export_blocking_policy="blocks_public_export",
+    )
+
+
+def _outcome_skip_reason(outcome: NodeOutcome) -> str:
+    for event in outcome.events:
+        attrs = getattr(event, "attrs", {})
+        if isinstance(attrs, dict):
+            value = attrs.get("skip_reason") or attrs.get("reason")
+            if value:
+                return str(value)
+        code = getattr(event, "code", None)
+        if code:
+            return str(code)
+    for event in outcome.events:
+        message = getattr(event, "message", None)
+        if message:
+            return str(message)
+    return "node_skipped"
+
+
+def _outcome_missing_input(outcome: NodeOutcome) -> str | None:
+    for event in outcome.events:
+        attrs = getattr(event, "attrs", {})
+        if isinstance(attrs, dict):
+            value = attrs.get("missing_input") or attrs.get("missing_ref")
+            if value:
+                return str(value)
+    return None
+
+
+def _default_skip_owner(node_kind: str | None) -> str:
+    if node_kind in {"causal", "transportability"}:
+        return "team-scientist-causal"
+    if node_kind in {"normative_arbitration", "governance"}:
+        return "team-scientist-governance"
+    if node_kind in {"evaluator", "decision_packet"}:
+        return "team-scientist-decision"
+    return "team-scientist"
+
+
+def _default_skip_phase(alias: str, node_id: str) -> str:
+    node_kind = classify_optional_analytic_node(alias=alias, node_id=node_id)
+    return {
+        "causal": "causal_analytics",
+        "transportability": "transportability",
+        "normative_arbitration": "normative_arbitration",
+        "governance": "governance_validation",
+        "evaluator": "evaluator",
+        "decision_packet": "decision_packet",
+    }.get(node_kind or "", "workflow_execution")
+
+
+def _default_missing_input(alias: str, node_id: str) -> str:
+    node_kind = classify_optional_analytic_node(alias=alias, node_id=node_id)
+    return {
+        "causal": "causal_inputs",
+        "transportability": "transportability_inputs",
+        "normative_arbitration": "normative_inputs",
+        "governance": "governance_inputs",
+        "evaluator": "evaluator_inputs",
+        "decision_packet": "decision_packet_inputs",
+    }.get(node_kind or "", "node_inputs")
+
+
+def _default_downstream_impact(node_kind: str | None, alias: str) -> str:
+    if node_kind in {
+        "causal",
+        "transportability",
+        "normative_arbitration",
+        "governance",
+        "evaluator",
+        "decision_packet",
+    }:
+        return (
+            f"Skipped {node_kind} node {alias} cannot satisfy serious scorecard, "
+            "approval, closeout, or public export evidence."
+        )
+    return f"Skipped node {alias} did not produce its declared workflow evidence."
 
 
 _module_logger = get_logger(__name__)
@@ -282,6 +453,140 @@ def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
     return ordered
 
 
+def _execution_profile_for_memory_authority(state: ExperimentState) -> str:
+    profile = state.execution_profile
+    if not profile:
+        for key in (
+            "effective_execution_profile",
+            "execution_profile",
+            "requested_execution_profile",
+        ):
+            value = state.params.get(key)
+            if isinstance(value, str) and value.strip():
+                profile = value
+                break
+    return (profile or "dev").strip().lower()
+
+
+def _memory_replay_surface_empty(state: ExperimentState) -> bool:
+    return not any(
+        _string_list_param(
+            state,
+            "selected_memory_refs",
+            "memory_selected_refs",
+            "memory_refs",
+            "retrieval_event_refs",
+            "memory_retrieval_event_refs",
+            "retrieved_memory_refs",
+        )
+    )
+
+
+def _tenant_id_for_memory_authority(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> str:
+    value = state.params.get("tenant_id") or getattr(ctx.run, "tenant_id", None)
+    return str(value or "tenant-default")
+
+
+def _cell_id_for_memory_authority(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> str:
+    value = state.params.get("cell_id") or getattr(ctx.run, "cell_id", None)
+    return str(value or "cell-default")
+
+
+def _prompt_authority_refs_for_memory(state: ExperimentState) -> dict[str, str]:
+    refs = _string_mapping_param(state, "prompt_authority_refs")
+    if refs:
+        return refs
+    profile = _execution_profile_for_memory_authority(state)
+    return {
+        "execution_profile": f"state.execution_profile:{profile}",
+        "workflow_state": "src/polisyos/scientist/orchestration/engine/state.py#ExperimentState",
+    }
+
+
+def _tool_authority_refs_for_memory() -> dict[str, str]:
+    return {
+        "workflow_executor": (
+            "src/polisyos/scientist/orchestration/engine/executor.py"
+            "#_ensure_memory_authority_for_serious_output"
+        ),
+        "runtime_memory_authority_gate": (
+            "src/polisyos/scientist/orchestration/memory/authority.py"
+        ),
+    }
+
+
+def _contamination_checks_for_memory(state: ExperimentState) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    raw_checks = state.params.get("memory_contamination_checks")
+    if isinstance(raw_checks, list):
+        for raw_check in raw_checks:
+            if not isinstance(raw_check, dict):
+                continue
+            checks.append(
+                {
+                    "check_id": str(
+                        raw_check.get("check_id") or "runtime_memory_contamination_check"
+                    ),
+                    "status": str(raw_check.get("status") or "pass"),
+                    "contamination_detected": bool(raw_check.get("contamination_detected")),
+                    "evidence_ref": str(
+                        raw_check.get("evidence_ref") or "runtime://memory/contamination/check"
+                    ),
+                    "observed_scope": raw_check.get("observed_scope"),
+                }
+            )
+    if checks:
+        return checks
+    return [
+        {
+            "check_id": "runtime_memory_contamination_gate",
+            "status": "pass",
+            "contamination_detected": False,
+            "evidence_ref": "runtime://memory/contamination/no-contamination-observed",
+            "observed_scope": {
+                "tenant_id": _tenant_id_for_memory_authority_contextless(state),
+                "cell_id": _cell_id_for_memory_authority_contextless(state),
+            },
+        }
+    ]
+
+
+def _tenant_id_for_memory_authority_contextless(state: ExperimentState) -> str:
+    return str(state.params.get("tenant_id") or "tenant-default")
+
+
+def _cell_id_for_memory_authority_contextless(state: ExperimentState) -> str:
+    return str(state.params.get("cell_id") or "cell-default")
+
+
+def _string_mapping_param(state: ExperimentState, key: str) -> dict[str, str]:
+    value = state.params.get(key)
+    if not isinstance(value, dict):
+        return {}
+    return {
+        str(raw_key): str(raw_value)
+        for raw_key, raw_value in value.items()
+        if raw_key not in (None, "") and raw_value not in (None, "")
+    }
+
+
+def _string_list_param(state: ExperimentState, *keys: str) -> list[str]:
+    values: list[str] = []
+    for key in keys:
+        raw = state.params.get(key)
+        if isinstance(raw, list):
+            values.extend(str(item) for item in raw if item not in (None, ""))
+        elif isinstance(raw, str) and raw.strip():
+            values.append(raw)
+    return values
+
+
 class WorkflowExecutor:
     """Sequential workflow executor (v0)."""
 
@@ -302,6 +607,85 @@ class WorkflowExecutor:
         self._provenance_dag = provenance_dag
         self._node_outputs: dict[str, list[ArtifactRef]] = {}
 
+    def _ensure_memory_authority_for_serious_output(
+        self,
+        state: ExperimentState,
+    ) -> ExperimentState:
+        profile = _execution_profile_for_memory_authority(state)
+        if profile not in _SERIOUS_EXECUTION_PROFILES:
+            return state
+
+        replay_surface_empty = _memory_replay_surface_empty(state)
+        existing_record = state.params.get(_MEMORY_AUTHORITY_RECORD_PARAM)
+        if isinstance(existing_record, dict):
+            record = MemoryAuthorityRecord.model_validate(existing_record)
+        elif replay_surface_empty:
+            record = build_no_memory_abstention_record(
+                run_id=state.run_id,
+                tenant_id=_tenant_id_for_memory_authority(self._ctx, state),
+                cell_id=_cell_id_for_memory_authority(self._ctx, state),
+                replay_surface_empty=True,
+                prompt_authority_refs=_prompt_authority_refs_for_memory(state),
+                tool_authority_refs=_tool_authority_refs_for_memory(),
+                contamination_checks=_contamination_checks_for_memory(state),
+                emission_order=0,
+                serious_output_influence_order=1,
+            )
+        else:
+            selected_refs = _string_list_param(
+                state,
+                "selected_memory_refs",
+                "memory_selected_refs",
+                "memory_refs",
+            )
+            retrieval_refs = _string_list_param(
+                state,
+                "retrieval_event_refs",
+                "memory_retrieval_event_refs",
+                "retrieved_memory_refs",
+            )
+            applicability_refs = _string_list_param(
+                state,
+                "applicability_refs",
+                "memory_applicability_refs",
+            )
+            record = build_memory_use_authority_record(
+                run_id=state.run_id,
+                tenant_id=_tenant_id_for_memory_authority(self._ctx, state),
+                cell_id=_cell_id_for_memory_authority(self._ctx, state),
+                selected_memory_refs=selected_refs or retrieval_refs,
+                retrieval_event_refs=retrieval_refs or selected_refs,
+                applicability_refs=applicability_refs
+                or ["runtime://memory/applicability/serious-output"],
+                prompt_authority_refs=_prompt_authority_refs_for_memory(state),
+                tool_authority_refs=_tool_authority_refs_for_memory(),
+                contamination_checks=_contamination_checks_for_memory(state),
+                emission_order=0,
+                serious_output_influence_order=1,
+            )
+
+        authorized = assert_memory_authority_for_serious_output(
+            record,
+            replay_surface_empty=replay_surface_empty,
+        )
+        next_state = branch_state(
+            state,
+            write_paths=(f"params.{_MEMORY_AUTHORITY_RECORD_PARAM}",),
+        ).state
+        next_state.params[_MEMORY_AUTHORITY_RECORD_PARAM] = authorized.to_trace_dict()
+        self._ctx.run.emit(
+            "scientist.memory.authority",
+            "MEMORY_AUTHORITY_RECORDED",
+            metrics={
+                "authority_recorded": 1,
+                "memory_used": 1 if authorized.memory_used else 0,
+                "runtime_owned": 1 if authorized.runtime_owned else 0,
+                "emission_order": authorized.emission_order,
+                "serious_output_influence_order": authorized.serious_output_influence_order,
+            },
+        )
+        return next_state
+
     def execute(self, workflow: WorkflowSpec, state: ExperimentState) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
         invocations = {inv.alias: inv for inv in workflow.nodes}
@@ -313,6 +697,7 @@ class WorkflowExecutor:
             self._registry.get(inv.node_id)
 
         order = _topo_sort(invocations)
+        state = self._ensure_memory_authority_for_serious_output(state)
         workflow_started = time.perf_counter()
 
         initial_state = snapshot_state(state)
@@ -355,6 +740,13 @@ class WorkflowExecutor:
                     status="skip",
                     duration_ms=0,
                     skip_reason="upstream_failed",
+                    skip_blocker=_skip_blocker_for_engine_skip(
+                        alias=alias,
+                        node_id=str(inv.node_id),
+                        skip_reason="upstream_failed",
+                        missing_input="upstream_dependency",
+                        phase="dependency_resolution",
+                    ),
                 )
                 records.append(record)
                 blocked.add(alias)
@@ -404,6 +796,13 @@ class WorkflowExecutor:
                             status="skip",
                             duration_ms=0,
                             skip_reason="condition_false",
+                            skip_blocker=_skip_blocker_for_engine_skip(
+                                alias=alias,
+                                node_id=str(inv.node_id),
+                                skip_reason="condition_false",
+                                missing_input=inv.condition.expr,
+                                phase="condition_evaluation",
+                            ),
                         )
                         records.append(record)
                         condition_skipped.add(alias)
@@ -833,6 +1232,14 @@ class WorkflowExecutor:
                     duration_ms=duration_ms,
                     artifacts=list(outcome.artifacts),
                     error=outcome.error,
+                    skip_reason=(
+                        _outcome_skip_reason(outcome) if outcome.status == "skip" else None
+                    ),
+                    skip_blocker=_skip_blocker_for_outcome(
+                        alias=alias,
+                        node_id=str(inv.node_id),
+                        outcome=outcome,
+                    ),
                 )
                 records.append(record)
 

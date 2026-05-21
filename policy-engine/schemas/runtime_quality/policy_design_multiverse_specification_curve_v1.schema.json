@@ -1,0 +1,326 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/policy_design_multiverse_specification_curve_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy Design Multiverse Specification Curve",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "curve_id",
+    "claim_ids",
+    "portfolio_id",
+    "source_kind_counts",
+    "previous_wave_refs",
+    "specification_records",
+    "defensible_specifications",
+    "rejected_specifications",
+    "result_distribution",
+    "drivers_of_divergence",
+    "claim_markers",
+    "evidence_ref",
+    "runtime_event_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.multiverse_specification_curve.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.multiverse_specification_curve.v1"
+    },
+    "curve_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "portfolio_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_kind_counts": {
+      "type": "object",
+      "required": [
+        "scientist_doe",
+        "scientist_discovery",
+        "foundry_sensitivity",
+        "backtesting"
+      ],
+      "properties": {
+        "scientist_doe": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scientist_discovery": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "foundry_sensitivity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "backtesting": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "previous_wave_refs": {
+      "type": "object",
+      "required": [
+        "portfolio_design_refs",
+        "evidence_line_refs",
+        "independence_map_refs"
+      ],
+      "properties": {
+        "portfolio_design_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "evidence_line_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "independence_map_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "specification_records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "specification_id",
+          "claim_ids",
+          "source_kind",
+          "decision",
+          "estimate",
+          "standard_error",
+          "sign",
+          "significant",
+          "drivers"
+        ],
+        "properties": {
+          "specification_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "portfolio_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_kind": {
+            "enum": [
+              "scientist_doe",
+              "scientist_discovery",
+              "foundry_sensitivity",
+              "backtesting"
+            ]
+          },
+          "decision": {
+            "enum": ["defensible", "rejected"]
+          },
+          "estimate": {
+            "type": "number"
+          },
+          "standard_error": {
+            "type": "number",
+            "minimum": 0
+          },
+          "sign": {
+            "enum": ["positive", "negative", "zero"]
+          },
+          "significant": {
+            "type": "boolean"
+          },
+          "rejection_reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "drivers": {
+            "type": "object"
+          },
+          "evidence_ref": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "defensible_specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["specification_id"],
+        "properties": {
+          "specification_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "rejected_specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["specification_id", "rejection_reason"],
+        "properties": {
+          "specification_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rejection_reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "result_distribution": {
+      "type": "object",
+      "required": [
+        "n_specifications",
+        "defensible_count",
+        "rejected_count",
+        "sign_counts",
+        "estimate_min",
+        "estimate_max",
+        "estimate_median",
+        "share_significant"
+      ],
+      "properties": {
+        "n_specifications": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "defensible_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejected_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sign_counts": {
+          "type": "object",
+          "required": ["positive", "negative", "zero"],
+          "properties": {
+            "positive": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "negative": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "zero": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": true
+        },
+        "estimate_min": {
+          "type": "number"
+        },
+        "estimate_max": {
+          "type": "number"
+        },
+        "estimate_median": {
+          "type": "number"
+        },
+        "share_significant": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "drivers_of_divergence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["axis"],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "claim_markers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "marker", "reason_codes"],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "marker": {
+            "enum": ["fragile", "robust"]
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "evidence_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtime_event_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

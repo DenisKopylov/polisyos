@@ -44,6 +44,7 @@ export function AmbientTelemetryHud({
         decisionView: summary.decisionView,
         evidenceContext: summary.evidenceContext,
         governanceIssues: summary.governanceIssues,
+        policyDesignCaseProjection: summary.run?.policy_design_case_projection,
         runId,
       }),
     [
@@ -52,6 +53,7 @@ export function AmbientTelemetryHud({
       summary.decisionView,
       summary.evidenceContext,
       summary.governanceIssues,
+      summary.run?.policy_design_case_projection,
     ],
   );
 

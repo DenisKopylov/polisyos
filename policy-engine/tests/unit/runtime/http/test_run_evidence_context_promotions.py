@@ -1,0 +1,93 @@
+from __future__ import annotations
+
+
+def _promotion_status(body: dict[str, object], promotion_id: str) -> str:
+    context = body["context"]
+    assert isinstance(context, dict)
+    candidates = context["promotion_candidates"]
+    assert isinstance(candidates, list)
+    for candidate in candidates:
+        assert isinstance(candidate, dict)
+        if candidate.get("promotion_id") == promotion_id:
+            status = candidate.get("status")
+            assert isinstance(status, str)
+            return status
+    raise AssertionError(f"promotion candidate {promotion_id!r} not found")
+
+
+def test_run_evidence_context_reflects_live_promotion_decisions(runtime_api_env) -> None:
+    client = runtime_api_env["client"]
+    run_id = runtime_api_env["core_run_id"]
+    promotion_id = runtime_api_env["promotion_candidate_id"]
+
+    response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
+    assert response.status_code == 200
+    assert _promotion_status(response.json(), promotion_id) == "pending"
+
+    approve = client.post(
+        f"/api/v1/control/data/promotion/{promotion_id}/approve",
+        json={"reason": "fixture smoke approve"},
+    )
+    assert approve.status_code == 200
+    assert approve.json()["status"] == "approved"
+
+    response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
+    assert response.status_code == 200
+    assert _promotion_status(response.json(), promotion_id) == "approved"
+
+    reject = client.post(
+        f"/api/v1/control/data/promotion/{promotion_id}/reject",
+        json={"reason": "fixture smoke reject"},
+    )
+    assert reject.status_code == 200
+    assert reject.json()["status"] == "rejected"
+
+    response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
+    assert response.status_code == 200
+    assert _promotion_status(response.json(), promotion_id) == "rejected"
+
+
+def test_run_evidence_context_links_fabric_trace_materialization_and_timeline(
+    runtime_api_env,
+) -> None:
+    client = runtime_api_env["client"]
+    run_id = runtime_api_env["core_run_id"]
+
+    response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
+    assert response.status_code == 200
+    context = response.json()["context"]
+
+    fabric_ref = context["fabric_retrieval_trace_ref"]
+    materialization_refs = context["materialization_refs"]
+    production_context = context["production_data_evidence_context"]
+    related_artifact_ids = {item["artifact_id"] for item in context["related_artifacts"]}
+
+    assert fabric_ref["artifact_id"].startswith("sha256:")
+    assert fabric_ref["artifact_id"] in related_artifact_ids
+    assert materialization_refs["data_snapshot_ref"]["artifact_id"] == (
+        runtime_api_env["data_snapshot_artifact_id"]
+    )
+    assert materialization_refs["input_bindings_ref"]["artifact_id"] == (
+        runtime_api_env["input_bindings_artifact_id"]
+    )
+    assert production_context["fabric_retrieval_trace_ref"] == fabric_ref["artifact_id"]
+    assert production_context["materialization_refs"]["quality_report_ref"] == (
+        runtime_api_env["quality_artifact_id"]
+    )
+
+    timeline_response = client.get(f"/api/v1/runs/{run_id}/timeline")
+    assert timeline_response.status_code == 200
+    events = timeline_response.json()["timeline"]["events"]
+    selection_events = [
+        event
+        for event in events
+        if event["phase"] == "fabric.source_selection"
+        and event["event"].startswith("SOURCE_SELECTION_TRACE_PERSISTED")
+    ]
+    assert selection_events
+    selection_event = selection_events[0]
+    assert "prod-msme-panel" in selection_event["event"]
+    assert fabric_ref["artifact_id"] in selection_event["output_artifact_ids"]
+    assert materialization_refs["data_snapshot_ref"]["artifact_id"] in (
+        selection_event["input_artifact_ids"]
+    )

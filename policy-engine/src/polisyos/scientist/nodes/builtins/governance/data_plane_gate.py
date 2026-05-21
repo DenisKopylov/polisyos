@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -258,6 +259,7 @@ def _load_quality_report(
 class _FreshnessProxy:
     is_fresh: bool
     data_age_seconds: int | None
+    cache_age_seconds: int | None
     message: str
 
 
@@ -278,6 +280,12 @@ class _QualityReportProxy:
     score: float
     freshness_status: _FreshnessProxy
     violations: list[_ViolationProxy]
+    dataset_id: str = "unknown_dataset"
+    validated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    completeness_score: float = 1.0
+    consistency_score: float = 1.0
+    row_count: int = 0
+    anomaly_report: Any = None
 
 
 def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
@@ -306,6 +314,11 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
         data_age = int(data_age_raw) if data_age_raw is not None else None
     except (TypeError, ValueError):
         data_age = None
+    cache_age_raw = freshness_raw.get("cache_age_seconds")
+    try:
+        cache_age = int(cache_age_raw) if cache_age_raw is not None else None
+    except (TypeError, ValueError):
+        cache_age = None
     message = str(freshness_raw.get("message") or "freshness status unavailable")
 
     violations_raw = payload.get("violations")
@@ -332,6 +345,30 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
         score = float(score_raw)
     except (TypeError, ValueError):
         score = 0.0
+    completeness_raw = payload.get("completeness_score", 1.0)
+    try:
+        completeness_score = float(completeness_raw)
+    except (TypeError, ValueError):
+        completeness_score = 1.0
+    consistency_raw = payload.get("consistency_score", 1.0)
+    try:
+        consistency_score = float(consistency_raw)
+    except (TypeError, ValueError):
+        consistency_score = 1.0
+    row_count_raw = payload.get("row_count", 0)
+    try:
+        row_count = int(row_count_raw)
+    except (TypeError, ValueError):
+        row_count = 0
+    validated_at_raw = payload.get("validated_at")
+    validated_at = datetime.now(UTC)
+    if isinstance(validated_at_raw, str) and validated_at_raw.strip():
+        try:
+            validated_at = datetime.fromisoformat(validated_at_raw.replace("Z", "+00:00"))
+        except ValueError:
+            validated_at = datetime.now(UTC)
+    elif isinstance(validated_at_raw, datetime):
+        validated_at = validated_at_raw
 
     return _QualityReportProxy(
         tier=tier,
@@ -340,9 +377,16 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
         freshness_status=_FreshnessProxy(
             is_fresh=is_fresh,
             data_age_seconds=data_age,
+            cache_age_seconds=cache_age,
             message=message,
         ),
         violations=violations,
+        dataset_id=str(payload.get("dataset_id") or payload.get("source_id") or "unknown_dataset"),
+        validated_at=validated_at,
+        completeness_score=completeness_score,
+        consistency_score=consistency_score,
+        row_count=max(row_count, 0),
+        anomaly_report=None,
     )
 
 

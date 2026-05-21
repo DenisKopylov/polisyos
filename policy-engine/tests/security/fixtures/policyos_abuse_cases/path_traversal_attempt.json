@@ -1,0 +1,9 @@
+{
+  "case_id": "path_traversal_attempt",
+  "surface": "runtime_api",
+  "expected_code": "path_traversal_blocked",
+  "payload": {
+    "artifact_path": "../../../../../etc/passwd",
+    "fallback_uri": "file:///etc/shadow"
+  }
+}

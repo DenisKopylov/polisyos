@@ -962,6 +962,7 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                                 "linked_claim_ids": list(row.linked_claim_ids),
                                 "linked_edge_ids": list(row.linked_edge_ids),
                                 "uncertainty_source": row.uncertainty_source,
+                                "normalization_diagnostics": list(row.normalization_diagnostics),
                             }
                             for row in candidates
                         ],

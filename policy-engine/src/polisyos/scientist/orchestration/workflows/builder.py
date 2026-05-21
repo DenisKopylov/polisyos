@@ -25,6 +25,14 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_DATA_SNAPSHOT_REF,
+    INPUT_DATA_VIEW_REQUEST_REF,
+    INPUT_GRAPH_PRIOR_BUNDLE_REF,
+    INPUT_INPUT_BINDINGS_REF,
+    INPUT_REGISTRY_BUNDLE_REF,
+)
 from polisyos.scientist.orchestration.engine.builtins import builtin_nodes as engine_builtin_nodes
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
@@ -33,24 +41,24 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     normalize_checkpoint_policy,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutionResult, WorkflowExecutor
-from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
-from polisyos.scientist.orchestration.engine.runner.config import WorkflowRunnerConfig, build_workflow_runner
-from polisyos.scientist.orchestration.engine.state_branching import snapshot_state
-from polisyos.scientist.nodes.builtins.state_keys import (
-    INPUT_DATA_SNAPSHOT_REF,
-    INPUT_DATA_VIEW_REQUEST_REF,
-    INPUT_GRAPH_PRIOR_BUNDLE_REF,
-    INPUT_INPUT_BINDINGS_REF,
-    INPUT_REGISTRY_BUNDLE_REF,
+from polisyos.scientist.orchestration.engine.executor import (
+    WorkflowExecutionResult,
+    WorkflowExecutor,
 )
-from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
+from polisyos.scientist.orchestration.engine.runner.config import (
+    WorkflowRunnerConfig,
+    build_workflow_runner,
+)
+from polisyos.scientist.orchestration.engine.state_branching import snapshot_state
 from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
 from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
 from polisyos.scientist.orchestration.workflows.discovery import discovery_workflow_spec
 from polisyos.scientist.orchestration.workflows.policy_design import policy_design_workflow_spec
 from polisyos.scientist.orchestration.workflows.policy_verified import policy_verified_workflow_spec
-from polisyos.scientist.orchestration.workflows.selection import resolve_workflow_id as _resolve_workflow_id
+from polisyos.scientist.orchestration.workflows.selection import (
+    resolve_workflow_id as _resolve_workflow_id,
+)
 
 if TYPE_CHECKING:
     import logging
@@ -94,6 +102,7 @@ _WORKFLOW_BUILDER_PROVENANCE_ERRORS = (
     ValueError,
 )
 _WORKFLOW_BUILDER_ARTIFACT_REF_ERRORS = (TypeError, ValueError, ValidationError)
+_SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
 def _build_default_store() -> ArtifactStore:
@@ -152,6 +161,8 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     tenant_id = get_current_tenant_id_or_none()
     if tenant_id is None:
         return store
+    if _is_content_addressed_filesystem_store(store):
+        return store
     try:
         from polisyos.core.security.namespace import NamespacedArtifactStore
 
@@ -162,6 +173,16 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
         )
     except (*_WORKFLOW_BUILDER_IMPORT_ERRORS, *_WORKFLOW_BUILDER_NAMESPACE_ERRORS):
         return store
+
+
+def _is_content_addressed_filesystem_store(store: ArtifactStore) -> bool:
+    """Return true when namespace prefixes would corrupt content-addressed CAS IDs."""
+    try:
+        from polisyos.core.artifacts.store import FileSystemCAS
+    except _WORKFLOW_BUILDER_IMPORT_ERRORS:  # pragma: no cover - optional dependency guard
+        return False
+    target = getattr(store, "_target", store)
+    return isinstance(target, FileSystemCAS)
 
 
 def _maybe_create_provenance_dag(run_id: str) -> object | None:
@@ -277,13 +298,20 @@ def build_execution_context(
     Returns:
         Fully initialized `ExecutionContext` with a started `RunContext`.
     """
+    access_scope = get_current_access_scope_or_none()
+    tenant_id = get_current_tenant_id_or_none()
+    cell_id = get_current_cell_id()
+    if access_scope is not None:
+        tenant_id = tenant_id or access_scope.tenant_id
+        cell_id = cell_id or access_scope.cell_id
+
     run = RunContext.start(
         store,
         registry_bundle_ref,
         run_id=run_id,
-        tenant_id=get_current_tenant_id_or_none(),
-        cell_id=get_current_cell_id(),
-        access_scope=get_current_access_scope_or_none(),
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        access_scope=access_scope,
     )
     resolved_metrics: EngineMetricsCollector | None = metrics
     if resolved_metrics is None and engine_metrics_factory is not None:
@@ -292,7 +320,10 @@ def build_execution_context(
     return ExecutionContext(
         store=store,
         run=run,
-        logger=cast("logging.Logger", logger or get_logger("polisyos.scientist.orchestration.engine")),
+        logger=cast(
+            "logging.Logger",
+            logger or get_logger("polisyos.scientist.orchestration.engine"),
+        ),
         tracer=tracer,
         depth=depth,
         metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
@@ -354,6 +385,114 @@ def _ensure_snapshot_bind(state: ExperimentState) -> None:
             "Missing snapshot input: provide data_snapshot_ref, input_bindings_ref, "
             "or data_view_request_ref"
         )
+
+
+def _is_serious_execution_profile(value: object) -> bool:
+    return str(value or "").strip().lower() in _SERIOUS_EXECUTION_PROFILES
+
+
+def _existing_foundry_method_report_ref(state: ExperimentState) -> str | None:
+    for source in (state.params, state.reports_index):
+        value = source.get("foundry_method_report_ref")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+        ref = _artifact_ref_or_none(value)
+        if ref is not None:
+            return str(ref.artifact_id)
+    value = state.reports_index.get("foundry_method_report")
+    ref = _artifact_ref_or_none(value)
+    if ref is not None:
+        return str(ref.artifact_id)
+    return None
+
+
+def _existing_foundry_method_obligation_report_ref(state: ExperimentState) -> str | None:
+    for key in (
+        "foundry_method_obligation_report_ref",
+        "foundry_method_obligation_report",
+    ):
+        for source in (state.params, state.reports_index):
+            value = source.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+            ref = _artifact_ref_or_none(value)
+            if ref is not None:
+                return str(ref.artifact_id)
+    return None
+
+
+def _attach_foundry_method_obligation_report_if_required(
+    state: ExperimentState,
+    *,
+    store: ArtifactStore,
+) -> None:
+    """Persist the pre-claim method-obligation report for serious executions."""
+    if not _is_serious_execution_profile(state.execution_profile):
+        return
+    if _existing_foundry_method_obligation_report_ref(state):
+        return
+
+    from polisyos.foundry.validation.method_quality import (
+        OBLIGATION_REPORT_REF_KEY,
+        expected_method_expectations_from_state,
+        persist_foundry_method_obligation_report_for_state,
+    )
+
+    expected_method_expectations = expected_method_expectations_from_state(state)
+    if not expected_method_expectations:
+        return
+
+    report_ref, report = persist_foundry_method_obligation_report_for_state(
+        store,
+        state,
+        expected_method_expectations=expected_method_expectations,
+        canary_kind=str(state.execution_profile or "production"),
+    )
+    state.reports_index[OBLIGATION_REPORT_REF_KEY] = report_ref
+    state.reports_index["foundry_method_obligation_report"] = report_ref
+    state.params[OBLIGATION_REPORT_REF_KEY] = str(report_ref.artifact_id)
+    state.params["foundry_method_obligation_report_status"] = str(
+        report.get("status") or ""
+    )
+    state.params["foundry_method_obligation_report_blocking_issue_count"] = int(
+        report.get("blocking_issue_count") or 0
+    )
+    state.params["foundry_method_obligation_expected_method_expectations"] = list(
+        report.get("expected_method_expectations") or []
+    )
+    state.params["foundry_method_obligations_requested_before_claims"] = True
+
+
+def _attach_foundry_method_report_if_required(
+    result: WorkflowExecutionResult,
+    *,
+    store: ArtifactStore,
+) -> WorkflowExecutionResult:
+    """Persist one Foundry method-quality report for serious workflow executions."""
+    state = result.state
+    if not _is_serious_execution_profile(state.execution_profile):
+        return result
+    if _existing_foundry_method_report_ref(state):
+        return result
+
+    from polisyos.foundry.validation.method_quality import (
+        REPORT_REF_KEY,
+        persist_foundry_method_report_for_state,
+    )
+
+    report_ref, report = persist_foundry_method_report_for_state(
+        store,
+        state,
+        canary_kind=str(state.execution_profile or "production"),
+    )
+    state.reports_index[REPORT_REF_KEY] = report_ref
+    state.reports_index["foundry_method_report"] = report_ref
+    state.params[REPORT_REF_KEY] = str(report_ref.artifact_id)
+    state.params["foundry_method_report_status"] = str(report.get("status") or "")
+    state.params["foundry_method_report_blocking_issue_count"] = int(
+        report.get("blocking_issue_count") or 0
+    )
+    return result
 
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
@@ -545,6 +684,7 @@ def run_policy_design_workflow(
     )
 
     _ensure_snapshot_bind(state)
+    _attach_foundry_method_obligation_report_if_required(state, store=store)
 
     if foundry is None:
         foundry = DefaultFoundryPort()
@@ -578,7 +718,8 @@ def run_policy_design_workflow(
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = policy_design_workflow_spec()
-        return executor.execute(workflow, state)
+        result = executor.execute(workflow, state)
+        return _attach_foundry_method_report_if_required(result, store=store)
     finally:
         lock.release()
 
@@ -647,7 +788,8 @@ def run_discovery_workflow(
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = discovery_workflow_spec()
-        return executor.execute(workflow, state)
+        result = executor.execute(workflow, state)
+        return _attach_foundry_method_report_if_required(result, store=store)
     finally:
         lock.release()
 
@@ -690,6 +832,7 @@ def run_default_workflow(
     )
 
     _ensure_snapshot_bind(state)
+    _attach_foundry_method_obligation_report_if_required(state, store=store)
 
     if foundry is None:
         foundry = DefaultFoundryPort()
@@ -730,7 +873,7 @@ def run_default_workflow(
             import asyncio
 
             runner = build_workflow_runner(runner_config)
-            return asyncio.run(
+            result = asyncio.run(
                 runner.execute_workflow(
                     workflow,
                     state,
@@ -740,9 +883,11 @@ def run_default_workflow(
                     max_parallelism=runner_config.max_parallelism,
                 )
             )
+            return _attach_foundry_method_report_if_required(result, store=store)
 
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
-        return executor.execute(workflow, state)
+        result = executor.execute(workflow, state)
+        return _attach_foundry_method_report_if_required(result, store=store)
     finally:
         lock.release()
         if enforcer is not None:
@@ -797,6 +942,7 @@ def run_policy_verified_workflow(
     )
 
     _ensure_snapshot_bind(state)
+    _attach_foundry_method_obligation_report_if_required(state, store=store)
 
     if foundry is None:
         foundry = DefaultFoundryPort()
@@ -830,7 +976,8 @@ def run_policy_verified_workflow(
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = policy_verified_workflow_spec()
-        return executor.execute(workflow, state)
+        result = executor.execute(workflow, state)
+        return _attach_foundry_method_report_if_required(result, store=store)
     finally:
         lock.release()
 
@@ -873,6 +1020,7 @@ def run_causal_full_workflow(
     )
 
     _ensure_snapshot_bind(state)
+    _attach_foundry_method_obligation_report_if_required(state, store=store)
 
     if foundry is None:
         foundry = DefaultFoundryPort()
@@ -906,7 +1054,8 @@ def run_causal_full_workflow(
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = causal_full_workflow_spec()
-        return executor.execute(workflow, state)
+        result = executor.execute(workflow, state)
+        return _attach_foundry_method_report_if_required(result, store=store)
     finally:
         lock.release()
 

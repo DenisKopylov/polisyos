@@ -19,9 +19,9 @@ class ArtifactID(RootModel[str]):
 
     prefix: ClassVar[str] = "sha256:"
 
-    @field_validator("root")
+    @field_validator("root", mode="before")
     @classmethod
-    def validate_root(cls, v: str) -> str:
+    def validate_root(cls, v: object) -> str:
         """Validate and normalize the serialized artifact identifier.
 
         Raises:
@@ -30,7 +30,7 @@ class ArtifactID(RootModel[str]):
                 format is invalid.
         """
         if not isinstance(v, str):
-            raise TypeError("ArtifactID must be a string")
+            v = str(v)
         if not v.startswith(cls.prefix):
             raise ValueError("ArtifactID must start with sha256:")
         hex64 = v[len(cls.prefix) :].lower()

@@ -37,6 +37,11 @@
     "degradation_kind": "live_provider_failover",
     "downstream_impact": "No semantic loss; secondary provider uses the same approved live model family and prompt contract.",
     "override_policy": "registry_allowed",
+    "provenance_refs": [
+      "event://diagnostic/evt_hds_phase02_allowed_fallback_pass",
+      "cas://sha256/9999999999999999999999999999999999999999999999999999999999999999"
+    ],
+    "typed_blocker": null,
     "blocking_status": "non_blocking",
     "owner": "team-runtime-ops",
     "generated_at": "2026-05-14T12:00:30Z",

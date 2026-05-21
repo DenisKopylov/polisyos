@@ -30,7 +30,12 @@ import {
   type ReadingOnboardingStepId,
 } from "@/features/runs/domain/operatorCraft";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
+import {
+  cn,
+  formatDate,
+  formatNumber,
+  formatPercent,
+} from "@/shared/lib/utils";
 import { Badge, Button, Slider, Textarea } from "@/shared/ui";
 
 const MAX_VISIBLE_HIDDEN_CLAIMS = 3;
@@ -77,6 +82,7 @@ export function OperatorCraftPanel({
         decisionView: summary.decisionView,
         evidenceContext: summary.evidenceContext,
         governanceIssues: summary.governanceIssues,
+        policyDesignCaseProjection: summary.run?.policy_design_case_projection,
         runId,
       }),
     [
@@ -85,6 +91,7 @@ export function OperatorCraftPanel({
       summary.decisionView,
       summary.evidenceContext,
       summary.governanceIssues,
+      summary.run?.policy_design_case_projection,
     ],
   );
 

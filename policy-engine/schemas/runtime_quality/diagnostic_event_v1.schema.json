@@ -1,0 +1,229 @@
+{
+  "$id": "https://schemas.polisyos.dev/runtime_quality/diagnostic_event_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "ADR-0154 runtime diagnostic event envelope.",
+  "properties": {
+    "artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Refs",
+      "type": "array"
+    },
+    "blocking_status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Blocking Status"
+    },
+    "cell_id": {
+      "title": "Cell Id",
+      "type": "string"
+    },
+    "dedupe_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Dedupe Key"
+    },
+    "duplicate_of": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Duplicate Of"
+    },
+    "event_id": {
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_source": {
+      "title": "Event Source",
+      "type": "string"
+    },
+    "event_subject": {
+      "title": "Event Subject",
+      "type": "string"
+    },
+    "event_time": {
+      "format": "date-time",
+      "title": "Event Time",
+      "type": "string"
+    },
+    "event_type": {
+      "title": "Event Type",
+      "type": "string"
+    },
+    "execution_profile": {
+      "title": "Execution Profile",
+      "type": "string"
+    },
+    "input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Refs",
+      "type": "array"
+    },
+    "job_id": {
+      "title": "Job Id",
+      "type": "string"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Parent Span Id"
+    },
+    "payload_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Payload Ref"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "producer_component": {
+      "title": "Producer Component",
+      "type": "string"
+    },
+    "producer_version": {
+      "title": "Producer Version",
+      "type": "string"
+    },
+    "redaction_policy_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Redaction Policy Ref"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "sampling_decision": {
+      "default": "always_record",
+      "title": "Sampling Decision",
+      "type": "string"
+    },
+    "sampling_rate": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sampling Rate"
+    },
+    "schema_name": {
+      "const": "polisyos.runtime.quality.diagnostic_event",
+      "title": "Schema Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "span_id": {
+      "title": "Span Id",
+      "type": "string"
+    },
+    "state_after": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "State After"
+    },
+    "state_before": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "State Before"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_source",
+    "event_type",
+    "event_time",
+    "event_subject",
+    "schema_name",
+    "schema_version",
+    "trace_id",
+    "span_id",
+    "parent_span_id",
+    "run_id",
+    "job_id",
+    "tenant_id",
+    "cell_id",
+    "producer_component",
+    "producer_version",
+    "execution_profile",
+    "phase",
+    "state_before",
+    "state_after",
+    "payload_ref",
+    "artifact_refs",
+    "input_refs",
+    "blocking_status",
+    "redaction_policy_ref",
+    "duplicate_of",
+    "dedupe_key"
+  ],
+  "title": "PolicyOS Diagnostic Event Envelope v1",
+  "type": "object"
+}

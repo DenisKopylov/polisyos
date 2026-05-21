@@ -1,0 +1,68 @@
+{
+  "fixture_id": "claim_argument_closeout_gate_pass",
+  "adr": "ADR-0161",
+  "contract_name": "policy_design_case.claim_argument_closeout_gate.v1",
+  "expected_status": "pass",
+  "expected_failure_code": null,
+  "sdd_record_families": [
+    "claim_argument_evidence_case.v1"
+  ],
+  "description": "Major claim has argument, warrant, rebuttal/counter-evidence, deficits, blockers, and BERL reliability refs where required.",
+  "runtime_authority_envelope": {
+    "envelope_id": "pdc_env_adr0161_pass",
+    "artifact_ref": "cas://sha256/0161016101610161016101610161016101610161016101610161016101610161",
+    "cas_ref": "cas://sha256/0161016101610161016101610161016101610161016101610161016101610161",
+    "authority_role": "producer_authority",
+    "provenance_kind": "runtime_emitted",
+    "producer_component": "polisyos.runtime.quality.claim_compiler",
+    "producer_version": "2026.05.17+pdc-phase1.1",
+    "owner": "team-claim-compiler",
+    "runtime_event_ref": "event://policy_design_case/adr0161/claim_argument/pass",
+    "schema_name": "policy_design_case.claim_argument_closeout_gate",
+    "schema_version": "1.0.0",
+    "reader_contract": "policy_design_case.claim_argument_closeout_gate.v1",
+    "tenant_id": "tenant_pdc_demo",
+    "cell_id": "cell_eu_central_1",
+    "run_id": "run_pdc_phase_1_1_research_001",
+    "job_id": "job_pdc_claim_compiler_001",
+    "requested_execution_profile": "research",
+    "effective_execution_profile": "research",
+    "generated_at": "2026-05-17T08:05:00Z",
+    "same_input_closure": {
+      "closure_id": "pdc_same_input_adr0161_pass",
+      "status": "closed",
+      "policy_intent_ref": "cas://sha256/1111111111111111111111111111111111111111111111111111111111111111",
+      "evidence_input_refs": [
+        "cas://sha256/1717171717171717171717171717171717171717171717171717171717171717",
+        "cas://sha256/1818181818181818181818181818181818181818181818181818181818181818"
+      ],
+      "closure_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "validation_status": "pass",
+    "blocking_status": "non_blocking"
+  },
+  "payload": {
+    "claim_id": "claim.income_floor_reduces_extreme_poverty",
+    "assurance_case_node_ref": "cas://sha256/1717171717171717171717171717171717171717171717171717171717171717",
+    "policy_concept_refs": [
+      "concept.minimum_income.floor"
+    ],
+    "evidence_portfolio_refs": [
+      "cas://sha256/5656565656565656565656565656565656565656565656565656565656565656"
+    ],
+    "argument_strategy": "triangulated_policy_design_case",
+    "warrant_ref": "cas://sha256/1818181818181818181818181818181818181818181818181818181818181818",
+    "rebuttal_refs": [
+      "cas://sha256/1919191919191919191919191919191919191919191919191919191919191919"
+    ],
+    "counter_evidence_refs": [
+      "cas://sha256/2020202020202020202020202020202020202020202020202020202020202020"
+    ],
+    "assurance_deficit_refs": [],
+    "blocker_refs": [],
+    "berl_reliability_refs": [
+      "cas://sha256/2121212121212121212121212121212121212121212121212121212121212121"
+    ],
+    "accepted_for_closeout": true
+  }
+}

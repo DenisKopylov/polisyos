@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos://schemas/runtime_quality/policy_design_best_in_class_benchmarking_v1.schema.json",
+  "title": "Policy Design Best-In-Class Benchmarking Record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "record_id",
+    "case_id",
+    "run_id",
+    "job_id",
+    "authority_level",
+    "domain",
+    "status",
+    "benchmark_claim_ids",
+    "run_cost_ledger_refs",
+    "proportionality_evidence_refs",
+    "metrics",
+    "evidence_ref",
+    "runtime_event_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "policyos.runtime.policy_design_case.best_in_class_benchmarking.v1"
+    },
+    "contract_id": {
+      "const": "policy_design_case.best_in_class_benchmarking.v1"
+    },
+    "record_family": {
+      "const": "best_in_class_benchmarking.v1"
+    },
+    "record_id": {"type": "string", "minLength": 1},
+    "case_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "authority_level": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "enum": ["pass", "passed", "ok", "accepted", "verified"]},
+    "benchmark_claim_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "run_cost_ledger_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "proportionality_evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "external_audit_pass_rate",
+        "human_team_benchmark",
+        "reversal_rate",
+        "retraction_rate",
+        "calibration_error",
+        "claim_substantiation_rate",
+        "triangulation_coverage",
+        "operator_time_to_root_cause_seconds"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "external_audit_pass_rate": {"$ref": "#/$defs/metric"},
+        "human_team_benchmark": {"$ref": "#/$defs/metric"},
+        "reversal_rate": {"$ref": "#/$defs/metric"},
+        "retraction_rate": {"$ref": "#/$defs/metric"},
+        "calibration_error": {"$ref": "#/$defs/metric"},
+        "claim_substantiation_rate": {"$ref": "#/$defs/metric"},
+        "triangulation_coverage": {"$ref": "#/$defs/metric"},
+        "operator_time_to_root_cause_seconds": {"$ref": "#/$defs/metric"}
+      }
+    },
+    "evidence_ref": {"type": "string", "minLength": 1},
+    "runtime_event_ref": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "observed_value",
+        "target_value",
+        "direction",
+        "sample_size",
+        "evidence_ref",
+        "runtime_event_ref"
+      ],
+      "properties": {
+        "observed_value": {"type": "number", "minimum": 0},
+        "target_value": {"type": "number", "minimum": 0},
+        "direction": {
+          "type": "string",
+          "enum": ["higher_is_better", "lower_is_better", "within_tolerance"]
+        },
+        "tolerance": {"type": "number", "minimum": 0},
+        "sample_size": {"type": "integer", "minimum": 1},
+        "evidence_ref": {"type": "string", "minLength": 1},
+        "runtime_event_ref": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

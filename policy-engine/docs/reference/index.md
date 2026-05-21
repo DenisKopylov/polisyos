@@ -31,6 +31,7 @@ claims live in the linked child reference pages.
 | [Schemas](schemas.md)                                                | 82 JSON schemas with ABI versioning                                                                    |
 | [Public Surface](public-surface.md)                                  | Explicit supported package entrypoints and compatibility classes                                       |
 | [Generated Artifacts](generated-artifacts.md)                        | Authoritative source map, regeneration commands, and freshness rules                                   |
+| [Policy Design Case Failure And Repair Patterns](policy-design-case-failure-patterns.md) | Agent-facing anti-pattern and correct-pattern register for governance, evidence, runtime-quality, and PDC closeout |
 | [Repository Topology](repository-topology.md)                         | Final clean-cut product-root, docs, tools, tests, ops, data, and local-state placement map             |
 | [Documentation Inventory](documentation-inventory.md)                | Docs control ledger: source plans, owners, current QA evidence, and coordination conflicts             |
 | [Contributor Start Here](contributor-start-here.md)                  | “If you need to change X, start here” navigation index                                                 |

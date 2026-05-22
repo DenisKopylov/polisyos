@@ -1356,6 +1356,458 @@ plan.
 anti-pattern reasoning, and evaluation loops rather than speculative domain
 templates.
 
+#### C28 - Concept Spine Physical Form
+
+**Purpose:** decide whether the universal concept spine should be a global
+registry, a per-run reconciled artifact, or a hybrid.
+
+**Code-informed starting point:** `fabric/entity_resolution/*`,
+`scientist/cross_graph/*`, `ir/linker/*`, `ir/analytics/cross_graph.py`,
+`runtime/quality/semantic_binding.py`, Lex norm concepts, Fabric source
+contracts, Data Forge column/schema refs, and the C6/C7/C11 synthesis.
+
+**Research work:**
+
+- Compare three candidate physical forms:
+  - global governed concept registry;
+  - per-run reconciled spine artifact;
+  - hybrid model with governed namespaces plus per-run reconciliation records.
+- Define which concept classes must be globally governed versus resolved per
+  run: policy term, metric, data column, norm, method requirement, population,
+  geography, time, unit, and legal authority type.
+- Define identity, equivalence, broader/narrower, scope-shifted, conflicting,
+  deprecated, and unresolved relations.
+- Define how concept authority is scoped by jurisdiction, time, population,
+  data source, method, and authority profile.
+- Define how producer handshakes consume, emit, reject, and block concept ids.
+- Define lifecycle semantics: supersede, split, merge, invalidate, migrate,
+  replay under old concept semantics, and public notice.
+- Test examples where the same label is not the same concept because population,
+  geography, time, unit, legal instrument, or aggregation differs.
+
+**Output:** concept-spine physical-form decision memo, relation taxonomy, and
+fixture set. This is a research artifact, not a runtime schema commitment yet.
+
+**Acceptance:** the chosen form can represent legal, data, method, population,
+geography, and time examples without forcing global consensus where only
+per-run reconciliation is justified.
+
+#### C29 - Effective Independence Function
+
+**Purpose:** define how raw evidence lines collapse into effective independent
+support by claim type and authority level.
+
+**Code-informed starting point:** Foundry consensus/equivalence,
+Scholar source scoring and duplicate heuristics, Fabric lineage/source
+contracts, IR proof composability, Data Forge snapshots, claim registry,
+portfolio/synthesis modules, and C13/C14/C25/C26 synthesis.
+
+**Research work:**
+
+- Define evidence-line identity: source, author/institution, dataset,
+  transformation lineage, retrieval path, method family, assumptions, sponsor,
+  model, snapshot, legal authority, and concept spine refs.
+- Define collapse channels: shared primary source, shared corpus, shared data
+  pipeline, shared method family, shared assumptions, shared author pool,
+  shared sponsor/institution, shared LLM generation, shared legal authority, and
+  shared simulation DGP.
+- Define an `effective_independence(line_a, line_b) -> [0, 1]` model with
+  hard-collapse, partial-collapse, and no-collapse cases.
+- Define aggregation rules that prevent raw count inflation and preserve
+  counterevidence.
+- Define minimum effective independent evidence counts by claim family and
+  authority level, with explicit deficits where the count cannot be met.
+- Test examples where raw evidence count rises but effective support does not.
+
+**Output:** effective-independence calculus, decision table, and fixture pack.
+
+**Acceptance:** the function can classify at least data, legal, scholar,
+method, simulation, and participation evidence lines and explain why two lines
+remain independent or collapse.
+
+#### C30 - Semantic Benchmark Rubric
+
+**Purpose:** define how expert panels distinguish structural pass from semantic
+false pass.
+
+**Code-informed starting point:** `challenge_factory.py`, citation
+faithfulness, claim support, audit verifier, semantic fixtures, authority
+spoofing tests, production-quality replay fixtures, P01-P15 pattern register,
+and C26 synthesis.
+
+**Research work:**
+
+- Define what expert reviewers must judge beyond structural validity:
+  interpretation, scope, legal competence, causal support, method fit,
+  time-role alignment, participation attribution, independence, and public
+  truthfulness.
+- Define adjudication labels for semantic pass, limitation required, contested,
+  unsupported, false pass, fabricated/unverifiable, and reviewer disagreement.
+- Define reviewer topology: domain reviewer, method/evidence reviewer,
+  legal/governance reviewer, public-surface reviewer, and tie-break protocol.
+- Define gold semantic adjudication sheet fields and review evidence required
+  for every rejected structural pass.
+- Define benchmark governance: hidden/public splits, versioning, leakage
+  controls, reviewer calibration, disagreement tracking, and anti-overfitting.
+- Include probes for faithful snippets that do not support the claim, authentic
+  but legally incompetent sources, stale but structurally valid data, and
+  audit-valid packages that still do not reconstruct a trustworthy case.
+
+**Output:** semantic benchmark rubric and reviewer protocol.
+
+**Acceptance:** the rubric can fail a structurally complete PDC for semantic
+reasons and produce a reproducible explanation of the failure.
+
+#### C31 - Acceptable Deficits By Authority Level
+
+**Purpose:** decide which deficits can be published with limitation, accepted
+internally, escalated to review, or blocked by authority level.
+
+**Code-informed starting point:** authority envelopes, claim support, scorecard,
+readiness, semantic binding, approval, public export guards, C1/C2/C3/C24, and
+current deficit/limitation records.
+
+**Research work:**
+
+- Define deficit families: missing evidence, stale evidence, proxy evidence,
+  weak independence, unresolved concept, contested evidence, legal uncertainty,
+  method limitation, participation gap, cost/degradation limit, and lifecycle
+  staleness.
+- Define authority levels and publication scopes where each deficit is:
+  allowed with limitation, internal-only, human-review-required, expert-review
+  required, accepted deficit, reissue-required, or hard-blocking.
+- Distinguish accepted deficit from publish-with-limitation and closeout block.
+- Define how deficits cap support strength, readiness, publication audience,
+  and closeout.
+- Define non-overridable deficits for governed and production modes.
+- Test mixed cases: strong data plus weak legal authority, strong method plus
+  stale source, contested evidence plus public recommendation, and proxy data
+  plus production claim.
+
+**Output:** authority-level deficit matrix and case fixtures.
+
+**Acceptance:** the same missing evidence cannot be silently treated as a
+limitation in one reader and a blocker in another without an explicit matrix
+rule.
+
+#### C32 - Complexity Budget And Ceremony Boundary
+
+**Purpose:** decide when PDC record families, gates, reviews, and controls
+become disproportionate, ceremonial, or economically impossible.
+
+**Code-informed starting point:** C24 self-FMEA, scorecard gates, phase
+barriers, record-family registry, performance budget, run-cost/degradation
+research, human-review escalation, and P01-P15 failure patterns.
+
+**Research work:**
+
+- Define complexity metrics: required record count, gate count, reviewer load,
+  run cost, wall-clock time, artifact size, rerun cost, warning backlog,
+  false-block rate, and marginal assurance value.
+- Define authority-level complexity budgets for research, governed, and
+  production runs.
+- Define when a record family may be sampled, deferred, scoped down,
+  authority-level-gated, or declared out of scope.
+- Define ceremony signals: repeated empty records, warnings with no owner,
+  controls that never affect decisions, reviews with no deltas, and gates that
+  are always waived.
+- Define how complexity risk becomes a self-FMEA finding and how it affects
+  closeout.
+- Compare complexity budget against the risk of under-assurance.
+
+**Output:** complexity-budget policy and ceremony-detection rubric.
+
+**Acceptance:** a complete PDC can be judged too heavy, too ceremonial, or
+proportionate for its requested authority level using explicit criteria.
+
+#### C33 - Rule Evolution Public Policy
+
+**Purpose:** decide which rule or taxonomy changes force replay, migration,
+grandfathering, mandatory revalidation, or public notice for past cases.
+
+**Code-informed starting point:** `schema_compat.py`, research DAG replay and
+invalidation, claim lifecycle, case lifecycle, rule/obligation governance,
+Data Forge migrations, Fabric evolution, shim governance, and C20/C21 synthesis.
+
+**Research work:**
+
+- Classify rule changes: editorial, schema-compatible, threshold change,
+  stricter admissibility, weaker admissibility, new blocker, retired blocker,
+  taxonomy split/merge, and authority-profile change.
+- Define public effects: no notice, internal migration, public annotation,
+  reissue review, supersede, withdrawal review, and mandatory revalidation.
+- Define old-logic replay, new-logic evaluation, comparison report, and
+  grandfathering policy.
+- Define when a past closed PDC remains historically valid but no longer
+  publishable as current guidance.
+- Define rule-version and logic-hash evidence required in every closed PDC.
+- Test examples where a causal claim closed under V1 becomes inadmissible under
+  V2 and where a taxonomy split changes affected claim scope.
+
+**Output:** rule-evolution public policy and replay/revalidation decision
+table.
+
+**Acceptance:** past cases can be audited under their original logic while
+stricter future logic can still trigger public revalidation where required.
+
+#### C34 - Participation Legitimacy Semantics
+
+**Purpose:** decide when participation evidence can support preference,
+acceptability, legitimacy, contestability, implementation feasibility, or only
+context claims.
+
+**Code-informed starting point:** C19 participation provenance synthesis,
+claim registry, public projection, Scholar evidence, human review, stakeholder
+fields in policy design, and P15 LLM speculation firewall.
+
+**Research work:**
+
+- Define participation claim types: preference, lived experience, acceptability,
+  legitimacy, procedural fairness, implementation feasibility, objection,
+  dissent, and context.
+- Define source kinds: survey, consultation, deliberative panel, hearing,
+  administrative complaint, civil-society submission, expert interview,
+  affected-person testimony, and LLM/analyst speculation.
+- Define minimum provenance for each claim use: who was asked, how, when,
+  sampling frame, representativeness, consent/redaction, facilitation, dissent,
+  sponsor, and limitations.
+- Define representativeness and attribution thresholds that distinguish
+  affected-person preference from context-only evidence.
+- Define how unresolved dissent appears in public projection without forced
+  aggregation.
+- Define when lack of participation is accepted deficit, blocker, or public
+  limitation by authority level and policy impact.
+
+**Output:** participation legitimacy matrix and provenance rubric.
+
+**Acceptance:** LLM or analyst speculation cannot support affected-person
+preference or legitimacy claims, and real participation evidence is limited to
+the claim uses its provenance can justify.
+
+#### C35 - Calibration Blocking Thresholds
+
+**Purpose:** define interim policy for when calibration and model track record
+warn, require review, cap readiness, or block high-authority runs.
+
+**Code-informed starting point:** calibration modules, DDM calibration audit,
+governance calibration reports, provider quality, challenge results, reflexive
+memory, C25 synthesis, and C26 evaluation.
+
+**Research work:**
+
+- Define calibration metrics that may matter for authority: interval coverage,
+  Brier/reliability, bias, reversal rate, retraction rate, blocker precision,
+  false-block rate, false-pass rate, and group/domain calibration.
+- Define which metrics require longitudinal evidence before becoming blockers.
+- Define interim non-blocking posture for sparse history: warn, review,
+  widen uncertainty, require additional evidence, reduce publication scope, or
+  mark insufficient calibration history.
+- Define when weak track record blocks only specific claim families, methods,
+  domains, jurisdictions, providers, or authority levels.
+- Define how calibration affects VOI, evidence budgets, uncertainty envelopes,
+  model/provider selection, and review depth without becoming current evidence.
+- Define data sufficiency thresholds before calibration metrics can block a
+  production run.
+
+**Output:** calibration blocking-threshold policy and interim sparse-history
+decision table.
+
+**Acceptance:** PolicyOS can use poor calibration history to constrain future
+runs without pretending that history closes or refutes the current claim.
+
+#### C36 - Capability Debt Algebra
+
+**Purpose:** define how incomplete capability states aggregate into release,
+readiness, and closeout risk.
+
+**Code-informed starting point:** C0 capability reality labels, P01-P15 pattern
+register, scorecard/readiness, closeout compatibility, docs gates, runtime
+inspection tools, and C27 readiness synthesis.
+
+**Research work:**
+
+- Define capability debt units: `contract_only`, `producer_missing`,
+  `artifact_missing`, `bridge_missing`, `consumer_missing`,
+  `verification_missing`, `implemented_but_not_orchestrated`,
+  `surface_missing`, `surface_out_of_scope`, `semantic_test_missing`,
+  `compatibility_shim`, and `projection_only`.
+- Define severity by capability purpose: evidence producer, authority gate,
+  closeout input, public surface, lifecycle trigger, diagnostic-only, or
+  internal helper.
+- Define aggregation rules: max severity, count thresholds, authority-weighted
+  debt, release blocker, accepted debt, and planned debt.
+- Define when a missing external surface is allowed as `surface_out_of_scope`
+  versus a release blocker.
+- Define debt burn-down signals and ratchet policy for future implementation
+  plans.
+- Test examples where several low-level debts combine into a high release risk.
+
+**Output:** capability debt algebra and release/readiness risk matrix.
+
+**Acceptance:** incomplete capability claims can be compared and prioritized
+without collapsing every gap into generic "not done."
+
+#### C37 - Bridge Authority Semantics
+
+**Purpose:** decide when an orchestration bridge is authority-bearing evidence
+and when it is only transport or diagnostic metadata.
+
+**Code-informed starting point:** evidence spine, evidence spine handoff,
+producer handshake, semantic binding, claim registry, authority envelopes,
+CAS writes, canary bundle assembly, replay, inspection, readiness, and public
+export surfaces.
+
+**Research work:**
+
+- Classify bridge artifacts: transport carrier, handoff ledger, binding
+  assertion, producer attestation, reader attestation, diagnostic projection,
+  and closeout evidence.
+- Define when a bridge may testify that a producer consumed a requirement,
+  emitted a binding, preserved identity, or lost/drop-shifted authority.
+- Define authority envelope requirements for bridge records that become
+  closeout inputs.
+- Define what bridge facts can support: causality, provenance, same-input
+  closure, requirement propagation, or only debugging.
+- Define failure modes: bridge missing, bridge contradicts producer artifact,
+  bridge has stale ids, bridge leaks raw content, bridge borrows authority, and
+  bridge masks producer failure.
+- Test async handoff examples across NL request, job lease, workflow state,
+  CAS write, bundle assembly, replay, inspection, readiness, and export.
+
+**Output:** bridge authority decision table and handoff evidence taxonomy.
+
+**Acceptance:** orchestration records can be used for closeout only where their
+authority role is explicit and cannot be confused with producer evidence.
+
+#### C38 - Obligation Explosion Control
+
+**Purpose:** prevent universal grammar and LLM-generated candidates from
+creating unbounded obligation lists that make every policy impossible to close.
+
+**Code-informed starting point:** universal facet grammar, obligation rule
+lifecycle, temporal logic, policy critic, challenge factory, VOI scheduler,
+evidence acquisition, complexity budget, and LLM firewall.
+
+**Research work:**
+
+- Define obligation source classes: governed rule, deterministic critic,
+  historical failure, legal requirement, producer blocker, LLM candidate,
+  human reviewer, and public contestation.
+- Define obligation priority classes: mandatory, authority-level mandatory,
+  conditional, review-required, candidate, optional, deferred, and rejected.
+- Define dominance, subsumption, deduplication, and grouping rules.
+- Define stop rules using authority level, policy impact, VOI, marginal
+  assurance value, cost, privacy, urgency, and public risk.
+- Define escalation for too many candidate obligations: bundle, sample, defer,
+  narrow scope, or request human triage.
+- Define how rejected or deferred obligations remain visible without blocking
+  closeout.
+- Test cases with dozens or hundreds of candidate risks and obligations.
+
+**Output:** obligation explosion control policy and prioritization matrix.
+
+**Acceptance:** LLMs can generate rich candidate obligations without causing
+unbounded mandatory gates or hidden deletion of inconvenient obligations.
+
+#### C39 - External Legitimacy Surface
+
+**Purpose:** decide what public, reviewer, expert, and machine audiences must
+see for contestability and accountability to be real.
+
+**Code-informed starting point:** PDC projection, public export guards,
+DecisionGradeExport, dashboard validators, audit verifier, assurance case,
+claim registry, participation provenance, contestability, tradeoff/welfare,
+and C16/C17/C18/C19 synthesis.
+
+**Research work:**
+
+- Define audience-specific obligations for public, reviewer, expert, machine,
+  dashboard, and audit consumers.
+- Define which fields each audience must see: claim graph, legal authority,
+  data basis, method basis, uncertainty, tradeoff frontier, value choice,
+  participation provenance, deficits, dissent, redactions, and audit refs.
+- Define what can be redacted without destroying contestability.
+- Define how public users can see "why not" for blocked, limited, contested,
+  or out-of-scope claims.
+- Define machine-readable commitments needed for external auditors to verify
+  projection truthfulness.
+- Define failure modes: public surface hides blocker, reviewer surface cannot
+  reconstruct claim, machine surface lacks refs, redaction masks dissent, or
+  dashboard promotes a projection as authority.
+
+**Output:** external legitimacy surface taxonomy and audience requirement
+matrix.
+
+**Acceptance:** every audience gets enough typed information to contest or
+audit what it is entitled to see, without turning projections into authority.
+
+#### C40 - Producer Coordination Liveness
+
+**Purpose:** define how Lex, Fabric, Scholar, Foundry, Data Forge, Scientist,
+and runtime quality coordinate through shared spine requirements without
+deadlock or circular waiting.
+
+**Code-informed starting point:** evidence spine, producer handshake,
+control worker/store, NL pipeline, Fabric source selection, Lex applicability,
+Foundry method selection, Scholar search, Data Forge snapshots, semantic
+binding, and canary evidence assembly.
+
+**Research work:**
+
+- Identify dependency cycles where producers wait for each other's concepts,
+  legal anchors, data scope, method obligations, or claim decomposition.
+- Define handshake states: requested, preflighted, waiting_on_spine,
+  waiting_on_peer, emitted_context_only, emitted_binding, blocked, timed_out,
+  degraded, rerun_required, and abandoned.
+- Define liveness rules: timeouts, fallback paths, partial emission, typed
+  blockers, retry limits, and escalation to human review.
+- Define topological or staged ordering where possible, and explicit cycles
+  where not possible.
+- Define how producer liveness interacts with VOI, acquisition, cost budget,
+  closeout, and public projection.
+- Test examples where Lex needs claim decomposition while claim decomposition
+  needs legal scope, or Foundry needs data scope while Fabric needs method
+  requirements.
+
+**Output:** producer coordination liveness model and cycle-resolution decision
+table.
+
+**Acceptance:** producer coordination can fail with narrow typed blockers
+instead of deadlocking, silently dropping requirements, or producing generic
+context-only artifacts as if they were bindings.
+
+#### C41 - Historical Priors Firewall
+
+**Purpose:** define how calibration and memory influence VOI, uncertainty,
+model choice, and review depth without becoming current-run evidence.
+
+**Code-informed starting point:** calibration ledger, reflexive memory,
+failure lessons, success patterns, VOI scheduler/calibration, provider quality,
+claim registry, evidence acquisition, and C25/C35 synthesis.
+
+**Research work:**
+
+- Define historical prior sources: calibration metrics, failure lessons,
+  success patterns, provider quality history, method performance history,
+  reviewer outcomes, and acquisition success rates.
+- Define permitted effects: search ranking, VOI estimate, evidence budget,
+  uncertainty widening, review escalation, provider/model selection, default
+  enablement, and benchmark priority.
+- Define forbidden effects: satisfying claim evidence, refuting current
+  evidence, minting legal/data/method/participation authority, or hiding
+  current-run deficits.
+- Define provenance fields that mark historical-prior influence in the current
+  Research DAG and PDC.
+- Define decay, scope, revocation, contamination, and success/failure balance.
+- Test cases where memory correctly increases review depth but does not close
+  or block the current claim by itself.
+
+**Output:** historical priors firewall policy and influence-record schema.
+
+**Acceptance:** future runs can be smarter because of past runs while every
+current claim still closes only through current-run admissible evidence or
+explicit typed deficits.
+
 ### Engineering Translation Tasks
 
 Engineering tasks should be planned in detail only after their conceptual gates

@@ -749,7 +749,13 @@ def _closeout_truth(
             }
         )
     blocker_codes = _unique_texts(blocker.get("code") for blocker in blockers)
-    limitation_codes = _issue_codes(closeout, severities={"warning", "limited", "limitation"})
+    closeout_limitations = _closeout_limitations(closeout)
+    limitation_codes = _unique_texts(
+        [
+            *_issue_codes(closeout, severities={"warning", "limited", "limitation"}),
+            *(row["code"] for row in closeout_limitations),
+        ]
+    )
     omission_codes = _issue_codes(
         closeout,
         severities={"incomplete", "missing", "omission", "omitted"},
@@ -920,6 +926,21 @@ def _projection_gaps(
                 closeout_effect="limited_closeout",
             )
         )
+    for limitation in _closeout_limitations(closeout_verdict):
+        gaps.append(
+            _gap(
+                gap_code=limitation["code"],
+                gap_family="limitation",
+                severity="limitation",
+                message=limitation["message"],
+                source=limitation["source"],
+                owner=limitation["owner"],
+                evidence_ref=limitation["evidence_ref"],
+                claim_ids=limitation["claim_ids"],
+                publication_effect="publish_with_limitation",
+                closeout_effect="limited_closeout",
+            )
+        )
     for issue in _closeout_issues(
         closeout_verdict,
         severities={"incomplete", "missing", "omission", "omitted"},
@@ -944,6 +965,37 @@ def _projection_gaps(
         if isinstance(raw_gap, Mapping):
             gaps.append(_normalize_gap(raw_gap, audience=audience))
     return _dedupe_gaps(gaps)
+
+
+def _closeout_limitations(closeout: Mapping[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for limitation in _sequence(closeout.get("limitations")):
+        if not isinstance(limitation, Mapping):
+            continue
+        code = _text(
+            limitation.get("limitation_id")
+            or limitation.get("deficit_id")
+            or limitation.get("code")
+        )
+        if not code:
+            continue
+        claim_ids = _text_list(limitation.get("claim_ids") or limitation.get("claim_refs"))
+        claim_id = _text(limitation.get("claim_id"))
+        if claim_id and claim_id not in claim_ids:
+            claim_ids.append(claim_id)
+        rows.append(
+            {
+                "code": code,
+                "message": _text(limitation.get("message")) or code,
+                "owner": _text(limitation.get("owner")),
+                "evidence_ref": _text(limitation.get("evidence_ref")),
+                "claim_ids": claim_ids,
+                "source": _text(limitation.get("source_module_id"))
+                or _text(limitation.get("module_id"))
+                or "closeout_reader",
+            }
+        )
+    return rows
 
 
 def _gap(

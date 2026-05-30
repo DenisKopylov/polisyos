@@ -9,6 +9,8 @@ from typing import Literal
 
 from pydantic import AwareDatetime, Field, model_validator
 
+from polisyos.core import artifacts, canon
+
 from .layer2_readiness import (
     AuthorityBoundary,
     AxisFirewallStatus,
@@ -396,6 +398,60 @@ def project_s2_design_search(
             "authority_boundary": boundary,
         }
     return projections
+
+
+def persist_s2_design_search_run(
+    run: Layer2S2DesignSearchRun,
+    *,
+    store: artifacts.FileSystemCAS,
+) -> dict[str, artifacts.ArtifactRef]:
+    """Persist S2 DesignRecordV0 and SearchLedger as canonical CAS artifacts."""
+
+    producer = artifacts.ProducerInfo(
+        component="polisyos.pdc.layer2_design_search",
+        version=S2_DESIGN_RECORD_RULE_VERSION,
+    )
+    design_record_ref = store.put_json(
+        run.design_record.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind="policyos.layer2_s2.design_record_v0",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="policyos.layer2_s2.design_record_v0",
+                version=run.design_record.schema_version,
+            ),
+            producer=producer,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    search_ledger_ref = store.put_json(
+        run.search_ledger.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind="policyos.layer2_s2.search_ledger",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="policyos.layer2_s2.search_ledger",
+                version=S2_DESIGN_SEARCH_SCHEMA_VERSION,
+            ),
+            producer=producer,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    return {
+        "design_record": design_record_ref,
+        "search_ledger": search_ledger_ref,
+    }
+
+
+def load_s2_search_ledger(
+    *,
+    store: artifacts.FileSystemCAS,
+    artifact_ref: artifacts.ArtifactRef,
+) -> SearchLedger:
+    """Load a persisted S2 SearchLedger from CAS."""
+
+    payload = canon.from_canonical_bytes(store.get_bytes(artifact_ref.artifact_id))
+    return SearchLedger.model_validate(payload)
 
 
 def _shadow_boundary(input: Layer2S2DesignSearchInput) -> AuthorityBoundary:

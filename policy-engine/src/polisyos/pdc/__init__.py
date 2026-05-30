@@ -30,6 +30,8 @@ from ._impl.layer2_design_search import (
     RefinementDecision,
     SearchLedger,
     TypedDiagnosticRecord,
+    load_s2_search_ledger,
+    persist_s2_design_search_run,
     project_s2_design_search,
     run_s2_shadow_design_loop,
 )
@@ -76,7 +78,9 @@ __all__ = [
     "TypedDiagnosticRecord",
     "ValueOfInformationEstimate",
     "compile_runtime_policy_design_case",
+    "load_s2_search_ledger",
     "persist_runtime_policy_design_case_graph",
+    "persist_s2_design_search_run",
     "project_s2_design_search",
     "run_s2_shadow_design_loop",
     "runtime_policy_design_case_projection_source",

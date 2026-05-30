@@ -195,3 +195,35 @@ def test_s2_machine_and_reviewer_projection_expose_trace_without_authority() -> 
     assert "publication_authority" in projections["REVIEWER"]["authority_boundary"][
         "may_not_use_for"
     ]
+
+
+def test_s2_persists_design_record_and_search_ledger(tmp_path: Path) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import persist_s2_design_search_run
+
+    run = run_s2_shadow_design_loop(_input())
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+
+    assert refs["design_record"].kind == "policyos.layer2_s2.design_record_v0"
+    assert refs["search_ledger"].kind == "policyos.layer2_s2.search_ledger"
+    assert refs["design_record"].media_type == "application/json"
+    assert refs["search_ledger"].media_type == "application/json"
+    design_record = json.loads(store.get_bytes(refs["design_record"].artifact_id))
+    search_ledger = json.loads(store.get_bytes(refs["search_ledger"].artifact_id))
+    assert design_record["record_id"] == run.design_record.record_id
+    assert search_ledger["deterministic_replay_key"] == (
+        run.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_loaded_ledger_replays_same_key(tmp_path: Path) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import load_s2_search_ledger, persist_s2_design_search_run
+
+    run = run_s2_shadow_design_loop(_input())
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+
+    assert loaded == run.search_ledger

@@ -1,0 +1,137 @@
+schema_version = "policyos.policy_design_case.layer2_slice_cell_matrix.v1"
+status = "active"
+owner = "team-policyos-runtime"
+cluster_ownership_map = "architecture/policy_design_case/cluster_ownership_map.toml"
+open_cell_count_baseline = 17
+s0_cells_closed = []
+
+[[assignment]]
+cell_ref = "INTERVENTION.design_grammar"
+slice = "S2"
+target_state = "implemented"
+layer = "design_search_control_plane"
+
+[[assignment]]
+cell_ref = "INTERVENTION.design_candidate"
+slice = "S2"
+target_state = "implemented"
+layer = "design_search_control_plane"
+
+[[assignment]]
+cell_ref = "KNOWLEDGE.epistemic_regime"
+slice = "S4"
+target_state = "implemented"
+layer = "epistemic_regime"
+
+[[assignment]]
+cell_ref = "INTERVENTION.reversibility_lifecycle_stakes"
+slice = "S4"
+target_state = "implemented"
+layer = "epistemic_regime"
+
+[[assignment]]
+cell_ref = "SYSTEM.connectivity_modularity"
+slice = "S5"
+target_state = "implemented"
+layer = "coupling_composition"
+
+[[assignment]]
+cell_ref = "SYSTEM.dynamics_feedback"
+slice = "S5"
+target_state = "implemented"
+layer = "coupling_composition"
+
+[[assignment]]
+cell_ref = "INTERVENTION.scale_composition"
+slice = "S5"
+target_state = "implemented"
+layer = "coupling_composition"
+
+[[assignment]]
+cell_ref = "OTHER_AGENTS.strategic_response"
+slice = "S6"
+target_state = "implemented"
+maturity = "fail_closed"
+layer = "blind_spot_firewalls"
+
+[[assignment]]
+cell_ref = "ACTOR.state_capacity_feasibility"
+slice = "S6"
+target_state = "implemented"
+maturity = "fail_closed"
+layer = "blind_spot_firewalls"
+
+[[assignment]]
+cell_ref = "ACTOR.mandate_legitimacy"
+slice = "S6"
+target_state = "implemented"
+maturity = "fail_closed"
+layer = "blind_spot_firewalls"
+
+[[assignment]]
+cell_ref = "SYSTEM.measurability"
+slice = "S6"
+target_state = "implemented"
+maturity = "fail_closed"
+layer = "blind_spot_firewalls"
+
+[[assignment]]
+cell_ref = "SYSTEM.subject_granularity"
+slice = "S6"
+target_state = "implemented"
+maturity = "fail_closed"
+layer = "blind_spot_firewalls"
+
+[[assignment]]
+cell_ref = "ACTOR.value_choice_provenance"
+slice = "S8"
+target_state = "implemented"
+layer = "normative_firewall"
+
+[[assignment]]
+cell_ref = "KNOWLEDGE.calibration"
+slice = "S11"
+target_state = "implemented"
+layer = "rich_knowledge_producers"
+
+[[assignment]]
+cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
+slice = "S11"
+target_state = "implemented"
+layer = "rich_knowledge_producers"
+
+[[assignment]]
+cell_ref = "CROSS_CUTTING.scientist_orchestration"
+slice = "S2"
+target_state = "implemented"
+layer = "generation_handoff"
+
+[[assignment]]
+cell_ref = "DESIGNER_ITSELF.envelope_growth"
+slice = "S12"
+target_state = "implemented"
+layer = "resource_economics_and_envelope_growth"
+
+[[maturity_transition]]
+cell_ref = "OTHER_AGENTS.strategic_response"
+from_maturity = "fail_closed"
+to_maturity = "predictive"
+slice = "S11"
+
+[[maturity_transition]]
+cell_ref = "ACTOR.state_capacity_feasibility"
+from_maturity = "fail_closed"
+to_maturity = "predictive"
+slice = "S11"
+
+[[maturity_transition]]
+cell_ref = "SYSTEM.measurability"
+from_maturity = "fail_closed"
+to_maturity = "predictive"
+slice = "S11"
+
+[[maturity_transition]]
+cell_ref = "SYSTEM.subject_granularity"
+from_maturity = "fail_closed"
+to_maturity = "predictive"
+slice = "S11"

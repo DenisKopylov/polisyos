@@ -1,0 +1,278 @@
+schema_version = "policyos.policy_design_case.layer2_artifact_traceability.v1"
+status = "active"
+owner = "team-policyos-runtime"
+
+[[artifact]]
+name = "MinimalSeedManifest"
+slice = "S0"
+maturity = "frozen_for_s2_start"
+
+[[artifact]]
+name = "ValueOfInformationEstimate"
+slice = "S0"
+maturity = "skeleton_contract"
+
+[[artifact]]
+name = "GovernanceDecisionClass"
+slice = "S0"
+maturity = "skeleton_contract"
+
+[[artifact]]
+name = "AxisPositionDeclaration"
+slice = "S0"
+maturity = "skeleton_contract"
+
+[[artifact]]
+name = "AxisFirewallStatus"
+slice = "S0"
+maturity = "skeleton_contract"
+
+[[artifact]]
+name = "CertifiedOperationEnvelope"
+slice = "S0"
+maturity = "skeleton_contract"
+
+[[artifact]]
+name = "DesignRecord"
+slice = "S0"
+maturity = "v0_schema"
+
+[[artifact]]
+name = "DesignGrammarExpansion"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "ConstraintStoreSnapshot"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "CounterexampleRecord"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "RefinementDecision"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "SearchLedger"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "ClusterInterfaceContract"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "ClusterHandoffRecord"
+slice = "S2"
+maturity = "planned"
+
+[[artifact]]
+name = "FacetPrimitiveRegistry"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "ConstructExpression"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "ConstructDemandLedger"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "ConstructOntologyDelta"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "CapabilityBindingResult"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "SubstrateCoverageSnapshot"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "AcquisitionTaskRecord"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "SourceContract"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "RerunClosureReceipt"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "HonestAbstentionReceipt"
+slice = "S3"
+maturity = "planned"
+
+[[artifact]]
+name = "EpistemicRegimeClaim"
+slice = "S4"
+maturity = "planned"
+
+[[artifact]]
+name = "CommitmentProfileRecord"
+slice = "S4"
+maturity = "planned"
+
+[[artifact]]
+name = "CouplingGraph"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "CouplingRegimeClassification"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "DecompositionResult"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "RecursiveDesignGraph"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "DesignInterfaceContract"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "SystemDynamicsRequirement"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "CompositionReceipt"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "ComputationalTractabilityBudget"
+slice = "S5"
+maturity = "planned"
+
+[[artifact]]
+name = "CapacityFeasibilityRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "MandateLegitimacyRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "MeasurabilityAdequacyRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "AggregationValidityRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "StrategicResponseRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "ClusterAuthorityDimensionRecord"
+slice = "S6"
+maturity = "planned_fail_closed"
+
+[[artifact]]
+name = "DelegationContract"
+slice = "S7"
+maturity = "planned"
+
+[[artifact]]
+name = "DecisionRightsMatrix"
+slice = "S7"
+maturity = "planned"
+
+[[artifact]]
+name = "HumanDecisionRequest"
+slice = "S7"
+maturity = "planned"
+
+[[artifact]]
+name = "HumanDecisionRecord"
+slice = "S7"
+maturity = "planned"
+
+[[artifact]]
+name = "ParetoArchive"
+slice = "S8"
+maturity = "planned"
+
+[[artifact]]
+name = "ForecastSupport"
+slice = "S10"
+maturity = "planned"
+
+[[artifact]]
+name = "ForecastCalibrationRecord"
+slice = "S10"
+maturity = "planned"
+
+[[artifact]]
+name = "ProofCarryingAnalyticsRecord"
+slice = "S11"
+maturity = "planned"
+
+[[artifact]]
+name = "KnowledgeGovernanceThroughputLedger"
+slice = "S12"
+maturity = "planned"
+
+[[artifact]]
+name = "DeploymentDossier"
+slice = "S13"
+maturity = "planned"
+
+[[artifact]]
+name = "DivergenceRecord"
+slice = "S13"
+maturity = "planned"
+
+[[artifact]]
+name = "LearningUpdateProposal"
+slice = "S13"
+maturity = "planned"
+
+[[artifact]]
+name = "EnvelopeRevision"
+slice = "S13"
+maturity = "planned"
+
+[[artifact]]
+name = "CertifiedEnvelopeDelta"
+slice = "S13"
+maturity = "planned"
+
+[[artifact]]
+name = "AssuranceCaseDelta"
+slice = "S13"
+maturity = "planned"

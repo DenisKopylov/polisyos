@@ -1,0 +1,23 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_dependency_dag.v1",
+  "status": "active",
+  "owner": "team-policyos-runtime",
+  "critical_path": ["S0", "S2", "S3", "S4", "S5", "S6", "S7"],
+  "nodes": {
+    "S0": {"label": "readiness_narrow_waist", "prerequisites": []},
+    "S1": {"label": "graded_outcomes_a_side", "prerequisites": []},
+    "S2": {"label": "grammar_candidate_search_design_record_v0", "prerequisites": ["S0"]},
+    "S3": {"label": "substrate_acquisition_ua_msme", "prerequisites": ["S0", "S2"]},
+    "S4": {"label": "epistemic_regime", "prerequisites": ["S3"]},
+    "S5": {"label": "coupling_composition", "prerequisites": ["S4"]},
+    "S6": {"label": "fail_closed_blind_spots", "prerequisites": ["S5"]},
+    "S7": {"label": "delegation", "prerequisites": ["S2", "S6"]},
+    "S8": {"label": "normative_firewall_value_choice", "prerequisites": ["S7"]},
+    "S9": {"label": "design_record_projection", "prerequisites": ["S2", "S5", "S8"]},
+    "S10": {"label": "outcome_prediction", "prerequisites": ["S5", "S6", "S8"]},
+    "S11": {"label": "rich_blind_spot_models", "prerequisites": ["S6", "S10"]},
+    "S12": {"label": "cold_start_resource_economics", "prerequisites": ["S3", "S7"]},
+    "S13": {"label": "post_deploy_accountability", "prerequisites": ["S7", "S9", "S12"]},
+    "S14": {"label": "universality_battery", "prerequisites": ["S1", "S2", "S3", "S4", "S5", "S6"]}
+  }
+}

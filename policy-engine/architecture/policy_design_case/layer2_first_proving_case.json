@@ -1,0 +1,18 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_first_proving_case.v1",
+  "status": "active",
+  "owner": "team-policyos-runtime",
+  "case_id": "ukrainian_msme_credit_constructs",
+  "jurisdiction": "ukraine",
+  "policy_area": "msme_credit_support",
+  "constructs": [
+    "credit_program_enrollment",
+    "firm_survival",
+    "regional_displacement_pressure",
+    "credit_access",
+    "fiscal_burden_per_beneficiary"
+  ],
+  "first_slice_using_case": "S3",
+  "purpose": "Repair the real W12 construct-observation failure mode rather than demonstrating a convenient case.",
+  "authority_boundary": "proving_case_only_not_publication_authority"
+}

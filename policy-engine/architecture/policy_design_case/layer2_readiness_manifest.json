@@ -1,0 +1,34 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_readiness_manifest.v1",
+  "status": "active",
+  "owner": "team-policyos-runtime",
+  "slice": "S0",
+  "cells_closed": [],
+  "open_cell_count_baseline": 17,
+  "artifacts": [
+    "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
+    "architecture/policy_design_case/layer2_dependency_dag.json",
+    "architecture/policy_design_case/layer2_slice_cell_matrix.toml",
+    "architecture/policy_design_case/layer2_floor_governance.toml",
+    "architecture/policy_design_case/layer2_artifact_traceability.toml",
+    "architecture/policy_design_case/layer2_corpus_partition.json",
+    "architecture/policy_design_case/layer2_first_proving_case.json"
+  ],
+  "validators": [
+    "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+    "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"
+  ],
+  "readiness_items": [
+    "MinimalSeedManifest",
+    "DesignRecordV0 schema",
+    "Dependency DAG",
+    "Slice to open-cell matrix",
+    "Floor governance table",
+    "Artifact traceability table",
+    "Corpus partition",
+    "First proving case",
+    "Shared cross-cutting contract skeletons",
+    "Cell maturity qualifier",
+    "Cell vs layer and full cell coverage"
+  ]
+}

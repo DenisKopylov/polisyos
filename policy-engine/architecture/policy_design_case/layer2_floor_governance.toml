@@ -1,0 +1,107 @@
+schema_version = "policyos.policy_design_case.layer2_floor_governance.v1"
+status = "active"
+owner = "team-policyos-runtime"
+
+[[floor]]
+floor_id = "s2_counterexample_conversion"
+slice = "S2"
+metric = "counterexample_conversion_rate"
+floor_owner = "team-runtime-quality"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "governance_pr_required_for_floor_or_denominator_change"
+
+[[floor]]
+floor_id = "s3_acquisition_closure"
+slice = "S3"
+metric = "acquisition_closure_rate"
+floor_owner = "team-integration-spine"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "source_contract_and_rerun_closure_required"
+
+[[floor]]
+floor_id = "s4_regime_accuracy"
+slice = "S4"
+metric = "regime_accuracy_with_asymmetric_false_risk_penalty"
+floor_owner = "team-policy-design-research"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "expert_label_change_requires_recorded_adjudication"
+
+[[floor]]
+floor_id = "s5_coupling_accuracy"
+slice = "S5"
+metric = "coupling_accuracy_with_false_modular_penalty"
+floor_owner = "team-runtime-quality"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "negative_control_cannot_be_removed_without_replacement"
+
+[[floor]]
+floor_id = "s6_fail_closed_coverage"
+slice = "S6"
+metric = "per_axis_fail_closed_negative_control_pass_rate"
+floor_owner = "team-runtime-quality"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "all_five_blind_spot_axes_required"
+
+[[floor]]
+floor_id = "s7_delegation_integrity"
+slice = "S7"
+metric = "delegation_precision_recall_and_responsibility_integrity"
+floor_owner = "governance-board"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "decision_rights_matrix_change_requires_governance_owner"
+
+[[floor]]
+floor_id = "s8_value_provenance"
+slice = "S8"
+metric = "value_provenance_completeness"
+floor_owner = "governance-board"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "ranked_recommendations_require_authorized_value_source"
+
+[[floor]]
+floor_id = "s9_projection_faithfulness"
+slice = "S9"
+metric = "projection_faithfulness_pass_rate"
+floor_owner = "team-runtime-quality"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "faithfulness_negative_controls_required"
+
+[[floor]]
+floor_id = "s10_calibration"
+slice = "S10"
+metric = "observable_subset_calibration"
+floor_owner = "team-research"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "forecast_support_tier_change_requires_calibration_record"
+
+[[floor]]
+floor_id = "s11_axis_calibration"
+slice = "S11"
+metric = "per_axis_predictive_calibration"
+floor_owner = "team-research"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "model_relaxation_requires_calibration_before_relaxation"
+
+[[floor]]
+floor_id = "s12_growth_thermometers"
+slice = "S12"
+metric = "reuse_rate_and_override_rate_trend"
+floor_owner = "principal-governance"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "growth_counting_requires_envelope_delta"
+
+[[floor]]
+floor_id = "s13_accountability"
+slice = "S13"
+metric = "a_before_b_ratio_and_attribution_resolution"
+floor_owner = "governance-board"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "post_deploy_learning_requires_attribution_gate"
+
+[[floor]]
+floor_id = "s14_universality"
+slice = "S14"
+metric = "per_axis_posture_thresholds_and_breadth_floor"
+floor_owner = "governance-board"
+floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
+revision_rule = "sealed_battery_change_requires_freeze_hash_rotation"

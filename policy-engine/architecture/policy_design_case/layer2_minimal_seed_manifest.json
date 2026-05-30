@@ -1,0 +1,58 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_readiness.v1",
+  "manifest_id": "layer2.s0.seed",
+  "status": "frozen_for_s2_start",
+  "owner": "team-policyos-runtime",
+  "facet_primitives": [
+    "construct",
+    "actor",
+    "jurisdiction",
+    "population_scope",
+    "time_role",
+    "evidence_status",
+    "value_dimension",
+    "capacity_dimension",
+    "response_dimension"
+  ],
+  "instrument_modality_primitives": [
+    "credit_guarantee",
+    "grant",
+    "cash_transfer",
+    "tax_relief",
+    "procurement_preference",
+    "technical_assistance",
+    "regulatory_forbearance",
+    "information_disclosure"
+  ],
+  "projection_primitives": [
+    "status",
+    "limitation",
+    "blocker",
+    "authority_boundary",
+    "uncertainty",
+    "trace_ref",
+    "audience",
+    "redaction_depth"
+  ],
+  "launch_firewalls": [
+    "P03",
+    "P04",
+    "P05",
+    "P10",
+    "P13",
+    "P15",
+    "P25"
+  ],
+  "budgets": {
+    "compute": "bounded_per_search_run",
+    "acquisition": "voi_ranked",
+    "expert_time": "decision_class_gated",
+    "human_attention": "voi_ranked_interruptions_only",
+    "legal_access": "rights_checked_before_acquisition"
+  },
+  "principal_set_explore_exploit": "principal_set_explicit_governed_balance",
+  "rule_version_refs": [
+    "repo://architecture/policy_design_case/cluster_ownership_map.toml",
+    "repo://docs/reference/policy-design-case-failure-patterns.md"
+  ]
+}

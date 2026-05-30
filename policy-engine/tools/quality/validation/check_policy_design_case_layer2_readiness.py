@@ -37,6 +37,7 @@ DEFAULT_CORPUS_PARTITION_PATH = Path(
 DEFAULT_FIRST_PROVING_CASE_PATH = Path(
     "architecture/policy_design_case/layer2_first_proving_case.json"
 )
+DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
 REQUIRED_UA_MSME_CONSTRUCTS = {
@@ -80,6 +81,7 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         "artifact_traceability": _load_toml(root / DEFAULT_ARTIFACT_TRACEABILITY_PATH),
         "corpus_partition": _load_json(root / DEFAULT_CORPUS_PARTITION_PATH),
         "first_proving_case": _load_json(root / DEFAULT_FIRST_PROVING_CASE_PATH),
+        "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
     }
 
@@ -198,6 +200,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "assigned_open_cell_count": len(assigned_cells),
             "s0_cells_closed": s0_cells_closed,
             "readiness_artifact_count": len(payloads["readiness_manifest"].get("artifacts", [])),
+            "inventory_artifact_count": _inventory_layer2_artifact_count(payloads["inventory"]),
         },
     )
 
@@ -208,6 +211,14 @@ def _open_cell_refs(payload: dict[str, Any]) -> set[str]:
         for cluster, axes in payload.get("open_cell_closure", {}).items()
         for axis in axes
     }
+
+
+def _inventory_layer2_artifact_count(payload: dict[str, Any]) -> int:
+    return sum(
+        1
+        for artifact in payload.get("artifacts", [])
+        if str(artifact.get("id", "")).startswith("layer2_")
+    )
 
 
 def _validate_minimal_seed(payload: dict[str, Any], issues: list[dict[str, str]]) -> None:

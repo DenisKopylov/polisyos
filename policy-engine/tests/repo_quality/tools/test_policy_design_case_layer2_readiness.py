@@ -95,3 +95,10 @@ def test_layer2_readiness_rejects_incomplete_ua_msme_proving_case() -> None:
 
     assert validation["status"] == "fail"
     assert "layer2_first_proving_case_missing_construct" in _issue_codes(validation)
+
+
+def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> None:
+    validation = readiness.validate_layer2_readiness(REPO_ROOT)
+
+    assert validation["status"] == "pass", validation["issues"]
+    assert validation["summary"]["inventory_artifact_count"] >= 8  # type: ignore[index]

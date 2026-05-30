@@ -34,6 +34,78 @@
       "validator": "tools/quality/validation/check_policy_design_case_capability_ratchet.py",
       "authority_boundary": "reuse_planning_signal_only",
       "status": "active"
+    },
+    {
+      "id": "layer2_readiness_manifest",
+      "path": "architecture/policy_design_case/layer2_readiness_manifest.json",
+      "kind": "layer2_readiness_manifest",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "readiness_gate_only_no_cell_closure",
+      "status": "active"
+    },
+    {
+      "id": "layer2_minimal_seed_manifest",
+      "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
+      "kind": "layer2_seed_manifest",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "readiness_gate_only_no_cell_closure",
+      "status": "active"
+    },
+    {
+      "id": "layer2_dependency_dag",
+      "path": "architecture/policy_design_case/layer2_dependency_dag.json",
+      "kind": "layer2_dependency_dag",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "execution_sequence_signal_only",
+      "status": "active"
+    },
+    {
+      "id": "layer2_slice_cell_matrix",
+      "path": "architecture/policy_design_case/layer2_slice_cell_matrix.toml",
+      "kind": "layer2_slice_cell_matrix",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "cluster_cell_planning_signal_only",
+      "status": "active"
+    },
+    {
+      "id": "layer2_floor_governance",
+      "path": "architecture/policy_design_case/layer2_floor_governance.toml",
+      "kind": "layer2_floor_governance",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "floor_governance_reference_only",
+      "status": "active"
+    },
+    {
+      "id": "layer2_artifact_traceability",
+      "path": "architecture/policy_design_case/layer2_artifact_traceability.toml",
+      "kind": "layer2_artifact_traceability",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "architecture_traceability_only",
+      "status": "active"
+    },
+    {
+      "id": "layer2_corpus_partition",
+      "path": "architecture/policy_design_case/layer2_corpus_partition.json",
+      "kind": "layer2_corpus_partition",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "evaluation_integrity_gate_only",
+      "status": "active"
+    },
+    {
+      "id": "layer2_first_proving_case",
+      "path": "architecture/policy_design_case/layer2_first_proving_case.json",
+      "kind": "layer2_first_proving_case",
+      "owner": "team-policyos-runtime",
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "authority_boundary": "proving_case_only_not_publication_authority",
+      "status": "active"
     }
   ]
 }

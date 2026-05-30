@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+ID_PATTERN = r"^[a-z][a-z0-9_.-]*$"
 
 LAYER2_READINESS_SCHEMA_VERSION = "policyos.policy_design_case.layer2_readiness.v1"
 
@@ -25,7 +25,13 @@ FirewallDisposition = Literal["not_applicable", "pass", "warn", "limit", "block"
 CellMaturity = Literal["fail_closed", "predictive"]
 
 
-class AuthorityBoundary(KernelModel):
+class Layer2ReadinessModel(BaseModel):
+    """Strict frozen base for Layer 2 readiness contracts."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class AuthorityBoundary(Layer2ReadinessModel):
     """Purpose-scoped authority boundary carried by Layer 2 records."""
 
     authoritative_for: list[str] = Field(..., min_length=1, max_length=20)
@@ -41,7 +47,7 @@ class AuthorityBoundary(KernelModel):
         return self
 
 
-class ValueOfInformationEstimate(KernelModel):
+class ValueOfInformationEstimate(Layer2ReadinessModel):
     """Shared value-of-information currency consumed by downstream slices."""
 
     estimate_id: str = Field(..., pattern=ID_PATTERN)
@@ -52,7 +58,7 @@ class ValueOfInformationEstimate(KernelModel):
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
 
 
-class GovernanceDecisionClass(KernelModel):
+class GovernanceDecisionClass(Layer2ReadinessModel):
     """Registry entry for a governance decision class."""
 
     decision_class_id: str = Field(..., pattern=ID_PATTERN)
@@ -63,7 +69,7 @@ class GovernanceDecisionClass(KernelModel):
     authority_boundary: AuthorityBoundary
 
 
-class AxisPositionDeclaration(KernelModel):
+class AxisPositionDeclaration(Layer2ReadinessModel):
     """A declared position on a universal designer cluster axis."""
 
     cluster: str = Field(..., min_length=1, max_length=80)
@@ -80,7 +86,7 @@ class AxisPositionDeclaration(KernelModel):
         return f"{self.cluster}.{self.axis}"
 
 
-class AxisFirewallStatus(KernelModel):
+class AxisFirewallStatus(Layer2ReadinessModel):
     """Fail-closed or predictive firewall status for one axis."""
 
     cell_ref: str = Field(..., min_length=3, max_length=200)
@@ -91,7 +97,7 @@ class AxisFirewallStatus(KernelModel):
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
 
 
-class CertifiedOperationEnvelope(KernelModel):
+class CertifiedOperationEnvelope(Layer2ReadinessModel):
     """Certified operation envelope attached to a design record."""
 
     envelope_id: str = Field(..., pattern=ID_PATTERN)
@@ -105,7 +111,7 @@ class CertifiedOperationEnvelope(KernelModel):
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
 
 
-class DesignRecordV0(KernelModel):
+class DesignRecordV0(Layer2ReadinessModel):
     """Minimal narrow-waist design record carried from S2 onward."""
 
     schema_version: str = LAYER2_READINESS_SCHEMA_VERSION
@@ -131,7 +137,7 @@ class DesignRecordV0(KernelModel):
         return self
 
 
-class MinimalSeedManifest(KernelModel):
+class MinimalSeedManifest(Layer2ReadinessModel):
     """S0 manifest of algebra generators and launch budgets."""
 
     schema_version: str = LAYER2_READINESS_SCHEMA_VERSION
